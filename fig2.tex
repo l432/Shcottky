@@ -378,7 +378,46 @@ $R_s$ is the series resistance.
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 \vspace{5mm}
 
+The method of least squares with statistical weights is used to fitting by equation 
+\begin{equation*}
+I(V)=I_s\left\{\exp \left[\frac{q(V-IR_s)}{nkT}\right]-1\right\}+\frac{V-IR_s}{R_{sh}}\,,
+\end{equation*}
+$n$ is the ideality factor,
+$R_s$ is the series resistance,
+$R_{sh}$ is the shunt resistance,
+$I_s$ is the saturation current,
+\begin{equation*}
+I_s=AA^*T^2\exp\left(-\frac{\Phi_b}{kT}\right)\,,
+\end{equation*}
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant,
+$\Phi_b$ is zero bias Schottky barrier height.
+
+The system of non-linear equations is solved by the coordinate-wise gradient descent method.
 
 
+\pagebreak
+
+The method of least squares with statistical weights is used to fitting by equation
+\begin{equation*}
+I(V)=I_s\left\{\exp \left[\frac{q(V-IR_s)}{nkT}\right]-1\right\}+\frac{V-IR_s}{R_{sh}}-I_{ph}\,,
+\end{equation*}
+$n$ is the ideality factor,
+$R_s$ is the series resistance,
+$R_{sh}$ is the shunt resistance,
+$I_{ph}$ is the photocurrent,
+$I_s$ is the saturation current,
+\begin{equation*}
+I_s=AA^*T^2\exp\left(-\frac{\Phi_b}{kT}\right)\,,
+\end{equation*}
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant,
+$\Phi_b$ is zero bias Schottky barrier height.
+
+The system of non-linear equations is solved by the coordinate-wise gradient descent method.
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
 
 \end{document}

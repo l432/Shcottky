@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -1785,7 +1785,7 @@ object Form1: TForm1
               Height = 25
               Caption = 'Edit'
               TabOrder = 0
-              OnClick = ButtonParamExpClick
+              OnClick = ButtonParamCibClick
             end
           end
           object GroupBoxParamChung: TGroupBox
@@ -2798,7 +2798,7 @@ object Form1: TForm1
               Height = 25
               Caption = 'Edit'
               TabOrder = 0
-              OnClick = ButtonParamLamClick
+              OnClick = ButtonParamCibClick
             end
           end
           object GroupBoxParamDE: TGroupBox
