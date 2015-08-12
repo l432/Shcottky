@@ -1,0 +1,384 @@
+\documentclass[14pt]{article}
+%\usepackage[cp866nav]{inputenc}
+\usepackage[cp1251]{inputenc}
+\usepackage[intlimits,sumlimits]{amsmath}
+\usepackage{enumerate,graphicx,dcolumn,amsthm}
+\usepackage[english,russian,ukrainian]{babel}
+
+\usepackage{floatflt}
+
+\usepackage{tabularx}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\usepackage{hhline}
+\usepackage{multirow}
+
+ \usepackage[left=50mm,right=60mm,top=20mm,bottom=16mm,bindingoffset=0mm,footskip=6mm,includefoot]{geometry}
+\setlength{\parindent}{5mm}
+\usepackage[hang,flushmargin]{footmisc}
+
+
+
+
+\numberwithin{equation}{part}
+
+
+
+\begin{document}           % End of preamble and beginning of text.
+\fontsize{14}{16pt}\selectfont
+
+\noindent
+Auxiliary  function (Cibils  and  Buitrago method)
+\begin{equation*}
+F_a(V)=V-V_a\ln I,
+\end{equation*}
+$V_a$ is an arbitrary voltage, $V_a\geq99.5I_sR_s+nkT/q$,
+
+\noindent
+$I_s$ is the saturation current,
+
+\noindent
+$R_s$ is the series resistance,
+
+\noindent
+$n$ is the ideality factor.
+
+If $I_{min,a}$ is the current value at the voltage $V_{min}$ where the function $F_a(V)$ exhibits a minimum, than
+the plot of $I_{min,a}$ vs $V_a$ is expected to be linear:
+\begin{equation*}
+I_{min,a}=V_a/R_s-nkT/qR_s\,.
+\end{equation*}
+
+ffffffffffffffffffffffffffffffffffff
+\vspace{5mm}
+
+Auxiliary  function (Cheung and Cheung method)
+\begin{equation*}
+C(I)=dV/d(\ln I).
+\end{equation*}
+If $V_d>3kT/q$ then this plot must be linear  functions of the  current
+\begin{equation*}
+C(I)=R_sI+nkT/q
+\end{equation*}
+$R_s$ is the series resistance,
+
+\noindent
+$n$ is the ideality factor.
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+Forward branch is approximated by
+\begin{equation*}
+\frac{I}{1-\exp(-qV/kT)}=I_s\exp\left(\frac{qV}{nkT}\right)
+\end{equation*}
+\noindent
+$n$ is the ideality factor,
+
+\noindent
+$I_s$ s the saturation current
+\begin{equation*}
+I_s=AA^*\,T^2\exp\left(-\frac{q\Phi_b}{kT}\right)
+\end{equation*}
+$A$ is the diode area,
+
+\noindent
+$A^*$ is the effective Richardson constant,
+
+\noindent
+$\Phi_b$ is zero bias Schottky barrier height.
+
+\pagebreak
+
+Reverse branch is approximated by
+\begin{equation*}
+\frac{I}{1-\exp(-qV/kT)}=I_s\exp\left(\frac{qV}{nkT}\right)
+\end{equation*}
+\noindent
+$n$ is the ideality factor,
+
+\noindent
+$I_s$ is the saturation current
+\begin{equation*}
+I_s=AA^*\,T^2\exp\left(-\frac{q\Phi_b}{kT}\right)
+\end{equation*}
+$A$ is the diode area,
+
+\noindent
+$A^*$ is the effective Richardson constant,
+
+\noindent
+$\Phi_b$ is zero bias Schottky barrier height.
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+\noindent
+Werner method based on the plot of $Y$ vs $X$, where
+\begin{equation*}
+X=\frac{dI}{dV};\qquad Y=\frac{(dI/dV)}{I}
+\end{equation*}
+If $(V-IR_s)\gg nkT/q$, Werner's function approximation is:
+\begin{equation*}
+Y=\frac{q}{nkT}(1-R_sX)
+\end{equation*}
+$R_s$ is the series resistance,
+
+\noindent
+$n$ is the ideality factor.
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+Auxiliary  function is
+\begin{equation*}
+H(I)=V-\frac{nkT}{q}\ln\left(\frac{I}{AA^*T^2}\right).
+\end{equation*}
+$n$ is the ideality factor,
+
+\noindent
+$A$ is the diode area,
+
+\noindent
+$A^*$ is the effective Richardson constant.
+
+\noindent If $(V-IR_s)>3kT/q$ then this plot must be linear  functions of the  current
+\begin{equation*}
+H(I)=n\Phi_b+IR_s
+\end{equation*}
+$R_s$ is the series resistance,
+
+\noindent
+$\Phi_b$ is zero bias Schottky barrier height.
+
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+Mikhelashvili's auxiliary functions are:
+\begin{eqnarray*}
+\alpha(V)&=&d(\ln I)/d(\ln V),\\
+\beta(V)&=&d(\ln \alpha)/d(\ln V),\\
+n(V)&=&qV(\alpha-1+\beta)/\alpha^{\,2} kT,\\
+R_s(V)&=&V(1-\beta)/I\alpha^{\,2},
+\end{eqnarray*}
+$n$ is the ideality factor, $R_s$ is the series resistance.
+
+If $\alpha_{m}$ and $V_{m}$ are the coordinates of maximum point in the plot $\alpha$ vs $V$,
+$I_{m}$ is the current value at the voltage $V_{m}$ then
+\begin{eqnarray*}
+n&=&qV_m[\alpha_{m}-1]/kT\alpha_{m}^{\,2},\\
+R_s&=&V_m/I_m\alpha_{m}^{\,2},\\
+I_s&=&I_m\exp(-\alpha_{m}-1),\\
+\Phi_b&=&kT\{\alpha_{m}+1-\ln[I_m/(AA^*T^2)]\},
+\end{eqnarray*}
+$\Phi_b$ is zero bias Schottky barrier height,
+$I_s$ is the saturation current,
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant.
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+Method uses the functions array $\{F(I)\}$, where
+\begin{equation*}
+F(I)=V(I)-V_a\ln I,
+\end{equation*}
+$V_a$ is an arbitrary voltage.
+Each $F(I)$ function is approximated by
+\begin{equation*}
+y(I)=c_1+c_2I+c_3\ln I
+\end{equation*}
+and parameters $c_1$, $c_2$ and $c_3$ is determined.
+For $V>3kT/q$, the dependence of $I_a=-c_3/c_2$ on $V_a$ is expected to be linear:
+\begin{equation*}
+I_a(V_a)=V_a/R_s-nkT/qR_s.
+\end{equation*}
+$R_s$ is the series resistance,
+$n$ is the ideality factor.
+
+The barrier height $\Phi_b$ can be calculated
+\begin{equation*}
+\Phi_b=c_3/n+(kT/q)\cdot\ln\left(AA^*T^2\right).
+\end{equation*}
+$A$ is the diode area,
+$A^*$ is the Richardson constant.
+
+\pagebreak
+
+The plot of $V$ vs $I$ is fitted by
+\begin{equation*}
+y(I)=c_1+c_2I+c_3\ln I
+\end{equation*}
+and parameters $c_1$, $c_2$ and $c_3$ is determined.
+\begin{eqnarray*}
+\label{eqGr1}
+R_s&=&c_2\,,
+\\
+n&=&qc_3/kT\,,
+\\
+\Phi_b&=&kT/q\cdot\left[c_1/c_3+\ln\left(AA^*T^2\right)\right]\,,
+\end{eqnarray*}
+$R_s$ is the series resistance,
+$n$ is the ideality factor,
+$\Phi_b$ is zero bias Schottky barrier height,
+$I_s$ is the saturation current,
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant.
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+Auxiliary  function is
+\begin{equation*}
+F(I)=\frac{V(I)}{2}-\frac{kT}{q}\ln\left(\frac{I}{AA^*T^2}\right).
+\end{equation*}
+The function is fitted by
+\begin{equation*}
+y(I)=c_1+c_2I+c_3\ln I
+\end{equation*}
+and parameters $c_1$, $c_2$ and $c_3$ is determined.
+\begin{eqnarray*}
+R_s&=&2c_2\,,
+\\
+n&=&\frac{2qc_3}{kT}+2\,,
+\\
+\Phi_b&=&\frac{2c_1}{n}+\frac{(2-n)kT}{nq}\ln\left(AA^*T^2\right)\,.
+\end{eqnarray*}
+$R_s$ is the series resistance,
+$n$ is the ideality factor,
+$\Phi_b$ is zero bias Schottky barrier height,
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant.
+
+\pagebreak
+
+The coordinates of $j-$th point of auxiliary plot are calculated by
+\begin{equation*}
+Y_j=\frac{1}{I_j-I_1}\int_{V_1}^{V_j}I\,dV \quad\text{and}\quad X_j=\frac{I_j+I_1}{2},
+\end{equation*}
+$V_i$ and $I_i$ are the coordinates of $i-$th point of the $I$--$V$ curve,
+$i\in(1,\ldots, N_p)$,
+$j\in(2,\ldots, N_p)$.
+The total number of points is  $(N_p-1)$.
+
+The plot of $Y$ vs $X$ is expected to be linear:
+\begin{equation*}
+Y=nkT/q+R_sX,
+\end{equation*}
+$R_s$ is the series resistance,
+
+\noindent
+$n$ is the ideality factor.
+
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+The coordinates of $k-$th point of auxiliary plot are calculated by
+\begin{equation*}
+Y_k=\frac{\ln(I_j/I_i)}{I_j-I_i} \quad\text{and}\quad X_k=\frac{V_j-V_i}{I_j-I_i},
+\end{equation*}
+$V_l$ and $I_l$ are the coordinates of $l-$th point of the $I$--$V$ curve,
+$l\in(1,\ldots, N_p)$,
+$i\in(1,\ldots, N_p-1)$,
+$j\in(i+1,\ldots, N_p)$,
+$k\in(1,\ldots, N_p(N_p-1)/2)$.
+
+The plot of $Y$ vs $X$ is expected to be linear:
+\begin{equation*}
+Y=q(-R_s+X)/nkT.
+\end{equation*}
+$R_s$ is the series resistance,
+
+\noindent
+$n$ is the ideality factor.
+
+\pagebreak
+
+\begin{center}
+Density of interface states $D_{is}$
+
+
+   vs
+
+
+energy of interface states with respect to the bottom of the conduction band $(E_c-E_{is})$
+\end{center}
+\vspace{-8mm}
+\begin{eqnarray*}
+D_{is}=\frac{\varepsilon_i\varepsilon_0(n-1)}{qd}\,,
+\\
+(E_c-E_{is})=(\Phi_b-V/n)\,,
+\end{eqnarray*}
+$\varepsilon_0$ and $\varepsilon_i$ are the permittivities of free space and insulator layer respectively,
+$d$ is the thickness of the interfacial insulator layer,
+$n$ is the ideality factor,
+$\Phi_b$ is zero bias Schottky barrier height.
+\begin{equation*}
+[\,D_{is}\,]=\text{eV}^{-1}\text{cm}^{-2}\qquad [\,E_c-E_{is}\,]=\text{eV}\,.
+\end{equation*}
+
+
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+Approximation by
+\begin{equation*}
+I=I_s\exp\left(\frac{qV}{nkT}\right)\,,
+\end{equation*}
+$n$ is the ideality factor,
+
+\noindent
+$I_s$ is the saturation current,
+\begin{equation*}
+I_s=AA^*T^2\exp\left(-\frac{\Phi_b}{kT}\right)\,,
+\end{equation*}
+$A$ is the diode area,
+
+\noindent
+$A^*$ is the effective Richardson constant,
+
+\noindent
+$\Phi_b$ is zero bias Schottky barrier height.
+
+
+\pagebreak
+
+Auxiliary  function:
+\begin{equation*}
+F(V)=\frac{V}{\gamma}-\frac{kT}{q}\ln\left(\frac{I(V)}{AA^*T^2}\right),
+\end{equation*}
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant,
+$\gamma$ is an arbitrary constant greater than the ideality factor $n$.
+
+If $F(V_{min})$ and $V_{min}$ are the coordinates of minimum point in the plot $F(V)$ vs $V$ and
+$I_{min}$ is the current value at the voltage $V_{min}$, then
+\begin{eqnarray*}
+\Phi_b&=&F(V_{min})+\frac{\gamma-n}{n}\left(\frac{V_{min}}{\gamma}-\frac{kT}{q}\right),
+\\
+R_s&=&\frac{(\gamma-n)kT}{qI_{min}}\,,
+\end{eqnarray*}
+$\Phi_b$ is zero bias Schottky barrier height,
+
+\noindent
+$R_s$ is the series resistance.
+
+
+\vspace{5mm}
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+\vspace{5mm}
+
+
+
+
+\end{document}

@@ -1,0 +1,1 @@
+"C:\Program Files\CodeGear\5.0\bin\brcc32.exe" Fig.rc

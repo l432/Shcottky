@@ -1,0 +1,316 @@
+\documentclass[14pt]{article}
+%\usepackage[cp866nav]{inputenc}
+\usepackage[cp1251]{inputenc}
+\usepackage[intlimits,sumlimits]{amsmath}
+\usepackage{enumerate,graphicx,dcolumn,amsthm}
+\usepackage[english,russian,ukrainian]{babel}
+
+\usepackage{floatflt}
+
+\usepackage{tabularx}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\usepackage{hhline}
+\usepackage{multirow}
+
+ \usepackage[left=20mm,right=20mm,top=20mm,bottom=16mm,bindingoffset=0mm,footskip=6mm,includefoot]{geometry}
+\setlength{\parindent}{5mm}
+\usepackage[hang,flushmargin]{footmisc}
+
+
+
+
+\numberwithin{equation}{part}
+
+
+
+\begin{document}           % End of preamble and beginning of text.
+\fontsize{14}{16pt}\selectfont
+
+
+\renewcommand{\theequation}{\thepart.\arabic{equation}}
+\begin{equation*}
+    I(V)=I_0\left\{\exp \left[\frac{q(V-IR_s)}{nkT}\right]-1\right\}+\frac{V-IR_s}{R_{sh}}
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    =A+B\,t+C\,t^2
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    y =A+B\,x
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    y =A+B\,x+C\,x^2
+\end{equation*}
+
+rr
+
+\begin{eqnarray*}
+    I(V) =I_0\exp\left(\frac{V}{nkT}\right)\\
+    \Phi_b=\frac{kT}{q}\ln\left(\frac{SA^*\,T^{\,2}}{I_0^{\,2}}\right)
+\end{eqnarray*}
+
+rr
+
+\begin{equation*}
+    y_{i,new} =0.17\,y_{i-1}+0.66\,y_i+0.17\,y_{i+1}
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    y_{i,new} =\text{middle}\,(y_{i-1},\,y_i,\,y_{i+1})
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    y_{i,new} =\frac{y_{i-1}(x_i-x_{i+1})}{(x_{i-1}-x_i)(x_{i-1}-x_{i+1})} +
+               \frac{y_{i}(2x_i-x_{i-1}-x_{i+1})}{(x_{i}-x_{i-1})(x_{i}-x_{i+1})}+
+               \frac{y_{i+1}(x_i-x_{i-1})}{(x_{i+1}-x_{i-1})(x_{i+1}-x_{i})}
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    y = A + B\,x+c\,\ln x
+\end{equation*}
+
+rr
+
+\begin{eqnarray*}
+% \nonumber to remove numbering (before each equation)
+  I& =& SA^*T^2\exp(-q\Phi_b/kT)\exp(qV_s/kT) \\
+  V&=& V_s +\frac{d}{\varepsilon}\sqrt{\frac{2qN_d\varepsilon}{\varepsilon_0}}
+       \left(\sqrt{\Phi_b}-\sqrt{\Phi_b-V_s}\,\right)
+\end{eqnarray*}
+
+rr
+
+\begin{equation*}
+    I(V)=I_0\left\{\exp \left[\frac{q(V-IR_s)}{nkT}\right]-1\right\}+\frac{V-IR_s}{R_{sh}}-I_{ph}
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    I(V)=\frac{nkT}{qR_s}LambertW\left\{\frac{qR_s}{nkT}
+      \exp\left[\frac{q}{nkT}(V+R_sI_0)\right]  \right\}+\frac{V}{R_{sh}}-I_0
+\end{equation*}
+
+rr
+
+\begin{eqnarray*}
+% \nonumber to remove numbering (before each equation)
+  I(V)&=& \frac{nkT}{qR_s} LambertW\left\{\frac{qR_s\left(I_{SC}-\frac{V_{OC}}{R_{sh}+R_s}\right)}{nkT}
+      \exp\left[\frac{q\left(R_sI_{SC}+\frac{R_{sh}V}{R_{sh}+R_s}-V_{OC}\right)}{nkT}\right]\right\}\\
+   &+& \frac{V}{R_s}-I_{SC}-\frac{R_{sh}V}{R_s(R_{sh}+R_s)}
+\end{eqnarray*}
+
+rr
+
+\begin{equation*}
+    I(V)=I_{01}\left\{\exp \left[\frac{q(V-IR_{s1})}{n_1kT}\right]-1\right\}+
+         I_{02}\left\{\exp \left[\frac{qV}{n_2kT}\right]-1\right\}
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    I(V)=I_{01}\left\{\exp \left[\frac{q(V-IR_{s1})}{n_1kT}\right]-1\right\}+
+         I_{02}\left\{\exp \left[\frac{q(V-IR_{s2})}{n_2kT}\right]-1\right\}
+\end{equation*}
+
+rr
+
+\begin{eqnarray*}
+  \Phi_b(T)&= -kT\ln &\left\{A\exp\left[-\frac{1}{kT}\left(\Phi_{b0,1}-\frac{\beta T^2}{\alpha+T}\right)+\frac{\sigma_1^2}{2k^2T^2}\right]\right. \\
+   &&+ \left.(1-A)\exp\left[-\frac{1}{kT}\left(\Phi_{b0,2}-\frac{\beta T^2}{\alpha+T}\right)+\frac{\sigma_2^2}{2k^2T^2}\right]\right\}
+\end{eqnarray*}
+
+rr
+
+\begin{eqnarray*}
+  \Phi_b(T)= \Phi_{b0}(T)-\gamma\left(\frac{V_{bb}}{\eta}\right)^{1/3}-\frac{kT}{q}\ln\left[
+   \frac{4C_1\pi kT\gamma}{9q}\left(\frac{\eta}{V_{bb}}\right)^{2/3}\right]
+ \\
+   \Phi_{b0}(T)=\Phi_{b0}-\frac{\beta T^2}{\alpha+T};\,\,
+   V_{bb}= \Phi_{b0}(T)-\frac{kT}{q}\ln\left[\frac{2.5\cdot10^{25}}{N_d}\left(\frac{m^*}{m_0}\right)
+     \left(\frac{T}{300}\right)^{3/2}\right];\,\,
+   \eta=\frac{\varepsilon_0\varepsilon_s}{qN_d}
+\end{eqnarray*}
+
+rr
+
+\begin{equation*}
+    I(V)=I_{01}\left\{\exp \left[\frac{q(V-IR_s)}{n_1kT}\right]-1\right\}+I_{02}\left\{\exp \left[\frac{q(V-IR_s)}{n_2kT}\right]-1\right\}+\frac{V-IR_s}{R_{sh}}
+\end{equation*}
+
+rr
+
+
+\begin{equation*}
+    I(V)=-I_{ph}+I_{01}\left\{\exp \left[\frac{q(V-IR_s)}{n_1kT}\right]-1\right\}+I_{02}\left\{\exp \left[\frac{q(V-IR_s)}{n_2kT}\right]-1\right\}+\frac{V-IR_s}{R_{sh}}
+\end{equation*}
+
+rr
+
+\begin{equation*}
+    I\left(\frac{1}{kT}\right)=I_{01}T^{\,2}\exp\left(-\frac{E_1}{kT}\right)+
+       I_{02}T^{\,m}\exp\left(-\frac{E_2}{kT}\right)=I_{TE}+I_{SCLC} \,\, if L>0
+\end{equation*}
+
+rr
+
+
+\begin{eqnarray*}
+    I\left(\frac{1}{kT}\right)=I_{01}T^{\,2}\exp\left(-\frac{E_1}{kT}\right)+
+       I_{02}T^{\,m}\exp\left(-\frac{E_2}{kT}\right)& \qquad \mbox{if}\quad b>0 \\
+    I\left(\frac{1}{kT}\right)=\frac{I_{01}T^{\,2}\exp\left(-\frac{E_1}{kT}\right)\times I_{02}T^{\,m}\exp\left(-\frac{E_2}{kT}\right)}
+    {I_{01}T^{\,2}\exp\left(-\frac{E_1}{kT}\right)+ I_{02}T^{\,m}\exp\left(-\frac{E_2}{kT}\right)}&\qquad \mbox{if}\quad b>0
+\end{eqnarray*}
+
+
+rr
+
+
+\begin{eqnarray*}
+    I_{rev}&(V)&=I_{01}V^{\,p}+I_{02}\exp\left(\frac{AE_m}{kT}\right)\left[1-\exp\left(-\frac{V}{kT}\right)\right] \\
+    E_m&=&\left\{\frac{2qN_d}{\varepsilon_0\varepsilon_s}\left[\Phi_{b0}-\frac{\beta T^2}{\alpha+T}-\frac{kT}{q}\ln\left[\frac{2.5\cdot10^{25}}{N_d}\left(\frac{m^*}{m_0}\right)
+     \left(\frac{T}{300}\right)^{3/2}\right]+V\right]\right\}^{1/2}
+\end{eqnarray*}
+
+
+rr
+
+
+\begin{eqnarray*}
+    I_{rev}&(V)&=I_{01}\left(V^{1+T_{01}/T}+bV^{1+T_{02}/T}\right)+I_{02}\exp\left(\frac{AE_m}{kT}\right)\left[1-\exp\left(-\frac{V}{kT}\right)\right] \\
+    E_m&=&\left\{\frac{2qN_d}{\varepsilon_0\varepsilon_s}\left[\Phi_{b0}-\frac{\beta T^2}{\alpha+T}-\frac{kT}{q}\ln\left[\frac{2.5\cdot10^{25}}{N_d}\left(\frac{m^*}{m_0}\right)
+     \left(\frac{T}{300}\right)^{3/2}\right]+V\right]\right\}^{1/2}
+\end{eqnarray*}
+
+
+rr
+
+
+\begin{eqnarray*}
+    I_{rev}&(V)&=I_{01}V^{\,p_1}+I_{02}V^{\,p_2}+I_{03}\exp\left(\frac{AE_m}{kT}\right)\left[1-\exp\left(-\frac{V}{kT}\right)\right] \\
+    E_m&=&\left\{\frac{2qN_d}{\varepsilon_0\varepsilon_s}\left[\Phi_{b0}-\frac{\beta T^2}{\alpha+T}-\frac{kT}{q}\ln\left[\frac{2.5\cdot10^{25}}{N_d}\left(\frac{m^*}{m_0}\right)
+     \left(\frac{T}{300}\right)^{3/2}\right]+V\right]\right\}^{1/2}
+\end{eqnarray*}
+
+
+rr
+
+
+\begin{equation*}
+    I(V)=I_0\exp\left(-A\sqrt{B+V}\right)
+\end{equation*}
+
+rr
+
+
+\begin{equation*}
+    y(x)=A_1\left(x^{m_1}+A_2x^{m_2}\right)
+\end{equation*}
+
+\begin{eqnarray*}
+    I_{rev}&(V)&=\left[I_{01}\exp\left(\frac{A_1E_m+B\sqrt{E_m}}{kT}\right)+I_{02}\exp\left(\frac{A_2E_m}{kT}\right)\right]
+    \left[1-\exp\left(-\frac{V}{kT}\right)\right] \\
+    E_m&=&\left\{\frac{2qN_d}{\varepsilon_0\varepsilon_s}\left[\Phi_{b0}-\frac{\beta T^2}{\alpha+T}-\frac{kT}{q}\ln\left[\frac{2.5\cdot10^{25}}{N_d}\left(\frac{m^*}{m_0}\right)
+     \left(\frac{T}{300}\right)^{3/2}\right]+V\right]\right\}^{1/2}
+\end{eqnarray*}
+
+ff
+
+\begin{equation*}
+    I\left(\frac{1}{kT}\right)=I_{01}T^{\,2}\exp\left(-\frac{E}{kT}\right)+
+       I_{02}T^{\,m}A^{300/T}
+\end{equation*}
+
+ff
+
+\begin{equation*}
+    I\left(\frac{1}{kT}\right)=I_{01}T^{\,2}\exp\left(-\frac{E}{kT}\right)+
+       I_{02}T^{\,m}\exp\left[-\left(\frac{T_c}{T}\right)^{\!p}\,\right]
+\end{equation*}
+
+ff
+
+\begin{equation*}
+    \alpha(T)=A \,\frac{\omega}{T} \,\frac{B\omega\exp\left(\frac{E}{kT}\right)}{1+(B\omega)^2\exp\left(\frac{2E}{kT}\right)}
+\end{equation*}
+
+ff
+\pagebreak
+
+$I$--$V$ characteristic is approximated by
+\begin{eqnarray*}
+I&=&AA^*\,T^2\exp\left(-\frac{\Phi_b}{kT}\right)\exp\left(-\frac{qV_s}{kT}\right)\\
+V&=&V_s+\frac{d}{\varepsilon_i}\,\sqrt{\frac{2qN_d\,\varepsilon_s}{\varepsilon_0}}\left(\sqrt{\frac{\Phi_b}{q}}-\sqrt{\frac{\Phi_b}{q}-V_s}\,\right)
+\end{eqnarray*}
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant,
+$\Phi_b$ is the barrier height,
+$d$ is the thickness of the interfacial insulator laye,
+$N_d$ is the semiconductor carrier concentration,
+$\varepsilon_0$, $\varepsilon_s$ and $\varepsilon_i$ are the permittivities of free space, semiconductor and insulator layer respectively.
+
+$d/\varepsilon_i$ and $\Phi_b$ are defined by approximation.
+
+Density of interface states $D_{is}$ is defined by
+\begin{equation*}
+    D_{is}=\frac{\varepsilon_i\varepsilon_0}{q^2d}\,\frac{d(V_{cal}-V_{mea})}{d V_s}
+\end{equation*}
+$V_{cal}$ and $V_{mea}$ are calculated and measured voltage at equal $I$ value,
+
+\noindent
+energy of interface states with respect to the conduction band bottom $(E_c-E_{is})$
+\begin{equation*}
+    (E_c-E_{is})=(\Phi_b-qV_s)
+\end{equation*}
+$[\,D_{is}\,]= $eV$^{-1}$cm$^{-2}$, $[\,E_c-E_{is}\,]=$ eV.
+
+
+ff
+\pagebreak
+
+Bohlin used two different Norde's functions (two values of $\gamma$):
+\begin{eqnarray}
+\label{eqBohlin}
+F_1(V)&=&\frac{V}{\gamma_1}-\frac{kT}{q}\ln\left(\frac{I(V)}{AA^*T^2}\right),
+\nonumber\\
+F_2(V)&=&\frac{V}{\gamma_2}-\frac{kT}{q}\ln\left(\frac{I(V)}{AA^*T^2}\right),\nonumber
+\end{eqnarray}
+$A$ is the diode area,
+$A^*$ is the effective Richardson constant,
+$\gamma_1$ and $\gamma_2$ are arbitrary constants greater than the ideality factor $n$.
+
+If $[F_{1,min}, V_{min,1}]$ and $[F_{2,min}, V_{min,2}]$ are the coordinates of minimum points in the plots $F_1(V)$ vs $V$ and $F_2(V)$ vs $V$ respectively;
+$I_{min,1}$ and $I_{min,2}$ are the current values at the voltage $V_{min,1}$ and $V_{min,2}$ respectively, then
+\begin{eqnarray}
+\label{eqBohlinDet}
+n&=&\frac{1}{2}\left[\frac{\gamma_1I_{min,2}-\gamma_2I_{min,1}}{I_{min,2}-I_{min,1}}+
+\frac{V_{min,1}-V_{min,2}+(\gamma_2-\gamma_1)kT/q}{F_{2,min}-F_{1,min}-V_{min,2}/\gamma_2+V_{min,1}/\gamma_1}\right]
+,\nonumber
+\\
+Rs&=&\frac{kT}{2q}\left[\frac{\gamma_1-n}{I_{min,1}}+\frac{\gamma_2-n}{I_{min,2}}\right]\,,\nonumber
+\\
+\Phi_b&=&\frac{1}{2}\left[F_{1,min}+\frac{(\gamma_1-n)(qV_{min,1}-\gamma_1kT)}{\gamma_1qn}\,+
+F_{2,min}+\frac{(\gamma_2-n)(qV_{min,2}-\gamma_2kT)}{\gamma_2qn}\right],\nonumber
+\end{eqnarray}
+$R_s$ is the series resistance,
+$\Phi_b$ is zero bias Schottky barrier height.
+
+
+
+
+\end{document}
