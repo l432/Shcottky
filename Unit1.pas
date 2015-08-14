@@ -132,8 +132,6 @@ type
     GroupBoxParam0: TGroupBox;
     GroupBoxParamExp: TGroupBox;
     LabelExp: TLabel;
-    LabelExpRs: TLabel;
-    LabelExpRsh: TLabel;
     ButtonParamExp: TButton;
     LabelMarFile: TLabel;
     LabelmarGraph: TLabel;
@@ -669,8 +667,8 @@ type
     CBoxDLBuild: TCheckBox;
     LDLBuild: TLabel;
     LabIsc: TLabel;
-    CBoxIscCons: TCheckBox;
-    LabIscCons: TLabel;
+//    CBoxIscCons: TCheckBox;
+//    LabIscCons: TLabel;
     SpinEditDL: TSpinEdit;
     LSmoothDL: TLabel;
     ButGLAdd: TButton;
@@ -722,8 +720,6 @@ type
     LabelExpIph: TLabel;
     GroupParamLam: TGroupBox;
     LabelLam: TLabel;
-    LabelLamRs: TLabel;
-    LabelLamRsh: TLabel;
     LabelLamXmin: TLabel;
     LabelLamYmin: TLabel;
     LabelLamXmax: TLabel;
@@ -733,8 +729,7 @@ type
     ButtonParamLam: TButton;
     GroupBoxParamDE: TGroupBox;
     LabelDE: TLabel;
-    LabelDERs: TLabel;
-    LabelDERsh: TLabel;
+    LabDEDD: TLabel;
     LabelDEXmin: TLabel;
     LabelDEYmin: TLabel;
     LabelDEXmax: TLabel;
@@ -797,6 +792,8 @@ type
     SButFit: TSpeedButton;
     ButFitSelect: TButton;
     ButFitOption: TButton;
+    ButLDFitSelect: TButton;
+    ButLDFitOption: TButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -885,7 +882,7 @@ type
     procedure PageControl1Change(Sender: TObject);
     procedure CBoxDLBuildClick(Sender: TObject);
     procedure LDLBuildClick(Sender: TObject);
-    procedure LabIscConsClick(Sender: TObject);
+//    procedure LabIscConsClick(Sender: TObject);
     procedure CBoxBaseLineVisibClick(Sender: TObject);
     procedure ButSaveDLClick(Sender: TObject);
     procedure CBoxBaseLineUseClick(Sender: TObject);
@@ -906,7 +903,7 @@ type
     procedure ButGLLoadClick(Sender: TObject);
     procedure ButGausSaveClick(Sender: TObject);
 //    procedure ButtonParamLamClick(Sender: TObject);
-    procedure ButtonParamDEClick(Sender: TObject);
+//    procedure ButtonParamDEClick(Sender: TObject);
     procedure LabRConsClick(Sender: TObject);
     procedure ButFitSelectClick(Sender: TObject);
     procedure SButFitClick(Sender: TObject);
@@ -919,6 +916,7 @@ type
     {чіпляється до CheckBox деяких дочірніх форм,
     дозволяє міняти картинку на формі}
     procedure OnClickButton(Sender: TObject);
+    procedure ButLDFitSelectClick(Sender: TObject);
     {чіпляється до Button деяких дочірніх форм,
     викликає вікно з параметрами апроксимації}
   private
@@ -1008,19 +1006,19 @@ procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:Diapazon);
 вікон зміни діапазону}
 procedure FormFrToDiap(FrDp:TFrDp; var D:Diapazon);
 
-procedure ModeShow(Mode:integer;Iph:boolean;LRs,LRsh,LIph:TLabel);
-{відображення режиму апроксимації
-ВАХ у відповідних мітках}
+//procedure ModeShow(Mode:integer;Iph:boolean;LRs,LRsh,LIph:TLabel);
+//{відображення режиму апроксимації
+//ВАХ у відповідних мітках}
 
-procedure ModeToForm(Mode:integer;Iph:boolean;CB_Rs,CB_Rsh,CB_Iph:TCheckBox);
-{встановлення перемикачів CB_Rs,CB_Rsh,CB_Iph
-відповідно до режиму апроксимації, що
-задається параметрами Mode та Iph}
-
-procedure FormToMode(CB_Rs,CB_Rsh,CB_Iph:TCheckBox;var Mode:integer;var Iph:boolean);
-{встановлення  режиму апроксимації
-(параметрів Mode та Iph) відповідно до
-перемикачів CB_Rs,CB_Rsh,CB_Iph}
+//procedure ModeToForm(Mode:integer;Iph:boolean;CB_Rs,CB_Rsh,CB_Iph:TCheckBox);
+//{встановлення перемикачів CB_Rs,CB_Rsh,CB_Iph
+//відповідно до режиму апроксимації, що
+//задається параметрами Mode та Iph}
+//
+//procedure FormToMode(CB_Rs,CB_Rsh,CB_Iph:TCheckBox;var Mode:integer;var Iph:boolean);
+//{встановлення  режиму апроксимації
+//(параметрів Mode та Iph) відповідно до
+//перемикачів CB_Rs,CB_Rsh,CB_Iph}
 
 procedure StrToNumber(St:TCaption; Def:double; var Num:double);
 {процедура переведення тестового рядка St в чисельне
@@ -1174,6 +1172,28 @@ Function DiapFunName(Sender: TObject; var bohlin: Boolean):TDiapazons;
 апроксимації;
 використовується разом з FormDiapazon}
 
+//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
+//              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
+//              Light:boolean;Func:byte);
+//{по даним у векторі А будує залежність похідної
+//диференційного нахилу ВАХ від напруги (метод Булярського)
+//fun - кількість зглажувань
+//Isc - струм короткого замикання
+//Iscbool=true - потрібно враховувати Isc
+//Rbool=true - потрібно враховувати послідовний
+//та шунтуючі опори
+//D, Mode, Light та Func потрібні лише для
+//виклику функції ExpKalkNew}
+Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
+                    FitName:string;Rbool:boolean);
+{по даним у векторі А будує залежність похідної
+диференційного нахилу ВАХ від напруги (метод Булярського)
+fun - кількість зглажувань
+Rbool=true - потрібно враховувати послідовний
+та шунтуючі опори;
+FitName - назва функції, якв буде використовуватись
+для апроксимації}
+
 
 var
   Form1: TForm1;
@@ -1183,8 +1203,8 @@ var
   Directory, Directory0, CurDirectory:string;
   VaxFile, VaxGraph, VaxTemp, VaxTempLim{,my_temp}:Pvector;
   GrLim:Limits;
-  EvolType:TEvolutionType;{змінна, де зберігається
-           спосіб еволюційної апроксимації}
+//  EvolType:TEvolutionType;{змінна, де зберігається
+//           спосіб еволюційної апроксимації}
   GausLines:array of TLineSeries; {масив для ліній, які
   виводяться при апроксимації гаусіанами}
   GausLinesCur:array of Curve3;
@@ -1228,7 +1248,7 @@ var
   Rsh - шунтуючий опір
   Pm - максимальна вихідна потужність фотоелементв
   FF - коефіцієнт форми ВАХ фотоелементу}
-  Mode_Exp,Mode_Lam,Mode_DE:integer;
+//  Mode_Exp,Mode_Lam,Mode_DE:integer;
   {при апроксамації функцією
   I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
   визначають чи всі параметри шукаються:
@@ -1239,14 +1259,16 @@ var
   Mode_Exp - пряма апроксимація за МНК
   Mode_Lam - апроксимація за МНК функції Ламберта
   Mode_DE - метод диференційної еволюції}
-  Iph_Exp,Iph_Lam,Iph_DE:boolean;
+  Iph_Exp,Iph_Lam,Iph_DE,DDiod_DE:boolean;
   {визначають, чи потрібно підбирати фотострум
   (при True) у формулі
   I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
   тобто чи освітлена ВАХ апроксимується;
   Iph_Exp - пряма апроксимація за МНК
   Iph_Lam - апроксимація за МНК функції Ламберта
-  Iph_DE - метод диференційної еволюції}
+  Iph_DE - метод диференційної еволюції,
+  DDiod_DE - чи використовується вираз для
+  подвійного діода при еволюційних методах}
   DirNames:TDirNames;{множина для зберігання
   вибраних для створення директорій з допоміжними файлами}
   ColNames:TColNames;{множина для зберігання
@@ -1264,8 +1286,7 @@ var
 
 implementation
 
-uses ExpUnit,  LambUnit, DEUnit,
-  ApprWindows, FormSelectFit;
+uses ApprWindows, FormSelectFit;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -1576,15 +1597,19 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
   ApprExp[3]:=ConfigFile.ReadFloat('Approx','Et',0.025);
   ApprExp[2]:=ConfigFile.ReadFloat('Approx','Rs',15000);
   ParamExp(Form1,ApprExp);}
- Mode_Exp:=ConfigFile.ReadInteger('Approx','ModeExp',0);
- Mode_Lam:=ConfigFile.ReadInteger('Approx','ModeLam',0);
- Mode_DE:=ConfigFile.ReadInteger('Approx','ModeDE',0);
+// Mode_Exp:=ConfigFile.ReadInteger('Approx','ModeExp',0);
+// Mode_Lam:=ConfigFile.ReadInteger('Approx','ModeLam',0);
+// Mode_DE:=ConfigFile.ReadInteger('Approx','ModeDE',0);
  Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
  Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
  Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
- ModeShow(Mode_Exp,Iph_Exp,LabelExpRs,LabelExpRsh,LabelExpIph);
- ModeShow(Mode_Lam,Iph_Lam,LabelLamRs,LabelLamRsh,LabelLamIph);
- ModeShow(Mode_DE,Iph_DE,LabelDERs,LabelDERsh,LabelDEIph);
+ DDiod_DE:=ConfigFile.ReadBool('Approx','DDiod_DE',True);
+// ModeShow(Mode_Exp,Iph_Exp,LabelExpRs,LabelExpRsh,LabelExpIph);
+// ModeShow(Mode_Lam,Iph_Lam,LabelLamRs,LabelLamRsh,LabelLamIph);
+// ModeShow(Mode_DE,Iph_DE,LabelDERs,LabelDERsh,LabelDEIph);
+// if DDiod_DE then LabelDERs.Caption:='Double diod is used'
+//             else LabelDERs.Caption:='Double diod does not used';
+
 
 
   for DP := Low(DP) to High(DP) do
@@ -1611,9 +1636,9 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
   Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
   Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
   Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
-  LabelNordGamma.Caption:='gamma: '+FloatToStrF(Gamma,ffGeneral,2,1);
-  LabBohGam1.Caption:='gamma1 = '+FloatToStrF(Gamma1,ffGeneral,2,1);
-  LabBohGam2.Caption:='gamma2 = '+FloatToStrF(Gamma2,ffGeneral,2,1);
+//  LabelNordGamma.Caption:='gamma: '+FloatToStrF(Gamma,ffGeneral,2,1);
+//  LabBohGam1.Caption:='gamma1 = '+FloatToStrF(Gamma1,ffGeneral,2,1);
+//  LabBohGam2.Caption:='gamma2 = '+FloatToStrF(Gamma2,ffGeneral,2,1);
   LabelVa.Caption:='Va = '+FloatToStrF(Va,ffGeneral,3,2)+' V';
   LabelRect.Caption:=FloatToStrF(Vrect,ffGeneral,3,2)+' V';
 
@@ -1631,6 +1656,7 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
   LabRA.Caption:='A = '+FloatToStrF(RA,ffGeneral,3,2);
   LabRB.Caption:='B = '+FloatToStrF(RB,ffExponent,3,2);
   LabRC.Caption:='C = '+FloatToStrF(RC,ffExponent,3,2);
+  LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName','Photo D-Diod');
 
 
   for DP := Low(DP) to High(DP) do
@@ -1813,19 +1839,19 @@ RadioButtonNssNvM.Checked:=ConfigFile.ReadBool('Graph','Nss_N(V)',False);
 RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
 ColParam(StrGridData);
 
-i:=ConfigFile.ReadInteger('Parameters','EvolutionType',0);
-case i of
- 1:EvolType:=TMABC;
- 2:EvolType:=TTLBO;
- 3:EvolType:=TPSO;
- else EvolType:=TDE;
-end;
-case EvolType of
-       TMABC:GroupBoxParamDE.Caption:='MABC';
-       TTLBO:GroupBoxParamDE.Caption:='TLBO';
-       TPSO:GroupBoxParamDE.Caption:='PSO';
-       else GroupBoxParamDE.Caption:='DE';
-    end;
+//i:=ConfigFile.ReadInteger('Parameters','EvolutionType',0);
+//case i of
+// 1:EvolType:=TMABC;
+// 2:EvolType:=TTLBO;
+// 3:EvolType:=TPSO;
+// else EvolType:=TDE;
+//end;
+//case EvolType of
+//       TMABC:GroupBoxParamDE.Caption:='MABC';
+//       TTLBO:GroupBoxParamDE.Caption:='TLBO';
+//       TPSO:GroupBoxParamDE.Caption:='PSO';
+//       else GroupBoxParamDE.Caption:='DE';
+//    end;
 
 //  ApprFormula:=TStringlist.Create;
 //  ApprFormula.Add('');
@@ -2107,12 +2133,13 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
 { ConfigFile.WriteFloat('Approx','I0',ApprExp[1]);
  ConfigFile.WriteFloat('Approx','Et',ApprExp[3]);
  ConfigFile.WriteFloat('Approx','Rs',ApprExp[2]);}
- ConfigFile.WriteInteger('Approx','ModeExp',Mode_Exp);
- ConfigFile.WriteInteger('Approx','ModeLam',Mode_Lam);
- ConfigFile.WriteInteger('Approx','ModeDE',Mode_DE);
+// ConfigFile.WriteInteger('Approx','ModeExp',Mode_Exp);
+// ConfigFile.WriteInteger('Approx','ModeLam',Mode_Lam);
+// ConfigFile.WriteInteger('Approx','ModeDE',Mode_DE);
  ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
  ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
  ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
+ ConfigFile.WriteBool('Approx','DDiod_DE',DDiod_DE);
 
   for DP := Low(DP) to High(DP) do
    begin
@@ -2143,6 +2170,7 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
   ConfigFile.WriteFloat('Resistivity','RA',RA);
   ConfigFile.WriteFloat('Resistivity','RB',RB);
   ConfigFile.WriteFloat('Resistivity','RC',RC);
+  ConfigFile.WriteString('Parameters','DLFunctionName',LabIsc.Caption);
 
 {запис стану вибору директорій для створення}
 for DR:=Low(DR) to High(DR) do
@@ -2192,12 +2220,12 @@ end; // with Form1 do
 ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
 ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 
-case EvolType of
-   TDE:ConfigFile.WriteInteger('Parameters','EvolutionType',0);
-   TMABC:ConfigFile.WriteInteger('Parameters','EvolutionType',1);
-   TTLBO:ConfigFile.WriteInteger('Parameters','EvolutionType',2);
-   TPSO:ConfigFile.WriteInteger('Parameters','EvolutionType',3);
-end;
+//case EvolType of
+//   TDE:ConfigFile.WriteInteger('Parameters','EvolutionType',0);
+//   TMABC:ConfigFile.WriteInteger('Parameters','EvolutionType',1);
+//   TTLBO:ConfigFile.WriteInteger('Parameters','EvolutionType',2);
+//   TPSO:ConfigFile.WriteInteger('Parameters','EvolutionType',3);
+//end;
 
   if Assigned(BaseLine) then BaseLine.Free;
   if Assigned(BaseLineCur) then BaseLineCur.Free;
@@ -2327,11 +2355,11 @@ begin
 // YLogCheckClick(LabelYLog);
  end;
 
-procedure TForm1.LabIscConsClick(Sender: TObject);
-begin
- CBoxIscCons.Checked:= not CBoxIscCons.Checked;
- CBoxDLBuildClick(LabIscCons);
-end;
+//procedure TForm1.LabIscConsClick(Sender: TObject);
+//begin
+// CBoxIscCons.Checked:= not CBoxIscCons.Checked;
+// CBoxDLBuildClick(LabIscCons);
+//end;
 
 procedure TForm1.LabRConsClick(Sender: TObject);
 begin
@@ -2376,16 +2404,16 @@ begin
              mtError, [mbOK], 0);
            Series1.Clear;
            Series2.Clear;
-           end
-                       else
-           begin
-            try
-            Isc:=IscCalc(VaxFile);
-            except
-            Isc:=0;
-            end;
-            LabIsc.Caption:='Isc = '+ FloatToStrF(Isc,ffExponent,3,2);
            end;
+//                       else
+//           begin
+//            try
+//            Isc:=IscCalc(VaxFile);
+//            except
+//            Isc:=0;
+//            end;
+//            LabIsc.Caption:='Isc = '+ FloatToStrF(Isc,ffExponent,3,2);
+//           end;
        GraphShow(Form1);
        end;
 end;
@@ -3055,14 +3083,20 @@ begin
 end;
 
 procedure TForm1.ButFitOptionClick(Sender: TObject);
-var F:TFitFunction;
+var //F:TFitFunction;
+    str:string;
 begin
-FunCreate(SButFit.Caption,F);
-//showmessage(F.Name);
-if  not(Assigned(F)) then Exit;
+str:='None';
+if (Sender is TButton)and((Sender as TButton).Name='ButFitOption')
+     then  str:=SButFit.Caption;
+if (Sender is TButton)and((Sender as TButton).Name='ButLDFitOption')
+     then  str:=LabIsc.Caption;
+FunCreate(str,Fit);
+//FunCreate(SButFit.Caption,F);
+if  not(Assigned(Fit)) then Exit;
 
-F.SetValueGR;
-F.Free;
+Fit.SetValueGR;
+Fit.Free;
 end;
 
 procedure TForm1.ButFitSelectClick(Sender: TObject);
@@ -3206,6 +3240,21 @@ if VaxFile^.T<=0 then
     MessageDlg('Thermodynamic temperature must be positive', mtError,[mbOk],0);
    end;
 GraphShow(Form1);
+end;
+
+procedure TForm1.ButLDFitSelectClick(Sender: TObject);
+begin
+ if FormSF.ShowModal=mrOk then
+    if (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[10])or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[11])or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[12])or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[13])or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[14])or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[9])or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[19])or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[20])
+        then LabIsc.Caption:=FormSF.CB.Items[FormSF.CB.ItemIndex];
+ CBoxDLBuildClick(Sender);
 end;
 
 procedure TForm1.ButRAClick(Sender: TObject);
@@ -6918,52 +6967,61 @@ end;
 
 procedure TForm1.ButtonKalkParClick(Sender: TObject);
 begin
+
+
+
 case CBKalk.ItemIndex of
   0: ;//не вибрано спосіб апроксамації
- //-------------------------------------------
-  1: // обчислення за функцією Чюнга
-     ButtonParamCibClick(ButtonKalkPar);
-//    ButtonParamChungClick(ButtonKalkPar);
-  2:  // обчислення за Н-функцією
-    ButtonParamCibClick(ButtonKalkPar);
-  3:   // обчислення за функцією Норда
-    ButtonParamCibClick(ButtonKalkPar);
-  4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-    ButtonParamCibClick(ButtonKalkPar);
-  5: //обчислення шляхом апроксимації І=I0exp(V/nkT)
-    ButtonParamCibClick(ButtonKalkPar);
   6: //Обчислення коефіцієнту випрямлення
-    ButtonParamRectClick(ButtonKalkPar);
-  7: //обчислення за функцією Камінськи І-роду
-    ButtonParamCibClick(ButtonKalkPar);
-  8: //обчислення за функцією Камінськи ІІ-роду
-    ButtonParamCibClick(ButtonKalkPar);
-  9: //обчислення за методом Громова І-роду
-    ButtonParamCibClick(ButtonKalkPar);
-  10: //обчислення за методом Громова ІI-роду
-    ButtonParamCibClick(ButtonKalkPar);
-  11: //обчислення за методом Бохліна
-    ButtonParamCibClick(ButtonKalkPar);
-  12: //обчислення за методом Сібліса
-    ButtonParamCibClick(ButtonKalkPar);
-  13: //обчислення за методом Лі
-    ButtonParamCibClick(ButtonKalkPar);
-  14: //обчислення за методом Вернера
-    ButtonParamCibClick(ButtonKalkPar);
-  15: //обчислення за методом Міхелешвілі
-    ButtonParamCibClick(ButtonKalkPar);
-  16: //обчислення за методом Іванова
-    ButtonParamCibClick(ButtonKalkPar);
-  17: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка
-    ButtonParamCibClick(ButtonKalkPar);
-  18: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка
-    ButtonParamCibClick(ButtonKalkPar);
-  19: //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
-    ButtonParamCibClick(ButtonKalkPar);
-  20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
-    ButtonParamDEClick(ButtonKalkPar);
- end; //case;
-CBKalkChange(ButtonKalkPar);
+     ButtonParamRectClick(ButtonKalkPar);
+  else
+   begin
+   ButtonParamCibClick(ButtonKalkPar);
+   CBKalkChange(ButtonKalkPar);
+   end;
+ end //case
+// //-------------------------------------------
+//  1: // обчислення за функцією Чюнга
+//     ButtonParamCibClick(ButtonKalkPar);
+////    ButtonParamChungClick(ButtonKalkPar);
+//  2:  // обчислення за Н-функцією
+//    ButtonParamCibClick(ButtonKalkPar);
+//  3:   // обчислення за функцією Норда
+//    ButtonParamCibClick(ButtonKalkPar);
+//  4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
+//    ButtonParamCibClick(ButtonKalkPar);
+//  5: //обчислення шляхом апроксимації І=I0exp(V/nkT)
+//    ButtonParamCibClick(ButtonKalkPar);
+//  7: //обчислення за функцією Камінськи І-роду
+//    ButtonParamCibClick(ButtonKalkPar);
+//  8: //обчислення за функцією Камінськи ІІ-роду
+//    ButtonParamCibClick(ButtonKalkPar);
+//  9: //обчислення за методом Громова І-роду
+//    ButtonParamCibClick(ButtonKalkPar);
+//  10: //обчислення за методом Громова ІI-роду
+//    ButtonParamCibClick(ButtonKalkPar);
+//  11: //обчислення за методом Бохліна
+//    ButtonParamCibClick(ButtonKalkPar);
+//  12: //обчислення за методом Сібліса
+//    ButtonParamCibClick(ButtonKalkPar);
+//  13: //обчислення за методом Лі
+//    ButtonParamCibClick(ButtonKalkPar);
+//  14: //обчислення за методом Вернера
+//    ButtonParamCibClick(ButtonKalkPar);
+//  15: //обчислення за методом Міхелешвілі
+//    ButtonParamCibClick(ButtonKalkPar);
+//  16: //обчислення за методом Іванова
+//    ButtonParamCibClick(ButtonKalkPar);
+//  17: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка
+//    ButtonParamCibClick(ButtonKalkPar);
+//  18: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка
+//    ButtonParamCibClick(ButtonKalkPar);
+//  19: //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
+//    ButtonParamCibClick(ButtonKalkPar);
+//  20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
+//    ButtonParamCibClick(ButtonKalkPar);
+// end; //case;
+//CBKalkChange(ButtonKalkPar);
 end;
 
 procedure TForm1.ButtonMaxClick(Sender: TObject);
@@ -7287,31 +7345,31 @@ FormDiapazon(DiapFunName(Sender, BohlinMethod));
 //    end;
 end;
 
-procedure TForm1.ButtonParamDEClick(Sender: TObject);
-begin
-if DEForm.ShowModal=mrOk then
-    begin
-      FormToDiap(DEForm.LEXmin,DEForm.LEYmin,
-         DEForm.LEXmax,DEForm.LEYMax,D[diDE]);
-      FormToMode(DEForm.CB_Rs,DEForm.CB_Rsh,DEForm.CB_Iph,
-                 Mode_DE,Iph_DE);
-      case DEForm.RG.ItemIndex of
-        1:EvolType:=TMABC;
-        2:EvolType:=TTLBO;
-        3:EvolType:=TPSO;
-       else EvolType:=TDE;
-      end;
-      case EvolType of
-       TMABC:GroupBoxParamDE.Caption:='MABC';
-       TTLBO:GroupBoxParamDE.Caption:='TLBO';
-       TPSO:GroupBoxParamDE.Caption:='PSO';
-       else GroupBoxParamDE.Caption:='DE';
-      end;
-
-      DiapShow(D[diDE],LabelDEXmin,LabelDEYmin,LabelDEXmax,LabelDEYmax);
-      ModeShow(Mode_DE,Iph_DE,LabelDERs,LabelDERsh,LabelDEIph);
-    end;
-end;
+//procedure TForm1.ButtonParamDEClick(Sender: TObject);
+//begin
+//if DEForm.ShowModal=mrOk then
+//    begin
+//      FormToDiap(DEForm.LEXmin,DEForm.LEYmin,
+//         DEForm.LEXmax,DEForm.LEYMax,D[diDE]);
+//      FormToMode(DEForm.CB_Rs,DEForm.CB_Rsh,DEForm.CB_Iph,
+//                 Mode_DE,Iph_DE);
+//      case DEForm.RG.ItemIndex of
+//        1:EvolType:=TMABC;
+//        2:EvolType:=TTLBO;
+//        3:EvolType:=TPSO;
+//       else EvolType:=TDE;
+//      end;
+//      case EvolType of
+//       TMABC:GroupBoxParamDE.Caption:='MABC';
+//       TTLBO:GroupBoxParamDE.Caption:='TLBO';
+//       TPSO:GroupBoxParamDE.Caption:='PSO';
+//       else GroupBoxParamDE.Caption:='DE';
+//      end;
+//
+//      DiapShow(D[diDE],LabelDEXmin,LabelDEYmin,LabelDEXmax,LabelDEYmax);
+//      ModeShow(Mode_DE,Iph_DE,LabelDERs,LabelDERsh,LabelDEIph);
+//    end;
+//end;
 
 procedure TForm1.ButtonPermClick(Sender: TObject);
 var st,stHint:string;
@@ -9115,8 +9173,9 @@ if CBoxDLBuild.Checked then
         GausLinesFree;
         GaussLinesToGrid;
         end;
-     dB_dV_Fun(VaxFile,VaxGraph,SpinEditDL.Value,Isc,CBoxIscCons.Checked,
-               CBoxRCons.Checked,D[diDE],Mode_DE,Iph_DE,2);
+      dB_dV_Fun(VaxFile,VaxGraph,SpinEditDL.Value,LabIsc.Caption,CBoxRCons.Checked);
+//     dB_dV_Fun(VaxFile,VaxGraph,SpinEditDL.Value,Isc,CBoxIscCons.Checked,
+//               CBoxRCons.Checked,D[diDE],Mode_DE,Iph_DE,2);
      str:='dB/dV';
     end;
 ShowGraph(Form1,str);
@@ -9326,7 +9385,7 @@ NoLog(Form1.XLogCheck,Form1.YLogCheck, Form1.Graph);
 MarkerHide(Form1);
 Form1.CBMarker.Checked:=False;
 Form1.CBoxDLBuild.Checked:=False;
-Form1.CBoxIscCons.Checked:=False;
+//Form1.CBoxIscCons.Checked:=False;
 Form1.CBoxRCons.Checked:=False;
 Form1.CBoxBaseLineVisib.Checked:=False;
 Form1.CBoxBaseLineUse.Checked:=False;
@@ -9375,6 +9434,21 @@ begin
     else Ymax.Caption:='Ymax: '+FloatToStrF(D.YMax,ffExponent,3,2);
 end;
 
+Function IphUsed(bool:boolean):string;
+{використовується для виведення напису на форму}
+begin
+if bool then Result:='Iph is used'
+        else Result:='Iph=0'
+end;
+
+
+Function DDUsed(bool:boolean):string;
+{використовується для виведення напису на форму}
+begin
+if bool then Result:='Double diod is used'
+        else Result:='Double diod does not used'
+end;
+
 
 procedure DiapShowNew(DpType:TDiapazons);
 {запис у потрібні мітки, залежно від значення DpType}
@@ -9383,9 +9457,17 @@ with Form1 do
  case DpType of
    diChung: DiapShow(D[diChung],LabelChungXmin,LabelChungYmin,LabelChungXmax,LabelChungYmax);
    diMikh: DiapShow(D[diMikh],LabelMikhXmin,LabelMikhYmin,LabelMikhXmax,LabelMikhYmax);
-   diExp: DiapShow(D[diExp],LabelExpXmin,LabelExpYmin,LabelExpXmax,LabelExpYmax);
+   diExp: begin
+            DiapShow(D[diExp],LabelExpXmin,LabelExpYmin,LabelExpXmax,LabelExpYmax);
+            LabelExpIph.Caption:=IphUsed(Iph_Exp);
+          end;
    diEx: DiapShow(D[diEx],LabelExXmin,LabelExYmin,LabelExXmax,LabelExYmax);
-   diNord: DiapShow(D[diNord],LabelNordXmin,LabelNordYmin,LabelNordXmax,LabelNordYmax);
+   diNord:begin
+            DiapShow(D[diNord],LabelNordXmin,LabelNordYmin,LabelNordXmax,LabelNordYmax);
+            LabelNordGamma.Caption:='gamma= '+FloatToStrF(Gamma,ffGeneral,2,1);
+            LabBohGam1.Caption:='gamma1 = '+FloatToStrF(Gamma1,ffGeneral,2,1);
+            LabBohGam2.Caption:='gamma2 = '+FloatToStrF(Gamma2,ffGeneral,2,1);
+          end;
    diNss: DiapShow(D[diNss],LabelNssXmin,LabelNssYmin,LabelNssXmax,LabelNssYmax);
    diKam1: DiapShow(D[diKam1],LabelKam1Xmin,LabelKam1Ymin,LabelKam1Xmax,LabelKam1Ymax);
    diKam2: DiapShow(D[diKam2],LabelKam2Xmin,LabelKam2Ymin,LabelKam2Xmax,LabelKam2Ymax);
@@ -9397,8 +9479,15 @@ with Form1 do
    diIvan: DiapShow(D[diIvan],LabelIvanXmin,LabelIvanYmin,LabelIvanXmax,LabelIvanYmax);
    diE2F: DiapShow(D[diE2F],LabelE2FXmin,LabelE2FYmin,LabelE2FXmax,LabelE2FYmax);
    DiE2R: DiapShow(D[diE2R],LabelE2RXmin,LabelE2RYmin,LabelE2RXmax,LabelE2RYmax);
-   diLam: DiapShow(D[diLam],LabelLamXmin,LabelLamYmin,LabelLamXmax,LabelLamYmax);
-   diDE: DiapShow(D[diDE],LabelDEXmin,LabelDEYmin,LabelDEXmax,LabelDEYmax);
+   diLam:begin
+           DiapShow(D[diLam],LabelLamXmin,LabelLamYmin,LabelLamXmax,LabelLamYmax);
+           LabelLamIph.Caption:=IphUsed(Iph_Lam);
+         end;
+   diDE: begin
+           DiapShow(D[diDE],LabelDEXmin,LabelDEYmin,LabelDEXmax,LabelDEYmax);
+           LabelDEIph.Caption:=IphUsed(Iph_DE);
+           LabDEDD.Caption:=DDUsed(DDiod_DE);
+        end;
    diHfunc: DiapShow(D[diHfunc],LabelHXmin,LabelHYmin,LabelHXmax,LabelHYmax);
  end;
 end;
@@ -9446,41 +9535,41 @@ begin
   FormToDiap(FrDp.LEXMin,FrDp.LEYmin,FrDp.LEXmax,FrDp.LEYMax,D)
 end;
 
-procedure ModeShow(Mode:integer;Iph:boolean;LRs,LRsh,LIph:TLabel);
-{відображення режиму апроксимації
-ВАХ у відповідних мітках}
-begin
-if Iph then LIph.Caption:='Iph is varied'
-       else LIph.Caption:='Iph = 0';
-if (Mode=1)or(Mode=3) then LRsh.Caption:='Rsh = 1 TOhm'
-                      else LRsh.Caption:='Rsh is varied';
-if (Mode=2)or(Mode=3) then LRs.Caption:='Rs = 0 Ohm'
-                      else LRs.Caption:='Rs is varied';
-end;
+//procedure ModeShow(Mode:integer;Iph:boolean;LRs,LRsh,LIph:TLabel);
+//{відображення режиму апроксимації
+//ВАХ у відповідних мітках}
+//begin
+//if Iph then LIph.Caption:='Iph is varied'
+//       else LIph.Caption:='Iph = 0';
+//if (Mode=1)or(Mode=3) then LRsh.Caption:='Rsh = 1 TOhm'
+//                      else LRsh.Caption:='Rsh is varied';
+//if (Mode=2)or(Mode=3) then LRs.Caption:='Rs = 0 Ohm'
+//                      else LRs.Caption:='Rs is varied';
+//end;
 
-procedure ModeToForm(Mode:integer;Iph:boolean;CB_Rs,CB_Rsh,CB_Iph:TCheckBox);
-{встановлення перемикачів CB_Rs,CB_Rsh,CB_Iph
-відповідно до режиму апроксимації, що
-задається параметрами Mode та Iph}
-begin
-if (Mode=2) or (Mode=3) then CB_Rs.Checked:=False
-                        else CB_Rs.Checked:=True;
-if (Mode=1) or (Mode=3) then CB_Rsh.Checked:=False
-                        else CB_Rsh.Checked:=True;
-CB_Iph.Checked:=Iph;
-end;
-
-procedure FormToMode(CB_Rs,CB_Rsh,CB_Iph:TCheckBox;var Mode:integer;var Iph:boolean);
-{встановлення  режиму апроксимації
-(параметрів Mode та Iph) відповідно до
-перемикачів CB_Rs,CB_Rsh,CB_Iph}
-begin
-Iph:=CB_Iph.Checked;
-if (CB_Rsh.Checked)and(CB_Rsh.Checked) then Mode:=0;
-if not(CB_Rsh.Checked) then Mode:=1;
-if not(CB_Rs.Checked) then Mode:=2;
-if (not(CB_Rsh.Checked))and(not(CB_Rs.Checked)) then Mode:=3;
-end;
+//procedure ModeToForm(Mode:integer;Iph:boolean;CB_Rs,CB_Rsh,CB_Iph:TCheckBox);
+//{встановлення перемикачів CB_Rs,CB_Rsh,CB_Iph
+//відповідно до режиму апроксимації, що
+//задається параметрами Mode та Iph}
+//begin
+//if (Mode=2) or (Mode=3) then CB_Rs.Checked:=False
+//                        else CB_Rs.Checked:=True;
+//if (Mode=1) or (Mode=3) then CB_Rsh.Checked:=False
+//                        else CB_Rsh.Checked:=True;
+//CB_Iph.Checked:=Iph;
+//end;
+//
+//procedure FormToMode(CB_Rs,CB_Rsh,CB_Iph:TCheckBox;var Mode:integer;var Iph:boolean);
+//{встановлення  режиму апроксимації
+//(параметрів Mode та Iph) відповідно до
+//перемикачів CB_Rs,CB_Rsh,CB_Iph}
+//begin
+//Iph:=CB_Iph.Checked;
+//if (CB_Rsh.Checked)and(CB_Rsh.Checked) then Mode:=0;
+//if not(CB_Rsh.Checked) then Mode:=1;
+//if not(CB_Rs.Checked) then Mode:=2;
+//if (not(CB_Rsh.Checked))and(not(CB_Rs.Checked)) then Mode:=3;
+//end;
 
 procedure StrToNumber(St:TCaption; Def:double; var Num:double);
 {процедура переведення тестового рядка St в чисельне
@@ -10359,12 +10448,7 @@ if FloatString='' then Result:=Default
 end;
 
 
-Function IphUsed(bool:boolean):string;
-{використовується для виведення напису на форму}
-begin
-if bool then Result:='Iph is used'
-        else Result:='Iph=0'
-end;
+
 
 Procedure FormDiapazon(DpType:TDiapazons);
 {створюється форма для зміни діапазону апроксимації,
@@ -10383,114 +10467,77 @@ var Form:TForm;
     GLab:TLabel;
     GEdit:TEdit;
     GEdit2:TLabeledEdit;
-    Iph_CB:TCheckBox;
+    Iph_CB,DD_CB:TCheckBox;
     Param_But:TButton;
     DpName:string;
-  I: Integer;
+    I,VerticalEnd: Integer;
+
+    Procedure EditToFloat(EditName:string; var Number:double);
+    {считування з TEdit з назвою EditName значення в Number}
+    var i:integer;
+    begin
+     for I := 0 to Form.ComponentCount-1 do
+       if (Form.Components[i] is TEdit)and
+          (Form.Components[i].Name=EditName)
+       then Number:=StrToFloatDef((Form.Components[i] as TEdit).Text, 2)
+    end;
+
+    Procedure LabeledEditToFloat(EditName:string; var Number:double);
+    {считування з TLabeledEdit з назвою EditName значення в Number}
+    var i:integer;
+    begin
+     for I := 0 to Form.ComponentCount-1 do
+       if (Form.Components[i] is TLabeledEdit)and
+          (Form.Components[i].Name=EditName)
+       then Number:=StrToFloatDef((Form.Components[i] as TLabeledEdit).Text, 2.5)
+    end;
+
+    Procedure CheckBoxToBool(CBName:string; var bool:boolean);
+    {считування з TCheckBox з назвою CBName значення в bool}
+    var i:integer;
+    begin
+     for I := 0 to Form.ComponentCount-1 do
+       if (Form.Components[i] is TCheckBox)and
+          (Form.Components[i].Name=CBName)
+       then bool:=(Form.Components[i] as TCheckBox).Checked;
+    end;
+
 begin
 
- ImgWidth:=500;
- ImgHeight:=500;
- ButShift:=320;
-
-   case DpType of
-    diChung: DpName:='Cheung';
-    diMikh: DpName:='Mikhelashvili';
-    diExp: DpName:='Exp';
-    diEx: DpName:='Ex';
-    diNord: DpName:='Norde';
-    diNss: DpName:='Nss';
-    diKam1: DpName:='Kam1';
-    diKam2: DpName:='Kam2';
-    diGr1: DpName:='Gromov1';
-    diGr2: DpName:='Gromov2';
-    diCib: DpName:='Cibils';
-    diLee: DpName:='Lee';
-    diWer: DpName:='Werner';
-    diIvan: DpName:='Ivanov2';
-    diE2F: DpName:='ExpFor';
-    DiE2R: DpName:='ExpRev';
-    diLam: DpName:='DiodLam';
-    diDE: ;
-    diHfunc: DpName:='Hfunc';
-  end;
-
-   if BohlinMethod then  DpName:='Bohlin';
-
-
  Form:=TForm.Create(Application);
- Form.Caption:=DpName+' method parameters';
-
-
-
  Form.Position:=poMainFormCenter;
  Form.AutoScroll:=True;
  Form.BorderIcons:=[biSystemMenu];
  Form.ParentFont:=True;
  Form.Font.Style:=[fsBold];
  Form.Font.Height:=-16;
-
  Form.KeyPreview:=True;
  Form.OnKeyPress:=Form1.FormDpKeyPress;
 
- if DpType=diIvan then
-  begin
-   Form.Caption:='Ivanov method parameters';
+ Dp:=TFrDp.Create(Form);
+ Dp.Name:='Dp';
+ Dp.Parent:=Form;
+ Dp.Left:=0;
+ DiapToFormFr(D[DpType], Dp);
+
+ if (BohlinMethod)or(DpType=diIvan) then
+   begin
    ImgWidth:=700;
-   ImgHeight:=700;
-  end;
+   Dp.LEYmin.Top:=Dp.LEXmin.Top;
+   Dp.LEYmax.Top:=Dp.LEXmin.Top;
+   Dp.LEYmin.Left:=Dp.LEXmin.Left+Dp.LEXmin.Width+MarginBeetween;
+   Dp.LEXmax.Left:=Dp.LEYmin.Left+Dp.LEYmin.Width+MarginBeetween;
+   Dp.LEYmax.Left:=Dp.LEXmax.Left+Dp.LEXmax.Width+MarginBeetween;
+   Dp.Width:=Dp.LEYmax.Left+Dp.LEYmax.Width+5;
+   Dp.Height:=Dp.LEYmax.Top+Dp.LEYmax.Height+5;
+   end
+                                     else
+   ImgWidth:=500;
 
- if BohlinMethod then
-  begin
-   ImgWidth:=700;
-   ImgHeight:=700;
-  end;
+ ImgHeight:=ImgWidth;
+ ButShift:=320;
+ VerticalEnd:=0;
 
- if DpType=diExp then
-  begin
-   Form.Caption:='Least-squares curve fitting parameters';
-  end;
-
-  if DpType=diHfunc then Form.Caption:='H function method parameters';
-  if DpType=diGr1 then Form.Caption:='Gromov function I method parameters';
-  if DpType=diGr2 then Form.Caption:='Gromov function II method parameters';
-  if DpType=diKam1 then Form.Caption:='Kaminskii function I method parameters';
-  if DpType=diKam2 then Form.Caption:='Kaminskii function II method parameters';
-  if DpType=diNss then Form.Caption:='The density of interface states parameters';
-  if DpType=diEx then Form.Caption:='I = I0 exp(eV/nkT)  parameters';
-  if DpType=diLam then Form.Caption:='Lambert function curve fitting parameters';
-
-
- if DpType in [diExp,diLam] then
-  begin
-    Iph_CB:=TCheckBox.Create(Form);;
-    Iph_CB.Parent:=Form;
-    Iph_CB.Caption:='photocurrent is used';
-    Iph_CB.Width:=Form.Canvas.TextWidth(Iph_CB.Caption)+30;
-    Iph_CB.Left:=MarginLeft+10;
-    Iph_Cb.OnClick:=Form1.OnClickCheckBox;
-    Param_But:=TButton.Create(Form);;
-    Param_But.Parent:=Form;
-    Param_But.Caption:='Option';
-    Param_But.Left:=Iph_CB.Left+Iph_CB.Width+70;
-    Param_But.OnClick:=Form1.OnClickButton;
-
-    if DpType=diExp then
-      begin
-       Iph_CB.Checked:=Iph_Exp;
-       Iph_CB.Name:='ExpFormCB';
-       if Iph_exp then  DpName:='ExpIph';
-       Param_But.Name:='ExpFormBut';
-      end;
-
-    if DpType=diLam then
-      begin
-       Iph_CB.Checked:=Iph_Lam;
-       Iph_CB.Name:='LamFormCB';
-       if Iph_Lam then  DpName:='PhotoDiodLam';
-       Param_But.Name:='LamFormBut';
-      end;
-  end;
 
  Img:=TImage.Create(Form);
  Img.Parent:=Form;
@@ -10499,83 +10546,184 @@ begin
  Img.Stretch:=True;
  Img.Height:=ImgHeight;
  Img.Width:=ImgWidth;
+
+//------ Визначення імені форми ------------------
+  case DpType of
+    diChung: DpName:='Cheung';
+    diMikh: DpName:='Mikhelashvili';
+    diExp: DpName:='Least-squares curve fitting';
+    diEx: DpName:='I = I0 exp(eV/nkT)';
+    diNord: DpName:='Norde';
+    diNss: DpName:='The density of interface states';
+    diKam1: DpName:='Kaminskii function I';
+    diKam2: DpName:='Kaminskii function II';
+    diGr1: DpName:='Gromov function I';
+    diGr2: DpName:='Gromov function II';
+    diCib: DpName:='Cibils';
+    diLee: DpName:='Lee';
+    diWer: DpName:='Werner';
+    diIvan: DpName:='Ivanov';
+    diE2F: DpName:='I/[1-exp(-qV/kT)] forward';
+    diE2R: DpName:='I/[1-exp(-qV/kT)] reverse';
+    diLam: DpName:='Lambert function curve fitting';
+    diDE: DpName:='Evolution Algorithm';
+    diHfunc: DpName:='H function';
+  end;
+  if BohlinMethod then  DpName:='Bohlin';
+
+  if (not(DpType in [diExp,diEx,diNss,diLam,diDE]))or(BohlinMethod)
+                      then Form.Caption:=DpName+' method parameters'
+                      else Form.Caption:=DpName+' parameters';
+//------ END Визначення імені форми ------------------
+
+//------Розміщення потрібного малюнку та визначення максимально
+//------необхідного місця у випадку, коли малюнки міняються------------------
+   case DpType of
+    diExp:begin
+           DpName:='Exp';
+           PictLoadScale(Img,'ExpFig');
+           if Iph_exp then  DpName:='ExpIph';
+          end;
+    diEx:  DpName:='Ex';
+    diNss: DpName:='Nss';
+    diKam1: DpName:='Kam1';
+    diKam2: DpName:='Kam2';
+    diGr1: DpName:='Gromov1';
+    diGr2: DpName:='Gromov2';
+    diIvan: DpName:='Ivanov2';
+    diE2F: DpName:='ExpFor';
+    DiE2R: DpName:='ExpRev';
+    diLam: begin
+             DpName:='DiodLam';
+             PictLoadScale(Img,'PhotoDiodLamFig');
+             if Iph_Lam then  DpName:='PhotoDiodLam';
+           end;
+    diDE:  begin
+            DpName:='DoubleDiod';
+            PictLoadScale(Img,'ExpFig');
+            if Iph_DE then
+                   if DDiod_DE then DpName:='DoubleDiodLight'
+                               else DpName:='ExpIph'
+                      else
+                   if DDiod_DE then DpName:='DoubleDiod'
+                               else DpName:='Exp';
+           end;
+    diHfunc: DpName:='Hfunc';
+  end;
+ if (DpType in [diExp,diLam,diDE]) then
+   begin
+     VerticalEnd:=Img.Top+Img.Height;
+     Img.Height:=ImgHeight;
+     Img.Width:=ImgWidth;
+   end;
+
  PictLoadScale(Img,DpName+'Fig');
  Img.Visible:=True;
+ if not(DpType in [diExp,diLam,diDE]) then  VerticalEnd:=Img.Top+Img.Height;
+//------END Розміщення потрібного малюнку та визначення максимально
 
 
- if DpType in [diExp,diLam] then
-  begin
-   if DpType=diExp then Iph_CB.Top:=Img.Top+Img.Height+35
-                   else Iph_CB.Top:=Img.Top+Img.Height+65;
-   Param_But.Top:=Iph_CB.Top-3;
-  end;
 
+//------Додаткові мітки, поля, кнопки тощо--------------------
+case DpType of
+  diEx: Dp.LEXmin.EditLabel.Caption:='X min (X>0.06 V)';
+  diNord: begin
+           GLab:=TLabel.Create(Form);
+           GLab.Parent:=Form;
+           GLab.Caption:='Input gamma value:';
+           GLab.Font.Color:=clGreen;
+           GLab.Font.Height:=-17;
+           GLab.Left:=MarginLeft;
+           GLab.Top:=VerticalEnd+15;
 
+           GEdit:=TEdit.Create(Form);
+           GEdit.Parent:=Form;
+           GEdit.Text:=FloatToStrF(Gamma,ffGeneral,2,1);
+           GEdit.Top:=GLab.Top;
+           GEdit.Left:=GLab.Left+GLab.Width+10;
+           GEdit.Name:='Gamma';
+
+           VerticalEnd:=GLab.Top+Glab.Height;
+
+           if  BohlinMethod then
+             begin
+              GEdit.Name:='Gamma1';
+              GLab.Caption:='Input values:   gamma1=';
+
+              GEdit.Text:=FloatToStrF(Gamma1,ffGeneral,2,1);
+              GEdit.Left:=GLab.Left+GLab.Width+4;
+
+              GEdit2:=TLabeledEdit.Create(Form);
+              GEdit2.Parent:=Form;
+              GEdit2.Text:=FloatToStrF(Gamma2,ffGeneral,2,1);
+              GEdit2.LabelPosition:=lpLeft;
+              GEdit2.EditLabel.Caption:='gamma2=';
+              GEdit2.EditLabel.Font.Color:=clGreen;
+              GEdit2.EditLabel.Font.Height:=-17;
+              GEdit2.Top:=GLab.Top;
+              GEdit2.Left:=GEdit.Left+GEdit.Width+20+GEdit2.EditLabel.Width+GEdit2.LabelSpacing;
+              GEdit2.Name:='Gamma2';
+             end;
+
+          end; //  diNord:
+  diExp,diLam,diDE:
+       begin
+        Iph_CB:=TCheckBox.Create(Form);;
+        Iph_CB.Parent:=Form;
+        Iph_CB.Caption:='photocurrent is used';
+        Iph_CB.Width:=Form.Canvas.TextWidth(Iph_CB.Caption)+30;
+        Iph_CB.Left:=MarginLeft+10;
+        Iph_CB.Top:=VerticalEnd+15;
+        VerticalEnd:=Iph_CB.Top+Iph_CB.Height;
+        Param_But:=TButton.Create(Form);
+        Param_But.Parent:=Form;
+        Param_But.Caption:='Option';
+        Param_But.Left:=Iph_CB.Left+Iph_CB.Width+70;
+        Param_But.OnClick:=Form1.OnClickButton;
+        Param_But.Top:=Iph_CB.Top-3;
+
+        if DpType=diExp then
+          begin
+           Iph_CB.Checked:=Iph_Exp;
+           Iph_CB.Name:='ExpFormCB';
+           Param_But.Name:='ExpFormBut';
+          end;
+
+        if DpType=diLam then
+          begin
+           Iph_CB.Checked:=Iph_Lam;
+           Iph_CB.Name:='LamFormCB';
+           Param_But.Name:='LamFormBut';
+          end;
+
+        if DpType=diDE then
+          begin
+            Iph_CB.Checked:=Iph_DE;
+            Iph_CB.Name:='DEFormCB';
+            Param_But.Name:='DEFormBut';
+            DD_CB:=TCheckBox.Create(Form);;
+            DD_CB.Parent:=Form;
+            DD_CB.Caption:='double diod is used';
+            DD_CB.Width:=Form.Canvas.TextWidth(DD_CB.Caption)+30;
+            DD_CB.Left:=Iph_CB.Left;
+            DD_CB.Checked:=DDiod_DE;
+            DD_CB.Name:='DEFormDDCB';
+            DD_CB.Top:=VerticalEnd+10;
+            VerticalEnd:=DD_CB.Top+DD_CB.Height;
+            DD_Cb.OnClick:=Form1.OnClickCheckBox;
+          end;
+
+         Iph_Cb.OnClick:=Form1.OnClickCheckBox;
+
+       end;//diExp,diLam,diDE:
+end;
+//------END Додаткові мітки, поля, кнопки тощо--------------------
 
  Form.Width:=Img.Width+MarginLeft+MarginRight;
 
 
- if (DpType=diNord) then
-  begin
-   GLab:=TLabel.Create(Form);
-   GLab.Parent:=Form;
-   GLab.Caption:='Input gamma value:';
-   GLab.Font.Color:=clGreen;
-   GLab.Font.Height:=-17;
-   GLab.Left:=MarginLeft;
-   GLab.Top:=Img.Top+Img.Height+15;
 
-   GEdit:=TEdit.Create(Form);
-   GEdit.Parent:=Form;
-   GEdit.Text:=FloatToStrF(Gamma,ffGeneral,2,1);
-   GEdit.Top:=GLab.Top;
-   GEdit.Left:=GLab.Left+GLab.Width+10;
-
-   if  BohlinMethod then
-     begin
-      GLab.Caption:='Input values:   gamma1=';
-
-      GEdit.Text:=FloatToStrF(Gamma1,ffGeneral,2,1);
-      GEdit.Left:=GLab.Left+GLab.Width+4;
-
-      GEdit2:=TLabeledEdit.Create(Form);
-      GEdit2.Parent:=Form;
-      GEdit2.Text:=FloatToStrF(Gamma2,ffGeneral,2,1);
-      GEdit2.LabelPosition:=lpLeft;
-      GEdit2.EditLabel.Caption:='gamma2=';
-      GEdit2.EditLabel.Font.Color:=clGreen;
-      GEdit2.EditLabel.Font.Height:=-17;
-      GEdit2.Top:=GLab.Top;
-      GEdit2.Left:=GEdit.Left+GEdit.Width+20+GEdit2.EditLabel.Width+GEdit2.LabelSpacing;
-     end;
-  end;
-
-
-
-
- Dp:=TFrDp.Create(Form);
- Dp.Name:='Dp';
- Dp.Parent:=Form;
- Dp.Top:=Img.Top+Img.Height+25;
- if DpType=diNord then  Dp.Top:=Img.Top+Img.Height+GLab.Height+30;
- if DpType=diExp then  Dp.Top:=Img.Top+Img.Height+Iph_CB.Height+50;
- if DpType=diLam then  Dp.Top:=Img.Top+Img.Height+Iph_CB.Height+80;
-
- Dp.Left:=0;
- DiapToFormFr(D[DpType], Dp);
-
-  if (DpType=diIvan)or(BohlinMethod) then
-  begin
-   Dp.LEYmin.Top:=Dp.LEXmin.Top;
-   Dp.LEYmax.Top:=Dp.LEXmin.Top;
-   Dp.LEYmin.Left:=Dp.LEXmin.Left+Dp.LEXmin.Width+MarginBeetween;
-   Dp.LEXmax.Left:=Dp.LEYmin.Left+Dp.LEYmin.Width+MarginBeetween;
-   Dp.LEYmax.Left:=Dp.LEXmax.Left+Dp.LEXmax.Width+MarginBeetween;
-   Dp.Width:=Dp.LEYmax.Left+Dp.LEYmax.Width+5;
-   Dp.Height:=Dp.LEYmax.Top+Dp.LEYmax.Height+5;
-  end;
-
- if DpType=diEx then Dp.LEXmin.EditLabel.Caption:='X min (X>0.06 V)';
+ Dp.Top:=VerticalEnd+25;
 
 
  Buttons:=TFrBut.Create(Form);
@@ -10597,73 +10745,34 @@ begin
   if Form.ShowModal=mrOk then
    begin
      FormFrToDiap(Dp,D[DpType]);
-     DiapShowNew(DpType);
-     if (DpType=diNord)and(not(BohlinMethod)) then
-       begin
-        Gamma:=StrToFloatDef(GEdit.Text, 2);
-        Form1.LabelNordGamma.Caption:='gamma: '+FloatToStrF(Gamma,ffGeneral,2,1);
-       end;
 
+     if (DpType=diNord)and(not(BohlinMethod)) then   EditToFloat('Gamma',Gamma);
      if BohlinMethod then
        begin
-        Gamma1:=StrToFloatDef(GEdit.Text, 2);
-        Gamma2:=StrToFloatDef(GEdit2.Text, 2.5);
+        EditToFloat('Gamma1',Gamma1);
+        LabeledEditToFloat('Gamma2',Gamma2);
         if abs(Gamma2-Gamma1)<1e-3 then
                     begin
                     Gamma1:=2;
                     Gamma2:=2.5;
                     MessageDlg('Gamma1 cannot be equal Gamma2', mtError,[mbOk],0);
                     end;
-         Form1.LabBohGam1.Caption:='gamma1 = '+FloatToStrF(Gamma1,ffGeneral,2,1);
-         Form1.LabBohGam2.Caption:='gamma2 = '+FloatToStrF(Gamma2,ffGeneral,2,1);
        end;
-
-     if DpType=diExp then
+     if DpType=diExp then CheckBoxToBool('ExpFormCB',Iph_Exp);
+     if DpType=diLam then CheckBoxToBool('LamFormCB',Iph_Lam);
+     if DpType=diDE then
       begin
-        Iph_Exp:=Iph_CB.Checked;
-        Form1.LabelExpIph.Caption:=IphUsed(Iph_Exp);
+        CheckBoxToBool('DEFormCB',Iph_DE);
+        CheckBoxToBool('DEFormDDCB',DDiod_DE);
       end;
 
-     if DpType=diLam then
-      begin
-        Iph_Lam:=Iph_CB.Checked;
-        Form1.LabelLamIph.Caption:=IphUsed(Iph_Lam);
-      end;
+     DiapShowNew(DpType);
 
    end;//  if Form.ShowModal=mrOk then
 
 
-// showmessage(inttostr(Form.ComponentCount));
  for I := Form.ComponentCount-1 downto 0 do
      Form.Components[i].Free;
-
-// Buttons.Parent:=nil;
-// Buttons.Free;
-//
-// if DpType=diExp then
-//  begin
-//    Iph_CB.Parent:=nil;
-//    Iph_Cb.Free;
-//    Param_But.Parent:=nil;
-//    Param_But.Free;
-//  end;
-//
-// if DpType=diNord then
-//  begin
-//   GLab.Parent:=nil;
-//   GLab.Free;
-//   GEdit.Parent:=nil;
-//   GEdit.Free;
-//   if BohlinMethod then
-//    begin
-//     GEdit2.Parent:=nil;
-//     GEdit2.Free;
-//    end;
-//  end;
-// Dp.Parent:=nil;
-// Dp.Free;
-// Img.Parent:=nil;
-// Img.Free;
  Form.Hide;
  Form.Release;
 end;
@@ -10702,6 +10811,7 @@ if ((Sender as TButton).Name='ButtonParamBh') then
                                           end;
 if ((Sender as TButton).Name='ButtonParamExp') then Result:=diExp;
 if ((Sender as TButton).Name='ButtonParamLam') then Result:=diLam;
+if ((Sender as TButton).Name='ButtonParamDE') then Result:=diDE;
 
 if ((Sender as TButton).Name='ButtonKalkPar') then
   begin
@@ -10727,12 +10837,8 @@ if ((Sender as TButton).Name='ButtonKalkPar') then
                                           end;
    if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='I=I0[exp(Vef/E)-1]+Vef/Rsh-Iph' then Result:=diExp;
    if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Lambert function' then Result:=diLam;
+   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Evolution Algorithm' then Result:=diDE;
   end;
-
-//    or(((Sender as TButton).Name='ButtonKalkPar')
-//         and(Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Cibils'))
-//     then
-//    Result:=diCib;
 end;
 
 procedure TForm1.FormDpKeyPress(Sender: TObject; var Key: Char);
@@ -10751,7 +10857,11 @@ procedure TForm1.OnClickCheckBox(Sender: TObject);
     дозволяє міняти картинку на формі}
 var PictureName:string;
     i:integer;
+    boolIph,boolDD:boolean;
 begin
+boolIph:=true;
+boolDD:=true;
+
   if (Sender is TCheckBox)and((Sender as TCheckBox).Name='ExpFormCB') then
     begin
       if (Sender as TCheckBox).Checked then PictureName:='ExpIphFig'
@@ -10764,6 +10874,28 @@ begin
                                        else PictureName:='DiodLamFig';
     end;
 
+ if (Sender is TCheckBox)and
+   (((Sender as TCheckBox).Name='DEFormCB')or((Sender as TCheckBox).Name='DEFormDDCB')) then
+    begin
+      for I := 0 to (Sender as TCheckBox).Parent.ComponentCount-1 do
+        begin
+         if ((Sender as TCheckBox).Parent.Components[i] is TCheckBox)and
+            (((Sender as TCheckBox).Parent.Components[i] as TCheckBox).Name='DEFormCB') then
+              boolIph:=((Sender as TCheckBox).Parent.Components[i] as TCheckBox).Checked;
+
+         if ((Sender as TCheckBox).Parent.Components[i] is TCheckBox)and
+            (((Sender as TCheckBox).Parent.Components[i] as TCheckBox).Name='DEFormDDCB') then
+              boolDD:=((Sender as TCheckBox).Parent.Components[i] as TCheckBox).Checked;
+
+        end;
+      if boolIph then
+             if boolDD then PictureName:='DoubleDiodLightFig'
+                       else PictureName:='ExpIphFig'
+                else
+             if boolDD then PictureName:='DoubleDiodFig'
+                         else PictureName:='ExpFig';
+    end;
+
 
 for I := 0 to (Sender as TCheckBox).Parent.ComponentCount-1 do
  if ((Sender as TCheckBox).Parent.Components[i] is TImage) then
@@ -10772,8 +10904,6 @@ for I := 0 to (Sender as TCheckBox).Parent.ComponentCount-1 do
   ((Sender as TCheckBox).Parent.Components[i] as TImage).Height:=500;
   PictLoadScale(((Sender as TCheckBox).Parent.Components[i] as TImage),PictureName);
   end;
-
-
 end;
 
 procedure TForm1.OnClickButton(Sender: TObject);
@@ -10782,7 +10912,11 @@ procedure TForm1.OnClickButton(Sender: TObject);
 var FuncName:string;
     i:integer;
     F:TFitFunction;
+    boolIph,boolDD:boolean;
 begin
+boolIph:=true;
+boolDD:=true;
+
   if (Sender is TButton)and((Sender as TButton).Name='ExpFormBut') then
     begin
      for I := 0 to (Sender as TButton).Parent.ComponentCount-1 do
@@ -10805,11 +10939,193 @@ begin
         end;
     end;
 
+  if (Sender is TButton)and((Sender as TButton).Name='DEFormBut') then
+    begin
+     for I := 0 to (Sender as TButton).Parent.ComponentCount-1 do
+      begin
+       if ((Sender as TButton).Parent.Components[i] is TCheckBox)and
+          (((Sender as TButton).Parent.Components[i] as TCheckBox).Name='DEFormCB') then
+            boolIph:=((Sender as TButton).Parent.Components[i] as TCheckBox).Checked;
+
+       if ((Sender as TButton).Parent.Components[i] is TCheckBox)and
+          (((Sender as TButton).Parent.Components[i] as TCheckBox).Name='DEFormDDCB') then
+            boolDD:=((Sender as TButton).Parent.Components[i] as TCheckBox).Checked;
+      end;
+
+      if boolIph then
+             if boolDD then FuncName:='Photo D-Diod'
+                       else FuncName:='PhotoDiod'
+                else
+             if boolDD then FuncName:='D-Diod'
+                         else FuncName:='Diod';
+    end;
+
+
 FunCreate(FuncName,F);
 if  not(Assigned(F)) then Exit;
 F.SetValueGR;
 F.Free;
 end;
 
+
+
+Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
+                    FitName:string;Rbool:boolean);
+{по даним у векторі А будує залежність похідної
+диференційного нахилу ВАХ від напруги (метод Булярського)
+fun - кількість зглажувань
+Rbool=true - потрібно враховувати послідовний
+та шунтуючі опори;
+FitName - назва функції, якв буде використовуватись
+для апроксимації}
+
+var j,id:integer;
+    temp,A_apr,{temp_apr,}B_apr,Alim:Pvector;
+    tsingle:double;
+//    Fit:TFitFunction;
+    Light:boolean;
+    Diap:Diapazon;
+begin
+  Light:=false;
+  Diap:=D[diDE];
+
+  if (FitName= FuncName[10])or
+     (FitName= FuncName[12])or
+     (FitName= FuncName[14])or
+     (FitName= FuncName[20])
+              then Light:=true;
+
+
+  if (FitName= FuncName[12])or
+     (FitName= FuncName[11])
+              then Diap:=D[diExp];
+
+  if (FitName= FuncName[14])or
+     (FitName= FuncName[13])
+              then Diap:=D[diLam];
+
+//  showmessage(BooltoStr(Light));
+
+ B^.n:=0;
+ new(Alim);
+ A_B_Diapazon(Light,A,Alim,Diap);
+
+
+ if (Alim^.T=0)or(Alim^.n<3) then
+     begin
+     dispose(Alim);
+     Exit;
+     end;
+
+  new(temp);
+  IVchar(Alim,temp);
+
+  Diferen (temp,B);
+
+ if B^.n=0 then
+           begin
+            dispose(temp);
+            dispose(Alim);
+            Exit;
+          end;
+
+ tsingle:=Alim^.T*Kb;
+ for j:=0 to High(B^.X) do
+        B^.Y[j]:=1/B^.Y[j]*Alim^.Y[j]/tsingle;
+
+ ForwardIV(B,temp);
+ IVchar(temp,B);
+
+ for j:=1 to fun do
+  begin
+   Smoothing (B,temp);
+   IVchar(temp,B);
+  end;
+
+ Diferen (B,temp);
+
+ id:=0;
+ for j:=0 to High(temp^.X) do
+        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then id:=id+1;
+ if id<1 then
+     begin
+       B^.n:=0;
+       dispose(temp);
+       dispose(Alim);
+       Exit;
+     end;
+
+ SetLenVector(B,id);
+
+ id:=0;
+ for j:=0 to High(temp^.X) do
+        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then
+         begin
+          B^.X[id]:=temp^.X[j];
+          B^.Y[id]:=temp^.Y[j];
+          id:=id+1;
+         end;
+
+ dispose(temp);
+//--------------------------------------------
+
+
+
+if Rbool then
+  begin
+  FunCreate(FitName,Fit);
+  Fit.Fitting(Alim,EvolParam);
+  if EvolParam[0]=555 then
+          begin
+            dispose(Alim);
+            Exit;
+          end;
+  new(A_apr);
+  new(temp);
+  IVchar(Alim,A_apr);
+  for j:=0 to High(Alim^.X) do
+     A_apr^.Y[j]:=Fit.FinalFunc(Alim^.X[j],EvolParam);
+
+  Fit.Free;  
+  IVchar(A_apr,temp);
+  new(B_apr);
+  Diferen (temp,B_apr);
+
+  for j:=0 to High(B_apr^.X) do
+      B_apr^.Y[j]:=1/B_apr^.Y[j]*A_apr^.Y[j]/tsingle;
+  dispose(A_apr);
+
+  ForwardIV(B_apr,temp);
+  IVchar(temp,B_apr);
+
+
+
+  for j:=1 to fun do
+   begin
+     Smoothing (B_apr,temp);
+     IVchar(temp,B_apr);
+   end;
+ Diferen (B_apr,temp);
+
+ SetLenVector(B_apr,B^.n);
+ id:=0;
+ for j:=0 to High(temp^.X) do
+        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then
+         begin
+          B_apr^.X[id]:=temp^.X[j];
+          B_apr^.Y[id]:=temp^.Y[j];
+          id:=id+1;
+         end;
+  for j := 0 to High(B^.X) do
+    B^.Y[j]:=B^.Y[j]-B_apr^.Y[j];
+//  showmessage(FitName);
+
+ dispose(temp);
+ dispose(B_apr);
+ end;  //if Rbool then
+
+  dispose(Alim);
+// if (Rbool)and(Light) then DataFileWrite('rez.dat',A,EvolParam);
+end;
 
 end.

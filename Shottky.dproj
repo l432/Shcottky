@@ -33,12 +33,6 @@
     <DCCReference Include="ApprWindows.pas">
       <Form>App</Form>
     </DCCReference>
-    <DCCReference Include="DEUnit.pas">
-      <Form>DEForm</Form>
-    </DCCReference>
-    <DCCReference Include="ExpUnit.pas">
-      <Form>ExpForm</Form>
-    </DCCReference>
     <DCCReference Include="FormSelectFit.pas">
       <Form>FormSF</Form>
     </DCCReference>
@@ -53,9 +47,6 @@
     </DCCReference>
     <DCCReference Include="FrParam.pas">
       <Form>FrParamP</Form>
-    </DCCReference>
-    <DCCReference Include="LambUnit.pas">
-      <Form>LambForm</Form>
     </DCCReference>
     <DCCReference Include="OlegApprox.pas" />
     <DCCReference Include="OlegFunction.pas" />

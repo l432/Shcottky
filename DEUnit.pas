@@ -60,12 +60,12 @@ procedure TDEForm.FormShow(Sender: TObject);
 begin
 ModeToForm(Mode_DE,Iph_DE,CB_Rs,CB_Rsh,CB_Iph);
 DiapToForm(D[diDE], LEXmin,LEYmin,LEXmax,LEYmax);
-case EvolType of
-  TMABC:RG.ItemIndex:=1;
-  TTLBO:RG.ItemIndex:=2;
-  TPSO:RG.ItemIndex:=3;
-  else RG.ItemIndex:=0;
-end;
+//case EvolType of
+//  TMABC:RG.ItemIndex:=1;
+//  TTLBO:RG.ItemIndex:=2;
+//  TPSO:RG.ItemIndex:=3;
+//  else RG.ItemIndex:=0;
+//end;
 LEXmin.SetFocus;
 end;
 

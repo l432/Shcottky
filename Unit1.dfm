@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -1615,12 +1615,12 @@ object Form1: TForm1
           Left = 0
           Top = 0
           Width = 208
-          Height = 1600
+          Height = 1550
           Caption = 'PARAMETERS OF CALCULATION'
           TabOrder = 0
           object GroupBox6: TGroupBox
             Left = 7
-            Top = 494
+            Top = 462
             Width = 95
             Height = 178
             Caption = 'Norde'#39's function'
@@ -1691,7 +1691,7 @@ object Form1: TForm1
             Left = 5
             Top = 19
             Width = 200
-            Height = 111
+            Height = 95
             BiDiMode = bdRightToLeft
             Caption = 'Direct Aproximation'
             Color = clBtnHighlight
@@ -1706,27 +1706,9 @@ object Form1: TForm1
               Height = 14
               Caption = 'I0[exp(e(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph'
             end
-            object LabelExpRs: TLabel
-              Left = 20
-              Top = 30
-              Width = 57
-              Height = 14
-              BiDiMode = bdLeftToRight
-              Caption = 'Rs is varied'
-              ParentBiDiMode = False
-            end
-            object LabelExpRsh: TLabel
-              Left = 20
-              Top = 45
-              Width = 63
-              Height = 14
-              BiDiMode = bdLeftToRight
-              Caption = 'Rsh is varied'
-              ParentBiDiMode = False
-            end
             object LabelExpXmin: TLabel
               Left = 53
-              Top = 77
+              Top = 60
               Width = 29
               Height = 14
               BiDiMode = bdLeftToRight
@@ -1735,7 +1717,7 @@ object Form1: TForm1
             end
             object LabelExpYmin: TLabel
               Left = 120
-              Top = 77
+              Top = 60
               Width = 30
               Height = 14
               BiDiMode = bdLeftToRight
@@ -1744,7 +1726,7 @@ object Form1: TForm1
             end
             object LabelExpXmax: TLabel
               Left = 49
-              Top = 92
+              Top = 75
               Width = 33
               Height = 14
               BiDiMode = bdLeftToRight
@@ -1753,7 +1735,7 @@ object Form1: TForm1
             end
             object LabelExpYmax: TLabel
               Left = 118
-              Top = 92
+              Top = 75
               Width = 34
               Height = 14
               BiDiMode = bdLeftToRight
@@ -1762,7 +1744,7 @@ object Form1: TForm1
             end
             object Label2: TLabel
               Left = 13
-              Top = 77
+              Top = 60
               Width = 34
               Height = 14
               BiDiMode = bdLeftToRight
@@ -1771,7 +1753,7 @@ object Form1: TForm1
             end
             object LabelExpIph: TLabel
               Left = 20
-              Top = 60
+              Top = 35
               Width = 58
               Height = 14
               BiDiMode = bdLeftToRight
@@ -1780,7 +1762,7 @@ object Form1: TForm1
             end
             object ButtonParamExp: TButton
               Left = 135
-              Top = 38
+              Top = 30
               Width = 60
               Height = 25
               Caption = 'Edit'
@@ -1790,7 +1772,7 @@ object Form1: TForm1
           end
           object GroupBoxParamChung: TGroupBox
             Left = 7
-            Top = 366
+            Top = 335
             Width = 95
             Height = 122
             Caption = 'Cheung'#39's function'
@@ -1845,7 +1827,7 @@ object Form1: TForm1
           end
           object GroupBox5: TGroupBox
             Left = 108
-            Top = 366
+            Top = 335
             Width = 95
             Height = 122
             Caption = 'H funcion'
@@ -1900,7 +1882,7 @@ object Form1: TForm1
           end
           object GroupBoxEx: TGroupBox
             Left = 107
-            Top = 494
+            Top = 462
             Width = 95
             Height = 122
             Caption = 'I=I0exp(eV/nkT)'
@@ -1955,7 +1937,7 @@ object Form1: TForm1
           end
           object GroupBox7: TGroupBox
             Left = 7
-            Top = 682
+            Top = 650
             Width = 95
             Height = 50
             Caption = 'rectification volt.'
@@ -1982,7 +1964,7 @@ object Form1: TForm1
           end
           object GroupBoxNss: TGroupBox
             Left = 107
-            Top = 619
+            Top = 587
             Width = 95
             Height = 122
             Caption = 'Nss range'
@@ -2037,7 +2019,7 @@ object Form1: TForm1
           end
           object GroupBoxKam2: TGroupBox
             Left = 107
-            Top = 747
+            Top = 715
             Width = 95
             Height = 122
             Caption = 'Kaminski funct II'
@@ -2092,7 +2074,7 @@ object Form1: TForm1
           end
           object GroupBoxKam1: TGroupBox
             Left = 7
-            Top = 747
+            Top = 715
             Width = 95
             Height = 122
             Caption = 'Kaminski funct I'
@@ -2147,7 +2129,7 @@ object Form1: TForm1
           end
           object GroupBoxGr1: TGroupBox
             Left = 7
-            Top = 875
+            Top = 843
             Width = 95
             Height = 122
             Caption = 'Gromov funct I'
@@ -2202,7 +2184,7 @@ object Form1: TForm1
           end
           object GroupBoxGr2: TGroupBox
             Left = 108
-            Top = 875
+            Top = 843
             Width = 95
             Height = 122
             Caption = 'Gromov funct II'
@@ -2257,7 +2239,7 @@ object Form1: TForm1
           end
           object GroupBoxBh: TGroupBox
             Left = 7
-            Top = 997
+            Top = 966
             Width = 195
             Height = 52
             Caption = 'Bohlin method, parameters'
@@ -2291,7 +2273,7 @@ object Form1: TForm1
           end
           object GroupBoxCib: TGroupBox
             Left = 7
-            Top = 1051
+            Top = 1019
             Width = 95
             Height = 122
             Caption = 'Cibils function'
@@ -2346,7 +2328,7 @@ object Form1: TForm1
           end
           object GroupBoxLee: TGroupBox
             Left = 108
-            Top = 1051
+            Top = 1019
             Width = 95
             Height = 122
             Caption = 'Lee function'
@@ -2401,7 +2383,7 @@ object Form1: TForm1
           end
           object GroupBoxWer: TGroupBox
             Left = 7
-            Top = 1176
+            Top = 1144
             Width = 95
             Height = 122
             Caption = 'Werner function'
@@ -2456,7 +2438,7 @@ object Form1: TForm1
           end
           object GroupBoxMikh: TGroupBox
             Left = 108
-            Top = 1176
+            Top = 1144
             Width = 95
             Height = 122
             Caption = 'Mikhelashili meth'
@@ -2511,7 +2493,7 @@ object Form1: TForm1
           end
           object GroupBoxIvan: TGroupBox
             Left = 7
-            Top = 1300
+            Top = 1268
             Width = 95
             Height = 122
             Caption = 'Ivanov method'
@@ -2566,7 +2548,7 @@ object Form1: TForm1
           end
           object GroupBoxE2F: TGroupBox
             Left = 7
-            Top = 1424
+            Top = 1392
             Width = 95
             Height = 133
             Caption = 'I/[1-exp(-qV/kT)]'
@@ -2634,7 +2616,7 @@ object Form1: TForm1
           end
           object GroupBoxE2R: TGroupBox
             Left = 108
-            Top = 1424
+            Top = 1392
             Width = 95
             Height = 133
             Caption = 'I/[1-exp(-qV/kT)]'
@@ -2702,9 +2684,9 @@ object Form1: TForm1
           end
           object GroupParamLam: TGroupBox
             Left = 5
-            Top = 136
+            Top = 120
             Width = 200
-            Height = 111
+            Height = 95
             BiDiMode = bdRightToLeft
             Caption = 'Lambert Aproximation'
             Color = clCream
@@ -2719,27 +2701,9 @@ object Form1: TForm1
               Height = 14
               Caption = 'I0[exp(e(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph'
             end
-            object LabelLamRs: TLabel
-              Left = 20
-              Top = 30
-              Width = 57
-              Height = 14
-              BiDiMode = bdLeftToRight
-              Caption = 'Rs is varied'
-              ParentBiDiMode = False
-            end
-            object LabelLamRsh: TLabel
-              Left = 20
-              Top = 45
-              Width = 63
-              Height = 14
-              BiDiMode = bdLeftToRight
-              Caption = 'Rsh is varied'
-              ParentBiDiMode = False
-            end
             object LabelLamXmin: TLabel
               Left = 53
-              Top = 77
+              Top = 60
               Width = 29
               Height = 14
               BiDiMode = bdLeftToRight
@@ -2748,7 +2712,7 @@ object Form1: TForm1
             end
             object LabelLamYmin: TLabel
               Left = 120
-              Top = 77
+              Top = 60
               Width = 30
               Height = 14
               BiDiMode = bdLeftToRight
@@ -2757,7 +2721,7 @@ object Form1: TForm1
             end
             object LabelLamXmax: TLabel
               Left = 49
-              Top = 94
+              Top = 75
               Width = 33
               Height = 14
               BiDiMode = bdLeftToRight
@@ -2766,7 +2730,7 @@ object Form1: TForm1
             end
             object LabelLamYmax: TLabel
               Left = 118
-              Top = 92
+              Top = 75
               Width = 34
               Height = 14
               BiDiMode = bdLeftToRight
@@ -2775,7 +2739,7 @@ object Form1: TForm1
             end
             object Label16: TLabel
               Left = 13
-              Top = 77
+              Top = 60
               Width = 34
               Height = 14
               BiDiMode = bdLeftToRight
@@ -2784,7 +2748,7 @@ object Form1: TForm1
             end
             object LabelLamIph: TLabel
               Left = 20
-              Top = 60
+              Top = 35
               Width = 58
               Height = 14
               BiDiMode = bdLeftToRight
@@ -2793,7 +2757,7 @@ object Form1: TForm1
             end
             object ButtonParamLam: TButton
               Left = 135
-              Top = 38
+              Top = 30
               Width = 60
               Height = 25
               Caption = 'Edit'
@@ -2803,7 +2767,7 @@ object Form1: TForm1
           end
           object GroupBoxParamDE: TGroupBox
             Left = 5
-            Top = 253
+            Top = 221
             Width = 200
             Height = 111
             BiDiMode = bdRightToLeft
@@ -2820,22 +2784,13 @@ object Form1: TForm1
               Height = 14
               Caption = 'I0[exp(e(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph'
             end
-            object LabelDERs: TLabel
+            object LabDEDD: TLabel
               Left = 20
               Top = 30
-              Width = 57
+              Width = 128
               Height = 14
               BiDiMode = bdLeftToRight
-              Caption = 'Rs is varied'
-              ParentBiDiMode = False
-            end
-            object LabelDERsh: TLabel
-              Left = 20
-              Top = 45
-              Width = 63
-              Height = 14
-              BiDiMode = bdLeftToRight
-              Caption = 'Rsh is varied'
+              Caption = 'Double diod does not used'
               ParentBiDiMode = False
             end
             object LabelDEXmin: TLabel
@@ -2885,7 +2840,7 @@ object Form1: TForm1
             end
             object LabelDEIph: TLabel
               Left = 20
-              Top = 60
+              Top = 50
               Width = 58
               Height = 14
               BiDiMode = bdLeftToRight
@@ -2894,12 +2849,12 @@ object Form1: TForm1
             end
             object ButtonParamDE: TButton
               Left = 135
-              Top = 38
+              Top = 45
               Width = 60
               Height = 25
               Caption = 'Edit'
               TabOrder = 0
-              OnClick = ButtonParamDEClick
+              OnClick = ButtonParamCibClick
             end
           end
         end
@@ -6710,52 +6665,41 @@ object Form1: TForm1
         end
         object LabIsc: TLabel
           Tag = 56
-          Left = 15
-          Top = 40
-          Width = 26
+          Left = 5
+          Top = 43
+          Width = 70
           Height = 14
-          Caption = 'Isc = '
-        end
-        object LabIscCons: TLabel
-          Tag = 56
-          Left = 37
-          Top = 57
-          Width = 43
-          Height = 14
-          Caption = #1057'onsider'
-          OnClick = LabIscConsClick
+          Caption = 'Photo D-Diod'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          WordWrap = True
         end
         object LSmoothDL: TLabel
           Tag = 56
-          Left = 108
-          Top = 45
+          Left = 85
+          Top = 20
           Width = 50
           Height = 14
           Caption = 'Smoothing'
         end
         object LabRCons: TLabel
           Tag = 56
-          Left = 37
-          Top = 74
-          Width = 57
+          Left = 118
+          Top = 44
+          Width = 66
           Height = 28
-          Caption = 'Resistance '#1057'onsider'
+          Caption = 'Resistances '#1057'onsideration'
           WordWrap = True
           OnClick = LabRConsClick
         end
-        object CBoxIscCons: TCheckBox
-          Tag = 56
-          Left = 18
-          Top = 57
-          Width = 13
-          Height = 17
-          TabOrder = 0
-          OnClick = CBoxDLBuildClick
-        end
         object SpinEditDL: TSpinEdit
           Tag = 56
-          Left = 112
-          Top = 17
+          Left = 141
+          Top = 15
           Width = 41
           Height = 23
           TabStop = False
@@ -6763,29 +6707,50 @@ object Form1: TForm1
           Enabled = False
           MaxValue = 25
           MinValue = 0
-          TabOrder = 1
+          TabOrder = 0
           Value = 5
           OnChange = CBoxDLBuildClick
         end
         object ButSaveDL: TButton
           Tag = 1
-          Left = 99
-          Top = 64
+          Left = 110
+          Top = 75
           Width = 67
           Height = 25
           Caption = 'Save'
           Enabled = False
-          TabOrder = 2
+          TabOrder = 1
           OnClick = ButSaveDLClick
         end
         object CBoxRCons: TCheckBox
           Tag = 56
-          Left = 18
-          Top = 80
+          Left = 98
+          Top = 48
           Width = 13
           Height = 17
-          TabOrder = 3
+          TabOrder = 2
           OnClick = CBoxDLBuildClick
+        end
+        object ButLDFitSelect: TButton
+          Tag = 55
+          Left = 5
+          Top = 75
+          Width = 44
+          Height = 21
+          Caption = 'Select'
+          TabOrder = 3
+          OnClick = ButLDFitSelectClick
+        end
+        object ButLDFitOption: TButton
+          Tag = 55
+          Left = 54
+          Top = 75
+          Width = 44
+          Height = 21
+          Caption = 'Option'
+          Enabled = False
+          TabOrder = 4
+          OnClick = ButFitOptionClick
         end
       end
       object CBoxDLBuild: TCheckBox

@@ -174,10 +174,7 @@ Procedure AproxN (V:PVector; var Param:TArrSingle);virtual;
  Function FitnessFunc(AP:Pvector; Variab:TArrSingle):double;virtual;
  {функція для оцінки апроксимації залежності  AP
   даною функцією, найчастіше - квадратична форма}
- Function FinalFunc(X:double;Variab:TArrSingle):double; overload; virtual;
- {обчислюються значення апроксимуючої функції в
- точці з абсцисою Х, найчастіше значення співпадає
- з тим, що повертає Func при Fparam[0]=X}
+
  Constructor Create(N:integer);
 
  Procedure ReadValue;virtual;
@@ -264,7 +261,10 @@ F визначає апроксимуючу функцію,
  FXmode для якого елемент FXname співпадає з name}
  Procedure SetValueGR;virtual;
 
-
+ Function FinalFunc(X:double;Variab:TArrSingle):double; overload; virtual;
+ {обчислюються значення апроксимуючої функції в
+ точці з абсцисою Х, найчастіше значення співпадає
+ з тим, що повертає Func при Fparam[0]=X}
 
 Procedure Fitting (V:PVector; var Param:TArrSingle); overload; virtual;
 {апроксимуються дані у векторі V, отримані параметри
@@ -611,18 +611,18 @@ ResName і масштабується зображення, щоб не вийш
 за межі розмірів Img, які були перед цим}
 
 
-Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
-              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
-              Light:boolean;Func:byte);
-{по даним у векторі А будує залежність похідної
-диференційного нахилу ВАХ від напруги (метод Булярського)
-fun - кількість зглажувань
-Isc - струм короткого замикання
-Iscbool=true - потрібно враховувати Isc
-Rbool=true - потрібно враховувати послідовний
-та шунтуючі опори
-D, Mode, Light та Func потрібні лише для
-виклику функції ExpKalkNew}
+//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
+//              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
+//              Light:boolean;Func:byte);
+//{по даним у векторі А будує залежність похідної
+//диференційного нахилу ВАХ від напруги (метод Булярського)
+//fun - кількість зглажувань
+//Isc - струм короткого замикання
+//Iscbool=true - потрібно враховувати Isc
+//Rbool=true - потрібно враховувати послідовний
+//та шунтуючі опори
+//D, Mode, Light та Func потрібні лише для
+//виклику функції ExpKalkNew}
 
 Procedure FunCreate(str:string; var F:TFitFunction);
 {створює F того чи іншого типу залежно
@@ -989,6 +989,7 @@ if Fname='RevShSCLC2' then
            ConfigFile.WriteFloat(FName,FPname[i+2]+'Val',StrToFloat555(ParamP[i].EParam.Text));
            ConfigFile.WriteBool(FName,FPname[i+2]+'Bool',ParamP[i].CBIntr.Checked);
           end;
+
       if EvMode[0].Checked then FEvType:=TDE;
       if EvMode[1].Checked then FEvType:=TMABC;
       if EvMode[2].Checked then FEvType:=TTLBO;
@@ -5324,221 +5325,215 @@ DodParDetermination(V,Param);
 end;
 
 
-Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
-              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
-              Light:boolean;Func:byte);
-{по даним у векторі А будує залежність похідної
-диференційного нахилу ВАХ від напруги (метод Булярського)
-fun - кількість зглажувань
-Isc - струм короткого замикання
-Iscbool=true - потрібно враховувати Isc
-Rbool=true - потрібно враховувати послідовний
-та шунтуючі опори
-D, Mode, Light та Func потрібні лише для
-виклику функції ExpKalkNew}
-var j,id:integer;
-    temp,A_apr,temp_apr,B_apr,Alim:Pvector;
-    {AA,Sk,nn,I00,Fbb,}{Rss,Rsh,Iph,}{Voc,Pm,FF,Isc,}tsingle:double;
-    EvolParam:TArrSingle;
-    Fit:TFitFunction;
-begin
- B^.n:=0;
- new(Alim);
- A_B_Diapazon(Light,A,Alim,D);
-// IVchar(A,Alim);
-// Write_File('112.dat',Alim);
-
- if (Alim^.T=0)or(Alim^.n<3){or(AA=555)or(Sk=555)} then
-     begin
-     dispose(Alim);
-     Exit;
-     end;
-
-
-
-new(temp);
-new(A_apr);
-new(temp_apr);
-new(B_apr);
-//Splain3Vec(A,A^.X[0],0.01,temp);
-
-//A_B_Diapazon(Light,A,temp,D);
-//IVchar(temp,A);
-
-
-IVchar(Alim,temp);
-IVchar(Alim,A_apr);
-IVchar(Alim,temp_apr);
-
-
-
-//Iph:=0;
-
-
-if Rbool then
-  begin
-{  if Light then MABC (temp,DoubleDiodLight,Mode,EvolParam)
-           else MABC (temp,DoubleDiod,Mode,EvolParam);{}
-  if Light then Fit:=TDoubleDiodLight.Create
-           else Fit:=TDoubleDiodLight.Create;
-  Fit.Fitting(temp,EvolParam);
-//  MABC (temp,DoubleDiodLight,Mode,EvolParam)
-////           else DifEvol (temp,DoubleDiod,Mode,EvolParam);
-//           else MABC (temp,DoubleDiod,Mode,EvolParam);
-
-//  ExpKalkNew(A,D,Mode,Light,Func,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-
-  if EvolParam[0]=555 then
-          begin
-            dispose(temp);
-            dispose(temp_apr);
-            dispose(A_apr);
-            dispose(B_apr); {}
-            dispose(Alim);
-            Exit;
-          end;
-//  if Light then Iph:=EvolParam[6];
-//  Rss:=EvolParam[1];
-//  Rsh:=EvolParam[3];
-//------------------
-  if not(Light) then
-   begin
-     SetLength(EvolParam,7);
-     EvolParam[6]:=0;
-   end;
-
-SetLenVector(A_apr,Alim^.n);
-SetLenVector(temp_apr,Alim^.n);
-
-for j:=0 to High(Alim^.X) do
- begin
-   A_apr^.X[j]:=Alim^.X[j];
-   A_apr^.Y[j]:=Full_IV_2Exp(Alim^.X[j],EvolParam[0]*Kb*Alim^.T,EvolParam[4]*Kb*Alim^.T,
-               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
- end;
-
-//------------------
-
-{ for j:=0 to High(A^.X) do
-    begin
-     temp^.X[j]:=A^.X[j]-Rss*A^.Y[j];
-     temp^.Y[j]:=A^.Y[j]-A^.X[j]/Rsh;
-//-------------------
-     temp_apr^.X[j]:=A_apr^.X[j]-Rss*A_apr^.Y[j];
-     temp_apr^.Y[j]:=A_apr^.Y[j]-A_apr^.X[j]/Rsh;
-//-------------------
-    end;
-  end;
-}
-
- for j:=0 to High(Alim^.X) do
-    begin
-     temp^.X[j]:=Alim^.X[j];
-     temp^.Y[j]:=Alim^.Y[j];
-//-------------------
-     temp_apr^.X[j]:=A_apr^.X[j];
-     temp_apr^.Y[j]:=A_apr^.Y[j];
-//-------------------
-    end;
-  end;
-
-
-{if Iscbool then
-  begin
-   if (Rbool) and (Iph<>0)and(Iph<>555) then
-     for j:=0 to High(temp^.X) do
-        temp^.Y[j]:=temp^.Y[j]+Iph;
-   if not(Rbool) and (Isc0<>0)and(Isc0<>555) then
-     for j:=0 to High(temp^.X) do
-        temp^.Y[j]:=temp^.Y[j]+Isc0;
-  end;}
-
-{if Rbool then
-  for j:=0 to High(A^.X) do
-    begin
-     temp^.X[j]:=A^.X[j]-Rss*A^.Y[j];
-     temp^.Y[j]:=A^.Y[j]-A^.X[j]/Rsh;
-    end;
- }
-
- Diferen (temp,B);
-
- Diferen (temp_apr,B_apr);
-
- if B^.n=0 then
-           begin
-            dispose(temp);
-            dispose(temp_apr);
-            dispose(A_apr);
-            dispose(B_apr); {}
-            dispose(Alim);
-            Exit;
-          end;
-
-
- tsingle:=Alim^.T*Kb;
- for j:=0 to High(B^.X) do
-        begin
-        B^.Y[j]:=1/B^.Y[j]*Alim^.Y[j]/tsingle;
-        B_apr^.Y[j]:=1/B_apr^.Y[j]*A_apr^.Y[j]/tsingle;
-        end;
-// Write_File('DeepL.dat',B);
-// showmessage(inttostr(fun));
-
-
- ForwardIV(B,temp);
- IVchar(temp,B);
- ForwardIV(B_apr,temp_apr);
- IVchar(temp_apr,B_apr);
-
- for j:=1 to fun do
-  begin
-   Smoothing (B,temp);
-   IVchar(temp,B);
-   Smoothing (B_apr,temp_apr);
-   IVchar(temp_apr,B_apr);
-  end;
-
- Diferen (B,temp);
- Diferen (B_apr,temp_apr);
- id:=0;
- for j:=0 to High(temp^.X) do
-        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then id:=id+1;
- if id<1 then
-     begin
-       B^.n:=0;
-       dispose(temp);
-       Exit;
-     end;
- SetLenVector(B,id);
- SetLenVector(B_apr,id);
-
-{} id:=0;
- for j:=0 to High(temp^.X) do
-        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then
-         begin
-          B^.X[id]:=temp^.X[j];
-          B^.Y[id]:=temp^.Y[j];
-          B_apr^.X[id]:=temp_apr^.X[j];
-          B_apr^.Y[id]:=temp_apr^.Y[j];
-          id:=id+1;
-         end;
-
-if (Rbool)and(not(Iscbool)) then
-  for j := 0 to High(B^.X) do
-    B^.Y[j]:=B^.Y[j]-B_apr^.Y[j];
-{}
+//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
+//              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
+//              Light:boolean;Func:byte);
+//{по даним у векторі А будує залежність похідної
+//диференційного нахилу ВАХ від напруги (метод Булярського)
+//fun - кількість зглажувань
+//Isc - струм короткого замикання
+//Iscbool=true - потрібно враховувати Isc
+//Rbool=true - потрібно враховувати послідовний
+//та шунтуючі опори
+//D, Mode, Light та Func потрібні лише для
+//виклику функції ExpKalkNew}
+//var j,id:integer;
+//    temp,A_apr,temp_apr,B_apr,Alim:Pvector;
+//    tsingle:double;
+//    EvolParam:TArrSingle;
+//    Fit:TFitFunction;
+//begin
+// B^.n:=0;
+// new(Alim);
+// A_B_Diapazon(Light,A,Alim,D);
+//
+//
+// if (Alim^.T=0)or(Alim^.n<3) then
+//     begin
+//     dispose(Alim);
+//     Exit;
+//     end;
+//
+//
+//
+//new(temp);
+//new(A_apr);
+//new(temp_apr);
+//new(B_apr);
+//
+//IVchar(Alim,temp);
+//IVchar(Alim,A_apr);
+//IVchar(Alim,temp_apr);
+//
+//
+//
+//
+//if Rbool then
+//  begin
+//{  if Light then MABC (temp,DoubleDiodLight,Mode,EvolParam)
+//           else MABC (temp,DoubleDiod,Mode,EvolParam);{}
+//  if Light then Fit:=TDoubleDiodLight.Create
+//           else Fit:=TDoubleDiodLight.Create;
+//  Fit.Fitting(temp,EvolParam);
+////  MABC (temp,DoubleDiodLight,Mode,EvolParam)
+//////           else DifEvol (temp,DoubleDiod,Mode,EvolParam);
+////           else MABC (temp,DoubleDiod,Mode,EvolParam);
+//
+////  ExpKalkNew(A,D,Mode,Light,Func,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
+//
+//  if EvolParam[0]=555 then
+//          begin
+//            dispose(temp);
+//            dispose(temp_apr);
+//            dispose(A_apr);
+//            dispose(B_apr); {}
+//            dispose(Alim);
+//            Exit;
+//          end;
+////  if Light then Iph:=EvolParam[6];
+////  Rss:=EvolParam[1];
+////  Rsh:=EvolParam[3];
+////------------------
+//  if not(Light) then
+//   begin
+//     SetLength(EvolParam,7);
+//     EvolParam[6]:=0;
+//   end;
+//
+//SetLenVector(A_apr,Alim^.n);
+//SetLenVector(temp_apr,Alim^.n);
+//
+//for j:=0 to High(Alim^.X) do
+// begin
+//   A_apr^.X[j]:=Alim^.X[j];
+//   A_apr^.Y[j]:=Full_IV_2Exp(Alim^.X[j],EvolParam[0]*Kb*Alim^.T,EvolParam[4]*Kb*Alim^.T,
+//               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
+// end;
+//
+////------------------
+//
+//{ for j:=0 to High(A^.X) do
+//    begin
+//     temp^.X[j]:=A^.X[j]-Rss*A^.Y[j];
+//     temp^.Y[j]:=A^.Y[j]-A^.X[j]/Rsh;
+////-------------------
+//     temp_apr^.X[j]:=A_apr^.X[j]-Rss*A_apr^.Y[j];
+//     temp_apr^.Y[j]:=A_apr^.Y[j]-A_apr^.X[j]/Rsh;
+////-------------------
+//    end;
+//  end;
+//}
+//
+// for j:=0 to High(Alim^.X) do
+//    begin
+//     temp^.X[j]:=Alim^.X[j];
+//     temp^.Y[j]:=Alim^.Y[j];
+////-------------------
+//     temp_apr^.X[j]:=A_apr^.X[j];
+//     temp_apr^.Y[j]:=A_apr^.Y[j];
+////-------------------
+//    end;
+//
+//
+//  end;
+//
+//
+//{if Iscbool then
+//  begin
+//   if (Rbool) and (Iph<>0)and(Iph<>555) then
+//     for j:=0 to High(temp^.X) do
+//        temp^.Y[j]:=temp^.Y[j]+Iph;
+//   if not(Rbool) and (Isc0<>0)and(Isc0<>555) then
+//     for j:=0 to High(temp^.X) do
+//        temp^.Y[j]:=temp^.Y[j]+Isc0;
+//  end;}
+//
+//{if Rbool then
+//  for j:=0 to High(A^.X) do
+//    begin
+//     temp^.X[j]:=A^.X[j]-Rss*A^.Y[j];
+//     temp^.Y[j]:=A^.Y[j]-A^.X[j]/Rsh;
+//    end;
+// }
+//
+// Diferen (temp,B);
+//
+// Diferen (temp_apr,B_apr);
+//
+// if B^.n=0 then
+//           begin
+//            dispose(temp);
+//            dispose(temp_apr);
+//            dispose(A_apr);
+//            dispose(B_apr); {}
+//            dispose(Alim);
+//            Exit;
+//          end;
+//
+//
+// tsingle:=Alim^.T*Kb;
+// for j:=0 to High(B^.X) do
+//        begin
+//        B^.Y[j]:=1/B^.Y[j]*Alim^.Y[j]/tsingle;
+//        B_apr^.Y[j]:=1/B_apr^.Y[j]*A_apr^.Y[j]/tsingle;
+//        end;
+//// Write_File('DeepL.dat',B);
+//// showmessage(inttostr(fun));
+//
+//
+// ForwardIV(B,temp);
 // IVchar(temp,B);
-
-// ForwardIV(temp,B);
- dispose(temp);
- dispose(temp_apr);
- dispose(A_apr);
- dispose(B_apr); {}
- dispose(Alim);
-
-if (Rbool)and(Light) then DataFileWrite('rez.dat',A,EvolParam);
-end;
+// ForwardIV(B_apr,temp_apr);
+// IVchar(temp_apr,B_apr);
+//
+// for j:=1 to fun do
+//  begin
+//   Smoothing (B,temp);
+//   IVchar(temp,B);
+//   Smoothing (B_apr,temp_apr);
+//   IVchar(temp_apr,B_apr);
+//  end;
+//
+// Diferen (B,temp);
+// Diferen (B_apr,temp_apr);
+// id:=0;
+// for j:=0 to High(temp^.X) do
+//        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then id:=id+1;
+// if id<1 then
+//     begin
+//       B^.n:=0;
+//       dispose(temp);
+//       Exit;
+//     end;
+// SetLenVector(B,id);
+// SetLenVector(B_apr,id);
+//
+//{} id:=0;
+// for j:=0 to High(temp^.X) do
+//        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then
+//         begin
+//          B^.X[id]:=temp^.X[j];
+//          B^.Y[id]:=temp^.Y[j];
+//          B_apr^.X[id]:=temp_apr^.X[j];
+//          B_apr^.Y[id]:=temp_apr^.Y[j];
+//          id:=id+1;
+//         end;
+//
+//if (Rbool)and(not(Iscbool)) then
+//  for j := 0 to High(B^.X) do
+//    B^.Y[j]:=B^.Y[j]-B_apr^.Y[j];
+//{}
+//// IVchar(temp,B);
+//
+//// ForwardIV(temp,B);
+// dispose(temp);
+// dispose(temp_apr);
+// dispose(A_apr);
+// dispose(B_apr); {}
+// dispose(Alim);
+//
+//if (Rbool)and(Light) then DataFileWrite('rez.dat',A,EvolParam);
+//end;
 
 
 
