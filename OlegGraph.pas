@@ -653,6 +653,26 @@ Procedure GraphFill(Series:TLineSeries;Func:TFunDouble;
 {заповнює Series значеннями Func(х,y0) в діапазоні
 від х1 до х2 з загальною кількістю точок Npoint+1}
 
+Procedure VectorToGraph(A:PVector;Series:TLineSeries);
+{заносить дані з А в Series}
+
+Procedure GraphToVector(Series:TLineSeries;A:PVector);
+{заносить дані з Series в A, заповнюються лише масиви Х та Y координат}
+
+Procedure GraphAverage (Lines: array of TLineSeries; delX:double=0.002;
+                         NumLines:integer=0; shiftX:double=0.002);
+{зсувається графік, що знаходиться
+в елементі масиву з номером  NumLines,
+по абсциссі на величину shiftX;
+якщо  NumLines=0, то зсуву не відбувається;
+після цього 
+в нульовий елемент масиву вносить
+середнє арифметичне графіків,
+що знаходяться в інших;
+вибирається найменший діапазон абсцис серед всіх
+графіків;
+крок між абсцисами сусідніх точок - delX}
+
 //Procedure LamRshAprox (V:PVector; mode:byte; var n,Rs,I0,Rsh:double);
 //{апроксимуються дані у векторі V
 //залежністю I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh
@@ -4008,6 +4028,89 @@ for I := 0 to Npoint do
     Series.AddXY(x,Func(x,y0));
   end;
 
+end;
+
+Procedure VectorToGraph(A:PVector;Series:TLineSeries);
+{заносить дані з А в Series}
+var i:integer;
+begin
+Series.Clear;
+for I := 0 to High(A^.X) do
+  Series.AddXY(A^.X[i],A^.Y[i]);
+end;
+
+
+Procedure GraphToVector(Series:TLineSeries;A:PVector);
+{заносить дані з Series в A, заповнюються лише масиви Х та Y координат}
+var i:integer;
+begin
+SetLenVector(A,Series.Count);
+for I := 0 to High(A^.X) do
+     begin
+      A^.X[i]:=Series.XValue[i];
+      A^.Y[i]:=Series.YValue[i];
+     end;
+end;
+
+Procedure GraphAverage (Lines: array of TLineSeries; delX:double=0.002;
+                         NumLines:integer=0; shiftX:double=0.002);
+{зсувається графік, що знаходиться
+в елементі масиву з номером  NumLines,
+по абсциссі на величину shiftX;
+якщо  NumLines=0, то зсуву не відбувається;
+після цього
+в нульовий елемент масиву вносить
+середнє арифметичне графіків,
+що знаходяться в інших;
+вибирається найменший діапазон абсцис серед всіх
+графіків;
+крок між абсцисами сусідніх точок - delX}
+var VectorArr: array of PVector;
+    i:word;
+    Xmin,Xmax,x,y:double;
+begin
+
+if (High(Lines)<1)or(NumLines>High(Lines))
+    or(NumLines<0)  then Exit;
+
+try
+ Lines[0].Clear;
+ SetLength(VectorArr,High(Lines));
+ for i:= 0 to High(VectorArr) do
+   begin
+   new(VectorArr[i]);
+   GraphToVector(Lines[i+1],VectorArr[i]);
+   Sorting(VectorArr[i]);
+   end;
+//showmessage(inttostr(High(VectorArr[NumLines]^.X)));
+ if (NumLines>0) then
+   begin
+    for i:= 0 to High(VectorArr[NumLines-1]^.X) do
+     VectorArr[NumLines-1]^.X[i]:=VectorArr[NumLines-1]^.X[i]+shiftX;
+    VectorToGraph(VectorArr[NumLines-1],Lines[NumLines]);
+   end;
+
+ Xmin:=VectorArr[0]^.X[0];
+ Xmax:=VectorArr[0]^.X[High(VectorArr[0]^.X)];
+  for i:= 1 to High(VectorArr) do
+    begin
+     if Xmin<VectorArr[i]^.X[0] then Xmin:=VectorArr[i]^.X[0];
+     if Xmax>VectorArr[i]^.X[High(VectorArr[i]^.X)]
+                   then Xmax:=VectorArr[i]^.X[High(VectorArr[i]^.X)];
+    end;
+  x:=Xmin;
+  repeat
+    y:=0;
+    for i:= 0 to High(VectorArr) do
+      y:=y+ChisloY(VectorArr[i],x);
+    Lines[0].AddXY(x,y/(High(VectorArr)+1));
+    x:=x+delX;
+  until x>Xmax;
+
+ for I := 0 to High(VectorArr) do
+   dispose(VectorArr[i]);
+finally
+end;//try
 end;
 
 //Procedure LamRshAprox (V:PVector; mode:byte; var n,Rs,I0,Rsh:double);

@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet2
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -7155,6 +7155,39 @@ object Form1: TForm1
         Height = 105
         Caption = 'Gaussian Lines'
         TabOrder = 7
+        OnClick = GrBoxGausClick
+        object ButAveRight: TButton
+          Left = 315
+          Top = 35
+          Width = 25
+          Height = 25
+          Caption = '>'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -20
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 8
+          OnClick = ButAveLeftClick
+        end
+        object ButAveLeft: TButton
+          Left = 280
+          Top = 35
+          Width = 25
+          Height = 25
+          BiDiMode = bdRightToLeft
+          Caption = '<'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -20
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+          TabOrder = 7
+          OnClick = ButAveLeftClick
+        end
         object CBoxGLShow: TCheckBox
           Tag = 56
           Left = 5
@@ -7170,7 +7203,7 @@ object Form1: TForm1
           Tag = 700
           Left = 93
           Top = 10
-          Width = 255
+          Width = 150
           Height = 90
           TabStop = False
           ColCount = 6
@@ -7212,7 +7245,7 @@ object Form1: TForm1
           Font.Style = []
           MaxLength = 15
           MaxValue = 1
-          MinValue = 0
+          MinValue = 1
           ParentFont = False
           TabOrder = 3
           Value = 0
@@ -7220,7 +7253,7 @@ object Form1: TForm1
         end
         object ButGLAdd: TButton
           Tag = 700
-          Left = 52
+          Left = 54
           Top = 19
           Width = 35
           Height = 23
@@ -7274,6 +7307,24 @@ object Form1: TForm1
         TabOrder = 8
         WordWrap = True
         OnClick = ButGausSaveClick
+      end
+      object RBGausSelect: TRadioButton
+        Left = 551
+        Top = 45
+        Width = 70
+        Height = 17
+        Caption = 'Gaussian'
+        TabOrder = 9
+        OnClick = RBAveSelectClick
+      end
+      object RBAveSelect: TRadioButton
+        Left = 551
+        Top = 63
+        Width = 70
+        Height = 17
+        Caption = 'Average'
+        TabOrder = 10
+        OnClick = RBAveSelectClick
       end
     end
   end

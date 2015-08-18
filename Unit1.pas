@@ -794,6 +794,10 @@ type
     ButFitOption: TButton;
     ButLDFitSelect: TButton;
     ButLDFitOption: TButton;
+    RBGausSelect: TRadioButton;
+    RBAveSelect: TRadioButton;
+    ButAveLeft: TButton;
+    ButAveRight: TButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -917,6 +921,9 @@ type
     дозволяє міняти картинку на формі}
     procedure OnClickButton(Sender: TObject);
     procedure ButLDFitSelectClick(Sender: TObject);
+    procedure RBAveSelectClick(Sender: TObject);
+    procedure GrBoxGausClick(Sender: TObject);
+    procedure ButAveLeftClick(Sender: TObject);
     {чіпляється до Button деяких дочірніх форм,
     викликає вікно з параметрами апроксимації}
   private
@@ -1604,6 +1611,8 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
  Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
  Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
  DDiod_DE:=ConfigFile.ReadBool('Approx','DDiod_DE',True);
+
+// RBGausSelect.OnClick(Self);
 // ModeShow(Mode_Exp,Iph_Exp,LabelExpRs,LabelExpRsh,LabelExpIph);
 // ModeShow(Mode_Lam,Iph_Lam,LabelLamRs,LabelLamRsh,LabelLamIph);
 // ModeShow(Mode_DE,Iph_DE,LabelDERs,LabelDERsh,LabelDEIph);
@@ -1898,12 +1907,15 @@ ColParam(StrGridData);
   SGMarker.Cells[1,0]:='File';
   SGMarker.Cells[2,0]:='Voltage';
   SGMarker.Cells[3,0]:='Current';
-  SGridGaussian.Cells[0,0]:='N';
-  SGridGaussian.Cells[1,0]:='U0';
-  SGridGaussian.Cells[2,0]:='Et';
-  SGridGaussian.Cells[3,0]:='Deviation';
-  SGridGaussian.Cells[4,0]:='Max Value';
-  SGridGaussian.Cells[5,0]:='Quota';
+//  SGridGaussian.Cells[0,0]:='N';
+//  SGridGaussian.Cells[1,0]:='U0';
+//  SGridGaussian.Cells[2,0]:='Et';
+//  SGridGaussian.Cells[3,0]:='Deviation';
+//  SGridGaussian.Cells[4,0]:='Max Value';
+//  SGridGaussian.Cells[5,0]:='Quota';
+
+  RBGausSelect.Checked:=ConfigFile.ReadBool('Approx','SelectGaus',True);
+  RBAveSelect.Checked:=not(RBGausSelect.Checked);
 
 
   Graph.LeftAxis.Automatic:=true;
@@ -2140,6 +2152,7 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
  ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
  ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
  ConfigFile.WriteBool('Approx','DDiod_DE',DDiod_DE);
+ ConfigFile.WriteBool('Approx','SelectGaus',RBGausSelect.Checked);
 
   for DP := Low(DP) to High(DP) do
    begin
@@ -2334,6 +2347,11 @@ if TComponent(Sender).Name='ForIV' then Result:=Fo;
 if TComponent(Sender).Name='RevIV' then Result:=Rev;
 end;
 
+procedure TForm1.GrBoxGausClick(Sender: TObject);
+begin
+
+end;
+
 //procedure TForm1.Label1Click(Sender: TObject);
 //begin
 //CBoxAppr.Checked:= not CBoxAppr.Checked;
@@ -2383,6 +2401,7 @@ var
   drive:char;
   path, fileName:string;
 begin
+//showmessage(inttostr(High(GausLinesCur)));
    Try    ChDir(Directory);
           OpenDialog1.InitialDir:=Directory;
    Except ChDir(Directory0);
@@ -2405,16 +2424,48 @@ begin
            Series1.Clear;
            Series2.Clear;
            end;
-//                       else
-//           begin
-//            try
-//            Isc:=IscCalc(VaxFile);
-//            except
-//            Isc:=0;
-//            end;
-//            LabIsc.Caption:='Isc = '+ FloatToStrF(Isc,ffExponent,3,2);
-//           end;
-       GraphShow(Form1);
+
+       if (PageControl1.ActivePageIndex=3)and(RBAveSelect.Checked) then
+         begin
+           if High(GausLines)<0 then
+             begin
+               SetLength(GausLines,1);
+               GausLines[0]:=TLineSeries.Create(Form1);
+//               GausLines[0].SeriesColor:=clRed;
+//               GausLines[0].Active:=True;
+               SEGauss.Enabled:=True;
+//               GausLines[0].ParentChart:=Graph;
+//               Series1.Active:=False;
+//               Series2.Active:=False;
+               SGridGaussian.Enabled:=True;
+               ButGlDel.Enabled:=True;
+               ButGausSave.Enabled:=True;
+             end; // if High(GausLines)<0 then
+//          showmessage(inttostr(High(GausLines)));
+          SetLength(GausLines,High(GausLines)+2);
+          GausLines[High(GausLines)]:=TLineSeries.Create(Form1);
+          VectorToGraph(VaxFile,GausLines[High(GausLines)]);
+          SGridGaussian.RowCount:=SGridGaussian.RowCount+1;
+          SGridGaussian.Cells[0,SGridGaussian.RowCount-4]:=
+                       IntToStr(High(GausLines));
+          SGridGaussian.Cells[1,SGridGaussian.RowCount-4]:=VaxFile^.name;
+
+          if SEGauss.Value<>0 then GausLines[SEGauss.Value].SeriesColor:=clNavy;
+          GausLines[High(GausLines)].SeriesColor:=clBlue;
+//          Graph.RemoveSeries(GausLines[0]);
+          GraphAverage(GausLines);
+//          GausLines[0].ParentChart:=Graph;
+          GausLines[High(GausLines)].ParentChart:=Graph;
+          GausLines[High(GausLines)].Active:=True;
+          SEGauss.MaxValue:=High(GausLines);
+          SEGauss.Value:=SEGauss.MaxValue;
+          GraphToVector(GausLines[0],VaxFile);
+          VaxFile^.T:=0;
+          VaxFile^.name:='average';
+         end;
+          // if (PageControl1.ActivePageIndex=3)and(RBAveSelect.Checked) then
+//                                                                   else
+         GraphShow(Form1);
        end;
 end;
 
@@ -2739,6 +2790,84 @@ end;
 MessageDlg(st, mtInformation,[mbOk],0);
 end;
 
+procedure TForm1.RBAveSelectClick(Sender: TObject);
+var i:integer;
+begin
+if RBAveSelect.Checked then
+ begin
+   ButGLLoad.Visible:=False;
+   ButGLRes.Visible:=False;
+   CBoxGLShow.Visible:=False;
+   CBoxGLShow.Checked:=False;
+//   CBoxGLShow.Enabled:=False;
+
+   GausLinesSave;
+   GausLinesFree;
+
+   SGridGaussian.ColCount:=2;
+   SGridGaussian.RowCount:=4;
+   for I := 0 to 3 do SGridGaussian.Rows[i].Clear;
+   SGridGaussian.Cells[0,0]:='N';
+   SGridGaussian.Cells[1,0]:='File Name';
+   SGridGaussian.ColWidths[0]:=30;
+   SGridGaussian.ColWidths[1]:=100;
+   SGridGaussian.Width:=150;
+   SGridGaussian.Left:=120;
+
+   ButGausSave.Caption:='Save Average';
+   GrBoxGaus.Caption:='Lines for Averaging';
+
+   GraphShow(Form1);
+
+   ButGLAdd.Enabled:=True;
+//   GroupBox36.Enabled:=True;
+//   ButLGAdd.Enabled:=True;
+//   SetLength(GausLinesCur,0);
+//   SetLength(GausLines,0);
+ end
+                       else
+ begin
+   ButGLLoad.Visible:=True;
+   ButGLRes.Visible:=True;
+   CBoxGLShow.Visible:=True;
+//   CBoxGLShow.Enabled:=True;
+
+   SGridGaussian.ColCount:=6;
+   SGridGaussian.RowCount:=4;
+   for I := 0 to 3 do SGridGaussian.Rows[i].Clear;
+   SGridGaussian.Cells[0,0]:='N';
+   SGridGaussian.Cells[1,0]:='U0';
+   SGridGaussian.Cells[2,0]:='Et';
+   SGridGaussian.Cells[3,0]:='Deviation';
+   SGridGaussian.Cells[4,0]:='Max Value';
+   SGridGaussian.Cells[5,0]:='Quota';
+   SGridGaussian.ColWidths[0]:=20;
+   SGridGaussian.ColWidths[1]:=32;
+   SGridGaussian.ColWidths[2]:=32;
+   SGridGaussian.ColWidths[3]:=50;
+   SGridGaussian.ColWidths[4]:=50;
+   SGridGaussian.ColWidths[5]:=45;
+   SGridGaussian.Width:=255;
+   SGridGaussian.Left:=93;
+
+   ButGausSave.Caption:='Save Gaussian';
+   GrBoxGaus.Caption:='Gaussian Lines';
+
+   GausLinesFree;
+   GraphShow(Form1);
+   CompEnable(Form1,700,CBoxGLShow.Checked);
+//   RBPointClick(Self);
+//   SEGauss.MaxValue:=0;
+   SEGauss.Value:=0;
+//   CBoxGLShow.Checked:=False;
+
+//   SetLength(GausLinesCur,0);
+//   SetLength(GausLines,0);
+
+ end
+
+end;
+
 procedure TForm1.RBLineClick(Sender: TObject);
 begin
  Series1.Active:=False;
@@ -2831,25 +2960,39 @@ end;
 procedure TForm1.SEGaussChange(Sender: TObject);
 var i:integer;
 begin
+
+// showmessage(inttostr(SEGauss.Value));
+ if High(GausLines)<0 then Exit;
+
+
  if SEGauss.Value=0 then
     begin
-    SEGauss.Value:=1;
+//    SEGauss.Value:=1;
     Exit;
     end;
 
- if RButGaussianLines.Checked  then GaussianLinesParam;
+
+
+ if (RButGaussianLines.Checked)and(RBGausSelect.Checked)  then GaussianLinesParam;
  for i:=1 to High(GausLines) do
    GausLines[i].SeriesColor:=clNavy;
  GausLines[SEGauss.Value].SeriesColor:=clBlue;
  Graph.RemoveSeries(GausLines[SEGauss.Value]);
  GausLines[SEGauss.Value].ParentChart:=Graph;
- GaussLinesToGrid;
+ if RBGausSelect.Checked then
+       GaussLinesToGrid
+                         else
+      begin
+       SGridGaussian.Visible:=False;
+       SGridGaussian.Visible:=True;
+      end;
 end;
+
 
 procedure TForm1.SGridGaussianDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
 begin
-if (ACol>0) and (ARow=SEGauss.Value) and (ARow>0) then
+if (ACol>0) and (ARow=SEGauss.Value)and(SEGauss.Enabled=True) and (ARow>0) then
    begin
    SGridGaussian.Canvas.Brush.Color:=RGB(183,255,183);
    SGridGaussian.Canvas.FillRect(Rect);
@@ -3042,6 +3185,18 @@ SGMarker.RowCount:=4;
 for I := 1 to 3 do SGMarker.Rows[i].Clear;
 end;
 
+procedure TForm1.ButAveLeftClick(Sender: TObject);
+begin
+  GaussLinesToGraph(False);
+  if(Sender is TButton)and((Sender as TButton).Caption='<')
+      then  GraphAverage(GausLines,0.002,SEGauss.Value,-0.002);
+  if(Sender is TButton)and((Sender as TButton).Caption='>')
+      then  GraphAverage(GausLines,0.002,SEGauss.Value,0.002);
+  GaussLinesToGraph(True);
+  GraphToVector(GausLines[0],VaxFile);
+  GraphShow(Form1);
+end;
+
 procedure TForm1.ButBaseLineResetClick(Sender: TObject);
 begin
  if CBoxBaseLineUse.Checked then CBoxBaseLineUse.Checked:=False;
@@ -3124,7 +3279,15 @@ var i,j:integer;
     Str:TStringList;
     str2:string;
 begin
-SaveDialog1.FileName:=copy(VaxFile^.name,1,length(VaxFile^.name)-4)+'gl.dat';
+if RBAveSelect.Checked then
+ begin
+   SaveDialog1.FileName:='average.dat';
+   if SaveDialog1.Execute() then
+      Write_File(SaveDialog1.FileName, VaxFile);
+ end  // if RBAveSelect.Checked then
+                       else  // if RBAveSelect.Checked
+ begin
+ SaveDialog1.FileName:=copy(VaxFile^.name,1,length(VaxFile^.name)-4)+'gl.dat';
    if SaveDialog1.Execute()
      then
        begin
@@ -3154,12 +3317,18 @@ SaveDialog1.FileName:=copy(VaxFile^.name,1,length(VaxFile^.name)-4)+'gl.dat';
         Str.SaveToFile(str2);
         Str.Free;
        end;
+ end;  // else if RBAveSelect.Checked
 end;
 
 procedure TForm1.ButGLAddClick(Sender: TObject);
 var i:integer;
 begin
-// showmessage(inttostr(High(GausLines)));
+if RBAveSelect.Checked then
+  begin
+    OpenFileClick(Self);
+  end  // then RBAveSelect.Checked
+                      else
+ begin
  SetLength(GausLinesCur,High(GausLinesCur)+2);
  GausLinesCur[High(GausLinesCur)]:= Curve3.Create((Series1.MaxYValue-Series1.MinYValue)/2,
               (Series1.MaxXValue+Series1.MinXValue)/2,
@@ -3181,11 +3350,38 @@ begin
    SEGauss.MaxValue:=High(GausLines);
    SEGauss.Value:=SEGauss.MaxValue;
    GaussLinesToGrid;
+ end; // else  RBAveSelect.Checked
 end;
 
 procedure TForm1.ButGLDelClick(Sender: TObject);
 var i:integer;
 begin
+if RBAveSelect.Checked then
+ begin
+  if High(GausLines)=1 then Exit;
+ GaussLinesToGraph(False);
+ for I := SEGauss.Value to High(GausLines)-1 do
+     begin
+     GausLines[i].AssignValues(GausLines[i+1]);
+     SGridGaussian.Cells[1,i]:=SGridGaussian.Cells[1,i+1];
+     end;
+  GausLines[High(GausLines)].Free;
+  SetLength(GausLines,High(GausLines));
+
+  GaussLinesToGraph(True);
+  GraphAverage(GausLines);
+  GraphToVector(GausLines[0],VaxFile);
+  GraphShow(Form1);
+
+  SGridGaussian.Rows[SEGauss.MaxValue].Clear;
+  SGridGaussian.RowCount:=SGridGaussian.RowCount-1;
+
+
+  if SEGauss.Value=SEGauss.MaxValue then  SEGauss.Value:=SEGauss.Value-1;
+  SEGauss.MaxValue:=SEGauss.MaxValue-1;
+ end // if RBAveSelect.Checked then
+                       else
+ begin
  if High(GausLines)=1 then
        begin
          CBoxGLShow.Checked:=false;
@@ -3206,6 +3402,7 @@ begin
   if SEGauss.Value=SEGauss.MaxValue then  SEGauss.Value:=SEGauss.Value-1;
   SEGauss.MaxValue:=SEGauss.MaxValue-1;
   GaussLinesToGrid;
+ end; //else if RBAveSelect.Checked
 end;
 
 procedure TForm1.ButGLLoadClick(Sender: TObject);
@@ -9189,7 +9386,7 @@ if CBoxGLShow.Checked then
      begin
        SetLength(GausLinesCur,2);
        SetLength(GausLines,2);
-       GausLinesCur[1]:= Curve3.Create((Series1.MaxYValue-Series1.MinYValue)/2,
+       GausLinesCur[1]:=Curve3.Create((Series1.MaxYValue-Series1.MinYValue)/2,
                   (Series1.MaxXValue+Series1.MinXValue)/2,
                   (Series1.MaxXValue-Series1.MinXValue)/4);
        GausLines[0]:=TLineSeries.Create(Form1);
@@ -9391,8 +9588,11 @@ Form1.CBoxBaseLineVisib.Checked:=False;
 Form1.CBoxBaseLineUse.Checked:=False;
 if High(GausLinesCur)>0 then GausLinesSave;
 Form1.CBoxGLShow.Checked:=False;
-GausLinesFree;
-GaussLinesToGrid;
+if High(GausLines)<0 then
+  begin
+    GausLinesFree;
+    GaussLinesToGrid;
+  end;
 if Form1.SpButLimit.Down then Form1.SpButLimit.Down:=False;
 ApproxHide(Form1);
 end;
@@ -10239,6 +10439,7 @@ Procedure GaussianLinesParam;
 begin
   with Form1 do
   begin
+//    if SEGauss.Value=0 then Exit;
 
     ToTrack (GausLinesCur[SEGauss.Value].A,TrackPanA,SpinEditPanA,CBoxPanA);
     ToTrack (GausLinesCur[SEGauss.Value].B,TrackPanB,SpinEditPanB,CBoxPanB);
@@ -10306,6 +10507,7 @@ begin
       for I := 1 to High(GausLinesCur) do GausLinesCur[i].Free;
       SetLength(GausLinesCur,0);
      end;
+//   Form1.SEGauss.Value:=0;
 end;
 
 Procedure GausLinesSave;
@@ -10413,6 +10615,7 @@ var i:integer;
 begin
  for I := 0 to High(GausLines) do
    begin
+    if (i=0)and(Form1.RBAveSelect.Checked) then Continue;
     if Bool then Form1.Graph.AddSeries(GausLines[i])
             else Form1.Graph.RemoveSeries(GausLines[i]);
     GausLines[i].Active:=Bool;
@@ -10423,7 +10626,7 @@ end;
 Function StrToFloatDef(FloatString : string; Default : double ) : double;
 {конвертує рядок в дійсне, повертаючи Default, якщо перетворення не вдалося,
 якщо при перетворенні результат менше 1, то також повертається Default -
-функція використовується при введенні переметра пфььф
+функція використовується при введенні переметра гамма
 у функції Норда (Бохліна)}
 begin
 //Result:=Default;

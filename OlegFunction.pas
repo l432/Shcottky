@@ -15,10 +15,13 @@ Function ToNumber (Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox):double;
 в число - детальніше див. процедуру ToTrack}
 
 Procedure GraphSum (Lines: array of TLineSeries);
-{в нульовий елемент масиву вноситу суму графіків,
+{в нульовий елемент масиву вносить суму графіків,
 що знаходяться в інших;
 передбачається, що у цих всіх інших кількість
 точок та їх абсциси однакові}
+
+
+
 
 Procedure CompEnable(Fm:TForm;Tag:integer;State:boolean);
 {для всіх елементів, що знаходяться на формі Fm та мають таг Tag,
@@ -91,6 +94,10 @@ try
 finally
 end; //try
 end;
+
+
+
+
 
 Procedure CompEnable(Fm:TForm;Tag:integer;State:boolean);
 {для всіх елементів, що знаходяться на формі Fm та мають таг Tag,
