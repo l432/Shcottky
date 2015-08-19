@@ -7326,6 +7326,17 @@ object Form1: TForm1
         TabOrder = 10
         OnClick = RBAveSelectClick
       end
+      object ButGLAuto: TButton
+        Tag = 700
+        Left = 627
+        Top = 39
+        Width = 35
+        Height = 23
+        Caption = 'Auto'
+        Enabled = False
+        TabOrder = 11
+        OnClick = ButGLAutoClick
+      end
     end
   end
   object OpenDialog1: TOpenDialog

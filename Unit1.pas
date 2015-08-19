@@ -798,6 +798,7 @@ type
     RBAveSelect: TRadioButton;
     ButAveLeft: TButton;
     ButAveRight: TButton;
+    ButGLAuto: TButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -924,6 +925,7 @@ type
     procedure RBAveSelectClick(Sender: TObject);
     procedure GrBoxGausClick(Sender: TObject);
     procedure ButAveLeftClick(Sender: TObject);
+    procedure ButGLAutoClick(Sender: TObject);
     {чіпляється до Button деяких дочірніх форм,
     викликає вікно з параметрами апроксимації}
   private
@@ -2967,10 +2969,15 @@ begin
 
  if SEGauss.Value=0 then
     begin
-//    SEGauss.Value:=1;
+    SEGauss.Value:=1;
     Exit;
     end;
 
+ if SEGauss.Value>SEGauss.MaxValue then
+    begin
+    SEGauss.Value:=SEGauss.MaxValue;
+    Exit;
+    end;
 
 
  if (RButGaussianLines.Checked)and(RBGausSelect.Checked)  then GaussianLinesParam;
@@ -3349,8 +3356,46 @@ if RBAveSelect.Checked then
    GausLines[High(GausLines)].Active:=True;
    SEGauss.MaxValue:=High(GausLines);
    SEGauss.Value:=SEGauss.MaxValue;
+//   Showmessage(inttostr(SEGauss.MaxValue));
+
    GaussLinesToGrid;
  end; // else  RBAveSelect.Checked
+end;
+
+procedure TForm1.ButGLAutoClick(Sender: TObject);
+var tempVector:PVector;
+    i:byte;
+begin
+ try
+  new(tempVector);
+ except
+  Exit;
+ end;
+
+ try
+ GraphToVector((Graph.Series[1] as TLineSeries),tempVector);
+ except
+  dispose(tempVector);
+  Exit;
+ end;
+
+
+
+ Fit:=TNGausian.Create(SEGauss.MaxValue);
+ Fit.Fitting(tempVector,EvolParam);
+
+ for I := 1 to SEGauss.MaxValue do
+  begin
+   GausLinesCur[i].A:=EvolParam[3*i-3];
+   GausLinesCur[i].B:=EvolParam[3*i-2];
+   GausLinesCur[i].C:=EvolParam[3*i-1];
+  end;
+
+ Fit.Free;
+ dispose(tempVector);
+ ButGLResClick(Sender);
+ SEGaussChange(Sender);
+// SEGauss.Value:=SEGauss.maxValue;
 end;
 
 procedure TForm1.ButGLDelClick(Sender: TObject);
@@ -9408,6 +9453,8 @@ if CBoxGLShow.Checked then
            DLParamActive;
            RButGaussianLines.Checked:=True;
            end;
+
+//      showmessage(inttostr(SEGauss.MaxValue));
 
   end //CBoxGSShow.Checked then
                         else

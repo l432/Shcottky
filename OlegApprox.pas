@@ -376,6 +376,15 @@ TIvanov=class (TFitFunction)
  end; // TIvanov=class (TFitFunction)
 
 
+TNGausian=class (TFitFunction)
+ public
+ Constructor Create(NGaus:byte);
+ Function Func(Variab:TArrSingle):double; override;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+ Procedure BeforeFitness(AP:Pvector);override;
+// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+ end; // TNGausian=class (TFitFunction)
+
 TDiod=class (TFitFunction)
  public
  Constructor Create;
@@ -697,8 +706,7 @@ begin
  FPName[1]:='Y';
  FPEst:=2;
  FDbool:=False;
-
-  DecimalSeparator:='.';
+ DecimalSeparator:='.';
 end;
 
 
@@ -1434,6 +1442,77 @@ begin
  FParam[4]:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
  FParam[2]:=AP^.T;
  ConfigFile.Free;
+end;
+
+
+Constructor TNGausian.Create(NGaus:byte);
+var i:byte;
+begin
+
+ inherited Create(3*NGaus);
+ FName:='N Gausian';
+ for I := 1 to NGaus do
+   begin
+    FXname[3*i-3]:='A'+inttostr(i);
+    FXname[3*i-2]:='X0'+inttostr(i);
+    FXname[3*i-1]:='Sig'+inttostr(i);
+   end;
+ FCaption:='Sum of '+inttostr(NGaus)+' Gaussian';
+ FIsReady:=True;
+ for I := 0 to High(FXmode) do
+   begin
+   FXmode[i]:=lin;
+   FA[i]:=0;
+   FB[i]:=0;
+   FC[i]:=0;
+   FXt[i]:=0;
+   FXvalue[i]:=0;
+   end;
+  FNit:=1000*(1+NGaus*NGaus);
+  FEvType:=TDE;
+//  FEvType:=TMABC;
+
+end;
+
+Function TNGausian.Func(Variab:TArrSingle):double;
+var i:byte;
+begin
+ Result:=0;
+ for I := 1 to round(FNs/3) do
+   Result:=Result+
+           Variab[3*i-3]*exp(-sqr((FParam[0]-Variab[3*i-2]))/2/sqr(Variab[3*i-1]));
+end;
+
+Procedure TNGausian.BeforeFitness(AP:Pvector);
+var i:byte;
+    Xmin,Xmax,delY,delX:double;
+begin
+ Xmin:=AP^.X[MinElemNumber(AP^.X)];
+ Xmax:=AP^.X[MaxElemNumber(AP^.X)];
+ delY:=AP^.Y[MaxElemNumber(AP^.Y)]-AP^.Y[MinElemNumber(AP^.Y)];
+ delX:=Xmax-Xmin;
+ for I := 1 to round(FNs/3) do
+  begin
+   FXmin[3*i-3]:=0;
+   FXmax[3*i-3]:=delY;
+   FXminlim[3*i-3]:=0;
+   FXmaxlim[3*i-3]:=delY*10;
+
+   FXmin[3*i-2]:=Xmin;
+   FXmax[3*i-2]:=Xmax;
+   FXminlim[3*i-2]:=Xmin-5*delX;
+   FXmaxlim[3*i-2]:=Xmax+5*delX;
+
+   FXmin[3*i-1]:=delX/10;
+   FXmax[3*i-1]:=delX;
+   FXminlim[3*i-1]:=delX/1000;
+   FXmaxlim[3*i-1]:=10*delX;
+  end;
+
+// if High(AP^.X)>150 then
+//   FNit:=500*(1+sqr(round(FNs/3)))
+//                    else
+//   FNit:=1000*(1+sqr(round(FNs/3)));
 end;
 
 
