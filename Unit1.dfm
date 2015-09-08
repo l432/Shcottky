@@ -18,14 +18,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet4
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -55,6 +55,20 @@ object Form1: TForm1
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+        end
+        object LDateFun: TLabel
+          Left = 568
+          Top = 15
+          Width = 70
+          Height = 14
+          Caption = 'Photo D-Diod'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          WordWrap = True
         end
         object StrGridData: TStringGrid
           Left = 245
@@ -1426,6 +1440,33 @@ object Form1: TForm1
             end
           end
         end
+        object ButDateSelect: TButton
+          Left = 547
+          Top = 45
+          Width = 44
+          Height = 25
+          Caption = 'Select'
+          TabOrder = 4
+          OnClick = ButFitSelectClick
+        end
+        object ButDateOption: TButton
+          Left = 615
+          Top = 45
+          Width = 44
+          Height = 25
+          Caption = 'Option'
+          Enabled = False
+          TabOrder = 5
+          OnClick = ButFitOptionClick
+        end
+        object CBDateFun: TCheckBox
+          Left = 544
+          Top = 15
+          Width = 22
+          Height = 17
+          TabOrder = 6
+          OnClick = CBDateFunClick
+        end
       end
       object Close0: TBitBtn
         Left = 682
@@ -1608,7 +1649,7 @@ object Form1: TForm1
         Left = 525
         Top = 6
         Width = 230
-        Height = 495
+        Height = 390
         ParentBackground = True
         TabOrder = 4
         object GroupBoxParam0: TGroupBox
@@ -4923,7 +4964,7 @@ object Form1: TForm1
       end
       object Graph: TChart
         Left = 0
-        Top = 105
+        Top = 100
         Width = 562
         Height = 403
         Legend.Visible = False
