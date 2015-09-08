@@ -799,6 +799,10 @@ type
     ButAveLeft: TButton;
     ButAveRight: TButton;
     ButGLAuto: TButton;
+    LDateFun: TLabel;
+    ButDateSelect: TButton;
+    ButDateOption: TButton;
+    CBDateFun: TCheckBox;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -926,6 +930,7 @@ type
     procedure GrBoxGausClick(Sender: TObject);
     procedure ButAveLeftClick(Sender: TObject);
     procedure ButGLAutoClick(Sender: TObject);
+    procedure CBDateFunClick(Sender: TObject);
     {чіпляється до Button деяких дочірніх форм,
     викликає вікно з параметрами апроксимації}
   private
@@ -1668,6 +1673,20 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
   LabRB.Caption:='B = '+FloatToStrF(RB,ffExponent,3,2);
   LabRC.Caption:='C = '+FloatToStrF(RC,ffExponent,3,2);
   LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName','Photo D-Diod');
+  LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName','Photo D-Diod');
+    if ((LDateFun.Caption='None')or
+           (LDateFun.Caption='Linear')or
+           (LDateFun.Caption='Quadratic')or
+           (LDateFun.Caption='Exponent')or
+           (LDateFun.Caption='Median filtr')or
+           (LDateFun.Caption='Derivative')or
+           (LDateFun.Caption='Smoothing')or
+           (LDateFun.Caption='Gromov / Lee')or
+           (LDateFun.Caption='Ivanov'))
+           then
+               ButDateOption.Enabled:=False
+           else
+               ButDateOption.Enabled:=True;
 
 
   for DP := Low(DP) to High(DP) do
@@ -1733,6 +1752,9 @@ for CL:=Low(CL) to High(CL) do
       False)
      then Include(ColNames, CL);
 for CL:=fname to kT_1 do Include(ColNames, CL);
+
+
+
 
 Imat:=ConfigFile.ReadInteger('Parameters','MaterialNumber',1);
 DiodParam(Form1,Imat,AA,eps);
@@ -1846,9 +1868,12 @@ GroupBox мають мати однакові Tag (свої
     end;// for I := 0 to ComponentCount-1 do
 end; //with Form1 do
 
+CBDateFun.Checked:=ConfigFile.ReadBool('Column',
+      'SelectFun',False);
+
 RadioButtonNssNvM.Checked:=ConfigFile.ReadBool('Graph','Nss_N(V)',False);
 RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
-ColParam(StrGridData);
+//ColParam(StrGridData);
 
 //i:=ConfigFile.ReadInteger('Parameters','EvolutionType',0);
 //case i of
@@ -2186,6 +2211,7 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
   ConfigFile.WriteFloat('Resistivity','RB',RB);
   ConfigFile.WriteFloat('Resistivity','RC',RC);
   ConfigFile.WriteString('Parameters','DLFunctionName',LabIsc.Caption);
+  ConfigFile.WriteString('Parameters','DateFunctionName',LDateFun.Caption);
 
 {запис стану вибору директорій для створення}
 for DR:=Low(DR) to High(DR) do
@@ -2197,6 +2223,9 @@ for CL:=Low(CL) to High(CL) do
  ConfigFile.WriteBool('Column',
      'Select '+GetEnumName(TypeInfo(TColName),ord(CL)),
      (CL in ColNames));
+
+ConfigFile.WriteBool('Column','SelectFun',CBDateFun.Checked);
+
 
 
 with Form1 do
@@ -2931,11 +2960,13 @@ begin
 FunCreate(SButFit.Caption,F);
   if   SButFit.Caption='None' then Exit;
 
+
   if (SButFit.Caption='Linear')or
    (SButFit.Caption='Quadratic') then
        F.FittingGraphFile(XLogCheck.Checked,YLogCheck.Checked,VaxGraph,EvolParam,Series4)
                                  else
        F.FittingGraphFile(VaxGraph,EvolParam,Series4);
+
    if EvolParam[0]=555 then Exit;
    Series4.Active:=True;
    if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
@@ -3253,8 +3284,10 @@ if (Sender is TButton)and((Sender as TButton).Name='ButFitOption')
      then  str:=SButFit.Caption;
 if (Sender is TButton)and((Sender as TButton).Name='ButLDFitOption')
      then  str:=LabIsc.Caption;
+if (Sender is TButton)and((Sender as TButton).Name='ButDateOption')
+     then  str:=LDateFun.Caption;
+
 FunCreate(str,Fit);
-//FunCreate(SButFit.Caption,F);
 if  not(Assigned(Fit)) then Exit;
 
 Fit.SetValueGR;
@@ -3262,22 +3295,47 @@ Fit.Free;
 end;
 
 procedure TForm1.ButFitSelectClick(Sender: TObject);
+var str:string;
 begin
  if FormSF.ShowModal=mrOk then
   begin
-    SButFit.Caption:=FormSF.CB.Items[FormSF.CB.ItemIndex];
-    ApproxHide(Form1);
-    if ((SButFit.Caption='None')or
-           (SButFit.Caption='Linear')or
-           (SButFit.Caption='Quadratic')or
-           (SButFit.Caption='Exponent')or
-           (SButFit.Caption='Median filtr')or
-           (SButFit.Caption='Derivative')or
-           (SButFit.Caption='Smoothing')or
-           (SButFit.Caption='Gromov / Lee')or
-           (SButFit.Caption='Ivanov'))
-           then ButFitOption.Enabled:=False
-           else ButFitOption.Enabled:=True;
+   str:=FormSF.CB.Items[FormSF.CB.ItemIndex];
+   if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
+     then
+       begin
+       SButFit.Caption:=str;
+       ApproxHide(Form1);
+       end;
+   if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
+     then
+       begin
+       LDateFun.Caption:=str;
+       CBDateFun.Checked:=False;
+       end;
+
+    if ((str='None')or
+           (str='Linear')or
+           (str='Quadratic')or
+           (str='Exponent')or
+           (str='Median filtr')or
+           (str='Derivative')or
+           (str='Smoothing')or
+           (str='Gromov / Lee')or
+           (str='Ivanov'))
+           then
+            begin
+             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
+               then ButFitOption.Enabled:=False;
+            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
+               then ButDateOption.Enabled:=False;
+            end
+           else
+            begin
+             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
+               then ButFitOption.Enabled:=True;
+            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
+               then ButDateOption.Enabled:=True;
+            end
   end;
 end;
 
@@ -5993,7 +6051,15 @@ var
 begin
 DecimalSeparator:='.';
 SetLength(dat,ord(High(TColName))+1);
-ColParam(StrGridData);
+//showmessage(inttostr(High(dat)));
+if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
+ begin
+  FunCreate(LDateFun.Caption,Fit);
+  SetLength(dat,High(dat)+1+High(Fit.Xname)+1+High(Fit.DodXname)+1);
+  Fit.Free;
+ end;
+//showmessage(inttostr(High(dat)));
+ //ColParam(StrGridData);
 
 //    new(Vax2);
 //    new(Vax3);
@@ -6047,6 +6113,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 то 9:00 більше ніж 10:00 -
 в кінці-кінців поміняв на сортування за назвою файлу,
 але цей шматок вже не викидав }
+
     repeat
      ShotName:=AnsiUpperCase(SR.name);
 //     if ShotName[length(ShotName)-4]<>'N' then Continue;
@@ -6066,11 +6133,14 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if length(dat[ord(fname)])<4 then insert('0',dat[0],1);
      if length(dat[ord(fname)])<4 then insert('0',dat[0],1);
 
-     dat[ord(time)]:=Vax^.time;
+     if Vax^.time='' then dat[ord(time)]:=IntToStr(SR.Time)
+                     else dat[ord(time)]:=Vax^.time;
+
      dat[ord(Tem)]:=FloatToStrF(Vax^.T,ffGeneral,4,1);
      if Vax^.T=0 then dat[ord(kT_1)]:='555'
                  else dat[ord(kT_1)]:=FloatToStrF(1/Kb/Vax^.T,ffGeneral,4,2);
 
+      if Vax^.T=0 then  Vax^.T:=300;
 
      // обчислення за функцією Чюнга
      if (Rs_Ch in ColNames) or (n_Ch in ColNames) then
@@ -6618,6 +6688,23 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //      dat[ord(FF_EA)]:=FloatToStrF(FF,ffGeneral,4,3);{}
       end;
 
+    //обчислення за допомогою обраної функції
+    if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
+     begin
+      FunCreate(LDateFun.Caption,Fit);
+      Fit.Fitting(Vax,EvolParam);
+//      showmessage(inttostr(ord(High(TColName))+1));
+      for i:=0 to High(Fit.Xname) do
+        dat[ord(High(TColName))+1+i]:=
+           FloatToStrF(EvolParam[i],ffExponent,4,3);
+
+//      showmessage(inttostr(ord(High(TColName))+1+High(Fit.Xname)+1));
+      for i:=0 to High(Fit.DodXname) do
+        dat[ord(High(TColName))+1+High(Fit.Xname)+1+i]:=
+           FloatToStrF(Fit.DodX[i],ffExponent,4,3);
+      Fit.Free;
+     end;
+
 // if Rsmy=555 then Continue;
 // if abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T))>100 then  Continue;
 
@@ -6679,6 +6766,19 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         i:=i+1;
         end;
     StrGridData.Cells[StrGridData.ColCount-1,StrGridData.RowCount-1]:=IntToStr(SR.Time);
+    if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
+     begin
+      FunCreate(LDateFun.Caption,Fit);
+
+      for i:=0 to High(Fit.DodXname) do
+        StrGridData.Cells[StrGridData.ColCount-2-i,StrGridData.RowCount-1]:=
+           dat[High(dat)-i];
+      for i:=0 to High(Fit.Xname) do
+        StrGridData.Cells[StrGridData.ColCount-2-High(Fit.DodXname)-1-i,StrGridData.RowCount-1]:=
+           dat[High(dat)-High(Fit.DodXname)-1-i];
+      Fit.Free;
+     end;
+
     StrGridData.RowCount:=StrGridData.RowCount+1;
 
 
@@ -7796,13 +7896,13 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       end;
     Sorting (Vax);
     for j:= 0 to High(Vax^.X) do
-      if Vax^.Y[j]<1e-9 then Break;
+      if Vax^.Y[j]<9e-8 then Break;
     if j<Vax^.n-1 then SetLenVector(Vax,j);
 
-    for j:= 0 to High(Vax^.X) do
-      Vax^.X[j]:=1/(Vax^.X[j]*Kb);
+//    for j:= 0 to High(Vax^.X) do
+//      Vax^.X[j]:=1/(Vax^.X[j]*Kb);
 
-{   Write_File(CurDirectory+'\Zriz\'+
+{}  Write_File(CurDirectory+'\Zriz\'+
        Inttostr(round(abs(10*Volt[i])))+'s.dat',Vax);
 
 {  repeat
@@ -7919,6 +8019,34 @@ end;
 // ApproxHide(Form1);
 //end;
 
+procedure TForm1.CBDateFunClick(Sender: TObject);
+var i:integer;
+begin
+ColParam(Form1.StrGridData);
+if LDateFun.Caption='None' then Exit;
+if CBDateFun.Checked then
+       begin
+//        if LDateFun.Caption='None' then Exit;
+        FunCreate(LDateFun.Caption,Fit);
+        if  not(Assigned(Fit)) then Exit;
+
+        for i:=0 to High(Fit.Xname) do
+          begin
+          StrGridData.ColCount:=StrGridData.ColCount+1;
+          StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.Xname[i];
+          StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
+          end;
+        for i:=0 to High(Fit.DodXname) do
+          begin
+          StrGridData.ColCount:=StrGridData.ColCount+1;
+          StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.DodXname[i];
+          StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
+          end;
+
+        Fit.Free;
+       end
+end;
+
 procedure TForm1.CBDateRs_ChClick(Sender: TObject);
 var CL:TColName;
 begin
@@ -7932,6 +8060,8 @@ for CL:=Succ(kT_1) to High(CL) do
       Break;
     end;
 ColParam(Form1.StrGridData);
+CBDateFun.Checked:=not(CBDateFun.Checked);
+CBDateFun.Checked:=not(CBDateFun.Checked);
 end;
 
 procedure TForm1.CBForwRsClick(Sender: TObject);

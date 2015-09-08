@@ -3110,9 +3110,11 @@ SetLength(FitMut,Np);
 //QueryPerformanceCounter(StartValue);
 
 EvFitInit(V,X,Fit);
+
 try
 repeat
    i:=0;
+
    repeat  //Вектор мутації
    if (i mod 25)=0 then Randomize;
 Mutlabel:
@@ -3131,6 +3133,8 @@ Mutlabel:
           end;
        cons:Mut[i,k]:=Xvalue[k];
       end;//case Xmode[k] of
+
+
    PenaltyFun(Mut[i]);
    try
     FitnessFunc(V,Mut[i])
