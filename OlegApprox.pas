@@ -7,7 +7,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegMath,ApprWindows,StdCtrls,FrParam,Series,Classes,OlegGraph;
 
 const
-  FuncName:array[0..30]of string=
+  FuncName:array[0..31]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -16,7 +16,7 @@ const
            'D-Diod', 'Photo D-Diod','Tunneling','Two power','TE and SCLC',
            'TE and SCLC (II)','TE and SCLC (III)','TE reverse',
            'Ir on 1/T (I)','Ir on 1/T (II)','Ir on 1/T (III)',
-           'Brailsford');
+           'Brailsford','Phohon Tunneling');
 type
 
   TVar_Rand=(lin,logar,cons);
@@ -497,6 +497,17 @@ TRevZriz2=class (TFitFunction)
 
 TRevZriz3=class (TFitFunction)
 {I01*T^2*exp(-E/kT)+I02*T^(m)*exp(-(Tc/T)^p)}
+ public
+ Constructor Create;
+ Function Func(Variab:TArrSingle):double; override;
+ Procedure BeforeFitness(AP:Pvector);override;
+ end; // TRevZriz3=class (TFitFunction)
+
+TPhonAsTun=class (TFitFunction)
+{Розраховується залежність струму, пов'язаного
+з phonon-assisted tunneling як функції температури,
+тобто при сталому значенні напругии,
+величина поля підбирається як параметр}
  public
  Constructor Create;
  Function Func(Variab:TArrSingle):double; override;
@@ -2094,6 +2105,52 @@ begin
  FPbool[0]:=True;
 inherited;
 end;
+
+Constructor TPhonAsTun.Create;
+begin
+ inherited Create(3);
+ FName:='PhonAsTun';
+ FXname[0]:='Nss';
+ FXname[1]:='Et';
+ FXname[2]:='Em';
+ FPNs:=5;
+ SetLength(FParam,FPNs);
+ SetLength(FPname,FPNs);
+ FPName[0]:='1/kT';
+ FPName[1]:='I';
+ FPName[2]:='a';
+ FPName[3]:='hw';
+ FPName[4]:='meff';
+ SetLength(FPbool,FPNs-2);
+ SetLength(FPValue,FPNs-2);
+ ReadValue;
+ FCaption:='Dependence of reverse photon-assisted tunneling current at constant bias on inverse temperature';
+end;
+
+Function TPhonAsTun.Func(Variab:TArrSingle):double;
+var g,gam,gam1,meff,qE,Et:double;
+begin
+Result:=555;
+if FParam[0]<=0 then Exit;
+meff:=FParam[4]*m0;
+qE:=Qelem*Variab[2];
+Et:=Variab[1]*Qelem;
+g:=FParam[2]*sqr(FParam[3]*Qelem)*(1+2/(exp(FParam[3]*FParam[0])-1));
+gam:=sqrt(2*meff)*g/(Hpl*qE*sqrt(Et));
+gam1:=sqrt(1+sqr(gam));
+Result:=FSzr*Variab[0]*qE/sqrt(8*meff*Variab[1])*sqrt(1-gam/gam1)*
+        exp(-4*sqrt(2*meff)*Et*sqrt(Et)/(3*Hpl*qE)*
+            sqr(gam1-gam)*(gam1+0.5*gam));
+end;
+
+Procedure TPhonAsTun.BeforeFitness(AP:Pvector);
+begin
+ FPbool[2]:=True;
+ FPbool[1]:=True;
+ FPbool[0]:=True;
+inherited;
+end;
+
 
 Constructor TBrailsford.Create;
 begin
@@ -5654,6 +5711,7 @@ begin
   if str='Two power' then F:=TPower2.Create;
   if str='TE reverse' then F:=TRevSh.Create;
   if str='Brailsford' then F:=TBrailsford.Create;
+  if str='Phohon Tunneling' then F:=TPhonAsTun.Create;
 //  if str='None' then F:=TDiod.Create;
 end;
 

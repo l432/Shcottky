@@ -5955,9 +5955,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 //    ip:integer;
 //    SigV,SigI,StepV,StepI,SigVMax,SigIMax:double;
 //    z,x,W,L0,z_max,x_Max,Fb0,Vn,Del,x0,Pot,Del2,x02,L02:double;
-
  begin
-
 //------------------------------------------------------------
 // Patch();
 //------------------------------------------------------------
