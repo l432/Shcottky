@@ -51,6 +51,7 @@
     <DCCReference Include="OlegApprox.pas" />
     <DCCReference Include="OlegFunction.pas" />
     <DCCReference Include="OlegGraph.pas" />
+    <DCCReference Include="OlegMaterialSamples.pas" />
     <DCCReference Include="OlegMath.pas" />
     <DCCReference Include="OlegType.pas" />
     <DCCReference Include="Unit1.pas">

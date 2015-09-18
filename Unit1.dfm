@@ -6213,7 +6213,7 @@ object Form1: TForm1
       object GroupBoxMat: TGroupBox
         Left = 15
         Top = 51
-        Width = 281
+        Width = 290
         Height = 305
         Caption = 'Diode material'
         Color = clScrollBar
@@ -6225,12 +6225,12 @@ object Form1: TForm1
         ParentColor = False
         ParentFont = False
         TabOrder = 2
-        object Label3: TLabel
-          Left = 15
-          Top = 184
-          Width = 226
+        object LRich3: TLabel
+          Left = 10
+          Top = 73
+          Width = 173
           Height = 16
-          Caption = 'Richardson constant,  A / (m K)^2'
+          Caption = 'Richardson ,  A / (m K)^2:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -13
@@ -6238,12 +6238,12 @@ object Form1: TForm1
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object Label4: TLabel
-          Left = 15
-          Top = 248
-          Width = 176
+        object LPermit: TLabel
+          Left = 10
+          Top = 51
+          Width = 81
           Height = 16
-          Caption = 'Semiconductor permittivity'
+          Caption = 'Permittivity:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -13
@@ -6252,8 +6252,8 @@ object Form1: TForm1
           ParentFont = False
         end
         object LabelRich: TLabel
-          Left = 40
-          Top = 210
+          Left = 195
+          Top = 70
           Width = 50
           Height = 21
           Caption = '1.16e6'
@@ -6265,8 +6265,8 @@ object Form1: TForm1
           ParentFont = False
         end
         object LabelPerm: TLabel
-          Left = 50
-          Top = 274
+          Left = 195
+          Top = 48
           Width = 32
           Height = 21
           Caption = '8.85'
@@ -6277,10 +6277,128 @@ object Form1: TForm1
           Font.Style = []
           ParentFont = False
         end
+        object LEg: TLabel
+          Left = 10
+          Top = 95
+          Width = 87
+          Height = 16
+          Caption = 'Zero Gap, eV:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LabelEg: TLabel
+          Left = 195
+          Top = 92
+          Width = 32
+          Height = 21
+          Caption = '1.17'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object LMeff: TLabel
+          Left = 10
+          Top = 117
+          Width = 100
+          Height = 16
+          Caption = 'Mass effective:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LabelMeff: TLabel
+          Left = 195
+          Top = 114
+          Width = 32
+          Height = 21
+          Caption = '1.08'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object LVarA: TLabel
+          Left = 10
+          Top = 139
+          Width = 84
+          Height = 16
+          Caption = 'Varshni A, K:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LabelVarA: TLabel
+          Left = 195
+          Top = 136
+          Width = 36
+          Height = 21
+          Caption = '1108'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object LVarB: TLabel
+          Left = 10
+          Top = 161
+          Width = 130
+          Height = 16
+          Caption = 'Varshni B, eV/ K^2:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LabelVarB: TLabel
+          Left = 195
+          Top = 158
+          Width = 56
+          Height = 21
+          Caption = '7.02e-4'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object LaVarB: TLabel
+          Left = 270
+          Top = 158
+          Width = 15
+          Height = 21
+          Caption = '...'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          OnClick = LaVarBClick
+        end
         object RBnSi: TRadioButton
           Tag = 1
-          Left = 15
-          Top = 25
+          Left = 3
+          Top = 185
           Width = 43
           Height = 17
           Caption = 'n-Si'
@@ -6295,8 +6413,8 @@ object Form1: TForm1
         end
         object RBpSi: TRadioButton
           Tag = 2
-          Left = 105
-          Top = 25
+          Left = 80
+          Top = 250
           Width = 43
           Height = 17
           Caption = 'p-Si'
@@ -6311,8 +6429,8 @@ object Form1: TForm1
         end
         object RBnGaAs: TRadioButton
           Tag = 3
-          Left = 195
-          Top = 25
+          Left = 15
+          Top = 273
           Width = 59
           Height = 17
           Caption = 'n-GaAs'
@@ -6327,8 +6445,8 @@ object Form1: TForm1
         end
         object RBnInP: TRadioButton
           Tag = 4
-          Left = 15
-          Top = 65
+          Left = 3
+          Top = 214
           Width = 50
           Height = 17
           Caption = 'n-InP'
@@ -6343,8 +6461,8 @@ object Form1: TForm1
         end
         object RBSiC: TRadioButton
           Tag = 5
-          Left = 105
-          Top = 65
+          Left = 11
+          Top = 250
           Width = 59
           Height = 17
           Caption = '4H-SiC'
@@ -6359,8 +6477,8 @@ object Form1: TForm1
         end
         object RBnGaN: TRadioButton
           Tag = 6
-          Left = 195
-          Top = 65
+          Left = 59
+          Top = 214
           Width = 57
           Height = 17
           Caption = 'n-GaN'
@@ -6375,8 +6493,8 @@ object Form1: TForm1
         end
         object RBnCdTe: TRadioButton
           Tag = 7
-          Left = 15
-          Top = 105
+          Left = 122
+          Top = 191
           Width = 70
           Height = 17
           Caption = 'n-CdTe'
@@ -6391,8 +6509,8 @@ object Form1: TForm1
         end
         object RBCuIn: TRadioButton
           Tag = 8
-          Left = 105
-          Top = 105
+          Left = 186
+          Top = 247
           Width = 68
           Height = 17
           Caption = 'CuInSe2'
@@ -6407,8 +6525,8 @@ object Form1: TForm1
         end
         object RBpGaTe: TRadioButton
           Tag = 9
-          Left = 195
-          Top = 105
+          Left = 211
+          Top = 187
           Width = 59
           Height = 17
           Caption = 'p-GaTe'
@@ -6423,8 +6541,8 @@ object Form1: TForm1
         end
         object RBpGaSe: TRadioButton
           Tag = 10
-          Left = 15
-          Top = 145
+          Left = 96
+          Top = 273
           Width = 57
           Height = 17
           Caption = 'p-GaSe'
@@ -6439,8 +6557,8 @@ object Form1: TForm1
         end
         object RBOther: TRadioButton
           Tag = 11
-          Left = 195
-          Top = 145
+          Left = 117
+          Top = 227
           Width = 57
           Height = 17
           Caption = 'Other'
@@ -6472,6 +6590,15 @@ object Form1: TForm1
           Enabled = False
           TabOrder = 12
           OnClick = ButtonPermClick
+        end
+        object CBMaterial: TComboBox
+          Left = 10
+          Top = 21
+          Width = 80
+          Height = 24
+          ItemHeight = 16
+          TabOrder = 13
+          OnChange = CBMaterialChange
         end
       end
       object GroupBox10: TGroupBox

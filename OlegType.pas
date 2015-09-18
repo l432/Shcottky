@@ -148,13 +148,6 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
              //граничні величини для координат графіку
          end;
 
- { Diapazon=record           // тип для збереження тих меж, в яких
-           XMin:double;    // відбуваються апроксимації різних функцій
-           YMin:double;
-           XMax:double;
-           YMax:double;
-           end;{}
-
 {}  Diapazon=class //(TObject)// тип для збереження тих меж, в яких
                            // відбуваються апроксимації різних функцій
          private

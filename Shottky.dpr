@@ -13,7 +13,8 @@ uses
   ApprWindows in 'ApprWindows.pas' {App},
   FrParam in 'FrParam.pas' {FrParamP: TFrame},
   FormSelectFit in 'FormSelectFit.pas' {FormSF},
-  FrDiap in 'FrDiap.pas' {FrDp: TFrame};
+  FrDiap in 'FrDiap.pas' {FrDp: TFrame},
+  OlegMaterialSamples in 'OlegMaterialSamples.pas';
 
 {$R *.res}
 

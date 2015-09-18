@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
-  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap;
+  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -210,8 +210,8 @@ type
     RBpGaTe: TRadioButton;
     RBpGaSe: TRadioButton;
     RBOther: TRadioButton;
-    Label3: TLabel;
-    Label4: TLabel;
+    LRich3: TLabel;
+    LPermit: TLabel;
     LabelRich: TLabel;
     LabelPerm: TLabel;
     ButtonRich: TButton;
@@ -803,6 +803,16 @@ type
     ButDateSelect: TButton;
     ButDateOption: TButton;
     CBDateFun: TCheckBox;
+    CBMaterial: TComboBox;
+    LEg: TLabel;
+    LabelEg: TLabel;
+    LMeff: TLabel;
+    LabelMeff: TLabel;
+    LVarA: TLabel;
+    LabelVarA: TLabel;
+    LVarB: TLabel;
+    LabelVarB: TLabel;
+    LaVarB: TLabel;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -931,6 +941,8 @@ type
     procedure ButAveLeftClick(Sender: TObject);
     procedure ButGLAutoClick(Sender: TObject);
     procedure CBDateFunClick(Sender: TObject);
+    procedure CBMaterialChange(Sender: TObject);
+    procedure LaVarBClick(Sender: TObject);
     {чіпляється до Button деяких дочірніх форм,
     викликає вікно з параметрами апроксимації}
   private
@@ -1112,6 +1124,10 @@ N_Mat
 так само як ці номери, тобто RBnSi.Tag=1, RBOther.Tag=11...
 }
 
+Procedure MaterialOnForm;
+{виведення на форму параметрів матеріалу, які
+беруться зі змінної Semi}
+
 Procedure ChooseDirect(F:TForm1);
 {виведення на форму написів, пов'язаних
 з робочою директорією}
@@ -1213,7 +1229,7 @@ var
   Form1: TForm1;
   Fit:TFitFunction;
   BohlinMethod: Boolean;
-  {використовується при показі віуонечок для введення параметрів методів}
+  {використовується при показі віконечок для введення параметрів методів}
   Directory, Directory0, CurDirectory:string;
   VaxFile, VaxGraph, VaxTemp, VaxTempLim{,my_temp}:Pvector;
   GrLim:Limits;
@@ -1246,6 +1262,9 @@ var
   Va - напруга, яка використовується для побудови
        допоміжних функцій у методах Сібілса та Лі
   }
+  Semi:TMaterial;
+  {містить параметри матеріалу}
+
   AA, Sk, del, ep, eps, Ndd, RA, RB, RC:double;
   {АА - стала Річардсона
   Sk - площа контакту
@@ -1598,6 +1617,21 @@ begin
  Directory:=ConfigFile.ReadString('Direct','Dir',GetCurrentDir);
  CurDirectory:=ConfigFile.ReadString('Direct','CDir',Directory);
  ChooseDirect(Form1);
+
+// Semi:=TMaterial.Create;
+ CBMaterial.Sorted:=False;
+ for I := 0 to High(MaterialName) do
+      CBMaterial.Items.Add(MaterialName[i]);
+ CBMaterial.ItemIndex:=ConfigFile.ReadInteger('Parameters','Material',0);
+
+ Semi:=TMaterial.Create(CBMaterial.Text);
+
+ if Semi.Name=MaterialName[High(MaterialName)]
+    then Semi.ReadFromIniFile(ConfigFile);
+
+ MaterialOnForm;
+//showmessage(Semi.Name);
+
 
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
@@ -2264,6 +2298,11 @@ end; // with Form1 do
 ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
 ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 
+ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
+if Semi.Name=MaterialName[High(MaterialName)]
+    then  Semi.WriteToIniFile(ConfigFile);
+Semi.Free;
+
 //case EvolType of
 //   TDE:ConfigFile.WriteInteger('Parameters','EvolutionType',0);
 //   TMABC:ConfigFile.WriteInteger('Parameters','EvolutionType',1);
@@ -2414,6 +2453,28 @@ procedure TForm1.LabRConsClick(Sender: TObject);
 begin
  CBoxRCons.Checked:= not CBoxRCons.Checked;
  CBoxDLBuildClick(LabRCons);
+end;
+
+procedure TForm1.LaVarBClick(Sender: TObject);
+var Value:double;
+    st:string;
+begin
+if (Sender as TLabel).Name='LaVarB' then Value:=Semi.VarshB;
+st:=FloatToStrF(Value,ffGeneral,4,3);
+if st='555' then st:='';
+
+
+st:=InputBox('Input value',
+             'the material parameter value is expected',
+             st);
+
+if (Sender as TLabel).Name='LaVarB'  then
+           begin
+             StrToNumber(st, 555, Value);
+             Semi.VarshB:=Value;
+           end;
+
+MaterialOnForm;
 end;
 
 procedure TForm1.LDLBuildClick(Sender: TObject);
@@ -8161,6 +8222,30 @@ if CBMarker.Checked then
   end;
 end;
 
+procedure TForm1.CBMaterialChange(Sender: TObject);
+var ConfigFile:TIniFile;
+begin
+if (Semi.Name=MaterialName[High(MaterialName)])
+     and(Semi.Name<>CBMaterial.Text) then
+      begin
+       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+       Semi.WriteToIniFile(ConfigFile);
+       ConfigFile.Free;
+      end;
+if (CBMaterial.Text=MaterialName[High(MaterialName)])
+     and(Semi.Name<>CBMaterial.Text) then
+      begin
+       Semi.Name:=CBMaterial.Text;
+       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+       Semi.ReadFromIniFile(ConfigFile);
+       ConfigFile.Free;
+//       Exit;
+      end;
+if Semi.Name<>CBMaterial.Text then Semi.Name:=CBMaterial.Text;
+MaterialOnForm;
+//showmessage(floattostr(Semi.ARich));
+end;
+
 //procedure TForm1.CBoxApprClick(Sender: TObject);
 //const Np=150; //кількість точок, по яким будується апроксимація
 //var h:double; //крок між точками
@@ -10451,6 +10536,30 @@ begin
     end;
  F.LabelRich.Caption:=FloatToStrF(Ar,ffExponent,3,2);
  F.LabelPerm.Caption:=FloatToStrF(Eps,ffGeneral,3,2);
+end;
+
+Procedure MaterialOnForm;
+{виведення на форму параметрів матеріалу, які
+беруться зі змінної Semi}
+begin
+with Form1 do
+ begin
+
+  if Semi.Eg0<>555
+     then LabelEg.Caption:=FloatToStrF(Semi.Eg0,ffFixed,3,2)
+     else LabelEg.Caption:='?';
+  LabelPerm.Caption:=FloatToStrF(Semi.Eps,ffFixed,3,2);
+  LabelMeff.Caption:=FloatToStrF(Semi.Meff,ffFixed,3,2);
+  if Semi.ARich<>555
+     then LabelRich.Caption:=FloatToStrF(Semi.ARich,ffExponent,3,2)
+     else LabelRich.Caption:='?';
+  if Semi.VarshA<>555
+     then LabelVarA.Caption:=FloatToStrF(Semi.VarshA,ffgeneral,5,1)
+     else LabelVarA.Caption:='?';
+  if Semi.VarshB<>555
+     then LabelVarB.Caption:=FloatToStrF(Semi.VarshB,ffExponent,3,2)
+     else LabelVarB.Caption:='?';
+ end;//with Form1 do
 end;
 
 Procedure ChooseDirect(F:TForm1);
