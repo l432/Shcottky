@@ -527,8 +527,8 @@ TFitFunctionEm=class (TFitFunction)
 {для функцій, де обчислюється
 максимальне поле на інтерфейсі}
  private
- F1:double; // містить  2qNd/(eps_0 eps_s)
- F2:double; //містить Fb(T)-Vn
+ F1:double; //містить Fb(T)-Vn
+ F2:double; // містить  2qNd/(eps_0 eps_s)
  FNd:double;  //концентрація носіїв
  Fep:double;  //діелектрична стала н/п
  public
