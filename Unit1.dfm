@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -6171,51 +6171,12 @@ object Form1: TForm1
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C00000000000000000000000000000000
           00001F7C1F7C}
       end
-      object GroupBox9: TGroupBox
-        Left = 359
-        Top = 53
-        Width = 200
-        Height = 57
-        Caption = 'Diode area'
-        Color = clHighlightText
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentBackground = False
-        ParentColor = False
-        ParentFont = False
-        TabOrder = 1
-        object LabelArea: TLabel
-          Left = 14
-          Top = 22
-          Width = 74
-          Height = 21
-          Caption = 'LabelArea'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object ButtonArea: TButton
-          Left = 125
-          Top = 20
-          Width = 63
-          Height = 25
-          Caption = 'Change'
-          TabOrder = 0
-          OnClick = ButtonAreaClick
-        end
-      end
       object GroupBoxMat: TGroupBox
         Left = 15
         Top = 51
         Width = 290
-        Height = 305
-        Caption = 'Diode material'
+        Height = 190
+        Caption = 'Material parameters'
         Color = clScrollBar
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -6224,7 +6185,7 @@ object Form1: TForm1
         Font.Style = []
         ParentColor = False
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 1
         object LRich3: TLabel
           Left = 10
           Top = 73
@@ -6386,6 +6347,7 @@ object Form1: TForm1
           Top = 158
           Width = 15
           Height = 21
+          Cursor = crHandPoint
           Caption = '...'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -6395,201 +6357,80 @@ object Form1: TForm1
           ParentFont = False
           OnClick = LaVarBClick
         end
-        object RBnSi: TRadioButton
-          Tag = 1
-          Left = 3
-          Top = 185
-          Width = 43
-          Height = 17
-          Caption = 'n-Si'
+        object LaPerm: TLabel
+          Left = 270
+          Top = 48
+          Width = 15
+          Height = 21
+          Cursor = crHandPoint
+          Caption = '...'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -13
+          Font.Height = -17
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 0
-          OnClick = RBnSiClick
+          OnClick = LaVarBClick
         end
-        object RBpSi: TRadioButton
-          Tag = 2
-          Left = 80
-          Top = 250
-          Width = 43
-          Height = 17
-          Caption = 'p-Si'
+        object LaRich: TLabel
+          Left = 270
+          Top = 70
+          Width = 15
+          Height = 21
+          Cursor = crHandPoint
+          Caption = '...'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -13
+          Font.Height = -17
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 1
-          OnClick = RBnSiClick
+          OnClick = LaVarBClick
         end
-        object RBnGaAs: TRadioButton
-          Tag = 3
-          Left = 15
-          Top = 273
-          Width = 59
-          Height = 17
-          Caption = 'n-GaAs'
+        object LaEg: TLabel
+          Left = 270
+          Top = 92
+          Width = 15
+          Height = 21
+          Cursor = crHandPoint
+          Caption = '...'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -13
+          Font.Height = -17
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
-          OnClick = RBnSiClick
+          OnClick = LaVarBClick
         end
-        object RBnInP: TRadioButton
-          Tag = 4
-          Left = 3
-          Top = 214
-          Width = 50
-          Height = 17
-          Caption = 'n-InP'
+        object LaMeff: TLabel
+          Left = 270
+          Top = 114
+          Width = 15
+          Height = 21
+          Cursor = crHandPoint
+          Caption = '...'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -13
+          Font.Height = -17
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 3
-          OnClick = RBnSiClick
+          OnClick = LaVarBClick
         end
-        object RBSiC: TRadioButton
-          Tag = 5
-          Left = 11
-          Top = 250
-          Width = 59
-          Height = 17
-          Caption = '4H-SiC'
+        object LaVarA: TLabel
+          Left = 270
+          Top = 136
+          Width = 15
+          Height = 21
+          Cursor = crHandPoint
+          Caption = '...'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -13
+          Font.Height = -17
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 4
-          OnClick = RBnSiClick
-        end
-        object RBnGaN: TRadioButton
-          Tag = 6
-          Left = 59
-          Top = 214
-          Width = 57
-          Height = 17
-          Caption = 'n-GaN'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 5
-          OnClick = RBnSiClick
-        end
-        object RBnCdTe: TRadioButton
-          Tag = 7
-          Left = 122
-          Top = 191
-          Width = 70
-          Height = 17
-          Caption = 'n-CdTe'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 6
-          OnClick = RBnSiClick
-        end
-        object RBCuIn: TRadioButton
-          Tag = 8
-          Left = 186
-          Top = 247
-          Width = 68
-          Height = 17
-          Caption = 'CuInSe2'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 7
-          OnClick = RBnSiClick
-        end
-        object RBpGaTe: TRadioButton
-          Tag = 9
-          Left = 211
-          Top = 187
-          Width = 59
-          Height = 17
-          Caption = 'p-GaTe'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 8
-          OnClick = RBnSiClick
-        end
-        object RBpGaSe: TRadioButton
-          Tag = 10
-          Left = 96
-          Top = 273
-          Width = 57
-          Height = 17
-          Caption = 'p-GaSe'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 9
-          OnClick = RBnSiClick
-        end
-        object RBOther: TRadioButton
-          Tag = 11
-          Left = 117
-          Top = 227
-          Width = 57
-          Height = 17
-          Caption = 'Other'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 10
-          OnClick = RBnSiClick
-        end
-        object ButtonRich: TButton
-          Left = 180
-          Top = 210
-          Width = 65
-          Height = 25
-          Caption = 'Change'
-          Enabled = False
-          TabOrder = 11
-          OnClick = ButtonRichClick
-        end
-        object ButtonPerm: TButton
-          Left = 180
-          Top = 270
-          Width = 65
-          Height = 25
-          Caption = 'Change'
-          Enabled = False
-          TabOrder = 12
-          OnClick = ButtonPermClick
+          OnClick = LaVarBClick
         end
         object CBMaterial: TComboBox
           Left = 10
@@ -6597,95 +6438,8 @@ object Form1: TForm1
           Width = 80
           Height = 24
           ItemHeight = 16
-          TabOrder = 13
-          OnChange = CBMaterialChange
-        end
-      end
-      object GroupBox10: TGroupBox
-        Left = 359
-        Top = 203
-        Width = 233
-        Height = 153
-        Caption = 'Interfacial insulator layer parameters'
-        Color = clCream
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentBackground = False
-        ParentColor = False
-        ParentFont = False
-        TabOrder = 3
-        object Label5: TLabel
-          Left = 29
-          Top = 32
-          Width = 88
-          Height = 16
-          Caption = 'Thickness, cm'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label6: TLabel
-          Left = 29
-          Top = 96
-          Width = 76
-          Height = 16
-          Caption = 'Permittivity'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object LabelDel: TLabel
-          Left = 55
-          Top = 58
-          Width = 33
-          Height = 21
-          Caption = '5e-7'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LabelEp: TLabel
-          Left = 73
-          Top = 122
-          Width = 23
-          Height = 21
-          Caption = '7.0'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object ButtonDel: TButton
-          Left = 140
-          Top = 60
-          Width = 63
-          Height = 25
-          Caption = 'Change'
           TabOrder = 0
-          OnClick = ButtonDelClick
-        end
-        object ButtonEp: TButton
-          Left = 140
-          Top = 116
-          Width = 63
-          Height = 25
-          Caption = 'Change'
-          TabOrder = 1
-          OnClick = ButtonEpClick
+          OnChange = CBMaterialChange
         end
       end
       object GroupBoxRsPar: TGroupBox
@@ -6700,7 +6454,7 @@ object Form1: TForm1
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        TabOrder = 4
+        TabOrder = 2
         object LabRsPar: TLabel
           Left = 55
           Top = 24
@@ -6763,28 +6517,103 @@ object Form1: TForm1
           OnClick = ButRCClick
         end
       end
-      object GroupBox30: TGroupBox
-        Left = 359
-        Top = 125
-        Width = 200
-        Height = 57
-        Caption = 'Carrier concentration'
-        Color = clHighlightText
+      object Button1: TButton
+        Left = 268
+        Top = 20
+        Width = 75
+        Height = 25
+        Caption = 'Button1'
+        TabOrder = 3
+        OnClick = Button1Click
+      end
+      object GBDiodParam: TGroupBox
+        Left = 349
+        Top = 51
+        Width = 300
+        Height = 190
+        Caption = 'Diod parameters '
+        Color = clCream
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
-        Font.Name = 'Tahoma'
+        Font.Name = 'Arial'
         Font.Style = []
         ParentBackground = False
         ParentColor = False
         ParentFont = False
-        TabOrder = 5
-        object LabelConcentr: TLabel
-          Left = 14
-          Top = 22
-          Width = 105
+        TabOrder = 4
+        object Linsulator: TLabel
+          Left = 20
+          Top = 100
+          Width = 169
+          Height = 16
+          Caption = 'Interfacial insulator layer '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LArea: TLabel
+          Left = 10
+          Top = 24
+          Width = 75
+          Height = 16
+          Caption = 'Area, m^2:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LNd: TLabel
+          Left = 10
+          Top = 46
+          Width = 148
+          Height = 32
+          Caption = 'Carrier concentration, m^(-3):'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          WordWrap = True
+        end
+        object LEps_i: TLabel
+          Left = 10
+          Top = 125
+          Width = 81
+          Height = 16
+          Caption = 'Permittivity:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LThick_i: TLabel
+          Left = 10
+          Top = 150
+          Width = 86
+          Height = 16
+          Caption = 'Thickness, m:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LabelDel: TLabel
+          Left = 175
+          Top = 150
+          Width = 33
           Height = 21
-          Caption = 'LabelConcentr'
+          Caption = '5e-7'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -17
@@ -6792,24 +6621,81 @@ object Form1: TForm1
           Font.Style = []
           ParentFont = False
         end
-        object ButtonConcen: TButton
-          Left = 125
-          Top = 20
-          Width = 63
-          Height = 25
-          Caption = 'Change'
-          TabOrder = 0
-          OnClick = ButtonConcenClick
+        object LabelEp: TLabel
+          Left = 175
+          Top = 125
+          Width = 23
+          Height = 21
+          Caption = '7.0'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
         end
-      end
-      object Button1: TButton
-        Left = 268
-        Top = 20
-        Width = 75
-        Height = 25
-        Caption = 'Button1'
-        TabOrder = 6
-        OnClick = Button1Click
+        object LabelConcentr: TLabel
+          Left = 175
+          Top = 52
+          Width = 50
+          Height = 21
+          Caption = '7.5e18'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object LabelArea: TLabel
+          Left = 175
+          Top = 24
+          Width = 47
+          Height = 21
+          Caption = '4.9e-5'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object ButtonDel: TButton
+          Left = 255
+          Top = 150
+          Width = 40
+          Height = 20
+          Caption = 'input'
+          TabOrder = 0
+          OnClick = ButtonDelClick
+        end
+        object ButEps_i: TButton
+          Left = 255
+          Top = 125
+          Width = 40
+          Height = 20
+          Caption = 'input'
+          TabOrder = 1
+          OnClick = ButtonDelClick
+        end
+        object ButNd: TButton
+          Left = 255
+          Top = 52
+          Width = 40
+          Height = 20
+          Caption = 'input'
+          TabOrder = 2
+          OnClick = ButtonDelClick
+        end
+        object ButArea: TButton
+          Left = 255
+          Top = 24
+          Width = 40
+          Height = 20
+          Caption = 'input'
+          TabOrder = 3
+          OnClick = ButtonDelClick
+        end
       end
     end
     object TabSheet4: TTabSheet

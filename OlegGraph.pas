@@ -1,7 +1,7 @@
 unit OlegGraph;
 interface
 uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
-     {Approximation,} Forms,Controls,WinProcs;
+     {Approximation,} Forms,Controls,WinProcs,OlegMaterialSamples;
 
 
 
@@ -91,12 +91,12 @@ Procedure MikhRs_Fun(A:Pvector; var B:Pvector);
 метод Міхелешвілі, за даними векора А;
 Rs = V (1- Betta) / I Alpha^2}
 
-Procedure HFun(A:Pvector; var B:Pvector; AA, Szr, N:double);
+Procedure HFun(A:Pvector; var B:Pvector; DD:TDiodSample; N:double);
 {записує в B H-функцію, побудовану по даним з А:
-AA - стала Річардсона, Szr - площа контакту,
-N - фактор неідеальності}
+DD - діод, N - фактор неідеальності}
 
-Procedure NordeFun(A:Pvector; var B:Pvector; AA, Szr, Gam:double{; Gam:word});
+Procedure NordeFun(A:Pvector; var B:Pvector;
+                    DD:TDiodSample; Gam:double);
 {записує в B функцію Норда, побудовану по даним з А;
 AA - стала Річардсона, Szr - площа контакту,
 Gam - показник гамма (див формулу)}
@@ -168,7 +168,7 @@ fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
 
 
 Procedure Nss_Fun(A:Pvector; var B:Pvector;
-                  Fb,Rs,del,ep:double; D:Diapazon; nV:boolean);
+           Fb,Rs:double; DD:TDiodSample; D:Diapazon; nV:boolean);
 {записує в В залежність густини станів
 Nss=ep*ep0*(n-1)/q*del від різниці Ес-Ess=(Fb-V/n),
 [Nss] = еВ-1 см-2; [Ec-Ess] = еВ;
@@ -184,7 +184,7 @@ Fb - висота бар'єру Шотки
 Rs - величина послідовного опору}
 
 Procedure Dit_Fun(A:Pvector; var B:Pvector;
-                  Rs,AA,Szr,Nd,eps:double; D:Diapazon);
+                  Rs:double;DD:TDiodSample; D:Diapazon);
 {записує в В залежність густини станів,
 обчислену за методом Іванова,
 Dit=ep*ep0/(q^2*del)*d(Vcal-Vexp)/dVs
@@ -208,7 +208,7 @@ Szr - площа контакту
 }
 
 
-Procedure IvanovAprox (V:PVector; AA, Szr, Nd, ep:double;
+Procedure IvanovAprox (V:PVector; DD:TDiodSample;
                        var del,Fb:double);
 {апроксимація даних у векторі V параметричною залежністю
 I=Szr AA T^2 exp(-Fb/kT) exp(qVs/kT)
@@ -258,7 +258,7 @@ Procedure Gr1_Fun (A:Pvector; var B:Pvector);
 {записує в B функцію Громова першого роду
 спираючись на точки вектора А}
 
-Procedure Gr2_Fun (A:Pvector; var B:Pvector; AA, Szr:double);
+Procedure Gr2_Fun (A:Pvector; var B:Pvector; DD:TDiodSample);
 {записує в B функцію Громова другого роду
 спираючись на точки вектора А}
 
@@ -290,7 +290,7 @@ Procedure WernerKalk(A:PVector; var D:Diapazon; var Rs:double; var n:double);
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure MikhKalk(A:PVector; D:Diapazon; AA, Szr:double;
+Procedure MikhKalk(A:PVector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А за допомогою
 методу Міхелешвілі визначаються величини
@@ -303,18 +303,19 @@ Procedure MikhKalk(A:PVector; D:Diapazon; AA, Szr:double;
 AA - стала Річардсона,
 Szr - площа контакту}
 
-Procedure HFunKalk(A:Pvector; D:Diapazon; AA, Szr, N:double;
+Procedure HFunKalk(A:Pvector; D:Diapazon; DD:TDiodSample; N:double;
                    var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації H-функції (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та висоти бар'єру Fb;
 для побудови Н-функції потрібні
-AA - стала Річардсона,
-Szr - площа контакту,
 N - фактор неідеальності}
 
-Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
+//Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
+//                 var n:double; var I0:double; var Fb:double);overload;
+Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon;
+                 Rs:double; DD:TDiodSample;
                  var n:double; var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
@@ -334,8 +335,9 @@ Rs - послідовний опір,
 AA - стала Річардсона,
 Szr - площа контакту}
 
-Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
-                 n:double; var I0:double; var Fb:double);overload;
+Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon;
+                 DD:TDiodSample; Rs, n:double;
+                 var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
 масштабі (з врахуванням
@@ -356,7 +358,9 @@ AA - стала Річардсона,
 Szr - площа контакту}
 
 
-Procedure ExKalk(A:Pvector; AA, Szr :double;
+//Procedure ExKalk(A:Pvector; AA, Szr :double;
+//                 var n:double; var I0:double; var Fb:double);overload;
+Procedure ExKalk(A:Pvector; DD:TDiodSample;
                  var n:double; var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
@@ -369,7 +373,8 @@ Procedure ExKalk(A:Pvector; AA, Szr :double;
 AA - стала Річардсона,
 Szr - площа контакту}
 
-Procedure ExpKalk(A:Pvector; D:Diapazon; Rs, AA, Szr :double; Xp:IRE;
+Procedure ExpKalk(A:Pvector; D:Diapazon; Rs:double;
+                 DD:TDiodSample; Xp:IRE;
                  var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А шляхом
 апроксимації ВАХ за формулою I=I0(exp(V/nkT)-1)+V/R
@@ -483,7 +488,7 @@ Szr - площа контакту}
 //    var Iph:double; var Voc:double; var Isc:double);
 
 
-Procedure NordDodat(A:Pvector; D:Diapazon; AA, Szr,Gamma:double;
+Procedure NordDodat(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double;
                    var V0:double; var I0:double; var F0:double);
 {на основі даних з вектора А (з рахуванням
 обмежень в D) будує функцію Норда та визначає
@@ -491,7 +496,7 @@ Procedure NordDodat(A:Pvector; D:Diapazon; AA, Szr,Gamma:double;
 значення самої фуекції F0 та значення струму І0,
 яке відповідає V0 у вихідних даних}
 
-Procedure NordKalk(A:Pvector; D:Diapazon; AA, Szr, Gamma:double; {Gamma:word;}
+Procedure NordKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double; {Gamma:word;}
                    n:double; var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови
 функції Норда (з врахуванням
@@ -511,7 +516,7 @@ Procedure CibilsKalk(const A:Pvector; const D:Diapazon;
 послідовного опору Rs та
 показника ідеальності n}
 
-Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs, AA, Szr, Nd, ep:double;
+Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs:double; DD:TDiodSample;
                      var del:double; var Fb:double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за методом Іванова
@@ -540,7 +545,7 @@ Procedure Kam2Kalk (const A:Pvector; const D:Diapazon; out Rs:double; out n:doub
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure Gr1Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
+Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -553,7 +558,7 @@ Procedure Gr1Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
 якщо неможливо побудувати функцію Громова,
 то і Rs=555}
 
-Procedure Gr2Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
+Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -566,7 +571,7 @@ Procedure Gr2Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
 якщо неможливо побудувати функцію Громова,
 то і Rs=555}
 
-Procedure BohlinKalk(A:Pvector; D:Diapazon; AA, Szr, Gamma1,Gamma2:double;
+Procedure BohlinKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma1,Gamma2:double;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -582,7 +587,7 @@ Gamma - параметр гамма,
 друге значення гамма просте береться
 на дві десятих більше ніж Gamma}
 
-Procedure LeeKalk (A:Pvector; D:Diapazon; AA, Szr:double;
+Procedure LeeKalk (A:Pvector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -1368,10 +1373,13 @@ dispose(bet);
 end;
 
 
-Procedure HFun(A:Pvector; var B:Pvector; AA, Szr, N:double);
+//Procedure HFun(A:Pvector; var B:Pvector; AA, Szr, N:double);
+//{записує в B H-функцію, побудовану по даним з А:
+//AA - стала Річардсона, Szr - площа контакту,
+//N - фактор неідеальності}
+Procedure HFun(A:Pvector; var B:Pvector; DD:TDiodSample; N:double);
 {записує в B H-функцію, побудовану по даним з А:
-AA - стала Річардсона, Szr - площа контакту,
-N - фактор неідеальності}
+DD - діод, N - фактор неідеальності}
  var i:word;
 begin
 B^.n:=0;
@@ -1383,14 +1391,18 @@ if B^.n=0 then Exit;
   for I := 0 to High (B^.X) do
    begin
      B^.X[i]:=A^.Y[i+B^.N_begin];
-     B^.Y[i]:=A^.X[i+B^.N_begin]-N*Kb*B^.T*ln(A^.Y[i+B^.N_begin]/Szr/AA/sqr(B^.T));
+     B^.Y[i]:=A^.X[i+B^.N_begin]+N*DD.Fb(B^.T,A^.Y[i+B^.N_begin]);
+//     B^.Y[i]:=A^.X[i+B^.N_begin]-
+//           N*Kb*B^.T*ln(A^.Y[i+B^.N_begin]/DD.Area/DD.Material.ARich/sqr(B^.T));
    end;
 
   B^.N_begin:=B^.N_begin+A^.N_begin;
   B^.N_end:=B^.N_end+A^.N_begin;
 end;
 
-Procedure NordeFun(A:Pvector; var B:Pvector; AA, Szr, Gam:double{; Gam:word});
+//Procedure NordeFun(A:Pvector; var B:Pvector; AA, Szr, Gam:double{; Gam:word});
+Procedure NordeFun(A:Pvector; var B:Pvector;
+                   DD:TDiodSample; Gam:double);
 {записує в B функцію Норда, побудовану по даним з А;
 AA - стала Річардсона, Szr - площа контакту,
 Gam - показник гамма (див формулу)}
@@ -1406,7 +1418,8 @@ if B^.n=0 then Exit;
   for I := 0 to High (B^.X) do
    begin
      B^.X[i]:=A^.X[i+B^.N_begin];
-     B^.Y[i]:=A^.X[i+B^.N_begin]/Gam-Kb*B^.T*ln(A^.Y[i+B^.N_begin]/Szr/AA/sqr(B^.T));
+     B^.Y[i]:=A^.X[i+B^.N_begin]/Gam+DD.Fb(B^.T,A^.Y[i+B^.N_begin]);
+//     B^.Y[i]:=A^.X[i+B^.N_begin]/Gam-Kb*B^.T*ln(A^.Y[i+B^.N_begin]/DD.Area/DD.Material.Arich/sqr(B^.T));
    end;
 
   B^.N_begin:=B^.N_begin+A^.N_begin;
@@ -1810,8 +1823,10 @@ case fun of
 end;
 
 
+//Procedure Nss_Fun(A:Pvector; var B:Pvector;
+//                  Fb,Rs,del,ep:double; D:Diapazon; nV:boolean);
 Procedure Nss_Fun(A:Pvector; var B:Pvector;
-                  Fb,Rs,del,ep:double; D:Diapazon; nV:boolean);
+           Fb,Rs:double; DD:TDiodSample; D:Diapazon; nV:boolean);
 {записує в В залежність густини станів
 Nss=ep*ep0*(n-1)/q*del від різниці Ес-Ess=(Fb-V/n),
 [Nss] = еВ-1 см-2; [Ec-Ess] = еВ;
@@ -1871,7 +1886,8 @@ for I := 0 to High(temp^.X) do
      if boolXY[i] then
            begin
             B^.x[j]:=Fb-temp^.x[i]/temp^.y[i];
-            B^.y[j]:=ep*8.85e-14*(temp^.y[i]-1)/del/1.6e-19;
+            B^.y[j]:=DD.Material.Eps*8.85e-14*
+                    (temp^.y[i]-1)/DD.Thick_i/1.6e-19;
             j:=j+1;
            end;
   end;
@@ -1882,8 +1898,10 @@ end; //try
 dispose(temp);
 end;
 
+//Procedure Dit_Fun(A:Pvector; var B:Pvector;
+//                  Rs,AA,Szr,Nd,eps:double; D:Diapazon);
 Procedure Dit_Fun(A:Pvector; var B:Pvector;
-                  Rs,AA,Szr,Nd,eps:double; D:Diapazon);
+                  Rs:double;DD:TDiodSample; D:Diapazon);
 {записує в В залежність густини станів,
 обчислену за методом Іванова,
 Dit=ep*ep0/(q^2*del)*d(Vcal-Vexp)/dVs
@@ -1911,7 +1929,7 @@ var i,j:integer;
 begin
 B^.n:=0;
 if (Rs=555)then Exit;
-IvanovKalk(A,D,Rs,AA,Szr,Nd,eps,del,Fb);
+IvanovKalk(A,D,Rs,DD,del,Fb);
 if (Fb=555)or(del<=0) then Exit;
 new(temp);
 A_B_Diapazon(A,A,temp,D);
@@ -1922,9 +1940,10 @@ if temp^.n=0 then
           end;
 for I := 0 to High(temp^.X) do
   begin
-   Vs:=Fb-Kb*A^.T*ln(Szr*AA*sqr(A^.T)/temp^.Y[i]);
+   Vs:=Fb+DD.Fb(A^.T,temp^.Y[i]);
+//   Vs:=Fb-Kb*A^.T*ln(DD.Area*DD.Material.ARich*sqr(A^.T)/temp^.Y[i]);
    Vcal:=Vs+Rs*temp^.Y[i]+
-         del*sqrt(2*Qelem*Nd*eps/Eps0)*(sqrt(Fb)-sqrt(Fb-Vs));
+         del*sqrt(2*Qelem*DD.Nd*DD.Material.Eps/Eps0)*(sqrt(Fb)-sqrt(Fb-Vs));
    temp^.Y[i]:=Vcal-temp^.X[i];
    temp^.X[i]:=Vs;
   end;
@@ -1959,7 +1978,9 @@ for I := 0 to High(B^.X) do
  end;
 end;
 
-Procedure IvanovAprox (V:PVector; AA, Szr, Nd, ep:double;
+//Procedure IvanovAprox (V:PVector; AA, Szr, Nd, ep:double;
+//                       var del,Fb:double);
+Procedure IvanovAprox (V:PVector; DD:TDiodSample;
                        var del,Fb:double);
 {апроксимація даних у векторі V параметричною залежністю
 I=Szr AA T^2 exp(-Fb/kT) exp(qVs/kT)
@@ -1996,7 +2017,8 @@ try
 for I := 0 to High(V^.X) do
   begin
    temp^.X[i]:=1/V^.X[i];
-   temp^.Y[i]:=sqrt(Kb*V^.T*ln(Szr*AA*sqr(V^.T)/V^.Y[i]));
+   temp^.Y[i]:=sqrt(DD.Fb(V^.T,V^.Y[i]));
+//   temp^.Y[i]:=sqrt(Kb*V^.T*ln(DD.Area*DD.Material.ARich*sqr(V^.T)/V^.Y[i]));
   end;
 except
  dispose(temp);
@@ -2029,7 +2051,7 @@ b:=(sqrt(sqr(a)+4*b)-a)/2;
 except
   Exit;
 end;
-del:=a/sqrt(2*Qelem*Nd*ep/Eps0);
+del:=a/sqrt(2*Qelem*DD.Nd*DD.Material.Eps/Eps0);
 Fb:=sqr(b);
 
 end;
@@ -2218,12 +2240,13 @@ for i:=0 to High(B^.X) do Swap(B^.X[i],B^.Y[i]);
 end;
 
 
-Procedure Gr2_Fun (A:Pvector; var B:Pvector; AA, Szr:double);
+//Procedure Gr2_Fun (A:Pvector; var B:Pvector; AA, Szr:double);
+Procedure Gr2_Fun (A:Pvector; var B:Pvector; DD:TDiodSample);
 {записує в B функцію Громова другого роду
 спираючись на точки вектора А}
 var i:integer;
 begin
-NordeFun(A,B, AA, Szr,2);
+NordeFun(A,B,DD,2);
 for i:=0 to High(B^.X) do B^.X[i]:=A^.Y[i+B^.N_begin];
 {фактично, правильно буде будувати лише у випадку,
 коли в А знаходиться вихідний файл, для якого А^.N_begin=0}
@@ -2484,7 +2507,9 @@ Rs:=-bb/aa;
 dispose(temp1);dispose(temp2);
 end;
 
-Procedure MikhKalk(A:PVector; D:Diapazon; AA, Szr:double;
+//Procedure MikhKalk(A:PVector; D:Diapazon; AA, Szr:double;
+//                   var Rs:double; var n:double; var I0:double; var Fb:double);
+Procedure MikhKalk(A:PVector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А (тих, які задовольняють
 умову D) за допомогою
@@ -2557,7 +2582,8 @@ I0:=Im*exp(-Alpha_m-1);
 if A^.T>0 then
    begin
    n:=Vm*(Alpha_m-1)/Kb/A^.T/sqr(Alpha_m);
-   Fb:=Kb*A^.T*(Alpha_m+1-ln(Im/Szr/AA/sqr(A^.T)));
+   Fb:=Kb*A^.T*Alpha_m+1+DD.Fb(A^.T,Im);
+//   Fb:=Kb*A^.T*(Alpha_m+1-ln(Im/Szr/AA/sqr(A^.T)));
    end;
 
 
@@ -2572,15 +2598,13 @@ dispose(temp2);
 
 end;
 
-Procedure HFunKalk(A:Pvector; D:Diapazon; AA, Szr, N:double;
+Procedure HFunKalk(A:Pvector; D:Diapazon; DD:TDiodSample; N:double;
                    var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації H-функції (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та висоти бар'єру Fb;
 для побудови Н-функції потрібні
-AA - стала Річардсона,
-Szr - площа контакту,
 N - фактор неідеальності}
 var temp1, temp2:Pvector;
 begin
@@ -2589,7 +2613,7 @@ Fb:=555;
 if N=555 then Exit;
 
 new(temp1);
-HFun(A,temp1,AA,Szr,N);         // в temp1 повна H-функція
+HFun(A,temp1,DD,N);         // в temp1 повна H-функція
 if temp1^.n=0 then
              begin
                dispose(temp1);
@@ -2608,7 +2632,8 @@ Fb:=Fb/N;
 dispose(temp1);dispose(temp2);
 end;
 
-Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
+Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon;
+                 Rs:double; DD:TDiodSample;
                  var n:double; var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
@@ -2633,7 +2658,8 @@ begin
 n:=555;
 Fb:=555;
 I0:=555;
-if (Rs=555)or(AA=555)or(Szr=555)or(A^.T<=0) then Exit;
+if (Rs=555)or(DD.Material.ARich=555)or(DD.Area=555)or(A^.T<=0)
+     then Exit;
 
 new(temp2);
 case Index of
@@ -2662,12 +2688,16 @@ LinAprox(temp1,I0,n);
 I0:=exp(I0);
 n:=1/(Kb*A^.T*n);
 if Index=3 then n:=-n;
-Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
+Fb:=DD.Fb(A^.T,I0);
+//Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
 dispose(temp1);
 end;
 
-Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
-                 n:double; var I0:double; var Fb:double);overload;
+//Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
+//                 n:double; var I0:double; var Fb:double);overload;
+Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon;
+                 DD:TDiodSample; Rs, n:double;
+                 var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
 масштабі (з врахуванням
@@ -2693,7 +2723,7 @@ begin
 //n:=555;
 Fb:=555;
 I0:=555;
-if (Rs=555)or(AA=555)or(Szr=555)or(A^.T<=0) then Exit;
+if (Rs=555)or(DD.Area=555)or(DD.Material.ARich=555)or(A^.T<=0) then Exit;
 
 new(temp2);
 case Index of
@@ -2723,12 +2753,12 @@ LinAproxBconst(temp1,I0,n_temp);
 I0:=exp(I0);
 //n:=1/(Kb*A^.T*n);
 //if Index=3 then n:=-n;
-Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
+Fb:=DD.Fb(A^.T,I0);
 dispose(temp1);
 end;
 
 
-Procedure ExKalk(A:Pvector; AA, Szr :double;
+Procedure ExKalk(A:Pvector; DD:TDiodSample;
                  var n:double; var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
@@ -2746,7 +2776,7 @@ begin
 n:=555;
 Fb:=555;
 I0:=555;
-if {(Rs=555)or}(AA=555)or(Szr=555)or(A^.T<=0) then Exit;
+if (DD.Material.ARich=555)or(DD.Area=555)or(A^.T<=0) then Exit;
 
 new(temp2);
 IVchar(A,temp2);
@@ -2779,12 +2809,16 @@ LinAprox(temp2,I0,n);
 I0:=exp(I0);
 n:=1/(Kb*A^.T*n);
 {if Index=3 then n:=-n;}
-Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
+Fb:=DD.Fb(A^.T,I0);
+//Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
 dispose(temp2);
 end;
 
 
-Procedure ExpKalk(A:Pvector; D:Diapazon; Rs, AA, Szr :double; Xp:IRE;
+//Procedure ExpKalk(A:Pvector; D:Diapazon; Rs, AA, Szr :double; Xp:IRE;
+//                 var n:double; var I0:double; var Fb:double);
+Procedure ExpKalk(A:Pvector; D:Diapazon; Rs:double;
+                 DD:TDiodSample; Xp:IRE;
                  var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А шляхом
 апроксимації ВАХ за формулою І=I0(exp(V/nkT)-1)
@@ -2836,7 +2870,8 @@ if rez=-1 then
 I0:=Xr[1];
 n:=Xr[3]/Kb/A^.T; {n}
 if I0=0 then I0:=1;
-Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
+Fb:=DD.Fb(A^.T,I0);
+//Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
 dispose(temp1);
 end;
 
@@ -3289,7 +3324,7 @@ end;
 //
 
 
-Procedure NordDodat(A:Pvector; D:Diapazon; AA, Szr,Gamma:double;
+Procedure NordDodat(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double;
                    var V0:double; var I0:double; var F0:double);
 {на основі даних з вектора А (з рахуванням
 обмежень в D) будує функцію Норда та визначає
@@ -3302,7 +3337,7 @@ V0:=555;
 I0:=555;
 F0:=555;
 new(temp1);
-NordeFun(A,temp1,AA,Szr,Gamma);    // в temp1 повна функція Норда
+NordeFun(A,temp1,DD,Gamma);    // в temp1 повна функція Норда
 if temp1^.n=0 then
              begin
                dispose(temp1);
@@ -3338,7 +3373,7 @@ dispose(temp1);
 end;
 
 
-Procedure NordKalk(A:Pvector; D:Diapazon; AA, Szr,Gamma:double; {Gamma:word;}
+Procedure NordKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double; {Gamma:word;}
                    n:double; var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови
 функції Норда (з врахуванням
@@ -3355,7 +3390,7 @@ begin
 Rs:=555;
 Fb:=555;
 
-NordDodat(A,D,AA,Szr,Gamma,V0,I0,F0);
+NordDodat(A,D,DD,Gamma,V0,I0,F0);
 if V0=555 then Exit;
 
 if n<>555 then
@@ -3391,7 +3426,9 @@ if A^.T>0 then n:=-a0/b0/Kb/A^.T;
 dispose(temp1);
 end;
 
-Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs, AA, Szr, Nd, ep:double;
+//Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs, AA, Szr, Nd, ep:double;
+//                     var del:double; var Fb:double);
+Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs:double; DD:TDiodSample;
                      var del:double; var Fb:double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за методом Іванова
@@ -3426,7 +3463,7 @@ if temp2^.n=0 then
       dispose(temp);
       Exit;
     end;
-IvanovAprox (temp2,AA, Szr, Nd, ep,del,Fb);
+IvanovAprox (temp2,DD,del,Fb);
 dispose(temp2);
 dispose(temp);
 end;
@@ -3479,7 +3516,10 @@ if A^.T>0 then n:=1/n/Kb/A^.T
 dispose(temp1);
 end;
 
-Procedure Gr1Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
+//Procedure Gr1Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
+//                   var Rs:double; var n:double;
+//                   var Fb:double; var I0:double);
+Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -3560,7 +3600,7 @@ if High(DDD^.Y)>-1 then
     if A^.T>0 then
        begin
        n:=C2/Kb/A^.T;
-       Fb:=Kb*A^.T*C0/C2+Kb*A^.T*ln(Szr*AA*sqr(A^.T));
+       Fb:=Kb*A^.T*C0/C2+DD.kTln(A^.T);
        I0:=exp(-C0/C2);
        end;
   end;
@@ -3594,7 +3634,7 @@ dispose(DDD);
 //             end;
 //GromovAprox(temp2,C0,C1,C2);
 //Rs:=C1;
-//if A^.T>0 then                   
+//if A^.T>0 then
 //   begin
 //   n:=C2/Kb/A^.T;
 //   Fb:=Kb*A^.T*C0/C2+Kb*A^.T*ln(Szr*AA*sqr(A^.T));
@@ -3603,7 +3643,7 @@ dispose(DDD);
 //dispose(temp2);
 end;
 
-Procedure Gr2Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
+Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -3699,7 +3739,7 @@ if A^.T<=0 then Exit;
 
 
 new(temp1);
-Gr2_Fun (A,temp1,AA,Szr);
+Gr2_Fun (A,temp1,DD);
 { в temp1 повна функція Громова другого роду}
 if temp1^.n=0 then
              begin
@@ -3720,13 +3760,15 @@ if temp2^.n=0 then
 GromovAprox(temp2,C0,C1,C2);
 Rs:=2*C1;
 n:=2*C2/Kb/A^.T+2;
-Fb:=2*C0/n-Kb*A^.T/n*(2-n)*ln(Szr*AA*sqr(A^.T));
-I0:=Szr*AA*sqr(A^.T)*exp(-Fb/Kb/A^.T);
+Fb:=2*C0/n-DD.kTln(A^.T)/n*(2-n);
+//Fb:=2*C0/n-Kb*A^.T/n*(2-n)*ln(DD.Area*DD.Material.Arich*sqr(A^.T));
+I0:=DD.I0(A^.T,Fb);
+//DD.Area*DD.Material.Arich*sqr(A^.T)*exp(-Fb/Kb/A^.T);
 dispose(temp2);
 end;
 
 
-Procedure BohlinKalk(A:Pvector; D:Diapazon; AA, Szr, Gamma1,Gamma2:double;
+Procedure BohlinKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma1,Gamma2:double;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -3748,8 +3790,8 @@ n:=555;
 Fb:=555;
 I0:=555;
 
-NordDodat(A,D,AA,Szr,Gamma1,V01,I01,F01);
-NordDodat(A,D,AA,Szr,Gamma2,V02,I02,F02);
+NordDodat(A,D,DD,Gamma1,V01,I01,F01);
+NordDodat(A,D,DD,Gamma2,V02,I02,F02);
 if (V01=555) or (V02=555) then Exit;
 
 temp:=(V01-V02+(Gamma2-Gamma1)*Kb*A^.T)/(F02-F01-V02/Gamma2+V01/Gamma1);
@@ -3764,11 +3806,14 @@ Rs:=(Rs+temp)/2;
 temp:=F02+V02*(1/n-1/Gamma2)-(Gamma2-n)*Kb*A^.T/n;
 Fb:=F01+V01*(1/n-1/Gamma1)-(Gamma1-n)*Kb*A^.T/n;
 Fb:=(Fb+temp)/2;
-I0:=Szr*AA*sqr(A^.T)*exp(-Fb/Kb/A^.T);
-
+I0:=DD.I0(A^.T,Fb);
+//Area*DD.Material.Arich*sqr(A^.T)*exp(-Fb/Kb/A^.T);
 end;
 
-Procedure LeeKalk (A:Pvector; D:Diapazon; AA, Szr:double;
+//Procedure LeeKalk (A:Pvector; D:Diapazon; AA, Szr:double;
+//                   var Rs:double; var n:double;
+//                   var Fb:double; var I0:double);
+Procedure LeeKalk (A:Pvector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -3870,7 +3915,7 @@ if A^.T>0 then
             begin
             n:=-a0/b0/Kb/A^.T;
             I0:=exp(-temp1^.T/Kb/A^.T/n);
-            Fb:=temp1^.T/n+Kb*A^.T*ln(Szr*AA*sqr(A^.T));
+            Fb:=temp1^.T/n+DD.kTln(A^.T);
             end;
 dispose(temp1);
 end;

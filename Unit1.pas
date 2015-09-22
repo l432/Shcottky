@@ -195,34 +195,13 @@ type
     LabelNssYmax: TLabel;
     ButtonParamNss: TButton;
     ButtonNss: TButton;
-    GroupBox9: TGroupBox;
-    LabelArea: TLabel;
-    ButtonArea: TButton;
     GroupBoxMat: TGroupBox;
-    RBnSi: TRadioButton;
-    RBpSi: TRadioButton;
-    RBnGaAs: TRadioButton;
-    RBnInP: TRadioButton;
-    RBSiC: TRadioButton;
-    RBnGaN: TRadioButton;
-    RBnCdTe: TRadioButton;
-    RBCuIn: TRadioButton;
-    RBpGaTe: TRadioButton;
-    RBpGaSe: TRadioButton;
-    RBOther: TRadioButton;
     LRich3: TLabel;
     LPermit: TLabel;
     LabelRich: TLabel;
     LabelPerm: TLabel;
-    ButtonRich: TButton;
-    ButtonPerm: TButton;
-    GroupBox10: TGroupBox;
-    Label5: TLabel;
-    Label6: TLabel;
     LabelDel: TLabel;
-    LabelEp: TLabel;
     ButtonDel: TButton;
-    ButtonEp: TButton;
     GroupBox11: TGroupBox;
     Label7: TLabel;
     LabelCurDir: TLabel;
@@ -535,9 +514,6 @@ type
     CheckBoxn_Mk: TCheckBox;
     CheckBoxIs_Mk: TCheckBox;
     CheckBoxFb_Mk: TCheckBox;
-    GroupBox30: TGroupBox;
-    LabelConcentr: TLabel;
-    ButtonConcen: TButton;
     GroupBoxIvan: TGroupBox;
     LabelIvanRange: TLabel;
     LabelIvanXmin: TLabel;
@@ -813,6 +789,23 @@ type
     LVarB: TLabel;
     LabelVarB: TLabel;
     LaVarB: TLabel;
+    LaPerm: TLabel;
+    LaRich: TLabel;
+    LaEg: TLabel;
+    LaMeff: TLabel;
+    LaVarA: TLabel;
+    GBDiodParam: TGroupBox;
+    Linsulator: TLabel;
+    LArea: TLabel;
+    LNd: TLabel;
+    LEps_i: TLabel;
+    LThick_i: TLabel;
+    LabelEp: TLabel;
+    LabelConcentr: TLabel;
+    LabelArea: TLabel;
+    ButEps_i: TButton;
+    ButNd: TButton;
+    ButArea: TButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -848,12 +841,12 @@ type
 //    procedure Label1Click(Sender: TObject);
     procedure CBKalkChange(Sender: TObject);
 //    procedure ButtonParamNssClick(Sender: TObject);
-    procedure ButtonAreaClick(Sender: TObject);
-    procedure RBnSiClick(Sender: TObject);
-    procedure ButtonRichClick(Sender: TObject);
-    procedure ButtonPermClick(Sender: TObject);
+//    procedure ButtonAreaClick(Sender: TObject);
+//    procedure RBnSiClick(Sender: TObject);
+//    procedure ButtonRichClick(Sender: TObject);
+//    procedure ButtonPermClick(Sender: TObject);
     procedure ButtonDelClick(Sender: TObject);
-    procedure ButtonEpClick(Sender: TObject);
+//    procedure ButtonEpClick(Sender: TObject);
     procedure ButtonCurDirClick(Sender: TObject);
     procedure CBForwRsClick(Sender: TObject);
     procedure ButtonCreateFileClick(Sender: TObject);
@@ -890,7 +883,7 @@ type
 //    procedure ButtonParamMikhClick(Sender: TObject);
     procedure ComboBoxNssRsChange(Sender: TObject);
     procedure ComboBoxNssFbChange(Sender: TObject);
-    procedure ButtonConcenClick(Sender: TObject);
+//    procedure ButtonConcenClick(Sender: TObject);
 //    procedure ButtonParamIvanClick(Sender: TObject);
     procedure ButRCClick(Sender: TObject);
 //    procedure ButtonParamE2FClick(Sender: TObject);
@@ -1111,22 +1104,26 @@ Procedure DiapToLimToTForm1(D:Diapazon; F:TForm1);
 з обмеженим відображенням графіку (і в змінну GrLim,
 і на саму форму, у відповідні написи}
 
-Procedure DiodParam(F:TForm1;N_Mat:integer;var Ar:double; var Eps:double);
-{встановлення в залежності від значення N_Mat величин
-сталої Річардсона Ar, діелектричної проникності
-напівпровідника Eps та виведення цих значень
-у відповідний блок
-N_Mat
-1 - n-Si; 2 - p-Si; 3 - n-GaAs; 4 - n-InP;
-5 - 4H-SiC; 6 - n-GaN; 7 - n-CdTe; 8 - CuInSe2;
-9 - p-GaTe; 10 - p-GaSe; 11- Other
-У відповідних RadioButton Tag потрібно встановити
-так само як ці номери, тобто RBnSi.Tag=1, RBOther.Tag=11...
-}
+//Procedure DiodParam(F:TForm1;N_Mat:integer;var Ar:double; var Eps:double);
+//{встановлення в залежності від значення N_Mat величин
+//сталої Річардсона Ar, діелектричної проникності
+//напівпровідника Eps та виведення цих значень
+//у відповідний блок
+//N_Mat
+//1 - n-Si; 2 - p-Si; 3 - n-GaAs; 4 - n-InP;
+//5 - 4H-SiC; 6 - n-GaN; 7 - n-CdTe; 8 - CuInSe2;
+//9 - p-GaTe; 10 - p-GaSe; 11- Other
+//У відповідних RadioButton Tag потрібно встановити
+//так само як ці номери, тобто RBnSi.Tag=1, RBOther.Tag=11...
+//}
 
 Procedure MaterialOnForm;
 {виведення на форму параметрів матеріалу, які
 беруться зі змінної Semi}
+
+Procedure DiodOnForm;
+{виведення на форму параметрів діоду, які
+беруться зі змінної Diod}
 
 Procedure ChooseDirect(F:TForm1);
 {виведення на форму написів, пов'язаних
@@ -1262,10 +1259,11 @@ var
   Va - напруга, яка використовується для побудови
        допоміжних функцій у методах Сібілса та Лі
   }
-  Semi:TMaterial;
-  {містить параметри матеріалу}
+//  Semi:TMaterial;
+//  {містить параметри матеріалу}
 
-  AA, Sk, del, ep, eps, Ndd, RA, RB, RC:double;
+//  AA, Sk, del, ep, eps, Ndd, RA, RB, RC:double;
+  RA, RB, RC:double;
   {АА - стала Річардсона
   Sk - площа контакту
   del - товщина діелектричного прошарку
@@ -1419,7 +1417,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-    i,j,Imat:integer;
+    i,j{Imat}:integer;
     ConfigFile:TIniFile;
     st:string;
     DP: TDiapazons;
@@ -1632,6 +1630,27 @@ begin
  MaterialOnForm;
 //showmessage(Semi.Name);
 
+ Diod:=TDiodSample.Create;
+ Diod.ReadFromIniFile(ConfigFile);
+ Diod.Material:=Semi;
+
+ DiodOnForm;
+// showmessage(floattostr(Diod.Area));
+// showmessage(floattostr(Diod.Material.ARich));
+
+
+
+//  Sk:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
+//  Ndd:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
+//  del:=ConfigFile.ReadFloat('Parameters','InsulDepth',3e-7);
+//  ep:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
+//
+//
+//  LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
+//  LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
+//  LabelDel.Caption:=FloatToStrF(del,ffExponent,3,2);
+//  LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
+
 
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
@@ -1692,17 +1711,20 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
   LabelVa.Caption:='Va = '+FloatToStrF(Va,ffGeneral,3,2)+' V';
   LabelRect.Caption:=FloatToStrF(Vrect,ffGeneral,3,2)+' V';
 
-  Sk:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
-  Ndd:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
-  del:=ConfigFile.ReadFloat('Parameters','InsulDepth',3e-7);
-  ep:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
+//  Sk:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
+//  Ndd:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
+//  del:=ConfigFile.ReadFloat('Parameters','InsulDepth',3e-7);
+//  ep:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
+
   RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
   RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
   RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
-  LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
-  LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
-  LabelDel.Caption:=FloatToStrF(del,ffExponent,3,2);
-  LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
+
+//  LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
+//  LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
+//  LabelDel.Caption:=FloatToStrF(del,ffExponent,3,2);
+//  LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
+
   LabRA.Caption:='A = '+FloatToStrF(RA,ffGeneral,3,2);
   LabRB.Caption:='B = '+FloatToStrF(RB,ffExponent,3,2);
   LabRC.Caption:='C = '+FloatToStrF(RC,ffExponent,3,2);
@@ -1790,17 +1812,17 @@ for CL:=fname to kT_1 do Include(ColNames, CL);
 
 
 
-Imat:=ConfigFile.ReadInteger('Parameters','MaterialNumber',1);
-DiodParam(Form1,Imat,AA,eps);
+//Imat:=ConfigFile.ReadInteger('Parameters','MaterialNumber',1);
+//DiodParam(Form1,Imat,AA,eps);
 
 with Form1 do
 begin
  for I := 0 to ComponentCount-1 do
     begin
-{відновлення матеріалу з попереднього сеансу}
-     if (Components[i] is TRadioButton)and
-        (Components[i].Tag=Imat) then
-            (Components[i]as TRadioButton).Checked:=True;
+//{відновлення матеріалу з попереднього сеансу}
+//     if (Components[i] is TRadioButton)and
+//        (Components[i].Tag=Imat) then
+//            (Components[i]as TRadioButton).Checked:=True;
 {--------------------------------------------}
 
      case Components[i].Tag of
@@ -2236,11 +2258,11 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
   ConfigFile.WriteFloat('Diapaz','Va',Va);
   ConfigFile.WriteFloat('Diapaz','Vrect',Vrect);
 
-  ConfigFile.WriteFloat('Parameters','Square',Sk);
-  ConfigFile.WriteFloat('Parameters','Concentration',Ndd);
-  ConfigFile.WriteFloat('Parameters','InsulDepth',del);
-  ConfigFile.WriteFloat('Parameters','InsulPerm',ep);
-  ConfigFile.WriteFloat('Parameters','RichConst',AA);
+//  ConfigFile.WriteFloat('Parameters','Square',Sk);
+//  ConfigFile.WriteFloat('Parameters','Concentration',Ndd);
+//  ConfigFile.WriteFloat('Parameters','InsulDepth',del);
+//  ConfigFile.WriteFloat('Parameters','InsulPerm',ep);
+//  ConfigFile.WriteFloat('Parameters','RichConst',AA);
   ConfigFile.WriteFloat('Resistivity','RA',RA);
   ConfigFile.WriteFloat('Resistivity','RB',RB);
   ConfigFile.WriteFloat('Resistivity','RC',RC);
@@ -2298,6 +2320,8 @@ end; // with Form1 do
 ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
 ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 
+Diod.WriteToIniFile(ConfigFile);
+Diod.Free;
 ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
 if Semi.Name=MaterialName[High(MaterialName)]
     then  Semi.WriteToIniFile(ConfigFile);
@@ -2460,6 +2484,13 @@ var Value:double;
     st:string;
 begin
 if (Sender as TLabel).Name='LaVarB' then Value:=Semi.VarshB;
+if (Sender as TLabel).Name='LaVarA' then Value:=Semi.VarshA;
+if (Sender as TLabel).Name='LaMeff' then Value:=Semi.Meff;
+if (Sender as TLabel).Name='LaEg' then Value:=Semi.Eg0;
+if (Sender as TLabel).Name='LaPerm' then Value:=Semi.Eps;
+if (Sender as TLabel).Name='LaRich' then Value:=Semi.ARich;
+
+
 st:=FloatToStrF(Value,ffGeneral,4,3);
 if st='555' then st:='';
 
@@ -2468,11 +2499,13 @@ st:=InputBox('Input value',
              'the material parameter value is expected',
              st);
 
-if (Sender as TLabel).Name='LaVarB'  then
-           begin
-             StrToNumber(st, 555, Value);
-             Semi.VarshB:=Value;
-           end;
+StrToNumber(st, 555, Value);
+if (Sender as TLabel).Name='LaVarB' then Semi.VarshB:=Value;
+if (Sender as TLabel).Name='LaVarA' then Semi.VarshA:=Value;
+if (Sender as TLabel).Name='LaMeff' then Semi.Meff:=Value;
+if (Sender as TLabel).Name='LaEg' then Semi.Eg0:=Value;
+if (Sender as TLabel).Name='LaPerm' then Semi.Eps:=Value;
+if (Sender as TLabel).Name='LaRich' then Semi.ARich:=Value;
 
 MaterialOnForm;
 end;
@@ -2692,7 +2725,7 @@ case tg of
     end;
   Gr2:
     begin
-    Gr2_Fun(VaxFile,VaxGraph, AA, Sk);
+    Gr2_Fun(VaxFile,VaxGraph, Diod);
     str:='Gromov function II';
     end;
   Chu:
@@ -2732,12 +2765,12 @@ case tg of
     end;
   Hf:
     begin
-    HFun(VaxFile,VaxGraph, AA, Sk, nn);
+    HFun(VaxFile,VaxGraph, Diod, nn);
     str:='H - function';
     end;
   Nor:
     begin
-    NordeFun(VaxFile,VaxGraph, AA, Sk, Gamma);
+    NordeFun(VaxFile,VaxGraph, Diod, Gamma);
     str:='Norde"s function';
     end;
   FV:
@@ -2772,12 +2805,12 @@ case tg of
     end;
   Nssf:
     begin
-    Nss_Fun(VaxFile, VaxGraph,Fbb,Rss,del,ep,D[diNss],RadioButtonNssNvD.Checked);
+    Nss_Fun(VaxFile, VaxGraph,Fbb,Rss,Diod,D[diNss],RadioButtonNssNvD.Checked);
     str:='Deep level density';
     end;
   Ditf:
     begin
-    Dit_Fun(VaxFile, VaxGraph,Rss,AA,Sk,Ndd,eps,D[diIvan]);
+    Dit_Fun(VaxFile, VaxGraph,Rss,Diod,D[diIvan]);
     str:='Deep level density';
     end;
   Lef:
@@ -2966,10 +2999,10 @@ begin
  Series2.Active:=True;
 end;
 
-procedure TForm1.RBnSiClick(Sender: TObject);
-begin
-DiodParam(Form1,(Sender as TComponent).Tag,AA,eps);
-end;
+//procedure TForm1.RBnSiClick(Sender: TObject);
+//begin
+//DiodParam(Form1,(Sender as TComponent).Tag,AA,eps);
+//end;
 
 procedure TForm1.RBPointClick(Sender: TObject);
 begin
@@ -3014,19 +3047,19 @@ end;
 procedure TForm1.SButFitClick(Sender: TObject);
 var
     i:integer;
-    F:TFitFunction;
+//    F:TFitFunction;
 begin
  if SButFit.Down then
   begin
-FunCreate(SButFit.Caption,F);
+FunCreate(SButFit.Caption,Fit);
   if   SButFit.Caption='None' then Exit;
 
 
   if (SButFit.Caption='Linear')or
    (SButFit.Caption='Quadratic') then
-       F.FittingGraphFile(XLogCheck.Checked,YLogCheck.Checked,VaxGraph,EvolParam,Series4)
+       Fit.FittingGraphFile(XLogCheck.Checked,YLogCheck.Checked,VaxGraph,EvolParam,Series4)
                                  else
-       F.FittingGraphFile(VaxGraph,EvolParam,Series4);
+       Fit.FittingGraphFile(VaxGraph,EvolParam,Series4);
 
    if EvolParam[0]=555 then Exit;
    Series4.Active:=True;
@@ -3040,13 +3073,13 @@ FunCreate(SButFit.Caption,F);
          MemoAppr.Lines.Add(VaxFile.name);
          MemoAppr.Lines.Add(SButFit.Caption);
         end;
-   for I := 0 to F.Ns-1 do
-               MemoAppr.Lines.Add(F.Xname[i]+'='+
+   for I := 0 to Fit.Ns-1 do
+               MemoAppr.Lines.Add(Fit.Xname[i]+'='+
                         FloatToStrF(EvolParam[i],ffExponent,4,3));
-   for I := 0 to High(F.DodX) do
-               MemoAppr.Lines.Add(F.DodXname[i]+'='+
-                        FloatToStrF(F.DodX[i],ffExponent,4,3));
-  F.Free;
+   for I := 0 to High(Fit.DodX) do
+               MemoAppr.Lines.Add(Fit.DodXname[i]+'='+
+                        FloatToStrF(Fit.DodX[i],ffExponent,4,3));
+  Fit.Free;
   end  //if SButFit.Down then
    else Series4.Active:=False;
 end;
@@ -3977,7 +4010,7 @@ repeat
                 if I>Ilim then Break;
            until false;
 
-     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
+     LeeKalk (Vax,D[diLee],Diod,Rss,nn,Fbb,I00);
          if (Rss=555)or(Fbb=555) then
             showmessage('SigV='+floattostr(SigV)+#10+#13+
                         'SigI='+floattostr(SigI))
@@ -3994,7 +4027,7 @@ repeat
                     end;
 
 
-     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
+     Gr1Kalk (Vax,D[diGr1],Diod,Rss,nn,Fbb,I00);
          if (Rss=555)or(Fbb=555) then
             showmessage('SigV='+floattostr(SigV)+#10+#13+
                         'SigI='+floattostr(SigI))
@@ -4241,7 +4274,7 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 //     ExKalk_nconst(1,Vax,D[diEx],Rss,AA,Sk,nn,I00,Fbb);
 //     ExKalk(1,Vax,D[diEx],Rss,AA,Sk,nnE,I00,FbbE);
 
-       BohlinKalk(Vax,D[diNord],AA,Sk,1.6,3.5,Rss,nn,Fbb,I00);
+       BohlinKalk(Vax,D[diNord],Diod,1.6,3.5,Rss,nn,Fbb,I00);
 //      NordKalk(Vax,D[diNord],AA,Sk,1.8,n_T(Vax^.T),Rss,Fbb);
 //       nn:=1;
         except
@@ -4735,8 +4768,8 @@ repeat
      CibilsKalk(Vax,D[diCib],Rss,nn);
 //     WernerKalk(Vax,D[diWer],Rss,nn);
 
-     ExKalk_nconst(1,Vax,D[diEx],Rss,AA,Sk,nn,I00,Fbb);
-     ExKalk(1,Vax,D[diEx],Rss,AA,Sk,nnE,I00,FbbE);
+     ExKalk_nconst(1,Vax,D[diEx],Diod,Rss,nn,I00,Fbb);
+     ExKalk(1,Vax,D[diEx],Rss,Diod,nnE,I00,FbbE);
 
 //       BohlinKalk(Vax,D[diNord],AA,Sk,1.6,3.5,Rss,nn,Fbb,I00);
 //      NordKalk(Vax,D[diNord],AA,Sk,1.8,n_T(Vax^.T),Rss,Fbb);
@@ -4927,8 +4960,8 @@ repeat
      CibilsKalk(Vax,D[diCib],Rss,nn);
 //     WernerKalk(Vax,D[diWer],Rss,nn);
 
-     ExKalk_nconst(1,Vax,D[diEx],Rss,AA,Sk,nn,I00,Fbb);
-     ExKalk(1,Vax,D[diEx],Rss,AA,Sk,nnE,I00,FbbE);
+     ExKalk_nconst(1,Vax,D[diEx],Diod,Rss,nn,I00,Fbb);
+     ExKalk(1,Vax,D[diEx],Rss,Diod,nnE,I00,FbbE);
 
 //       BohlinKalk(Vax,D[diNord],AA,Sk,1.6,3.5,Rss,nn,Fbb,I00);
 //      NordKalk(Vax,D[diNord],AA,Sk,1.8,n,Rss,Fbb);
@@ -5169,13 +5202,13 @@ repeat
 
 
           if method='Nord' then
-           NordKalk(Vax,D[diNord],AA,Sk,G2,n,Rss,Fbb);
+           NordKalk(Vax,D[diNord],Diod,G2,n,Rss,Fbb);
 
           if method='Bohlin' then
-            BohlinKalk(Vax,D[diNord],AA,Sk,G1,G2,Rss,nn,Fbb,I00);
+            BohlinKalk(Vax,D[diNord],Diod,G1,G2,Rss,nn,Fbb,I00);
 
           if method='Gromov' then
-           Gr2Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
+           Gr2Kalk (Vax,D[diGr1],Diod,Rss,nn,Fbb,I00);
 
              RsAv:=RsAv+Rss;
              delRsAv:=delRsAv+abs((Rss-Rs)/Rs);
@@ -5330,7 +5363,7 @@ if not(SetCurrentDir(CurDirectory)) then
      ChungKalk(Vax,Dtemp,Rss,nn);
      Rsmy:=Rss;
      nmy:=nn;
-     HFunKalk(Vax,Dtemp2,AA,Sk,nmy,Rss,Fbb);
+     HFunKalk(Vax,Dtemp2,Diod,nmy,Rss,Fbb);
      Fbmy:=Fbb;
 
      Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
@@ -5408,9 +5441,9 @@ if not(SetCurrentDir(CurDirectory)) then
      Kam1Kalk(Vax,Dtemp,Rss,nn);
      Rsmy:=Rss;
      nmy:=nn;
-     ExKalk_nconst(1,Vax,Dtemp2,Rsmy,AA,Sk,nmy,I00,Fbb);
+     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,I00,Fbb);
      Fbmy:=Fbb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,AA,Sk,nn,I00,Fbb);
+     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,nn,I00,Fbb);
      FbmyE:=Fbb;
      nmyE:=nn;
 
@@ -5493,9 +5526,9 @@ if not(SetCurrentDir(CurDirectory)) then
      Kam2Kalk(Vax,Dtemp,Rss,nn);
      Rsmy:=Rss;
      nmy:=nn;
-     ExKalk_nconst(1,Vax,Dtemp2,Rsmy,AA,Sk,nmy,I00,Fbb);
+     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,I00,Fbb);
      Fbmy:=Fbb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,AA,Sk,nn,I00,Fbb);
+     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,nn,I00,Fbb);
      FbmyE:=Fbb;
      nmyE:=nn;
 
@@ -5582,9 +5615,9 @@ if not(SetCurrentDir(CurDirectory)) then
      CibilsKalk(Vax,Dtemp,Rss,nn);
      Rsmy:=Rss;
      nmy:=nn;
-     ExKalk_nconst(1,Vax,Dtemp2,Rsmy,AA,Sk,nmy,I00,Fbb);
+     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,I00,Fbb);
      Fbmy:=Fbb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,AA,Sk,nn,I00,Fbb);
+     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,nn,I00,Fbb);
      FbmyE:=Fbb;
      nmyE:=nn;
 
@@ -5672,9 +5705,9 @@ if not(SetCurrentDir(CurDirectory)) then
      WernerKalk(Vax,Dtemp,Rss,nn);
      Rsmy:=Rss;
      nmy:=nn;
-     ExKalk_nconst(1,Vax,Dtemp2,Rsmy,AA,Sk,nmy,I00,Fbb);
+     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,I00,Fbb);
      Fbmy:=Fbb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,AA,Sk,nn,I00,Fbb);
+     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,nn,I00,Fbb);
      FbmyE:=Fbb;
      nmyE:=nn;
 
@@ -5750,7 +5783,7 @@ if not(SetCurrentDir(CurDirectory)) then
     if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
 
      Read_File(SR.name,Vax);
-     Gr1Kalk (Vax,Dtemp,AA,Sk,Rss,nn,Fbb,I00);
+     Gr1Kalk (Vax,Dtemp,Diod,Rss,nn,Fbb,I00);
      Rsmy:=Rss;
      nmy:=nn;
      Fbmy:=Fbb;
@@ -5815,8 +5848,8 @@ if not(SetCurrentDir(CurDirectory)) then
     if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
 
      Read_File(SR.name,Vax);
-     LeeKalk (Vax,Dtemp,AA,Sk,Rss,nn,Fbb,I00);
-//     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
+     LeeKalk (Vax,Dtemp,Diod,Rss,nn,Fbb,I00);
+//     LeeKalk (Vax,D[diLee],Diod,Rss,nn,Fbb,I00);
      Rsmy:=Rss;
      nmy:=nn;
      Fbmy:=Fbb;
@@ -5881,7 +5914,7 @@ if not(SetCurrentDir(CurDirectory)) then
     if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
 
      Read_File(SR.name,Vax);
-     MikhKalk (Vax,Dtemp,AA,Sk,Rss,nn,I00,Fbb);
+     MikhKalk (Vax,Dtemp,Diod,Rss,nn,I00,Fbb);
      Rsmy:=Rss;
      nmy:=nn;
      Fbmy:=Fbb;
@@ -6052,39 +6085,39 @@ end;
 
 
 
-procedure TForm1.ButtonAreaClick(Sender: TObject);
-var st,stHint:string;
-    Sk_temp:double;
-begin
-Sk_temp:=Sk;
-st:=FloatToStrF(Sk,ffExponent,3,2);
-stHint:='Input contact area, [ ] = m2';
-st:=InputBox('Diode area',stHint,st);
-StrToNumber(st, Sk_temp, Sk);
-if Sk<=0 then
-         begin
-         MessageDlg('Contact area must be positive', mtError,[mbOk],0);
-         Sk:=Sk_temp;
-         end;
-LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
-end;
+//procedure TForm1.ButtonAreaClick(Sender: TObject);
+//var st,stHint:string;
+//    Sk_temp:double;
+//begin
+//Sk_temp:=Sk;
+//st:=FloatToStrF(Sk,ffExponent,3,2);
+//stHint:='Input contact area, [ ] = m2';
+//st:=InputBox('Diode area',stHint,st);
+//StrToNumber(st, Sk_temp, Sk);
+//if Sk<=0 then
+//         begin
+//         MessageDlg('Contact area must be positive', mtError,[mbOk],0);
+//         Sk:=Sk_temp;
+//         end;
+//LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
+//end;
 
-procedure TForm1.ButtonConcenClick(Sender: TObject);
-var st,stHint:string;
-    Ndd_temp:double;
-begin
-Ndd_temp:=Ndd;
-st:=FloatToStrF(Ndd,ffExponent,3,2);
-stHint:='Input carrier concentration, [ ] = m^-3';
-st:=InputBox('carrier concentration',stHint,st);
-StrToNumber(st, Ndd_temp, Ndd);
-if Ndd<=0 then
-         begin
-         MessageDlg('Carrier concentration must be positive', mtError,[mbOk],0);
-         Ndd:=Ndd_temp;
-         end;
-LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
-end;
+//procedure TForm1.ButtonConcenClick(Sender: TObject);
+//var st,stHint:string;
+//    Ndd_temp:double;
+//begin
+//Ndd_temp:=Ndd;
+//st:=FloatToStrF(Ndd,ffExponent,3,2);
+//stHint:='Input carrier concentration, [ ] = m^-3';
+//st:=InputBox('carrier concentration',stHint,st);
+//StrToNumber(st, Ndd_temp, Ndd);
+//if Ndd<=0 then
+//         begin
+//         MessageDlg('Carrier concentration must be positive', mtError,[mbOk],0);
+//         Ndd:=Ndd_temp;
+//         end;
+//LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
+//end;
 
 procedure TForm1.ButtonCreateDateClick(Sender: TObject);
 var
@@ -6100,7 +6133,7 @@ var
   Str1: TStringList;
   str:string;
   a,b:double;
-  Fit:TFitFunction;
+//  Fit:TFitFunction;
   Rsmy,nmy,Fbmy,nmyE,FbmyE:double;
   Rsmyk,nmyk,Fbmyk,nmyEk,FbmyEk:double;
   Nf:integer;
@@ -6218,11 +6251,11 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_H in ColNames) or (Fb_H in ColNames) then
       begin
       n:=nDefineCB(Vax,ComBDateHfunN,ComBDateHfunN_Rs);
-      HFunKalk(Vax,D[diHfunc],AA,Sk,n,Rss,Fbb);
+      HFunKalk(Vax,D[diHfunc],Diod,n,Rss,Fbb);
       dat[ord(Rs_H)]:=FloatToStrF(Rss,ffExponent,3,2);
       dat[ord(Fb_H)]:=FloatToStrF(Fbb,ffGeneral,3,2);
 //--------------------------
-      HFunKalk(Vax,D[diHfunc],AA,Sk,nmy,Rss,Fbb);
+      HFunKalk(Vax,D[diHfunc],Diod,nmy,Rss,Fbb);
       Fbmy:=Fbb;
 //---------------------------
       end; // (Rs_H in ColNames) or (Fb_H in ColNames) then
@@ -6231,7 +6264,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_N in ColNames) or (Fb_N in ColNames) then
       begin
       n:=nDefineCB(Vax,ComBDateNordN,ComBDateNordN_Rs);
-      NordKalk(Vax,D[diNord],AA,Sk,Gamma,n,Rss,Fbb);
+      NordKalk(Vax,D[diNord],Diod,Gamma,n,Rss,Fbb);
       dat[ord(Rs_N)]:=FloatToStrF(Rss,ffExponent,3,2);
       dat[ord(Fb_N)]:=FloatToStrF(Fbb,ffGeneral,3,2);
 ////--------------------------
@@ -6239,7 +6272,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //    Fit:=TDiod.Create;
 //    Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
 //    Fit.Free;
-      NordKalk(Vax,D[diNord],AA,Sk,1.8,n,Rss,Fbb);
+      NordKalk(Vax,D[diNord],Diod,1.8,n,Rss,Fbb);
       Rsmy:=Rss;
       Fbmy:=Fbb;
       nnn:='Nord';
@@ -6254,7 +6287,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_Exp in ColNames) then
       begin
        Rs:=RsDefineCB(Vax,ComBDateExpRs,ComBDateExpRs_n);
-       ExpKalk(Vax,D[diExp],Rs,AA,Sk,ApprExp,nn,I00,Fbb);
+       ExpKalk(Vax,D[diExp],Rs,Diod,ApprExp,nn,I00,Fbb);
        dat[ord(n_Exp)]:=FloatToStrF(nn,ffGeneral,4,3);
        dat[ord(Is_Exp)]:=FloatToStrF(I00,ffExponent,3,2);
        dat[ord(Fb_Exp)]:=FloatToStrF(Fbb,ffGeneral,3,2);
@@ -6265,7 +6298,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_E2F in ColNames) then
        begin
         Rs:=RsDefineCB(Vax,ComBDateEx2FRs,ComBDateEx2FRs_n);
-        ExKalk(2,Vax,D[diE2F],Rs,AA,Sk,nn,I00,Fbb);
+        ExKalk(2,Vax,D[diE2F],Rs,Diod,nn,I00,Fbb);
         dat[ord(n_E2F)]:=FloatToStrF(nn,ffGeneral,4,3);
         dat[ord(Is_E2F)]:=FloatToStrF(I00,ffExponent,3,2);
         dat[ord(Fb_E2F)]:=FloatToStrF(Fbb,ffGeneral,3,2);
@@ -6276,7 +6309,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_E2R in ColNames) then
        begin
         Rs:=RsDefineCB(Vax,ComBDateEx2RRs,ComBDateEx2RRs_n);
-        ExKalk(3,Vax,D[diE2R],Rs,AA,Sk,nn,I00,Fbb);
+        ExKalk(3,Vax,D[diE2R],Rs,Diod,nn,I00,Fbb);
         dat[ord(n_E2R)]:=FloatToStrF(nn,ffGeneral,4,3);
         dat[ord(Is_E2R)]:=FloatToStrF(I00,ffExponent,3,2);
         dat[ord(Fb_E2R)]:=FloatToStrF(Fbb,ffGeneral,3,2);
@@ -6320,7 +6353,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Gr1 in ColNames) or (n_Gr1 in ColNames)
          or (Is_Gr1 in ColNames) or (Fb_Gr1 in ColNames) then
       begin
-      Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
+      Gr1Kalk (Vax,D[diGr1],Diod,Rss,nn,Fbb,I00);
       dat[ord(Rs_Gr1)]:=FloatToStrF(Rss,ffExponent,3,2);
       dat[ord(n_Gr1)]:=FloatToStrF(nn,ffGeneral,4,3);
       dat[ord(Is_Gr1)]:=FloatToStrF(I00,ffExponent,3,2);
@@ -6338,7 +6371,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Gr2 in ColNames) or (n_Gr2 in ColNames)
          or (Is_Gr2 in ColNames) or (Fb_Gr2 in ColNames) then
       begin
-      Gr2Kalk (Vax,D[diGr2],AA,Sk,Rss,nn,Fbb,I00);
+      Gr2Kalk (Vax,D[diGr2],Diod,Rss,nn,Fbb,I00);
       dat[ord(Rs_Gr2)]:=FloatToStrF(Rss,ffExponent,3,2);
       dat[ord(n_Gr2)]:=FloatToStrF(nn,ffGeneral,4,3);
       dat[ord(Is_Gr2)]:=FloatToStrF(I00,ffExponent,3,2);
@@ -6386,13 +6419,13 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_El in ColNames) then
        begin
         Rs:=RsDefineCB(Vax,ComBDateExRs,ComBDateExRs_n);
-        ExKalk(1,Vax,D[diEx],Rs,AA,Sk,nn,I00,Fbb);
+        ExKalk(1,Vax,D[diEx],Rs,Diod,nn,I00,Fbb);
         dat[ord(n_El)]:=FloatToStrF(nn,ffGeneral,4,3);
         dat[ord(Is_El)]:=FloatToStrF(I00,ffExponent,3,2);
         dat[ord(Fb_El)]:=FloatToStrF(Fbb,ffGeneral,3,2);
 //----------------------------------
-       ExKalk(1,Vax,D[diEx],Rsmy,AA,Sk,nmyE,I00,FbmyE);
-       ExKalk_nconst(1,Vax,D[diEx],Rsmy,AA,Sk,nmy,I00,Fbmy);
+       ExKalk(1,Vax,D[diEx],Rsmy,Diod,nmyE,I00,FbmyE);
+       ExKalk_nconst(1,Vax,D[diEx],Diod,Rsmy,nmy,I00,Fbmy);
 //----------------------------------
       end;
 
@@ -6400,13 +6433,13 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Bh in ColNames) or (n_Bh in ColNames)
          or (Is_Bh in ColNames) or (Fb_Bh in ColNames) then
       begin
-      BohlinKalk(Vax,D[diNord],AA,Sk,Gamma1,Gamma2,Rss,nn,Fbb,I00);
+      BohlinKalk(Vax,D[diNord],Diod,Gamma1,Gamma2,Rss,nn,Fbb,I00);
       dat[ord(Rs_Bh)]:=FloatToStrF(Rss,ffExponent,3,2);
       dat[ord(n_Bh)]:=FloatToStrF(nn,ffGeneral,4,3);
       dat[ord(Is_Bh)]:=FloatToStrF(I00,ffExponent,3,2);
       dat[ord(Fb_Bh)]:=FloatToStrF(Fbb,ffGeneral,3,2);
 //--------------------------
-      BohlinKalk(Vax,D[diNord],AA,Sk,1.6,1.9,Rss,nn,Fbb,I00);
+      BohlinKalk(Vax,D[diNord],Diod,1.6,1.9,Rss,nn,Fbb,I00);
       Rsmy:=Rss;
       nmy:=nn;
       Fbmy:=Fbb;
@@ -6419,7 +6452,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Lee in ColNames) or (n_Lee in ColNames)
          or (Is_Lee in ColNames) or (Fb_Lee in ColNames) then
       begin
-      LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
+      LeeKalk (Vax,D[diLee],Diod,Rss,nn,Fbb,I00);
       dat[ord(Rs_Lee)]:=FloatToStrF(Rss,ffExponent,3,2);
       dat[ord(n_Lee)]:=FloatToStrF(nn,ffGeneral,4,3);
       dat[ord(Is_Lee)]:=FloatToStrF(I00,ffExponent,3,2);
@@ -6437,7 +6470,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Mk in ColNames) or (n_Mk in ColNames)
          or (Is_Mk in ColNames) or (Fb_Mk in ColNames) then
       begin
-      MikhKalk (Vax,D[diMikh],AA,Sk,Rss,nn,I00,Fbb);
+      MikhKalk (Vax,D[diMikh],Diod,Rss,nn,I00,Fbb);
       dat[ord(Rs_Mk)]:=FloatToStrF(Rss,ffExponent,3,2);
       dat[ord(n_Mk)]:=FloatToStrF(nn,ffGeneral,4,3);
       dat[ord(Is_Mk)]:=FloatToStrF(I00,ffExponent,3,2);
@@ -7021,10 +7054,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         ChungFun(Vax,tempVax);
 {---------------------------------------------}
        Hfunct:
-        HFun(Vax,tempVax,AA,Sk,nDefineCB(Vax,CombHfuncN,CombHfuncN_Rs));
+        HFun(Vax,tempVax,Diod,nDefineCB(Vax,CombHfuncN,CombHfuncN_Rs));
 {---------------------------------------------}
        Norde:
-         NordeFun(Vax,tempVax,AA,Sk,Gamma);
+         NordeFun(Vax,tempVax,Diod,Gamma);
 //begin
 //  NordeFun(Vax,tempVax,AA,Sk,Gamma);
 //  new(ttt);
@@ -7043,7 +7076,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         Nss_Fun(Vax,tempVax,
                FbDefineCB(Vax,ComboBNssFb,RsDefineCB(Vax,ComBNssRs,ComBNssRs_n)),
                RsDefineCB(Vax,ComBNssRs,ComBNssRs_n),
-               del,ep,D[diNss],RadButNssNvD.Checked);
+               Diod,D[diNss],RadButNssNvD.Checked);
           Sorting(tempVax)
          end;
 {---------------------------------------------}
@@ -7060,7 +7093,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          Gr1_Fun(Vax,tempVax);
 {---------------------------------------------}
        Gromov2:
-         Gr2_Fun(Vax,tempVax,AA,Sk);
+         Gr2_Fun(Vax,tempVax,Diod);
 {---------------------------------------------}
        Cibil:
          CibilsFun(Vax,D[diCib],tempVax);
@@ -7086,7 +7119,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
        Dit:
          Dit_Fun(Vax,tempVax,
                  RsDefineCB(Vax,ComBDitRs,ComBDitRs_n),
-                 AA,Sk,Ndd,eps,D[diIvan]);
+                 Diod,D[diIvan]);
 {---------------------------------------------}
       Exp2F:
         Forward2Exp(Vax,tempVax,RsDefineCB(Vax,ComBExp2FRs,ComBExp2FRs_n));
@@ -7161,41 +7194,73 @@ Directory:=CurDirectory;
 end;
 
 procedure TForm1.ButtonDelClick(Sender: TObject);
-var st,stHint:string;
+var st:string;
     temp:double;
+
 begin
-temp:=del;
-st:=FloatToStrF(del,ffExponent,3,2);
-stHint:='Thickness of the interfacial insulator layer, [ ] = cm';
-st:=InputBox('Layer thickness',stHint,st);
-StrToNumber(st, temp, del);
-if del<=0 then
-         begin
-         MessageDlg('Layer thickness must be positive', mtError,[mbOk],0);
-         del:=temp;
-         end;
-LabelDel.Caption:=FloatToStrF(del,ffExponent,3,2);
+if (Sender as TButton).Name='ButtonDel' then
+ begin
+  temp:=Diod.Thick_i;
+  st:=InputBox('Layer thickness',
+               'Thickness of the interfacial insulator layer, [ ] = m',
+               FloatToStrF(temp,ffExponent,3,2));
+  StrToNumber(st, temp, temp);
+  Diod.Thick_i:=temp;
+ end;
+
+if (Sender as TButton).Name='ButEps_i' then
+ begin
+  temp:=Diod.Eps_i;
+  st:=InputBox('Layer permittivity',
+               'Permittivity of the interfacial insulator layer',
+               FloatToStrF(temp,ffExponent,3,2));
+  StrToNumber(st, temp, temp);
+  Diod.Eps_i:=temp;
+ end;
+
+if (Sender as TButton).Name='ButNd' then
+ begin
+  temp:=Diod.Nd;
+  st:=InputBox('Carrier concentration',
+               'Input carrier concentration, [ ] = m^(-3)',
+                FloatToStrF(temp,ffExponent,3,2));
+  StrToNumber(st, temp, temp);
+  Diod.Nd:=temp;
+ end;
+
+if (Sender as TButton).Name='ButArea' then
+ begin
+  temp:=Diod.Area;
+  st:=InputBox('Diode area',
+               'Input contact area, [ ] = m^2',
+               FloatToStrF(temp,ffExponent,3,2));
+  StrToNumber(st, temp, temp);
+  Diod.Area:=temp;
+ end;
+
+DiodOnForm;
+
 end;
 
-procedure TForm1.ButtonEpClick(Sender: TObject);
-var st,stHint:string;
-    temp:double;
-begin
-temp:=ep;
-st:=FloatToStrF(ep,ffGeneral,3,2);
-stHint:='Permittivity of the interfacial insulator layer';
-st:=InputBox('Layer permittivity',stHint,st);
-StrToNumber(st, temp, ep);
-if ep<=0 then
-         begin
-         MessageDlg('Layer permittivity must be positive', mtError,[mbOk],0);
-         ep:=temp;
-         end;
-LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
-end;
+//procedure TForm1.ButtonEpClick(Sender: TObject);
+//var st,stHint:string;
+//    temp:double;
+//begin
+//temp:=ep;
+//st:=FloatToStrF(ep,ffGeneral,3,2);
+//stHint:='Permittivity of the interfacial insulator layer';
+//st:=InputBox('Layer permittivity',stHint,st);
+//StrToNumber(st, temp, ep);
+//if ep<=0 then
+//         begin
+//         MessageDlg('Layer permittivity must be positive', mtError,[mbOk],0);
+//         ep:=temp;
+//         end;
+//LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
+//end;
 
 procedure TForm1.ButtonKalkClick(Sender: TObject);
-var Fit:TFitFunction;
+//var Fit:TFitFunction;
 begin
 LabelKalk1.Visible:=False;
 LabelKalk2.Visible:=False;
@@ -7239,10 +7304,10 @@ case CBKalk.ItemIndex of
     ChungKalk(VaxFile,D[diChung],Rss,nn);
  //-------------------------------------------------------------
    2:  // обчислення за Н-функцією
-      HFunKalk(VaxFile,D[diHfunc],AA,Sk,nn,Rss,Fbb);
+      HFunKalk(VaxFile,D[diHfunc],Diod,nn,Rss,Fbb);
  //--------------------------------------------------------------
    3:   // обчислення за функцією Норда
-    NordKalk(VaxFile,D[diNord],AA,Sk,Gamma,nn,Rss,Fbb);
+    NordKalk(VaxFile,D[diNord],Diod,Gamma,nn,Rss,Fbb);
 //---------------------------------------------------------------
    4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
@@ -7261,7 +7326,7 @@ case CBKalk.ItemIndex of
      ExpKalk(VaxFile,D[diExp],Rss,AA,Sk,ApprExp,nn,I00,Fbb);}
 //------------------------------------------------------------
    5: //обчислення шляхом апроксимації І=I0exp(V/nkT)
-     ExKalk(1,VaxFile,D[diEx],Rss,AA,Sk,nn,I00,Fbb);
+     ExKalk(1,VaxFile,D[diEx],Rss,Diod,nn,I00,Fbb);
 //------------------------------------------------------------
   6: //Обчислення коефіцієнту випрямлення
      Krec:=Krect(VaxFile,Vrect);
@@ -7273,34 +7338,34 @@ case CBKalk.ItemIndex of
    Kam2Kalk(VaxFile,D[diKam2],Rss,nn);
  //--------------------------------------------------------
   9: //Обчислення за методом Громова І-роду
-   Gr1Kalk (VaxFile,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
+   Gr1Kalk (VaxFile,D[diGr1],Diod,Rss,nn,Fbb,I00);
  //--------------------------------------------------------
   10: //Обчислення за методом Громова ІI-роду
-   Gr2Kalk (VaxFile,D[diGr2],AA,Sk,Rss,nn,Fbb,I00);
+   Gr2Kalk (VaxFile,D[diGr2],Diod,Rss,nn,Fbb,I00);
  //--------------------------------------------------------
   11: //Обчислення за методом Бохліна
-   BohlinKalk(VaxFile,D[diNord],AA,Sk,Gamma1,Gamma2,Rss,nn,Fbb,I00);
+   BohlinKalk(VaxFile,D[diNord],Diod,Gamma1,Gamma2,Rss,nn,Fbb,I00);
  //--------------------------------------------------------
   12: //Обчислення за методом Сібілса
    CibilsKalk(VaxFile,D[diCib],Rss,nn);
  //--------------------------------------------------------
   13: //Обчислення за методом Лі
-   LeeKalk (VaxFile,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
+   LeeKalk (VaxFile,D[diLee],Diod,Rss,nn,Fbb,I00);
  //--------------------------------------------------------
   14: //Обчислення за методом Вернера
    WernerKalk(VaxFile,D[diWer],Rss,nn);
 //--------------------------------------------------------
   15: //Обчислення за методом Міхелашвілі
-   MikhKalk (VaxFile,D[diMikh],AA,Sk,Rss,nn,I00,Fbb);
+   MikhKalk (VaxFile,D[diMikh],Diod,Rss,nn,I00,Fbb);
 //--------------------------------------------------------
   16: //Обчислення за методом Іванова
-     IvanovKalk(VaxFile,D[diIvan],Rss,AA,Sk,Ndd,eps,Krec,Fbb);
+     IvanovKalk(VaxFile,D[diIvan],Rss,Diod,Krec,Fbb);
 //----------------------------------------------------
    17: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка
-     ExKalk(2,VaxFile,D[diE2F],Rss,AA,Sk,nn,I00,Fbb);
+     ExKalk(2,VaxFile,D[diE2F],Rss,Diod,nn,I00,Fbb);
 //----------------------------------------------------
    18: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка
-     ExKalk(3,VaxFile,D[diE2R],Rss,AA,Sk,nn,I00,Fbb);
+     ExKalk(3,VaxFile,D[diE2R],Rss,Diod,nn,I00,Fbb);
    19:  //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
       begin
         if Iph_Lam then Fit:=TPhotoDiodLam.Create
@@ -7772,51 +7837,51 @@ end;
 //    end;
 //end;
 
-procedure TForm1.ButtonPermClick(Sender: TObject);
-var st,stHint:string;
-    temp:double;
-begin
-temp:=eps;
-st:=FloatToStrF(eps,ffGeneral,3,2);
-stHint:='Input semiconductor relative permittivity';
-st:=InputBox('Semiconductor permittivity',stHint,st);
-StrToNumber(st, temp, eps);
-if eps<=0 then
-         begin
-         MessageDlg('Semiconductor permittivity must be positive', mtError,[mbOk],0);
-         eps:=temp;
-         end;
-LabelPerm.Caption:=FloatToStrF(eps,ffGeneral,3,2);
-end;
-
-procedure TForm1.ButtonRichClick(Sender: TObject);
-var st,stHint:string;
-    temp:double;
-begin
-temp:=AA;
-st:=FloatToStrF(AA,ffExponent,3,2);
-stHint:='Input effective Richardson constant, '+#10+'[ ] = A/(m K)^2';
-st:=InputBox('Richardson constant',stHint,st);
-StrToNumber(st, temp, AA);
-if AA<=0 then
-         begin
-         MessageDlg('Richardson constant must be positive', mtError,[mbOk],0);
-         AA:=temp;
-         end;
-LabelRich.Caption:=FloatToStrF(AA,ffExponent,3,2);
-end;
+//procedure TForm1.ButtonPermClick(Sender: TObject);
+//var st,stHint:string;
+//    temp:double;
+//begin
+//temp:=eps;
+//st:=FloatToStrF(eps,ffGeneral,3,2);
+//stHint:='Input semiconductor relative permittivity';
+//st:=InputBox('Semiconductor permittivity',stHint,st);
+//StrToNumber(st, temp, eps);
+//if eps<=0 then
+//         begin
+//         MessageDlg('Semiconductor permittivity must be positive', mtError,[mbOk],0);
+//         eps:=temp;
+//         end;
+//LabelPerm.Caption:=FloatToStrF(eps,ffGeneral,3,2);
+//end;
+//
+//procedure TForm1.ButtonRichClick(Sender: TObject);
+//var st,stHint:string;
+//    temp:double;
+//begin
+//temp:=AA;
+//st:=FloatToStrF(AA,ffExponent,3,2);
+//stHint:='Input effective Richardson constant, '+#10+'[ ] = A/(m K)^2';
+//st:=InputBox('Richardson constant',stHint,st);
+//StrToNumber(st, temp, AA);
+//if AA<=0 then
+//         begin
+//         MessageDlg('Richardson constant must be positive', mtError,[mbOk],0);
+//         AA:=temp;
+//         end;
+//LabelRich.Caption:=FloatToStrF(AA,ffExponent,3,2);
+//end;
 
 procedure TForm1.ButtonVoltClick(Sender: TObject);
 var
   SR : TSearchRec;
   mask,ShotName:string;
   Vax:Pvector;
-  i,j,k,nt,T:integer;
+  i,j,k{,nt,T}:integer;
   F:TextFile;
   Grid:TStringGrid;
-  Cur,Rs,a,b:double;
+  Cur,Rs{,a,b}:double;
   StrRez,StrAppr:TStringList;
-  str:string;
+//  str:string;
 
 begin
 if ListBoxVolt.Items.Count=0 then Exit;
@@ -7886,7 +7951,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
                          else Grid.Cells[k*i+1+4,Grid.RowCount-1]:='555';
 
        Rs:=RsDefineCB(Vax,ComBDateExRs,ComBDateExRs_n);
-       ExKalk(1,Vax,D[diEx],Rs,AA,Sk,nn,I00,Fbb);
+       ExKalk(1,Vax,D[diEx],Rs,Diod,nn,I00,Fbb);
 
        if (CheckBoxnLnIT2.Checked)and(not(CheckBoxLnIT2.Checked)) then
            if ((Vax^.T)>0)and(Cur<>555)and(nn<>555)
@@ -10080,9 +10145,9 @@ begin
     1:  //Rs рахується за допомогою функції Чюнга
      ChungKalk(A,D[diChung],Result,nn);
     4:  {Rs рахується за допомогою H-функції}
-       HFunKalk(A,D[diHfunc],AA,Sk,n_tmp,Result,Fbb);
+       HFunKalk(A,D[diHfunc],Diod,n_tmp,Result,Fbb);
     5: {Rs рахується за допомогою функції Норда}
-       NordKalk(A,D[diNord],AA,Sk,Gamma,n_tmp,Result,Fbb);
+       NordKalk(A,D[diNord],Diod,Gamma,n_tmp,Result,Fbb);
     2: {Rs рахується за допомогою функції Камінські І-роду}
        Kam1Kalk (A,D[diKam1],Result,nn);
     3: {Rs рахується за допомогою функції Камінські IІ-роду}
@@ -10090,19 +10155,19 @@ begin
     6: {Rs рахується за допомогою виразу Rs=A+B*T}
        Result:=RA+RB*A^.T+RC*sqr(A^.T);
     7:{Rs рахується за допомогою методу Громова І-роду}
-       Gr1Kalk (A,D[diGr1],AA,Sk,Result,nn,Fbb,I00);
+       Gr1Kalk (A,D[diGr1],Diod,Result,nn,Fbb,I00);
     8:{Rs рахується за допомогою методу Громова ІI-роду}
-       Gr2Kalk (A,D[diGr2],AA,Sk,Result,nn,Fbb,I00);
+       Gr2Kalk (A,D[diGr2],Diod,Result,nn,Fbb,I00);
     9:{Rs рахується за допомогою методу Бохліна}
-       BohlinKalk(A,D[diNord],AA,Sk,Gamma1,Gamma2,Result,nn,Fbb,I00);
+       BohlinKalk(A,D[diNord],Diod,Gamma1,Gamma2,Result,nn,Fbb,I00);
     10:{Rs рахується за допомогою методу Сібілса}
        CibilsKalk(A,D[diCib],Result,nn);
     11:{Rs рахується за допомогою методу Лі}
-       LeeKalk (A,D[diLee],AA,Sk,Result,nn,Fbb,I00);
+       LeeKalk (A,D[diLee],Diod,Result,nn,Fbb,I00);
     12:{Rs рахується за допомогою методу Вернера}
        WernerKalk(A,D[diWer],Result,nn);
     13:{Rs рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],AA,Sk,Result,nn,I00,Fbb);
+       MikhKalk (A,D[diMikh],Diod,Result,nn,I00,Fbb);
     14: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
@@ -10160,19 +10225,19 @@ begin
     4: {Rs рахується за допомогою виразу Rs=A+B*T}
        Result:=RA+RB*A^.T+RC*sqr(A^.T);
     5:{Rs рахується за допомогою методу Громова І-роду}
-       Gr1Kalk (A,D[diGr1],AA,Sk,Result,nn,Fbb,I00);
+       Gr1Kalk (A,D[diGr1],Diod,Result,nn,Fbb,I00);
     6:{Rs рахується за допомогою методу Громова ІI-роду}
-       Gr2Kalk (A,D[diGr2],AA,Sk,Result,nn,Fbb,I00);
+       Gr2Kalk (A,D[diGr2],Diod,Result,nn,Fbb,I00);
     7:{Rs рахується за допомогою методу Бохліна}
-       BohlinKalk(A,D[diNord],AA,Sk,Gamma1,Gamma2,Result,nn,Fbb,I00);
+       BohlinKalk(A,D[diNord],Diod,Gamma1,Gamma2,Result,nn,Fbb,I00);
     8:{Rs рахується за допомогою методу Сібілса}
        CibilsKalk(A,D[diCib],Result,nn);
     9:{Rs рахується за допомогою методу Лі}
-       LeeKalk (A,D[diLee],AA,Sk,Result,nn,Fbb,I00);
+       LeeKalk (A,D[diLee],Diod,Result,nn,Fbb,I00);
     10:{Rs рахується за допомогою методу Вернера}
        WernerKalk(A,D[diWer],Result,nn);
     11:{Rs рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],AA,Sk,Result,nn,I00,Fbb);
+       MikhKalk (A,D[diMikh],Diod,Result,nn,I00,Fbb);
     12: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
@@ -10238,33 +10303,33 @@ case CB.ItemIndex of
 //end;
      ChungKalk(A,D[diChung],Rss,Result);
     4:  //n рахується за допомогою апроксимації I=I0(exp(V/nkT)-1)
-     ExpKalk(A,D[diExp],Rs_tmp,AA,Sk,ApprExp,Result,I00,Fbb);
+     ExpKalk(A,D[diExp],Rs_tmp,Diod,ApprExp,Result,I00,Fbb);
     5:   //n рахується за допомогою апроксимації I=I0exp(V/nkT)
-     ExKalk(1,A,D[diEx],Rs_tmp,AA,Sk,Result,I00,Fbb);
+     ExKalk(1,A,D[diEx],Rs_tmp,Diod,Result,I00,Fbb);
     2: //n рахується за допомогою функції Камінські І-роду
      Kam1Kalk (A,D[diKam1],Rss,Result);
     3: //n рахується за допомогою функції Камінські ІI-роду
      Kam2Kalk (A,D[diKam2],Rss,Result);
     6:{n рахується за допомогою методу Громова І-роду}
-       Gr1Kalk (A,D[diGr1],AA,Sk,Rss,Result,Fbb,I00);
+       Gr1Kalk (A,D[diGr1],Diod,Rss,Result,Fbb,I00);
     7:{n рахується за допомогою методу Громова ІI-роду}
-       Gr2Kalk (A,D[diGr2],AA,Sk,Rss,Result,Fbb,I00);
+       Gr2Kalk (A,D[diGr2],Diod,Rss,Result,Fbb,I00);
     8:{n рахується за допомогою методу Бохліна}
-       BohlinKalk(A,D[diNord],AA,Sk,Gamma1,Gamma2,Rss,Result,Fbb,I00);
+       BohlinKalk(A,D[diNord],Diod,Gamma1,Gamma2,Rss,Result,Fbb,I00);
     9:{n рахується за допомогою методу Сібілса}
        CibilsKalk(A,D[diCib],Rss,Result);
     10:{n рахується за допомогою методу Лі}
-       LeeKalk (A,D[diLee],AA,Sk,Rss,Result,Fbb,I00);
+       LeeKalk (A,D[diLee],Diod,Rss,Result,Fbb,I00);
     11:{n рахується за допомогою методу Вернера}
        WernerKalk(A,D[diWer],Rss,Result);
     12:{n рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],AA,Sk,Rss,Result,I00,Fbb);
+       MikhKalk (A,D[diMikh],Diod,Rss,Result,I00,Fbb);
     13: {n рахується за допомогою апроксимації
         І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка}
-       ExKalk(2,A,D[diE2F],Rs_tmp,AA,Sk,Result,I00,Fbb);
+       ExKalk(2,A,D[diE2F],Rs_tmp,Diod,Result,I00,Fbb);
     14: {n рахується за допомогою апроксимації
         І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка}
-       ExKalk(3,A,D[diE2R],Rs_tmp,AA,Sk,Result,I00,Fbb);
+       ExKalk(3,A,D[diE2R],Rs_tmp,Diod,Result,I00,Fbb);
     15: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
@@ -10320,19 +10385,19 @@ case CB.ItemIndex of
     3: //n рахується за допомогою функції Камінські ІI-роду
      Kam2Kalk (A,D[diKam2],Rss,Result);
     4:{n рахується за допомогою методу Громова І-роду}
-      Gr1Kalk (A,D[diGr1],AA,Sk,Rss,Result,Fbb,I00);
+      Gr1Kalk (A,D[diGr1],Diod,Rss,Result,Fbb,I00);
     5:{n рахується за допомогою методу Громова ІI-роду}
-      Gr2Kalk (A,D[diGr2],AA,Sk,Rss,Result,Fbb,I00);
+      Gr2Kalk (A,D[diGr2],Diod,Rss,Result,Fbb,I00);
     6:{n рахується за допомогою методу Бохліна}
-      BohlinKalk(A,D[diNord],AA,Sk,Gamma1,Gamma2,Rss,Result,Fbb,I00);
+      BohlinKalk(A,D[diNord],Diod,Gamma1,Gamma2,Rss,Result,Fbb,I00);
     7:{n рахується за допомогою методу Сібілса}
       CibilsKalk(A,D[diCib],Rss,Result);
     8:{n рахується за допомогою методу Лі}
-      LeeKalk (A,D[diLee],AA,Sk,Rss,Result,Fbb,I00);
+      LeeKalk (A,D[diLee],Diod,Rss,Result,Fbb,I00);
     9:{n рахується за допомогою методу Вернера}
        WernerKalk(A,D[diWer],Rss,Result);
     10:{n рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],AA,Sk,Rss,Result,I00,Fbb);
+       MikhKalk (A,D[diMikh],Diod,Rss,Result,I00,Fbb);
     11: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
@@ -10381,27 +10446,27 @@ if (Rs=555) and (CB.ItemIndex in [1,2]) then Exit;
 
 case CB.ItemIndex of
     0: {Fb рахується за допомогою функції Норда}
-     NordKalk(A,D[diNord],AA,Sk,Gamma,nn,Rss,Result);
+     NordKalk(A,D[diNord],Diod,Gamma,nn,Rss,Result);
     1: //Fb рахується за допомогою апроксимації I=I0(exp(V/nkT)-1)
-     ExpKalk(A,D[diExp],Rs,AA,Sk,ApprExp,nn,I00,Result);
+     ExpKalk(A,D[diExp],Rs,Diod,ApprExp,nn,I00,Result);
     2: //Fb рахується за допомогою апроксимації I=I0exp(V/nkT)
-     ExKalk(1,A,D[diEx],Rs,AA,Sk,nn,I00,Result);
+     ExKalk(1,A,D[diEx],Rs,Diod,nn,I00,Result);
     3:{Fb рахується за допомогою методу Громова І-роду}
-      Gr1Kalk (A,D[diGr1],AA,Sk,Rss,nn,Result,I00);
+      Gr1Kalk (A,D[diGr1],Diod,Rss,nn,Result,I00);
     4:{Fb рахується за допомогою методу Громова ІI-роду}
-      Gr2Kalk (A,D[diGr2],AA,Sk,Rss,nn,Result,I00);
+      Gr2Kalk (A,D[diGr2],Diod,Rss,nn,Result,I00);
     5:{Fb рахується за допомогою методу Бохліна}
-      BohlinKalk(A,D[diNord],AA,Sk,Gamma1,Gamma2,Rss,nn,Result,I00);
+      BohlinKalk(A,D[diNord],Diod,Gamma1,Gamma2,Rss,nn,Result,I00);
     6:{Fb рахується за допомогою методу Лі}
-      LeeKalk (A,D[diLee],AA,Sk,Rss,nn,Result,I00);
+      LeeKalk (A,D[diLee],Diod,Rss,nn,Result,I00);
     7:{Fb рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],AA,Sk,Rss,nn,I00,Result);
+       MikhKalk (A,D[diMikh],Diod,Rss,nn,I00,Result);
     8: {Fb рахується за допомогою апроксимації
         І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка}
-      ExKalk(2,A,D[diE2F],Rs,AA,Sk,nn,I00,Result);
+      ExKalk(2,A,D[diE2F],Rs,Diod,nn,I00,Result);
     9: {Fb n рахується за допомогою апроксимації
         І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка}
-      ExKalk(3,A,D[diE2R],Rs,AA,Sk,nn,I00,Result);
+      ExKalk(3,A,D[diE2R],Rs,Diod,nn,I00,Result);
     10: //Fb рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
       begin
@@ -10501,42 +10566,42 @@ with F do
  end;
 end;
 
-Procedure DiodParam(F:TForm1;N_Mat:integer;var Ar:double; var Eps:double);
-{встановлення в залежності від значення N_Mat величин
-сталої Річардсона Ar, діелектричної проникності
-напівпровідника Eps та виведення цих значень
-у відповідний блок
-N_Mat
-1 - n-Si; 2 - p-Si; 3 - n-GaAs; 4 - n-InP;
-5 - 4H-SiC; 6 - n-GaN; 7 - n-CdTe; 8 - CuInSe2;
-9 - p-GaTe; 10 - p-GaSe; 11- Other
-У відповідних RadioButton Tag потрібно встановити
-так само як ці номери, тобто RBnSi.Tag=1, RBOther.Tag=11...
-}
-const
-   Nm=11;
-   Richard:array [1..Nm] of double=
-    (1.12e6, 0.32e6, 0.0816e6, 0.6e6, 0.75e6, 0.269e6,
-     0.12e6, 0.853e6, 1.19e6, 2.47e6, 555);
-   Perm:array [1..Nm] of double=
-    (11.7, 11.7, 12.9, 12.5, 9.7, 8.9,
-     555, 555, 555, 555, 555);
-begin
-  F.LabelPerm.Visible:=True;
-  F.ButtonRich.Enabled:=False;
-  F.ButtonPerm.Enabled:=False;
-  if (Richard[N_Mat]<>555) then Ar:=Richard[N_Mat];
-  if (Perm[N_Mat]<>555) then Eps:=Perm[N_Mat]
-                        else F.LabelPerm.Visible:=False;
-  if N_Mat=Nm then
-    begin
-    F.LabelPerm.Visible:=True;
-    F.ButtonRich.Enabled:=True;
-    F.ButtonPerm.Enabled:=True;
-    end;
- F.LabelRich.Caption:=FloatToStrF(Ar,ffExponent,3,2);
- F.LabelPerm.Caption:=FloatToStrF(Eps,ffGeneral,3,2);
-end;
+//Procedure DiodParam(F:TForm1;N_Mat:integer;var Ar:double; var Eps:double);
+//{встановлення в залежності від значення N_Mat величин
+//сталої Річардсона Ar, діелектричної проникності
+//напівпровідника Eps та виведення цих значень
+//у відповідний блок
+//N_Mat
+//1 - n-Si; 2 - p-Si; 3 - n-GaAs; 4 - n-InP;
+//5 - 4H-SiC; 6 - n-GaN; 7 - n-CdTe; 8 - CuInSe2;
+//9 - p-GaTe; 10 - p-GaSe; 11- Other
+//У відповідних RadioButton Tag потрібно встановити
+//так само як ці номери, тобто RBnSi.Tag=1, RBOther.Tag=11...
+//}
+//const
+//   Nm=11;
+//   Richard:array [1..Nm] of double=
+//    (1.12e6, 0.32e6, 0.0816e6, 0.6e6, 0.75e6, 0.269e6,
+//     0.12e6, 0.853e6, 1.19e6, 2.47e6, 555);
+//   Perm:array [1..Nm] of double=
+//    (11.7, 11.7, 12.9, 12.5, 9.7, 8.9,
+//     555, 555, 555, 555, 555);
+//begin
+//  F.LabelPerm.Visible:=True;
+//  F.ButtonRich.Enabled:=False;
+//  F.ButtonPerm.Enabled:=False;
+//  if (Richard[N_Mat]<>555) then Ar:=Richard[N_Mat];
+//  if (Perm[N_Mat]<>555) then Eps:=Perm[N_Mat]
+//                        else F.LabelPerm.Visible:=False;
+//  if N_Mat=Nm then
+//    begin
+//    F.LabelPerm.Visible:=True;
+//    F.ButtonRich.Enabled:=True;
+//    F.ButtonPerm.Enabled:=True;
+//    end;
+// F.LabelRich.Caption:=FloatToStrF(Ar,ffExponent,3,2);
+// F.LabelPerm.Caption:=FloatToStrF(Eps,ffGeneral,3,2);
+//end;
 
 Procedure MaterialOnForm;
 {виведення на форму параметрів матеріалу, які
@@ -10544,7 +10609,6 @@ Procedure MaterialOnForm;
 begin
 with Form1 do
  begin
-
   if Semi.Eg0<>555
      then LabelEg.Caption:=FloatToStrF(Semi.Eg0,ffFixed,3,2)
      else LabelEg.Caption:='?';
@@ -10559,8 +10623,42 @@ with Form1 do
   if Semi.VarshB<>555
      then LabelVarB.Caption:=FloatToStrF(Semi.VarshB,ffExponent,3,2)
      else LabelVarB.Caption:='?';
+  if Semi.Name=MaterialName[High(MaterialName)] then
+      begin
+       LaVarB.Visible:=True;
+       LaVarA.Visible:=True;
+       LaMeff.Visible:=True;
+       LaPerm.Visible:=True;
+       LaEg.Visible:=True;
+       LaRich.Visible:=True;
+      end
+                                                 else
+      begin
+       LaVarB.Visible:=False;
+       LaVarA.Visible:=False;
+       LaMeff.Visible:=False;
+       LaPerm.Visible:=False;
+       LaEg.Visible:=False;
+       LaRich.Visible:=False;
+      end
+
  end;//with Form1 do
 end;
+
+Procedure DiodOnForm;
+{виведення на форму параметрів діоду, які
+беруться зі змінної Diod}
+begin
+with Form1 do
+ begin
+  LabelArea.Caption:=FloatToStrF(Diod.Area,ffExponent,3,2);
+  LabelConcentr.Caption:=FloatToStrF(Diod.Nd,ffExponent,3,2);
+  LabelDel.Caption:=FloatToStrF(Diod.Thick_i,ffExponent,3,2);
+  LabelEp.Caption:=FloatToStrF(Diod.Eps_i,ffFixed,3,2);
+ end;//with Form1 do
+end;
+
+
 
 Procedure ChooseDirect(F:TForm1);
 {виведення на форму написів, пов'язаних

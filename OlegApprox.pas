@@ -4,7 +4,8 @@ interface
 
 uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
-      OlegMath,ApprWindows,StdCtrls,FrParam,Series,Classes,OlegGraph;
+      OlegMath,ApprWindows,StdCtrls,FrParam,Series,Classes,
+      OlegGraph,OlegMaterialSamples;
 
 const
   FuncName:array[0..31]of string=
@@ -42,6 +43,347 @@ procedure WriteRand(const Section, Ident: string; Value: TVar_Rand); virtual;
 function ReadEvType(const Section, Ident: string; Default: TEvolutionType): TEvolutionType; virtual;
 procedure WriteEvType(const Section, Ident: string; Value: TEvolutionType); virtual;
 end;
+
+//TFitFunc=class //(TObject)//
+//{найпростіший клас}
+// private
+// FNs:integer;//кількість параметрів, які визначаються
+//// FNit:integer;//кількість ітерацій
+//// FXmin:TArrSingle;
+// //мінімальні значення змінних при ініціалізації
+//// FXmax:TArrSingle;
+//// максимальні значення змінних при ініціалізації
+//// FXminlim:TArrSingle;
+////мінімальні значення змінних при еволюційному пошуку
+////  FXmaxlim:TArrSingle;
+////максимальні значення змінних при еволюційному пошуку
+//// FXmode:TArrVar_Rand;
+// //тип змінних
+// {якщо тип змінної cons, то вона розраховується
+// за формулою X=A+Bt+Ct^2,
+// де А, В та С - константи, які
+// зберігаються в масивах FA, FB та FC,
+// t - може бути будь-яка додаткова величина,
+// або величина, обернена до неї}
+//// FA,FB,FC:TArrSingle;
+//// FXt:array of integer;
+// {містить числа, пов'язані з параметрами,
+// які використовуються для розрахунку змінної:
+// 0 - без параметрів, тобто змінна = А
+// 2..(FPNs-1) - FParam[FXt[i]]
+// (FPNs+2)..(2FPNs-1) - FParam[FXt[i]-FPNs]^(-1)}
+//// FXvalue:TArrSingle;
+//{значення змінних, якщо вони
+// мають тип cons;
+// фактично це поле дише для того,
+// щоб не рахувати за формулою X=A+Bt+Ct^2
+// кожного разу, а лише на початку апроксимації}
+// FXname:TArrStr; // імена змінних
+// FName:string;//ім'я функції
+//
+//// FPEst:byte;
+// //показник степеня дільника у цільовій функції
+//// FIsReady:boolean;
+//{показує, чи всі дані присутні і, отже, функція готова
+// для використання}
+// FParam:TArrSingle;
+// {величини, які також потрібні для розрахунку
+// функції, завжди
+// FParam[0] - це змінна Х,
+// FParam[1] - це змінна Y,
+// решта залежать від функції}
+//// FPname:array of string;
+// //імена додаткових величин
+//// FPNs:byte;
+// //кількість додаткових величин
+//// FPbool:array of boolean;
+// {якщо True, то значення відповідного
+// параметру стале, відповідає
+// введеному значенню, а не
+// визначається програмно - наприклад,
+// температура береться не з парметрів Pvector}
+//// FPValue:TArrSingle;
+// {значення параметрів}
+//// FEvType:TEvolutionType;
+// {еволюційний метод,
+// який використовується для апроксимації}
+// FCaption:string;
+// {містить опис функції}
+//// FDodX:TArrSingle;
+// {додаткові параметри, які
+// можна розрахувати на основі апроксимації;
+// наприклад, для ВАХ діода при
+// освітленні це будуть
+// Voc, Isc, FF та Pm}
+//// FDodXname:TArrStr;
+// {імена додаткових параметрів}
+////  Labels:array of TLabel;
+// {мітки, які показуються на вікні під
+// час апроксимації}
+//// FDbool:boolean;
+// {змінна, яка показує як треба
+// застосовувати обмеження, вказані в
+// діапазонній змінній,
+// при True, то обмеження
+//на Ymin не використовуеться - потрібно
+//для аналізу ВАХ освітлених елементів,
+//за умовчанням False}
+// //---------------------------
+// { поля, для збереження параметрів матеріалу та зразка}
+//// FSzr:double;//площа зразка
+//// FArich:double;//стала Річардсона
+//// FSample:TDiodSample;
+//// procedure SetNit(value:integer);
+//// Function EvFitPreparation(V:PVector;var Param:TArrSingle;
+////                          str:string; var Nit:integer):boolean;
+//{виконується на початку еволюційної апроксимації,
+//перевіряється готовність функції,
+//встановлюється параметри вікна,
+//зануляється кількість ітерацій;
+//якщо все добре - повертається False
+//}
+////Procedure  EvFitInit(V:PVector;var X:TArrArrSingle; var Fit:TArrSingle);
+//{початкове встановлення випадкових
+//значень в Х та розрахунок початкових
+//величин цільової функції}
+////Procedure EvFitShow(X:TArrArrSingle;Fit:TArrSingle; Nit,Nshow:integer);
+//{проводить зміну значень на вікні
+//під час еволюційної апроксимації,
+//якщо Nit кратна Nshow}
+////Procedure EvFitEnding(Fit:TArrSingle; X:TArrArrSingle; var Param:TArrSingle);
+//{виконується наприкінці еволюційної апроксимації,
+//очищається вікно,
+//записуються отримані результати в Param}
+//procedure FitName(var st: string; V: PVector);
+//{у змінну st вноситься змінене значення
+//V^.name, зміна полягає у дописуванні
+//'fit'перед першою крапкою}
+////procedure DodParDetermination(V: PVector;Variab:TArrSingle); virtual;
+//{розраховуються додаткові параметри}
+//
+////procedure BeforeFitness(AP:Pvector);virtual;
+// {виконується перед початком апроксимації,
+// полягає у заповненні полів потрібними
+// значеннями}
+////Procedure AproxN (V:PVector; var Param:TArrSingle);virtual;
+//{просто заглушка для функції, яка використовується
+//в класах-спадкоємцях;
+//потрібно, щоб можна було викликати для
+//змінних базового типу}
+//// Function Func(Variab:TArrSingle):double; virtual;abstract;
+//  {апроксимуюча функція... точніше та, яка використовується
+//  при побудові цільової функції; вона не завжди
+//  співпадає з апроксимуючою - наприклад для Diod
+//  не співпадає задля економії часу}
+//// Function FitnessFunc(AP:Pvector; Variab:TArrSingle):double;virtual;
+// {функція для оцінки апроксимації залежності  AP
+//  даною функцією, найчастіше - квадратична форма}
+//
+// Constructor Create(N:integer);
+//
+//// Procedure ReadValue;virtual;
+// {зчитує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
+// та FNit з ini-файла}
+//// Procedure WriteValue;virtual;
+// {записує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
+// та FNit в ini-файл}
+//// Procedure VarRand(var X:TArrSingle);
+// {випадковим чином задає значення змінних
+// масиву  Х в діапазоні від FXmin до FXmax}
+//// Procedure PenaltyFun(var X:TArrSingle);
+// {контролює можливі значення параметрів у масиві X,
+// що підбираються при апроксимації еволюційними методами,
+// заважаючи їм прийняти нереальні значення -
+// тобто за межами FXminlim та FXmaxlim}
+//// Procedure WindowPrepare();
+// {підготовка вікна до показу даних}
+//// Procedure WindowClear();
+// {очищення вікна після апроксимації}
+//// Procedure WindowDataShow(N:integer;X:TArrSingle);
+// {показ номера біжучої ітерації
+//  та даних, які знаходяться в Х}
+//
+////Procedure MABCFit (V:PVector; var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом modified artificial bee colony;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+////Procedure PSOFit (V:PVector; var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//particle swarm optimization;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+////Procedure DEFit (V:PVector;  var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//differential evolution;
+//Fu визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+////Procedure TLBOFit (V:PVector; {F:TFitFunction;} var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//teaching learning based optimization;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+////----------------------------------------------
+// public
+//
+// property Ns:integer read FNs;
+//// property Nit:integer read FNit write SetNit;
+// property Xname:TArrStr read FXname;
+// property Name:string read FName;
+//// property IsReady:boolean read FIsReady;
+//// property Xmode:TArrVar_Rand read FXmode;
+//
+//// property Xmin:TArrSingle read FXmin write FXmin;
+//// property Xmax:TArrSingle read FXmax write FXmax;
+//// property Xminlim:TArrSingle read FXminlim write FXminlim;
+//// property Xvalue:TArrSingle read FXvalue;
+//// property EvType:TEvolutionType read FEvType;
+//// property DodXname:TArrStr read FDodXname;
+//// property DodX:TArrSingle read FDodX;
+// property Caption:string read FCaption;
+//// Procedure SetValue(num,index:byte;value:double); overload;
+// {встановлюються значення num-го елементу поля
+// FXmin при index=1
+// FXmax при index=2
+// FXminlim при index=3
+// FXmaxlim при index=4
+// }
+//// Procedure SetValue(name:string;index:byte;value:double); overload;
+//{встановлюються значення елементу поля
+// FXmin при index=1
+// FXmax при index=2
+// FXminlim при index=3
+// FXmaxlim при index=4
+// для якого елемент FXname співпадає з name}
+//
+//// Procedure SetValueMode(num:byte;value:TVar_Rand); overload;
+// {встановлюються значення num-го елементу поля
+// FXmode }
+//// Procedure SetValueMode(name:string;value:TVar_Rand); overload;
+// {встановлюються значення елементу поля
+// FXmode для якого елемент FXname співпадає з name}
+// Procedure SetValueGR;virtual;
+//
+// Function FinalFunc(X:double;Variab:TArrSingle):double; overload; virtual;
+// {обчислюються значення апроксимуючої функції в
+// точці з абсцисою Х, найчастіше значення співпадає
+// з тим, що повертає Func при Fparam[0]=X}
+//
+//Procedure Fitting (V:PVector; var Param:TArrSingle); overload; virtual;
+//{апроксимуються дані у векторі V, отримані параметри
+//розміщуються в Param;
+//при невдалому процесі -  показується повідомлення,
+//в Param[0] - 555;
+//загалом розмір Param  після процедури співпадає з кількістю
+//параметрів;
+//для базового типу - викликається один з типів
+//еволюційної апроксимації залежно від значення FEvType}
+//Procedure Fitting (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle); overload; virtual;
+//{дає можливість апроксимувати дані у векторі V,
+//розглануті у логарифмічному масштабі
+//Xlog = True - використовується логарифм абсцис,
+//Ylog = True - використовується логарифм ординат}
+//Procedure FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries); overload; virtual;
+//{апроксимація і дані вносяться в Series -
+//щоб можна було побудувати графік}
+//
+//Procedure FittingGraph (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+//{див Fitting та FittingGraph}
+//
+//Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+//{апроксимація, дані вносяться в Series, крім
+//того апроксимуюча крива заноситься в файл -
+//третім стопчиком як правило;
+//назва файлу -- V^.name + 'fit'}
+//
+//Procedure FittingGraphFile (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+//{апроксимація, дані вносяться в Series, крім
+//того апроксимуюча крива заноситься в файл -
+//третім стопчиком як правило;
+//назва файлу -- V^.name + 'fit'}
+//
+////Procedure FittingDiapazon (V:PVector; var Param:TArrSingle; D:Diapazon); virtual;
+//{апроксимуються дані у векторі V відповідно до обмежень
+//в D, отримані параметри розміщуються в Param}
+//
+//Function Deviation (V:PVector):double;
+//{повертає середнеє значення відхилення апроксимації
+//даних V від самих даних}
+////Procedure Fitting (V:PVector; var Param:TArrSingle);
+//
+// end;   // TFitFunc=class
+
+//-------------------------------------------------------
+
+//TFitFunc=class //(TObject)//
+//{найпростіший клас}
+// private
+// FNs:integer;//кількість параметрів, які визначаються
+// FXname:TArrStr; // імена параметрів
+// FName:string;//ім'я функції
+// FCaption:string; // опис функції
+// FParam:TArrSingle;
+// {величини, які потрібні для розрахунку функції, завжди
+// FParam[0] - це змінна Х,
+// FParam[1] - це змінна Y,
+// решта залежать від функції}
+//
+// Constructor Create(N:integer);
+// Function Func(Variab:TArrSingle):double; virtual;abstract;
+//  {апроксимуюча функція... точніше та, яка використовується
+//  при побудові цільової функції; вона не завжди
+//  співпадає з апроксимуючою - наприклад для Diod
+//  не співпадає задля економії часу}
+//
+// public
+// property Name:string read FName;
+// property Caption:string read FCaption;
+// procedure SetValueGR;virtual;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; overload; virtual;
+// {обчислюються значення апроксимуючої функції в
+// точці з абсцисою Х, найчастіше значення співпадає
+// з тим, що повертає Func при Fparam[0]=X}
+//
+// Procedure Fitting (V:PVector; var Param:TArrSingle); overload; virtual;
+// {апроксимуються дані у векторі V, отримані параметри
+// розміщуються в Param;
+// при невдалому процесі -  показується повідомлення,
+// в Param[0] - 555;
+// загалом розмір Param  після процедури співпадає з кількістю
+// параметрів;}
+// Procedure Fitting (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle); overload; virtual;
+// {дає можливість апроксимувати дані у векторі V,
+// розглянуті у логарифмічному масштабі
+// Xlog = True - використовується логарифм абсцис,
+// Ylog = True - використовується логарифм ординат}
+// Procedure FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries); overload; virtual;
+// {апроксимація і дані вносяться в Series -
+// щоб можна було побудувати графік}
+//
+// Procedure FittingGraph (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+// {див Fitting та FittingGraph}
+//
+// Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+// {апроксимація, дані вносяться в Series, крім
+// того апроксимуюча крива заноситься в файл -
+// третім стопчиком як правило;
+// назва файлу -- V^.name + 'fit'}
+//
+// Procedure FittingGraphFile (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+// {апроксимація, дані вносяться в Series, крім
+// того апроксимуюча крива заноситься в файл -
+// третім стопчиком як правило;
+// назва файлу -- V^.name + 'fit'}
+//
+// Function Deviation (V:PVector):double;
+// {повертає середнеє значення відхилення апроксимації
+// даних V від самих даних}
+//
+// end;   // TFitFunc=class
+
+ //--------------------------------------------------------------------
 
 TFitFunction=class //(TObject)//
  private
@@ -127,8 +469,9 @@ TFitFunction=class //(TObject)//
 за умовчанням False}
  //---------------------------
  { поля, для збереження параметрів матеріалу та зразка}
- FSzr:double;//площа зразка
- FArich:double;//стала Річардсона
+// FSzr:double;//площа зразка
+// FArich:double;//стала Річардсона
+ FSample:TDiodSample;
  procedure SetNit(value:integer);
  Function EvFitPreparation(V:PVector;var Param:TArrSingle;
                           str:string; var Nit:integer):boolean;
@@ -309,6 +652,277 @@ Function Deviation (V:PVector):double;
 //Procedure Fitting (V:PVector; var Param:TArrSingle);
 
  end;   // TFitFunction=class
+
+
+//
+//TFitFunction=class //(TObject)//
+// private
+// FNs:integer;//кількість змінних
+// FNit:integer;//кількість ітерацій
+// FXmin:TArrSingle;
+// //мінімальні значення змінних при ініціалізації
+// FXmax:TArrSingle;
+// //максимальні значення змінних при ініціалізації
+// FXminlim:TArrSingle;
+////мінімальні значення змінних при еволюційному пошуку
+//  FXmaxlim:TArrSingle;
+////максимальні значення змінних при еволюційному пошуку
+// FXmode:TArrVar_Rand;
+// //тип змінних
+// {якщо тип змінної cons, то вона розраховується
+// за формулою X=A+Bt+Ct^2,
+// де А, В та С - константи, які
+// зберігаються в масивах FA, FB та FC,
+// t - може бути будь-яка додаткова величина,
+// або величина, обернена до неї}
+// FA,FB,FC:TArrSingle;
+// FXt:array of integer;
+// {містить числа, пов'язані з параметрами,
+// які використовуються для розрахунку змінної:
+// 0 - без параметрів, тобто змінна = А
+// 2..(FPNs-1) - FParam[FXt[i]]
+// (FPNs+2)..(2FPNs-1) - FParam[FXt[i]-FPNs]^(-1)}
+// FXvalue:TArrSingle;
+//{значення змінних, якщо вони
+// мають тип cons;
+// фактично це поле дише для того,
+// щоб не рахувати за формулою X=A+Bt+Ct^2
+// кожного разу, а лише на початку апроксимації}
+// FXname:TArrStr; // імена змінних
+// FName:string;//ім'я функції
+// FPEst:byte;
+// //показник степеня дільника у цільовій функції
+// FIsReady:boolean;
+//{показує, чи всі дані присутні і, отже, функція готова
+// для використання}
+// FParam:TArrSingle;
+// {величини, які також потрібні для розрахунку
+// функції, завжди
+// FParam[0] - це змінна Х,
+// FParam[1] - це змінна Y,
+// решта залежать від функції}
+// FPname:array of string;
+// //імена додаткових величин
+// FPNs:byte;
+// //кількість додаткових величин
+// FPbool:array of boolean;
+// {якщо True, то значення відповідного
+// параметру стале, відповідає
+// введеному значенню, а не
+// визначається програмно - наприклад,
+// температура береться не з парметрів Pvector}
+// FPValue:TArrSingle;
+// {значення параметрів}
+// FEvType:TEvolutionType;
+// {еволюційний метод,
+// який використовується для апроксимації}
+// FCaption:string;
+// {містить опис функції}
+// FDodX:TArrSingle;
+// {додаткові параметри, які
+// можна розрахувати на основі апроксимації;
+// наприклад, для ВАХ діода при
+// освітленні це будуть
+// Voc, Isc, FF та Pm}
+// FDodXname:TArrStr;
+// {імена додаткових параметрів}
+//  Labels:array of TLabel;
+// {мітки, які показуються на вікні під
+// час апроксимації}
+// FDbool:boolean;
+// {змінна, яка показує як треба
+// застосовувати обмеження, вказані в
+// діапазонній змінній,
+// при True, то обмеження
+//на Ymin не використовуеться - потрібно
+//для аналізу ВАХ освітлених елементів,
+//за умовчанням False}
+// //---------------------------
+// { поля, для збереження параметрів матеріалу та зразка}
+//// FSzr:double;//площа зразка
+//// FArich:double;//стала Річардсона
+// procedure SetNit(value:integer);
+// Function EvFitPreparation(V:PVector;var Param:TArrSingle;
+//                          str:string; var Nit:integer):boolean;
+//{виконується на початку еволюційної апроксимації,
+//перевіряється готовність функції,
+//встановлюється параметри вікна,
+//зануляється кількість ітерацій;
+//якщо все добре - повертається False
+//}
+//Procedure  EvFitInit(V:PVector;var X:TArrArrSingle; var Fit:TArrSingle);
+//{початкове встановлення випадкових
+//значень в Х та розрахунок початкових
+//величин цільової функції}
+//Procedure EvFitShow(X:TArrArrSingle;Fit:TArrSingle; Nit,Nshow:integer);
+//{проводить зміну значень на вікні
+//під час еволюційної апроксимації,
+//якщо Nit кратна Nshow}
+//Procedure EvFitEnding(Fit:TArrSingle; X:TArrArrSingle; var Param:TArrSingle);
+//{виконується наприкінці еволюційної апроксимації,
+//очищається вікно,
+//записуються отримані результати в Param}
+//procedure FitName(var st: string; V: PVector);
+//{у змінну st вноситься змінене значення
+//V^.name, зміна полягає у дописуванні
+//'fit'перед першою крапкою}
+//procedure DodParDetermination(V: PVector;Variab:TArrSingle); virtual;
+//{розраховуються додаткові параметри}
+//
+//procedure BeforeFitness(AP:Pvector);virtual;
+// {виконується перед початком апроксимації,
+// полягає у заповненні полів потрібними
+// значеннями}
+//Procedure AproxN (V:PVector; var Param:TArrSingle);virtual;
+//{просто заглушка для функції, яка використовується
+//в класах-спадкоємцях;
+//потрібно, щоб можна було викликати для
+//змінних базового типу}
+// Function Func(Variab:TArrSingle):double; virtual;abstract;
+//  {апроксимуюча функція... точніше та, яка використовується
+//  при побудові цільової функції; вона не завжди
+//  співпадає з апроксимуючою - наприклад для Diod
+//  не співпадає задля економії часу}
+// Function FitnessFunc(AP:Pvector; Variab:TArrSingle):double;virtual;
+// {функція для оцінки апроксимації залежності  AP
+//  даною функцією, найчастіше - квадратична форма}
+//
+// Constructor Create(N:integer);
+//
+// Procedure ReadValue;virtual;
+// {зчитує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
+// та FNit з ini-файла}
+// Procedure WriteValue;virtual;
+// {записує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
+// та FNit в ini-файл}
+// Procedure VarRand(var X:TArrSingle);
+// {випадковим чином задає значення змінних
+// масиву  Х в діапазоні від FXmin до FXmax}
+// Procedure PenaltyFun(var X:TArrSingle);
+// {контролює можливі значення параметрів у масиві X,
+// що підбираються при апроксимації еволюційними методами,
+// заважаючи їм прийняти нереальні значення -
+// тобто за межами FXminlim та FXmaxlim}
+// Procedure WindowPrepare();
+// {підготовка вікна до показу даних}
+// Procedure WindowClear();
+// {очищення вікна після апроксимації}
+// Procedure WindowDataShow(N:integer;X:TArrSingle);
+// {показ номера біжучої ітерації
+//  та даних, які знаходяться в Х}
+//
+//Procedure MABCFit (V:PVector; var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом modified artificial bee colony;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+//Procedure PSOFit (V:PVector; var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//particle swarm optimization;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+//Procedure DEFit (V:PVector;  var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//differential evolution;
+//Fu визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+//Procedure TLBOFit (V:PVector; {F:TFitFunction;} var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//teaching learning based optimization;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+////----------------------------------------------
+// public
+//
+// property Ns:integer read FNs;
+// property Nit:integer read FNit write SetNit;
+// property Xname:TArrStr read FXname;
+// property Name:string read FName;
+// property IsReady:boolean read FIsReady;
+// property Xmode:TArrVar_Rand read FXmode;
+//// property Xmin:TArrSingle read FXmin write FXmin;
+//// property Xmax:TArrSingle read FXmax write FXmax;
+//// property Xminlim:TArrSingle read FXminlim write FXminlim;
+// property Xvalue:TArrSingle read FXvalue;
+// property EvType:TEvolutionType read FEvType;
+// property DodXname:TArrStr read FDodXname;
+// property DodX:TArrSingle read FDodX;
+// property Caption:string read FCaption;
+// Procedure SetValue(num,index:byte;value:double); overload;
+// {встановлюються значення num-го елементу поля
+// FXmin при index=1
+// FXmax при index=2
+// FXminlim при index=3
+// FXmaxlim при index=4
+// }
+// Procedure SetValue(name:string;index:byte;value:double); overload;
+//{встановлюються значення елементу поля
+// FXmin при index=1
+// FXmax при index=2
+// FXminlim при index=3
+// FXmaxlim при index=4
+// для якого елемент FXname співпадає з name}
+//
+// Procedure SetValueMode(num:byte;value:TVar_Rand); overload;
+// {встановлюються значення num-го елементу поля
+// FXmode }
+// Procedure SetValueMode(name:string;value:TVar_Rand); overload;
+// {встановлюються значення елементу поля
+// FXmode для якого елемент FXname співпадає з name}
+// Procedure SetValueGR;virtual;
+//
+// Function FinalFunc(X:double;Variab:TArrSingle):double; overload; virtual;
+// {обчислюються значення апроксимуючої функції в
+// точці з абсцисою Х, найчастіше значення співпадає
+// з тим, що повертає Func при Fparam[0]=X}
+//
+//Procedure Fitting (V:PVector; var Param:TArrSingle); overload; virtual;
+//{апроксимуються дані у векторі V, отримані параметри
+//розміщуються в Param;
+//при невдалому процесі -  показується повідомлення,
+//в Param[0] - 555;
+//загалом розмір Param  після процедури співпадає з кількістю
+//параметрів;
+//для базового типу - викликається один з типів
+//еволюційної апроксимації залежно від значення FEvType}
+//Procedure Fitting (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle); overload; virtual;
+//{дає можливість апроксимувати дані у векторі V,
+//розглануті у логарифмічному масштабі
+//Xlog = True - використовується логарифм абсцис,
+//Ylog = True - використовується логарифм ординат}
+//Procedure FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries); overload; virtual;
+//{апроксимація і дані вносяться в Series -
+//щоб можна було побудувати графік}
+//
+//Procedure FittingGraph (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+//{див Fitting та FittingGraph}
+//
+//Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+//{апроксимація, дані вносяться в Series, крім
+//того апроксимуюча крива заноситься в файл -
+//третім стопчиком як правило;
+//назва файлу -- V^.name + 'fit'}
+//
+//Procedure FittingGraphFile (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
+//{апроксимація, дані вносяться в Series, крім
+//того апроксимуюча крива заноситься в файл -
+//третім стопчиком як правило;
+//назва файлу -- V^.name + 'fit'}
+//
+//Procedure FittingDiapazon (V:PVector; var Param:TArrSingle; D:Diapazon); virtual;
+//{апроксимуються дані у векторі V відповідно до обмежень
+//в D, отримані параметри розміщуються в Param}
+//
+//Function Deviation (V:PVector):double;
+//{повертає середнеє значення відхилення апроксимації
+//даних V від самих даних}
+////Procedure Fitting (V:PVector; var Param:TArrSingle);
+//
+// end;   // TFitFunction=class
+
+
 
 
 TLinear=class (TFitFunction)
@@ -648,6 +1262,12 @@ Procedure FunCreate(str:string; var F:TFitFunction);
 {створює F того чи іншого типу залежно
 від значення str}
 
+
+Function FitName(V: PVector; st:string='fit'):string;
+{повертає змінене значення V^.name,
+зміна полягає у дописуванні st перед першою крапкою}
+
+
 implementation
 uses Unit1;
 
@@ -693,6 +1313,8 @@ begin
      TPSO:WriteInteger(Section, Ident,4);
      end;
 end;
+
+
 
 Constructor TFitFunction.Create(N:integer);
 begin
@@ -1099,9 +1721,17 @@ FIsready:=FIsready and (Nit<>555);
  except
   FIsReady:=False;
  end;
- FSzr:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
- FArich:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
+// FSzr:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
+// FArich:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
 ConfigFile.Free;
+FSample:=Diod;
+
+FIsReady:=(FSample<>nil);
+if FIsReady then
+  begin
+   FIsReady:=FSample.Area<>555;
+   FIsReady:=FSample.Material.ARich<>555;
+  end;
 end;
 
 Procedure TFitFunction.WriteValue;
@@ -1325,16 +1955,17 @@ begin
  FXname[0]:='Io';
  FXname[1]:='n';
  FXname[2]:='Fb';
- FPNs:=5;
+ FPNs:=3;
  SetLength(FParam,FPNs);
  SetLength(FPname,FPNs);
  FPName[0]:='V';
  FPName[1]:='I';
  FPName[2]:='T';
- FPName[3]:='S';
- FPName[4]:='A*';
+// FPName[3]:='S';
+// FPName[4]:='A*';
  SetLength(FPbool,FPNs-2);
  SetLength(FPValue,FPNs-2);
+ FSample:=Diod;
  FCaption:='Linear least-squares fitting of semi-log plot';
 end;
 
@@ -1347,12 +1978,12 @@ Procedure TExponent.BeforeFitness(AP:Pvector);
  {виконується перед початком апроксимації,
  полягає у заповненні полів потрібними
  значеннями}
-var    ConfigFile:TOIniFile;
+//var    ConfigFile:TOIniFile;
 begin
- ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
- FParam[3]:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
- FParam[4]:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
- ConfigFile.Free;
+// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+// FParam[3]:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
+// FParam[4]:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
+// ConfigFile.Free;
  FParam[2]:=AP^.T;
 end;
 
@@ -1413,17 +2044,23 @@ begin
  FName:='Ivanov';
  FXname[0]:='Fb';
  FXname[1]:='d/ep';
- FPNs:=5;
+// FPNs:=5;
+ FPNs:=3;
  SetLength(FParam,FPNs);
  SetLength(FPname,FPNs);
  FPName[0]:='V';
  FPName[1]:='I';
  FPName[2]:='T';
- FPName[3]:='Nd';
- FPName[4]:='ep';
+// FPName[3]:='Nd';
+// FPName[4]:='ep';
  SetLength(FPbool,FPNs-2);
  SetLength(FPValue,FPNs-2);
  ReadValue;
+ if FIsReady then
+      begin
+       FIsReady:=FSample.Nd<>555;
+       FIsReady:=FSample.Material.Eps<>555;
+      end;
  FCaption:='I-V fitting for dielectric layer width d determination, Ivanov method';
 end;
 
@@ -1436,23 +2073,24 @@ Function TIvanov.FinalFunc(var X:double;Variab:TArrSingle):double;
 var Vd,x0:double;
 begin
   x0:=X;
-  Vd:=Variab[1]*sqrt(2*Qelem*FParam[3]*FParam[4]/Eps0)*(sqrt(Variab[0])-sqrt(Variab[0]-x0));
+  Vd:=Variab[1]*sqrt(2*Qelem*FSample.Nd*FSample.Material.Eps/Eps0)*(sqrt(Variab[0])-sqrt(Variab[0]-x0));
   X:=Vd+x0;
-  Result:=FArich*FSzr*sqr(FParam[2])*exp(-Variab[0]/Kb/FParam[2])*exp(x0/Kb/FParam[2]);
+//  Result:=FArich*FSzr*sqr(FParam[2])*exp(-Variab[0]/Kb/FParam[2])*exp(x0/Kb/FParam[2]);
+  Result:=FSample.I0(FParam[2],Variab[0])*exp(x0/Kb/FParam[2]);
 end;
 
 Procedure TIvanov.BeforeFitness(AP:Pvector);
  {виконується перед початком апроксимації,
  полягає у заповненні полів потрібними
  значеннями}
-var
-    ConfigFile:TOIniFile;
+//var
+//    ConfigFile:TOIniFile;
 begin
- ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
- FParam[3]:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
- FParam[4]:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
+// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+// FParam[3]:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
+// FParam[4]:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
+// ConfigFile.Free;
  FParam[2]:=AP^.T;
- ConfigFile.Free;
 end;
 
 
@@ -1568,8 +2206,10 @@ end;
 Procedure TDiod.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
 FDodX[0]:=555;
-if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
-   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
+if FIsReady then FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
+
+//if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
+//   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
 end;
 
 
@@ -2138,7 +2778,7 @@ Et:=Variab[1]*Qelem;
 g:=FParam[2]*sqr(FParam[3]*Qelem)*(1+2/(exp(FParam[3]*FParam[0])-1));
 gam:=sqrt(2*meff)*g/(Hpl*qE*sqrt(Et));
 gam1:=sqrt(1+sqr(gam));
-Result:=FSzr*Variab[0]*qE/sqrt(8*meff*Variab[1])*sqrt(1-gam/gam1)*
+Result:=FSample.Area*Variab[0]*qE/sqrt(8*meff*Variab[1])*sqrt(1-gam/gam1)*
         exp(-4*sqrt(2*meff)*Et*sqrt(Et)/(3*Hpl*qE)*
             sqr(gam1-gam)*(gam1+0.5*gam));
 end;
@@ -2425,8 +3065,9 @@ end;
 Procedure TDiodLam.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
 FDodX[0]:=555;
-if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
-   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
+if FIsReady then FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
+//if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
+//   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
 end;
 
 Constructor TPhotoDiodLam.Create;
@@ -2526,9 +3167,17 @@ FIsready:=FIsready and (Nit<>555);
  except
   FIsReady:=False;
  end;
- FSzr:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
- FArich:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
+// FSzr:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
+// FArich:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
 ConfigFile.Free;
+
+FSample:=Diod;
+FIsReady:=(FSample<>nil);
+if FIsReady then
+  begin
+   FIsReady:=FSample.Area<>555;
+   FIsReady:=FSample.Material.ARich<>555;
+  end;
 end;
 
 Procedure TFitFunctionLSM.WriteValue;
@@ -2745,8 +3394,9 @@ end;
 Procedure TDiodLSM.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
 FDodX[0]:=555;
-if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
-   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
+if FIsReady then  FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
+//if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
+//   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
 end;
 
 Function TFitFunction.EvFitPreparation(V:PVector;var Param:TArrSingle;
@@ -3483,7 +4133,8 @@ begin
   Par[0]:=555;
   try
    BeforeFitness(V);
-   ExKalk(V,FParam[4],FParam[3],Par[1],Par[0],Par[2]);
+   ExKalk(V,FSample,Par[1],Par[0],Par[2]);
+//   ExKalk(V,FParam[4],FParam[3],Par[1],Par[0],Par[2]);
   except
    MessageDlg('Approximation unseccessful', mtError,[mbOk],0)
   end;
@@ -3507,7 +4158,7 @@ begin
   Par[0]:=555;
   try
    BeforeFitness(V);
-   IvanovAprox(V,FArich,FSzr,Fparam[3],Fparam[4],Par[1],Par[0]);
+   IvanovAprox(V,FSample,Par[1],Par[0]);
   except
    MessageDlg('Approximation unseccessful', mtError,[mbOk],0)
   end;
@@ -5715,5 +6366,18 @@ begin
 //  if str='None' then F:=TDiod.Create;
 end;
 
+
+Function  FitName(V: PVector; st:string='fit'):string;
+{повертає змінене значення V^.name,
+зміна полягає у дописуванні st перед першою крапкою}
+begin
+  if V^.name = '' then
+    Result := st+'.dat'
+  else
+  begin
+    Result := V^.name;
+    Insert(st, Result, Pos('.', Result));
+  end;
+end;
 
 end.
