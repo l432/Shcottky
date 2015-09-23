@@ -18,14 +18,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 120
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet2
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -97,10 +97,11 @@ object Form1: TForm1
           Top = 15
           Width = 238
           Height = 160
+          VertScrollBar.Position = 312
           TabOrder = 2
           object GroupBox15: TGroupBox
             Left = 12
-            Top = 461
+            Top = 149
             Width = 197
             Height = 77
             Caption = ' I=I0[exp(eV/nkT)-1]'
@@ -177,7 +178,7 @@ object Form1: TForm1
           end
           object GroupBox19: TGroupBox
             Left = 12
-            Top = 621
+            Top = 309
             Width = 197
             Height = 75
             Caption = 'Norde'#39's function'
@@ -244,7 +245,7 @@ object Form1: TForm1
           end
           object GroupBox18: TGroupBox
             Left = 12
-            Top = 544
+            Top = 232
             Width = 197
             Height = 75
             Caption = 'H funcion'
@@ -311,7 +312,7 @@ object Form1: TForm1
           end
           object GroupBox14: TGroupBox
             Left = 12
-            Top = 378
+            Top = 66
             Width = 197
             Height = 77
             Caption = 'I=I0exp(eV/nkT)'
@@ -388,7 +389,7 @@ object Form1: TForm1
           end
           object GroupBox31: TGroupBox
             Left = 12
-            Top = 698
+            Top = 386
             Width = 197
             Height = 76
             Caption = 'I/[1-exp(-qV/kT)], forward'
@@ -465,7 +466,7 @@ object Form1: TForm1
           end
           object GroupBox35: TGroupBox
             Left = 12
-            Top = 779
+            Top = 467
             Width = 197
             Height = 77
             Caption = 'I/[1-exp(-qV/kT)], reverse'
@@ -542,7 +543,7 @@ object Form1: TForm1
           end
           object GroupBox39: TGroupBox
             Left = 12
-            Top = 4
+            Top = -308
             Width = 197
             Height = 80
             Caption = 'I=I0[exp((V-IRs)/E)-1]+(V-I Rs)/Rsh-Iph'
@@ -663,7 +664,7 @@ object Form1: TForm1
           end
           object GroupBox40: TGroupBox
             Left = 12
-            Top = 95
+            Top = -217
             Width = 197
             Height = 80
             Caption = 'I=I0[exp((V-IRs)/E)-1]+(V-I Rs)/Rsh-Iph'
@@ -784,7 +785,7 @@ object Form1: TForm1
           end
           object GroupBox41: TGroupBox
             Left = 12
-            Top = 186
+            Top = -126
             Width = 197
             Height = 80
             Caption = 'I=I0[exp((V-IRs)/E)-1]+(V-I Rs)/Rsh-Iph'
@@ -905,7 +906,7 @@ object Form1: TForm1
           end
           object GroupBox42: TGroupBox
             Left = 12
-            Top = 282
+            Top = -30
             Width = 197
             Height = 80
             Caption = 'Double Diod'

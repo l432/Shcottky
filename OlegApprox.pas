@@ -275,7 +275,7 @@ end;
 //{апроксимуються дані у векторі V, отримані параметри
 //розміщуються в Param;
 //при невдалому процесі -  показується повідомлення,
-//в Param[0] - 555;
+//в Param[0] - ErResult;
 //загалом розмір Param  після процедури співпадає з кількістю
 //параметрів;
 //для базового типу - викликається один з типів
@@ -350,7 +350,7 @@ end;
 // {апроксимуються дані у векторі V, отримані параметри
 // розміщуються в Param;
 // при невдалому процесі -  показується повідомлення,
-// в Param[0] - 555;
+// в Param[0] - ErResult;
 // загалом розмір Param  після процедури співпадає з кількістю
 // параметрів;}
 // Procedure Fitting (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle); overload; virtual;
@@ -613,7 +613,7 @@ Procedure Fitting (V:PVector; var Param:TArrSingle); overload; virtual;
 {апроксимуються дані у векторі V, отримані параметри
 розміщуються в Param;
 при невдалому процесі -  показується повідомлення,
-в Param[0] - 555;
+в Param[0] - ErResult;
 загалом розмір Param  після процедури співпадає з кількістю
 параметрів;
 для базового типу - викликається один з типів
@@ -882,7 +882,7 @@ Function Deviation (V:PVector):double;
 //{апроксимуються дані у векторі V, отримані параметри
 //розміщуються в Param;
 //при невдалому процесі -  показується повідомлення,
-//в Param[0] - 555;
+//в Param[0] - ErResult;
 //загалом розмір Param  після процедури співпадає з кількістю
 //параметрів;
 //для базового типу - викликається один з типів
@@ -1507,10 +1507,10 @@ begin
   Pan[i].Left:=5;
   Pan[i].Top:=PaddingTop+i*(Pan[i].Panel1.Height+PaddingBetween);
   Pan[i].LName.Caption:=FXname[i];
-  Pan[i].minIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',555));
-  Pan[i].maxIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',555));
-  Pan[i].minLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',555));
-  Pan[i].maxLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',555));
+  Pan[i].minIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',ErResult));
+  Pan[i].maxIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',ErResult));
+  Pan[i].minLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',ErResult));
+  Pan[i].maxLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',ErResult));
       case ConfigFile.ReadRand(FName,FXname[i]+'Mode') of
        lin:  Pan[i].RBNorm.Checked:=True;
        logar:Pan[i].RBLogar.Checked:=True;
@@ -1532,7 +1532,7 @@ begin
     ParamP[i].LName.Caption:=FPname[i+2];
     ParamP[i].EParam.OnKeyPress:=Pan[0].minIn.OnKeyPress;
     ParamP[i].CBIntr.Checked:=true;
-    ParamP[i].EParam.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',555));
+    ParamP[i].EParam.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',ErResult));
     ParamP[i].CBIntr.Checked:=ConfigFile.ReadBool(FName,FPname[i+2]+'Bool',True);;
     end;
    end;
@@ -1550,7 +1550,7 @@ begin
  Niter.EditLabel.Caption:='Iteration number';
  Niter.Width:=50;
  Niter.OnKeyPress:=Pan[0].minIn.OnKeyPress;
- Niter.Text:=ValueToStr555(ConfigFile.ReadInteger(FName,'Nit',555));
+ Niter.Text:=ValueToStr555(ConfigFile.ReadInteger(FName,'Nit',ErResult));
 
  Buttons:=TFrBut.Create(Form);
  Buttons.Parent:=Form;
@@ -1688,35 +1688,35 @@ begin
  FIsReady:=true;
  for I := 0 to High(FXname) do
    begin
-    FXmin[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',555);
-    FXmax[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',555);
-    FXminlim[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',555);
-    FXmaxlim[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',555);
+    FXmin[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',ErResult);
+    FXmax[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',ErResult);
+    FXminlim[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',ErResult);
+    FXmaxlim[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',ErResult);
     FXmode[i]:=ConfigFile.ReadRand(FName,FXname[i]+'Mode');
-    FIsReady:=FIsReady and (FXmin[i]<>555) and (FXmax[i]<>555)
-              and (FXminlim[i]<>555) and (FXmaxlim[i]<>555);
-    FA[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'A',555);
-    FB[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'B',555);
-    FC[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'C',555);
+    FIsReady:=FIsReady and (FXmin[i]<>ErResult) and (FXmax[i]<>ErResult)
+              and (FXminlim[i]<>ErResult) and (FXmaxlim[i]<>ErResult);
+    FA[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'A',ErResult);
+    FB[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'B',ErResult);
+    FC[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'C',ErResult);
     FXt[i]:=ConfigFile.ReadInteger(FName,FXname[i]+'tt',0);
     if FXmode[i]=cons then
       begin
         if not(FXt[i]in[0,2..(FPNs-1),(FPNs+2)..(2*FPNs-1)]) then FIsready:=False;
-        if ((FXt[i]=0) and (FA[i]=555)) then FIsready:=False;
+        if ((FXt[i]=0) and (FA[i]=ErResult)) then FIsready:=False;
         if ((FXt[i]in[2..(FPNs-1),(FPNs+2)..(2*FPNs-1)])
-             and(FA[i]=555)and(FC[i]=555)and(FB[i]=555)) then FIsready:=False;
+             and(FA[i]=ErResult)and(FC[i]=ErResult)and(FB[i]=ErResult)) then FIsready:=False;
       end;
    end;
 FEvType:=ConfigFile.ReadEvType(FName,'EvType',TDE);
-Nit:=ConfigFile.ReadInteger(FName,'Nit',555);
-FIsready:=FIsready and (Nit<>555);
+Nit:=ConfigFile.ReadInteger(FName,'Nit',ErResult);
+FIsready:=FIsready and (Nit<>ErResult);
 
  for I := 0 to High(FPname)-2 do
  begin
   if (FName='LinEg')and(i>2) then Continue;
   FPbool[i]:=ConfigFile.ReadBool(FName,FPname[i+2]+'Bool',True);
-  FPValue[i]:=ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',555);
-  if ((FPbool[i])and(FPValue[i]=555)) then FIsready:=False;
+  FPValue[i]:=ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',ErResult);
+  if ((FPbool[i])and(FPValue[i]=ErResult)) then FIsready:=False;
  end;
  except
   FIsReady:=False;
@@ -1729,8 +1729,8 @@ FSample:=Diod;
 FIsReady:=(FSample<>nil);
 if FIsReady then
   begin
-   FIsReady:=FSample.Area<>555;
-   FIsReady:=FSample.Material.ARich<>555;
+   FIsReady:=FSample.Area<>ErResult;
+   FIsReady:=FSample.Material.ARich<>ErResult;
   end;
 end;
 
@@ -1996,7 +1996,7 @@ end;
 
 Function TSmoothing.Func(Variab:TArrSingle):double;
 begin
-Result:=555;
+Result:=ErResult;
 end;
 
 Constructor TMedian.Create;
@@ -2008,7 +2008,7 @@ end;
 
 Function TMedian.Func(Variab:TArrSingle):double;
 begin
-Result:=555;
+Result:=ErResult;
 end;
 
 Constructor TDerivative.Create;
@@ -2020,7 +2020,7 @@ end;
 
 Function TDerivative.Func(Variab:TArrSingle):double;
 begin
-Result:=555;
+Result:=ErResult;
 end;
 
 Constructor TGromov.Create;
@@ -2058,15 +2058,15 @@ begin
  ReadValue;
  if FIsReady then
       begin
-       FIsReady:=FSample.Nd<>555;
-       FIsReady:=FSample.Material.Eps<>555;
+       FIsReady:=FSample.Nd<>ErResult;
+       FIsReady:=FSample.Material.Eps<>ErResult;
       end;
  FCaption:='I-V fitting for dielectric layer width d determination, Ivanov method';
 end;
 
 Function TIvanov.Func(Variab:TArrSingle):double;
 begin
-Result:=555;
+Result:=ErResult;
 end;
 
 Function TIvanov.FinalFunc(var X:double;Variab:TArrSingle):double;
@@ -2205,10 +2205,10 @@ end;
 
 Procedure TDiod.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
-FDodX[0]:=555;
+FDodX[0]:=ErResult;
 if FIsReady then FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
 
-//if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
+//if (FSzr<>0)and(FSzr<>ErResult)and(FArich<>0)and(FArich<>ErResult) then
 //   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
 end;
 
@@ -2273,18 +2273,18 @@ end;
 
 Procedure TPhotoDiod.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
-FDodX[0]:=555;
-FDodX[1]:=555;
-FDodX[2]:=555;
-FDodX[3]:=555;
+FDodX[0]:=ErResult;
+FDodX[1]:=ErResult;
+FDodX[2]:=ErResult;
+FDodX[3]:=ErResult;
 if (Variab[4]>1e-7) then
    begin
     FDodX[0]:=Voc_Isc_Pm(1,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
     FDodX[1]:=Voc_Isc_Pm(2,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
    end;
-if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>555)and(FDodX[1]<>555) then
+if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
     FDodX[2]:=Voc_Isc_Pm(3,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-if (FDodX[0]<>0)and(FDodX[0]<>555)and(FDodX[1]<>0)and(FDodX[1]<>555) then
+if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
    FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
 end;
 
@@ -2565,10 +2565,10 @@ end;
 
 Procedure TDoubleDiodLight.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
-FDodX[0]:=555;
-FDodX[1]:=555;
-FDodX[2]:=555;
-FDodX[3]:=555;
+FDodX[0]:=ErResult;
+FDodX[1]:=ErResult;
+FDodX[2]:=ErResult;
+FDodX[3]:=ErResult;
 if (Variab[6]>1e-7) then
       begin
       FDodX[0]:=Voc_Isc_Pm_DoubleDiod(1,Variab[0]*Kb*FParam[2],Variab[4]*Kb*FParam[2],
@@ -2577,10 +2577,10 @@ if (Variab[6]>1e-7) then
       FDodX[1]:=Voc_Isc_Pm_DoubleDiod(2,Variab[0]*Kb*FParam[2],Variab[4]*Kb*FParam[2],
        Variab[1],Variab[2],Variab[5],Variab[3],Variab[6]);
       end;
-if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>555)and(FDodX[1]<>555) then
+if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
     FDodX[2]:=Voc_Isc_Pm_DoubleDiod(3,Variab[0]*Kb*FParam[2],Variab[4]*Kb*FParam[2],
        Variab[1],Variab[2],Variab[5],Variab[3],Variab[6]);
-if (FDodX[0]<>0)and(FDodX[0]<>555)and(FDodX[1]<>0)and(FDodX[1]<>555) then
+if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
    FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
 end;
 
@@ -2645,7 +2645,7 @@ end;
 Function TRevZriz.Func(Variab:TArrSingle):double;
 var I1,I2:double;
 begin
-Result:=555;
+Result:=ErResult;
 if FParam[0]<=0 then Exit;
 I1:=RevZrizFun(FParam[0],FParam[2],Variab[2],Variab[3]);
 I2:=RevZrizFun(FParam[0],2,Variab[0],Variab[1]);
@@ -2682,7 +2682,7 @@ end;
 
 Function TRevZriz2.Func(Variab:TArrSingle):double;
 begin
-Result:=555;
+Result:=ErResult;
 if FParam[0]<=0 then Exit;
 Result:=RevZrizFun(FParam[0],2,Variab[0],Variab[1])+
 RevZrizSCLC(FParam[0],FParam[2],Variab[2],Variab[3]);
@@ -2732,7 +2732,7 @@ end;
 Function TRevZriz3.Func(Variab:TArrSingle):double;
 var T1:double;
 begin
-Result:=555;
+Result:=ErResult;
 if FParam[0]<=0 then Exit;
 T1:=Kb*FParam[0];
 Result:=RevZrizFun(FParam[0],2,Variab[0],Variab[1])+
@@ -2770,7 +2770,7 @@ end;
 Function TPhonAsTun.Func(Variab:TArrSingle):double;
 var g,gam,gam1,meff,qE,Et:double;
 begin
-Result:=555;
+Result:=ErResult;
 if FParam[0]<=0 then Exit;
 meff:=FParam[4]*m0;
 qE:=Qelem*Variab[2];
@@ -2817,7 +2817,7 @@ end;
 Function TBrailsford.Func(Variab:TArrSingle):double;
 var d:double;
 begin
-Result:=555;
+Result:=ErResult;
 if FParam[2]<=0 then Exit;
 d:=Variab[1]*FParam[2]*exp(Variab[2]/Kb/FParam[0]);
 Result:=Variab[0]*FParam[2]/FParam[0]*d/(1+sqr(d));
@@ -2964,7 +2964,7 @@ end;
 Function TRevSh.Func(Variab:TArrSingle):double;
 var Em,kT:double;
 begin
-Result:=555;
+Result:=ErResult;
 if FParam[2]<=0 then Exit;
 Em:=sqrt(F2*(F1+FParam[0]));
 kT:=Kb*FParam[2];
@@ -3018,18 +3018,18 @@ end;
 
 Procedure TPhotoDiodLSM.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
-FDodX[0]:=555;
-FDodX[1]:=555;
-FDodX[2]:=555;
-FDodX[3]:=555;
+FDodX[0]:=ErResult;
+FDodX[1]:=ErResult;
+FDodX[2]:=ErResult;
+FDodX[3]:=ErResult;
 if (Variab[4]>1e-7) then
    begin
     FDodX[0]:=Voc_Isc_Pm(1,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
     FDodX[1]:=Voc_Isc_Pm(2,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
    end;
-if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>555)and(FDodX[1]<>555) then
+if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
     FDodX[2]:=Voc_Isc_Pm(3,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-if (FDodX[0]<>0)and(FDodX[0]<>555)and(FDodX[1]<>0)and(FDodX[1]<>555) then
+if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
    FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
 end;
 
@@ -3064,9 +3064,9 @@ end;
 
 Procedure TDiodLam.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
-FDodX[0]:=555;
+FDodX[0]:=ErResult;
 if FIsReady then FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
-//if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
+//if (FSzr<>0)and(FSzr<>ErResult)and(FArich<>0)and(FArich<>ErResult) then
 //   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
 end;
 
@@ -3110,18 +3110,18 @@ end;
 
 Procedure TPhotoDiodLam.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
-FDodX[0]:=555;
-FDodX[1]:=555;
-FDodX[2]:=555;
-FDodX[3]:=555;
+FDodX[0]:=ErResult;
+FDodX[1]:=ErResult;
+FDodX[2]:=ErResult;
+FDodX[3]:=ErResult;
 if (Variab[4]>1e-7) then
    begin
     FDodX[0]:=Voc_Isc_Pm(1,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
     FDodX[1]:=Voc_Isc_Pm(2,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
    end;
-if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>555)and(FDodX[1]<>555) then
+if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
     FDodX[2]:=Voc_Isc_Pm(3,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-if (FDodX[0]<>0)and(FDodX[0]<>555)and(FDodX[1]<>0)and(FDodX[1]<>555) then
+if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
    FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
 end;
 
@@ -3139,30 +3139,30 @@ begin
   str:=str+FPname[i]+'*';
  ConfigFile.WriteString(FName,'Pnames',str);
  FIsReady:=true;
- FXmaxlim[0]:=ConfigFile.ReadFloat(FName,'eps',555);
- FIsReady:=FIsReady and (FXmaxlim[0]<>555);
+ FXmaxlim[0]:=ConfigFile.ReadFloat(FName,'eps',ErResult);
+ FIsReady:=FIsReady and (FXmaxlim[0]<>ErResult);
  for I := 0 to High(FXname) do
    begin
     FXmode[i]:=ConfigFile.ReadRand(FName,FXname[i]+'Mode');
-    FA[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'A',555);
-    FB[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'B',555);
-    FC[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'C',555);
+    FA[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'A',ErResult);
+    FB[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'B',ErResult);
+    FC[i]:=ConfigFile.ReadFloat(FName,FXname[i]+'C',ErResult);
     FXt[i]:=ConfigFile.ReadInteger(FName,FXname[i]+'tt',0);
     if FXmode[i]=cons then
       begin
         if not(FXt[i]in[0,2..(FPNs-1),(FPNs+2)..(2*FPNs-1)]) then FIsready:=False;
-        if ((FXt[i]=0) and (FA[i]=555)) then FIsready:=False;
+        if ((FXt[i]=0) and (FA[i]=ErResult)) then FIsready:=False;
         if ((FXt[i]in[2..(FPNs-1),(FPNs+2)..(2*FPNs-1)])
-             and(FA[i]=555)and(FC[i]=555)and(FB[i]=555)) then FIsready:=False;
+             and(FA[i]=ErResult)and(FC[i]=ErResult)and(FB[i]=ErResult)) then FIsready:=False;
       end;
    end;
-Nit:=ConfigFile.ReadInteger(FName,'Nit',555);
-FIsready:=FIsready and (Nit<>555);
+Nit:=ConfigFile.ReadInteger(FName,'Nit',ErResult);
+FIsready:=FIsready and (Nit<>ErResult);
  for I := 0 to High(FPname)-2 do
  begin
   FPbool[i]:=ConfigFile.ReadBool(FName,FPname[i+2]+'Bool',False);
-  FPValue[i]:=ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',555);
-  if ((FPbool[i])and(FPValue[i]=555)) then FIsready:=False;
+  FPValue[i]:=ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',ErResult);
+  if ((FPbool[i])and(FPValue[i]=ErResult)) then FIsready:=False;
  end;
  except
   FIsReady:=False;
@@ -3175,8 +3175,8 @@ FSample:=Diod;
 FIsReady:=(FSample<>nil);
 if FIsReady then
   begin
-   FIsReady:=FSample.Area<>555;
-   FIsReady:=FSample.Material.ARich<>555;
+   FIsReady:=FSample.Area<>ErResult;
+   FIsReady:=FSample.Material.ARich<>ErResult;
   end;
 end;
 
@@ -3277,7 +3277,7 @@ begin
  Niter.EditLabel.Caption:='Iteration number';
  Niter.Width:=50;
  Niter.OnKeyPress:=Pan[0].minIn.OnKeyPress;
- Niter.Text:=ValueToStr555(ConfigFile.ReadInteger(FName,'Nit',555));
+ Niter.Text:=ValueToStr555(ConfigFile.ReadInteger(FName,'Nit',ErResult));
 
  Acur:=TLabeledEdit.Create(Form);
  Acur.Parent:=Form;
@@ -3289,7 +3289,7 @@ begin
  Acur.EditLabel.Caption:='Accuracy';
  Acur.Width:=50;
  Acur.OnKeyPress:=Pan[0].minIn.OnKeyPress;
- Acur.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,'eps',555));
+ Acur.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,'eps',ErResult));
 
 
  Buttons:=TFrBut.Create(Form);
@@ -3344,7 +3344,7 @@ end;
 
 Function TFitFunctionLSM.Func(Variab:TArrSingle):double;
 begin
-  Result:=555;
+  Result:=ErResult;
 end;
 
 procedure TFitFunctionLSM.BeforeFitness(AP:Pvector);
@@ -3393,9 +3393,9 @@ end;
 
 Procedure TDiodLSM.DodParDetermination(V: PVector; Variab:TArrSingle);
 begin
-FDodX[0]:=555;
+FDodX[0]:=ErResult;
 if FIsReady then  FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
-//if (FSzr<>0)and(FSzr<>555)and(FArich<>0)and(FArich<>555) then
+//if (FSzr<>0)and(FSzr<>ErResult)and(FArich<>0)and(FArich<>ErResult) then
 //   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
 end;
 
@@ -3410,7 +3410,7 @@ Function TFitFunction.EvFitPreparation(V:PVector;var Param:TArrSingle;
 begin
 Result:=True;
 SetLength(Param,1);
-Param[0]:=555;
+Param[0]:=ErResult;
 if not(IsReady) then SetValueGR;
 if not(IsReady) then
    begin
@@ -4050,7 +4050,7 @@ Procedure TFitFunction.Fitting (V:PVector; var Param:TArrSingle);
 {апроксимуються дані у векторі V, отримані параметри
 розміщуються в Param;
 при невдалому процесі -  показується повідомлення,
-в Param[0] - 555;
+в Param[0] - ErResult;
 загалом розмір Param  після процедури співпадає з кількістю
 параметрів;
 для базового типу - викликається один з типів
@@ -4076,7 +4076,7 @@ var i:integer;
 
 begin
  SetLength(Param,FNs);
- Param[0]:=555;
+ Param[0]:=ErResult;
  new(tempV);
  try
   SetLenVector(tempV,V^.n);
@@ -4098,14 +4098,14 @@ Procedure TLinear.Fitting (V:PVector; var Param:TArrSingle);
 {апроксимуються дані у векторі V, отримані параметри
 розміщуються в Param;
 при невдалому процесі -  показується повідомлення,
-в Param[0] - 555;
+в Param[0] - ErResult;
 загалом розмір Param  після процедури співпадає з кількістю
 параметрів;
 для базового типу - викликається один з типів
 еволюційної апроксимації залежно від значення FEvType}
 begin
   SetLength(Param,FNs);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   try
 //   Param[0]:=0;
 //   LinAproxAconst(V,Param[0],Param[1]);
@@ -4119,7 +4119,7 @@ end;
 Procedure TQuadratic.Fitting (V:PVector; var Param:TArrSingle);
 begin
   SetLength(Param,FNs);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   try
    ParabAprox(V,Param[0],Param[1],Param[2]);
   except
@@ -4130,7 +4130,7 @@ end;
 Procedure TExponent.Fitting (V:PVector; var Par:TArrSingle);
 begin
   SetLength(Par,FNs);
-  Par[0]:=555;
+  Par[0]:=ErResult;
   try
    BeforeFitness(V);
    ExKalk(V,FSample,Par[1],Par[0],Par[2]);
@@ -4143,7 +4143,7 @@ end;
 Procedure TGromov.Fitting (V:PVector; var Param:TArrSingle);
 begin
   SetLength(Param,FNs);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   try
    GromovAprox(V,Param[0],Param[1],Param[2]);
   except
@@ -4155,7 +4155,7 @@ end;
 Procedure TIvanov.Fitting (V:PVector; var Par:TArrSingle);
 begin
   SetLength(Par,FNs);
-  Par[0]:=555;
+  Par[0]:=ErResult;
   try
    BeforeFitness(V);
    IvanovAprox(V,FSample,Par[1],Par[0]);
@@ -4174,7 +4174,7 @@ var h,x,y:double;
 begin
   Series.Clear;
   Fitting(V,Par);
-  if Par[0]=555 then  Exit;
+  if Par[0]=ErResult then  Exit;
   h:=(V^.X[High(V^.X)]-V^.X[0])/Np;
   for I := 0 to Np do
     begin
@@ -4193,7 +4193,7 @@ var h,x,y,xl:double;
     i:integer;
 begin
   Fitting(Xlog,Ylog,V,Param);
-  if Param[0]=555 then Exit;
+  if Param[0]=ErResult then Exit;
   Series.Clear;
   h:=(V^.X[High(V^.X)]-V^.X[0])/Np;
   for I := 0 to Np do
@@ -4218,7 +4218,7 @@ var Str1:TStringList;
     st:string;
 begin
   FittingGraph(V,Param,Series);
-  if Param[0]=555 then Exit;
+  if Param[0]=ErResult then Exit;
 
   Str1:=TStringList.Create;
   for I := 0 to High(V^.X) do
@@ -4243,8 +4243,8 @@ Procedure TFitFunction.FittingDiapazon (V:PVector; var Param:TArrSingle; D:Diapa
 в D, отримані параметри розміщуються в Param}
 var temp1:Pvector;
 begin
-if (D.YMin=555) or (D.YMin<=0) then D.YMin:=0;
-if (D.XMin=555) then D.XMin:=0.001;
+if (D.YMin=ErResult) or (D.YMin<=0) then D.YMin:=0;
+if (D.XMin=ErResult) then D.XMin:=0.001;
 new(temp1);
 A_B_Diapazon(FDbool,V,temp1,D);
 Fitting(temp1,Param);
@@ -4258,9 +4258,9 @@ Function TFitFunction.Deviation (V:PVector):double;
 var Param:TArrSingle;
     i:integer;
 begin
-Result:=555;
+Result:=ErResult;
 Fitting (V,Param);
-if Param[0]=555 then Exit;
+if Param[0]=ErResult then Exit;
 Result:=0;
 for I := 0 to High(V^.X) do
   Result:=Result+sqr((V^.Y[i]-FinalFunc(V^.X[i],Param))/V^.Y[i]);
@@ -4279,7 +4279,7 @@ var Str1:TStringList;
     xl:double;
 begin
   FittingGraph(Xlog,Ylog,V,Param,Series);
-  if Param[0]=555 then Exit;
+  if Param[0]=ErResult then Exit;
 
   Str1:=TStringList.Create;
   for I := 0 to High(V^.X) do
@@ -4321,7 +4321,7 @@ var  tempV:PVector;
      i:integer;
 begin
   SetLength(Param,1);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   new(tempV);
   Smoothing (V,tempV);
   if tempV^.n=0 then
@@ -4350,7 +4350,7 @@ var Str1:TStringList;
     st:string;
 begin
   SetLength(Param,1);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   new(tempV);
   Str1:=TStringList.Create;
   Smoothing (V,tempV);
@@ -4384,7 +4384,7 @@ var  tempV:PVector;
      i:integer;
 begin
   SetLength(Param,1);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   new(tempV);
   Median (V,tempV);
   if tempV^.n=0 then
@@ -4414,7 +4414,7 @@ var Str1:TStringList;
     st:string;
 begin
   SetLength(Param,1);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   new(tempV);
   Str1:=TStringList.Create;
   Median (V,tempV);
@@ -4448,7 +4448,7 @@ var  tempV:PVector;
      i:integer;
 begin
   SetLength(Param,1);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   new(tempV);
   Diferen (V,tempV);
   if tempV^.n=0 then
@@ -4477,7 +4477,7 @@ var Str1:TStringList;
     st:string;
 begin
   SetLength(Param,1);
-  Param[0]:=555;
+  Param[0]:=ErResult;
   new(tempV);
   Str1:=TStringList.Create;
   Diferen (V,tempV);
@@ -4511,7 +4511,7 @@ var h,x,y:double;
     i:integer;
 begin
   Fitting(V,Par);
-  if Par[0]=555 then Exit;
+  if Par[0]=ErResult then Exit;
   Series.Clear;
   h:=(V^.X[High(V^.X)]-V^.X[0])/Np;
   for I := 0 to Np do
@@ -4613,8 +4613,8 @@ var i:integer;
 begin
 
 
-for I := 0 to High(RezF) do  RezF[i]:=555;
- RezSum:=555;
+for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+ RezSum:=ErResult;
 Result:=1;
 
 n:=Variab[0];
@@ -4675,8 +4675,8 @@ var i:integer;
     Zi,ZIi,nkT,vi,ei,eiI0:double;
 begin
 
-for I := 0 to High(RezF) do  RezF[i]:=555;
- RezSum:=555;
+for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+ RezSum:=ErResult;
 Result:=1;
 
 n:=Variab[0];
@@ -4740,8 +4740,8 @@ var i:integer;
 begin
 
 
-for I := 0 to High(RezF) do  RezF[i]:=555;
- RezSum:=555;
+for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+ RezSum:=ErResult;
 Result:=1;
 
 if AP^.T<=0 then Exit;
@@ -4775,7 +4775,7 @@ for I := 0 to High(AP^.X) do
      exp(Rsh*Rs/nkT/(Rs+Rsh)*(AP^.X[i]/Rs+Y1));
      Zi:=AP^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-AP^.Y[i];
      Wi:=Lambert(Yi);
-     if Wi=555 then Exit;
+     if Wi=ErResult then Exit;
      W_W1:=Wi/(Wi+1);
      ZIi:=Zi/abs(AP^.Y[i]);
 
@@ -4811,8 +4811,8 @@ var i:integer;
     Zi,ZIi,nkT,vi,ei,eiI0:double;
 begin
 
-for I := 0 to High(RezF) do  RezF[i]:=555;
- RezSum:=555;
+for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+ RezSum:=ErResult;
 Result:=1;
 
 n:=Variab[0];
@@ -4870,7 +4870,7 @@ var i:integer;
     Yi,Zi,Wi,GVI,Z1,Y1,F1,F12,F21,F22,F3,F31,
     nkT,W_W1,Rez:double;
 begin
-Result:=555;
+Result:=ErResult;
 if LamLightParamIsBad(AP,n,Rs,Rsh,Isc,Voc) then  Exit;
 
 try
@@ -4906,7 +4906,7 @@ for I := 0 to High(AP^.X) do
      exp(Rsh*Rs/nkT/(Rs+Rsh)*(AP^.X[i]/Rs+Y1));
      Zi:=AP^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-AP^.Y[i];
      Wi:=Lambert(Yi);
-     if Wi=555 then Exit;
+     if Wi=ErResult then Exit;
      W_W1:=Wi/(Wi+1);
 
      case num of
@@ -4953,7 +4953,7 @@ F - значення похідної квадритичної
 var i:integer;
     Zi,Rez,nkT,vi,ei,eiI0:double;
 begin
-Result:=555;
+Result:=ErResult;
 if ExpParamIsBad(AP,n,Rs,I0,Rsh) then  Exit;
 
 try
@@ -5013,7 +5013,7 @@ F - значення похідної квадритичної
 var i:integer;
     Yi,bt,Zi,Wi,I0Rs,ci,Rez,g1:double;
 begin
-Result:=555;
+Result:=ErResult;
 if LamParamIsBad(AP,n,Rs,I0,Rsh) then  Exit;
 
 try
@@ -5077,7 +5077,7 @@ F - значення похідної квадритичної
 var i:integer;
     Zi,Rez,nkT,vi,ei,eiI0:double;
 begin
-Result:=555;
+Result:=ErResult;
 if ExpParamIsBad(AP,n,Rs,I0,Rsh) then  Exit;
 
 try
@@ -5127,7 +5127,7 @@ Function ParamCorect(V:PVector;var n0,Rs0,Rsh0,Isc,Voc:double):boolean;overload;
 begin
   Result:=false;
   if (V^.T<=0) or (Isc<=5e-8) or (Voc<=1e-3) then Exit;
-  if (n0=0)or(n0=555) then Exit;
+  if (n0=0)or(n0=ErResult) then Exit;
   if Rs0<0.0001 then Rs0:=0.0001;
   if (Rsh0<=0) or (Rsh0>1e12) then Rsh0:=1e12;
   while (LamLightParamIsBad(V,n0,Rs0,Rsh0,Isc,Voc))and(n0<1000) do
@@ -5180,11 +5180,11 @@ end;
 //
 //for I := 0 to High(RezF) do
 //  begin
-//  RezF[i]:=555;
+//  RezF[i]:=ErResult;
 //  for j := 0 to High(RezF) do
-//     RezG[i,j]:=555;
+//     RezG[i,j]:=ErResult;
 //  end;
-// RezSum:=555;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -5314,8 +5314,8 @@ end;
 //begin
 //
 //
-//for I := 0 to High(RezF) do  RezF[i]:=555;
-// RezSum:=555;
+//for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -5368,7 +5368,7 @@ end;
 //    n, Rs, I0, Rsh, bt, I0Rs,
 //    Wi,ci,Zi:double;
 //begin
-//   RezSum:=555;
+//   RezSum:=ErResult;
 //   Result:=1;
 ////    try
 //    n:=Variab[0];
@@ -5406,8 +5406,8 @@ end;
 //    Zi,ZIi,nkT,vi,ei,eiI0:double;
 //begin
 //
-//for I := 0 to High(RezF) do  RezF[i]:=555;
-// RezSum:=555;
+//for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -5456,7 +5456,7 @@ end;
 //    n, Rs, I0, Rsh,Zi:double;
 //begin
 //
-//RezSum:=555;
+//RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -5490,8 +5490,8 @@ end;
 //    Zi,ZIi,nkT,vi,ei,eiI0:double;
 //begin
 //
-//for I := 0 to High(RezF) do  RezF[i]:=555;
-// RezSum:=555;
+//for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -5570,7 +5570,7 @@ var
       c,Fb,Fa:double;
   begin
     Result:=0;
-    Fa:=555;
+    Fa:=ErResult;
     if FName='DiodLSM'
       then Fa:=aSdal_ExpShot(V,num,a,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
     if FName='DiodLam'
@@ -5580,7 +5580,7 @@ var
     if FName='PhotoDiodLam'
       then  Fa:=aSdal_LamLightShotA(V,num,a,F,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
 
-    if Fa=555 then
+    if Fa=ErResult then
     begin
 //    showmessage('jjj');
     Exit;
@@ -5607,7 +5607,7 @@ var
                   Result:=b;
                   Exit;
                 end;
-     if Fb=555 then break
+     if Fb=ErResult then break
                else
                  begin
                  if Fb*Fa<=0 then break
@@ -5644,7 +5644,7 @@ var
       Fa:=aSdal_LamLightShotA(V,num,a,F,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
       end;
 
-     if (Fb*Fa<=0) or (Fb=555)
+     if (Fb*Fa<=0) or (Fb=ErResult)
        then b:=c
        else a:=c;
      until (i>1e5)or(abs((b-a)/c)<1e-2);
@@ -5658,7 +5658,7 @@ var
   var temp,temp2:Pvector;
       i,k:integer;
    begin
-    Par[0]:=555;
+    Par[0]:=ErResult;
     if (VocCalc(V)<=0.002) then Exit;
     Par[4]:=IscCalc(V);
     if (Par[4]<=1e-8) then Exit;
@@ -5760,7 +5760,7 @@ var
   var temp,temp2:Pvector;
       i,k:integer;
    begin
-    Par[0]:=555;
+    Par[0]:=ErResult;
  if High(Par)=4 then
     begin
     Par[2]:=IscCalc(V);
@@ -5887,7 +5887,7 @@ var
 
 begin
 SetLength(Param,FNs);
-Param[0]:=555;
+Param[0]:=ErResult;
 
 if not((FName='DiodLSM')or(FName='DiodLam')
     or(FName='PhotoDiodLSM')or(FName='PhotoDiodLam'))
@@ -5937,7 +5937,7 @@ if FName='PhotoDiodLSM' then VuhDatExpLightmAprox(FXmin)
  if FXmin[1]<0 then FXmin[1]:=1;
 
 
-   if FXmin[0]=555 then
+   if FXmin[0]=ErResult then
                 begin
                   WindowClear();
                   Exit;
@@ -6107,7 +6107,7 @@ if not(IsReady) then
    end;
 BeforeFitness(V);
 AproxN(V,Param);
-if Param[0]=555 then
+if Param[0]=ErResult then
   begin
       MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
       Exit;
@@ -6172,7 +6172,7 @@ end;
 //
 ////  ExpKalkNew(A,D,Mode,Light,Func,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
 //
-//  if EvolParam[0]=555 then
+//  if EvolParam[0]=ErResult then
 //          begin
 //            dispose(temp);
 //            dispose(temp_apr);
@@ -6231,10 +6231,10 @@ end;
 //
 //{if Iscbool then
 //  begin
-//   if (Rbool) and (Iph<>0)and(Iph<>555) then
+//   if (Rbool) and (Iph<>0)and(Iph<>ErResult) then
 //     for j:=0 to High(temp^.X) do
 //        temp^.Y[j]:=temp^.Y[j]+Iph;
-//   if not(Rbool) and (Isc0<>0)and(Isc0<>555) then
+//   if not(Rbool) and (Isc0<>0)and(Isc0<>ErResult) then
 //     for j:=0 to High(temp^.X) do
 //        temp^.Y[j]:=temp^.Y[j]+Isc0;
 //  end;}

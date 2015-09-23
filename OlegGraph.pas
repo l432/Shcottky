@@ -297,9 +297,9 @@ Procedure MikhKalk(A:PVector; D:Diapazon; DD:TDiodSample;
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
 якщо температура не задана, то визначається
-лише Rs та I0, решті величин присвоюється значення 555;
+лише Rs та I0, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати функцію Громова,
-то і ці величини 555;
+то і ці величини ErResult;
 AA - стала Річардсона,
 Szr - площа контакту}
 
@@ -554,9 +554,9 @@ Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
 якщо температура не задана, то визначається
-лише Rs, решті величин присвоюється значення 555;
+лише Rs, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати функцію Громова,
-то і Rs=555}
+то і Rs=ErResult}
 
 Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
@@ -567,9 +567,9 @@ Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
 якщо температура не задана, то визначається
-лише Rs, решті величин присвоюється значення 555;
+лише Rs, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати функцію Громова,
-то і Rs=555}
+то і Rs=ErResult}
 
 Procedure BohlinKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma1,Gamma2:double;
                    var Rs:double; var n:double;
@@ -596,9 +596,9 @@ Procedure LeeKalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
 якщо температура не задана, то визначається
-лише Rs, решті величин присвоюється значення 555;
+лише Rs, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати функцію Лі,
-то і Rs=555}
+то і Rs=ErResult}
 
 Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;
 {знаходить ординату точки з абсцисою Х3,
@@ -616,7 +616,7 @@ function ChisloY (A:Pvector; X:double):double;
 входила б до функціональної залежності,
 записаної в А;
 якщо Х не належить діапазону зміни
-абсцис вектора А, то повертається 555}
+абсцис вектора А, то повертається ErResult}
 
 function ChisloX (A:Pvector; Y:double):double;
 {визначає приблизну абсцису точки з
@@ -624,13 +624,13 @@ function ChisloX (A:Pvector; Y:double):double;
 входила б до функціональної залежності,
 записаної в А;
 якщо Y не належить діапазону зміни
-ординат вектора А, то повертається 555}
+ординат вектора А, то повертається ErResult}
 
 function Krect(A:Pvector; V:double):double;
 {обчислення коефіцієнту випрямлення
 за даними у векторі А при напрузі V;
 якщо точок в потрібному діапазоні немає -
-пишиться повідомлення і повертається 555}
+пишиться повідомлення і повертається ErResult}
 
 function IscCalc(A:Pvector):double;
 {обчислюється струм короткого замикання
@@ -644,7 +644,7 @@ Function Extrem (A:PVector):double;
 {знаходить абсцису екстремума функції,
 що знаходиться в А;
 вважаеться, що екстремум один;
-якщо екстремума немає - повертається 555;
+якщо екстремума немає - повертається ErResult;
 якщо екстремум не чіткий - значить будуть
 проблеми :-)}
 
@@ -1383,7 +1383,7 @@ DD - діод, N - фактор неідеальності}
  var i:word;
 begin
 B^.n:=0;
-if n=555 then Exit;
+if n=ErResult then Exit;
 if A^.T<=0 then Exit;
 PidgFun(A,B);
 if B^.n=0 then Exit;
@@ -1569,7 +1569,7 @@ if temp2^.n=0 then
 if temp2.n<3 then Break;
 
 GromovAprox (temp2,AA,BB,CC);
-if AA=555 then Break;
+if AA=ErResult then Break;
 
 B^.n:=B^.n+1;
 SetLength(B^.X, B^.n);
@@ -1594,7 +1594,7 @@ var i,j:integer;
      temp:double;
 begin
  B^.n:=0;
- if Rs=555 then Exit;
+ if Rs=ErResult then Exit;
 
  B^.N_begin:=-1;
  B^.N_end:=-1;
@@ -1647,7 +1647,7 @@ I/[1-exp(-qV/kT)] від напруги з
 var i:integer;
 begin
  B^.n:=0;
- if (Rs=555) or (A^.T<=0) then Exit;
+ if (Rs=ErResult) or (A^.T<=0) then Exit;
  ForwardIVwithRs(A,B,Rs);
  for i:=0 to High(B^.X) do
    B^.Y[i]:=B^.Y[i]/(1-exp(-B^.X[i]/Kb/A^.T));
@@ -1662,7 +1662,7 @@ var i:integer;
      temp:PVector;
 begin
  B^.n:=0;
- if (Rs=555) or (A^.T<=0) then Exit;
+ if (Rs=ErResult) or (A^.T<=0) then Exit;
  new(temp);
  ReverseIV(A,temp);
  if temp^.n=0 then Exit;
@@ -1845,7 +1845,7 @@ var temp:Pvector;
     boolXY:array of boolean;
 begin
 B^.n:=0;
-if (Fb=555)then Exit;
+if (Fb=ErResult)then Exit;
 
 new(temp);
 if nV then N_V_Fun(A,temp,Rs)
@@ -1928,9 +1928,9 @@ var i,j:integer;
     temp:PVector;
 begin
 B^.n:=0;
-if (Rs=555)then Exit;
+if (Rs=ErResult)then Exit;
 IvanovKalk(A,D,Rs,DD,del,Fb);
-if (Fb=555)or(del<=0) then Exit;
+if (Fb=ErResult)or(del<=0) then Exit;
 new(temp);
 A_B_Diapazon(A,A,temp,D);
 if temp^.n=0 then
@@ -2005,8 +2005,8 @@ var temp:Pvector;
     i:integer;
     Param:array of double;
 begin
-del:=555;
-Fb:=555;
+del:=ErResult;
+Fb:=ErResult;
 if (V^.T<=0)or(V^.n=0) then Exit;
 SetLength(Param,6);
 new(temp);
@@ -2274,23 +2274,23 @@ begin
 
     if (Lim.MinXY=0) and (Lim.MaxXY=0)
      then
-      boolXY[i]:=((Lim.MinValue[0]=555)or(A1^.X[i+A^.N_begin]>Lim.MinValue[0]))
-       and ((Lim.MaxValue[0]=555)or(A1^.X[i+A^.N_begin]<Lim.MaxValue[0]));
+      boolXY[i]:=((Lim.MinValue[0]=ErResult)or(A1^.X[i+A^.N_begin]>Lim.MinValue[0]))
+       and ((Lim.MaxValue[0]=ErResult)or(A1^.X[i+A^.N_begin]<Lim.MaxValue[0]));
 
     if (Lim.MinXY=0) and (Lim.MaxXY=1)
      then
-      boolXY[i]:=((Lim.MinValue[0]=555)or(A1^.X[i+A^.N_begin]>Lim.MinValue[0]))
-       and ((Lim.MaxValue[1]=555) or (A1^.Y[i+A^.N_begin]<Lim.MaxValue[1]));
+      boolXY[i]:=((Lim.MinValue[0]=ErResult)or(A1^.X[i+A^.N_begin]>Lim.MinValue[0]))
+       and ((Lim.MaxValue[1]=ErResult) or (A1^.Y[i+A^.N_begin]<Lim.MaxValue[1]));
 
     if (Lim.MinXY=1) and (Lim.MaxXY=1)
      then
-      boolXY[i]:=((Lim.MinValue[1]=555)or(A1^.Y[i+A^.N_begin]>Lim.MinValue[1]))
-       and ((Lim.MaxValue[1]=555)or(A1^.Y[i+A^.N_begin]<Lim.MaxValue[1]));
+      boolXY[i]:=((Lim.MinValue[1]=ErResult)or(A1^.Y[i+A^.N_begin]>Lim.MinValue[1]))
+       and ((Lim.MaxValue[1]=ErResult)or(A1^.Y[i+A^.N_begin]<Lim.MaxValue[1]));
 
     if (Lim.MinXY=1) and (Lim.MaxXY=0)
      then
-      boolXY[i]:=((Lim.MinValue[1]=555)or(A1^.Y[i+A^.N_begin]>Lim.MinValue[1]))
-       and ((Lim.MaxValue[0]=555)or(A1^.X[i+A^.N_begin]<Lim.MaxValue[0]));
+      boolXY[i]:=((Lim.MinValue[1]=ErResult)or(A1^.Y[i+A^.N_begin]>Lim.MinValue[1]))
+       and ((Lim.MaxValue[0]=ErResult)or(A1^.X[i+A^.N_begin]<Lim.MaxValue[0]));
 
      if boolXY[i] then j:=j+1;
    end;
@@ -2335,16 +2335,16 @@ begin
 Xmax:=false;Ymax:=false;Xmin:=false;Ymin:=false;
 case Dp.Br of
  'F':begin
-    Xmax:=(Dp.XMax=555)or(Original^.X[k+Secondary.N_begin]<Dp.XMax);
-    Xmin:=(Dp.XMin=555)or(Original^.X[k+Secondary.N_begin]>Dp.XMin);
-    Ymax:=(Dp.YMax=555)or(Original^.Y[k+Secondary.N_begin]<Dp.YMax);
-    Ymin:=(Dp.YMin=555)or(Original^.Y[k+Secondary.N_begin]>Dp.YMin);
+    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]<Dp.XMax);
+    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]>Dp.XMin);
+    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]<Dp.YMax);
+    Ymin:=(Dp.YMin=ErResult)or(Original^.Y[k+Secondary.N_begin]>Dp.YMin);
      end;
  'R':begin
-    Xmax:=(Dp.XMax=555)or(Original^.X[k+Secondary.N_begin]>-Dp.XMax);
-    Xmin:=(Dp.XMin=555)or(Original^.X[k+Secondary.N_begin]<-Dp.XMin);
-    Ymax:=(Dp.YMax=555)or(Original^.Y[k+Secondary.N_begin]>-Dp.YMax);
-    Ymin:=(Dp.YMin=555)or(Original^.Y[k+Secondary.N_begin]<-Dp.YMin);
+    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]>-Dp.XMax);
+    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]<-Dp.XMin);
+    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]>-Dp.YMax);
+    Ymin:=(Dp.YMin=ErResult)or(Original^.Y[k+Secondary.N_begin]<-Dp.YMin);
     end;
  end; //case
  Result:=Xmax and Xmin and Ymax and Ymin;
@@ -2361,14 +2361,14 @@ begin
 Xmax:=false;Ymax:=false;Xmin:=false;
 case Dp.Br of
  'F':begin
-    Xmax:=(Dp.XMax=555)or(Original^.X[k+Secondary.N_begin]<Dp.XMax);
-    Xmin:=(Dp.XMin=555)or(Original^.X[k+Secondary.N_begin]>=Dp.XMin);
-    Ymax:=(Dp.YMax=555)or(Original^.Y[k+Secondary.N_begin]<Dp.YMax);
+    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]<Dp.XMax);
+    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]>=Dp.XMin);
+    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]<Dp.YMax);
      end;
  'R':begin
-    Xmax:=(Dp.XMax=555)or(Original^.X[k+Secondary.N_begin]>-Dp.XMax);
-    Xmin:=(Dp.XMin=555)or(Original^.X[k+Secondary.N_begin]<=-Dp.XMin);
-    Ymax:=(Dp.YMax=555)or(Original^.Y[k+Secondary.N_begin]>-Dp.YMax);
+    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]>-Dp.XMax);
+    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]<=-Dp.XMin);
+    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]>-Dp.YMax);
     end;
  end; //case
  Result:=Xmax and Xmin and Ymax;
@@ -2380,11 +2380,11 @@ Procedure ChungKalk(A:PVector; D:Diapazon; var Rs:double; var n:double);
 лінійної апроксимації функції Чюнга (з врахуванням
 обмежень, вказаних в D, визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n;
-якщо A^.T<=0, то n=555 і розраховується лише Rs}
+якщо A^.T<=0, то n=ErResult і розраховується лише Rs}
 var temp1, temp2:Pvector;
 begin
-Rs:=555;
-n:=555;
+Rs:=ErResult;
+n:=ErResult;
 new(temp1);
 ChungFun(A,temp1);         // в temp1 повна функція Чюнга
 if temp1^.n=0 then
@@ -2401,7 +2401,7 @@ if temp2^.n<2 then
   {в temp2 лінійна частина функції Чюнга
   (якщо вдало вибрано діапазон)}
 LinAprox(temp2,n,Rs);
-if A^.T<=0 then n:=555
+if A^.T<=0 then n:=ErResult
            else n:=n/Kb/A^.T;
 
 dispose(temp1);dispose(temp2);
@@ -2419,8 +2419,8 @@ var temp1, temp2:Pvector;
 //    Np,i,Ntemp:integer;
 //    Xtemp:double;
 begin
-//Rs:=555;
-//n:=555;
+//Rs:=ErResult;
+//n:=ErResult;
 //if A^.T<=0 then Exit;
 //new(temp1);
 //WernerFun(A,temp1);         // в temp1 повна функція Вернера
@@ -2483,8 +2483,8 @@ begin
 //dispose(temp1);dispose(temp2);
 //Dtemp.Free;
 
-Rs:=555;
-n:=555;
+Rs:=ErResult;
+n:=ErResult;
 if A^.T<=0 then Exit;
 new(temp1);
 WernerFun(A,temp1);         // в temp1 повна функція Вернера
@@ -2517,18 +2517,18 @@ Procedure MikhKalk(A:PVector; D:Diapazon; DD:TDiodSample;
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
 якщо температура не задана, то визначається
-лише Rs та I0, решті величин присвоюється значення 555;
+лише Rs та I0, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати Alpha-функцію Міхелешвілі,
-то і ці величини 555;
+то і ці величини ErResult;
 AA - стала Річардсона,
 Szr - площа контакту}
 var temp1,temp2:PVector;
     Alpha_m,Vm,Im:double;
 begin
-Rs:=555;
-n:=555;
-Fb:=555;
-I0:=555;
+Rs:=ErResult;
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
 
 //QueryPerformanceCounter(StartValue);
 
@@ -2569,7 +2569,7 @@ until False;
 діапазон D }
 
 Vm:=Extrem(temp2);
-if Vm=555 then
+if Vm=ErResult then
             begin
              dispose(temp2);
              dispose(temp1);
@@ -2582,7 +2582,7 @@ I0:=Im*exp(-Alpha_m-1);
 if A^.T>0 then
    begin
    n:=Vm*(Alpha_m-1)/Kb/A^.T/sqr(Alpha_m);
-   Fb:=Kb*A^.T*Alpha_m+1+DD.Fb(A^.T,Im);
+   Fb:=Kb*A^.T*(Alpha_m+1)+DD.Fb(A^.T,Im);
 //   Fb:=Kb*A^.T*(Alpha_m+1-ln(Im/Szr/AA/sqr(A^.T)));
    end;
 
@@ -2608,9 +2608,9 @@ Procedure HFunKalk(A:Pvector; D:Diapazon; DD:TDiodSample; N:double;
 N - фактор неідеальності}
 var temp1, temp2:Pvector;
 begin
-Rs:=555;
-Fb:=555;
-if N=555 then Exit;
+Rs:=ErResult;
+Fb:=ErResult;
+if N=ErResult then Exit;
 
 new(temp1);
 HFun(A,temp1,DD,N);         // в temp1 повна H-функція
@@ -2655,10 +2655,10 @@ Szr - площа контакту}
 var temp1,temp2:Pvector;
     i:integer;
 begin
-n:=555;
-Fb:=555;
-I0:=555;
-if (Rs=555)or(DD.Material.ARich=555)or(DD.Area=555)or(A^.T<=0)
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
+if (Rs=ErResult)or(DD.Material.ARich=ErResult)or(DD.Area=ErResult)or(A^.T<=0)
      then Exit;
 
 new(temp2);
@@ -2720,10 +2720,10 @@ var temp1,temp2:Pvector;
     i:integer;
     n_temp:double;
 begin
-//n:=555;
-Fb:=555;
-I0:=555;
-if (Rs=555)or(DD.Area=555)or(DD.Material.ARich=555)or(A^.T<=0) then Exit;
+//n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
+if (Rs=ErResult)or(DD.Area=ErResult)or(DD.Material.ARich=ErResult)or(A^.T<=0) then Exit;
 
 new(temp2);
 case Index of
@@ -2773,10 +2773,10 @@ Szr - площа контакту}
 var {temp1,}temp2:Pvector;
     i:integer;
 begin
-n:=555;
-Fb:=555;
-I0:=555;
-if (DD.Material.ARich=555)or(DD.Area=555)or(A^.T<=0) then Exit;
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
+if (DD.Material.ARich=ErResult)or(DD.Area=ErResult)or(A^.T<=0) then Exit;
 
 new(temp2);
 IVchar(A,temp2);
@@ -2836,12 +2836,12 @@ var temp1:Pvector;
     i,rez:integer;
     Xr:IRE;
 begin
-if (D.YMin=555) or (D.YMin<=0) then D.YMin:=0;
-if (D.XMin=555) then D.XMin:=0.001;
-n:=555;
-Fb:=555;
-I0:=555;
-if Rs=555 then Exit;
+if (D.YMin=ErResult) or (D.YMin<=0) then D.YMin:=0;
+if (D.XMin=ErResult) then D.XMin:=0.001;
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
+if Rs=ErResult then Exit;
 
 new(temp1);
 A_B_Diapazon(A,A,temp1,D);
@@ -2908,18 +2908,18 @@ end;
 //var temp1:Pvector;
 //    Param:TArrSingle;
 //begin
-//if (D.YMin=555) or (D.YMin<=0) then D.YMin:=0;
-//if (D.XMin=555) then D.XMin:=0.001;
-//n:=555;
-//Fb:=555;
-//I0:=555;
-//Rs:=555;
-//Rsh:=555;
-//Iph:=555;
-//Voc:=555;
-//Isc:=555;
-//Pm:=555;
-//FF:=555;
+//if (D.YMin=ErResult) or (D.YMin<=0) then D.YMin:=0;
+//if (D.XMin=ErResult) then D.XMin:=0.001;
+//n:=ErResult;
+//Fb:=ErResult;
+//I0:=ErResult;
+//Rs:=ErResult;
+//Rsh:=ErResult;
+//Iph:=ErResult;
+//Voc:=ErResult;
+//Isc:=ErResult;
+//Pm:=ErResult;
+//FF:=ErResult;
 //
 //new(temp1);
 //A_B_Diapazon(Light,A,temp1,D);
@@ -2953,9 +2953,9 @@ end;
 //              end;
 //            end; //'2'
 //        end;// case Func of
-//        if (Voc>0.002)and(Isc>1e-7)and(Voc<>555)and(Isc<>555) then
+//        if (Voc>0.002)and(Isc>1e-7)and(Voc<>ErResult)and(Isc<>ErResult) then
 //            Pm:=Voc_Isc_Pm(3,temp1,n,Rs,I0,Rsh,Iph);
-//        if (Voc<>0)and(Voc<>555)and(Isc<>0)and(Isc<>555) then
+//        if (Voc<>0)and(Voc<>ErResult)and(Isc<>0)and(Isc<>ErResult) then
 //           FF:=Pm/Voc/Isc;
 //       end //then      if Light then
 //           else
@@ -2973,15 +2973,15 @@ end;
 //           end;
 //        end;
 //except
-// n:=555;
+// n:=ErResult;
 //end;
-//if n=555 then
+//if n=ErResult then
 //  begin
 //  dispose(temp1);
 //  Exit;
 //  end;
 //dispose(temp1);
-//if (Szr<>0)and(Szr<>555)and(AA<>0)and(AA<>555) then
+//if (Szr<>0)and(Szr<>ErResult)and(AA<>0)and(AA<>ErResult) then
 //   Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
 //end;
 //
@@ -3016,18 +3016,18 @@ end;
 //var temp1:Pvector;
 //    Param:TArrSingle;
 //begin
-//if (D.YMin=555) or (D.YMin<=0) then D.YMin:=0;
-//if (D.XMin=555) then D.XMin:=0.001;
-//n:=555;
-////Fb:=555;
-//I0:=555;
-//Rs:=555;
-//Rsh:=555;
-//Iph:=555;
-//Voc:=555;
-//Isc:=555;
-//Pm:=555;
-//FF:=555;
+//if (D.YMin=ErResult) or (D.YMin<=0) then D.YMin:=0;
+//if (D.XMin=ErResult) then D.XMin:=0.001;
+//n:=ErResult;
+////Fb:=ErResult;
+//I0:=ErResult;
+//Rs:=ErResult;
+//Rsh:=ErResult;
+//Iph:=ErResult;
+//Voc:=ErResult;
+//Isc:=ErResult;
+//Pm:=ErResult;
+//FF:=ErResult;
 //
 //new(temp1);
 //A_B_Diapazon(Light,A,temp1,D);
@@ -3060,9 +3060,9 @@ end;
 //              Voc:=Voc_Isc_Pm(1,temp1,n,Rs,I0,Rsh,Iph);
 //              Isc:=Voc_Isc_Pm(2,temp1,n,Rs,I0,Rsh,Iph);
 //              end;
-//        if (Voc>0.002)and(Isc>1e-7)and(Voc<>555)and(Isc<>555) then
+//        if (Voc>0.002)and(Isc>1e-7)and(Voc<>ErResult)and(Isc<>ErResult) then
 //            Pm:=Voc_Isc_Pm(3,temp1,n,Rs,I0,Rsh,Iph);
-//        if (Voc<>0)and(Voc<>555)and(Isc<>0)and(Isc<>555) then
+//        if (Voc<>0)and(Voc<>ErResult)and(Isc<>0)and(Isc<>ErResult) then
 //           FF:=Pm/Voc/Isc;
 //       end //then      if Light then
 //
@@ -3080,7 +3080,7 @@ end;
 //          Rsh:=Param[3];
 //       end;
 //except
-// n:=555;
+// n:=ErResult;
 //end;
 //dispose(temp1);
 //end;
@@ -3116,20 +3116,20 @@ end;
 //var temp1:Pvector;
 //    Param:TArrSingle;
 //begin
-//if (D.YMin=555) or (D.YMin<=0) then D.YMin:=0;
-//if (D.XMin=555) then D.XMin:=0.001;
+//if (D.YMin=ErResult) or (D.YMin<=0) then D.YMin:=0;
+//if (D.XMin=ErResult) then D.XMin:=0.001;
 ////showmessage(floattostr(D.XMin));
-//n1:=555;
-//I01:=555;
-//n2:=555;
-//I02:=555;
-//Rs:=555;
-//Rsh:=555;
-//Iph:=555;
-//Voc:=555;
-//Isc:=555;
-//Pm:=555;
-//FF:=555;
+//n1:=ErResult;
+//I01:=ErResult;
+//n2:=ErResult;
+//I02:=ErResult;
+//Rs:=ErResult;
+//Rsh:=ErResult;
+//Iph:=ErResult;
+//Voc:=ErResult;
+//Isc:=ErResult;
+//Pm:=ErResult;
+//FF:=ErResult;
 //
 //new(temp1);
 //A_B_Diapazon(Light,A,temp1,D);
@@ -3169,10 +3169,10 @@ end;
 //              Isc:=Voc_Isc_Pm_DoubleDiod(2,Param[0]*Kb*A^.T,Param[4]*Kb*A^.T,
 //               Param[1],Param[2],Param[5],Param[3],Param[6]);
 //              end;
-//        if (Voc>0.002)and(Isc>1e-7)and(Voc<>555)and(Isc<>555) then
+//        if (Voc>0.002)and(Isc>1e-7)and(Voc<>ErResult)and(Isc<>ErResult) then
 //            Pm:=Voc_Isc_Pm_DoubleDiod(3,Param[0]*Kb*A^.T,Param[4]*Kb*A^.T,
 //               Param[1],Param[2],Param[5],Param[3],Param[6]);
-//        if (Voc<>0)and(Voc<>555)and(Isc<>0)and(Isc<>555) then
+//        if (Voc<>0)and(Voc<>ErResult)and(Isc<>0)and(Isc<>ErResult) then
 //           FF:=Pm/Voc/Isc;
 //       end //then      if Light then
 //
@@ -3192,7 +3192,7 @@ end;
 //         I02:=Param[5];
 //       end;
 //except
-// n:=555;
+// n:=ErResult;
 //end;
 //dispose(temp1);
 //end;
@@ -3209,14 +3209,14 @@ end;
 //    I1,I2:double;
 //
 //begin
-//if (D.YMin=555) or (D.YMin<=0) then D.YMin:=0;
-//if (D.XMin=555) then D.XMin:=0.001;
-//n:=555;
-//Fb:=555;
-//I0:=555;
-//Rs:=555;
-//Iph:=555;
-//FF:=555;
+//if (D.YMin=ErResult) or (D.YMin<=0) then D.YMin:=0;
+//if (D.XMin=ErResult) then D.XMin:=0.001;
+//n:=ErResult;
+//Fb:=ErResult;
+//I0:=ErResult;
+//Rs:=ErResult;
+//Iph:=ErResult;
+//FF:=ErResult;
 //
 //new(temp1);
 //A_B_Diapazon(False,A,temp1,D);
@@ -3248,15 +3248,15 @@ end;
 // Str1.SaveToFile(copy(A^.name,1,length(A^.name)-5)+'t.dat');
 // Str1.Free;
 //except
-// n:=555;
+// n:=ErResult;
 //end;
-//if n=555 then
+//if n=ErResult then
 //  begin
 //  dispose(temp1);
 //  Exit;
 //  end;
 //dispose(temp1);
-//if (Szr<>0)and(Szr<>555)and(AA<>0)and(AA<>555) then
+//if (Szr<>0)and(Szr<>ErResult)and(AA<>0)and(AA<>ErResult) then
 //   Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
 //end;
 
@@ -3270,15 +3270,15 @@ end;
 //    I1,I2:double;
 //
 //begin
-//if (D.YMin=555) or (D.YMin<=0) then D.YMin:=0;
-//if (D.XMin=555) then D.XMin:=0.001;
-//n:=555;
-//Fb:=555;
-//I0:=555;
-//Rs:=555;
-//Iph:=555;
-//Voc:=555;
-//Isc:=555;
+//if (D.YMin=ErResult) or (D.YMin<=0) then D.YMin:=0;
+//if (D.XMin=ErResult) then D.XMin:=0.001;
+//n:=ErResult;
+//Fb:=ErResult;
+//I0:=ErResult;
+//Rs:=ErResult;
+//Iph:=ErResult;
+//Voc:=ErResult;
+//Isc:=ErResult;
 //
 //new(temp1);
 //A_B_Diapazon(False,A,temp1,D);
@@ -3310,15 +3310,15 @@ end;
 // Str1.SaveToFile(copy(A^.name,1,length(A^.name)-5)+'t.dat');
 // Str1.Free;
 //except
-// n:=555;
+// n:=ErResult;
 //end;
-//if n=555 then
+//if n=ErResult then
 //  begin
 //  dispose(temp1);
 //  Exit;
 //  end;
 //dispose(temp1);
-//if (Szr<>0)and(Szr<>555)and(AA<>0)and(AA<>555) then
+//if (Szr<>0)and(Szr<>ErResult)and(AA<>0)and(AA<>ErResult) then
 //   Fb:=Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
 //end;
 //
@@ -3333,9 +3333,9 @@ Procedure NordDodat(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double;
 яке відповідає V0 у вихідних даних}
 var temp1,temp2:Pvector;
 begin
-V0:=555;
-I0:=555;
-F0:=555;
+V0:=ErResult;
+I0:=ErResult;
+F0:=ErResult;
 new(temp1);
 NordeFun(A,temp1,DD,Gamma);    // в temp1 повна функція Норда
 if temp1^.n=0 then
@@ -3387,13 +3387,13 @@ Gamma - параметр гамма (див формулу)
 n - показник ідеальності}
 var V0,I0,F0:double;
 begin
-Rs:=555;
-Fb:=555;
+Rs:=ErResult;
+Fb:=ErResult;
 
 NordDodat(A,D,DD,Gamma,V0,I0,F0);
-if V0=555 then Exit;
+if V0=ErResult then Exit;
 
-if n<>555 then
+if n<>ErResult then
      begin
      Fb:=F0+(Gamma-n)/n*(V0/Gamma-Kb*A^.T);
      Rs:=Kb*A^.T*(Gamma-n)/I0;
@@ -3411,8 +3411,8 @@ Procedure CibilsKalk(const A:Pvector; const D:Diapazon;
 var temp1:Pvector;
     a0,b0:double;
 begin
-Rs:=555;
-n:=555;
+Rs:=ErResult;
+n:=ErResult;
 new(temp1);
 CibilsFun(A,D,temp1);
 if temp1^.n<2 then
@@ -3445,9 +3445,9 @@ Rs - послідовний опір, апроксимацію потрібно проводити
 }
 var temp,temp2:PVector;
 begin
-del:=555;
-Fb:=555;
-if Rs=555 then Exit;
+del:=ErResult;
+Fb:=ErResult;
+if Rs=ErResult then Exit;
 new(temp);
 ForwardIVwithRs(A,temp,Rs);
 if temp^.n=0 then
@@ -3473,20 +3473,20 @@ Procedure Kam1Kalk (A:Pvector; D:Diapazon; var Rs:double; var n:double);
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n;
-якщо A^.T<=0, то n=555 і розраховується лише Rs}
+якщо A^.T<=0, то n=ErResult і розраховується лише Rs}
 var temp1:Pvector;
 begin
 new(temp1);
 Kam1_Fun(A,temp1,D);    // в temp1 повна функція Камінськи І-роду
 if temp1^.n=0 then
     begin
-     Rs:=555;
-     n:=555;
+     Rs:=ErResult;
+     n:=ErResult;
      dispose(temp1);
      Exit;
     end;
 LinAprox(temp1,n,Rs);
-if A^.T<=0 then n:=555
+if A^.T<=0 then n:=ErResult
            else n:=n/Kb/A^.T;
 dispose(temp1);
 end;
@@ -3499,8 +3499,8 @@ Procedure Kam2Kalk (const A:Pvector; const D:Diapazon; out Rs:double; out n:doub
 послідовного опору Rs та коефіцієнта неідеальності n}
 var temp1:Pvector;
 begin
-Rs:=555;
-n:=555;
+Rs:=ErResult;
+n:=ErResult;
 
 new(temp1);
 Kam2_Fun(A,temp1,D);    // в temp1 повна функція Камінськи ІІ-роду
@@ -3512,7 +3512,7 @@ if temp1^.n<2 then
 LinAprox(temp1,Rs,n);
 Rs:=-Rs/n;
 if A^.T>0 then n:=1/n/Kb/A^.T
-          else n:=555;
+          else n:=ErResult;
 dispose(temp1);
 end;
 
@@ -3528,9 +3528,9 @@ Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
 якщо температура не задана, то визначається
-лише Rs, решті величин присвоюється значення 555;
+лише Rs, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати функцію Громова,
-то і Rs=555}
+то і Rs=ErResult}
 var temp1,temp2:Pvector;
     C0,C1,C2:double;
     Dtemp:Diapazon;
@@ -3541,10 +3541,10 @@ begin
 
 new(temp1);
 new(DDD);
-Rs:=555;
-n:=555;
-Fb:=555;
-I0:=555;
+Rs:=ErResult;
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
 Dtemp:=Diapazon.Create;
 Dtemp.Copy(D);
 
@@ -3570,7 +3570,7 @@ repeat
   DDD^.X[Np-1]:=Dtemp.Xmin;
 
 //  if (C0<=0)or(C1<0)or(C2<=0) then
-//      DDD^.Y[Np-1]:=555
+//      DDD^.Y[Np-1]:=ErResult
 //                               else
 
 
@@ -3579,7 +3579,7 @@ repeat
      try
      DDD^.Y[Np-1]:=DDD^.Y[Np-1]+sqr(1-Full_IV(A^.X[j],C2,C1,exp(-C0/C2),1e13,0)/A^.Y[j]);
      except
-      DDD^.Y[Np-1]:=555
+      DDD^.Y[Np-1]:=ErResult
      end;
      end;
 
@@ -3611,10 +3611,10 @@ dispose(temp2);
 dispose(DDD);
 
 //new(temp1);
-//Rs:=555;
-//n:=555;
-//Fb:=555;
-//I0:=555;
+//Rs:=ErResult;
+//n:=ErResult;
+//Fb:=ErResult;
+//I0:=ErResult;
 //A_B_Diapazon(A,A,temp1,D);
 //// в temp1 ті точки з А, які задовольняють D
 //if temp1^.n<3 then
@@ -3651,7 +3651,7 @@ Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 другого роду визначаються величини
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
-якщо температура не задана, то всі величини рівні 555}
+якщо температура не задана, то всі величини рівні ErResult}
 var temp1,temp2:Pvector;
     C0,C1,C2:double;
 //    Dtemp:Diapazon;
@@ -3659,10 +3659,10 @@ var temp1,temp2:Pvector;
 //    DDD:Pvector;
 
 begin
-Rs:=555;
-n:=555;
-Fb:=555;
-I0:=555;
+Rs:=ErResult;
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
 if A^.T<=0 then Exit;
 
 
@@ -3703,14 +3703,14 @@ if A^.T<=0 then Exit;
 //  DDD^.X[Np-1]:=Dtemp.Xmin;
 //
 //  if (Rs<0)or(n<=0) then
-//      DDD^.Y[Np-1]:=555
+//      DDD^.Y[Np-1]:=ErResult
 //                               else
 //
 //   for j := 0 to High(A^.X) do
 //     try
 //     DDD^.Y[Np-1]:=DDD^.Y[Np-1]+sqr(1-Full_IV(A^.X[j],n*Kb*A^.T,Rs,I0,1e13,0)/A^.Y[j]);
 //     except
-//      DDD^.Y[Np-1]:=555
+//      DDD^.Y[Np-1]:=ErResult
 //     end;
 //
 //  inc(i);
@@ -3785,14 +3785,14 @@ Gamma - параметр гамма,
 на дві десятих більше ніж Gamma}
 var V01,V02,I01,I02,F01,F02,temp:double;
 begin
-Rs:=555;
-n:=555;
-Fb:=555;
-I0:=555;
+Rs:=ErResult;
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
 
 NordDodat(A,D,DD,Gamma1,V01,I01,F01);
 NordDodat(A,D,DD,Gamma2,V02,I02,F02);
-if (V01=555) or (V02=555) then Exit;
+if (V01=ErResult) or (V02=ErResult) then Exit;
 
 temp:=(V01-V02+(Gamma2-Gamma1)*Kb*A^.T)/(F02-F01-V02/Gamma2+V01/Gamma1);
 n:=((Gamma1*I02-Gamma2*I01)/(I02-I01));
@@ -3822,9 +3822,9 @@ Procedure LeeKalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 послідовного опору Rs, коефіцієнта неідеальності n,
 висоти бар'єру Fb та струму насичення І0;
 якщо температура не задана, то визначається
-лише Rs, решті величин присвоюється значення 555;
+лише Rs, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати функцію Лі,
-то і Rs=555}
+то і Rs=ErResult}
 var temp1:Pvector;
     a0,b0:double;
 //    Dtemp:Diapazon;
@@ -3833,10 +3833,10 @@ var temp1:Pvector;
 
 begin
 
-Rs:=555;
-n:=555;
-Fb:=555;
-I0:=555;
+Rs:=ErResult;
+n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
 
 //-------------------------------------
 
@@ -3871,7 +3871,7 @@ I0:=555;
 //  DDD^.X[Np-1]:=Dtemp.Xmin;
 //
 //  if (Rs<0)or(n<=0) then
-//      DDD^.Y[Np-1]:=555*A^.n
+//      DDD^.Y[Np-1]:=ErResult*A^.n
 //                               else
 //
 //   for j := 0 to High(A^.X) do
@@ -3942,13 +3942,13 @@ function ChisloY (A:Pvector; X:double):double;
 входила б до функціональної залежності,
 записаної в А;
 якщо Х не належить діапазону зміни
-абсцис вектора А, то повертається 555}
+абсцис вектора А, то повертається ErResult}
 var i:integer;
     bool:boolean;
 begin
 bool:=false;
 i:=1;
-Result:=555;
+Result:=ErResult;
 repeat
  if ((A^.X[i]-X)*(A^.X[i-1]-X))<=0 then
    begin
@@ -3965,12 +3965,12 @@ function ChisloX (A:Pvector; Y:double):double;
 входила б до функціональної залежності,
 записаної в А;
 якщо Y не належить діапазону зміни
-ординат вектора А, то повертається 555}
+ординат вектора А, то повертається ErResult}
 var i:integer;
     bool:boolean;
 begin
 bool:=false;i:=1;
-Result:=555;
+Result:=ErResult;
 repeat
  if ((A^.Y[i]-Y)*(A^.Y[i-1]-Y))<=0 then
    begin
@@ -3985,13 +3985,13 @@ function Krect(A:Pvector; V:double):double;
 {обчислення коефіцієнту випрямлення
 за даними у векторі А при напрузі V;
 якщо точок в потрібному діапазоні немає -
-пишиться повідомлення і повертається 555}
+пишиться повідомлення і повертається ErResult}
 var temp1, temp2:double;
 begin
-   Result:=555;
+   Result:=ErResult;
    temp1:=ChisloY(A,V);
    temp2:=ChisloY(A,-V);
-   if (temp1=555)or(temp2=555) then Exit;
+   if (temp1=ErResult)or(temp2=ErResult) then Exit;
    if (temp2<>0) then Result:=abs(temp1/temp2);
 end;
 
@@ -4004,12 +4004,12 @@ begin
  if A^.n<2 then Exit;
  temp:=ChisloY(A,0);
  temp2:=ChisloY(A,0.01);
- if {(temp=555)or
-    (temp2=555)or
+ if {(temp=ErResult)or
+    (temp2=ErResult)or
     (temp>=0)or  }
     (abs(temp2/temp)>2) then Exit
              else Result:=-temp;
- if temp=555 then
+ if temp=ErResult then
       Result:=(-A^.Y[1]*A^.X[0]+A^.Y[0]*A^.X[1])/(A^.X[0]-A^.X[1]);
 end;
 
@@ -4020,7 +4020,7 @@ var temp:double;
 begin
  Result:=0;
  temp:=ChisloX(A,0);
- if (temp=555)or
+ if (temp=ErResult)or
     (temp<=0) then Exit
               else Result:=temp;
 end;
@@ -4029,7 +4029,7 @@ Function Extrem (A:PVector):double;
 {знаходить абсцису екстремума функції,
 що знаходиться в А;
 вважаеться, що екстремум один;
-якщо екстремума немає - повертається 555;
+якщо екстремума немає - повертається ErResult;
 якщо екстремум не чіткий - значить будуть
 проблеми :-)}
 var temp:PVector;
@@ -4200,7 +4200,7 @@ end;
 //    Fa:=aSdal_LamLightShot(V,num,a,F,X[0],X[1],X[2],X[3],X[4]);
 ////    Fa:=aSdal_ExpLightShot(V,num,a,F,X[0],X[1],X[2],X[3],X[4]);
 //
-//    if Fa=555 then Exit;
+//    if Fa=ErResult then Exit;
 //
 //    if Fa=0 then
 //               begin
@@ -4225,7 +4225,7 @@ end;
 //                  Exit;
 //                end;
 // //    showmessage('fffb== '+FLOATTOSTR(Fb));
-//    if Fb=555 then break//b:=b/10
+//    if Fb=ErResult then break//b:=b/10
 //              else
 //                 begin
 //                 if Fb*Fa<=0 then break
@@ -4248,7 +4248,7 @@ end;
 ////      Fb:=aSdal_LamShot(V,num,c,F,X[0],X[1],X[2],X[3]);
 // //     Fa:=aSdal_LamShot(V,num,a,F,X[0],X[1],X[2],X[3]);
 //
-//      if (Fb*Fa<=0) or (Fb=555)
+//      if (Fb*Fa<=0) or (Fb=ErResult)
 //       then b:=c
 //       else a:=c;
 //     until (i>1e5)or(abs((b-a)/c)<1e-2);
@@ -4499,10 +4499,10 @@ end;
 //
 //begin
 //ErStr:='';
-//I0:=555;
-//n:=555;
-//Rs:=555;
-//Rsh:=555;
+//I0:=ErResult;
+//n:=ErResult;
+//Rs:=ErResult;
+//Rsh:=ErResult;
 //if V^.n<7 then Exit;
 //
 //// i:=4;
@@ -4676,10 +4676,10 @@ mode0 = 3 - Rsh нескінченність + Rs нульовий
 }
 
 {begin
-I00:=555;
-n0:=555;
-Rs0:=555;
-Rsh0:=555;
+I00:=ErResult;
+n0:=ErResult;
+Rs0:=ErResult;
+Rsh0:=ErResult;
 mode:=mode0;
 Func:=Func0;
 new(Vec);
@@ -4779,7 +4779,7 @@ end;{}
 //      4:  Fa:=aSdal_LamLightShot(V,num,a,F,X[0],X[1],X[2],X[3],X[4]);
 //      else Fa:=aSdal_ExpShot(V,num,a,F,X[0],X[1],X[2],X[3]);
 //     end;
-//    if Fa=555 then Exit;
+//    if Fa=ErResult then Exit;
 //
 //    if Fa=0 then
 //               begin
@@ -4798,7 +4798,7 @@ end;{}
 //                  Result:=b;
 //                  Exit;
 //                end;
-//     if Fb=555 then break
+//     if Fb=ErResult then break
 //               else
 //                 begin
 //                 if Fb*Fa<=0 then break
@@ -4829,7 +4829,7 @@ end;{}
 //         Fa:=aSdal_ExpShot(V,num,a,F,X[0],X[1],X[2],X[3]);
 //         end;
 //     end;
-//     if (Fb*Fa<=0) or (Fb=555)
+//     if (Fb*Fa<=0) or (Fb=ErResult)
 //       then b:=c
 //       else a:=c;
 //     until (i>1e5)or(abs((b-a)/c)<1e-2);
@@ -4843,10 +4843,10 @@ end;{}
 //  var temp,temp2:Pvector;
 //      i,k:integer;
 //   begin
-//    n0:=555;
-//    Rs0:=555;
-//    I00:=555;
-//    Rsh0:=555;
+//    n0:=ErResult;
+//    Rs0:=ErResult;
+//    I00:=ErResult;
+//    Rsh0:=ErResult;
 //    if (VocCalc(V)<=0.002) then Exit;
 //    Iph0:=IscCalc(V);
 //    if (Iph0<=1e-8) then Exit;
@@ -4947,10 +4947,10 @@ end;{}
 //  var temp,temp2:Pvector;
 //      i,k:integer;
 //   begin
-//    n0:=555;
-//    Rs0:=555;
-//    I00:=555;
-//    Rsh0:=555;
+//    n0:=ErResult;
+//    Rs0:=ErResult;
+//    I00:=ErResult;
+//    Rsh0:=ErResult;
 //    new(temp);
 //    Diferen (V,temp);
 //  {фактично, в temp залеженість оберненого опору від напруги}
@@ -5039,9 +5039,9 @@ end;{}
 //  var temp,temp2:Pvector;
 //      i:integer;
 //   begin
-//    n0:=555;
-//    Rsh0:=555;
-//    Rs:=555;
+//    n0:=ErResult;
+//    Rsh0:=ErResult;
+//    Rs:=ErResult;
 //    Isc0:=IscCalc(V);
 //    Voc0:=VocCalc(V);
 //    if (Voc0<=0.002)or(Isc0<1e-8) then Exit;
@@ -5081,13 +5081,13 @@ end;{}
 //
 //
 //begin
-//I00:=555;
-//n0:=555;
-//Rs0:=555;
-//Rsh0:=555;
-//Isc0:=555;
-//Voc0:=555;
-//Iph0:=555;
+//I00:=ErResult;
+//n0:=ErResult;
+//Rs0:=ErResult;
+//Rsh0:=ErResult;
+//Isc0:=ErResult;
+//Voc0:=ErResult;
+//Iph0:=ErResult;
 //{mode:=mode0;
 //Func:=Func0;}
 //{new(Vec);
@@ -5210,7 +5210,7 @@ end;{}
 //   else VuhDatAprox (X[0],X[1],X[2],X[3]);
 // end;
 //
-// if X[0]=555 then Exit;
+// if X[0]=ErResult then Exit;
 //
 ////????????????????????
 //if (mode0=1)or(mode0=3) then X[3]:=1e12;
@@ -5343,13 +5343,13 @@ mode0 = 1 - вважається, що Rs нульовий(1е-4)
 mode0 = 3 - Rsh нескінченність + Rs нульовий
 }
 {begin
-I00:=555;
-n0:=555;
-Rs0:=555;
-Rsh0:=555;
-Isc0:=555;
-Voc0:=555;
-Iph0:=555;
+I00:=ErResult;
+n0:=ErResult;
+Rs0:=ErResult;
+Rsh0:=ErResult;
+Isc0:=ErResult;
+Voc0:=ErResult;
+Iph0:=ErResult;
 mode:=mode0;
 Func:=Func0;
 new(Vec);
@@ -5471,13 +5471,13 @@ a саме, методом дихотомії знаходиться екстремум функції Pm=I*V
       bool:boolean;
   begin
 
- Result:=555;
+ Result:=ErResult;
  if Vec^.T<=0 then Exit;
- if (Iph<=0) or (Iph=555) then Exit;
- if (I0<=0) or (I0=555) then Exit;
- if (n<=0) or (n=555) then Exit;
- if (Rs<0) or (Rs=555) then Exit;
- if (Rsh<=0) or (Rsh=555) then Exit;
+ if (Iph<=0) or (Iph=ErResult) then Exit;
+ if (I0<=0) or (I0=ErResult) then Exit;
+ if (n<=0) or (n=ErResult) then Exit;
+ if (Rs<0) or (Rs=ErResult) then Exit;
+ if (Rsh<=0) or (Rsh=ErResult) then Exit;
  if mode<1 then Exit;
  if mode>3 then Exit;
 
@@ -5586,13 +5586,13 @@ I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
       bool:boolean;
   begin
 
- Result:=555;
+ Result:=ErResult;
  if (E1<=0)or(E2<=0) then Exit;
- if (Iph<=0) or (Iph=555) then Exit;
- if (I01<=0) or (I01=555) then Exit;
- if (I02<=0) or (I02=555) then Exit;
- if (Rs<0) or (Rs=555) then Exit;
- if (Rsh<=0) or (Rsh=555) then Exit;
+ if (Iph<=0) or (Iph=ErResult) then Exit;
+ if (I01<=0) or (I01=ErResult) then Exit;
+ if (I02<=0) or (I02=ErResult) then Exit;
+ if (Rs<0) or (Rs=ErResult) then Exit;
+ if (Rsh<=0) or (Rsh=ErResult) then Exit;
  if mode<1 then Exit;
  if mode>3 then Exit;
 
@@ -5724,10 +5724,10 @@ end;
 //   { str:string;{}
 //    temp:double;
 //begin
-//I0:=555;
-//n:=555;
-//Rs:=555;
-//Rsh:=555;
+//I0:=ErResult;
+//n:=ErResult;
+//Rs:=ErResult;
+//Rsh:=ErResult;
 //SetLength(X,Np,5);
 //SetLength(Mut,Np,5);
 //SetLength(Tr,Np,5);
@@ -6908,7 +6908,7 @@ end;
 //
 //begin
 //SetLength(Param,1);
-//Param[0]:=555;
+//Param[0]:=ErResult;
 //case FuncType of
 // diod:
 //    begin
@@ -7133,7 +7133,7 @@ end;
 //
 //begin
 //SetLength(Param,1);
-//Param[0]:=555;
+//Param[0]:=ErResult;
 //Nmax:=5000;
 //Nit:=0;
 //if FuncType=DiodTwo then Nmax:=5000;
@@ -7346,7 +7346,7 @@ end;
 //
 //begin
 //SetLength(Param,1);
-//Param[0]:=555;
+//Param[0]:=ErResult;
 //case FuncType of
 // diod:
 //    Nmax:=3000;

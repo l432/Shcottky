@@ -1423,6 +1423,7 @@ var
     DP: TDiapazons;
     DR:TDirName;
     CL:TColName;
+//    idMaterialName :TMaterialName;
 begin
  Form1.Scaled:=false;
  GroupBox20.ParentBackground:=False;
@@ -1616,15 +1617,17 @@ begin
  CurDirectory:=ConfigFile.ReadString('Direct','CDir',Directory);
  ChooseDirect(Form1);
 
-// Semi:=TMaterial.Create;
+
  CBMaterial.Sorted:=False;
- for I := 0 to High(MaterialName) do
-      CBMaterial.Items.Add(MaterialName[i]);
+// for idMaterialName :=Low(TMaterialName) to High(TMaterialName) do
+//      CBMaterial.Items.Add(Materials[idMaterialName].Name);
+ for i :=Ord(Low(TMaterialName)) to ord(High(TMaterialName)) do
+      CBMaterial.Items.Add(Materials[TMaterialName(i)].Name);
  CBMaterial.ItemIndex:=ConfigFile.ReadInteger('Parameters','Material',0);
 
- Semi:=TMaterial.Create(CBMaterial.Text);
+ Semi:=TMaterial.Create(TMaterialName(CBMaterial.ItemIndex));
 
- if Semi.Name=MaterialName[High(MaterialName)]
+ if Semi.Name=Materials[High(TMaterialName)].Name
     then Semi.ReadFromIniFile(ConfigFile);
 
  MaterialOnForm;
@@ -1654,10 +1657,10 @@ begin
 
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
-GrLim.MinValue[0]:=ConfigFile.ReadFloat('Limit','MinV0',555);
-GrLim.MinValue[1]:=ConfigFile.ReadFloat('Limit','MinV1',555);
-GrLim.MaxValue[0]:=ConfigFile.ReadFloat('Limit','MaxV0',555);
-GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
+GrLim.MinValue[0]:=ConfigFile.ReadFloat('Limit','MinV0',ErResult);
+GrLim.MinValue[1]:=ConfigFile.ReadFloat('Limit','MinV1',ErResult);
+GrLim.MaxValue[0]:=ConfigFile.ReadFloat('Limit','MaxV0',ErResult);
+GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
 
 {  ApprExp[1]:=ConfigFile.ReadFloat('Approx','I0',1e-8);
@@ -1689,9 +1692,9 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',555);
     D[DP].YMin:=ConfigFile.ReadFloat('Diapaz',
         GetEnumName(TypeInfo(TDiapazons),ord(DP))+' YMin',0);
     D[DP].XMax:=ConfigFile.ReadFloat('Diapaz',
-        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',555);
+        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',ErResult);
     D[DP].YMax:=ConfigFile.ReadFloat('Diapaz',
-        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',555);
+        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',ErResult);
     D[DP].Br:=ConfigFile.ReadString('Diapaz',
         GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Br','F')[1];
    end;
@@ -2323,7 +2326,7 @@ ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 Diod.WriteToIniFile(ConfigFile);
 Diod.Free;
 ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
-if Semi.Name=MaterialName[High(MaterialName)]
+if Semi.Name=Materials[High(TMaterialName)].Name
     then  Semi.WriteToIniFile(ConfigFile);
 Semi.Free;
 
@@ -2372,7 +2375,9 @@ begin
  ClearGraph(Form1);
 
  IVchar(VaxFile,VaxGraph);
+//  showmessage('2222 '+inttostr(VaxGraph^.n));
  DataToGraph(Series1,Series2,Graph,'I-V-characteristic',VaxGraph);
+
  IVChar(VaxGraph,VaxTemp);
 end;
 
@@ -2492,14 +2497,14 @@ if (Sender as TLabel).Name='LaRich' then Value:=Semi.ARich;
 
 
 st:=FloatToStrF(Value,ffGeneral,4,3);
-if st='555' then st:='';
+if st='ErResult' then st:='';
 
 
 st:=InputBox('Input value',
              'the material parameter value is expected',
              st);
 
-StrToNumber(st, 555, Value);
+StrToNumber(st, ErResult, Value);
 if (Sender as TLabel).Name='LaVarB' then Semi.VarshB:=Value;
 if (Sender as TLabel).Name='LaVarA' then Semi.VarshA:=Value;
 if (Sender as TLabel).Name='LaMeff' then Semi.Meff:=Value;
@@ -2618,7 +2623,7 @@ case PageControl1.ActivePageIndex of
    XlogCheck.Checked:=false;
    YlogCheck.Checked:=false;
    GrType.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
-//   VaxGraph.n:=0;
+   VaxGraph.n:=0;
    GraphShow(Form1);
    if PageControl1.ActivePageIndex=1 then FullIV.Checked:=true
                                      else CBoxDLBuild.Checked:=false;
@@ -2645,8 +2650,8 @@ begin
 tg:=GraphType(Sender);
 ClearGraph(Form1);
 VaxGraph^.n:=0;
-Rss:=555;
-nn:=555;
+Rss:=ErResult;
+nn:=ErResult;
 
 repeat
 if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
@@ -2659,11 +2664,11 @@ if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
     Nssf,Ditf:
        Rss:=RsDefineCB(VaxFile,ComboBoxNssRs,ComboBoxNssRs_n);
     end; //case
-  if (Rss=555)and(tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf]) then
+  if (Rss=ErResult)and(tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf]) then
               str:='Curve'+cnbb+#10'because Rs'+cnbd;
-  if (nn=555)and(tg=Hf) then
+  if (nn=ErResult)and(tg=Hf) then
               str:='H-function'+cnbb+#10'because n'+cnbd;
-  if (Rss=555)and(nn=555) then
+  if (Rss=ErResult)and(nn=ErResult) then
               begin
               tg:=Non;
               Break;
@@ -2671,7 +2676,7 @@ if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
   if tg=Nssf then
               begin
               Fbb:=FbDefineCB(VaxFile,ComboBoxNssFb,Rss);
-              if Fbb=555 then
+              if Fbb=ErResult then
                         begin
                         str:='Curve'+cnbb+#10'because Fb'+cnbd;
                         tg:=Non;
@@ -3061,7 +3066,7 @@ FunCreate(SButFit.Caption,Fit);
                                  else
        Fit.FittingGraphFile(VaxGraph,EvolParam,Series4);
 
-   if EvolParam[0]=555 then Exit;
+   if EvolParam[0]=ErResult then Exit;
    Series4.Active:=True;
    if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
    if ((SButFit.Caption<>'Smoothing')and
@@ -4011,7 +4016,7 @@ repeat
            until false;
 
      LeeKalk (Vax,D[diLee],Diod,Rss,nn,Fbb,I00);
-         if (Rss=555)or(Fbb=555) then
+         if (Rss=ErResult)or(Fbb=ErResult) then
             showmessage('SigV='+floattostr(SigV)+#10+#13+
                         'SigI='+floattostr(SigI))
                     else
@@ -4028,7 +4033,7 @@ repeat
 
 
      Gr1Kalk (Vax,D[diGr1],Diod,Rss,nn,Fbb,I00);
-         if (Rss=555)or(Fbb=555) then
+         if (Rss=ErResult)or(Fbb=ErResult) then
             showmessage('SigV='+floattostr(SigV)+#10+#13+
                         'SigI='+floattostr(SigI))
                     else
@@ -4044,7 +4049,7 @@ repeat
 
 //       Fit:=TDiod.Create;
 //       Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-//         if EvolParam[1]=555 then
+//         if EvolParam[1]=ErResult then
 //            showmessage('SigV='+floattostr(SigV)+#10+#13+
 //                        'SigI='+floattostr(SigI))
 //                    else
@@ -4057,7 +4062,7 @@ repeat
 //
 //          Fit:=TDiodLSM.Create;
 //          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
-//         if EvolParam[1]=555 then
+//         if EvolParam[1]=ErResult then
 //            showmessage('SigV='+floattostr(SigV)+#10+#13+
 //                        'SigI='+floattostr(SigI))
 //                    else
@@ -4071,7 +4076,7 @@ repeat
 //
 //          Fit:=TDiodLam.Create;
 //          Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
-//         if EvolParam[1]=555 then
+//         if EvolParam[1]=ErResult then
 //            showmessage('SigV='+floattostr(SigV)+#10+#13+
 //                        'SigI='+floattostr(SigI))
 //                    else
@@ -4283,7 +4288,7 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 
 {}
          if (abs((Rss-Rs)/Rs)>10)or
-             (Rss=555)or(Fbb=555)or(nn=555)or
+             (Rss=ErResult)or(Fbb=ErResult)or(nn=ErResult)or
              (abs((nn-n)/n)>10)or
              (abs((Fbb-Fb)/Fb)>10)or
              (Rss<0)or
@@ -4307,7 +4312,7 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 {}
 {
          if (abs((EvolParam[1]-Rs)/Rs)>10)or
-             (EvolParam[1]=555)or(Fit.DodX[0]=555)or(EvolParam[0]=555)or
+             (EvolParam[1]=ErResult)or(Fit.DodX[0]=ErResult)or(EvolParam[0]=ErResult)or
              (abs((EvolParam[0]-n)/n)>10)or
              (abs((Fit.DodX[0]-Fb)/Fb)>10)or
              (EvolParam[1]<0)or
@@ -4533,7 +4538,7 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 
 {
          if (abs((Rss-Rs)/Rs)>10)or
-             (Rss=555)or(Fbb=555)or(nn=555)or
+             (Rss=ErResult)or(Fbb=ErResult)or(nn=ErResult)or
              (abs((nn-n)/n)>10)or
              (abs((Fbb-Fb)/Fb)>10)or
              (Rss<0)or
@@ -4557,7 +4562,7 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 //}
 {}
           if (abs((EvolParam[1]-Rs)/Rs)>10)or
-             (EvolParam[1]=555)or(Fit.DodX[0]=555)or(EvolParam[0]=555)or
+             (EvolParam[1]=ErResult)or(Fit.DodX[0]=ErResult)or(EvolParam[0]=ErResult)or
              (abs((EvolParam[0]-n)/n)>10)or
              (abs((Fit.DodX[0]-Fb)/Fb)>10)or
              (EvolParam[1]<0)or
@@ -4777,8 +4782,8 @@ repeat
 
 
 
-         if (Rss=555)or(Fbb=555) then
-//         if EvolParam[1]=555 then
+         if (Rss=ErResult)or(Fbb=ErResult) then
+//         if EvolParam[1]=ErResult then
             inc(Nfall)
 //            showmessage('Rs='+floattostr(Rs)+#10+#13+
 //                        'I0='+floattostr(I0))
@@ -4968,8 +4973,8 @@ repeat
 //       nn:=0.5;
 
 
-         if (Rss=555)or(Fbb=555) then
-//         if EvolParam[1]=555 then
+         if (Rss=ErResult)or(Fbb=ErResult) then
+//         if EvolParam[1]=ErResult then
             inc(Nfall)
 //            showmessage('Rs='+floattostr(Rs)+#10+#13+
 //                        'I0='+floattostr(I0))
@@ -6614,7 +6619,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
  Read_File(Inttostr(round(abs(10*Volt[ij])))+'s.dat',Vax2);
  a:=abs(ChisloY(Vax2,Vax^.T));
  b:=abs(ChisloY(Vax,abs(Volt[ij])));
-    if not((a=555)or(b<1e-9)or(b>0.01)or(a=0))
+    if not((a=ErResult)or(b<1e-9)or(b>0.01)or(a=0))
         then
          begin
          SetLenVector(Vax3,Vax3^.n+1);
@@ -6628,7 +6633,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
    a:=abs(ChisloY(Vax2,Vax^.T));
    b:=abs(ChisloY(Vax,abs(Volt[i])));
-   if (a=555)or(b<1e-9)or(b>0.01)
+   if (a=ErResult)or(b<1e-9)or(b>0.01)
         then str:=str+' 0'
         else str:=str+' '+FloatToStrF((b-a)/a,ffExponent,4,0);
 
@@ -6797,7 +6802,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       Fit.Free;
      end;
 
-// if Rsmy=555 then Continue;
+// if Rsmy=ErResult then Continue;
 // if abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T))>100 then  Continue;
 
 
@@ -7265,10 +7270,10 @@ begin
 LabelKalk1.Visible:=False;
 LabelKalk2.Visible:=False;
 LabelKalk3.Visible:=False;
-Rss:=555;
-nn:=555;
-Fbb:=555;
-Krec:=555;
+Rss:=ErResult;
+nn:=ErResult;
+Fbb:=ErResult;
+Krec:=ErResult;
 
 if VaxFile^.T<=0 then
  begin
@@ -7316,7 +7321,7 @@ case CBKalk.ItemIndex of
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diExp]);
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
-        if Iph_Exp then Fbb:=555
+        if Iph_Exp then Fbb:=ErResult
                    else Fbb:=Fit.DodX[0];
         Fit.Free;
      end;
@@ -7373,7 +7378,7 @@ case CBKalk.ItemIndex of
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diLam]);
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
-        if Iph_Lam then Fbb:=555
+        if Iph_Lam then Fbb:=ErResult
                    else Fbb:=Fit.DodX[0];
         Fit.Free;
       end;
@@ -7385,7 +7390,7 @@ case CBKalk.ItemIndex of
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diDE]);
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
-        if Iph_DE then Fbb:=555
+        if Iph_DE then Fbb:=ErResult
                    else Fbb:=Fit.DodX[0];
         Fit.Free;
       end;
@@ -7402,27 +7407,27 @@ case CBKalk.ItemIndex of
 
 
 case CBKalk.ItemIndex of
- 2,3:         nn:=555;
- {4,}5,17,18:   Rss:=555;
+ 2,3:         nn:=ErResult;
+ {4,}5,17,18:   Rss:=ErResult;
  16:begin
-    nn:=555;
-    Rss:=555;
+    nn:=ErResult;
+    Rss:=ErResult;
     end;
 end;
 
 
-LabelKalk1.Visible:=(Rss<>555);
+LabelKalk1.Visible:=(Rss<>ErResult);
 if LabelKalk1.Visible then
     LabelKalk1.Caption:='Rs='+FloatToStrF(Rss,ffExponent,3,2);
-LabelKalk2.Visible:=(nn<>555);
+LabelKalk2.Visible:=(nn<>ErResult);
 if LabelKalk2.Visible then
     LabelKalk2.Caption:='n='+FloatToStrF(nn,ffGeneral,4,3);
-LabelKalk3.Visible:=(Fbb<>555);
+LabelKalk3.Visible:=(Fbb<>ErResult);
 if LabelKalk3.Visible then
     LabelKalk3.Caption:='Фb='+FloatToStrF(Fbb,ffGeneral,3,2);
 if not(LabelKalk2.Visible) then
  begin
-  LabelKalk2.Visible:=(Krec<>555);
+  LabelKalk2.Visible:=(Krec<>ErResult);
   if LabelKalk2.Visible then
     case CBKalk.ItemIndex of
     6:LabelKalk2.Caption:='Krect='+FloatToStrF(Krec,ffGeneral,3,2);
@@ -7500,7 +7505,7 @@ stHint:='Enter the maximum value of '+
        RdGrMax.Items[RdGrMax.ItemIndex]+' coordinate';
 
 st:=InputBox('Input Hi Limit',stHint,st);
-StrToNumber(st, 555, GrLim.MaxValue[GrLim.MaxXY]);
+StrToNumber(st, ErResult, GrLim.MaxValue[GrLim.MaxXY]);
 LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
 if Form1.SpButLimit.Down then
                 begin
@@ -7523,7 +7528,7 @@ stHint:='Enter the minimum value of '+
        RdGrMin.Items[RdGrMin.ItemIndex]+' coordinate';
 
 st:=InputBox('Input Low Limit',stHint,st);
-StrToNumber(st, 555, GrLim.MinValue[GrLim.MinXY]);
+StrToNumber(st, ErResult, GrLim.MinValue[GrLim.MinXY]);
 LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
 if Form1.SpButLimit.Down then
                 begin
@@ -7945,7 +7950,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
        Cur:=abs(ChisloY(Vax,Volt[i]));
        Grid.Cells[k*i+4,Grid.RowCount-1]:=FloatToStrF(Cur,ffExponent,4,3);
        if (CheckBoxLnIT2.Checked)then
-           if ((Vax^.T)>0)and(Cur<>555)
+           if ((Vax^.T)>0)and(Cur<>ErResult)
                          then Grid.Cells[k*i+1+4,Grid.RowCount-1]:=
                                   FloatToStrF(ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
                          else Grid.Cells[k*i+1+4,Grid.RowCount-1]:='555';
@@ -7954,12 +7959,12 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
        ExKalk(1,Vax,D[diEx],Rs,Diod,nn,I00,Fbb);
 
        if (CheckBoxnLnIT2.Checked)and(not(CheckBoxLnIT2.Checked)) then
-           if ((Vax^.T)>0)and(Cur<>555)and(nn<>555)
+           if ((Vax^.T)>0)and(Cur<>ErResult)and(nn<>ErResult)
                          then Grid.Cells[k*i+1+4,Grid.RowCount-1]:=
                                   FloatToStrF(nn*ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
                          else Grid.Cells[k*i+1+4,Grid.RowCount-1]:='555';
        if k=3 then
-           if ((Vax^.T)>0)and(Cur<>555)and(nn<>555)
+           if ((Vax^.T)>0)and(Cur<>ErResult)and(nn<>ErResult)
                          then Grid.Cells[k*i+2+4,Grid.RowCount-1]:=
                                   FloatToStrF(nn*ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
                          else Grid.Cells[k*i+2+4,Grid.RowCount-1]:='555';
@@ -8036,11 +8041,11 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //       DifEvol (Vax,RevZriz3,0,EvolParam)
       except
         SetLength(EvolParam,1);
-        EvolParam[0]:=555;
+        EvolParam[0]:=ErResult;
        end;
-  until((EvolParam[0]<>555)and(EvolParam[3]>0.4));
+  until((EvolParam[0]<>ErResult)and(EvolParam[3]>0.4));
 
-      if EvolParam[0]=555 then  Continue;
+      if EvolParam[0]=ErResult then  Continue;
 
        for j := 0 to High(Vax^.X) do
                begin
@@ -8101,8 +8106,8 @@ var st:string;
 begin
 st:='Input voltage value for current definition'+#10+#13+'(in range [-5..5])';
 st:=InputBox('Input voltage',st,'');
-StrToNumber(st, 555, v);
-if v=555 then Exit;
+StrToNumber(st, ErResult, v);
+if v=ErResult then Exit;
 if abs(V)>5 then
            begin
            MessageDlg('Voltage must be in [-5..5]', mtError,[mbOk],0);
@@ -8290,23 +8295,24 @@ end;
 procedure TForm1.CBMaterialChange(Sender: TObject);
 var ConfigFile:TIniFile;
 begin
-if (Semi.Name=MaterialName[High(MaterialName)])
+if (Semi.Name=Materials[High(TMaterialName)].Name)
+//MaterialName[High(MaterialName)])
      and(Semi.Name<>CBMaterial.Text) then
       begin
        ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
        Semi.WriteToIniFile(ConfigFile);
        ConfigFile.Free;
       end;
-if (CBMaterial.Text=MaterialName[High(MaterialName)])
+if (CBMaterial.Text=Materials[High(TMaterialName)].Name)
      and(Semi.Name<>CBMaterial.Text) then
       begin
-       Semi.Name:=CBMaterial.Text;
+       Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
        ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
        Semi.ReadFromIniFile(ConfigFile);
        ConfigFile.Free;
 //       Exit;
       end;
-if Semi.Name<>CBMaterial.Text then Semi.Name:=CBMaterial.Text;
+if Semi.Name<>CBMaterial.Text then Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
 MaterialOnForm;
 //showmessage(floattostr(Semi.ARich));
 end;
@@ -8394,7 +8400,7 @@ end;
 //{
 //  F:=TDiodLSM.Create;
 //  F.AproxN(VaxGraph,EvolParam);
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8431,9 +8437,9 @@ end;
 //           MABC (VaxGraph,RevShNew2,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8478,9 +8484,9 @@ end;
 //           DifEvol (VaxGraph,RevShNew,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8517,9 +8523,9 @@ end;
 //           DifEvol (VaxGraph,Tun,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8558,9 +8564,9 @@ end;
 //           DifEvol (VaxGraph,RevZriz3,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8605,9 +8611,9 @@ end;
 //           DifEvol (VaxGraph,RevShSCLC3,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8659,9 +8665,9 @@ end;
 //           DifEvol (VaxGraph,RevShSCLC2,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8710,9 +8716,9 @@ end;
 //           DifEvol (VaxGraph,Power2,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8755,9 +8761,9 @@ end;
 //           DifEvol (VaxGraph,RevZriz2,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8808,9 +8814,9 @@ end;
 //           MABC (VaxGraph,DiodTwo,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8857,9 +8863,9 @@ end;
 //           DifEvol (VaxGraph,RevShSCLC,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8912,9 +8918,9 @@ end;
 //           MABC (VaxGraph,RevShTwo,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -8968,9 +8974,9 @@ end;
 //           DifEvol (VaxGraph,RevZriz,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9016,9 +9022,9 @@ end;
 //           MABC (VaxGraph,DiodTwoFull,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9065,9 +9071,9 @@ end;
 //           DifEvol (VaxGraph,DGaus,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9100,9 +9106,9 @@ end;
 //           MABC (VaxGraph,LinEg,0,EvolParam)
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9183,9 +9189,9 @@ end;
 //{           Newts(4,VaxGraph,1e-6,ApprExp,IREap,rez);}
 //           except
 //           MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//           nn:=555;
+//           nn:=ErResult;
 //           end;
-//           if nn=555 then
+//           if nn=ErResult then
 //                 begin
 //                  CBoxAppr.Checked:=False;
 //                  dispose(tempVax);
@@ -9216,9 +9222,9 @@ end;
 //           if Iph_Exp then Aprox (3,VaxGraph, Mode_Exp,nn,Rss,I00,Rsh,Isc,Voc,Iph)
 //                      else Aprox (0,VaxGraph,Mode_Exp,nn,Rss,I00,Rsh,Isc,Voc,Iph);
 //           except
-//           nn:=555;
+//           nn:=ErResult;
 //           end;
-//            if nn=555 then
+//            if nn=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9305,7 +9311,7 @@ end;
 //        8: //апроксимація залежністю y=a+b*x+c*ln(x)
 //          begin
 //          GromovAprox(VaxGraph,a,b,c);
-//          if a=555 then
+//          if a=ErResult then
 //                 begin
 //                 MessageDlg('The approximation is imposible'+#10+
 //               '(may be some points have negative abscissa)', mtError, [mbOK], 0);
@@ -9333,7 +9339,7 @@ end;
 //            V=Vs+del*[Sqrt(2q Nd ep / eps0) (Sqrt(Fb/q)-Sqrt(Fb/q-Vs))]}
 //           begin
 //           IvanovAprox(VaxGraph,AA,Sk,Ndd,eps,a,b);
-//           if b=555 then
+//           if b=ErResult then
 //               begin
 //                  CBoxAppr.Checked:=False;
 //                  dispose(tempVax);
@@ -9359,9 +9365,9 @@ end;
 //           if Iph_Lam then Aprox (4,VaxGraph, Mode_Lam,nn,Rss,I00,Rsh,Isc,Voc,Iph)
 //                      else Aprox (1,VaxGraph,Mode_Lam,nn,Rss,I00,Rsh,Isc,Voc,Iph);
 //           except
-//           nn:=555;
+//           nn:=ErResult;
 //           end;
-//            if nn=555 then
+//            if nn=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9447,9 +9453,9 @@ end;
 //             end; //case}
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9534,9 +9540,9 @@ end;
 //                end
 //           except
 //           SetLength(EvolParam,1);
-//           EvolParam[0]:=555;
+//           EvolParam[0]:=ErResult;
 //           end;
-//            if EvolParam[0]=555 then
+//            if EvolParam[0]=ErResult then
 //                 begin
 //                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 //                  CBoxAppr.Checked:=False;
@@ -9808,8 +9814,11 @@ begin
  SeriesLine.Clear;
  Graph.LeftAxis.Automatic:=true;
  Graph.BottomAxis.Automatic:=true;
+
+
  if a^.n>0 then
   begin
+//      showmessage('1111');
    for i:=0 to High(a^.X) do
     begin
      SeriesPoint.AddXY(a^.X[i],a^.Y[i],'',clRed);
@@ -9889,10 +9898,10 @@ begin
   Max.ItemIndex:=Lim.MaxXY;
   Min.ItemIndex:=Lim.MinXY;
 
-     if Lim.MinValue[Lim.MinXY]=555
+     if Lim.MinValue[Lim.MinXY]=ErResult
           then LMin.Caption:='No'
           else LMin.Caption:=FloatToStrF(Lim.MinValue[Lim.MinXY],ffExponent,3,2);
-     if Lim.MaxValue[Lim.MaxXY]=555
+     if Lim.MaxValue[Lim.MaxXY]=ErResult
           then LMax.Caption:='No'
           else LMax.Caption:=FloatToStrF(Lim.MaxValue[Lim.MaxXY],ffExponent,3,2);
 end;
@@ -9949,13 +9958,13 @@ end;}
 procedure DiapShow(D:Diapazon;Xmin,Ymin,Xmax,Ymax:TLabel);
 {відображення компонентів запису D у відповідних мітках}
 begin
-  if D.XMin=555 then Xmin.Caption:='Xmin: No'
+  if D.XMin=ErResult then Xmin.Caption:='Xmin: No'
     else Xmin.Caption:='Xmin: '+FloatToStrF(D.XMin,ffGeneral,4,3);
-  if D.XMax=555 then Xmax.Caption:='Xmax: No'
+  if D.XMax=ErResult then Xmax.Caption:='Xmax: No'
     else Xmax.Caption:='Xmax: '+FloatToStrF(D.XMax,ffGeneral,4,3);
-  if D.YMin=555 then Ymin.Caption:='Ymin: No'
+  if D.YMin=ErResult then Ymin.Caption:='Ymin: No'
     else Ymin.Caption:='Ymin: '+FloatToStrF(D.YMin,ffExponent,3,2);
-  if D.YMax=555 then Ymax.Caption:='Ymax: No'
+  if D.YMax=ErResult then Ymax.Caption:='Ymax: No'
     else Ymax.Caption:='Ymax: '+FloatToStrF(D.YMax,ffExponent,3,2);
 end;
 
@@ -10022,13 +10031,13 @@ procedure DiapToForm(D:Diapazon; Xmin,Ymin,Xmax,Ymax:TLabeledEdit);
 текстових віконечках, виконується при використанні
 вікон зміни діапазону}
 begin
-   if D.XMin=555 then Xmin.Text:=''
+   if D.XMin=ErResult then Xmin.Text:=''
     else Xmin.Text:=FloatToStrF(D.XMin,ffGeneral,4,3);
-  if D.XMax=555 then Xmax.Text:=''
+  if D.XMax=ErResult then Xmax.Text:=''
     else Xmax.Text:=FloatToStrF(D.XMax,ffGeneral,4,3);
-  if D.YMin=555 then Ymin.Text:=''
+  if D.YMin=ErResult then Ymin.Text:=''
     else Ymin.Text:=FloatToStrF(D.YMin,ffExponent,3,2);
-  if D.YMax=555 then Ymax.Text:=''
+  if D.YMax=ErResult then Ymax.Text:=''
     else Ymax.Text:=FloatToStrF(D.YMax,ffExponent,3,2);
 end;
 
@@ -10045,13 +10054,13 @@ procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:Diapazon);
 величин у компоненти запису D}
 var temp:double;
 begin
-StrToNumber(XMin.Text, 555, temp);
+StrToNumber(XMin.Text, ErResult, temp);
 D.XMin:=temp;
-StrToNumber(YMin.Text, 555, temp);
+StrToNumber(YMin.Text, ErResult, temp);
 D.YMin:=temp;
-StrToNumber(YMax.Text, 555, temp);
+StrToNumber(YMax.Text, ErResult, temp);
 D.YMax:=temp;
-StrToNumber(XMax.Text, 555, temp);
+StrToNumber(XMax.Text, ErResult, temp);
 D.XMax:=temp;
 end;
 
@@ -10131,13 +10140,13 @@ Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 що вибрано в CBdod}
 var n_tmp:double;
 begin
- Result:=555;
- n_tmp:=555;
+ Result:=ErResult;
+ n_tmp:=ErResult;
  if (CB.ItemIndex>3)and(CB.ItemIndex<6)
         then
         begin
         n_tmp:=nDefineCB_Shot(A,CBdod);
-        if n_tmp=555 then Exit;
+        if n_tmp=ErResult then Exit;
         end;
  case CB.ItemIndex of
     0: //Rs не розраховується
@@ -10212,7 +10221,7 @@ Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;
 які дозволяють визначити Rs спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
 begin
- Result:=555;
+ Result:=ErResult;
  case CB.ItemIndex of
     0: //Rs не розраховується
      Result:=0;
@@ -10283,12 +10292,12 @@ Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 що вибрано в CBdod}
 var Rs_tmp:double;
 begin
-Result:=555;
-Rs_tmp:=555;
+Result:=ErResult;
+Rs_tmp:=ErResult;
 if CB.ItemIndex in [4,5,13,14] then
      begin
      Rs_tmp:=RsDefineCB_Shot(A,CBdod);
-     if Rs_tmp=555 then Exit;
+     if Rs_tmp=ErResult then Exit;
      end;
 case CB.ItemIndex of
     0: // структура вважається ідеальною
@@ -10374,7 +10383,7 @@ Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;
 які дозволяють визначити n спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
 begin
-Result:=555;
+Result:=ErResult;
 case CB.ItemIndex of
     0: // структура вважається ідеальною
      Result:=1;
@@ -10441,8 +10450,8 @@ Function FbDefineCB(A:PVector; CB:TComboBox; Rs:double):double;
 для деякий методів необхідне значення Rs,
 яке використовується як параметр}
 begin
-Result:=555;
-if (Rs=555) and (CB.ItemIndex in [1,2]) then Exit;
+Result:=ErResult;
+if (Rs=ErResult) and (CB.ItemIndex in [1,2]) then Exit;
 
 case CB.ItemIndex of
     0: {Fb рахується за допомогою функції Норда}
@@ -10473,7 +10482,7 @@ case CB.ItemIndex of
         if Iph_Exp then Fit:=TPhotoDiodLam.Create
                    else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        if Iph_Exp then Result:=555
+        if Iph_Exp then Result:=ErResult
                    else Result:=Fit.DodX[0];
         Fit.Free;
       end;
@@ -10485,7 +10494,7 @@ case CB.ItemIndex of
         if Iph_Lam then Fit:=TPhotoDiodLam.Create
                    else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        if Iph_Lam then Result:=555
+        if Iph_Lam then Result:=ErResult
                    else Result:=Fit.DodX[0];
         Fit.Free;
       end;
@@ -10497,7 +10506,7 @@ case CB.ItemIndex of
         if Iph_DE then Fit:=TPhotoDiod.Create
                    else Fit:=TDiod.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        if Iph_DE then Result:=555
+        if Iph_DE then Result:=ErResult
                    else Result:=Fit.DodX[0];
         Fit.Free;
       end;
@@ -10540,16 +10549,16 @@ begin
       L.MaxValue[1]:=D.YMax;
       end;
   'R':begin
-      if D.XMax=555 then L.MinValue[0]:=D.XMax else L.MinValue[0]:=-D.XMax;
-      if D.YMax=555 then L.MinValue[1]:=D.YMax else L.MinValue[1]:=-D.YMax;
-      if D.XMin=555 then L.MaxValue[0]:=D.XMin else L.MaxValue[0]:=-D.XMin;
-      if D.YMin=555 then L.MaxValue[1]:=D.YMin else L.MaxValue[1]:=-D.YMin;
+      if D.XMax=ErResult then L.MinValue[0]:=D.XMax else L.MinValue[0]:=-D.XMax;
+      if D.YMax=ErResult then L.MinValue[1]:=D.YMax else L.MinValue[1]:=-D.YMax;
+      if D.XMin=ErResult then L.MaxValue[0]:=D.XMin else L.MaxValue[0]:=-D.XMin;
+      if D.YMin=ErResult then L.MaxValue[1]:=D.YMin else L.MaxValue[1]:=-D.YMin;
       end;
   end;
-  if (L.MinXY=0)and(D.XMin=555)and(D.YMin<>555) then L.MinXY:=1;
-  if (L.MinXY=1)and(D.YMin=555)and(D.XMin<>555) then L.MinXY:=0;
-  if (L.MaxXY=0)and(D.XMax=555)and(D.YMax<>555) then L.MaxXY:=1;
-  if (L.MaxXY=1)and(D.YMax=555)and(D.XMax<>555) then L.MaxXY:=0;
+  if (L.MinXY=0)and(D.XMin=ErResult)and(D.YMin<>ErResult) then L.MinXY:=1;
+  if (L.MinXY=1)and(D.YMin=ErResult)and(D.XMin<>ErResult) then L.MinXY:=0;
+  if (L.MaxXY=0)and(D.XMax=ErResult)and(D.YMax<>ErResult) then L.MaxXY:=1;
+  if (L.MaxXY=1)and(D.YMax=ErResult)and(D.XMax<>ErResult) then L.MaxXY:=0;
 end;
 
 
@@ -10582,16 +10591,16 @@ end;
 //   Nm=11;
 //   Richard:array [1..Nm] of double=
 //    (1.12e6, 0.32e6, 0.0816e6, 0.6e6, 0.75e6, 0.269e6,
-//     0.12e6, 0.853e6, 1.19e6, 2.47e6, 555);
+//     0.12e6, 0.853e6, 1.19e6, 2.47e6, ErResult);
 //   Perm:array [1..Nm] of double=
 //    (11.7, 11.7, 12.9, 12.5, 9.7, 8.9,
-//     555, 555, 555, 555, 555);
+//     ErResult, ErResult, ErResult, ErResult, ErResult);
 //begin
 //  F.LabelPerm.Visible:=True;
 //  F.ButtonRich.Enabled:=False;
 //  F.ButtonPerm.Enabled:=False;
-//  if (Richard[N_Mat]<>555) then Ar:=Richard[N_Mat];
-//  if (Perm[N_Mat]<>555) then Eps:=Perm[N_Mat]
+//  if (Richard[N_Mat]<>ErResult) then Ar:=Richard[N_Mat];
+//  if (Perm[N_Mat]<>ErResult) then Eps:=Perm[N_Mat]
 //                        else F.LabelPerm.Visible:=False;
 //  if N_Mat=Nm then
 //    begin
@@ -10609,21 +10618,21 @@ Procedure MaterialOnForm;
 begin
 with Form1 do
  begin
-  if Semi.Eg0<>555
+  if Semi.Eg0<>ErResult
      then LabelEg.Caption:=FloatToStrF(Semi.Eg0,ffFixed,3,2)
      else LabelEg.Caption:='?';
   LabelPerm.Caption:=FloatToStrF(Semi.Eps,ffFixed,3,2);
   LabelMeff.Caption:=FloatToStrF(Semi.Meff,ffFixed,3,2);
-  if Semi.ARich<>555
+  if Semi.ARich<>ErResult
      then LabelRich.Caption:=FloatToStrF(Semi.ARich,ffExponent,3,2)
      else LabelRich.Caption:='?';
-  if Semi.VarshA<>555
+  if Semi.VarshA<>ErResult
      then LabelVarA.Caption:=FloatToStrF(Semi.VarshA,ffgeneral,5,1)
      else LabelVarA.Caption:='?';
-  if Semi.VarshB<>555
+  if Semi.VarshB<>ErResult
      then LabelVarB.Caption:=FloatToStrF(Semi.VarshB,ffExponent,3,2)
      else LabelVarB.Caption:='?';
-  if Semi.Name=MaterialName[High(MaterialName)] then
+  if Semi.Name=Materials[High(TMaterialName)].Name then
       begin
        LaVarB.Visible:=True;
        LaVarA.Visible:=True;
@@ -11660,7 +11669,7 @@ if Rbool then
   begin
   FunCreate(FitName,Fit);
   Fit.Fitting(Alim,EvolParam);
-  if EvolParam[0]=555 then
+  if EvolParam[0]=ErResult then
           begin
             dispose(Alim);
             Exit;

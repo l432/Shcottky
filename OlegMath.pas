@@ -134,7 +134,7 @@ ErStr='';
 При невдалому закінченні
 функція повертає 1;
 ErStr не нульовий;
-в Х0 - 555;
+в Х0 - ErResult;
 }
 
 Function SpeedSlalom(AP:Pvector; funF:TFun1D; ParF:array of double;
@@ -169,7 +169,7 @@ ErStr='';
 При невдалому закінченні
 функція повертає 1;
 ErStr не нульовий;
-в Х0 - 555;
+в Х0 - ErResult;
 }
 
 Function SpSlExpRsh(AP:Pvector; Variab:array of double;
@@ -811,24 +811,24 @@ Function RandomLnAB(A,B:double):double;
 коли А та В дуже відмінні}
 
 Function ValueToStr555(Value:double):string; overload;
-{перетворює Value в рядок, якщо Value=555,
+{перетворює Value в рядок, якщо Value=ErResult,
 то результатом є порожній рядок}
 
 Function ValueToStr555(Value:integer):string; overload;
-{перетворює Value в рядок, якщо Value=555,
+{перетворює Value в рядок, якщо Value=ErResult,
 то результатом є порожній рядок}
 
 Function StrToFloat555(Value:string):double;
 {перетворює Value в дійсне число,
 якщо перетворення невдале
 (рядок порожній тощо), то
-результат дорівнює 555}
+результат дорівнює ErResult}
 
 Function StrToInt555(Value:string):integer;
 {перетворює Value в дійсне число,
 якщо перетворення невдале
 (рядок порожній тощо), то
-результат дорівнює 555}
+результат дорівнює ErResult}
 
 Function NumberMax(A:Pvector):integer;
 {обчислюється кількість локальних
@@ -991,7 +991,7 @@ var f1,f2,h1,h2:double;
  var i,j,k:word;
      t1,t2,t3,t4:double;
   begin
-   Result:=555;
+   Result:=ErResult;
    if (x-A^.X[High(A^.X)])*(x-A^.X[0])>0 then Exit;
    t1:=0;
    for i:=0 to High(A^.X) do
@@ -1222,9 +1222,9 @@ Procedure GromovAprox (V:PVector; var a,b,c:double);
 var R:PSysEquation;
     i,j:integer;
 begin
-a:=555;
-b:=555;
-c:=555;
+a:=ErResult;
+b:=ErResult;
+c:=ErResult;
 
 for I:=0 to V^.n-1 do
   if V^.X[i]<0 then Exit;
@@ -1257,7 +1257,7 @@ R^.A[1,0]:=R^.A[0,1];
 R^.A[2,0]:=R^.A[0,2];
 R^.A[2,1]:=R^.A[1,2];
 GausGol(R);
-if R^.N=555 then Exit;
+if R^.N=ErResult then Exit;
 a:=R^.x[0];
 b:=R^.x[1];
 c:=R^.x[2];
@@ -1275,8 +1275,8 @@ var Vari,Param1,Param2:array of double;
     ErStr:string;
 begin
 ErStr:='';
-I0:=555;
-E:=555;
+I0:=ErResult;
+E:=ErResult;
 if V^.n<7 then Exit;
 
 SetLength(Vari,2);
@@ -1330,9 +1330,9 @@ var Vari,Param1,X1,X2:array of double;
     Emin,tmp:double;
 begin
 ErStr:='';
-I0:=555;
-E:=555;
-Rsh:=555;
+I0:=ErResult;
+E:=ErResult;
+Rsh:=ErResult;
 if V^.n<7 then Exit;
 
 Emin:=2*V^.X[V^.n-1]/ln(1e38*V^.y[V^.n-1]);
@@ -1411,7 +1411,7 @@ showmessage(floattostrf(X1[0],ffExponent,3,2)+#10+
 
 
  GausGol(SysEq);
- if SysEq^.N=555 then
+ if SysEq^.N=ErResult then
    begin
      ErStr:='Error during Gauss method';
      dispose(SysEq);
@@ -1469,7 +1469,7 @@ Procedure GausGol(var R:PSysEquation);
 {процедура розв'язку системи лінійних рівнянь
 методом Гауса з вибором головного елементу;
 всі параметри рівняння, як і розв'язки, - в R;
-якщо розв'язків не існує, то R^.N=555}
+якщо розв'язків не існує, то R^.N=ErResult}
 
 var i,j,k,Imax,Jmax:integer;
 //Imax - номер рядка головного елементу
@@ -1503,13 +1503,13 @@ begin
 
 if R^.N<1 then
         begin
-        R^.N:=555;
+        R^.N:=ErResult;
         Exit;
         end;
 
 if R^.N=1 then
    begin
-    if R^.A[0,0]=0 then R^.N:=555
+    if R^.A[0,0]=0 then R^.N:=ErResult
                    else R^.x[0]:=R^.f[0]/R^.A[0,0];
     Exit;
    end;
@@ -1556,7 +1556,7 @@ begin
   if Rtemp^.A[k,k]=0 then
        begin
        dispose(Rtemp);
-       R^.N:=555;
+       R^.N:=ErResult;
        Exit;
        end;
 {прямий хід}
@@ -1881,7 +1881,7 @@ ErStr='';
 При невдалому закінченні
 функція повертає 1;
 ErStr не нульовий;
-в Х0 - 555;
+в Х0 - ErResult;
 }
 var X1,X2:array of double;
     temp:double;
@@ -1901,7 +1901,7 @@ begin
   for I := 0 to High(X1) do X1[i]:=X0[i];
   Nit:=0;
   Result:=1;
-  for I := 0 to High(X0) do X0[i]:=555;
+  for I := 0 to High(X0) do X0[i]:=ErResult;
 repeat
 
  if (funF(A,X1,ParF,SysEq^.f)<>0) or
@@ -1913,7 +1913,7 @@ repeat
     end;
  { for I := 0 to High(SysEq^.f) do SysEq^.f[i]:=-SysEq^.f[i];
  GausGol(SysEq);
- if SysEq^.N=555 then
+ if SysEq^.N=ErResult then
    begin
      ErStr:='Error during Gauss method';
      dispose(SysEq);
@@ -1936,7 +1936,7 @@ repeat
 
 
  GausGol(SysEq);
- if SysEq^.N=555 then
+ if SysEq^.N=ErResult then
    begin
      ErStr:='Error during Gauss method';
      dispose(SysEq);
@@ -1993,7 +1993,7 @@ ErStr='';
 При невдалому закінченні
 функція повертає 1;
 ErStr не нульовий;
-в Х0 - 555;
+в Х0 - ErResult;
 }
   function Alph (x:double):double;
   {допоміжна функція, необхідна для використання
@@ -2003,7 +2003,7 @@ ErStr не нульовий;
    var X11, X12:array of double;
        i:integer;
    begin
-     Result:=555;
+     Result:=ErResult;
      SetLength(X11,High(X0)+2);
      SetLength(X12,High(X0)+1);
      if (funF(AP,X0,ParF,X11)<>0) then Exit;
@@ -2028,7 +2028,7 @@ showmessage('X0[1]='+floattostr(X0[1]));
   for I := 0 to High(Xk) do Xk[i]:=X0[i];
   Nit:=0;
   Result:=1;
-//  for I := 0 to High(X0) do X0[i]:=555;
+//  for I := 0 to High(X0) do X0[i]:=ErResult;
 repeat
 {----мінімізація для знахожження кроку-----------}
 {}
@@ -2038,10 +2038,10 @@ x1:=al*a+bet*b;
 x2:=al*b+bet*a;
 y1:=Alph(x1);
 y2:=Alph(x2);
-if (y1=555)or(y2=555) then
+if (y1=ErResult)or(y2=ErResult) then
  begin
   ErStr:='Error of step defination';
-  for I := 0 to High(X0) do X0[i]:=555;
+  for I := 0 to High(X0) do X0[i]:=ErResult;
   Exit;
  end;
 
@@ -2062,10 +2062,10 @@ if y1<y2 then
    x2:=al*b+bet*a;
    y2:=Alph(x2);
   end;
-if (y1=555)or(y2=555) then
+if (y1=ErResult)or(y2=ErResult) then
  begin
   ErStr:='Error of step defination';
-  for I := 0 to High(X0) do X0[i]:=555;
+  for I := 0 to High(X0) do X0[i]:=ErResult;
   Exit;
  end;
 
@@ -2082,7 +2082,7 @@ showmessage('alp='+floattostr(alp));
  if (funF(AP,X0,ParF,Xk1)<>0)  then
     begin
      ErStr:='Error in function';
-     for I := 0 to High(X0) do X0[i]:=555;
+     for I := 0 to High(X0) do X0[i]:=ErResult;
      Exit;
     end;
  Inc(Nit);
@@ -2103,7 +2103,7 @@ until (bool or (Nit>Nmax));
  if Nit>Nmax then
      begin
      ErStr:='The number of iterations is too much';
-     for I := 0 to High(X0) do X0[i]:=555;
+     for I := 0 to High(X0) do X0[i]:=ErResult;
      end
              else
      begin
@@ -2203,7 +2203,7 @@ Rez[2]:=2*(f1*g12+f2*g22+f3*g32);
 Rez[3]:=2*(f1*g13+f2*g23+f3*g33);
 Result:=0;
 except
-for I := 0 to High(Rez) do Rez[i]:=555;
+for I := 0 to High(Rez) do Rez[i]:=ErResult;
 Result:=1;
 end;
 {showmessage('Rez[0]='+floattostr(Rez[0])+#10+
@@ -2246,7 +2246,7 @@ for I := 0 to High(AP^.X) do
 
 Result:=0;
 except
-for I := 0 to High(Rez) do Rez[i]:=555;
+for I := 0 to High(Rez) do Rez[i]:=ErResult;
 Result:=1;
 end; //try
 end;
@@ -2293,7 +2293,7 @@ Result:=0;
 except
 for I := 0 to High(Rez) do
   for j := 0 to High(Rez)do
-     Rez[i,j]:=555;
+     Rez[i,j]:=ErResult;
 Result:=1;
 end;//try
 end;
@@ -2323,7 +2323,7 @@ for I := 0 to High(AP^.X) do
 
 Result:=0;
 except
-for I := 0 to High(Rez) do Rez[i]:=555;
+for I := 0 to High(Rez) do Rez[i]:=ErResult;
 Result:=1;
 end; //try
 end;
@@ -2371,7 +2371,7 @@ Result:=0;
 except
 for I := 0 to High(Rez) do
   for j := 0 to High(Rez)do
-     Rez[i,j]:=555;
+     Rez[i,j]:=ErResult;
 Result:=1;
 end;//try
 end;
@@ -2437,11 +2437,11 @@ end;
 //
 //for I := 0 to High(RezF) do
 //  begin
-//  RezF[i]:=555;
+//  RezF[i]:=ErResult;
 //  for j := 0 to High(RezF) do
-//     RezG[i,j]:=555;
+//     RezG[i,j]:=ErResult;
 //  end;
-// RezSum:=555;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -2571,8 +2571,8 @@ end;
 //begin
 //
 //
-//for I := 0 to High(RezF) do  RezF[i]:=555;
-// RezSum:=555;
+//for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -2625,7 +2625,7 @@ end;
 //    n, Rs, I0, Rsh, bt, I0Rs,
 //    Wi,ci,Zi:double;
 //begin
-//   RezSum:=555;
+//   RezSum:=ErResult;
 //   Result:=1;
 ////    try
 //    n:=Variab[0];
@@ -2691,8 +2691,8 @@ end;
 //    Zi,ZIi,nkT,vi,ei,eiI0:double;
 //begin
 //
-//for I := 0 to High(RezF) do  RezF[i]:=555;
-// RezSum:=555;
+//for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -2741,7 +2741,7 @@ end;
 //    n, Rs, I0, Rsh,Zi:double;
 //begin
 //
-//RezSum:=555;
+//RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -2952,8 +2952,8 @@ end;
 //    Zi,ZIi,nkT,vi,ei,eiI0:double;
 //begin
 //
-//for I := 0 to High(RezF) do  RezF[i]:=555;
-// RezSum:=555;
+//for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //n:=Variab[0];
@@ -3044,8 +3044,8 @@ end;
 //begin
 //
 //
-//for I := 0 to High(RezF) do  RezF[i]:=555;
-// RezSum:=555;
+//for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+// RezSum:=ErResult;
 //Result:=1;
 //
 //if AP^.T<=0 then Exit;
@@ -3079,7 +3079,7 @@ end;
 //     exp(Rsh*Rs/nkT/(Rs+Rsh)*(AP^.X[i]/Rs+Y1));
 //     Zi:=AP^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-AP^.Y[i];
 //     Wi:=Lambert(Yi);
-//     if Wi=555 then Exit;
+//     if Wi=ErResult then Exit;
 //     W_W1:=Wi/(Wi+1);
 //     ZIi:=Zi/abs(AP^.Y[i]);
 //
@@ -3118,7 +3118,7 @@ end;
 //    Yi,Zi,Wi,GVI,Z1,Y1,F1,F12,F21,F22,F3,F31,
 //    nkT,W_W1,Rez:double;
 //begin
-//Result:=555;
+//Result:=ErResult;
 //if LamLightParamIsBad(AP,n,Rs,Rsh,Isc,Voc) then  Exit;
 //
 //try
@@ -3155,7 +3155,7 @@ end;
 //     exp(Rsh*Rs/nkT/(Rs+Rsh)*(AP^.X[i]/Rs+Y1));
 //     Zi:=AP^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-AP^.Y[i];
 //     Wi:=Lambert(Yi);
-//     if Wi=555 then Exit;
+//     if Wi=ErResult then Exit;
 //     W_W1:=Wi/(Wi+1);
 //{ Yi:=Rs/nkT*(Isc-Voc/(Rs+Rsh))*exp(-Voc/nkT)/(1-exp((Rs*Isc-Voc)/nkT))*
 //     exp(Rsh*Rs/nkT/(Rs+Rsh)*(AP^.X[i]/Rs+Voc/Rsh+(Isc+(Rs*Isc-Voc)/Rsh)/
@@ -3163,7 +3163,7 @@ end;
 // Zi:=AP^.X[i]/Rs-Rsh/(Rs+Rsh)*((Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT))+Voc/Rsh+AP^.X[i]/Rs)+
 //     nkT/Rs*Lambert(Yi)-AP^.Y[i];
 //     Wi:=Lambert(Yi);
-//     if Wi=555 then Exit;
+//     if Wi=ErResult then Exit;
 //     W_W1:=Wi/(Wi+1);{}
 //
 //     case num of
@@ -3331,7 +3331,7 @@ Function Lagrang(A:Pvector; x:double):double;
  var i,j:word;
      t1,t2:double;
   begin
-   Result:=555;
+   Result:=ErResult;
    if (x-A^.X[High(A^.X)])*(x-A^.X[0])>0 then Exit;
    t1:=0;
    for i:=0 to High(A^.X) do
@@ -3354,7 +3354,7 @@ Result=Ai+Bi(X-Xi)+Ci(X-Xi)^2+Di(X-Xi)^3 при Xi-1<=X<=Xi}
  var B,C,D,Bt,Dl,AA,BB,H:TArrSingle;
       nk,i:integer;
   begin
-   Result:=555;
+   Result:=ErResult;
 
    if (x-V^.X[High(V^.X)])*(x-V^.X[0])>0 then Exit;
    nk:=High(V^.X);
@@ -3568,7 +3568,7 @@ begin
     temp1:=temp2;
     inc(i);
   until (eps<1e-7)or(i>1e5);
-  if (i>1e5) then Result:=555
+  if (i>1e5) then Result:=ErResult
              else Result:=temp2;
 end;
 
@@ -3600,9 +3600,9 @@ Function LambertAprShot(V,E,Rs,I0,Rsh:double):double;
 Е=KbTn/q, використовується спрошений варіант,
 справедливий для Rs<<Rsh}
 begin
-  Result:=555;
+  Result:=ErResult;
   if (E=0) or(Rs=0) or (I0=0) or (Rsh=0) then Exit;
-  if (E=555) or(Rs=555) or (I0=555) or (Rsh=555) then Exit;
+  if (E=ErResult) or(Rs=ErResult) or (I0=ErResult) or (Rsh=ErResult) then Exit;
   Result:=E/Rs*Lambert(Rs*I0/(E)*exp((V+Rs*I0)/E))+
              V/Rsh-I0;
 end;
@@ -3612,9 +3612,9 @@ Function LambertLightAprShot (V,E,Rs,I0,Rsh,Iph:double):double;
 за функцією Ламверта по значеннях параметрів Е,Rs,I0,Rsh,Iph
 Е=KbTn/q}
 begin
-  Result:=555;
+  Result:=ErResult;
   if (E=0) or(Rs=0) or (I0=0) or (Rsh=0) then Exit;
-  if (E=555) or(Rs=555) or (I0=555) or (Rsh=555) then Exit;
+  if (E=ErResult) or(Rs=ErResult) or (I0=ErResult) or (Rsh=ErResult) then Exit;
   Result:=V/Rs-Rsh*(Rs*Iph+Rs*I0+V)/Rs/(Rs+Rsh)+
           E/Rs*Lambert(Rs*I0*Rsh/E/(Rs+Rsh)*exp(Rsh*(Rs*Iph+Rs*I0+V)/E/(Rs+Rsh)));
 end;
@@ -3635,7 +3635,7 @@ var mode,md:byte;
     a,b,c,min:double;
     bool:boolean;
 begin
-Result:=555;
+Result:=ErResult;
 if E=0 then Exit;
 mode:=0;
 if Rsh>=1e12 then mode:=1;
@@ -3719,7 +3719,7 @@ var mode,md:byte;
     a,b,c,min:double;
     bool:boolean;
 begin
-Result:=555;
+Result:=ErResult;
 if E=0 then Exit;
 mode:=0;
 if Rsh>=1e12 then mode:=1;
@@ -3789,7 +3789,7 @@ var mode,md:byte;
     a,b,c,min:double;
     bool:boolean;
 begin
-Result:=555;
+Result:=ErResult;
 if (E1=0)or(E2=0) then Exit;
 mode:=0;
 if Rsh>=1e12 then mode:=1;
@@ -3987,7 +3987,7 @@ Function RevZrizFun(x,m,I0,E:double):double;
 }
 var T:double;
 begin
-Result:=555;
+Result:=ErResult;
 if x<=0 then Exit;
 T:=1/Kb/x;
 Result:=I0*Power(T,m)*exp(-E*x);
@@ -3999,7 +3999,7 @@ Function RevZrizSCLC(x,m,I0,A:double):double;
 }
 var T:double;
 begin
-Result:=555;
+Result:=ErResult;
 if x<=0 then Exit;
 T:=1/Kb/x;
 Result:=I0*Power(T,m)*Power(A,300/T);
@@ -4009,7 +4009,7 @@ end;
 //Function RevZrizFitFun(x:double;Variab:array of double):double;
 //var I1,I2:double;
 //begin
-//Result:=555;
+//Result:=ErResult;
 //if x<=0 then Exit;
 //I1:=RevZrizFun(x,-Tpow,Variab[0],Variab[1]);
 //I2:=RevZrizFun(x,2,Variab[2],Variab[3]);
@@ -4194,7 +4194,7 @@ end;
 //}
 //var Fb,Vn,temp:double;
 //begin
-//Result:=555;
+//Result:=ErResult;
 //if T<=0 then Exit;
 //Fb:=0.775-7.021e-4*sqr(T)/(T+1108);
 //Vn:=Kb*T*ln(2.5e4*1.12*Power(T/300,1.5)/7.25);
@@ -4210,7 +4210,7 @@ end;
 //}
 //var Fb,Vn,Em:double;
 //begin
-//Result:=555;
+//Result:=ErResult;
 //if T<=0 then Exit;
 //Fb:=0.775-7.021e-4*sqr(T)/(T+1108);
 //Vn:=Kb*T*ln(2.5e4*1.12*Power(T/300,1.5)/7.25);
@@ -4278,7 +4278,7 @@ end;
 //   // Zi,Fb,Vn,temp:double;}
 //var I1,I2:double;
 //begin
-//Result:=555;
+//Result:=ErResult;
 //if T<=0 then Exit;
 //I1:=RevShFun(x,T,Variab[0],Variab[2]);
 //I2:=RevShFun(x,T,Variab[1],Variab[3]);
@@ -4441,18 +4441,18 @@ begin
 end;
 
 Function ValueToStr555(Value:double):string; overload;
-{перетворює Value в рядок, якщо Value=555,
+{перетворює Value в рядок, якщо Value=ErResult,
 то результатом є порожній рядок}
 begin
-if Value=555 then Result:=''
+if Value=ErResult then Result:=''
              else Result:=FloatToStrF(Value,ffGeneral,4,2);
 end;
 
 Function ValueToStr555(Value:integer):string; overload;
-{перетворює Value в рядок, якщо Value=555,
+{перетворює Value в рядок, якщо Value=ErResult,
 то результатом є порожній рядок}
 begin
-if Value=555 then Result:=''
+if Value=ErResult then Result:=''
              else Result:=IntToStr(Value);
 end;
 
@@ -4460,12 +4460,12 @@ Function StrToFloat555(Value:string):double;
 {перетворює Value в дійсне число,
 якщо перетворення невдале
 (рядок порожній тощо), то
-результат дорівнює 555}
+результат дорівнює ErResult}
 begin
  try
   Result:=StrToFloat(Value);
  except
-  Result:=555;
+  Result:=ErResult;
  end;
 end;
 
@@ -4473,12 +4473,12 @@ Function StrToInt555(Value:string):integer;
 {перетворює Value в дійсне число,
 якщо перетворення невдале
 (рядок порожній тощо), то
-результат дорівнює 555}
+результат дорівнює ErResult}
 begin
  try
   Result:=StrToInt(Value);
  except
-  Result:=555;
+  Result:=ErResult;
  end;
 end;
 
@@ -4491,7 +4491,7 @@ var i:integer;
 begin
 if A^.n<3 then
    begin
-     Result:=555;
+     Result:=ErResult;
      Exit;
    end;
 Result:=0;
@@ -4545,7 +4545,7 @@ var Fa,Fb,a,b,c,tempa,k,min:double;
   end;
 
 begin
-Result:=555;
+Result:=ErResult;
   a:=Xa;
   b:=Xa;
   repeat

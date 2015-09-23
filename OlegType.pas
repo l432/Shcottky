@@ -7,6 +7,7 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Qelem=1.6e-19; {елементарний заряд, []=Кл}
       Hpl=1.05457e-34; {постійна Планка перекреслена, []=Дж c}
       m0=9.11e-31; {маса електрону []=кг}
+      ErResult=555;
 //      Tpow=0.83;
 var   StartValue,EndValue,Freq:Int64;
 
@@ -86,7 +87,7 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
   введено для можливості використання
   функцій більш загального типу;
   при вдалій операцій функція повертає 0,
-  при невдалій - додатне число, а в Rez всі значення 555}
+  при невдалій - додатне число, а в Rez всі значення ErResult}
 
   TFun2D=Function(A:Pvector; Variab:array of double;
                   Param:array of double;
@@ -102,7 +103,7 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
   введено для можливості використання
   функцій більш загального типу;
   при вдалій операцій функція повертає 0,
-  при невдалій - додатне число, а в Rez всі значення 555}
+  при невдалій - додатне число, а в Rez всі значення ErResult}
 
   TFunSingle=Function(x:double):double of object;
   PTFunSingle=^TFunSingle;
@@ -226,13 +227,13 @@ end;
 procedure Diapazon.SetData(Index:integer; value:double);
 begin
 case Index of
- 1: if (value<0)or(value=555) then fXMin:=-0.005//0.001
+ 1: if (value<0)or(value=ErResult) then fXMin:=-0.005//0.001
                 else fXMin:=value;
- 2: if (value<0)or(value=555)  then fYMin:=0
+ 2: if (value<0)or(value=ErResult)  then fYMin:=0
                 else fYMin:=value;
- 3: if (value<=fXmin)and(fXMin<>555) then fXMax:=555
+ 3: if (value<=fXmin)and(fXMin<>ErResult) then fXMax:=ErResult
                       else fXMax:=value;
- 4: if (value<=fYmin)and(fYMin<>555) then fYMax:=555
+ 4: if (value<=fYmin)and(fYMin<>ErResult) then fYMax:=ErResult
                       else fYMax:=value;
  end;
 end;
