@@ -104,7 +104,7 @@ Gam - показник гамма (див формулу)}
 Procedure CibilsFunDod(A:Pvector; var B:Pvector; Va:double);
 {записує в B функцію F(V)=V-Va*ln(I), побудовану по даним з А}
 
-Procedure CibilsFun(A:Pvector; D:Diapazon; var B:Pvector);
+Procedure CibilsFun(A:Pvector; D:TDiapazon; var B:Pvector);
 {записує в B функцію Сібілса, побудовану по даним з А;
 діапазон зміни напруги від kT до тих значень,
 при яких функція F(V)=V-Va*ln(I) ще має мінімум,
@@ -113,7 +113,7 @@ Procedure CibilsFun(A:Pvector; D:Diapazon; var B:Pvector);
 Procedure LeeFunDod(A:Pvector; var B:Pvector; Va:double);
 {записує в B функцію F(I)=V-Va*ln(I), побудовану по даним з А}
 
-Procedure LeeFun(A:Pvector; D:Diapazon; var B:Pvector);
+Procedure LeeFun(A:Pvector; D:TDiapazon; var B:Pvector);
 {записує в B функцію Lee, побудовану по даним з А;
 діапазон зміни напруги від kT до подвоєного найбільшого
 позитивного значення напруги у вихідній ВАХ;
@@ -168,7 +168,7 @@ fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
 
 
 Procedure Nss_Fun(A:Pvector; var B:Pvector;
-           Fb,Rs:double; DD:TDiodSample; D:Diapazon; nV:boolean);
+           Fb,Rs:double; DD:TDiodSample; D:TDiapazon; nV:boolean);
 {записує в В залежність густини станів
 Nss=ep*ep0*(n-1)/q*del від різниці Ес-Ess=(Fb-V/n),
 [Nss] = еВ-1 см-2; [Ec-Ess] = еВ;
@@ -184,7 +184,7 @@ Fb - висота бар'єру Шотки
 Rs - величина послідовного опору}
 
 Procedure Dit_Fun(A:Pvector; var B:Pvector;
-                  Rs:double;DD:TDiodSample; D:Diapazon);
+                  Rs:double;DD:TDiodSample; D:TDiapazon);
 {записує в В залежність густини станів,
 обчислену за методом Іванова,
 Dit=ep*ep0/(q^2*del)*d(Vcal-Vexp)/dVs
@@ -228,28 +228,35 @@ eр - діелектрична проникність напівпровідника
 підбираються значення del та Fb
 }
 
-Procedure A_B_Diapazon(Avuh,A:Pvector; var B:Pvector; D:Diapazon);overload;
+Procedure A_B_Diapazon(Avuh,A:Pvector;
+                      var B:Pvector; D:TDiapazon;
+                      YminDontUsed:boolean=False);overload;
 {записує в В ті точки з вектора А, відповідні
 до яких точки у векторі Avuh (вихідному) задовольняють
 умовам D; зрозуміло, що для вектора А
 мають бути відомими А^.N_begin та А^.N_end (хоча б перше);
-B^.N_begin, B^.N_end не розраховуються}
+B^.N_begin, B^.N_end не розраховуються
+Якщо YminDontUsed=True, то обмеження
+на Ymin не використовуеться - потрібно
+для аналізу ВАХ освітлених елементів
+}
 
-Procedure A_B_Diapazon(Light:boolean;A:Pvector; var B:Pvector; D:Diapazon);overload;
+Procedure A_B_Diapazon(A:Pvector; var B:Pvector;
+                  D:TDiapazon;YminDontUsed:boolean=False);overload;
 {записує в В ті точки з вектора А, які
 задовольняють умовам D;
 B^.N_begin, B^.N_end не розраховуються
-Якщо Light=True, то обмеження
+Якщо YminDontUsed=True, то обмеження
 на Ymin не використовуеться - потрібно
 для аналізу ВАХ освітлених елементів}
 
 
-Procedure Kam1_Fun (A:Pvector; var B:Pvector; D:Diapazon);
+Procedure Kam1_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
 {записує в B функцію Камінскі першого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
 
-Procedure Kam2_Fun (A:Pvector; var B:Pvector; D:Diapazon);
+Procedure Kam2_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
 {записує в B функцію Камінскі другого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
@@ -266,31 +273,35 @@ Procedure LimitFun(A, A1:Pvector; var B:Pvector; Lim:Limits);
 {записує з А в В тільки ті точки, для яких
 в масиві А1 виконуються умови, розташовані в Lim}
 
-Function PoinValide(Dp:Diapazon; Original, Secondary:Pvector; k:integer): boolean;
+Function PoinValide(Dp:TDiapazon;
+                   Original, Secondary:Pvector;
+                   k:integer; YminDontUsed:boolean=False): boolean;
 {визначає, чи задовільняють координати точки
 вектора Original, яка відповідає k-ій точці
-вектора Secondary, умовам, записаним в змінній D;}
+вектора Secondary, умовам, записаним в змінній Dp;
+при YminDontUsed=True не розглядається умова для Ymin -
+потрібно для аналізу ВАХ освітлених елементів}
 
-Function PoinValideYmin(Dp:Diapazon; Original, Secondary:Pvector; k:integer): boolean;
+//Function PoinValideYmin(Dp:TDiapazon; Original, Secondary:Pvector; k:integer): boolean;
 {визначає, чи задовільняють координати точки
 вектора Original, яка відповідає k-ій точці
 вектора Secondary, умовам, записаним в змінній D;
 не розглядається лише умова для Ymin -
 потрібно для аналізу ВАХ освітлених елементів}
 
-Procedure ChungKalk(A:PVector; D:Diapazon; var Rs:double; var n:double);
+Procedure ChungKalk(A:PVector; D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Чюнга (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure WernerKalk(A:PVector; var D:Diapazon; var Rs:double; var n:double);
+Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Вернера (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure MikhKalk(A:PVector; D:Diapazon; DD:TDiodSample;
+Procedure MikhKalk(A:PVector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А за допомогою
 методу Міхелешвілі визначаються величини
@@ -303,7 +314,7 @@ Procedure MikhKalk(A:PVector; D:Diapazon; DD:TDiodSample;
 AA - стала Річардсона,
 Szr - площа контакту}
 
-Procedure HFunKalk(A:Pvector; D:Diapazon; DD:TDiodSample; N:double;
+Procedure HFunKalk(A:Pvector; D:TDiapazon; DD:TDiodSample; N:double;
                    var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації H-функції (з врахуванням
@@ -314,7 +325,7 @@ N - фактор неідеальності}
 
 //Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
 //                 var n:double; var I0:double; var Fb:double);overload;
-Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon;
+Procedure ExKalk(Index:integer; A:Pvector; D:TDiapazon;
                  Rs:double; DD:TDiodSample;
                  var n:double; var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
@@ -335,7 +346,7 @@ Rs - послідовний опір,
 AA - стала Річардсона,
 Szr - площа контакту}
 
-Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon;
+Procedure ExKalk_nconst(Index:integer; A:Pvector; D:TDiapazon;
                  DD:TDiodSample; Rs, n:double;
                  var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
@@ -373,7 +384,7 @@ Procedure ExKalk(A:Pvector; DD:TDiodSample;
 AA - стала Річардсона,
 Szr - площа контакту}
 
-Procedure ExpKalk(A:Pvector; D:Diapazon; Rs:double;
+Procedure ExpKalk(A:Pvector; D:TDiapazon; Rs:double;
                  DD:TDiodSample; Xp:IRE;
                  var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А шляхом
@@ -488,7 +499,7 @@ Szr - площа контакту}
 //    var Iph:double; var Voc:double; var Isc:double);
 
 
-Procedure NordDodat(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double;
+Procedure NordDodat(A:Pvector; D:TDiapazon; DD:TDiodSample; Gamma:double;
                    var V0:double; var I0:double; var F0:double);
 {на основі даних з вектора А (з рахуванням
 обмежень в D) будує функцію Норда та визначає
@@ -496,7 +507,7 @@ Procedure NordDodat(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double;
 значення самої фуекції F0 та значення струму І0,
 яке відповідає V0 у вихідних даних}
 
-Procedure NordKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double; {Gamma:word;}
+Procedure NordKalk(A:Pvector; D:TDiapazon; DD:TDiodSample; Gamma:double; {Gamma:word;}
                    n:double; var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови
 функції Норда (з врахуванням
@@ -509,14 +520,14 @@ Gamma - параметр гамма (див формулу)
 для обчислення Rs
 n - показник ідеальності}
 
-Procedure CibilsKalk(const A:Pvector; const D:Diapazon;
+Procedure CibilsKalk(const A:Pvector; const D:TDiapazon;
                      out Rs:double; out n:double);
 {на основі даних з вектора А шляхом побудови
 функції Сібілса, визначає величину
 послідовного опору Rs та
 показника ідеальності n}
 
-Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs:double; DD:TDiodSample;
+Procedure IvanovKalk(A:Pvector; D:TDiapazon; Rs:double; DD:TDiodSample;
                      var del:double; var Fb:double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за методом Іванова
@@ -533,19 +544,19 @@ Rs - послідовний опір, апроксимацію потрібно проводити
 }
 
 
-Procedure Kam1Kalk (A:Pvector; D:Diapazon; var Rs:double; var n:double);
+Procedure Kam1Kalk (A:Pvector; D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure Kam2Kalk (const A:Pvector; const D:Diapazon; out Rs:double; out n:double);
+Procedure Kam2Kalk (const A:Pvector; const D:TDiapazon; out Rs:double; out n:double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
+Procedure Gr1Kalk (A:Pvector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -558,7 +569,7 @@ Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 якщо неможливо побудувати функцію Громова,
 то і Rs=ErResult}
 
-Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
+Procedure Gr2Kalk (A:Pvector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -571,7 +582,7 @@ Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 якщо неможливо побудувати функцію Громова,
 то і Rs=ErResult}
 
-Procedure BohlinKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma1,Gamma2:double;
+Procedure BohlinKalk(A:Pvector; D:TDiapazon; DD:TDiodSample; Gamma1,Gamma2:double;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -587,7 +598,7 @@ Gamma - параметр гамма,
 друге значення гамма просте береться
 на дві десятих більше ніж Gamma}
 
-Procedure LeeKalk (A:Pvector; D:Diapazon; DD:TDiodSample;
+Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -1444,7 +1455,7 @@ if B^.n=0 then Exit;
   B^.N_end:=B^.N_end+A^.N_begin;
 end;
 
-Procedure CibilsFun(A:Pvector; D:Diapazon; var B:Pvector);
+Procedure CibilsFun(A:Pvector; D:TDiapazon; var B:Pvector);
 {записує в B функцію Сібілса, побудовану по даним з А
 (з врахуванням умов D);
 діапазон зміни напруги від kT до тих значень,
@@ -1535,7 +1546,7 @@ if B^.n=0 then Exit;
   B^.N_end:=B^.N_end+A^.N_begin;
 end;
 
-Procedure LeeFun(A:Pvector; D:Diapazon; var B:Pvector);
+Procedure LeeFun(A:Pvector; D:TDiapazon; var B:Pvector);
 {записує в B функцію Lee, побудовану по даним з А;
 діапазон зміни напруги від kT до подвоєного найбільшого
 позитивного значення напруги у вихідній ВАХ;
@@ -1826,7 +1837,7 @@ end;
 //Procedure Nss_Fun(A:Pvector; var B:Pvector;
 //                  Fb,Rs,del,ep:double; D:Diapazon; nV:boolean);
 Procedure Nss_Fun(A:Pvector; var B:Pvector;
-           Fb,Rs:double; DD:TDiodSample; D:Diapazon; nV:boolean);
+           Fb,Rs:double; DD:TDiodSample; D:TDiapazon; nV:boolean);
 {записує в В залежність густини станів
 Nss=ep*ep0*(n-1)/q*del від різниці Ес-Ess=(Fb-V/n),
 [Nss] = еВ-1 см-2; [Ec-Ess] = еВ;
@@ -1901,7 +1912,7 @@ end;
 //Procedure Dit_Fun(A:Pvector; var B:Pvector;
 //                  Rs,AA,Szr,Nd,eps:double; D:Diapazon);
 Procedure Dit_Fun(A:Pvector; var B:Pvector;
-                  Rs:double;DD:TDiodSample; D:Diapazon);
+                  Rs:double;DD:TDiodSample; D:TDiapazon);
 {записує в В залежність густини станів,
 обчислену за методом Іванова,
 Dit=ep*ep0/(q^2*del)*d(Vcal-Vexp)/dVs
@@ -2058,7 +2069,8 @@ end;
 
 
 
-Procedure A_B_Diapazon(Avuh,A:Pvector; var B:Pvector; D:Diapazon);
+Procedure A_B_Diapazon(Avuh,A:Pvector; var B:Pvector;
+              D:TDiapazon;YminDontUsed:boolean=False);
 {записує в В ті точки з вектора А, відповідні
 до яких точки у векторі Avuh (вихідному) задовольняють
 умовам D; зрозуміло, що для вектора А
@@ -2072,7 +2084,7 @@ j:=0;
 SetLength(B^.X, j);
 SetLength(B^.Y, j);
 for I := 0 to High(A^.X) do
- if PoinValide(D,Avuh,A,i) then
+ if PoinValide(D,Avuh,A,i,YminDontUsed) then
    begin
      j:=j+1;
      SetLength(B^.X, j);
@@ -2083,44 +2095,48 @@ for I := 0 to High(A^.X) do
 B^.n:=j;
 end;
 
-Procedure A_B_Diapazon(Light:boolean;A:Pvector; var B:Pvector; D:Diapazon);overload;
+Procedure A_B_Diapazon(A:Pvector; var B:Pvector;
+                  D:TDiapazon;
+                  YminDontUsed:boolean=False);overload;
 {записує в В ті точки з вектора А, які
 задовольняють умовам D;
 B^.N_begin, B^.N_end не розраховуються
-Якщо Light=True, то обмеження
+Якщо YminDontUsed=True, то обмеження
 на Ymin не використовуеться - потрібно
 для аналізу ВАХ освітлених елементів}
-var i,j:integer;
+//var i,j:integer;
 begin
-B^.T:=A^.T;
-j:=0;
-SetLength(B^.X, j);
-SetLength(B^.Y, j);
-if Light then
-  for I := 0 to High(A^.X) do
-      if PoinValideYmin(D,A,A,i) then
-         begin
-           j:=j+1;
-           SetLength(B^.X, j);
-           SetLength(B^.Y, j);
-           B^.X[j-1]:=A^.X[i];
-           B^.Y[j-1]:=A^.Y[i];
-         end;
-if not(Light) then
-  for I := 0 to High(A^.X) do
-      if PoinValide(D,A,A,i) then
-         begin
-           j:=j+1;
-           SetLength(B^.X, j);
-           SetLength(B^.Y, j);
-           B^.X[j-1]:=A^.X[i];
-           B^.Y[j-1]:=A^.Y[i];
-         end;
-B^.n:=j;
-B^.name:=A^.name;
+A_B_Diapazon(A,A,B,D,YminDontUsed);
+//B^.T:=A^.T;
+//j:=0;
+//SetLength(B^.X, j);
+//SetLength(B^.Y, j);
+////if YminDontUsed then
+//  for I := 0 to High(A^.X) do
+//      if PoinValide(D,A,A,i,YminDontUsed) then
+////      if PoinValideYmin(D,A,A,i) then
+//         begin
+//           j:=j+1;
+//           SetLength(B^.X, j);
+//           SetLength(B^.Y, j);
+//           B^.X[j-1]:=A^.X[i];
+//           B^.Y[j-1]:=A^.Y[i];
+//         end;
+////if not(YminDontUsed) then
+////  for I := 0 to High(A^.X) do
+////      if PoinValide(D,A,A,i) then
+////         begin
+////           j:=j+1;
+////           SetLength(B^.X, j);
+////           SetLength(B^.Y, j);
+////           B^.X[j-1]:=A^.X[i];
+////           B^.Y[j-1]:=A^.Y[i];
+////         end;
+//B^.n:=j;
+//B^.name:=A^.name;
 end;
 
-Procedure Kam1_Fun (A:Pvector; var B:Pvector; D:Diapazon);
+Procedure Kam1_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
 {записує в B функцію Камінскі першого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
@@ -2181,7 +2197,7 @@ dispose(temp);
 
 end;
 
-Procedure Kam2_Fun (A:Pvector; var B:Pvector; D:Diapazon);
+Procedure Kam2_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
 {записує в B функцію Камінскі другого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
@@ -2326,10 +2342,19 @@ begin
   B^.N_end:=B^.N_end+A^.N_begin;
 end;
 
-Function PoinValide(Dp:Diapazon; Original, Secondary:Pvector; k:integer): boolean;
+//Function PoinValide(Dp:TDiapazon; Original, Secondary:Pvector; k:integer): boolean;
+//{визначає, чи задовільняють координати точки
+//вектора Original, яка відповідає k-ій точці
+//вектора Secondary, умовам, записаним в змінній Dp;}
+Function PoinValide(Dp:TDiapazon;
+                   Original, Secondary:Pvector;
+                   k:integer; YminDontUsed:boolean=False): boolean;
 {визначає, чи задовільняють координати точки
 вектора Original, яка відповідає k-ій точці
-вектора Secondary, умовам, записаним в змінній Dp;}
+вектора Secondary, умовам, записаним в змінній Dp;
+при YminDontUsed=True не розглядається умова для Ymin -
+потрібно для аналізу ВАХ освітлених елементів}
+
 var Xmax, Xmin, Ymax, Ymin:boolean;
 begin
 Xmax:=false;Ymax:=false;Xmin:=false;Ymin:=false;
@@ -2347,35 +2372,37 @@ case Dp.Br of
     Ymin:=(Dp.YMin=ErResult)or(Original^.Y[k+Secondary.N_begin]<-Dp.YMin);
     end;
  end; //case
+ if YminDontUsed then Ymin:=True;
+
  Result:=Xmax and Xmin and Ymax and Ymin;
 end;
 
-Function PoinValideYmin(Dp:Diapazon; Original, Secondary:Pvector; k:integer): boolean;
-{визначає, чи задовільняють координати точки
-вектора Original, яка відповідає k-ій точці
-вектора Secondary, умовам, записаним в змінній D;
-не розглядається лише умова для Ymin -
-потрібно для аналізу ВАХ освітлених елементів}
-var Xmax, Xmin, Ymax:boolean;
-begin
-Xmax:=false;Ymax:=false;Xmin:=false;
-case Dp.Br of
- 'F':begin
-    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]<Dp.XMax);
-    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]>=Dp.XMin);
-    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]<Dp.YMax);
-     end;
- 'R':begin
-    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]>-Dp.XMax);
-    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]<=-Dp.XMin);
-    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]>-Dp.YMax);
-    end;
- end; //case
- Result:=Xmax and Xmin and Ymax;
-end;
+//Function PoinValideYmin(Dp:TDiapazon; Original, Secondary:Pvector; k:integer): boolean;
+//{визначає, чи задовільняють координати точки
+//вектора Original, яка відповідає k-ій точці
+//вектора Secondary, умовам, записаним в змінній D;
+//не розглядається лише умова для Ymin -
+//потрібно для аналізу ВАХ освітлених елементів}
+//var Xmax, Xmin, Ymax:boolean;
+//begin
+//Xmax:=false;Ymax:=false;Xmin:=false;
+//case Dp.Br of
+// 'F':begin
+//    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]<Dp.XMax);
+//    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]>=Dp.XMin);
+//    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]<Dp.YMax);
+//     end;
+// 'R':begin
+//    Xmax:=(Dp.XMax=ErResult)or(Original^.X[k+Secondary.N_begin]>-Dp.XMax);
+//    Xmin:=(Dp.XMin=ErResult)or(Original^.X[k+Secondary.N_begin]<=-Dp.XMin);
+//    Ymax:=(Dp.YMax=ErResult)or(Original^.Y[k+Secondary.N_begin]>-Dp.YMax);
+//    end;
+// end; //case
+// Result:=Xmax and Xmin and Ymax;
+//end;
 
 
-Procedure ChungKalk(A:PVector; D:Diapazon; var Rs:double; var n:double);
+Procedure ChungKalk(A:PVector; D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Чюнга (з врахуванням
 обмежень, вказаних в D, визначає величину
@@ -2407,7 +2434,7 @@ if A^.T<=0 then n:=ErResult
 dispose(temp1);dispose(temp2);
 end;
 
-Procedure WernerKalk(A:PVector; var D:Diapazon; var Rs:double; var n:double);
+Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Вернера (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -2509,7 +2536,7 @@ end;
 
 //Procedure MikhKalk(A:PVector; D:Diapazon; AA, Szr:double;
 //                   var Rs:double; var n:double; var I0:double; var Fb:double);
-Procedure MikhKalk(A:PVector; D:Diapazon; DD:TDiodSample;
+Procedure MikhKalk(A:PVector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А (тих, які задовольняють
 умову D) за допомогою
@@ -2598,7 +2625,7 @@ dispose(temp2);
 
 end;
 
-Procedure HFunKalk(A:Pvector; D:Diapazon; DD:TDiodSample; N:double;
+Procedure HFunKalk(A:Pvector; D:TDiapazon; DD:TDiodSample; N:double;
                    var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації H-функції (з врахуванням
@@ -2632,7 +2659,7 @@ Fb:=Fb/N;
 dispose(temp1);dispose(temp2);
 end;
 
-Procedure ExKalk(Index:integer; A:Pvector; D:Diapazon;
+Procedure ExKalk(Index:integer; A:Pvector; D:TDiapazon;
                  Rs:double; DD:TDiodSample;
                  var n:double; var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
@@ -2695,7 +2722,7 @@ end;
 
 //Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon; Rs, AA, Szr :double;
 //                 n:double; var I0:double; var Fb:double);overload;
-Procedure ExKalk_nconst(Index:integer; A:Pvector; D:Diapazon;
+Procedure ExKalk_nconst(Index:integer; A:Pvector; D:TDiapazon;
                  DD:TDiodSample; Rs, n:double;
                  var I0:double; var Fb:double);overload;
 {на основі даних з вектора А шляхом
@@ -2817,7 +2844,7 @@ end;
 
 //Procedure ExpKalk(A:Pvector; D:Diapazon; Rs, AA, Szr :double; Xp:IRE;
 //                 var n:double; var I0:double; var Fb:double);
-Procedure ExpKalk(A:Pvector; D:Diapazon; Rs:double;
+Procedure ExpKalk(A:Pvector; D:TDiapazon; Rs:double;
                  DD:TDiodSample; Xp:IRE;
                  var n:double; var I0:double; var Fb:double);
 {на основі даних з вектора А шляхом
@@ -3324,7 +3351,7 @@ end;
 //
 
 
-Procedure NordDodat(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double;
+Procedure NordDodat(A:Pvector; D:TDiapazon; DD:TDiodSample; Gamma:double;
                    var V0:double; var I0:double; var F0:double);
 {на основі даних з вектора А (з рахуванням
 обмежень в D) будує функцію Норда та визначає
@@ -3373,7 +3400,7 @@ dispose(temp1);
 end;
 
 
-Procedure NordKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma:double; {Gamma:word;}
+Procedure NordKalk(A:Pvector; D:TDiapazon; DD:TDiodSample; Gamma:double; {Gamma:word;}
                    n:double; var Rs:double; var Fb:double);
 {на основі даних з вектора А шляхом побудови
 функції Норда (з врахуванням
@@ -3402,7 +3429,7 @@ end;
 
 //Procedure CibilsKalk(A:Pvector; D:Diapazon;
 //                     var Rs:double; var n:double);
-Procedure CibilsKalk(const A:Pvector; const D:Diapazon;
+Procedure CibilsKalk(const A:Pvector; const D:TDiapazon;
                      out Rs:double; out n:double);
 {на основі даних з вектора А шляхом побудови
 функції Сібілса, визначає величину
@@ -3428,7 +3455,7 @@ end;
 
 //Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs, AA, Szr, Nd, ep:double;
 //                     var del:double; var Fb:double);
-Procedure IvanovKalk(A:Pvector; D:Diapazon; Rs:double; DD:TDiodSample;
+Procedure IvanovKalk(A:Pvector; D:TDiapazon; Rs:double; DD:TDiodSample;
                      var del:double; var Fb:double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за методом Іванова
@@ -3468,7 +3495,7 @@ dispose(temp2);
 dispose(temp);
 end;
 
-Procedure Kam1Kalk (A:Pvector; D:Diapazon; var Rs:double; var n:double);
+Procedure Kam1Kalk (A:Pvector; D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -3492,7 +3519,7 @@ dispose(temp1);
 end;
 
 //Procedure Kam2Kalk (A:Pvector; D:Diapazon; var Rs:double; var n:double);
-Procedure Kam2Kalk (const A:Pvector; const D:Diapazon; out Rs:double; out n:double);
+Procedure Kam2Kalk (const A:Pvector; const D:TDiapazon; out Rs:double; out n:double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -3519,7 +3546,7 @@ end;
 //Procedure Gr1Kalk (A:Pvector; D:Diapazon; AA, Szr:double;
 //                   var Rs:double; var n:double;
 //                   var Fb:double; var I0:double);
-Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
+Procedure Gr1Kalk (A:Pvector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -3533,7 +3560,7 @@ Procedure Gr1Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
 то і Rs=ErResult}
 var temp1,temp2:Pvector;
     C0,C1,C2:double;
-    Dtemp:Diapazon;
+    Dtemp:TDiapazon;
     i,j,Np:integer;
     DDD:Pvector;
 
@@ -3545,7 +3572,7 @@ Rs:=ErResult;
 n:=ErResult;
 Fb:=ErResult;
 I0:=ErResult;
-Dtemp:=Diapazon.Create;
+Dtemp:=TDiapazon.Create;
 Dtemp.Copy(D);
 
   i:=0;
@@ -3643,7 +3670,7 @@ dispose(DDD);
 //dispose(temp2);
 end;
 
-Procedure Gr2Kalk (A:Pvector; D:Diapazon; DD:TDiodSample;
+Procedure Gr2Kalk (A:Pvector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -3768,7 +3795,7 @@ dispose(temp2);
 end;
 
 
-Procedure BohlinKalk(A:Pvector; D:Diapazon; DD:TDiodSample; Gamma1,Gamma2:double;
+Procedure BohlinKalk(A:Pvector; D:TDiapazon; DD:TDiodSample; Gamma1,Gamma2:double;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням
@@ -3813,7 +3840,7 @@ end;
 //Procedure LeeKalk (A:Pvector; D:Diapazon; AA, Szr:double;
 //                   var Rs:double; var n:double;
 //                   var Fb:double; var I0:double);
-Procedure LeeKalk (A:Pvector; D:Diapazon; DD:TDiodSample;
+Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiodSample;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
 {на основі даних з вектора А (з врахуванням

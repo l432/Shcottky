@@ -149,7 +149,7 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
              //граничні величини для координат графіку
          end;
 
-{}  Diapazon=class //(TObject)// тип для збереження тих меж, в яких
+{}  TDiapazon=class //(TObject)// тип для збереження тих меж, в яких
                            // відбуваються апроксимації різних функцій
          private
            fXMin:double;
@@ -168,7 +168,7 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
            property XMax:double Index 3 read GetData write SetData;
            property YMax:double Index 4 read GetData write SetData;
            property Br:Char read fBr write SetDataBr;
-           procedure Copy (Souсe:Diapazon);
+           procedure Copy (Souсe:TDiapazon);
          end;
 
    Curve3=class //(TObject)// тип для збереження трьох параметрів,
@@ -213,7 +213,7 @@ Procedure SetLenVector(A:Pvector;n:integer);
 
 implementation
 
-function Diapazon.GetData(Index:integer):double;
+function TDiapazon.GetData(Index:integer):double;
 begin
 case Index of
  1:Result:=fXMin;
@@ -224,7 +224,7 @@ case Index of
  end;
 end;
 
-procedure Diapazon.SetData(Index:integer; value:double);
+procedure TDiapazon.SetData(Index:integer; value:double);
 begin
 case Index of
  1: if (value<0)or(value=ErResult) then fXMin:=-0.005//0.001
@@ -238,13 +238,13 @@ case Index of
  end;
 end;
 
-procedure Diapazon.SetDataBr(value:char);
+procedure TDiapazon.SetDataBr(value:char);
 begin
 if value='R' then fBr:=value
              else fBr:='F';
 end;
 
-Procedure Diapazon.Copy (Souсe:Diapazon);
+Procedure TDiapazon.Copy (Souсe:TDiapazon);
            {копіює значення полів з Souсe в даний}
 begin
 XMin:=Souсe.Xmin;

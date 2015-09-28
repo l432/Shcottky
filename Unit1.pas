@@ -1006,24 +1006,24 @@ procedure ClearGraphLog(Form1:TForm1);
 {записує на форму початкові значення аппроксимації
 за формулою I=I0[exp(eV/nkT)-1]}
 
-procedure DiapShow(D:Diapazon;XMin,Ymin,Xmax,YMax:TLabel);
+procedure DiapShow(D:TDiapazon;XMin,Ymin,Xmax,YMax:TLabel);
 {відображення компонентів запису D у відповідних мітках}
 
 procedure DiapShowNew(DpType:TDiapazons);
 {запис у потрібні мітки, залежно від значення DpType}
 
-procedure DiapToForm(D:Diapazon; XMin,Ymin,Xmax,YMax:TLabeledEdit);
+procedure DiapToForm(D:TDiapazon; XMin,Ymin,Xmax,YMax:TLabeledEdit);
 {відображення компонентів запису D у відповідних
 текстових віконечках, виконується при використанні
 вікон зміни діапазону}
 
-procedure DiapToFormFr(D:Diapazon; FrDp:TFrDp);
+procedure DiapToFormFr(D:TDiapazon; FrDp:TFrDp);
 
-procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:Diapazon);
+procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:TDiapazon);
 {відображення компонентів запису D у відповідних
 текстових віконечках, виконується при використанні
 вікон зміни діапазону}
-procedure FormFrToDiap(FrDp:TFrDp; var D:Diapazon);
+procedure FormFrToDiap(FrDp:TFrDp; var D:TDiapazon);
 
 //procedure ModeShow(Mode:integer;Iph:boolean;LRs,LRsh,LIph:TLabel);
 //{відображення режиму апроксимації
@@ -1094,11 +1094,11 @@ Procedure ShowGraph(F:TForm1; st:string);
 виводиться вихідна ВАХ з файлу;
 st - назва графіку}
 
-Procedure DiapToLim(D:Diapazon; var L:Limits);
+Procedure DiapToLim(D:TDiapazon; var L:Limits);
 {копіювання даних, що описують границі графіку
 зі змінної D в змінну L}
 
-Procedure DiapToLimToTForm1(D:Diapazon; F:TForm1);
+Procedure DiapToLimToTForm1(D:TDiapazon; F:TForm1);
 {копіювання даних, що описують границі графіку
 зі змінної D в блок головної форми, пов'язаний
 з обмеженим відображенням графіку (і в змінну GrLim,
@@ -1243,7 +1243,7 @@ var
   лінію відліку в методі визначення глибоких рівнів}
 //  ApprFormula:TStringList; {масив зі виглядом формул апроксимації}
   ApprExp:IRE;{початкові значення для аппроксимації експонентою}
-  D:array[diChung..diHfunc] of Diapazon;
+  D:array[diChung..diHfunc] of TDiapazon;
 {  DChung, DHfunc, DExp, DEx, DNord, DNss, DKam1, DKam2,
   DGr1, DGr2, DCib, DLee, DWer, DMikh: Diapazon;}
   Gamma:double;
@@ -1686,7 +1686,7 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
 
   for DP := Low(DP) to High(DP) do
    begin
-    D[DP]:=Diapazon.Create;
+    D[DP]:=TDiapazon.Create;
     D[DP].XMin:=ConfigFile.ReadFloat('Diapaz',
         GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMin',0.001);
     D[DP].YMin:=ConfigFile.ReadFloat('Diapaz',
@@ -3050,8 +3050,8 @@ if RdGrMin.ItemIndex=GrLim.MinXY
 end;
 
 procedure TForm1.SButFitClick(Sender: TObject);
-var
-    i:integer;
+//var
+//    i:integer;
 //    F:TFitFunction;
 begin
  if SButFit.Down then
@@ -3062,9 +3062,12 @@ FunCreate(SButFit.Caption,Fit);
 
   if (SButFit.Caption='Linear')or
    (SButFit.Caption='Quadratic') then
-       Fit.FittingGraphFile(XLogCheck.Checked,YLogCheck.Checked,VaxGraph,EvolParam,Series4)
+       Fit.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
                                  else
        Fit.FittingGraphFile(VaxGraph,EvolParam,Series4);
+//       Fit.FittingGraphFile(XLogCheck.Checked,YLogCheck.Checked,VaxGraph,EvolParam,Series4)
+//                                 else
+//       Fit.FittingGraphFile(VaxGraph,EvolParam,Series4);
 
    if EvolParam[0]=ErResult then Exit;
    Series4.Active:=True;
@@ -3078,12 +3081,14 @@ FunCreate(SButFit.Caption,Fit);
          MemoAppr.Lines.Add(VaxFile.name);
          MemoAppr.Lines.Add(SButFit.Caption);
         end;
-   for I := 0 to Fit.Ns-1 do
-               MemoAppr.Lines.Add(Fit.Xname[i]+'='+
-                        FloatToStrF(EvolParam[i],ffExponent,4,3));
-   for I := 0 to High(Fit.DodX) do
-               MemoAppr.Lines.Add(Fit.DodXname[i]+'='+
-                        FloatToStrF(Fit.DodX[i],ffExponent,4,3));
+
+   Fit.DataToStrings(EvolParam,MemoAppr.Lines);
+//   for I := 0 to Fit.Ns-1 do
+//               MemoAppr.Lines.Add(Fit.Xname[i]+'='+
+//                        FloatToStrF(EvolParam[i],ffExponent,4,3));
+//   for I := 0 to High(Fit.DodX) do
+//               MemoAppr.Lines.Add(Fit.DodXname[i]+'='+
+//                        FloatToStrF(Fit.DodX[i],ffExponent,4,3));
   Fit.Free;
   end  //if SButFit.Down then
    else Series4.Active:=False;
@@ -3522,6 +3527,7 @@ end;
 procedure TForm1.ButGLAutoClick(Sender: TObject);
 var tempVector:PVector;
     i:byte;
+    Fit:TFitFunctionAAA;
 begin
  try
   new(tempVector);
@@ -4421,7 +4427,7 @@ var
     T:integer;
     V,I,n,Rs,Fb,I0:double;
     RsAv,delRsAv,FbAv,delFbAv,nAv,delnAv{,FbEAv,delFbEAv,nEAv,delnEAv}:double;
-
+    Fit:TFitFunctionAAA;
 begin
 if not(SetCurrentDir(CurDirectory)) then
    begin
@@ -5316,7 +5322,7 @@ var
    Rsmy,nmy,Fbmy,nmyE,FbmyE:double;
    Rsmyk,nmyk,Fbmyk,nmyEk,FbmyEk:double;
    nnn:string;
-   Dtemp,Dtemp2:Diapazon;
+   Dtemp,Dtemp2:TDiapazon;
 
 begin
 
@@ -5328,8 +5334,8 @@ if not(SetCurrentDir(CurDirectory)) then
 
    Str1:=TStringList.Create;
    new(Vax);
-   Dtemp:=Diapazon.Create;
-   Dtemp2:=Diapazon.Create;
+   Dtemp:=TDiapazon.Create;
+   Dtemp2:=TDiapazon.Create;
 
 
    Rsmyk:=0;
@@ -6144,6 +6150,7 @@ var
   Nf:integer;
   nnn,temp_str:string;
   nameBool:boolean;
+  Fit:TFitFunctionAAA;
 
 begin
 DecimalSeparator:='.';
@@ -6152,7 +6159,9 @@ SetLength(dat,ord(High(TColName))+1);
 if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
   FunCreate(LDateFun.Caption,Fit);
+
   SetLength(dat,High(dat)+1+High(Fit.Xname)+1+High(Fit.DodXname)+1);
+
   Fit.Free;
  end;
 //showmessage(inttostr(High(dat)));
@@ -7265,7 +7274,7 @@ end;
 //end;
 
 procedure TForm1.ButtonKalkClick(Sender: TObject);
-//var Fit:TFitFunction;
+var Fit:TFitFunctionAAA;
 begin
 LabelKalk1.Visible:=False;
 LabelKalk2.Visible:=False;
@@ -8165,12 +8174,12 @@ if CBDateFun.Checked then
           StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.Xname[i];
           StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
           end;
-        for i:=0 to High(Fit.DodXname) do
-          begin
-          StrGridData.ColCount:=StrGridData.ColCount+1;
-          StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.DodXname[i];
-          StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
-          end;
+//        for i:=0 to High(Fit.DodXname) do
+//          begin
+//          StrGridData.ColCount:=StrGridData.ColCount+1;
+//          StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.DodXname[i];
+//          StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
+//          end;
 
         Fit.Free;
        end
@@ -9955,7 +9964,7 @@ end;
   Form1.LabelExpN.Caption:='n='+FloatToStrF(A[3]/Kb/290,ffGeneral,3,2);
 end;}
 
-procedure DiapShow(D:Diapazon;Xmin,Ymin,Xmax,Ymax:TLabel);
+procedure DiapShow(D:TDiapazon;Xmin,Ymin,Xmax,Ymax:TLabel);
 {відображення компонентів запису D у відповідних мітках}
 begin
   if D.XMin=ErResult then Xmin.Caption:='Xmin: No'
@@ -10026,7 +10035,7 @@ with Form1 do
  end;
 end;
 
-procedure DiapToForm(D:Diapazon; Xmin,Ymin,Xmax,Ymax:TLabeledEdit);
+procedure DiapToForm(D:TDiapazon; Xmin,Ymin,Xmax,Ymax:TLabeledEdit);
 {відображення компонентів запису D у відповідних
 текстових віконечках, виконується при використанні
 вікон зміни діапазону}
@@ -10041,7 +10050,7 @@ begin
     else Ymax.Text:=FloatToStrF(D.YMax,ffExponent,3,2);
 end;
 
-procedure DiapToFormFr(D:Diapazon; FrDp:TFrDp);
+procedure DiapToFormFr(D:TDiapazon; FrDp:TFrDp);
 {відображення компонентів запису D у відповідних
 текстових віконечках, виконується при використанні
 вікон зміни діапазону}
@@ -10049,7 +10058,7 @@ begin
  DiapToForm(D,FrDp.LEXmin,FrDp.LEYmin,FrDp.LEXmax,FrDp.LEYmax);
 end;
 
-procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:Diapazon);
+procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:TDiapazon);
 {переведення введених у текстові віконечка
 величин у компоненти запису D}
 var temp:double;
@@ -10064,7 +10073,7 @@ StrToNumber(XMax.Text, ErResult, temp);
 D.XMax:=temp;
 end;
 
-procedure FormFrToDiap(FrDp:TFrDp; var D:Diapazon);
+procedure FormFrToDiap(FrDp:TFrDp; var D:TDiapazon);
 begin
   FormToDiap(FrDp.LEXMin,FrDp.LEYmin,FrDp.LEXmax,FrDp.LEYMax,D)
 end;
@@ -10139,6 +10148,7 @@ Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 значення n, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 var n_tmp:double;
+    Fit:TFitFunctionAAA;
 begin
  Result:=ErResult;
  n_tmp:=ErResult;
@@ -10220,6 +10230,7 @@ Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;
 використовується для методів,
 які дозволяють визначити Rs спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
+var Fit:TFitFunctionAAA;
 begin
  Result:=ErResult;
  case CB.ItemIndex of
@@ -10291,6 +10302,7 @@ Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 значення Rs, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 var Rs_tmp:double;
+    Fit:TFitFunctionAAA;
 begin
 Result:=ErResult;
 Rs_tmp:=ErResult;
@@ -10382,6 +10394,7 @@ Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;
 використовується для методів,
 які дозволяють визначити n спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
+var Fit:TFitFunctionAAA;
 begin
 Result:=ErResult;
 case CB.ItemIndex of
@@ -10449,6 +10462,7 @@ Function FbDefineCB(A:PVector; CB:TComboBox; Rs:double):double;
 визначаеться величина висоти бар'єру,
 для деякий методів необхідне значення Rs,
 яке використовується як параметр}
+var Fit:TFitFunctionAAA;
 begin
 Result:=ErResult;
 if (Rs=ErResult) and (CB.ItemIndex in [1,2]) then Exit;
@@ -10537,7 +10551,7 @@ begin
    end
 end;
 
-Procedure DiapToLim(D:Diapazon; var L:Limits);
+Procedure DiapToLim(D:TDiapazon; var L:Limits);
 {копіювання даних, що описують границі графіку
 зі змінної D в змінну L}
 begin
@@ -10562,7 +10576,7 @@ begin
 end;
 
 
-Procedure DiapToLimToTForm1(D:Diapazon; F:TForm1);
+Procedure DiapToLimToTForm1(D:TDiapazon; F:TForm1);
 {копіювання даних, що описують границі графіку
 зі змінної D в блок головної форми, пов'язаний
 з обмеженим відображенням графіку (і в змінну GrLim,
@@ -11578,7 +11592,7 @@ var j,id:integer;
     tsingle:double;
 //    Fit:TFitFunction;
     Light:boolean;
-    Diap:Diapazon;
+    Diap:TDiapazon;
 begin
   Light:=false;
   Diap:=D[diDE];
@@ -11602,7 +11616,7 @@ begin
 
  B^.n:=0;
  new(Alim);
- A_B_Diapazon(Light,A,Alim,Diap);
+ A_B_Diapazon(A,Alim,Diap,Light);
 
 
  if (Alim^.T=0)or(Alim^.n<3) then
