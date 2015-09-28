@@ -1734,13 +1734,13 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName','Photo D-Diod');
   LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName','Photo D-Diod');
     if ((LDateFun.Caption='None')or
-           (LDateFun.Caption='Linear')or
-           (LDateFun.Caption='Quadratic')or
+//           (LDateFun.Caption='Linear')or
+//           (LDateFun.Caption='Quadratic')or
            (LDateFun.Caption='Exponent')or
            (LDateFun.Caption='Median filtr')or
            (LDateFun.Caption='Derivative')or
            (LDateFun.Caption='Smoothing')or
-           (LDateFun.Caption='Gromov / Lee')or
+//           (LDateFun.Caption='Gromov / Lee')or
            (LDateFun.Caption='Ivanov'))
            then
                ButDateOption.Enabled:=False
@@ -3418,13 +3418,13 @@ begin
        end;
 
     if ((str='None')or
-           (str='Linear')or
-           (str='Quadratic')or
+//           (str='Linear')or
+//           (str='Quadratic')or
            (str='Exponent')or
            (str='Median filtr')or
            (str='Derivative')or
            (str='Smoothing')or
-           (str='Gromov / Lee')or
+//           (str='Gromov / Lee')or
            (str='Ivanov'))
            then
             begin

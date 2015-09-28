@@ -227,7 +227,7 @@ end;
 procedure TDiapazon.SetData(Index:integer; value:double);
 begin
 case Index of
- 1: if (value<0)or(value=ErResult) then fXMin:=-0.005//0.001
+ 1: if (value<-0.005)or(value=ErResult) then fXMin:=-0.005//0.001
                 else fXMin:=value;
  2: if (value<0)or(value=ErResult)  then fYMin:=0
                 else fYMin:=value;
