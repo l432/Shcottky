@@ -59,14 +59,15 @@ TFitFunction=class //(TObject)//
               Xlog,Ylog:boolean; Np:Word); virtual;abstract;
  {апроксимація і дані вносяться в Series -
  щоб можна було побудувати графік
- Np - кількість точок на графіку}
+ Np - кількість точок на графіку, див.FittingGraph}
 
   Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);virtual;abstract;
  {апроксимація, дані вносяться в Series, крім
  того апроксимуюча крива заноситься в файл -
  третім стопчиком;
- назва файлу -- V^.name + suf}
+ назва файлу -- V^.name + suf,
+ див.FittingGraphFile}
  public
  property Name:string read FName;
  property Caption:string read FCaption;
@@ -94,7 +95,6 @@ TFitFunction=class //(TObject)//
  в OutputData[0] - ErResult;
  загалом розмір OutputData  після процедури співпадає з
  кількістю шуканих параметрів;
-
  останні змінні дозволяють апроксимувати дані,
  представлені у векторі InputData у логарифмічному масштабі
  Xlog = True - абсциси у у логарифмічному масштабі,
@@ -107,7 +107,10 @@ TFitFunction=class //(TObject)//
               Np:Word=150);virtual;
  {апроксимація і дані вносяться в Series -
  щоб можна було побудувати графік
- Np - кількість точок на графіку}
+ Np - кількість точок на графіку,
+ Xlog,Ylog див. Fitting
+ фактично це обгортка для RealToGraph, яка
+ у нащадках може мінятися}
 
  Procedure FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
@@ -116,7 +119,10 @@ TFitFunction=class //(TObject)//
  {апроксимація, дані вносяться в Series, крім
  того апроксимуюча крива заноситься в файл -
  третім стопчиком;
- назва файлу -- V^.name + suf}
+ назва файлу -- V^.name + suf,
+ Xlog,Ylog див. Fitting,
+ фактично це обгортка для RealToFile, яка
+ у нащадках може мінятися}
 
  Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
                             D:TDiapazon);virtual;abstract;
@@ -140,10 +146,9 @@ TFitFunction=class //(TObject)//
 
 TFitWithoutParameteres=class (TFitFunction)
  private
-  FtempVector:PVector;
-  FErrorMessage:string;
-  Constructor Create(FunctionName,FunctionCaption:string);
-  procedure RealTransform(InputData:PVector);virtual;abstract;
+  FtempVector:PVector;  //результати операції саме тут розміщуються
+  FErrorMessage:string; //виводиться при помилці
+  procedure RealTransform(InputData:PVector);//virtual;abstract;
   {cаме тут в FtempVector вноситься
   перетворений потрібним чином InputData}
   Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
@@ -153,6 +158,7 @@ TFitWithoutParameteres=class (TFitFunction)
               Xlog,Ylog:boolean; suf:string);override;
 
  public
+ Constructor Create(FunctionName:string);
  Procedure Free;
  Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
                      Xlog:boolean=False;Ylog:boolean=False):double;override;
@@ -163,34 +169,14 @@ TFitWithoutParameteres=class (TFitFunction)
  Function Deviation (InputData:PVector):double;override;
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);override;
- end;
+ end;  //TFitWithoutParameteres=class (TFitFunction)
+ //--------------------------------------------------------------------
 
-TSmoothing=class (TFitWithoutParameteres)
- public
- Constructor Create;
- Procedure RealTransform(InputData:PVector);override;
-  {cаме тут в FtempVector вноситься
-  перетворений потрібним чином InputData}
-
-// Function Func(Variab:TArrSingle):double; override;
-// Procedure FittingGraph (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150);override;
- {апроксимація і дані вносяться в Series -
- щоб можна було побудувати графік
- Np - кількість точок на графіку}
-
-// Procedure FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150; suf:string='fit');override;
- {апроксимація, дані вносяться в Series, крім
- того апроксимуюча крива заноситься в файл -
- третім стопчиком;
- назва файлу -- V^.name + suf}
-
- end; // TSmoothing=class (TFitFunction)
+//TSmoothing=class (TFitWithoutParameteres)
+// public
+// Constructor Create;
+// Procedure RealTransform(InputData:PVector);override;
+// end; // TSmoothing=class (TFitFunction)
 
 //----------------------------------------------------------
 
@@ -198,22 +184,20 @@ TFitFunctionSimple=class (TFitFunction)
 {абстрактний клас для функцій, де визначаються параметри}
  private
   FNx:byte;//кількість параметрів, які визначаються
+  FVarNum:byte; //кількість додаткових величин, які потрібні для розрахунку функції
   FVariab:TArrSingle;
  {величини, які потрібні для розрахунку функції, завжди
  FVariab[0] - це змінна Х,
  FVariab[1] - це змінна Y,
  решта залежать від функції}
-  FVarNum:byte;
- //кількість додаткових величин
-  FVarName:array of string;
- //імена додаткових величин
+  FVarName:array of string;  //імена додаткових величин
   Constructor Create(FunctionName,FunctionCaption:string;
                      N:byte);
   Function Func(Parameters:TArrSingle):double; virtual;abstract;
   {апроксимуюча функція... точніше та, яка використовується
-  при побудові цільової функції; вона не завжди
-  співпадає з апроксимуючою - наприклад для Diod
-  не співпадає задля економії часу}
+  при побудові цільової функції;
+  вона не завжди   співпадає з апроксимуючою -
+  наприклад як для Diod  задля економії часу}
   Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); virtual;abstract;
  {апроксимуються дані у векторі InputData, отримані параметри
@@ -222,20 +206,11 @@ TFitFunctionSimple=class (TFitFunction)
   Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
- {апроксимація і дані вносяться в Series -
- щоб можна було побудувати графік
- Np - кількість точок на графіку}
-
   Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;
- {апроксимація, дані вносяться в Series, крім
- того апроксимуюча крива заноситься в файл -
- третім стопчиком;
- назва файлу -- V^.name + suf}
-
  public
   Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
-                     Xlog:boolean=False;Ylog:boolean=False):double; {overload; }override;
+                     Xlog:boolean=False;Ylog:boolean=False):double; override;
  {обчислюються значення апроксимуючої функції в
  точці з абсцисою Х, найчастіше значення співпадає
  з тим, що повертає Func при Fparam[0]=X,
@@ -245,49 +220,10 @@ TFitFunctionSimple=class (TFitFunction)
  Xlog = True - абсциси у у логарифмічному масштабі,
  Ylog = True - ординати у логарифмічному масштабі
 }
-
-
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
- {фактично, обгортка для процедури RealFitting,
- де дійсно відбувається апроксимація;
- ця процедура лише виловлює помилки,
- і при невдалому процесі показується повідомлення,
- в OutputData[0] - ErResult;
- загалом розмір OutputData  після процедури співпадає з
- кількістю шуканих параметрів;
-
- останні змінні дозволяють апроксимувати дані,
- представлені у векторі InputData у логарифмічному масштабі
- Xlog = True - абсциси у у логарифмічному масштабі,
- Ylog = True - ординати у логарифмічному масштабі
- }
-
-
-// Procedure FittingGraph (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150);override;
-// {апроксимація і дані вносяться в Series -
-// щоб можна було побудувати графік
-// Np - кількість точок на графіку}
-
-
-// Procedure FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150; suf:string='fit');override;
- {апроксимація, дані вносяться в Series, крім
- того апроксимуюча крива заноситься в файл -
- третім стопчиком;
- назва файлу -- V^.name + suf}
-
  Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
                             D:TDiapazon);override;
-{апроксимуються дані у векторі V відповідно до обмежень
- в D, отримані параметри розміщуються в OutputData}
-
-
  Function Deviation (InputData:PVector):double;override;
  {повертає середнеє квадратичне відносне
  відхилення апроксимації даних у InputData
@@ -322,14 +258,245 @@ TQuadratic=class (TFitFunctionSimple)
 TGromov=class (TFitFunctionSimple)
  private
   Procedure RealFitting (InputData:PVector;var OutputData:TArrSingle);override;
-    Function Func(Parameters:TArrSingle):double; override;
-
+  Function Func(Parameters:TArrSingle):double; override;
  public
   Constructor Create;
  end; // TGromov=class (TFitFunction)
 
+//-----------------------------------------------
+
+TFitVariabSet=class(TFitFunctionSimple)
+{для функцій, де потрібно більше ніж лише Х та Y}
+private
+ FVarBool:array of boolean;
+ {якщо True, то значення відповідної додаткової
+ величини відповідає  введеному значенню, а не
+ визначається програмно - наприклад,
+ температура береться не з парметрів Pvector}
+ FVarValue:TArrSingle;
+ {ці значення додаткових величин,
+ вони зберігаються в .ini-файлі}
+ FIsNotReady:boolean;
+{показує, чи всі дані присутні і, отже, чи функція готова
+ для використання}
+ Procedure ReadFromIniFile;virtual;
+ {зчитує дані з ini-файла, обгортка для RealReadFromIniFile}
+ Procedure RealReadFromIniFile(ConfigFile:TOIniFile);virtual;
+ {безпосередньо зчитує дані з ini-файла, в цьому класі - FVarValue, FVarBool}
+ Procedure WriteToIniFile;virtual;
+ {записує дані в ini-файл, обгортка для RealWriteToIniFile}
+ Procedure RealWriteToIniFile(ConfigFile:TOIniFile);virtual;
+ {безпосередньо записує дані в ini-файл, в цьому класі - FVarValue, FVarBool}
+ Procedure BeforeFitness(InputData:Pvector);virtual;
+ {виконується перед початком апроксимації,
+ полягає у заповненні полів потрібними
+ значеннями}
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+ Procedure GRFormPrepare(Form:TForm);
+  {початкове створення форми для керування параметрами}
+public
+ Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
+ procedure SetValueGR;override;
+ {показ форми для керування параметрами апроксимації}
+
+ end;   // TFitVariabSet=class(TFitFunctionSimple)
 
 
+
+
+
+
+
+
+
+
+// private
+// FNit:integer;//кількість ітерацій
+// FXmin:TArrSingle;
+// //мінімальні значення змінних при ініціалізації
+// FXmax:TArrSingle;
+// //максимальні значення змінних при ініціалізації
+// FXminlim:TArrSingle;
+////мінімальні значення змінних при еволюційному пошуку
+//  FXmaxlim:TArrSingle;
+////максимальні значення змінних при еволюційному пошуку
+// FXmode:TArrVar_Rand;
+// //тип змінних
+// {якщо тип змінної cons, то вона розраховується
+// за формулою X=A+Bt+Ct^2,
+// де А, В та С - константи, які
+// зберігаються в масивах FA, FB та FC,
+// t - може бути будь-яка додаткова величина,
+// або величина, обернена до неї}
+// FA,FB,FC:TArrSingle;
+// FXt:array of integer;
+// {містить числа, пов'язані з параметрами,
+// які використовуються для розрахунку змінної:
+// 0 - без параметрів, тобто змінна = А
+// 2..(FPNs-1) - FParam[FXt[i]]
+// (FPNs+2)..(2FPNs-1) - FParam[FXt[i]-FPNs]^(-1)}
+// FXvalue:TArrSingle;
+//{значення змінних, якщо вони
+// мають тип cons;
+// фактично це поле дише для того,
+// щоб не рахувати за формулою X=A+Bt+Ct^2
+// кожного разу, а лише на початку апроксимації}
+// FPEst:byte;
+// //показник степеня дільника у цільовій функції
+// FIsReady:boolean;
+//{показує, чи всі дані присутні і, отже, функція готова
+// для використання}
+// FPbool:array of boolean;
+// {якщо True, то значення відповідного
+// параметру стале, відповідає
+// введеному значенню, а не
+// визначається програмно - наприклад,
+// температура береться не з парметрів Pvector}
+// FPValue:TArrSingle;
+// {значення параметрів}
+// FEvType:TEvolutionType;
+// {еволюційний метод,
+// який використовується для апроксимації}
+// FDodX:TArrSingle;
+// {додаткові параметри, які
+// можна розрахувати на основі апроксимації;
+// наприклад, для ВАХ діода при
+// освітленні це будуть
+// Voc, Isc, FF та Pm}
+// FDodXname:TArrStr;
+// {імена додаткових параметрів}
+//  Labels:array of TLabel;
+// {мітки, які показуються на вікні під
+// час апроксимації}
+// FDbool:boolean;
+// {змінна, яка показує як треба
+// застосовувати обмеження, вказані в
+// діапазонній змінній,
+// при True, то обмеження
+//на Ymin не використовуеться - потрібно
+//для аналізу ВАХ освітлених елементів,
+//за умовчанням False}
+// //---------------------------
+// { поля, для збереження параметрів матеріалу та зразка}
+// FSample:TDiodSample;
+// procedure SetNit(value:integer);
+// Function EvFitPreparation(V:PVector;var Param:TArrSingle;
+//                          str:string; var Nit:integer):boolean;
+//{виконується на початку еволюційної апроксимації,
+//перевіряється готовність функції,
+//встановлюється параметри вікна,
+//зануляється кількість ітерацій;
+//якщо все добре - повертається False
+//}
+//Procedure  EvFitInit(V:PVector;var X:TArrArrSingle; var Fit:TArrSingle);
+//{початкове встановлення випадкових
+//значень в Х та розрахунок початкових
+//величин цільової функції}
+//Procedure EvFitShow(X:TArrArrSingle;Fit:TArrSingle; Nit,Nshow:integer);
+//{проводить зміну значень на вікні
+//під час еволюційної апроксимації,
+//якщо Nit кратна Nshow}
+//Procedure EvFitEnding(Fit:TArrSingle; X:TArrArrSingle; var Param:TArrSingle);
+//{виконується наприкінці еволюційної апроксимації,
+//очищається вікно,
+//записуються отримані результати в Param}
+//procedure DodParDetermination(V: PVector;Variab:TArrSingle); virtual;
+//{розраховуються додаткові параметри}
+//procedure BeforeFitness(AP:Pvector);virtual;
+// {виконується перед початком апроксимації,
+// полягає у заповненні полів потрібними
+// значеннями}
+//Procedure AproxN (V:PVector; var Param:TArrSingle);virtual;
+//{просто заглушка для функції, яка використовується
+//в класах-спадкоємцях;
+//потрібно, щоб можна було викликати для
+//змінних базового типу}
+// Function FitnessFunc(AP:Pvector; Variab:TArrSingle):double;virtual;
+// {функція для оцінки апроксимації залежності  AP
+//  даною функцією, найчастіше - квадратична форма}
+//
+// Procedure ReadValue;virtual;
+// {зчитує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
+// та FNit з ini-файла}
+// Procedure WriteValue;virtual;
+// {записує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
+// та FNit в ini-файл}
+// Procedure VarRand(var X:TArrSingle);
+// {випадковим чином задає значення змінних
+// масиву  Х в діапазоні від FXmin до FXmax}
+// Procedure PenaltyFun(var X:TArrSingle);
+// {контролює можливі значення параметрів у масиві X,
+// що підбираються при апроксимації еволюційними методами,
+// заважаючи їм прийняти нереальні значення -
+// тобто за межами FXminlim та FXmaxlim}
+// Procedure WindowPrepare();
+// {підготовка вікна до показу даних}
+// Procedure WindowClear();
+// {очищення вікна після апроксимації}
+// Procedure WindowDataShow(N:integer;X:TArrSingle);
+// {показ номера біжучої ітерації
+//  та даних, які знаходяться в Х}
+//
+//Procedure MABCFit (V:PVector; var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом modified artificial bee colony;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+//Procedure PSOFit (V:PVector; var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//particle swarm optimization;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+//Procedure DEFit (V:PVector;  var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//differential evolution;
+//Fu визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+//
+//Procedure TLBOFit (V:PVector; {F:TFitFunction;} var Param:TArrSingle);
+//{апроксимуються дані у векторі V за методом
+//teaching learning based optimization;
+//F визначає апроксимуючу функцію,
+//результати апроксимації вносяться в Param}
+////----------------------------------------------
+// public
+//
+// property Nit:integer read FNit write SetNit;
+// property IsReady:boolean read FIsReady;
+// property Xmode:TArrVar_Rand read FXmode;
+//// property Xmin:TArrSingle read FXmin write FXmin;
+//// property Xmax:TArrSingle read FXmax write FXmax;
+//// property Xminlim:TArrSingle read FXminlim write FXminlim;
+// property Xvalue:TArrSingle read FXvalue;
+// property EvType:TEvolutionType read FEvType;
+// property DodXname:TArrStr read FDodXname;
+// property DodX:TArrSingle read FDodX;
+// Procedure SetValue(num,index:byte;value:double); overload;
+// {встановлюються значення num-го елементу поля
+// FXmin при index=1
+// FXmax при index=2
+// FXminlim при index=3
+// FXmaxlim при index=4
+// }
+// Procedure SetValue(name:string;index:byte;value:double); overload;
+//{встановлюються значення елементу поля
+// FXmin при index=1
+// FXmax при index=2
+// FXminlim при index=3
+// FXmaxlim при index=4
+// для якого елемент FXname співпадає з name}
+//
+// Procedure SetValueMode(num:byte;value:TVar_Rand); overload;
+// {встановлюються значення num-го елементу поля
+// FXmode }
+// Procedure SetValueMode(name:string;value:TVar_Rand); overload;
+// {встановлюються значення елементу поля
+// FXmode для якого елемент FXname співпадає з name}
+// end;   // TFitFunction=class
+//
 
 
 
@@ -603,273 +770,6 @@ Function Deviation (V:PVector):double;
  end;   // TFitFunction=class
 
 
-//
-//TFitFunction=class //(TObject)//
-// private
-// FNs:integer;//кількість змінних
-// FNit:integer;//кількість ітерацій
-// FXmin:TArrSingle;
-// //мінімальні значення змінних при ініціалізації
-// FXmax:TArrSingle;
-// //максимальні значення змінних при ініціалізації
-// FXminlim:TArrSingle;
-////мінімальні значення змінних при еволюційному пошуку
-//  FXmaxlim:TArrSingle;
-////максимальні значення змінних при еволюційному пошуку
-// FXmode:TArrVar_Rand;
-// //тип змінних
-// {якщо тип змінної cons, то вона розраховується
-// за формулою X=A+Bt+Ct^2,
-// де А, В та С - константи, які
-// зберігаються в масивах FA, FB та FC,
-// t - може бути будь-яка додаткова величина,
-// або величина, обернена до неї}
-// FA,FB,FC:TArrSingle;
-// FXt:array of integer;
-// {містить числа, пов'язані з параметрами,
-// які використовуються для розрахунку змінної:
-// 0 - без параметрів, тобто змінна = А
-// 2..(FPNs-1) - FParam[FXt[i]]
-// (FPNs+2)..(2FPNs-1) - FParam[FXt[i]-FPNs]^(-1)}
-// FXvalue:TArrSingle;
-//{значення змінних, якщо вони
-// мають тип cons;
-// фактично це поле дише для того,
-// щоб не рахувати за формулою X=A+Bt+Ct^2
-// кожного разу, а лише на початку апроксимації}
-// FXname:TArrStr; // імена змінних
-// FName:string;//ім'я функції
-// FPEst:byte;
-// //показник степеня дільника у цільовій функції
-// FIsReady:boolean;
-//{показує, чи всі дані присутні і, отже, функція готова
-// для використання}
-// FParam:TArrSingle;
-// {величини, які також потрібні для розрахунку
-// функції, завжди
-// FParam[0] - це змінна Х,
-// FParam[1] - це змінна Y,
-// решта залежать від функції}
-// FPname:array of string;
-// //імена додаткових величин
-// FPNs:byte;
-// //кількість додаткових величин
-// FPbool:array of boolean;
-// {якщо True, то значення відповідного
-// параметру стале, відповідає
-// введеному значенню, а не
-// визначається програмно - наприклад,
-// температура береться не з парметрів Pvector}
-// FPValue:TArrSingle;
-// {значення параметрів}
-// FEvType:TEvolutionType;
-// {еволюційний метод,
-// який використовується для апроксимації}
-// FCaption:string;
-// {містить опис функції}
-// FDodX:TArrSingle;
-// {додаткові параметри, які
-// можна розрахувати на основі апроксимації;
-// наприклад, для ВАХ діода при
-// освітленні це будуть
-// Voc, Isc, FF та Pm}
-// FDodXname:TArrStr;
-// {імена додаткових параметрів}
-//  Labels:array of TLabel;
-// {мітки, які показуються на вікні під
-// час апроксимації}
-// FDbool:boolean;
-// {змінна, яка показує як треба
-// застосовувати обмеження, вказані в
-// діапазонній змінній,
-// при True, то обмеження
-//на Ymin не використовуеться - потрібно
-//для аналізу ВАХ освітлених елементів,
-//за умовчанням False}
-// //---------------------------
-// { поля, для збереження параметрів матеріалу та зразка}
-//// FSzr:double;//площа зразка
-//// FArich:double;//стала Річардсона
-// procedure SetNit(value:integer);
-// Function EvFitPreparation(V:PVector;var Param:TArrSingle;
-//                          str:string; var Nit:integer):boolean;
-//{виконується на початку еволюційної апроксимації,
-//перевіряється готовність функції,
-//встановлюється параметри вікна,
-//зануляється кількість ітерацій;
-//якщо все добре - повертається False
-//}
-//Procedure  EvFitInit(V:PVector;var X:TArrArrSingle; var Fit:TArrSingle);
-//{початкове встановлення випадкових
-//значень в Х та розрахунок початкових
-//величин цільової функції}
-//Procedure EvFitShow(X:TArrArrSingle;Fit:TArrSingle; Nit,Nshow:integer);
-//{проводить зміну значень на вікні
-//під час еволюційної апроксимації,
-//якщо Nit кратна Nshow}
-//Procedure EvFitEnding(Fit:TArrSingle; X:TArrArrSingle; var Param:TArrSingle);
-//{виконується наприкінці еволюційної апроксимації,
-//очищається вікно,
-//записуються отримані результати в Param}
-//procedure FitName(var st: string; V: PVector);
-//{у змінну st вноситься змінене значення
-//V^.name, зміна полягає у дописуванні
-//'fit'перед першою крапкою}
-//procedure DodParDetermination(V: PVector;Variab:TArrSingle); virtual;
-//{розраховуються додаткові параметри}
-//
-//procedure BeforeFitness(AP:Pvector);virtual;
-// {виконується перед початком апроксимації,
-// полягає у заповненні полів потрібними
-// значеннями}
-//Procedure AproxN (V:PVector; var Param:TArrSingle);virtual;
-//{просто заглушка для функції, яка використовується
-//в класах-спадкоємцях;
-//потрібно, щоб можна було викликати для
-//змінних базового типу}
-// Function Func(Variab:TArrSingle):double; virtual;abstract;
-//  {апроксимуюча функція... точніше та, яка використовується
-//  при побудові цільової функції; вона не завжди
-//  співпадає з апроксимуючою - наприклад для Diod
-//  не співпадає задля економії часу}
-// Function FitnessFunc(AP:Pvector; Variab:TArrSingle):double;virtual;
-// {функція для оцінки апроксимації залежності  AP
-//  даною функцією, найчастіше - квадратична форма}
-//
-// Constructor Create(N:integer);
-//
-// Procedure ReadValue;virtual;
-// {зчитує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
-// та FNit з ini-файла}
-// Procedure WriteValue;virtual;
-// {записує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
-// та FNit в ini-файл}
-// Procedure VarRand(var X:TArrSingle);
-// {випадковим чином задає значення змінних
-// масиву  Х в діапазоні від FXmin до FXmax}
-// Procedure PenaltyFun(var X:TArrSingle);
-// {контролює можливі значення параметрів у масиві X,
-// що підбираються при апроксимації еволюційними методами,
-// заважаючи їм прийняти нереальні значення -
-// тобто за межами FXminlim та FXmaxlim}
-// Procedure WindowPrepare();
-// {підготовка вікна до показу даних}
-// Procedure WindowClear();
-// {очищення вікна після апроксимації}
-// Procedure WindowDataShow(N:integer;X:TArrSingle);
-// {показ номера біжучої ітерації
-//  та даних, які знаходяться в Х}
-//
-//Procedure MABCFit (V:PVector; var Param:TArrSingle);
-//{апроксимуються дані у векторі V за методом modified artificial bee colony;
-//F визначає апроксимуючу функцію,
-//результати апроксимації вносяться в Param}
-//
-//Procedure PSOFit (V:PVector; var Param:TArrSingle);
-//{апроксимуються дані у векторі V за методом
-//particle swarm optimization;
-//F визначає апроксимуючу функцію,
-//результати апроксимації вносяться в Param}
-//
-//Procedure DEFit (V:PVector;  var Param:TArrSingle);
-//{апроксимуються дані у векторі V за методом
-//differential evolution;
-//Fu визначає апроксимуючу функцію,
-//результати апроксимації вносяться в Param}
-//
-//Procedure TLBOFit (V:PVector; {F:TFitFunction;} var Param:TArrSingle);
-//{апроксимуються дані у векторі V за методом
-//teaching learning based optimization;
-//F визначає апроксимуючу функцію,
-//результати апроксимації вносяться в Param}
-////----------------------------------------------
-// public
-//
-// property Ns:integer read FNs;
-// property Nit:integer read FNit write SetNit;
-// property Xname:TArrStr read FXname;
-// property Name:string read FName;
-// property IsReady:boolean read FIsReady;
-// property Xmode:TArrVar_Rand read FXmode;
-//// property Xmin:TArrSingle read FXmin write FXmin;
-//// property Xmax:TArrSingle read FXmax write FXmax;
-//// property Xminlim:TArrSingle read FXminlim write FXminlim;
-// property Xvalue:TArrSingle read FXvalue;
-// property EvType:TEvolutionType read FEvType;
-// property DodXname:TArrStr read FDodXname;
-// property DodX:TArrSingle read FDodX;
-// property Caption:string read FCaption;
-// Procedure SetValue(num,index:byte;value:double); overload;
-// {встановлюються значення num-го елементу поля
-// FXmin при index=1
-// FXmax при index=2
-// FXminlim при index=3
-// FXmaxlim при index=4
-// }
-// Procedure SetValue(name:string;index:byte;value:double); overload;
-//{встановлюються значення елементу поля
-// FXmin при index=1
-// FXmax при index=2
-// FXminlim при index=3
-// FXmaxlim при index=4
-// для якого елемент FXname співпадає з name}
-//
-// Procedure SetValueMode(num:byte;value:TVar_Rand); overload;
-// {встановлюються значення num-го елементу поля
-// FXmode }
-// Procedure SetValueMode(name:string;value:TVar_Rand); overload;
-// {встановлюються значення елементу поля
-// FXmode для якого елемент FXname співпадає з name}
-// Procedure SetValueGR;virtual;
-//
-// Function FinalFunc(X:double;Variab:TArrSingle):double; overload; virtual;
-// {обчислюються значення апроксимуючої функції в
-// точці з абсцисою Х, найчастіше значення співпадає
-// з тим, що повертає Func при Fparam[0]=X}
-//
-//Procedure Fitting (V:PVector; var Param:TArrSingle); overload; virtual;
-//{апроксимуються дані у векторі V, отримані параметри
-//розміщуються в Param;
-//при невдалому процесі -  показується повідомлення,
-//в Param[0] - ErResult;
-//загалом розмір Param  після процедури співпадає з кількістю
-//параметрів;
-//для базового типу - викликається один з типів
-//еволюційної апроксимації залежно від значення FEvType}
-//Procedure Fitting (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle); overload; virtual;
-//{дає можливість апроксимувати дані у векторі V,
-//розглануті у логарифмічному масштабі
-//Xlog = True - використовується логарифм абсцис,
-//Ylog = True - використовується логарифм ординат}
-//Procedure FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries); overload; virtual;
-//{апроксимація і дані вносяться в Series -
-//щоб можна було побудувати графік}
-//
-//Procedure FittingGraph (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
-//{див Fitting та FittingGraph}
-//
-//Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
-//{апроксимація, дані вносяться в Series, крім
-//того апроксимуюча крива заноситься в файл -
-//третім стопчиком як правило;
-//назва файлу -- V^.name + 'fit'}
-//
-//Procedure FittingGraphFile (Xlog,Ylog:boolean; V:PVector; var Param:TArrSingle;Series: TLineSeries); overload; virtual;
-//{апроксимація, дані вносяться в Series, крім
-//того апроксимуюча крива заноситься в файл -
-//третім стопчиком як правило;
-//назва файлу -- V^.name + 'fit'}
-//
-//Procedure FittingDiapazon (V:PVector; var Param:TArrSingle; D:Diapazon); virtual;
-//{апроксимуються дані у векторі V відповідно до обмежень
-//в D, отримані параметри розміщуються в Param}
-//
-//Function Deviation (V:PVector):double;
-//{повертає середнеє значення відхилення апроксимації
-//даних V від самих даних}
-////Procedure Fitting (V:PVector; var Param:TArrSingle);
-//
-// end;   // TFitFunction=class
 
 
 
@@ -889,21 +789,21 @@ TExponent=class (TFitFunctionAAA)
 // Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
 // end; // TDiod=class (TFitFunction)
 
-TMedian=class (TFitFunctionAAA)
- public
- Constructor Create;
- Function Func(Variab:TArrSingle):double; override;
- Procedure FittingGraph(V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
- Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
- end; // TDiod=class (TFitFunction)
-
-TDerivative=class (TFitFunctionAAA)
- public
- Constructor Create;
- Function Func(Variab:TArrSingle):double; override;
- Procedure FittingGraph(V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
- Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
- end; // TDiod=class (TFitFunction)
+//TMedian=class (TFitFunctionAAA)
+// public
+// Constructor Create;
+// Function Func(Variab:TArrSingle):double; override;
+// Procedure FittingGraph(V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
+// Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
+// end; // TDiod=class (TFitFunction)
+//
+//TDerivative=class (TFitFunctionAAA)
+// public
+// Constructor Create;
+// Function Func(Variab:TArrSingle):double; override;
+// Procedure FittingGraph(V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
+// Procedure FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries); {reintroduce; overload;}override;
+// end; // TDiod=class (TFitFunction)
 
 
 
@@ -1173,19 +1073,6 @@ ResName і масштабується зображення, щоб не вийш
 за межі розмірів Img, які були перед цим}
 
 
-//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
-//              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
-//              Light:boolean;Func:byte);
-//{по даним у векторі А будує залежність похідної
-//диференційного нахилу ВАХ від напруги (метод Булярського)
-//fun - кількість зглажувань
-//Isc - струм короткого замикання
-//Iscbool=true - потрібно враховувати Isc
-//Rbool=true - потрібно враховувати послідовний
-//та шунтуючі опори
-//D, Mode, Light та Func потрібні лише для
-//виклику функції ExpKalkNew}
-
 Procedure FunCreate(str:string; var F:TFitFunction); overload;
 {створює F того чи іншого типу залежно
 від значення str}
@@ -1243,6 +1130,8 @@ begin
      end;
 end;
 
+
+
 Constructor TFitFunction.Create(FunctionName,FunctionCaption:string);
 begin
  inherited Create;
@@ -1256,26 +1145,10 @@ begin
   showmessage('The options are absent');
 end;
 
-//Function TFitFunction.FinalFunc(X:double;DeterminedParameters:TArrSingle;
-//                     Xlog:boolean=False;Ylog:boolean=False):double; {overload; virtual;}
-//begin
-//Result:=ErResult;
-//end;
-
-//Procedure TFitFunction.Fitting (InputData:PVector; var OutputData:TArrSingle;
-//                    Xlog:boolean=False;Ylog:boolean=False);
-//begin
-//end;
-
 Procedure TFitFunction.FittingGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog:boolean=False;Ylog:boolean=False;
               Np:Word=150);
- {апроксимація і дані вносяться в Series -
- щоб можна було побудувати графік
- Np - кількість точок на графіку}
-//var h,x,y:double;
-//    i:integer;
 begin
   Fitting(InputData,OutputData,Xlog,Ylog);
   if OutputData[0]=ErResult then Exit;
@@ -1286,41 +1159,48 @@ Procedure TFitFunction.FittingGraphFile (InputData:PVector; var OutputData:TArrS
               Series: TLineSeries;
               Xlog:boolean=False;Ylog:boolean=False;
               Np:Word=150; suf:string='fit');
- {апроксимація, дані вносяться в Series, крім
- того апроксимуюча крива заноситься в файл -
- третім стопчиком;
- назва файлу -- V^.name + suf}
-//var Str1:TStringList;
-//    i:integer;
 begin
   FittingGraph(InputData,OutputData,Series,Xlog,Ylog);
   if OutputData[0]=ErResult then Exit;
   RealToFile (InputData,OutputData,Xlog,Ylog,suf);
 end;
 
-//Procedure TFitFunction.FittingDiapazon (InputData:PVector;
-//                   var OutputData:TArrSingle;D:TDiapazon);
-//begin
-//end;
-
-//Function TFitFunction.Deviation (InputData:PVector):double;
-//begin
-//Result:=ErResult;
-//end;
-//
-//Procedure TFitFunction.DataToStrings(DeterminedParameters:TArrSingle;
-//                         OutStrings:TStrings);
-//begin
-//end;
-
-
-
 //------------------------------------------------------
 
-Constructor TFitWithoutParameteres.Create(FunctionName,FunctionCaption:string);
+Constructor TFitWithoutParameteres.Create(FunctionName:string);
 begin
- inherited Create(FunctionName,FunctionCaption);
+ if FunctionName='Smoothing'then
+       begin
+        inherited Create('Smoothing',
+           '3-point averaging, the weighting coefficient are determined by Gaussian distribution with 60% dispersion'
+            );
+        FErrorMessage:='The smoothing is imposible,'+#10+
+               'the points" quantity is very low';
+       end;
+
+ if FunctionName='Derivative'then
+       begin
+        inherited Create('Derivative',
+           'Derivative, which is calculated as derivative of 3-poin Lagrange polynomial'
+            );
+        FErrorMessage:='The derivative is imposible,'+#10+
+               'the points" quantity is very low';
+       end;
+
+ if FunctionName='Median'then
+       begin
+        inherited Create('Median','3-point median filtering');
+        FErrorMessage:='The median filter"s using is imposible,'+#10+
+          'the points" quantity is very low';
+       end;
  new(FtempVector);
+end;
+
+Procedure TFitWithoutParameteres.RealTransform(InputData:PVector);
+begin
+ if Name='Smoothing' then Smoothing(InputData,FtempVector);
+ if Name='Derivative' then Diferen(InputData,FtempVector);
+ if Name='Median' then Median(InputData,FtempVector);
 end;
 
 
@@ -1394,91 +1274,10 @@ Procedure TFitWithoutParameteres.DataToStrings(DeterminedParameters:TArrSingle;
 begin
 end;
 
-
-
-
-Constructor TSmoothing.Create;
-begin
- inherited Create('Smoothing',
-   '3-point averaging, the weighting coefficient are determined by Gaussian distribution with 60% dispersion'
-   );
- FErrorMessage:='The smoothing is imposible,'+#10+
-               'the points" quantity is very low';
-end;
-
-Procedure TSmoothing.RealTransform(InputData:PVector);
-begin
- Smoothing (InputData,FtempVector);
-end;
-
-//Procedure TSmoothing.FittingGraph (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150);
-//var  tempV:PVector;
-//     i:integer;
-//begin
-//
-//  SetLength(OutputData,1);
-//  OutputData[0]:=ErResult;
-//  new(tempV);
-//  Smoothing (InputData,tempV);
-//  if tempV^.n=0 then
-//        begin
-//          MessageDlg('The smoothing is imposible,'+#10+
-//          'the points" quantity is very low', mtError, [mbOK], 0);
-//          dispose(tempV);
-//          Exit;
-//        end;
-//   Series.Clear;
-//   for I := 0 to High(tempV^.X) do
-//     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
-//  OutputData[0]:=1;
-//  dispose(tempV);
-//end;
-//
-//
-//Procedure TSmoothing.FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150; suf:string='fit');
-//{апроксимація, дані вносяться в Series, крім
-//того апроксимуюча крива заноситься в файл -
-//третім стопчиком як правило;
-//назва файлу -- V^.name + 'fit'}
-//var Str1:TStringList;
-//    tempV:PVector;
-//    i:integer;
-//begin
-//  SetLength(OutputData,1);
-//  OutputData[0]:=ErResult;
-//  new(tempV);
-//  Str1:=TStringList.Create;
-//  Smoothing (InputData,tempV);
-//  if tempV^.n=0 then
-//        begin
-//          MessageDlg('The smoothing is imposible,'+#10+
-//          'the points" quantity is very low', mtError, [mbOK], 0);
-//          dispose(tempV);
-//          Str1.Free;
-//          Exit;
-//        end;
-//   Series.Clear;
-//   for I := 0 to High(tempV^.X) do
-//     begin
-//     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
-//     Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
-//           FloatToStrF(InputData^.Y[i],ffExponent,4,0)+' '+
-//           FloatToStrF(tempV^.Y[i],ffExponent,4,0));
-//     end;
-//  Str1.SaveToFile(FitName(InputData,suf));
-//  OutputData[0]:=1;
-//  dispose(tempV);
-//  Str1.Free;
-//end;
-
-
 //-------------------------------------------------------------------
+
+
+
 Constructor TFitFunctionSimple.Create(FunctionName,FunctionCaption:string;
                                      N:byte);
 begin
@@ -1517,10 +1316,6 @@ end;
 
 Procedure TFitFunctionSimple.RealToFile (InputData:PVector; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);
- {апроксимація, дані вносяться в Series, крім
- того апроксимуюча крива заноситься в файл -
- третім стопчиком;
- назва файлу -- V^.name + suf}
 var Str1:TStringList;
     i:integer;
 begin
@@ -1535,13 +1330,7 @@ begin
 end;
 
 Function TFitFunctionSimple.FinalFunc(X:double;DeterminedParameters:TArrSingle;
-                     Xlog:boolean=False;Ylog:boolean=False):double; {overload; virtual;}
- {на додачу до попередньої дозволяє
- обчислювати значення, якщо здійснювалась апроксимація
- даних, представлених у логарифмічному масштабі
- Xlog = True - абсциси у у логарифмічному масштабі,
- Ylog = True - ординати у логарифмічному масштабі
-}
+                     Xlog:boolean=False;Ylog:boolean=False):double;
 begin
    if XLog then FVariab[0]:=log10(x)
             else FVariab[0]:=x;
@@ -1551,19 +1340,6 @@ end;
 
 Procedure TFitFunctionSimple.Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);
-{фактично, обгортка для процедури RealFitting,
- де дійсно відбувається апроксимація;
- ця процедура лише виловлює помилки,
- і при невдалому процесі показується повідомлення,
- в OutputData[0] - ErResult;
- загалом розмір OutputData  після процедури співпадає з
- кількістю шуканих параметрів;
-
- останні змінні дозволяють апроксимувати дані,
- представлені у векторі InputData у логарифмічному масштабі
- Xlog = True - абсциси у у логарифмічному масштабі,
- Ylog = True - ординати у логарифмічному масштабі
- }
 var i:integer;
     tempV:Pvector;
 begin
@@ -1593,37 +1369,6 @@ begin
   end;
  dispose(tempV);
 end;
-
-//Procedure TFitFunctionSimple.FittingGraph (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150);
-// {апроксимація і дані вносяться в Series -
-// щоб можна було побудувати графік
-// Np - кількість точок на графіку}
-////var h,x,y:double;
-////    i:integer;
-//begin
-//  Fitting(InputData,OutputData,Xlog,Ylog);
-//  if OutputData[0]=ErResult then Exit;
-//  RealToGraph(InputData,OutputData,Series,Xlog,Ylog,Np);
-//end;
-
-//Procedure TFitFunctionSimple.FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150; suf:string='fit');
-// {апроксимація, дані вносяться в Series, крім
-// того апроксимуюча крива заноситься в файл -
-// третім стопчиком;
-// назва файлу -- V^.name + suf}
-////var Str1:TStringList;
-////    i:integer;
-//begin
-//  FittingGraph(InputData,OutputData,Series,Xlog,Ylog);
-//  if OutputData[0]=ErResult then Exit;
-//  RealToFile (InputData,OutputData,Xlog,Ylog,suf);
-//end;
 
 
 Procedure TFitFunctionSimple.FittingDiapazon (InputData:PVector;
@@ -1666,6 +1411,8 @@ begin
    OutStrings.Add(FXname[i]+'='+
            FloatToStrF(DeterminedParameters[i],ffExponent,4,3));
 end;
+
+//--------------------------------------------------------------------
 
 Constructor TLinear.Create;
 begin
@@ -1719,6 +1466,298 @@ begin
    GromovAprox(InputData,OutputData[0],OutputData[1],OutputData[2]);
 end;
 
+//--------------------------------------------------------------------
+
+
+Constructor TFitVariabSet.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+var i:byte;
+begin
+  inherited Create(FunctionName,FunctionCaption,Npar);
+  FIsNotReady:=False;
+  FVarName[0]:='V';
+  FVarName[1]:='I';
+  if Nvar<3 then Exit;
+  FVarNum:=Nvar;
+  SetLength(FVariab,FVarNum);
+  SetLength(FVarName,FVarNum);
+  SetLength(FVarBool,FVarNum-2);
+  SetLength(FVarValue,FVarNum-2);
+  for I := 0 to High(FVarbool) do
+    FVarbool[i]:=True;
+  ReadFromIniFile;
+end;
+
+Procedure TFitVariabSet.ReadFromIniFile;
+var ConfigFile:TOIniFile;
+begin
+ ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+ try
+  RealReadFromIniFile(ConfigFile);
+ except
+  FIsNotReady:=True;
+ end;
+ConfigFile.Free;
+end;
+
+Procedure TFitVariabSet.RealReadFromIniFile(ConfigFile:TOIniFile);
+var i:byte;
+begin
+ for I := 0 to High(FVarbool) do
+  begin
+//  if (FName='LinEg')and(i>2) then Continue;
+   FVarbool[i]:=ConfigFile.ReadBool(FName,FVarName[i+2]+'Bool',True);
+   FVarValue[i]:=ConfigFile.ReadFloat(FName,FVarName[i+2]+'Val',ErResult);
+   if ((FVarbool[i])and(FVarValue[i]=ErResult)) then FIsNotReady:=True;
+  end;
+end;
+
+Procedure TFitVariabSet.WriteToIniFile;
+var  ConfigFile:TOIniFile;
+begin
+ if FIsNotReady then Exit;
+ ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+ ConfigFile.EraseSection(FName);
+ try
+   RealWriteToIniFile(ConfigFile);
+ finally
+
+ end;
+ ConfigFile.Free;
+end;
+
+Procedure TFitVariabSet.RealWriteToIniFile(ConfigFile:TOIniFile);
+var  i:byte;
+begin
+ for I := 0 to High(FVarbool) do
+  begin
+//   if (FName='LinEg')and(i>2) then Continue;
+   if not(FVarbool[i]) then ConfigFile.WriteBool(FName,FVarName[i+2]+'Bool',FVarbool[i]);
+   if not(FVarValue[i]=ErResult) then ConfigFile.WriteFloat(FName,FVarName[i+2]+'Val',FVarValue[i]);
+  end;
+end;
+
+Procedure TFitVariabSet.BeforeFitness(InputData:Pvector);
+var i:integer;
+begin
+for I := 0 to High(FVarbool) do
+  if FVarbool[i] then FVariab[i+2]:=FVarValue[i];
+end;
+
+Procedure TFitVariabSet.Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);
+begin
+  if FIsNotReady then SetValueGR;
+  if FIsNotReady then
+     begin
+     MessageDlg('Approximation is imposible.'+#10+#13+
+                  'Parameters of function are undefined', mtError,[mbOk],0);
+     SetLength(OutputData,FNx);
+     OutputData[0]:=ErResult;
+     Exit;
+     end;
+  BeforeFitness(InputData);
+  inherited;
+end;
+
+Procedure TFitVariabSet.GRFormPrepare(Form:TForm);
+begin
+ Form.Name:=Fname;
+ Form.Position:=poMainFormCenter;
+ Form.AutoScroll:=True;
+ Form.BorderIcons:=[biSystemMenu];
+ Form.Caption:=FName+' function '+', parameters';
+ Form.Font.Name:='Tahoma';
+ Form.Font.Size:=8;
+ Form.Font.Style:=[fsBold];
+ Form.Color:=RGB(222,254,233);
+ Form.Height:=10;
+ Form.Width:=10;
+end;
+
+Procedure TFitVariabSet.SetValueGR;
+const PaddingTop=120;
+      PaddingBetween=5;
+      PaddingLeft=50;
+var Form:TForm;
+    Pan:array of TFrApprP;
+    Buttons:TFrBut;
+    Niter:TLabeledEdit;
+    ParamP:array of TFrParamP;
+    Img:TImage;
+    GrBox:TGroupBox;
+    EvMode:array [0..3] of TRadioButton;
+    i:integer;
+    ConfigFile:TOIniFile;
+begin
+// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+
+ Form:=Tform.Create(Application);
+ GRFormPrepare(Form);
+
+//
+//
+// Img:=TImage.Create(Form);
+// Img.Parent:=Form;
+// Img.Top:=10;
+// Img.Left:=10;
+// Img.Height:=60;
+// Img.Width:=450;
+// Img.Stretch:=True;
+// PictLoadScale(Img,FName+'Fig');
+//
+//
+// SetLength(Pan,FNs);
+// for I := 0 to FNs - 1 do
+//  begin
+//  Pan[i]:=TFrApprP.Create(Form);
+//  Pan[i].Name:=FXname[i];
+//  Pan[i].Parent:=Form;
+//  Pan[i].Left:=5;
+//  Pan[i].Top:=PaddingTop+i*(Pan[i].Panel1.Height+PaddingBetween);
+//  Pan[i].LName.Caption:=FXname[i];
+//  Pan[i].minIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',ErResult));
+//  Pan[i].maxIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',ErResult));
+//  Pan[i].minLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',ErResult));
+//  Pan[i].maxLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',ErResult));
+//      case ConfigFile.ReadRand(FName,FXname[i]+'Mode') of
+//       lin:  Pan[i].RBNorm.Checked:=True;
+//       logar:Pan[i].RBLogar.Checked:=True;
+//       cons: Pan[i].RBCons.Checked:=True;
+//       end;
+//  end;
+//
+//  if FPNs>2 then
+//   begin
+//    SetLength(ParamP,FPNs-2);
+//    for I :=0 to High(ParamP) do
+//    begin
+//    ParamP[i]:=TFrParamP.Create(Form);
+//    ParamP[i].Name:=ParamP[i].Name+FPname[i+2];
+//    if (FName='LinEg')and(i>2) then Continue;
+//    ParamP[i].Parent:=Form;
+//    ParamP[i].Left:=Pan[0].Panel1.Width+10;
+//    ParamP[i].Top:=PaddingTop+i*(Pan[0].Panel1.Height+PaddingBetween);
+//    ParamP[i].LName.Caption:=FPname[i+2];
+//    ParamP[i].EParam.OnKeyPress:=Pan[0].minIn.OnKeyPress;
+//    ParamP[i].CBIntr.Checked:=true;
+//    ParamP[i].EParam.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',ErResult));
+//    ParamP[i].CBIntr.Checked:=ConfigFile.ReadBool(FName,FPname[i+2]+'Bool',True);;
+//    end;
+//   end;
+//
+//   if (Fname='RevShSCLC')
+//    then  ParamP[High(Paramp)].Top:=PaddingTop-(Pan[0].Panel1.Height+PaddingBetween);
+//
+// Niter:=TLabeledEdit.Create(Form);
+// Niter.Parent:=Form;
+// Niter.Left:=65;
+// Niter.Top:=85;
+// Niter.LabelPosition:=lpLeft;
+// Niter.EditLabel.Width:=40;
+// Niter.EditLabel.WordWrap:=True;
+// Niter.EditLabel.Caption:='Iteration number';
+// Niter.Width:=50;
+// Niter.OnKeyPress:=Pan[0].minIn.OnKeyPress;
+// Niter.Text:=ValueToStr555(ConfigFile.ReadInteger(FName,'Nit',ErResult));
+//
+// Buttons:=TFrBut.Create(Form);
+// Buttons.Parent:=Form;
+// Buttons.Left:=150;
+// Buttons.Top:=PaddingTop+FNs*(Pan[0].Panel1.Height+PaddingBetween);
+//
+// GrBox:=TGroupBox.Create(Form);
+// GrBox.Parent:=Form;
+// GrBox.Caption:='Evolution Type';
+// GrBox.Left:=Niter.Left+Niter.Width+20;
+// GrBox.Top:=70;
+// for I := 0 to High(EvMode) do
+//   begin
+//   EvMode[i]:=TRadioButton.Create(GrBox);
+//   EvMode[i].Parent:=GrBox;
+//   EvMode[i].Top:=20;
+//   EvMode[i].Width:=60;
+//   end;
+// EvMode[0].Caption:='DE';
+// EvMode[1].Caption:='MABC';
+// EvMode[2].Caption:='TLBO';
+// EvMode[3].Caption:='PSO';
+// EvMode[0].Left:=5;
+// for I := 1 to High(EvMode) do
+//   begin
+//   EvMode[i].Left:=5+EvMode[i-1].Left+EvMode[i-1].Width;
+//   end;
+// GrBox.Width:=EvMode[High(EvMode)].Left+EvMode[High(EvMode)].Width+5;
+// GrBox.Height:=EvMode[High(EvMode)].Height+30;
+// EvMode[ord(ConfigFile.ReadEvType(FName,'EvType',TDE))].Checked:=True;
+//
+//  Form.Height:=FNs*(Pan[0].Panel1.Height+PaddingBetween)+PaddingTop+
+//               Buttons.Height+50;
+//
+//if Fname='RevShSCLC2' then
+//   begin
+//   ParamP[5].Top:=ParamP[3].Top;
+//   ParamP[6].Top:=ParamP[3].Top;
+//   ParamP[7].Top:=ParamP[4].Top;
+//   ParamP[7].Left:=5;
+//   ParamP[5].Left:=5;
+//   ParamP[6].Left:=round((ParamP[3].Left-ParamP[7].Left)/2);
+//   Buttons.Top:=PaddingTop+(FNs+2)*(Pan[0].Panel1.Height+PaddingBetween);
+//   Form.Height:=(FNs+2)*(Pan[0].Panel1.Height+PaddingBetween)+PaddingTop+
+//               Buttons.Height+50;
+//   end;
+//
+//
+// Form.Width:=max(Pan[0].Panel1.Left+Pan[0].Panel1.Width,Img.Left+Img.Width)+PaddingLeft;
+// if High(ParamP)>-1 then Form.Width:=Form.Width+ParamP[0].Panel.Width;
+//
+// ConfigFile.Free;
+//
+// if Form.ShowModal=mrOk then
+//  begin
+//      ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+//      ConfigFile.WriteInteger(FName,'Nit',StrToInt555(Niter.Text));
+//
+//
+//      for I := 0 to FNs - 1 do
+//        begin
+//          ConfigFile.WriteFloat(FName,FXname[i]+'Xmin',StrToFloat555(Pan[i].minIn.Text));
+//          ConfigFile.WriteFloat(FName,FXname[i]+'Xmax',StrToFloat555(Pan[i].maxIn.Text));
+//          ConfigFile.WriteFloat(FName,FXname[i]+'Xminlim',StrToFloat555(Pan[i].minLim.Text));
+//          ConfigFile.WriteFloat(FName,FXname[i]+'Xmaxlim',StrToFloat555(Pan[i].maxLim.Text));
+//
+//          if Pan[i].RBNorm.Checked then ConfigFile.WriteRand(FName,FXname[i]+'Mode',lin);
+//          if Pan[i].RBLogar.Checked then ConfigFile.WriteRand(FName,FXname[i]+'Mode',logar);
+//          if Pan[i].RBCons.Checked then  ConfigFile.WriteRand(FName,FXname[i]+'Mode',cons);
+//        end;  //for I := 0 to FNs - 1 do
+//
+//      if FPNs>2 then
+//        for I :=0 to High(ParamP) do
+//          begin
+//           if (FName='LinEg')and(i>2) then Continue;
+//           ConfigFile.WriteFloat(FName,FPname[i+2]+'Val',StrToFloat555(ParamP[i].EParam.Text));
+//           ConfigFile.WriteBool(FName,FPname[i+2]+'Bool',ParamP[i].CBIntr.Checked);
+//          end;
+//
+//      if EvMode[0].Checked then FEvType:=TDE;
+//      if EvMode[1].Checked then FEvType:=TMABC;
+//      if EvMode[2].Checked then FEvType:=TTLBO;
+//      if EvMode[3].Checked then FEvType:=TPSO;
+//      ConfigFile.WriteEvType(FName,'EvType',FEvType);
+//       ConfigFile.Free;
+//  end;// if Form.ShowModal=mrOk then
+//
+// ReadValue;
+//
+
+
+ for I := Form.ComponentCount-1 downto 0 do
+     Form.Components[i].Free;
+ Form.Hide;
+ Form.Release;
+end;
+
+//----------------------------------------------------
 
 Constructor TFitFunctionAAA.Create(N:integer);
 begin
@@ -1943,7 +1982,7 @@ begin
 
    if (Fname='RevShSCLC')
     then  ParamP[High(Paramp)].Top:=PaddingTop-(Pan[0].Panel1.Height+PaddingBetween);
-   
+
  Niter:=TLabeledEdit.Create(Form);
  Niter.Parent:=Form;
  Niter.Left:=65;
@@ -2375,29 +2414,29 @@ end;
 //Result:=ErResult;
 //end;
 
-Constructor TMedian.Create;
-begin
- inherited Create(0);
- FName:='Median';
- FCaption:='3-point median filtering'
-end;
-
-Function TMedian.Func(Variab:TArrSingle):double;
-begin
-Result:=ErResult;
-end;
-
-Constructor TDerivative.Create;
-begin
- inherited Create(0);
- FName:='Derivative';
- FCaption:='Derivative, which is calculated as derivative of 3-poin Lagrange polynomial'
-end;
-
-Function TDerivative.Func(Variab:TArrSingle):double;
-begin
-Result:=ErResult;
-end;
+//Constructor TMedian.Create;
+//begin
+// inherited Create(0);
+// FName:='Median';
+// FCaption:='3-point median filtering'
+//end;
+//
+//Function TMedian.Func(Variab:TArrSingle):double;
+//begin
+//Result:=ErResult;
+//end;
+//
+//Constructor TDerivative.Create;
+//begin
+// inherited Create(0);
+// FName:='Derivative';
+// FCaption:='Derivative, which is calculated as derivative of 3-poin Lagrange polynomial'
+//end;
+//
+//Function TDerivative.Func(Variab:TArrSingle):double;
+//begin
+//Result:=ErResult;
+//end;
 
 
 
@@ -4721,133 +4760,133 @@ end;
 //  Str1.Free;
 //end;
 
-Procedure TMedian.FittingGraph (V:PVector; var Param:TArrSingle;Series: TLineSeries);
-{апроксимація і дані вносяться в Series -
-щоб можна було побудувати графік}
-var  tempV:PVector;
-     i:integer;
-begin
-  SetLength(Param,1);
-  Param[0]:=ErResult;
-  new(tempV);
-  Median (V,tempV);
-  if tempV^.n=0 then
-        begin
-          MessageDlg('The median filter"s using is imposible,'+#10+
-          'the points" quantity is very low', mtError, [mbOK], 0);
-          dispose(tempV);
-          Exit;
-        end;
-  Series.Clear;
-  for I := 0 to High(tempV^.X) do
-     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
-  dispose(tempV);
-  Param[0]:=1;
-  dispose(tempV);
-end;
-
-
-Procedure TMedian.FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries);
-{апроксимація, дані вносяться в Series, крім
-того апроксимуюча крива заноситься в файл -
-третім стопчиком як правило;
-назва файлу -- V^.name + 'fit'}
-var Str1:TStringList;
-    tempV:PVector;
-    i:integer;
-    st:string;
-begin
-  SetLength(Param,1);
-  Param[0]:=ErResult;
-  new(tempV);
-  Str1:=TStringList.Create;
-  Median (V,tempV);
-  if tempV^.n=0 then
-        begin
-          MessageDlg('The median filter"s using is imposible,'+#10+
-          'the points" quantity is very low', mtError, [mbOK], 0);
-          dispose(tempV);
-          Str1.Free;
-          Exit;
-        end;
-  Series.Clear;
-  for I := 0 to High(tempV^.X) do
-     begin
-     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
-     Str1.Add(FloatToStrF(V^.X[i],ffExponent,4,0)+' '+
-           FloatToStrF(V^.Y[i],ffExponent,4,0)+' '+
-           FloatToStrF(tempV^.Y[i],ffExponent,4,0));
-     end;
-  FitName(st, V);
-  Str1.SaveToFile(st);
-  Param[0]:=1;
-  dispose(tempV);
-  Str1.Free;
-end;
-
-Procedure TDerivative.FittingGraph (V:PVector; var Param:TArrSingle;Series: TLineSeries);
-{апроксимація і дані вносяться в Series -
-щоб можна було побудувати графік}
-var  tempV:PVector;
-     i:integer;
-begin
-  SetLength(Param,1);
-  Param[0]:=ErResult;
-  new(tempV);
-  Diferen (V,tempV);
-  if tempV^.n=0 then
-        begin
-          MessageDlg('The smoothing is imposible,'+#10+
-          'the points" quantity is very low', mtError, [mbOK], 0);
-          dispose(tempV);
-          Exit;
-        end;
-  Series.Clear;
-  for I := 0 to High(tempV^.X) do
-     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
-  Param[0]:=1;
-  dispose(tempV);
-end;
-
-
-Procedure TDerivative.FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries);
-{апроксимація, дані вносяться в Series, крім
-того апроксимуюча крива заноситься в файл -
-третім стопчиком як правило;
-назва файлу -- V^.name + 'fit'}
-var Str1:TStringList;
-    tempV:PVector;
-    i:integer;
-    st:string;
-begin
-  SetLength(Param,1);
-  Param[0]:=ErResult;
-  new(tempV);
-  Str1:=TStringList.Create;
-  Diferen (V,tempV);
-  if tempV^.n=0 then
-        begin
-          MessageDlg('The smoothing is imposible,'+#10+
-          'the points" quantity is very low', mtError, [mbOK], 0);
-          dispose(tempV);
-          Str1.Free;
-          Exit;
-        end;
-
-  Series.Clear;
-  for I := 0 to High(tempV^.X) do
-    begin
-     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
-     Str1.Add(FloatToStrF(V^.X[i],ffExponent,4,0)+' '+
-           FloatToStrF(V^.Y[i],ffExponent,4,0)+' '+
-           FloatToStrF(tempV^.Y[i],ffExponent,4,0));
-    end;
-  FitName(st, V);
-  Str1.SaveToFile(st);
-  Param[0]:=1;
-  dispose(tempV);
-  Str1.Free;
-end;
+//Procedure TMedian.FittingGraph (V:PVector; var Param:TArrSingle;Series: TLineSeries);
+//{апроксимація і дані вносяться в Series -
+//щоб можна було побудувати графік}
+//var  tempV:PVector;
+//     i:integer;
+//begin
+//  SetLength(Param,1);
+//  Param[0]:=ErResult;
+//  new(tempV);
+//  Median (V,tempV);
+//  if tempV^.n=0 then
+//        begin
+//          MessageDlg('The median filter"s using is imposible,'+#10+
+//          'the points" quantity is very low', mtError, [mbOK], 0);
+//          dispose(tempV);
+//          Exit;
+//        end;
+//  Series.Clear;
+//  for I := 0 to High(tempV^.X) do
+//     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
+//  dispose(tempV);
+//  Param[0]:=1;
+//  dispose(tempV);
+//end;
+//
+//
+//Procedure TMedian.FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries);
+//{апроксимація, дані вносяться в Series, крім
+//того апроксимуюча крива заноситься в файл -
+//третім стопчиком як правило;
+//назва файлу -- V^.name + 'fit'}
+//var Str1:TStringList;
+//    tempV:PVector;
+//    i:integer;
+//    st:string;
+//begin
+//  SetLength(Param,1);
+//  Param[0]:=ErResult;
+//  new(tempV);
+//  Str1:=TStringList.Create;
+//  Median (V,tempV);
+//  if tempV^.n=0 then
+//        begin
+//          MessageDlg('The median filter"s using is imposible,'+#10+
+//          'the points" quantity is very low', mtError, [mbOK], 0);
+//          dispose(tempV);
+//          Str1.Free;
+//          Exit;
+//        end;
+//  Series.Clear;
+//  for I := 0 to High(tempV^.X) do
+//     begin
+//     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
+//     Str1.Add(FloatToStrF(V^.X[i],ffExponent,4,0)+' '+
+//           FloatToStrF(V^.Y[i],ffExponent,4,0)+' '+
+//           FloatToStrF(tempV^.Y[i],ffExponent,4,0));
+//     end;
+//  FitName(st, V);
+//  Str1.SaveToFile(st);
+//  Param[0]:=1;
+//  dispose(tempV);
+//  Str1.Free;
+//end;
+//
+//Procedure TDerivative.FittingGraph (V:PVector; var Param:TArrSingle;Series: TLineSeries);
+//{апроксимація і дані вносяться в Series -
+//щоб можна було побудувати графік}
+//var  tempV:PVector;
+//     i:integer;
+//begin
+//  SetLength(Param,1);
+//  Param[0]:=ErResult;
+//  new(tempV);
+//  Diferen (V,tempV);
+//  if tempV^.n=0 then
+//        begin
+//          MessageDlg('The smoothing is imposible,'+#10+
+//          'the points" quantity is very low', mtError, [mbOK], 0);
+//          dispose(tempV);
+//          Exit;
+//        end;
+//  Series.Clear;
+//  for I := 0 to High(tempV^.X) do
+//     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
+//  Param[0]:=1;
+//  dispose(tempV);
+//end;
+//
+//
+//Procedure TDerivative.FittingGraphFile (V:PVector; var Param:TArrSingle;Series: TLineSeries);
+//{апроксимація, дані вносяться в Series, крім
+//того апроксимуюча крива заноситься в файл -
+//третім стопчиком як правило;
+//назва файлу -- V^.name + 'fit'}
+//var Str1:TStringList;
+//    tempV:PVector;
+//    i:integer;
+//    st:string;
+//begin
+//  SetLength(Param,1);
+//  Param[0]:=ErResult;
+//  new(tempV);
+//  Str1:=TStringList.Create;
+//  Diferen (V,tempV);
+//  if tempV^.n=0 then
+//        begin
+//          MessageDlg('The smoothing is imposible,'+#10+
+//          'the points" quantity is very low', mtError, [mbOK], 0);
+//          dispose(tempV);
+//          Str1.Free;
+//          Exit;
+//        end;
+//
+//  Series.Clear;
+//  for I := 0 to High(tempV^.X) do
+//    begin
+//     Series.AddXY(tempV^.X[i],tempV^.Y[i]);
+//     Str1.Add(FloatToStrF(V^.X[i],ffExponent,4,0)+' '+
+//           FloatToStrF(V^.Y[i],ffExponent,4,0)+' '+
+//           FloatToStrF(tempV^.Y[i],ffExponent,4,0));
+//    end;
+//  FitName(st, V);
+//  Str1.SaveToFile(st);
+//  Param[0]:=1;
+//  dispose(tempV);
+//  Str1.Free;
+//end;
 
 Procedure TIvanov.FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries);
 const Np=150; //кількість точок, по яким будується апроксимація
@@ -6678,7 +6717,10 @@ Procedure FunCreate(str:string; var F:TFitFunction);
 begin
   if str='Linear' then F:=TLinear.Create;
   if str='Quadratic' then F:=TQuadratic.Create;
-  if str='Smoothing' then F:=TSmoothing.Create;
+  if (str='Smoothing')or(str='Derivative')
+        then F:=TFitWithoutParameteres.Create(str);
+  if str='Median filtr' then F:=TFitWithoutParameteres.Create('Median');
+  //  if str='Smoothing' then F:=TSmoothing.Create;
 //  if str='Exponent' then F:=TExponent.Create;
 //  if str='Median filtr' then F:=TMedian.Create;
 //  if str='Derivative' then F:=TDerivative.Create;
@@ -6718,8 +6760,8 @@ begin
 //  if str='Quadratic' then F:=TQuadratic.Create;
 //  if str='Smoothing' then F:=TSmoothing.Create;
   if str='Exponent' then F:=TExponent.Create;
-  if str='Median filtr' then F:=TMedian.Create;
-  if str='Derivative' then F:=TDerivative.Create;
+//  if str='Median filtr' then F:=TMedian.Create;
+//  if str='Derivative' then F:=TDerivative.Create;
   if str='Diod' then F:=TDiod.Create;
 //  if str='Gromov / Lee' then F:=TGromov.Create;
   if str='Ivanov' then F:=TIvanov.Create;

@@ -51,8 +51,6 @@ if CB.Items[FormSF.CB.ItemIndex]='None' then
     Exit;
   end;
 FunCreate(CB.Items[FormSF.CB.ItemIndex],F);
-
-
 if  Assigned(F) then
 begin
   Img.Visible:=True;
