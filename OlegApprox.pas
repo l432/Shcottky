@@ -453,7 +453,7 @@ private
  Procedure RealWriteToIniFile;override;
  {безпосередньо записує дані в ini-файл, в цьому класі - Nit,,FXmode,FA,FB,FC,FXt}
  Procedure FIsNotReadyDetermination;override;
- Procedure GRParamToForm(Form:TForm;Left:integer=5);virtual;
+ Procedure GRParamToForm(Form:TForm);virtual;
  {виведення на форму для керування параметрами
  елементів, пов'язаних безпосередньо
  з параметрами, які визначаються}
@@ -463,7 +463,7 @@ private
  Procedure GRElementsToForm(Form:TForm);override;
  Procedure GRSetValueNit(Component:TComponent;ToForm:boolean);
  {дані про кількість ітерацій}
- Procedure GRSetValueParam(Component:TComponent;ToForm:boolean);
+ Procedure GRSetValueParam(Component:TComponent;ToForm:boolean);virtual;
  {дані про тип параметрів}
  Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
  Procedure BeforeFitness(InputData:Pvector);override;
@@ -507,9 +507,8 @@ private
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
 end;
+
 //---------------------------------------------
-
-
 TFitFunctLSM=class (TFitAdditionParam)
 {для функцій, де апроксимація відбувається
 за допомогою методу найменших квадратів
@@ -524,7 +523,7 @@ private
  Procedure RealWriteToIniFile;override;
  {безпосередньо записує дані в ini-файл, в цьому класі - fAccurancy}
  Procedure FIsNotReadyDetermination;override;
- Procedure GRParamToForm(Form:TForm;Left:integer=5);override;
+ Procedure GRParamToForm(Form:TForm);override;
  Procedure GRAccurToForm(Form:TForm);
 {виведення на форму для керування параметрами
  елементів, пов'язаних з критерієм
@@ -543,44 +542,47 @@ public
 // Procedure Fitting (V:PVector; var Param:TArrSingle); override;
 end; // TFitFunctLSM=class (TFitAdditionParam)
 
+
+//---------------------------------------------
+TFitFunctEvolution=class (TFitAdditionParam)
+{для функцій, де апроксимація відбувається
+за допомогою еволюційних методів}
+private
+ FXmin:TArrSingle; //мінімальні значення змінних при ініціалізації
+ FXmax:TArrSingle; //максимальні значення змінних при ініціалізації
+ FXminlim:TArrSingle; //мінімальні значення змінних при еволюційному пошуку
+ FXmaxlim:TArrSingle; //максимальні значення змінних при еволюційному пошуку
+ FPEst:byte;         //показник степеня дільника у цільовій функції
+ FEvType:TEvolutionType; //еволюційний метод,який використовується для апроксимації
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar,NaddX:byte);
+ Procedure RealReadFromIniFile;override;
+ {безпосередньо зчитує дані з ini-файла, в цьому класі - всі поля}
+ Procedure RealWriteToIniFile;override;
+ {безпосередньо записує дані в ini-файл, в цьому класі - всі поля}
+ Procedure FIsNotReadyDetermination;override;
+ Procedure GREvTypeToForm(Form:TForm);
+ {виведення на форму для керування параметрами
+ елементів, пов'язаних з типом
+ еволюційного методу }
+ Procedure GRElementsToForm(Form:TForm);override;
+ Procedure GRSetValueEvType(Component:TComponent;ToForm:boolean);
+ {дані про тип еволюційного методу}
+ Procedure GRSetValueParam(Component:TComponent;ToForm:boolean);override;
+ Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
+public
+//  Procedure RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle); override;
+
+// Procedure AproxN (V:PVector; var Param:TArrSingle);override;
+// Function Func(Variab:TArrSingle):double; override;
+// Procedure Fitting (V:PVector; var Param:TArrSingle); override;
+end; // TFitFunctEvolution=class (TFitAdditionParam)
+
 //-----------------------------------------
 
 
 // private
-// FXmin:TArrSingle;
-// //мінімальні значення змінних при ініціалізації
-// FXmax:TArrSingle;
-// //максимальні значення змінних при ініціалізації
-// FXminlim:TArrSingle;
-////мінімальні значення змінних при еволюційному пошуку
-//  FXmaxlim:TArrSingle;
-////максимальні значення змінних при еволюційному пошуку
-// FXmode:TArrVar_Rand;
-// //тип змінних
-// {якщо тип змінної cons, то вона розраховується
-// за формулою X=A+Bt+Ct^2,
-// де А, В та С - константи, які
-// зберігаються в масивах FA, FB та FC,
-// t - може бути будь-яка додаткова величина,
-// або величина, обернена до неї}
-// FA,FB,FC:TArrSingle;
-// FXt:array of integer;
-// {містить числа, пов'язані з параметрами,
-// які використовуються для розрахунку змінної:
-// 0 - без параметрів, тобто змінна = А
-// 2..(FPNs-1) - FParam[FXt[i]]
-// (FPNs+2)..(2FPNs-1) - FParam[FXt[i]-FPNs]^(-1)}
-// FXvalue:TArrSingle;
-//{значення змінних, якщо вони
-// мають тип cons;
-// фактично це поле дише для того,
-// щоб не рахувати за формулою X=A+Bt+Ct^2
-// кожного разу, а лише на початку апроксимації}
-// FPEst:byte;
-// //показник степеня дільника у цільовій функції
-// FEvType:TEvolutionType;
-// {еволюційний метод,
-// який використовується для апроксимації}
 
 // FDbool:boolean;
 // {змінна, яка показує як треба
@@ -2146,7 +2148,7 @@ begin
 end;
 
 
-Procedure TFitIteration.GRParamToForm(Form:TForm;Left:integer=5);
+Procedure TFitIteration.GRParamToForm(Form:TForm);
 const PaddingBetween=5;
 var  Pan:array of TFrApprP;
      i:byte;
@@ -2157,20 +2159,11 @@ begin
     Pan[i]:=TFrApprP.Create(Form);
     Pan[i].Name:=FXname[i];
     Pan[i].Parent:=Form;
-    Pan[i].Left:=Left;
+    Pan[i].Left:=5;
     Pan[i].Top:=Form.Height+i*(Pan[i].Panel1.Height+PaddingBetween);
     Pan[i].LName.Caption:=FXname[i];
-    Pan[i].GBoxInit.Visible:=False;
-    Pan[i].GBoxLim.Visible:=False;
   end;
 
-// for I := 0 to FNs - 1 do
-//  begin
-//  Pan[i].minIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',ErResult));
-//  Pan[i].maxIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',ErResult));
-//  Pan[i].minLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',ErResult));
-//  Pan[i].maxLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',ErResult));
-//  end;
   for i := Form.ComponentCount-1 downto 0 do
     if (Form.Components[i].Name='Nit') then
       (Form.Components[i] as TLabeledEdit).OnKeyPress:=Pan[0].minIn.OnKeyPress;
@@ -2351,7 +2344,7 @@ begin
  if (fAccurancy=ErResult) then FIsNotReady:=True;
 end;
 
-Procedure TFitFunctLSM.GRParamToForm(Form:TForm;Left:integer=5);
+Procedure TFitFunctLSM.GRParamToForm(Form:TForm);
 var i,j:byte;
 begin
  inherited;
@@ -2359,6 +2352,8 @@ begin
   for I := 0 to FNx-1 do
    if (Form.Components[j].Name=FXname[i]) then
      begin
+      (Form.Components[j] as TFrApprP).GBoxInit.Visible:=False;
+      (Form.Components[j] as TFrApprP).GBoxLim.Visible:=False;
       (Form.Components[j] as TFrApprP).RBLogar.Visible:=False;
       (Form.Components[j] as TFrApprP).RBNorm.Caption:='Variated';
       (Form.Components[j] as TFrApprP).GBoxMode.Left:=
@@ -2381,7 +2376,7 @@ begin
  Acur.Name:='Accuracy';
  Acur.Parent:=Form;
  Acur.Left:=250;
- Acur.Top:=85;;
+ Acur.Top:=85;
  Acur.LabelPosition:=lpLeft;
  Acur.EditLabel.Width:=40;
  Acur.EditLabel.WordWrap:=True;
@@ -2404,17 +2399,15 @@ end;
 
 Procedure TFitFunctLSM.GRElementsToForm(Form:TForm);
 begin
-  GRNitToForm(Form);
-  GRParamToForm(Form);
-  GRVariabToForm(Form);
+  inherited GRElementsToForm(Form);
   GRAccurToForm(Form);
 end;
 
 Procedure TFitFunctLSM.GRRealSetValue(Component:TComponent;ToForm:boolean);
 begin
  inherited;
- GRSetValueNit(Component,ToForm);
- GRSetValueParam(Component,ToForm);
+// GRSetValueNit(Component,ToForm);
+// GRSetValueParam(Component,ToForm);
  GRSetValueAccur(Component,ToForm);
 end;
 
@@ -2995,8 +2988,186 @@ begin
 end;
 //-------------------------------------------------------
 
+Constructor TFitFunctEvolution.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar,NaddX:byte);
+begin
+ inherited Create(FunctionName,FunctionCaption,Npar,Nvar,NaddX);
+ SetLength(FXmin,FNx);
+ SetLength(FXmax,FNx);
+ SetLength(FXminlim,FNx);
+ SetLength(FXmaxlim,FNx);
+ FPEst:=2;
+end;
+
+Procedure TFitFunctEvolution.RealReadFromIniFile;
+var i:byte;
+begin
+ inherited RealReadFromIniFile;
+ for I := 0 to High(FXmin) do
+  begin
+   ReadIniDefFit(FXname[i]+'Xmin',FXmin[i]);
+   ReadIniDefFit(FXname[i]+'Xmax',FXmax[i]);
+   ReadIniDefFit(FXname[i]+'Xminlim',FXminlim[i]);
+   ReadIniDefFit(FXname[i]+'Xmaxlim',FXmaxlim[i]);
+  end;
+
+end;
+
+Procedure TFitFunctEvolution.RealWriteToIniFile;
+var i:byte;
+begin
+ inherited RealWriteToIniFile;
+ for I := 0 to High(FXmin) do
+  begin
+   WriteIniDefFit(FXname[i]+'Xmin',FXmin[i]);
+   WriteIniDefFit(FXname[i]+'Xmax',FXmax[i]);
+   WriteIniDefFit(FXname[i]+'Xminlim',FXminlim[i]);
+   WriteIniDefFit(FXname[i]+'Xmaxlim',FXmaxlim[i]);
+  end;
+ FEvType:=FConfigFile.ReadEvType(FName,'EvType',TDE);
+end;
+
+Procedure TFitFunctEvolution.FIsNotReadyDetermination;
+var i:byte;
+begin
+ inherited FIsNotReadyDetermination;
+ for I := 0 to High(FXmode) do
+   if ((FXmin[i]=ErResult) or
+       (FXmax[i]=ErResult) or
+       (FXminlim[i]=ErResult)or
+       (FXmaxlim[i]=ErResult))  then FIsNotReady:=True;
+ FConfigFile.WriteEvType(FName,'EvType',FEvType);
+end;
 
 
+
+Procedure TFitFunctEvolution.GREvTypeToForm(Form:TForm);
+var GrBox:TGroupBox;
+    EvMode:array [0..3] of TRadioButton;
+    i:integer;
+begin
+ GrBox:=TGroupBox.Create(Form);
+ GrBox.Parent:=Form;
+ GrBox.Caption:='Evolution Type';
+ GrBox.Left:=250;
+ GrBox.Top:=85;
+ try
+   for i := Form.ComponentCount-1 downto 0 do
+    if (Form.Components[i].Name='Nit') then
+      begin
+        GrBox.Top:=(Form.Components[i] as TLabeledEdit).Top-15;
+        GrBox.Left:=(Form.Components[i] as TLabeledEdit).Left+
+                 (Form.Components[i] as TLabeledEdit).Width+20;
+      end;
+ finally
+ end;
+ for I := 0 to High(EvMode) do
+   begin
+   EvMode[i]:=TRadioButton.Create(GrBox);
+   EvMode[i].Parent:=GrBox;
+   EvMode[i].Top:=20;
+   EvMode[i].Width:=60;
+   end;
+ EvMode[0].Caption:='DE';
+ EvMode[1].Caption:='MABC';
+ EvMode[2].Caption:='TLBO';
+ EvMode[3].Caption:='PSO';
+ EvMode[0].Name:='DE';
+ EvMode[1].Name:='MABC';
+ EvMode[2].Name:='TLBO';
+ EvMode[3].Name:='PSO';
+ EvMode[0].Left:=5;
+ for I := 1 to High(EvMode) do
+   begin
+   EvMode[i].Left:=5+EvMode[i-1].Left+EvMode[i-1].Width;
+   end;
+ GrBox.Width:=EvMode[High(EvMode)].Left+EvMode[High(EvMode)].Width+5;
+ GrBox.Height:=EvMode[High(EvMode)].Height+30;
+
+ Form.Width:=max(Form.Width,GrBox.Width+10);
+end;
+
+Procedure TFitFunctEvolution.GRElementsToForm(Form:TForm);
+begin
+  inherited GRElementsToForm(Form);
+  GREvTypeToForm(Form);
+end;
+
+Procedure TFitFunctEvolution.GRSetValueEvType(Component:TComponent;ToForm:boolean);
+   Procedure EvTypeRead(str:string;ev:TEvolutionType);
+     begin
+        if (Component.Name=str)and(FEvType=ev) then
+                  (Component as TRadioButton).Checked:=True;
+     end;
+   Procedure EvTypeWrite(str:string;ev:TEvolutionType);
+     begin
+        if (Component.Name=str)and((Component as TRadioButton).Checked)
+          then FEvType:=ev;
+     end;
+begin
+ if ToForm then
+   begin
+    EvTypeRead('DE',TDE);
+    EvTypeRead('MABC',TMABC);
+    EvTypeRead('TLBO',TTLBO);
+    EvTypeRead('PSO',TPSO);
+//     if (Component.Name='DE')and(FEvType=TDE) then
+//                  (Component as TRadioButton).Checked:=True;
+//     if (Component.Name='MABC')and(FEvType=TMABC) then
+//                  (Component as TRadioButton).Checked:=True;
+//     if (Component.Name='TLBO')and(FEvType=TTLBO) then
+//                  (Component as TRadioButton).Checked:=True;
+//     if (Component.Name='PSO')and(FEvType=TPSO) then
+//                  (Component as TRadioButton).Checked:=True;
+
+   end
+           else
+   begin
+    EvTypeWrite('DE',TDE);
+    EvTypeWrite('MABC',TMABC);
+    EvTypeWrite('TLBO',TTLBO);
+    EvTypeWrite('PSO',TPSO);
+//     if (Component.Name='DE')and((Component as TRadioButton).Checked)
+//          then FEvType:=TDE;
+//     if (Component.Name='MABC')and((Component as TRadioButton).Checked)
+//          then FEvType:=TMABC;
+//     if (Component.Name='TLBO')and((Component as TRadioButton).Checked)
+//          then FEvType:=TTLBO;
+//     if (Component.Name='PSO')and((Component as TRadioButton).Checked)
+//          then FEvType:=TPSO;
+   end;
+end;
+
+Procedure TFitFunctEvolution.GRSetValueParam(Component:TComponent;ToForm:boolean);
+var i:byte;
+begin
+inherited GRSetValueParam(Component,ToForm);
+ for i:=0 to fNx-1 do
+  if Component.Name=FXname[i] then
+    if ToForm then
+      begin
+       (Component as TFrApprP).minIn.Text:=ValueToStr555(FXmin[i]);
+       (Component as TFrApprP).maxIn.Text:=ValueToStr555(FXmax[i]);
+       (Component as TFrApprP).minLim.Text:=ValueToStr555(FXminlim[i]);
+       (Component as TFrApprP).maxLim.Text:=ValueToStr555(FXmaxlim[i]);
+      end
+              else
+      begin
+       FXmin[i]:=StrToFloat555((Component as TFrApprP).minIn.Text);
+       FXmax[i]:=StrToFloat555((Component as TFrApprP).maxIn.Text);
+       FXminlim[i]:=StrToFloat555((Component as TFrApprP).minLim.Text);
+       FXmaxlim[i]:=StrToFloat555((Component as TFrApprP).maxLim.Text);
+      end;
+end;
+
+Procedure TFitFunctEvolution.GRRealSetValue(Component:TComponent;ToForm:boolean);
+begin
+  inherited GRRealSetValue(Component,ToForm);
+  GRSetValueEvType(Component,ToForm);
+end;
+
+
+//-------------------------------------------------------
 
 
 Constructor TFitFunctionAAA.Create(N:integer);
