@@ -1733,19 +1733,20 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LabRC.Caption:='C = '+FloatToStrF(RC,ffExponent,3,2);
   LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName','Photo D-Diod');
   LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName','Photo D-Diod');
-    if ((LDateFun.Caption='None')or
-//           (LDateFun.Caption='Linear')or
-//           (LDateFun.Caption='Quadratic')or
-           (LDateFun.Caption='Exponent')or
-           (LDateFun.Caption='Median filtr')or
-           (LDateFun.Caption='Derivative')or
-//           (LDateFun.Caption='Smoothing')or
-//           (LDateFun.Caption='Gromov / Lee')or
-           (LDateFun.Caption='Ivanov'))
-           then
-               ButDateOption.Enabled:=False
-           else
-               ButDateOption.Enabled:=True;
+  ButDateOption.Enabled:=not((LDateFun.Caption='None'));
+//    if ((LDateFun.Caption='None')or
+////           (LDateFun.Caption='Linear')or
+////           (LDateFun.Caption='Quadratic')or
+////           (LDateFun.Caption='Exponent')or
+////           (LDateFun.Caption='Median filtr')or
+////           (LDateFun.Caption='Derivative')or
+////           (LDateFun.Caption='Smoothing')or
+////           (LDateFun.Caption='Gromov / Lee')or
+//           (LDateFun.Caption='Ivanov'))
+//           then
+//               ButDateOption.Enabled:=False
+//           else
+//               ButDateOption.Enabled:=True;
 
 
   for DP := Low(DP) to High(DP) do
@@ -3056,9 +3057,9 @@ procedure TForm1.SButFitClick(Sender: TObject);
 begin
  if SButFit.Down then
   begin
-FunCreate(SButFit.Caption,Fit);
-  if   SButFit.Caption='None' then Exit;
 
+  if   SButFit.Caption='None' then Exit;
+  FunCreate(SButFit.Caption,Fit);
 
   if (SButFit.Caption='Linear')or
    (SButFit.Caption='Quadratic') then
@@ -3417,29 +3418,30 @@ begin
        CBDateFun.Checked:=False;
        end;
 
-    if ((str='None')or
-//           (str='Linear')or
-//           (str='Quadratic')or
-           (str='Exponent')or
-           (str='Median filtr')or
-           (str='Derivative')or
-//           (str='Smoothing')or
-//           (str='Gromov / Lee')or
-           (str='Ivanov'))
-           then
-            begin
+//    if ((str='None')or
+////           (str='Linear')or
+////           (str='Quadratic')or
+////           (str='Exponent')or
+////           (str='Median filtr')or
+////           (str='Derivative')or
+////           (str='Smoothing')or
+////           (str='Gromov / Lee')or
+////           (str='Ivanov'))
+//           then
+//            begin
              if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
-               then ButFitOption.Enabled:=False;
+               then ButFitOption.Enabled:=not(str='None');
             if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
-               then ButDateOption.Enabled:=False;
-            end
-           else
-            begin
-             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
-               then ButFitOption.Enabled:=True;
-            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
-               then ButDateOption.Enabled:=True;
-            end
+               then ButDateOption.Enabled:=not(str='None');
+//            end
+//
+//           else
+//            begin
+//             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
+//               then ButFitOption.Enabled:=True;
+//            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
+//               then ButDateOption.Enabled:=True;
+//            end
   end;
 end;
 

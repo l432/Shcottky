@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, ExtCtrls, StdCtrls,IniFiles,FrameButtons,OlegMath;
+  Dialogs, ExtCtrls, StdCtrls,IniFiles,FrameButtons,OlegMath,OlegFunction;
 
 const
  FuncName:array[0..0] of string =('Diod');
@@ -28,9 +28,13 @@ type
     procedure RBConsClick(Sender: TObject);
     procedure BtClick(Sender: TObject);
   private
+
     { Private declarations }
   public
-    { Public declarations }
+//-----див.TFitIteration--------
+    FA,FB,FC:double;
+    FXt:integer;
+    FVarName:array of string;
   end;
 
 implementation
@@ -40,19 +44,18 @@ implementation
 
 procedure TFrApprP.BtClick(Sender: TObject);
 var Form:TForm;
-    ConfigFile:TIniFile;
+//    ConfigFile:TIniFile;
     Buttons:TFrBut;
     Img:TImage;
     Lab,Labt:Tlabel;
     CB:TComBobox;
     Koef:array[0..2] of TLabeledEdit;
-    str,str1:string;
-    i,j:byte;
-    ParamName:array of string;
+//    str,str1:string;
+    i{,j}:byte;
+//    ParamName:array of string;
 begin
- ConfigFile:=TIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+// ConfigFile:=TIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
  Form:=Tform.Create(Application);
-// Form.Name:=Panel1.Parent.Name+'constant value' ;
  Form.Position:=poMainFormCenter;
  Form.AutoScroll:=True;
  Form.BorderIcons:=[biSystemMenu];
@@ -93,34 +96,43 @@ begin
  CB.Items.Clear;
  CB.Sorted:=False;
  CB.Items.Add('none');
- str:=ConfigFile.ReadString(Panel1.Parent.Parent.Name,'Pnames','');
+// str:=ConfigFile.ReadString(Panel1.Parent.Parent.Name,'Pnames','');
 
- str1:='';
- j:=1;
- for I := 1 to Length(str) do
-  begin
-   if str[i]='*' then
-      begin
-       SetLength(ParamName,j);
-       ParamName[High(ParamName)]:=str1;
-       str1:='';
-       inc(j);
-      end
-                else
-      str1:=str1+str[i];
-  end;
- for I := 2 to High(ParamName) do
-  CB.Items.Add(' '+ParamName[i]+' ');
- for I := 2 to High(ParamName) do
-  CB.Items.Add(' '+ParamName[i]+', inverse');
+// str1:='';
+// j:=1;
+// for I := 1 to Length(str) do
+//  begin
+//   if str[i]='*' then
+//      begin
+//       SetLength(ParamName,j);
+//       ParamName[High(ParamName)]:=str1;
+//       str1:='';
+//       inc(j);
+//      end
+//                else
+//      str1:=str1+str[i];
+//  end;
+// for I := 2 to High(ParamName) do
+//  CB.Items.Add(' '+ParamName[i]+' ');
+// for I := 2 to High(ParamName) do
+//  CB.Items.Add(' '+ParamName[i]+', inverse');
 
- j:=ConfigFile.ReadInteger(Panel1.Parent.Parent.Name,
-                  Panel1.Parent.Name+'tt',0);
- if j=0 then CB.ItemIndex:=0;
+ for I := 0 to High(FVarName) do
+  CB.Items.Add(' '+FVarName[i]+' ');
+ for I := 0 to High(FVarName) do
+  CB.Items.Add(' '+FVarName[i]+', inverse');
 
- if ((j>0) and (j<=High(ParamName))) then CB.ItemIndex:=j-1;
 
- if (j>High(ParamName)) then CB.ItemIndex:=j-High(ParamName)-1;
+// j:=ConfigFile.ReadInteger(Panel1.Parent.Parent.Name,
+//                  Panel1.Parent.Name+'tt',0);
+// if j=0 then CB.ItemIndex:=0;
+//
+// if ((j>0) and (j<=High(ParamName))) then CB.ItemIndex:=j-1;
+//
+// if (j>High(ParamName)) then CB.ItemIndex:=j-High(ParamName)-1;
+
+ CB.ItemIndex:=FXt;
+
 
 //(FXt[i]<FPNs)and(FXt[i]>0)
   {містить числа, пов'язані з параметрами,
@@ -142,17 +154,20 @@ begin
  Koef[0].EditLabel.Caption:='A =';
  Koef[1].EditLabel.Caption:='B =';
  Koef[2].EditLabel.Caption:='C =';
- Koef[0].Text:=ValueToStr555(
-      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
-                             Panel1.Parent.Name+'A',555));
-// showmessage(floattostr(ConfigFile.ReadFloat('Diod',
-//                             'nA',555)));
- Koef[1].Text:=ValueToStr555(
-      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
-                             Panel1.Parent.Name+'B',555));
- Koef[2].Text:=ValueToStr555(
-      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
-                             Panel1.Parent.Name+'C',555));
+
+ Koef[0].Text:=ValueToStr555(FA);
+ Koef[1].Text:=ValueToStr555(FB);
+ Koef[2].Text:=ValueToStr555(FC);
+
+// Koef[0].Text:=ValueToStr555(
+//      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
+//                             Panel1.Parent.Name+'A',555));
+// Koef[1].Text:=ValueToStr555(
+//      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
+//                             Panel1.Parent.Name+'B',555));
+// Koef[2].Text:=ValueToStr555(
+//      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
+//                             Panel1.Parent.Name+'C',555));
 
  Buttons:=TFrBut.Create(Form);
  Buttons.Parent:=Form;
@@ -160,57 +175,60 @@ begin
  Buttons.Top:=170;
 
 
-// Form.Width:=Img.Width+80;
  Form.Width:=Buttons.Left+Buttons.Width+40;
  Form.Height:= Buttons.Top+70;
- ConfigFile.Free;
+// ConfigFile.Free;
 
  if Form.ShowModal=mrOk then
    begin
-     ConfigFile:=TIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
-//     showmessage(inttostr(CB.ItemIndex));
-     if CB.ItemIndex=0 then j:=0;
-     if ((CB.ItemIndex>0)and(CB.ItemIndex<High(ParamName)))
-         then j:=CB.ItemIndex+1;
-     if (CB.ItemIndex>=High(ParamName))
-         then j:=CB.ItemIndex+1+High(ParamName);
-     ConfigFile.WriteInteger(Panel1.Parent.Parent.Name,
-                  Panel1.Parent.Name+'tt',j);
-
-     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
-                             Panel1.Parent.Name+'A',
-                             StrToFloat555(Koef[0].Text));
-     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
-                             Panel1.Parent.Name+'B',
-                             StrToFloat555(Koef[1].Text));
-     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
-                             Panel1.Parent.Name+'C',
-                             StrToFloat555(Koef[2].Text));
-
-     ConfigFile.Free;
+//     ConfigFile:=TIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+//     if CB.ItemIndex=0 then j:=0;
+//     if ((CB.ItemIndex>0)and(CB.ItemIndex<High(ParamName)))
+//         then j:=CB.ItemIndex+1;
+//     if (CB.ItemIndex>=High(ParamName))
+//         then j:=CB.ItemIndex+1+High(ParamName);
+//     ConfigFile.WriteInteger(Panel1.Parent.Parent.Name,
+//                  Panel1.Parent.Name+'tt',j);
+     FXt:=CB.ItemIndex;
+     FA:=StrToFloat555(Koef[0].Text);
+     FB:=StrToFloat555(Koef[1].Text);
+     FC:=StrToFloat555(Koef[2].Text);
+//     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
+//                             Panel1.Parent.Name+'A',
+//                             StrToFloat555(Koef[0].Text));
+//     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
+//                             Panel1.Parent.Name+'B',
+//                             StrToFloat555(Koef[1].Text));
+//     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
+//                             Panel1.Parent.Name+'C',
+//                             StrToFloat555(Koef[2].Text));
+//
+//     ConfigFile.Free;
    end;
-//showmessage(Panel1.Parent.Parent.Name);
 
 
- Buttons.Parent:=nil;
- Buttons.Free;
- for i:=0 to High(Koef) do
-  begin
-   Koef[i].Parent:=nil;
-   Koef[i].Free;
-  end;
- CB.Parent:=nil;
- CB.Free;
- Lab.Parent:=nil;
- Lab.Free;
- Labt.Parent:=nil;
- Labt.Free;
- Img.Parent:=nil;
- Img.Free;
+// Buttons.Parent:=nil;
+// Buttons.Free;
+// for i:=0 to High(Koef) do
+//  begin
+//   Koef[i].Parent:=nil;
+//   Koef[i].Free;
+//  end;
+// CB.Parent:=nil;
+// CB.Free;
+// Lab.Parent:=nil;
+// Lab.Free;
+// Labt.Parent:=nil;
+// Labt.Free;
+// Img.Parent:=nil;
+// Img.Free;
+
+ ElementsFromForm(Form);
  Form.Hide;
  Form.Release;
 
 end;
+
 
 procedure TFrApprP.minInKeyPress(Sender: TObject; var Key: Char);
 begin

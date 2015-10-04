@@ -239,7 +239,7 @@ procedure TDiodSample.SetMaterial(value:TMaterial);
   begin
    if Value = nil then
       Value:=TMaterial.Create(High(TMaterialName));
-   FMaterial:=value
+   FMaterial:=value;
   end;
 
 function TDiodSample.kTln(T:double):double;
@@ -251,28 +251,44 @@ function TDiodSample.kTln(T:double):double;
 function TDiodSample.I0(T,Fb:double):double;
 {повертає струму насичення
 I0=Area*Arich*T^*exp(-Fb/Kb/T)}
-  begin
+begin
+ try
   Result:=Area*Material.Arich*sqr(T)*exp(-Fb/Kb/T);
-  end;
+ except
+     Result:=ErResult;
+ end;
+end;
 
 function TDiodSample.Fb(T,I0:double):double;
 {повертає висоту бар'єру
 Fb=kT*ln(Area*ARich*T^2/I0)}
   begin
-    Result:=Kb*T*ln(Area*Material.Arich*sqr(T)/I0);
+    try
+     Result:=Kb*T*ln(Area*Material.Arich*sqr(T)/I0);
+    except
+     Result:=ErResult;
+    end;
   end;
 
 function TDiodSample.Vbi(T:double):double;
 {об'ємний потенціал (build in)}
   begin
+   try
     Result:=Kb*T*ln(Material.Nc(T)/Nd);
+    except
+     Result:=ErResult;
+   end;
   end;
 
 function TDiodSample.Em(Vrev,T,Fb0:double):double;
 {максимальне значення електричного поля}
-  begin
-    Result:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
+begin
+ try
+  Result:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
             (Material.Varshni(Fb0,T)-Vbi(T)+Vrev));
-  end;
+ except
+  Result:=ErResult;
+ end;
+end;
 
 end.

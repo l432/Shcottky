@@ -39,6 +39,7 @@ object FrParamP: TFrParamP
       Width = 81
       Height = 24
       TabOrder = 1
+      OnKeyPress = EParamKeyPress
     end
   end
 end

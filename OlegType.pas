@@ -1,7 +1,10 @@
 unit OlegType;
 
+
 interface
-// uses Dialogs,SysUtils;
+//uses Windows,Messages,SysUtils,Forms;
+// uses IniFiles;
+
 const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Eps0=8.85e-12; {діелектрична стала, []=Ф/м}
       Qelem=1.6e-19; {елементарний заряд, []=Кл}
@@ -211,6 +214,8 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
 Procedure SetLenVector(A:Pvector;n:integer);
 {встановлюється кількість точок у векторі А}
 
+
+
 implementation
 
 function TDiapazon.GetData(Index:integer):double;
@@ -299,6 +304,7 @@ Function Curve3.GS(x:double;y0:double=0):double;
   Result:=y0+A*exp(-sqr((x-B))/2/sqr(C));
  end;
 
+
 Function Curve3.GS_Sq:double;
            {повертає площу під кривою Гауса,
            якщо її побудувати по параметрам даного
@@ -339,6 +345,7 @@ begin
   SetLength(A^.X, A^.n);
   SetLength(A^.Y, A^.n);
 end;
+
 
 
 

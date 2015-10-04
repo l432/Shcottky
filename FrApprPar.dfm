@@ -53,7 +53,6 @@ object FrApprP: TFrApprP
         EditLabel.Caption = 'max '
         LabelPosition = lpLeft
         TabOrder = 0
-        OnKeyPress = minInKeyPress
       end
     end
     object GBoxLim: TGroupBox
@@ -73,7 +72,6 @@ object FrApprP: TFrApprP
         EditLabel.Caption = 'min '
         LabelPosition = lpLeft
         TabOrder = 0
-        OnKeyPress = minInKeyPress
       end
       object maxLim: TLabeledEdit
         Left = 40
@@ -85,7 +83,6 @@ object FrApprP: TFrApprP
         EditLabel.Caption = 'max '
         LabelPosition = lpLeft
         TabOrder = 1
-        OnKeyPress = minInKeyPress
       end
     end
     object GBoxMode: TGroupBox

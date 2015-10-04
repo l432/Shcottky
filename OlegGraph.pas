@@ -209,7 +209,8 @@ Szr - площа контакту
 
 
 Procedure IvanovAprox (V:PVector; DD:TDiodSample;
-                       var del,Fb:double);
+                       var del,Fb:double;
+                       OutsideTemperature:double=ErResult);
 {апроксимація даних у векторі V параметричною залежністю
 I=Szr AA T^2 exp(-Fb/kT) exp(qVs/kT)
 V=Vs+del*[Sqrt(2q Nd ep / eps0) (Sqrt(Fb/q)-Sqrt(Fb/q-Vs))]
@@ -372,7 +373,8 @@ Szr - площа контакту}
 //Procedure ExKalk(A:Pvector; AA, Szr :double;
 //                 var n:double; var I0:double; var Fb:double);overload;
 Procedure ExKalk(A:Pvector; DD:TDiodSample;
-                 var n:double; var I0:double; var Fb:double);overload;
+                 var n:double; var I0:double; var Fb:double;
+                 OutsideTemperature:double=ErResult);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
 масштабі, визначає величину
@@ -1992,7 +1994,8 @@ end;
 //Procedure IvanovAprox (V:PVector; AA, Szr, Nd, ep:double;
 //                       var del,Fb:double);
 Procedure IvanovAprox (V:PVector; DD:TDiodSample;
-                       var del,Fb:double);
+                       var del,Fb:double;
+                       OutsideTemperature:double=ErResult);
 {апроксимація даних у векторі V параметричною залежністю
 I=Szr AA T^2 exp(-Fb/kT) exp(qVs/kT)
 V=Vs+del*[Sqrt(2q Nd ep / eps0) (Sqrt(Fb/q)-Sqrt(Fb/q-Vs))]
@@ -2012,13 +2015,16 @@ eр - діелектрична проникність напівпровідника
 }
 
 var temp:Pvector;
-    a,b:double;
+    a,b,Temperature:double;
     i:integer;
     Param:array of double;
+
 begin
 del:=ErResult;
 Fb:=ErResult;
-if (V^.T<=0)or(V^.n=0) then Exit;
+if OutsideTemperature=ErResult then Temperature:=V^.T
+                               else Temperature:=OutsideTemperature;
+if (Temperature<=0)or(V^.n=0) then Exit;
 SetLength(Param,6);
 new(temp);
 temp^.n:=High(V^.X)+1;
@@ -2028,7 +2034,7 @@ try
 for I := 0 to High(V^.X) do
   begin
    temp^.X[i]:=1/V^.X[i];
-   temp^.Y[i]:=sqrt(DD.Fb(V^.T,V^.Y[i]));
+   temp^.Y[i]:=sqrt(DD.Fb(Temperature,V^.Y[i]));
 //   temp^.Y[i]:=sqrt(Kb*V^.T*ln(DD.Area*DD.Material.ARich*sqr(V^.T)/V^.Y[i]));
   end;
 except
@@ -2786,7 +2792,8 @@ end;
 
 
 Procedure ExKalk(A:Pvector; DD:TDiodSample;
-                 var n:double; var I0:double; var Fb:double);overload;
+                 var n:double; var I0:double; var Fb:double;
+                 OutsideTemperature:double=ErResult);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
 масштабі, визначає величину
@@ -2799,11 +2806,16 @@ AA - стала Річардсона,
 Szr - площа контакту}
 var {temp1,}temp2:Pvector;
     i:integer;
+    Temperature:double;
 begin
+if OutsideTemperature=ErResult then Temperature:=A^.T
+                               else Temperature:=OutsideTemperature;
+
 n:=ErResult;
 Fb:=ErResult;
 I0:=ErResult;
-if (DD.Material.ARich=ErResult)or(DD.Area=ErResult)or(A^.T<=0) then Exit;
+if (DD.Material.ARich=ErResult)or(DD.Area=ErResult)
+   or(Temperature<=0) then Exit;
 
 new(temp2);
 IVchar(A,temp2);
@@ -2812,11 +2824,11 @@ IVchar(A,temp2);
    2:Forward2Exp(A,temp2,Rs);
    3:Reverse2Exp(A,temp2,Rs);
  end;}//case
-if temp2^.n=0 then
-               begin
-                dispose(temp2);
-                Exit;
-               end;
+//if temp2^.n=0 then
+//               begin
+//                dispose(temp2);
+//                Exit;
+//               end;
 {new(temp1);
 A_B_Diapazon(A,temp2,temp1,D);
 dispose(temp2);}
@@ -2832,11 +2844,13 @@ except
   Exit;
 end;
 
+//showmessage(floattostr(Temperature));
+
 LinAprox(temp2,I0,n);
 I0:=exp(I0);
-n:=1/(Kb*A^.T*n);
+n:=1/(Kb*Temperature*n);
 {if Index=3 then n:=-n;}
-Fb:=DD.Fb(A^.T,I0);
+Fb:=DD.Fb(Temperature,I0);
 //Kb*A^.T*ln(Szr*AA*sqr(A^.T)/I0);
 dispose(temp2);
 end;

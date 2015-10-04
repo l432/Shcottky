@@ -2,7 +2,7 @@ unit OlegFunction;
 
 interface
 
-uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls;
+uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -20,12 +20,27 @@ Procedure GraphSum (Lines: array of TLineSeries);
 передбачається, що у цих всіх інших кількість
 точок та їх абсциси однакові}
 
-
+Procedure ElementsFromForm(Form:TForm);
+{забирає всі елементи з форми}
 
 
 Procedure CompEnable(Fm:TForm;Tag:integer;State:boolean);
 {для всіх елементів, що знаходяться на формі Fm та мають таг Tag,
 властивості Enable встановлюється значення State}
+
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                     Value:double);overload;
+{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:integer);overload;
+{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:Boolean);overload;
+{записує в .ini-файл значення тільки якщо воно дорівнює True}
+
 
 implementation
 
@@ -96,6 +111,12 @@ end; //try
 end;
 
 
+Procedure ElementsFromForm(Form:TForm);
+var i:integer;
+begin
+   for I := Form.ComponentCount-1 downto 0 do
+     Form.Components[i].Free;
+end;
 
 
 
@@ -107,6 +128,27 @@ begin
 for I := 0 to Fm.ComponentCount-1 do
   if (Fm.Components[i].Tag=Tag)and(Fm.Components[i] is TControl)
      then (Fm.Components[i] as TControl).Enabled:=State;
+end;
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:double);
+{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
+begin
+ if (Value<>ErResult) then ConfigFile.WriteFloat(Section,Ident,Value);
+end;
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:integer);
+{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
+begin
+ if (Value<>ErResult) then ConfigFile.WriteInteger(Section,Ident,Value);
+end;
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:Boolean);
+{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
+begin
+ if Value then ConfigFile.WriteBool(Section,Ident,Value);
 end;
 
 end.

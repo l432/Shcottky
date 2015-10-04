@@ -5,7 +5,7 @@ interface
 uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
       OlegMath,ApprWindows,StdCtrls,FrParam,Series,Classes,
-      OlegGraph,OlegMaterialSamples;
+      OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
   FuncName:array[0..31]of string=
@@ -53,6 +53,7 @@ TFitFunction=class //(TObject)//
  FName:string;//ім'я функції
  FCaption:string; // опис функції
  FXname:TArrStr; // імена змінних
+ fHasPicture:boolean;//наявність картинки
  Constructor Create(FunctionName,FunctionCaption:string);
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
@@ -140,7 +141,12 @@ TFitFunction=class //(TObject)//
  назви всіх визначених величин та їх значення,
  які розташовані в DeterminedParameters}
 
+ Procedure PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
+
  end;   // TFitFunc=class
+
+ 
+ {}
 
  //--------------------------------------------------------------------
 
@@ -172,25 +178,21 @@ TFitWithoutParameteres=class (TFitFunction)
  end;  //TFitWithoutParameteres=class (TFitFunction)
  //--------------------------------------------------------------------
 
-//TSmoothing=class (TFitWithoutParameteres)
-// public
-// Constructor Create;
-// Procedure RealTransform(InputData:PVector);override;
-// end; // TSmoothing=class (TFitFunction)
-
-//----------------------------------------------------------
 
 TFitFunctionSimple=class (TFitFunction)
 {абстрактний клас для функцій, де визначаються параметри}
  private
   FNx:byte;//кількість параметрів, які визначаються
-  FVarNum:byte; //кількість додаткових величин, які потрібні для розрахунку функції
-  FVariab:TArrSingle;
+  fX:double; //змінна Х, яка використовується для розрахунку функцій
+//  fY:double; //змінна Y, яка використовується для розрахунку функцій
+
+//  FVarNum:byte; //кількість додаткових величин, які потрібні для розрахунку функції
+//  FVariab:TArrSingle;
  {величини, які потрібні для розрахунку функції, завжди
  FVariab[0] - це змінна Х,
  FVariab[1] - це змінна Y,
  решта залежать від функції}
-  FVarName:array of string;  //імена додаткових величин
+//  FVarName:array of string;  //імена додаткових величин
   Constructor Create(FunctionName,FunctionCaption:string;
                      N:byte);
   Function Func(Parameters:TArrSingle):double; virtual;abstract;
@@ -213,7 +215,7 @@ TFitFunctionSimple=class (TFitFunction)
                      Xlog:boolean=False;Ylog:boolean=False):double; override;
  {обчислюються значення апроксимуючої функції в
  точці з абсцисою Х, найчастіше значення співпадає
- з тим, що повертає Func при Fparam[0]=X,
+ з тим, що повертає Func при fX=X,
  крім того, дозволяє
  обчислювати значення, якщо здійснювалась апроксимація
  даних, представлених у логарифмічному масштабі
@@ -266,8 +268,12 @@ TGromov=class (TFitFunctionSimple)
 //-----------------------------------------------
 
 TFitVariabSet=class(TFitFunctionSimple)
-{для функцій, де потрібно більше ніж лише Х та Y}
+{для функцій, де потрібно більше величин ніж лише Х та Y}
 private
+ FVarNum:byte; //кількість додаткових (крім X та Y) величин, які потрібні для розрахунку функції
+ FVariab:TArrSingle;
+ {величини, які потрібні для розрахунку функції}
+ FVarName:array of string;  //імена додаткових величин
  FVarBool:array of boolean;
  {якщо True, то значення відповідної додаткової
  величини відповідає  введеному значенню, а не
@@ -279,41 +285,268 @@ private
  FIsNotReady:boolean;
 {показує, чи всі дані присутні і, отже, чи функція готова
  для використання}
+ FConfigFile:TOIniFile;//для роботи з .ini-файлом
+ Procedure FIsNotReadyDetermination;virtual;
+ {по значенням полів визначається, чи готові дані до
+ апроксимації}
  Procedure ReadFromIniFile;virtual;
  {зчитує дані з ini-файла, обгортка для RealReadFromIniFile}
- Procedure RealReadFromIniFile(ConfigFile:TOIniFile);virtual;
+ Procedure RealReadFromIniFile;virtual;
  {безпосередньо зчитує дані з ini-файла, в цьому класі - FVarValue, FVarBool}
  Procedure WriteToIniFile;virtual;
  {записує дані в ini-файл, обгортка для RealWriteToIniFile}
- Procedure RealWriteToIniFile(ConfigFile:TOIniFile);virtual;
+ Procedure RealWriteToIniFile;virtual;
  {безпосередньо записує дані в ini-файл, в цьому класі - FVarValue, FVarBool}
  Procedure BeforeFitness(InputData:Pvector);virtual;
  {виконується перед початком апроксимації,
  полягає у заповненні полів потрібними
  значеннями}
+ Procedure WriteIniDefFit(const Ident: string;Value:double);overload;
+ {записує дані в секцію з ім'ям FName використовуючи FConfigFile}
+ Procedure WriteIniDefFit(const Ident: string;Value:integer);overload;
+ Procedure WriteIniDefFit(const Ident: string;Value:Boolean);overload;
+ Procedure  ReadIniDefFit(const Ident: string; var Value:double);overload;
+ {зчитує  дані з секції з ім'ям FName використовуючи FConfigFile}
+ Procedure  ReadIniDefFit(const Ident: string; var Value:integer);overload;
+ Procedure  ReadIniDefFit(const Ident: string; var Value:boolean);overload;
+
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure GRFormPrepare(Form:TForm);
   {початкове створення форми для керування параметрами}
+ Procedure GRElementsToForm(Form:TForm);
+ {виведення різноманітних елементів на форму
+  для керування параметрами, фактично -
+  обгортка для інших функцій} virtual;
+ Function  GrVariabLeftDefine(Form: TForm):integer;
+ {залежно від того, що є на формі,
+ визначається положення, де будуть виводитися
+ елементи в наступній процедурі}
+ Procedure GRVariabToForm(Form:TForm);
+ {виводяться в стовпчик елементи, пов'язані
+ з додатковими величинами,
+ Left - положення лівої границі}
+
+ Procedure GRFieldFormExchange(Form:TForm;ToForm:boolean);
+ {при ToForm=True заповнення значень елементів на формі
+  для керування параметрами,
+  при ToForm=False зчитування значень звідти;
+  фактично -  обгортка для GRRealSetValue}
+ Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);virtual;
+ {заповнюється/зчитуються значення компонента Component}
+ Procedure GRSetValueVariab(Component:TComponent;ToForm:boolean);
+ {якщо Component зв'язаний з додатковими
+ величинами, то заповнюються/зчитуються його значення}
+ Procedure GRButtonsToForm(Form:TForm);
+ {На форму виводяться кнопки Ok, Cancel}
 public
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
  procedure SetValueGR;override;
  {показ форми для керування параметрами апроксимації}
+end;   // TFitVariabSet=class(TFitFunctionSimple)
 
- end;   // TFitVariabSet=class(TFitFunctionSimple)
+//------------------------------------
+
+TFitTemperatureIsUsed=class(TFitVariabSet)
+{для функцій, де використовується температура}
+private
+ fTemperatureIsRequired:boolean;
+ {якщо у функції температура не використовується,
+ необхідно для спадкоємців у Сreate поставити цю змінну в False}
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+// Procedure FIsNotReadyDetermination;override;
+
+ Procedure BeforeFitness(InputData:Pvector);override;
+public
+
+end; //TFitTemperature=class(TFitVariabSet)
+
+//----------------------------------------------
+
+TFitSampleIsUsed=class(TFitTemperatureIsUsed)
+{для функцій, де використовується параметри
+ зразка}
+private
+ fSampleIsRequired:boolean;
+ {якщо у функції дані про зразок не використовується,
+ необхідно для спадкоємців у Сreate поставити цю змінну в False}
+ FSample:TDiodSample;
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+ Procedure FIsNotReadyDetermination;override;
+public
+
+end; //TFitSampleIsUsed=class(TFitTemperatureIsUsed))
+
+//----------------------------------------------
 
 
+TExponent=class (TFitSampleIsUsed)
+ private
+// FSample:TDiodSample;
+ Function Func(Parameters:TArrSingle):double; override;
+ Procedure RealFitting (InputData:PVector;
+         var OutputData:TArrSingle); override;
+ public
+ Constructor Create;
+// Procedure BeforeFitness(AP:Pvector);override;
+ end; // TDiod=class (TFitSampleIsUsed)
 
 
+TIvanov=class (TFitSampleIsUsed)
+private
+  Function Func(Variab:TArrSingle):double; override;
+  Procedure RealFitting (InputData:PVector;
+         var OutputData:TArrSingle); override;
+  Procedure FIsNotReadyDetermination;override;
+  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word);override;
+public
+ Constructor Create;
+ Function FinalFunc(var X:double;DeterminedParameters:TArrSingle):double; reintroduce; overload;
+// Procedure Fitting (V:PVector; var Par:TArrSingle); override;
+// Procedure FittingGraph(V:PVector; var Par:TArrSingle;Series: TLineSeries); override;
+ end; // TIvanov=class (TFitSampleIsUsed)
+
+//-----------------------------------------------
+
+TFitIteration=class (TFitSampleIsUsed)
+{при апроксимації використовується
+ітераційний процес}
+private
+ FNit:integer;//кількість ітерацій
+ Labels:array of TLabel;
+ {мітки, які показуються на вікні під
+ час апроксимації}
+ FXmode:TArrVar_Rand; //тип параметрів
+ {якщо тип - cons, то параметр розраховується
+ за формулою X = A + B*t + C*t^2,
+ де А, В та С - константи, які
+ зберігаються в масивах FA, FB та FC,
+ t - може бути будь-яка додаткова величина (FVariab),
+ або величина, обернена до неї}
+ FA,FB,FC:TArrSingle;
+ FXt:array of integer;
+ {розмірність масиву зпівпадає з FNx,
+ він містить числа, пов'язані з тим,
+ як додаткові величини використовуються
+ для розрахунку cons-параметра:
+ 0 - не використовуються, тобто параметр = А
+ 1..FVarNum - t = FVariab[ FXt[i]-1 ]
+ (FVarNum+1)..(2*FVarNum) - t = (FVariab[ FXt[i]- FVarNum - 1])^(-1)
+ }
+ FXvalue:TArrSingle;
+{значення параметрів, якщо вони  мають тип cons;
+ фактично це поле дише для того,
+ щоб не рахувати за формулою X = A + B*t+ C*t^2
+ кожного разу, а лише на початку апроксимації}
+ fIterWindow: TApp;
+ {форма, яка показується підчас ітерацій}
+ procedure SetNit(value:integer);
+ Procedure WriteIniDefFit(const Ident: string; var Value:TVar_Rand);overload;
+ Procedure ReadIniDefFit(const Ident: string; var Value:TVar_Rand);overload;
+ Procedure RealReadFromIniFile;override;
+ {безпосередньо зчитує дані з ini-файла, в цьому класі - Nit,FXmode,FA,FB,FC,FXt}
+ Procedure RealWriteToIniFile;override;
+ {безпосередньо записує дані в ini-файл, в цьому класі - Nit,,FXmode,FA,FB,FC,FXt}
+ Procedure FIsNotReadyDetermination;override;
+ Procedure GRParamToForm(Form:TForm;Left:integer=5);virtual;
+ {виведення на форму для керування параметрами
+ елементів, пов'язаних безпосередньо
+ з параметрами, які визначаються}
+ Procedure GRNitToForm(Form:TForm);
+{виведення на форму для керування параметрами
+ елементів, пов'язаних з кількістю ітерацій}
+ Procedure GRElementsToForm(Form:TForm);override;
+ Procedure GRSetValueNit(Component:TComponent;ToForm:boolean);
+ {дані про кількість ітерацій}
+ Procedure GRSetValueParam(Component:TComponent;ToForm:boolean);
+ {дані про тип параметрів}
+ Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
+ Procedure BeforeFitness(InputData:Pvector);override;
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+public
+ property Nit:integer read FNit write SetNit;
+ Procedure RealFitting (InputData:PVector;
+         var OutputData:TArrSingle); override;
+ {для цього класу та нащадків стає обгорткою,
+ де забезпечується певна робота з формою fIterWindow,
+ сама інтерполяція відбувається в TrueFitting}
+ Procedure TrueFitting (InputData:PVector;
+         var OutputData:TArrSingle); virtual;abstract;
+
+end;  // TFitIteration=class (TFitSampleIsUsed)
+
+//--------------------------------------------------------
+
+TFitAdditionParam=class (TFitIteration)
+{є додаткові параметри, які також
+визначаються в пезультаті апроксимації,
+ наприклад, для ВАХ діода при
+ освітленні це будуть
+ Voc, Isc, FF та Pm}
+private
+ fNAddX:byte;//кількість додаткових параметрів
+ fIsDiod:boolean;
+ fIsPhotoDiod:boolean;
+ {якщо якась з двох попередніх величин True,
+ то при обчисленні додаткових параметрів
+ використовується стандартна функція
+ для діода чи діода при освітленні в рамках
+ однодіодної моделі}
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar,NaddX:byte);
+ procedure AddParDetermination(InputData:PVector;
+                               OutputData:TArrSingle); virtual;
+{розраховуються додаткові параметри}
+ public
+ Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
+end;
+//---------------------------------------------
 
 
+TFitFunctLSM=class (TFitAdditionParam)
+{для функцій, де апроксимація відбувається
+за допомогою методу найменших квадратів
+з розв'язком системи рівнянь методом
+покрокового градієнтного спуску}
+private
+ fAccurancy:double;
+{ величина, пов'язана з критерієм
+ припинення ітераційного процесу}
+ Procedure RealReadFromIniFile;override;
+ {безпосередньо зчитує дані з ini-файла, в цьому класі - fAccurancy}
+ Procedure RealWriteToIniFile;override;
+ {безпосередньо записує дані в ini-файл, в цьому класі - fAccurancy}
+ Procedure FIsNotReadyDetermination;override;
+ Procedure GRParamToForm(Form:TForm;Left:integer=5);override;
+ Procedure GRAccurToForm(Form:TForm);
+{виведення на форму для керування параметрами
+ елементів, пов'язаних з критерієм
+ припинення ітераційного процесу}
+ Procedure GRElementsToForm(Form:TForm);override;
+ Procedure GRSetValueAccur(Component:TComponent;ToForm:boolean);
+ {дані про кількість ітерацій}
+ Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
+ Procedure BeforeFitness(InputData:Pvector);override;
+public
+  Procedure RealFitting (InputData:PVector;
+         var OutputData:TArrSingle); override;
 
+// Procedure AproxN (V:PVector; var Param:TArrSingle);override;
+// Function Func(Variab:TArrSingle):double; override;
+// Procedure Fitting (V:PVector; var Param:TArrSingle); override;
+end; // TFitFunctLSM=class (TFitAdditionParam)
 
+//-----------------------------------------
 
 
 // private
-// FNit:integer;//кількість ітерацій
 // FXmin:TArrSingle;
 // //мінімальні значення змінних при ініціалізації
 // FXmax:TArrSingle;
@@ -345,31 +578,10 @@ public
 // кожного разу, а лише на початку апроксимації}
 // FPEst:byte;
 // //показник степеня дільника у цільовій функції
-// FIsReady:boolean;
-//{показує, чи всі дані присутні і, отже, функція готова
-// для використання}
-// FPbool:array of boolean;
-// {якщо True, то значення відповідного
-// параметру стале, відповідає
-// введеному значенню, а не
-// визначається програмно - наприклад,
-// температура береться не з парметрів Pvector}
-// FPValue:TArrSingle;
-// {значення параметрів}
 // FEvType:TEvolutionType;
 // {еволюційний метод,
 // який використовується для апроксимації}
-// FDodX:TArrSingle;
-// {додаткові параметри, які
-// можна розрахувати на основі апроксимації;
-// наприклад, для ВАХ діода при
-// освітленні це будуть
-// Voc, Isc, FF та Pm}
-// FDodXname:TArrStr;
-// {імена додаткових параметрів}
-//  Labels:array of TLabel;
-// {мітки, які показуються на вікні під
-// час апроксимації}
+
 // FDbool:boolean;
 // {змінна, яка показує як треба
 // застосовувати обмеження, вказані в
@@ -379,9 +591,6 @@ public
 //для аналізу ВАХ освітлених елементів,
 //за умовчанням False}
 // //---------------------------
-// { поля, для збереження параметрів матеріалу та зразка}
-// FSample:TDiodSample;
-// procedure SetNit(value:integer);
 // Function EvFitPreparation(V:PVector;var Param:TArrSingle;
 //                          str:string; var Nit:integer):boolean;
 //{виконується на початку еволюційної апроксимації,
@@ -402,12 +611,6 @@ public
 //{виконується наприкінці еволюційної апроксимації,
 //очищається вікно,
 //записуються отримані результати в Param}
-//procedure DodParDetermination(V: PVector;Variab:TArrSingle); virtual;
-//{розраховуються додаткові параметри}
-//procedure BeforeFitness(AP:Pvector);virtual;
-// {виконується перед початком апроксимації,
-// полягає у заповненні полів потрібними
-// значеннями}
 //Procedure AproxN (V:PVector; var Param:TArrSingle);virtual;
 //{просто заглушка для функції, яка використовується
 //в класах-спадкоємцях;
@@ -417,12 +620,6 @@ public
 // {функція для оцінки апроксимації залежності  AP
 //  даною функцією, найчастіше - квадратична форма}
 //
-// Procedure ReadValue;virtual;
-// {зчитує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
-// та FNit з ini-файла}
-// Procedure WriteValue;virtual;
-// {записує дані для  FXmin, FXmax, FXminlim,  FXmaxlim, FXmode
-// та FNit в ini-файл}
 // Procedure VarRand(var X:TArrSingle);
 // {випадковим чином задає значення змінних
 // масиву  Х в діапазоні від FXmin до FXmax}
@@ -464,16 +661,11 @@ public
 ////----------------------------------------------
 // public
 //
-// property Nit:integer read FNit write SetNit;
-// property IsReady:boolean read FIsReady;
 // property Xmode:TArrVar_Rand read FXmode;
 //// property Xmin:TArrSingle read FXmin write FXmin;
 //// property Xmax:TArrSingle read FXmax write FXmax;
 //// property Xminlim:TArrSingle read FXminlim write FXminlim;
-// property Xvalue:TArrSingle read FXvalue;
 // property EvType:TEvolutionType read FEvType;
-// property DodXname:TArrStr read FDodXname;
-// property DodX:TArrSingle read FDodX;
 // Procedure SetValue(num,index:byte;value:double); overload;
 // {встановлюються значення num-го елементу поля
 // FXmin при index=1
@@ -773,13 +965,13 @@ Function Deviation (V:PVector):double;
 
 
 
-TExponent=class (TFitFunctionAAA)
- public
- Constructor Create;
- Function Func(Variab:TArrSingle):double; override;
- Procedure Fitting (V:PVector; var Par:TArrSingle); override;
- Procedure BeforeFitness(AP:Pvector);override;
- end; // TDiod=class (TFitFunction)
+//TExponent=class (TFitFunctionAAA)
+// public
+// Constructor Create;
+// Function Func(Variab:TArrSingle):double; override;
+// Procedure Fitting (V:PVector; var Par:TArrSingle); override;
+// Procedure BeforeFitness(AP:Pvector);override;
+// end; // TDiod=class (TFitFunction)
 
 //TSmoothing=class (TFitFunctionAAA)
 // public
@@ -807,15 +999,15 @@ TExponent=class (TFitFunctionAAA)
 
 
 
-TIvanov=class (TFitFunctionAAA)
- public
- Constructor Create;
- Function Func(Variab:TArrSingle):double; override;
- Function FinalFunc(var X:double;Variab:TArrSingle):double; reintroduce; overload;
- Procedure BeforeFitness(AP:Pvector);override;
- Procedure Fitting (V:PVector; var Par:TArrSingle); override;
- Procedure FittingGraph(V:PVector; var Par:TArrSingle;Series: TLineSeries); override;
- end; // TIvanov=class (TFitFunction)
+//TIvanov=class (TFitFunctionAAA)
+// public
+// Constructor Create;
+// Function Func(Variab:TArrSingle):double; override;
+// Function FinalFunc(var X:double;Variab:TArrSingle):double; reintroduce; overload;
+// Procedure BeforeFitness(AP:Pvector);override;
+// Procedure Fitting (V:PVector; var Par:TArrSingle); override;
+// Procedure FittingGraph(V:PVector; var Par:TArrSingle;Series: TLineSeries); override;
+// end; // TIvanov=class (TFitFunction)
 
 
 TNGausian=class (TFitFunctionAAA)
@@ -1103,7 +1295,7 @@ begin
  case Value of
      lin:  WriteInteger(Section, Ident,1);
      logar:WriteInteger(Section, Ident,2);
-     else WriteInteger(Section, Ident,3);
+//     else WriteInteger(Section, Ident,3);
      end;
 end;
 
@@ -1138,6 +1330,7 @@ begin
  DecimalSeparator:='.';
  FName:=FunctionName;
  FCaption:=FunctionCaption;
+ fHasPicture:=True;
 end;
 
 Procedure TFitFunction.SetValueGR;
@@ -1165,6 +1358,23 @@ begin
   RealToFile (InputData,OutputData,Xlog,Ylog,suf);
 end;
 
+Procedure TFitFunction.PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
+var Img:TImage;
+begin
+if fHasPicture then
+ begin
+ Img:=TImage.Create(Form);
+ Img.Parent:=Form;
+ Img.Top:=Top;
+ Img.Left:=Left;
+ Img.Height:=maxHeight;
+ Img.Width:=maxWidth;
+ Img.Stretch:=True;
+ PictLoadScale(Img,FName+'Fig');
+ Form.Width:=max(Form.Width,Img.Left+Img.Width+10);
+ Form.Height:=max(Form.Height,Img.Top+Img.Height+10);
+ end;
+end;
 //------------------------------------------------------
 
 Constructor TFitWithoutParameteres.Create(FunctionName:string);
@@ -1291,11 +1501,11 @@ begin
      end;
  if High(FXname)>1 then FXname[2]:='C';
 
- FVarNum:=2;
- SetLength(FVariab,FVarNum);
- SetLength(FVarName,FVarNum);
- FVarName[0]:='X';
- FVarName[1]:='Y';
+// FVarNum:=2;
+// SetLength(FVariab,FVarNum);
+// SetLength(FVarName,FVarNum);
+// FVarName[0]:='X';
+// FVarName[1]:='Y';
 end;
 
 Procedure TFitFunctionSimple.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
@@ -1332,8 +1542,10 @@ end;
 Function TFitFunctionSimple.FinalFunc(X:double;DeterminedParameters:TArrSingle;
                      Xlog:boolean=False;Ylog:boolean=False):double;
 begin
-   if XLog then FVariab[0]:=log10(x)
-            else FVariab[0]:=x;
+   if XLog then fX:=log10(x)
+            else fX:=x;
+//   if XLog then FVariab[0]:=log10(x)
+//            else FVariab[0]:=x;
    if YLog then Result:=exp(Func(DeterminedParameters)*ln(10))
             else Result:=Func(DeterminedParameters);
 end;
@@ -1347,14 +1559,16 @@ begin
  OutputData[0]:=ErResult;
  new(tempV);
 
+
     try
-     SetLenVector(tempV,InputData^.n);
+     IVchar(InputData,tempV);
+//     SetLenVector(tempV,InputData^.n);
      for i := 0 to High(tempV^.X)do
       begin
-        if XLog then tempV^.X[i]:=Log10(InputData^.X[i])
-                else tempV^.X[i]:=InputData^.X[i];
-        if YLog then tempV^.Y[i]:=Log10(InputData^.Y[i])
-                else tempV^.Y[i]:=InputData^.Y[i];
+        if XLog then tempV^.X[i]:=Log10(InputData^.X[i]);
+//                else tempV^.X[i]:=InputData^.X[i];
+        if YLog then tempV^.Y[i]:=Log10(InputData^.Y[i]);
+//                else tempV^.Y[i]:=InputData^.Y[i];
       end;
     except
      dispose(tempV);
@@ -1365,9 +1579,11 @@ begin
   try
    RealFitting (tempV,OutputData);
   except
-   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
+//   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
   end;
  dispose(tempV);
+ if (OutputData[0]=ErResult) then
+   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 end;
 
 
@@ -1423,7 +1639,7 @@ end;
 
 Function TLinear.Func(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[0]+Parameters[1]*FVariab[0];
+ Result:=Parameters[0]+Parameters[1]*fX;
 end;
 
 Procedure TLinear.RealFitting (InputData:PVector; var OutputData:TArrSingle);
@@ -1440,7 +1656,8 @@ end;
 
 Function TQuadratic.Func(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[0]+Parameters[1]*FVariab[0]+Parameters[2]*sqr(FVariab[0]);
+ Result:=Parameters[0]+Parameters[1]*fX+Parameters[2]*sqr(fX);
+// Result:=Parameters[0]+Parameters[1]*FVariab[0]+Parameters[2]*sqr(FVariab[0]);
 end;
 
 Procedure TQuadratic.RealFitting (InputData:PVector; var OutputData:TArrSingle);
@@ -1458,7 +1675,7 @@ end;
 
 Function TGromov.Func(Parameters:TArrSingle):double;
 begin
-Result:=Parameters[0]+Parameters[1]*FVariab[0]+Parameters[2]*ln(FVariab[0]);
+Result:=Parameters[0]+Parameters[1]*fX+Parameters[2]*ln(fX);
 end;
 
 Procedure TGromov.RealFitting (InputData:PVector; var OutputData:TArrSingle);
@@ -1474,66 +1691,75 @@ Constructor TFitVariabSet.Create(FunctionName,FunctionCaption:string;
 var i:byte;
 begin
   inherited Create(FunctionName,FunctionCaption,Npar);
-  FIsNotReady:=False;
-  FVarName[0]:='V';
-  FVarName[1]:='I';
-  if Nvar<3 then Exit;
+//  FVarName[0]:='V';
+//  FVarName[1]:='I';
+  if Nvar<1 then Exit;
   FVarNum:=Nvar;
   SetLength(FVariab,FVarNum);
   SetLength(FVarName,FVarNum);
-  SetLength(FVarBool,FVarNum-2);
-  SetLength(FVarValue,FVarNum-2);
+  SetLength(FVarBool,FVarNum);
+  SetLength(FVarValue,FVarNum);
   for I := 0 to High(FVarbool) do
     FVarbool[i]:=True;
   ReadFromIniFile;
+//  FIsNotReadyDetermination;
+end;
+
+Procedure TFitVariabSet.FIsNotReadyDetermination;
+var i:byte;
+begin
+ FIsNotReady:=False;
+ for I := 0 to High(FVarbool) do
+   if ((FVarbool[i])and(FVarValue[i]=ErResult)) then FIsNotReady:=True;
 end;
 
 Procedure TFitVariabSet.ReadFromIniFile;
-var ConfigFile:TOIniFile;
 begin
- ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+ FConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
  try
-  RealReadFromIniFile(ConfigFile);
+  RealReadFromIniFile;
  except
-  FIsNotReady:=True;
+//  FIsNotReady:=True;
  end;
-ConfigFile.Free;
+FConfigFile.Free;
 end;
 
-Procedure TFitVariabSet.RealReadFromIniFile(ConfigFile:TOIniFile);
+Procedure TFitVariabSet.RealReadFromIniFile;
 var i:byte;
 begin
  for I := 0 to High(FVarbool) do
   begin
 //  if (FName='LinEg')and(i>2) then Continue;
-   FVarbool[i]:=ConfigFile.ReadBool(FName,FVarName[i+2]+'Bool',True);
-   FVarValue[i]:=ConfigFile.ReadFloat(FName,FVarName[i+2]+'Val',ErResult);
-   if ((FVarbool[i])and(FVarValue[i]=ErResult)) then FIsNotReady:=True;
+   ReadIniDefFit('Var'+IntToStr(i)+'Bool',FVarbool[i]);
+   ReadIniDefFit('Var'+IntToStr(i)+'Val',FVarValue[i]);
+//   FVarbool[i]:=FConfigFile.ReadBool(FName,'Var'+IntToStr(i)+'Bool',False);
+//   FVarValue[i]:=FConfigFile.ReadFloat(FName,'Var'+IntToStr(i)+'Val',ErResult);
   end;
 end;
 
 Procedure TFitVariabSet.WriteToIniFile;
-var  ConfigFile:TOIniFile;
 begin
- if FIsNotReady then Exit;
- ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
- ConfigFile.EraseSection(FName);
+ FConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+ FConfigFile.EraseSection(FName);
  try
-   RealWriteToIniFile(ConfigFile);
+   RealWriteToIniFile;
  finally
 
  end;
- ConfigFile.Free;
+ FConfigFile.Free;
 end;
 
-Procedure TFitVariabSet.RealWriteToIniFile(ConfigFile:TOIniFile);
+Procedure TFitVariabSet.RealWriteToIniFile;
 var  i:byte;
 begin
  for I := 0 to High(FVarbool) do
   begin
 //   if (FName='LinEg')and(i>2) then Continue;
-   if not(FVarbool[i]) then ConfigFile.WriteBool(FName,FVarName[i+2]+'Bool',FVarbool[i]);
-   if not(FVarValue[i]=ErResult) then ConfigFile.WriteFloat(FName,FVarName[i+2]+'Val',FVarValue[i]);
+   WriteIniDefFit('Var'+IntToStr(i)+'Bool',FVarbool[i]);
+   WriteIniDefFit('Var'+IntToStr(i)+'Val',FVarValue[i]);
+
+//   if FVarbool[i] then ConfigFile.WriteBool(FName,'Var'+IntToStr(i)+'Bool',FVarbool[i]);
+//   if not(FVarValue[i]=ErResult) then ConfigFile.WriteFloat(FName,'Var'+IntToStr(i)+'Val',FVarValue[i]);
   end;
 end;
 
@@ -1541,12 +1767,42 @@ Procedure TFitVariabSet.BeforeFitness(InputData:Pvector);
 var i:integer;
 begin
 for I := 0 to High(FVarbool) do
-  if FVarbool[i] then FVariab[i+2]:=FVarValue[i];
+  if FVarbool[i] then FVariab[i]:=FVarValue[i];
 end;
+
+Procedure TFitVariabSet.WriteIniDefFit(const Ident: string; Value:double);
+begin
+ WriteIniDef(FConfigFile,FName,Ident,Value);
+end;
+Procedure TFitVariabSet.WriteIniDefFit(const Ident: string; Value:Integer);
+begin
+ WriteIniDef(FConfigFile,FName,Ident,Value);
+end;
+Procedure TFitVariabSet.WriteIniDefFit(const Ident: string;Value:Boolean);
+begin
+ WriteIniDef(FConfigFile,FName,Ident,Value);
+end;
+
+Procedure TFitVariabSet.ReadIniDefFit(const Ident: string; var Value:double);
+begin
+ Value:=FConfigFile.ReadFloat(Fname,Ident,ErResult);
+end;
+
+Procedure TFitVariabSet.ReadIniDefFit(const Ident: string; var Value:integer);
+begin
+ Value:=FConfigFile.ReadInteger(Fname,Ident,ErResult);
+end;
+
+Procedure TFitVariabSet.ReadIniDefFit(const Ident: string; var Value:boolean);
+begin
+ Value:=FConfigFile.ReadBool(Fname,Ident,False);
+end;
+
 
 Procedure TFitVariabSet.Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);
 begin
+  FIsNotReadyDetermination;
   if FIsNotReady then SetValueGR;
   if FIsNotReady then
      begin
@@ -1575,189 +1831,1173 @@ begin
  Form.Width:=10;
 end;
 
+Procedure TFitVariabSet.GRElementsToForm(Form:TForm);
+begin
+  GRVariabToForm(Form);
+end;
+
+Function TFitVariabSet.GrVariabLeftDefine(Form: TForm):integer;
+var
+  i: Byte;
+begin
+ Result:=10;
+ try
+  for i := Form.ComponentCount - 1 downto 0 do
+    if Form.Components[i].Name = FXname[0] then
+      Result := 10 + (Form.Components[i] as TFrApprP).Panel1.Width;
+ except
+//   Result:=10;
+ end;
+end;
+
+Procedure TFitVariabSet.GRVariabToForm(Form:TForm);
+const PaddingBetween=5;
+var VarP:array of TFrParamP;
+    i:byte;
+//    Left:integer;
+begin
+  if FVarNum<1 then Exit;
+  SetLength(VarP,FVarNum);
+
+  for I :=0 to High(VarP) do
+    begin
+    VarP[i]:=TFrParamP.Create(Form);
+    VarP[i].Name:='Var'+inttostr(i)+FVarName[i];
+//    if (FName='LinEg')and(i>2) then Continue;
+    VarP[i].Parent:=Form;
+    VarP[i].Left:=GrVariabLeftDefine(Form);
+    VarP[i].Top:=Form.Height+i*(VarP[i].Height+PaddingBetween);
+    VarP[i].LName.Caption:=FVarName[i];
+  end;
+  Form.Height:=max(Form.Height,VarP[High(VarP)].Top+VarP[High(VarP)].Height+10);
+  Form.Width:=max(Form.Width,VarP[High(VarP)].Left+VarP[High(VarP)].Width+10);
+end;
+
+Procedure TFitVariabSet.GRFieldFormExchange(Form:TForm;ToForm:boolean);
+var i:integer;
+begin
+ for I := Form.ComponentCount-1 downto 0 do
+     GRRealSetValue(Form.Components[i],ToForm);
+end;
+
+Procedure TFitVariabSet.GRRealSetValue(Component:TComponent;ToForm:boolean);
+begin
+ GRSetValueVariab(Component,ToForm);
+end;
+
+Procedure TFitVariabSet.GRSetValueVariab(Component:TComponent;ToForm:boolean);
+var i:byte;
+begin
+ for i := 0 to High(FVarBool) do
+    if Component.Name='Var'+inttostr(i)+FVarName[i] then
+      if ToForm then
+          begin
+            (Component as TFrParamP).EParam.Text:=ValueToStr555(FVarValue[i]);
+            (Component as TFrParamP).CBIntr.Checked:=FVarBool[i];
+          end
+                else
+          begin
+            FVarValue[i]:=StrToFloat555((Component as TFrParamP).EParam.Text);
+            FVarbool[i]:=(Component as TFrParamP).CBIntr.Checked;
+          end
+end;
+
+Procedure TFitVariabSet.GRButtonsToForm(Form:TForm);
+var Buttons:TFrBut;
+begin
+ Buttons:=TFrBut.Create(Form);
+ Buttons.Parent:=Form;
+ Buttons.Left:=min(150,round(Form.Width/3));
+ Buttons.Top:=Form.Height;
+ Form.Height:=Form.Height+Buttons.Height+50;
+ Form.Width:=max(Form.Width,Buttons.Left+Buttons.Width+30);
+end;
+
 Procedure TFitVariabSet.SetValueGR;
 const PaddingTop=120;
       PaddingBetween=5;
       PaddingLeft=50;
 var Form:TForm;
-    Pan:array of TFrApprP;
-    Buttons:TFrBut;
-    Niter:TLabeledEdit;
-    ParamP:array of TFrParamP;
-    Img:TImage;
-    GrBox:TGroupBox;
-    EvMode:array [0..3] of TRadioButton;
-    i:integer;
-    ConfigFile:TOIniFile;
 begin
-// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
-
- Form:=Tform.Create(Application);
+ Form:=TForm.Create(Application);
  GRFormPrepare(Form);
+ PictureToForm(Form,450,60,10,10);
 
-//
-//
-// Img:=TImage.Create(Form);
-// Img.Parent:=Form;
-// Img.Top:=10;
-// Img.Left:=10;
-// Img.Height:=60;
-// Img.Width:=450;
-// Img.Stretch:=True;
-// PictLoadScale(Img,FName+'Fig');
-//
-//
-// SetLength(Pan,FNs);
-// for I := 0 to FNs - 1 do
-//  begin
-//  Pan[i]:=TFrApprP.Create(Form);
-//  Pan[i].Name:=FXname[i];
-//  Pan[i].Parent:=Form;
-//  Pan[i].Left:=5;
-//  Pan[i].Top:=PaddingTop+i*(Pan[i].Panel1.Height+PaddingBetween);
-//  Pan[i].LName.Caption:=FXname[i];
-//  Pan[i].minIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',ErResult));
-//  Pan[i].maxIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',ErResult));
-//  Pan[i].minLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',ErResult));
-//  Pan[i].maxLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',ErResult));
-//      case ConfigFile.ReadRand(FName,FXname[i]+'Mode') of
-//       lin:  Pan[i].RBNorm.Checked:=True;
-//       logar:Pan[i].RBLogar.Checked:=True;
-//       cons: Pan[i].RBCons.Checked:=True;
-//       end;
-//  end;
-//
-//  if FPNs>2 then
-//   begin
-//    SetLength(ParamP,FPNs-2);
-//    for I :=0 to High(ParamP) do
-//    begin
-//    ParamP[i]:=TFrParamP.Create(Form);
-//    ParamP[i].Name:=ParamP[i].Name+FPname[i+2];
-//    if (FName='LinEg')and(i>2) then Continue;
-//    ParamP[i].Parent:=Form;
-//    ParamP[i].Left:=Pan[0].Panel1.Width+10;
-//    ParamP[i].Top:=PaddingTop+i*(Pan[0].Panel1.Height+PaddingBetween);
-//    ParamP[i].LName.Caption:=FPname[i+2];
-//    ParamP[i].EParam.OnKeyPress:=Pan[0].minIn.OnKeyPress;
-//    ParamP[i].CBIntr.Checked:=true;
-//    ParamP[i].EParam.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FPname[i+2]+'Val',ErResult));
-//    ParamP[i].CBIntr.Checked:=ConfigFile.ReadBool(FName,FPname[i+2]+'Bool',True);;
-//    end;
-//   end;
-//
-//   if (Fname='RevShSCLC')
-//    then  ParamP[High(Paramp)].Top:=PaddingTop-(Pan[0].Panel1.Height+PaddingBetween);
-//
-// Niter:=TLabeledEdit.Create(Form);
-// Niter.Parent:=Form;
-// Niter.Left:=65;
-// Niter.Top:=85;
-// Niter.LabelPosition:=lpLeft;
-// Niter.EditLabel.Width:=40;
-// Niter.EditLabel.WordWrap:=True;
-// Niter.EditLabel.Caption:='Iteration number';
-// Niter.Width:=50;
-// Niter.OnKeyPress:=Pan[0].minIn.OnKeyPress;
-// Niter.Text:=ValueToStr555(ConfigFile.ReadInteger(FName,'Nit',ErResult));
-//
-// Buttons:=TFrBut.Create(Form);
-// Buttons.Parent:=Form;
-// Buttons.Left:=150;
-// Buttons.Top:=PaddingTop+FNs*(Pan[0].Panel1.Height+PaddingBetween);
-//
-// GrBox:=TGroupBox.Create(Form);
-// GrBox.Parent:=Form;
-// GrBox.Caption:='Evolution Type';
-// GrBox.Left:=Niter.Left+Niter.Width+20;
-// GrBox.Top:=70;
-// for I := 0 to High(EvMode) do
-//   begin
-//   EvMode[i]:=TRadioButton.Create(GrBox);
-//   EvMode[i].Parent:=GrBox;
-//   EvMode[i].Top:=20;
-//   EvMode[i].Width:=60;
-//   end;
-// EvMode[0].Caption:='DE';
-// EvMode[1].Caption:='MABC';
-// EvMode[2].Caption:='TLBO';
-// EvMode[3].Caption:='PSO';
-// EvMode[0].Left:=5;
-// for I := 1 to High(EvMode) do
-//   begin
-//   EvMode[i].Left:=5+EvMode[i-1].Left+EvMode[i-1].Width;
-//   end;
-// GrBox.Width:=EvMode[High(EvMode)].Left+EvMode[High(EvMode)].Width+5;
-// GrBox.Height:=EvMode[High(EvMode)].Height+30;
-// EvMode[ord(ConfigFile.ReadEvType(FName,'EvType',TDE))].Checked:=True;
-//
-//  Form.Height:=FNs*(Pan[0].Panel1.Height+PaddingBetween)+PaddingTop+
-//               Buttons.Height+50;
-//
-//if Fname='RevShSCLC2' then
-//   begin
-//   ParamP[5].Top:=ParamP[3].Top;
-//   ParamP[6].Top:=ParamP[3].Top;
-//   ParamP[7].Top:=ParamP[4].Top;
-//   ParamP[7].Left:=5;
-//   ParamP[5].Left:=5;
-//   ParamP[6].Left:=round((ParamP[3].Left-ParamP[7].Left)/2);
-//   Buttons.Top:=PaddingTop+(FNs+2)*(Pan[0].Panel1.Height+PaddingBetween);
-//   Form.Height:=(FNs+2)*(Pan[0].Panel1.Height+PaddingBetween)+PaddingTop+
-//               Buttons.Height+50;
-//   end;
-//
-//
-// Form.Width:=max(Pan[0].Panel1.Left+Pan[0].Panel1.Width,Img.Left+Img.Width)+PaddingLeft;
-// if High(ParamP)>-1 then Form.Width:=Form.Width+ParamP[0].Panel.Width;
-//
-// ConfigFile.Free;
-//
-// if Form.ShowModal=mrOk then
-//  begin
-//      ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
-//      ConfigFile.WriteInteger(FName,'Nit',StrToInt555(Niter.Text));
-//
-//
-//      for I := 0 to FNs - 1 do
-//        begin
-//          ConfigFile.WriteFloat(FName,FXname[i]+'Xmin',StrToFloat555(Pan[i].minIn.Text));
-//          ConfigFile.WriteFloat(FName,FXname[i]+'Xmax',StrToFloat555(Pan[i].maxIn.Text));
-//          ConfigFile.WriteFloat(FName,FXname[i]+'Xminlim',StrToFloat555(Pan[i].minLim.Text));
-//          ConfigFile.WriteFloat(FName,FXname[i]+'Xmaxlim',StrToFloat555(Pan[i].maxLim.Text));
-//
-//          if Pan[i].RBNorm.Checked then ConfigFile.WriteRand(FName,FXname[i]+'Mode',lin);
-//          if Pan[i].RBLogar.Checked then ConfigFile.WriteRand(FName,FXname[i]+'Mode',logar);
-//          if Pan[i].RBCons.Checked then  ConfigFile.WriteRand(FName,FXname[i]+'Mode',cons);
-//        end;  //for I := 0 to FNs - 1 do
-//
-//      if FPNs>2 then
-//        for I :=0 to High(ParamP) do
-//          begin
-//           if (FName='LinEg')and(i>2) then Continue;
-//           ConfigFile.WriteFloat(FName,FPname[i+2]+'Val',StrToFloat555(ParamP[i].EParam.Text));
-//           ConfigFile.WriteBool(FName,FPname[i+2]+'Bool',ParamP[i].CBIntr.Checked);
-//          end;
-//
-//      if EvMode[0].Checked then FEvType:=TDE;
-//      if EvMode[1].Checked then FEvType:=TMABC;
-//      if EvMode[2].Checked then FEvType:=TTLBO;
-//      if EvMode[3].Checked then FEvType:=TPSO;
-//      ConfigFile.WriteEvType(FName,'EvType',FEvType);
-//       ConfigFile.Free;
-//  end;// if Form.ShowModal=mrOk then
-//
-// ReadValue;
-//
+ GRElementsToForm(Form);
+ GRFieldFormExchange(Form,True);
 
+ GRButtonsToForm(Form);
 
- for I := Form.ComponentCount-1 downto 0 do
-     Form.Components[i].Free;
+ if Form.ShowModal=mrOk then  GRFieldFormExchange(Form,False);
+
+ FIsNotReadyDetermination;
+
+ if not(FIsNotReady) then WriteToIniFile;
+
+ ElementsFromForm(Form);
  Form.Hide;
  Form.Release;
 end;
 
+
+
+
 //----------------------------------------------------
+
+Constructor TFitTemperatureIsUsed.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+begin
+ inherited Create(FunctionName,FunctionCaption,Npar,Nvar);
+ if FVarNum>0 then FVarName[0]:='T';
+ fTemperatureIsRequired:=(FVarNum>0);
+end;
+
+Procedure TFitTemperatureIsUsed.BeforeFitness(InputData:Pvector);
+begin
+ if fTemperatureIsRequired then FVariab[0]:=InputData^.T;
+ inherited;
+end;
+
+//Procedure TFitTemperatureIsUsed.FIsNotReadyDetermination;
+//begin
+// inherited FIsNotReadyDetermination;
+// if (fTemperatureIsRequired)and(not(FVarbool[0]))and(FVariab[0]<=0)
+//   then FIsNotReady:=True;
+//end;
+
+//------------------------------------------------------------
+Constructor TFitSampleIsUsed.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+begin
+ inherited Create(FunctionName,FunctionCaption,Npar,Nvar);
+ FSample:=Diod;
+ fSampleIsRequired:=True;
+end;
+
+Procedure TFitSampleIsUsed.FIsNotReadyDetermination;
+begin
+ inherited FIsNotReadyDetermination;
+ if fSampleIsRequired then
+  begin
+   if (FSample=nil) then
+     begin
+       FIsNotReady:=True;
+       Exit;
+     end;
+   if (FSample.Area=ErResult)or(FSample.Material.ARich=ErResult) then FIsNotReady:=True;
+  end;
+end;
+
+//-------------------------------------------------
+
+Constructor TExponent.Create;
+begin
+ inherited Create('Exponent',
+                  'Linear least-squares fitting of semi-log plot',
+                   3,1);
+ FXname[0]:='Io';
+ FXname[1]:='n';
+ FXname[2]:='Fb';
+// FVarName[0]:='T';
+// FSample:=Diod;
+end;
+
+Function TExponent.Func(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[0]*exp(fX/(Parameters[1]*Kb*FVariab[0]));
+end;
+
+
+
+Procedure TExponent.RealFitting (InputData:PVector;
+         var OutputData:TArrSingle);
+begin
+   ExKalk(InputData,FSample,OutputData[1],OutputData[0],OutputData[2],FVariab[0]);
+end;
+
+
+Constructor TIvanov.Create;
+begin
+ inherited Create('Ivanov',
+                  'I-V fitting for dielectric layer width d determination, Ivanov method',
+                   2,1);
+ FXname[0]:='Fb';
+ FXname[1]:='d/ep';
+end;
+
+Function TIvanov.Func(Variab:TArrSingle):double;
+begin
+ Result:=ErResult;
+end;
+
+Function TIvanov.FinalFunc(var X:double;DeterminedParameters:TArrSingle):double;
+var Vd,x0:double;
+begin
+  x0:=X;
+  Vd:=DeterminedParameters[1]*sqrt(2*Qelem*FSample.Nd*FSample.Material.Eps/Eps0)*
+    (sqrt(DeterminedParameters[0])-sqrt(DeterminedParameters[0]-x0));
+  X:=Vd+x0;
+//  Result:=FArich*FSzr*sqr(FParam[2])*exp(-Variab[0]/Kb/FParam[2])*exp(x0/Kb/FParam[2]);
+  Result:=FSample.I0(FVariab[0],DeterminedParameters[0])*exp(x0/Kb/FVariab[0]);
+end;
+
+Procedure TIvanov.FIsNotReadyDetermination;
+begin
+ inherited FIsNotReadyDetermination;
+ if (FSample.Material.Eps=ErResult)or(FSample.Nd=ErResult) then FIsNotReady:=True;
+end;
+
+
+Procedure TIvanov.RealFitting (InputData:PVector;
+         var OutputData:TArrSingle);
+begin
+   IvanovAprox(InputData,FSample,OutputData[1],OutputData[0],FVariab[0]);
+end;
+
+Procedure TIvanov.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word);
+var h,x,y:double;
+    i:integer;
+begin
+  Series.Clear;
+  h:=(InputData^.X[High(InputData^.X)]-InputData^.X[0])/Np;
+  for I := 0 to Np do
+    begin
+    x:=InputData^.X[0]+i*h;
+    y:=FinalFunc(x,OutputData);
+    Series.AddXY(x, y);
+    end;
+end;
+//-----------------------------------------------
+
+Constructor TFitIteration.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+begin
+ inherited Create(FunctionName,FunctionCaption,Npar,Nvar);
+ SetLength(FXmode,FNx);
+ SetLength(FA,FNx);
+ SetLength(FB,FNx);
+ SetLength(FC,FNx);
+ SetLength(FXvalue,FNx);
+ SetLength(FXt,FNx);
+end;
+
+procedure TFitIteration.SetNit(value:integer);
+begin
+  if value>0 then fNit:=value
+             else fNit:=1000;
+end;
+
+Procedure TFitIteration.WriteIniDefFit(const Ident: string; var Value:TVar_Rand);
+begin
+ FConfigFile.WriteRand(FName,Ident,Value);
+end;
+
+Procedure TFitIteration.ReadIniDefFit(const Ident: string; var Value:TVar_Rand);
+begin
+ Value:=FConfigFile.ReadRand(FName,Ident);
+end;
+
+Procedure TFitIteration.RealReadFromIniFile;
+var i:byte;
+begin
+ inherited;
+ ReadIniDefFit('Nit',FNit);
+ for I := 0 to High(FXmode) do
+   begin
+    ReadIniDefFit(FXname[i]+'Mode',FXmode[i]);
+    ReadIniDefFit(FXname[i]+'A',FA[i]);
+    ReadIniDefFit(FXname[i]+'B',FB[i]);
+    ReadIniDefFit(FXname[i]+'C',FC[i]);
+    ReadIniDefFit(FXname[i]+'tt',FXt[i]);
+   end;
+end;
+
+
+Procedure TFitIteration.RealWriteToIniFile;
+var i:byte;
+begin
+ inherited RealWriteToIniFile;
+ WriteIniDefFit('Nit',Nit);
+ for I := 0 to High(FXmode) do
+   begin
+    WriteIniDefFit(FXname[i]+'Mode',FXmode[i]);
+    WriteIniDefFit(FXname[i]+'A',FA[i]);
+    WriteIniDefFit(FXname[i]+'B',FB[i]);
+    WriteIniDefFit(FXname[i]+'C',FC[i]);
+    WriteIniDefFit(FXname[i]+'tt',FXt[i]);
+   end;
+end;
+
+Procedure TFitIteration.FIsNotReadyDetermination;
+var i:byte;
+begin
+ inherited FIsNotReadyDetermination;
+ if (Nit=ErResult) then FIsNotReady:=True;
+ for I := 0 to High(FXmode) do
+  if FXmode[i]=cons then
+      begin
+        if FA[i]=ErResult then FIsNotReady:=True;
+        if not(FXt[i]in[0..2*FVarNum]) then FIsNotReady:=True;
+        if ((FXt[i]in[1..2*FVarNum])and
+              (FC[i]=ErResult)and(FB[i]=ErResult)) then FIsNotReady:=True;
+      end;
+end;
+
+
+Procedure TFitIteration.GRParamToForm(Form:TForm;Left:integer=5);
+const PaddingBetween=5;
+var  Pan:array of TFrApprP;
+     i:byte;
+begin
+ SetLength(Pan,FNx);
+ for I := 0 to High(Pan) do
+  begin
+    Pan[i]:=TFrApprP.Create(Form);
+    Pan[i].Name:=FXname[i];
+    Pan[i].Parent:=Form;
+    Pan[i].Left:=Left;
+    Pan[i].Top:=Form.Height+i*(Pan[i].Panel1.Height+PaddingBetween);
+    Pan[i].LName.Caption:=FXname[i];
+    Pan[i].GBoxInit.Visible:=False;
+    Pan[i].GBoxLim.Visible:=False;
+  end;
+
+// for I := 0 to FNs - 1 do
+//  begin
+//  Pan[i].minIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmin',ErResult));
+//  Pan[i].maxIn.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmax',ErResult));
+//  Pan[i].minLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xminlim',ErResult));
+//  Pan[i].maxLim.Text:=ValueToStr555(ConfigFile.ReadFloat(FName,FXname[i]+'Xmaxlim',ErResult));
+//  end;
+  for i := Form.ComponentCount-1 downto 0 do
+    if (Form.Components[i].Name='Nit') then
+      (Form.Components[i] as TLabeledEdit).OnKeyPress:=Pan[0].minIn.OnKeyPress;
+
+  Form.Height:=max(Form.Height,Pan[High(Pan)].Top+Pan[High(Pan)].Height+10);
+  Form.Width:=max(Form.Width,Pan[High(Pan)].Left+Pan[High(Pan)].Width+10);
+end;
+
+
+Procedure TFitIteration.GRNitToForm(Form:TForm);
+var Niter:TLabeledEdit;
+begin
+ Niter:=TLabeledEdit.Create(Form);
+ Niter.Parent:=Form;
+ Niter.Name:='Nit';
+ Niter.Left:=65;
+ Niter.Top:=Form.Height;
+ Niter.LabelPosition:=lpLeft;
+ Niter.EditLabel.Width:=40;
+ Niter.EditLabel.WordWrap:=True;
+ Niter.EditLabel.Caption:='Iteration number';
+ Niter.Width:=50;
+ Form.Height:=Niter.Top+Niter.Height+10;
+ Form.Width:=max(Form.Width,Niter.Left+Niter.Height+10);
+end;
+
+Procedure TFitIteration.GRElementsToForm(Form:TForm);
+begin
+  GRNitToForm(Form);
+  GRParamToForm(Form);
+  GRVariabToForm(Form);
+end;
+
+Procedure TFitIteration.GRRealSetValue(Component:TComponent;ToForm:boolean);
+begin
+ inherited;
+ GRSetValueNit(Component,ToForm);
+ GRSetValueParam(Component,ToForm);
+end;
+
+Procedure TFitIteration.GRSetValueNit(Component:TComponent;ToForm:boolean);
+begin
+  if Component.Name='Nit' then
+    if ToForm then (Component as TLabeledEdit).Text:=ValueToStr555(Nit)
+              else  Nit:=StrToInt555((Component as TLabeledEdit).Text);
+end;
+
+Procedure TFitIteration.GRSetValueParam(Component:TComponent;ToForm:boolean);
+var i,j:byte;
+begin
+ for i:=0 to fNx-1 do
+  if Component.Name=FXname[i] then
+    if ToForm then
+      begin
+        case FXmode[i] of
+         lin:  (Component as TFrApprP).RBNorm.Checked:=True;
+         logar:(Component as TFrApprP).RBLogar.Checked:=True;
+         cons: (Component as TFrApprP).RBCons.Checked:=True;
+        end;
+        SetLength((Component as TFrApprP).FVarName,High(FVarName));
+        for j := 0 to High(FVarName) do
+          (Component as TFrApprP).FVarName[j]:=FVarName[j];
+        (Component as TFrApprP).FA:=FA[i];
+        (Component as TFrApprP).FB:=FB[i];
+        (Component as TFrApprP).FC:=FC[i];
+        (Component as TFrApprP).FXt:=FXt[i];
+      end
+              else
+         begin
+          if (Component as TFrApprP).RBNorm.Checked then FXmode[i]:=lin;
+          if (Component as TFrApprP).RBLogar.Checked then FXmode[i]:=logar;
+          if (Component as TFrApprP).RBCons.Checked then  FXmode[i]:=cons;
+          FA[i]:=(Component as TFrApprP).FA;
+          FB[i]:=(Component as TFrApprP).FB;
+          FC[i]:=(Component as TFrApprP).FC;
+          FXt[i]:=(Component as TFrApprP).FXt;
+         end;
+end;
+
+Procedure TFitIteration.BeforeFitness(InputData:Pvector);
+var i:byte;
+begin
+ inherited BeforeFitness(InputData);
+for I := 0 to High(FXmode) do
+  if FXmode[i]=cons then
+    begin
+     FXvalue[i]:=FA[i];
+     if (FXt[i]<=FVarNum)and(FXt[i]>0) then
+       FXvalue[i]:=FXvalue[i]+FB[i]*FVariab[FXt[i]]+
+                   FC[i]*sqr(FVariab[FXt[i]]);
+     if FXt[i]>FVarNum then
+       FXvalue[i]:=FXvalue[i]+FB[i]/FVariab[FXt[i]-FVarNum]+
+                     FC[i]/sqr(FVariab[FXt[i]-FVarNum]);
+    end;
+end;
+
+Procedure TFitIteration.RealFitting (InputData:PVector;
+         var OutputData:TArrSingle);
+begin
+
+end;         
+
+
+//-----------------------------------------------------
+Constructor TFitAdditionParam.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar,NaddX:byte);
+begin
+ inherited Create(FunctionName,FunctionCaption,Npar+NaddX,Nvar);
+ fNAddX:=NaddX;
+ SetLength(FXname,FNx+fNAddX);
+ fIsDiod:=False;
+ fIsPhotoDiod:=False;
+end;
+
+procedure TFitAdditionParam.AddParDetermination(InputData:PVector;
+                               OutputData:TArrSingle);
+begin
+  if (fIsDiod and(fNaddX=1) and (FNx>2)) then
+   begin
+     FXname[FNx]:='Fb';
+     OutputData[FNx]:=FSample.Fb(FVariab[0],OutputData[2]);
+   end;
+
+  if (fIsPhotoDiod and (fNaddX=4) and (FNx>4)) then
+   begin
+     FXname[FNx]:='Voc';
+     FXname[FNx+1]:='Isc';
+     FXname[FNx+2]:='Pm';
+     FXname[FNx+3]:='FF';
+    if (OutputData[4]>1e-7) then
+       begin
+        OutputData[FNx]:=
+           Voc_Isc_Pm(1,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+        OutputData[FNx+1]:=
+           Voc_Isc_Pm(2,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+       end;
+    if (OutputData[FNx]>0.002)and
+       (OutputData[FNx+1]>1e-7)and
+       (OutputData[FNx]<>ErResult)and
+       (OutputData[FNx+1]<>ErResult) then
+         begin
+          OutputData[FNx+2]:=
+            Voc_Isc_Pm(3,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+          OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+         end;
+   end;
+end;
+
+Procedure TFitAdditionParam.Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);
+begin
+  inherited;
+  if (fNaddX>0)and(not(FIsNotReady)) then
+   begin
+     SetLength(OutputData,FNx+fNAddX);
+     AddParDetermination(InputData,OutputData);
+   end;
+end;
+
+//---------------------------------------------------------
+
+
+Procedure TFitFunctLSM.RealReadFromIniFile;
+begin
+ inherited RealReadFromIniFile;
+ ReadIniDefFit('eps',fAccurancy);
+end;
+
+Procedure TFitFunctLSM.RealWriteToIniFile;
+begin
+ inherited RealWriteToIniFile;
+ WriteIniDefFit('eps',fAccurancy);
+end;
+
+Procedure TFitFunctLSM.FIsNotReadyDetermination;
+begin
+ inherited FIsNotReadyDetermination;
+ if (fAccurancy=ErResult) then FIsNotReady:=True;
+end;
+
+Procedure TFitFunctLSM.GRParamToForm(Form:TForm;Left:integer=5);
+var i,j:byte;
+begin
+ inherited;
+ for j := Form.ComponentCount-1 downto 0 do
+  for I := 0 to FNx-1 do
+   if (Form.Components[j].Name=FXname[i]) then
+     begin
+      (Form.Components[j] as TFrApprP).RBLogar.Visible:=False;
+      (Form.Components[j] as TFrApprP).RBNorm.Caption:='Variated';
+      (Form.Components[j] as TFrApprP).GBoxMode.Left:=
+                  (Form.Components[j] as TFrApprP).GBoxInit.Left;
+      (Form.Components[j] as TFrApprP).Panel1.Width:=
+            (Form.Components[j] as TFrApprP).GBoxMode.Left+
+            (Form.Components[j] as TFrApprP).GBoxMode.Width+30;
+      (Form.Components[j] as TFrApprP).Width:=(Form.Components[j] as TFrApprP).Panel1.Width+2;
+
+      if (Fname='PhotoDiodLam')and((i=2)or(i=4)) then
+        (Form.Components[j] as TFrApprP).Enabled:=False;
+     end;
+end;
+
+Procedure TFitFunctLSM.GRAccurToForm(Form:TForm);
+var Acur:TLabeledEdit;
+    i:byte;
+begin
+ Acur:=TLabeledEdit.Create(Form);
+ Acur.Name:='Accuracy';
+ Acur.Parent:=Form;
+ Acur.Left:=250;
+ Acur.Top:=85;;
+ Acur.LabelPosition:=lpLeft;
+ Acur.EditLabel.Width:=40;
+ Acur.EditLabel.WordWrap:=True;
+ Acur.EditLabel.Caption:='Accuracy';
+ Acur.Width:=50;
+ try
+   for i := Form.ComponentCount-1 downto 0 do
+    begin
+      if (Form.Components[i].Name=FXname[0]) then
+        Acur.OnKeyPress:=(Form.Components[i] as TFrApprP).minIn.OnKeyPress;
+      if (Form.Components[i].Name='Nit') then
+        Acur.Top:=(Form.Components[i] as TLabeledEdit).Top;
+    end;
+ finally
+
+ end;
+
+ Form.Width:=max(Form.Width,Acur.Left+Acur.Width+10)
+end;
+
+Procedure TFitFunctLSM.GRElementsToForm(Form:TForm);
+begin
+  GRNitToForm(Form);
+  GRParamToForm(Form);
+  GRVariabToForm(Form);
+  GRAccurToForm(Form);
+end;
+
+Procedure TFitFunctLSM.GRRealSetValue(Component:TComponent;ToForm:boolean);
+begin
+ inherited;
+ GRSetValueNit(Component,ToForm);
+ GRSetValueParam(Component,ToForm);
+ GRSetValueAccur(Component,ToForm);
+end;
+
+Procedure TFitFunctLSM.GRSetValueAccur(Component:TComponent;ToForm:boolean);
+begin
+  if Component.Name='Accuracy' then
+    if ToForm then (Component as TLabeledEdit).Text:=ValueToStr555(fAccurancy)
+              else  fAccurancy:=StrToInt555((Component as TLabeledEdit).Text);
+end;
+
+Procedure TFitFunctLSM.BeforeFitness(InputData:Pvector);
+var i:byte;
+begin
+ inherited BeforeFitness(InputData);
+ for I := 0 to High(FXmode) do
+  begin
+    if (FXname[i]='Rs')and(FXvalue[i]<=1e-4) then FXvalue[i]:=1e-4;
+    if (FXname[i]='Rsh')and((FXvalue[i]>=1e12)or(FXvalue[i]<=0))
+       then FXvalue[i]:=1e12;
+    if (FXname[i]='n')and(FXvalue[i]<=0) then FXvalue[i]:=1;
+  end;
+end;
+
+Procedure TFitFunctLSM.RealFitting (InputData:PVector;
+         var OutputData:TArrSingle);
+{апроксимуються ВАХ при освітленні у векторі V
+залежністю I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
+за методом найменших квадратів зі
+статистичними ваговими коефіцієнтами
+}
+
+//var
+//    i,Nitt,j:integer;
+//    bool,bool1:boolean;
+//    Sum,al,sum2:double;
+begin
+//
+//   Function Secant(num:word;a,b,F:double):double;
+//  {обчислюється оптимальне значення параметра al
+//  в методі поординатного спуску;
+//  використовується метод дихотомії;
+//  а та b задають початковий відрізок, де шукається
+//  розв'язок}
+//  var i:integer;
+//      c,Fb,Fa:double;
+//  begin
+//    Result:=0;
+//    Fa:=ErResult;
+//    if FName='DiodLSM'
+//      then Fa:=aSdal_ExpShot(V,num,a,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//    if FName='DiodLam'
+//      then Fa:=aSdal_LamShot(V,num,a,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//    if FName='PhotoDiodLSM'
+//      then Fa:=aSdal_ExpLightShot(V,num,a,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3],FXmin[4]);
+//    if FName='PhotoDiodLam'
+//      then  Fa:=aSdal_LamLightShotA(V,num,a,F,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
+//
+//    if Fa=ErResult then
+//    begin
+////    showmessage('jjj');
+//    Exit;
+//    end;
+//
+//    if Fa=0 then
+//               begin
+//                  Result:=a;
+//                  Exit;
+//                end;
+//    repeat
+//    Fb:=0;
+//    if FName='DiodLSM'
+//      then Fb:=aSdal_ExpShot(V,num,b,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//    if FName='DiodLam'
+//      then Fb:=aSdal_LamShot(V,num,b,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//    if FName='PhotoDiodLSM'
+//      then Fb:=aSdal_ExpLightShot(V,num,b,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3],FXmin[4]);
+//    if FName='PhotoDiodLam'
+//      then Fb:=aSdal_LamLightShotA(V,num,b,F,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
+//
+//     if Fb=0 then
+//                begin
+//                  Result:=b;
+//                  Exit;
+//                end;
+//     if Fb=ErResult then break
+//               else
+//                 begin
+//                 if Fb*Fa<=0 then break
+//                            else b:=2*b
+//                 end;
+//    until false;
+//
+//     i:=0;
+//    repeat
+//      inc(i);
+//      c:=(a+b)/2;
+//    if FName='DiodLSM'
+//      then
+//       begin
+//       Fb:=aSdal_ExpShot(V,num,c,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//       Fa:=aSdal_ExpShot(V,num,a,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//       end;
+//    if FName='DiodLam'
+//      then
+//      begin
+//      Fb:=aSdal_LamShot(V,num,c,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//      Fa:=aSdal_LamShot(V,num,a,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//      end;
+//    if FName='PhotoDiodLSM'
+//      then
+//      begin
+//      Fb:=aSdal_ExpLightShot(V,num,c,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3],FXmin[4]);
+//      Fa:=aSdal_ExpLightShot(V,num,a,F,FXmin[0],FXmin[1],FXmin[2],FXmin[3],FXmin[4]);
+//      end;
+//    if FName='PhotoDiodLam'
+//      then
+//      begin
+//      Fb:=aSdal_LamLightShotA(V,num,b,F,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
+//      Fa:=aSdal_LamLightShotA(V,num,a,F,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
+//      end;
+//
+//     if (Fb*Fa<=0) or (Fb=ErResult)
+//       then b:=c
+//       else a:=c;
+//     until (i>1e5)or(abs((b-a)/c)<1e-2);
+//    if (i>1e5) then Exit;
+//    Result:=c;
+//  end;
+//
+// Procedure VuhDatExpLightmAprox (Par:TArrSingle);
+//  {по значенням в V визначає початкове наближення
+//  для n,Rs,I0,Rsh,Iph}
+//  var temp,temp2:Pvector;
+//      i,k:integer;
+//   begin
+//    Par[0]:=ErResult;
+//    if (VocCalc(V)<=0.002) then Exit;
+//    Par[4]:=IscCalc(V);
+//    if (Par[4]<=1e-8) then Exit;
+//
+//    new(temp2);
+//    IVchar(V,temp2);
+//     for I := 0 to High(temp2^.X) do
+//      temp2^.Y[i]:=temp2^.Y[i]+Par[4];
+//
+//    new(temp);
+//    Diferen (temp2,temp);
+//  {фактично, в temp залеженість оберненого опору від напруги}
+//    Par[3]:=(temp^.X[1]/temp^.y[2]-temp^.X[2]/temp^.y[1])/(temp^.X[1]-temp^.X[2]);
+//  {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
+//      значення при нульовій напрузі}
+//   if FXmode[3]=cons then Par[3]:=FXvalue[3];
+//
+//    for I := 0 to High(temp^.X) do
+//      temp^.Y[i]:=(temp2^.Y[i]-temp2^.X[i]/Par[3]);
+//    {в temp - ВАХ з врахуванням Rsh0}
+//
+//    k:=-1;
+//    for i:=0 to High(temp^.X) do
+//           if Temp^.Y[i]<0 then k:=i;
+//
+//   if k<0 then IVchar(temp,temp2)
+//          else
+//           begin
+//             SetLenVector(temp2,temp^.n-k-1);
+//             for i:=0 to High(temp2^.X) do
+//               begin
+//                temp2^.Y[i]:=temp^.Y[i+k+1];
+//                temp2^.X[i]:=temp^.X[i+k+1];
+//               end;
+//           end;
+//     for i:=0 to High(temp2^.X) do
+//       temp2^.Y[i]:=ln(temp2^.Y[i]);
+//
+//{}    if High(temp2^.X)>6 then
+//         begin
+//         SetLenVector(temp,High(temp2^.X)-3);
+//         for i:=3 to High(temp2^.X) do
+//          begin
+//           temp^.X[i-3]:=temp2^.X[i];
+//           temp^.Y[i-3]:=temp2^.Y[i];
+//          end;
+//         end;
+//    LinAprox(temp,Par[2],Par[0]);{}
+//    Par[2]:=exp(Par[2]);
+//    Par[0]:=1/(Kb*V^.T*Par[0]);
+//    {I00 та n0 в результаті лінійної апроксимації залежності
+//    ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
+//   if FXmode[2]=cons then Par[2]:=FXvalue[2];
+//   if FXmode[0]=cons then Par[0]:=FXvalue[0];
+//     for i:=0 to High(temp2^.X) do
+//       begin
+//       temp2^.Y[i]:=exp(temp2^.Y[i]);;
+//       end;
+//   {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
+//   значення струму додатні}
+//
+//    Diferen (temp2,temp);
+//     for i:=0 to High(temp.X) do
+//       begin
+//       temp^.X[i]:=1/temp2^.Y[i];
+//       temp^.Y[i]:=1/temp^.Y[i];
+//       end;
+//    {в temp - залежність dV/dI від 1/І}
+//
+//    if temp^.n>5 then
+//       begin
+//       SetLenVector(temp2,5);
+//       for i:=0 to 4 do
+//         begin
+//             temp2^.X[i]:=temp^.X[High(temp.X)-i];
+//             temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
+//         end;
+//       end
+//               else
+//           IVchar(temp2,temp);
+//
+//    LinAprox(temp2,Par[1],temp^.X[0]);
+//    {Rs0 - як вільних член лінійної апроксимації
+//    щонайбільше п'яти останніх точок залежності dV/dI від 1/І;
+//   dV/dI= (nKbT)/(qI)+Rs;
+//    temp^.X[0] використане лише для того, щоб
+//    не вводити допоміжну змінну}
+//   if FXmode[1]=cons then Par[1]:=FXvalue[1];
+//
+//    dispose(temp2);
+//    dispose(temp);
+//   end;
+//
+//
+//  Procedure VuhDatAprox (Par:TArrSingle);//overload;
+//  {по значенням в V визначає початкове наближення
+//  для n,Rs,I0,Rsh}
+//
+//  var temp,temp2:Pvector;
+//      i,k:integer;
+//   begin
+//    Par[0]:=ErResult;
+// if High(Par)=4 then
+//    begin
+//    Par[2]:=IscCalc(V);
+//    Par[4]:=VocCalc(V);
+//    if ( Par[4]<=0.002)or(Par[2]<1e-8) then Exit;
+//    end;
+//
+//    new(temp);
+//    Diferen (V,temp);
+//  {фактично, в temp залеженість оберненого опору від напруги}
+//    Par[3]:=(temp^.X[1]/temp^.y[2]-temp^.X[2]/temp^.y[1])/(temp^.X[1]-temp^.X[2]);
+//  {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
+//      значення при нульовій напрузі}
+//   if FXmode[3]=cons then Par[3]:=FXvalue[3];
+//
+// if High(Par)=4 then
+//    begin
+//        for I := 0 to High(temp^.X) do
+//          begin
+//          temp^.Y[i]:=1/temp^.Y[i];
+//          temp^.X[i]:=Kb*V^.T/(Par[2]+V^.Y[i]-V^.X[i]/Par[3]);
+//          end;
+//        new(temp2);
+//        if temp^.n>7 then
+//           begin
+//           SetLenVector(temp2,7);
+//           for i:=0 to 6 do
+//             begin
+//                 temp2^.X[i]:=temp^.X[High(temp.X)-i];
+//                 temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
+//             end;
+//           end
+//                   else
+//              IVchar(temp2,temp);
+//        LinAprox(temp2,Par[1],Par[0]);
+//          {n та Rs0 - як нахил та вільних член лінійної апроксимації
+//          щонайбільше семи останніх точок залежності
+//          dV/dI від kT/q(Isc+I-V/Rsh);}
+////          if Par[0]>1e5 then  Par[0]:=1;
+//         if FXmode[1]=cons then Par[1]:=FXvalue[1];
+//         if FXmode[0]=cons then Par[0]:=FXvalue[0];
+//    end
+//
+//    else
+//    begin
+//              for I := 0 to High(temp^.X) do
+//                temp^.Y[i]:=(V^.Y[i]-V^.X[i]/Par[3]);
+//              {в temp - ВАХ з врахуванням Rsh0}
+//              k:=-1;
+//              for i:=0 to High(temp^.X) do
+//                     if Temp^.Y[i]<0 then k:=i;
+//              new(temp2);
+//
+//             if k<0 then IVchar(temp,temp2)
+//                    else
+//                     begin
+//                       SetLenVector(temp2,temp^.n-k-1);
+//                       for i:=0 to High(temp2^.X) do
+//                         begin
+//                          temp2^.Y[i]:=temp^.Y[i+k+1];
+//                          temp2^.X[i]:=temp^.X[i+k+1];
+//                         end;
+//                     end;
+//               for i:=0 to High(temp2^.X) do
+//                 temp2^.Y[i]:=ln(temp2^.Y[i]);
+//
+//            {}    if High(temp2^.X)>6 then
+//                   begin
+//                   SetLenVector(temp,High(temp2^.X)-3);
+//                   for i:=3 to High(temp2^.X) do
+//                    begin
+//                     temp^.X[i-3]:=temp2^.X[i];
+//                     temp^.Y[i-3]:=temp2^.Y[i];
+//                    end;
+//                   end;
+//              LinAprox(temp,Par[2],Par[0]);{}
+//              Par[2]:=exp(Par[2]);
+//              Par[0]:=1/(Kb*V^.T*Par[0]);
+////              if Par[0]>1e5 then  Par[0]:=1;
+//              {I00 та n0 в результаті лінійної апроксимації залежності
+//              ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
+//            if FXmode[2]=cons then Par[2]:=FXvalue[2];
+//            if FXmode[0]=cons then Par[0]:=FXvalue[0];
+//
+//               for i:=0 to High(temp2^.X) do
+//                 begin
+//                 temp2^.Y[i]:=exp(temp2^.Y[i]);;
+//                 end;
+//             {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
+//             значення струму додатні}
+//
+//              Diferen (temp2,temp);
+//               for i:=0 to High(temp.X) do
+//                 begin
+//                 temp^.X[i]:=1/temp2^.Y[i];
+//                 temp^.Y[i]:=1/temp^.Y[i];
+//                 end;
+//              {в temp - залежність dV/dI від 1/І}
+//
+//              if temp^.n>5 then
+//                 begin
+//                 SetLenVector(temp2,5);
+//                 for i:=0 to 4 do
+//                   begin
+//                       temp2^.X[i]:=temp^.X[High(temp.X)-i];
+//                       temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
+//                   end;
+//                 end
+//                         else
+//                     IVchar(temp2,temp);
+//              LinAprox(temp2,Par[1],temp^.X[0]);
+//              {Rs0 - як вільних член лінійної апроксимації
+//              щонайбільше п'яти останніх точок залежності dV/dI від 1/І;
+//             dV/dI= (nKbT)/(qI)+Rs;
+//              temp^.X[0] використане лише для того, щоб
+//              не вводити допоміжну змінну}
+//             if FXmode[1]=cons then Par[1]:=FXvalue[1];
+//     end;
+//
+//    dispose(temp2);
+//    dispose(temp);
+//   end; //  VuhDatAprox
+//
+//
+//begin
+//SetLength(Param,FNs);
+//Param[0]:=ErResult;
+//
+//if not((FName='DiodLSM')or(FName='DiodLam')
+//    or(FName='PhotoDiodLSM')or(FName='PhotoDiodLam'))
+//      then Exit;
+//if V^.T=0 then Exit;
+//if V^.n<7 then  Exit;
+//
+//SetLength(Labels,2*FNs);
+// j:=0;
+// for I := 0 to FNs - 1 do
+//  begin
+//  Labels[i]:=TLabel.Create(App);
+//  Labels[i].Name:=Labels[i].Name+FXname[i];
+//  Labels[i+FNs]:=TLabel.Create(App);
+//  Labels[i+FNs].Name:=Labels[i].Name+FXname[i]+'n';
+//
+//  if ((Name='PhotoDiodLam')and((i=2)or(i=4))) then Continue;
+//  Labels[i].Parent:=App;
+//  Labels[i+FNs].Parent:=App;
+//  Labels[i].Left:=24;
+//  Labels[i+FNs].Left:=90;
+//  Labels[i].Top:=round(3.5*App.LNmax.Height)+j*round(1.5*Labels[i].Height);
+//  Labels[i+FNs].Top:=round(3.5*App.LNmax.Height)+j*round(1.5*Labels[i].Height);
+//  Labels[i].Caption:=FXname[i]+' =';
+//  inc(j);
+//  end;
+//  App.LNmaxN.Caption:=inttostr(FNit);
+//  if (Name='PhotoDiodLam') then
+//      App.Height:=Labels[3].Top+3*Labels[3].Height
+//                           else
+//  App.Height:=Labels[High(Labels)].Top+3*Labels[High(Labels)].Height;
+//
+//if FName='DiodLSM' then
+//  App.Caption:='Direct Aproximation';
+//if FName='DiodLam' then
+//  App.Caption:='Lambert Aproximation';
+//if FName='PhotoDiodLSM' then
+//  App.Caption:='Direct Aproximation of Illuminated I-V';
+//if FName='PhotoDiodLam' then
+//  App.Caption:='Lambert Aproximation of Illuminated I-V';
+//if V^.name<>'' then App.Caption:=App.Caption+', '+V^.name;
+//
+//
+//if FName='PhotoDiodLSM' then VuhDatExpLightmAprox(FXmin)
+//                        else VuhDatAprox (FXmin);
+//// showmessage(floattostr(FXmin[1]));
+// if FXmin[1]<0 then FXmin[1]:=1;
+//
+//
+//   if FXmin[0]=ErResult then
+//                begin
+//                  WindowClear();
+//                  Exit;
+//                end;
+//if FName='PhotoDiodLam' then
+//     begin
+//     FXmode[2]:=cons;
+//     FXmode[4]:=cons;
+//     end;
+//
+//bool:=true;
+//if FName='PhotoDiodLam'
+// then bool:=ParamCorect(V,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
+//if FName='DiodLam'
+// then bool:=ParamCorect(V,LamParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//if (FName='DiodLSM')or(FName='PhotoDiodLSM')
+// then bool:=ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//
+//if not(bool) then
+//                begin
+//                  WindowClear();
+//                  Exit;
+//                end;
+//
+////  showmessage(floattostr(FXmin[1]));
+//
+// Nitt:=0;
+// sum2:=1;
+//App.Show;
+//
+//
+////QueryPerformanceCounter(StartValue);
+//
+//repeat
+//
+// if Nitt<1 then
+//   begin
+//    bool1:=true;
+//     if FName='DiodLam' then
+//      bool1:=FG_LamShotA(V,FXmin,FXminlim,Sum)<>0;
+//     if FName='PhotoDiodLSM' then
+//      bool1:=(FG_ExpLightShotA(V,FXmin,FXminlim,Sum)<>0);
+//     if FName='PhotoDiodLam' then
+//      bool1:=(FG_LamLightShotA(V,FXmin[0],FXmin[1],
+//               FXmin[3],FXmin[2],FXmin[4],FXminlim,Sum)<>0);
+//     if FName='DiodLSM' then
+//      bool1:=(FG_ExpShotA(V,FXmin,FXminlim,Sum)<>0);
+//    if bool1 then
+//                begin
+//                  WindowClear();
+//                  Exit;
+//                end;
+//
+//
+//   end;
+//
+//
+//
+//
+//  bool:=true;
+//  if not(odd(Nitt)) then for I := 0 to High(FXmin) do FXmax[i]:=FXmin[i];
+//  if not(odd(Nitt))or (Nitt=0) then sum2:=sum;
+//
+//  for I := 0 to High(FXmin) do
+//     begin
+//
+//       if FXmode[i]=cons then Continue;
+//       if FXminlim[i]=0 then Continue;
+//       if abs(FXmin[i]/100/FXminlim[i])>1e30 then Continue;
+//
+//       al:=Secant(i,0,0.1*abs(FXmin[i]/FXminlim[i]),FXminlim[i]);
+//
+////    if i=1 then      showmessage(floattostr(FXmin[1]));
+////         showmessage(floattostr(FXminlim[0]));
+////          showmessage(inttostr(Nitt)+' '+floattostr(al*FXminlim[i]/FXmin[i]));
+//       if abs(al*FXminlim[i]/FXmin[i])>2 then Continue;
+//
+//       FXmin[i]:=FXmin[i]-al*FXminlim[i];
+//
+////   if i=1 then    showmessage('2 -- '+floattostr(FXmin[1]));
+//
+//      bool1:=true;
+//      if FName='PhotoDiodLam' then
+//       bool1:=(ParamCorect(V,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]));
+//      if FName='DiodLam' then
+//       bool1:=(ParamCorect(V,LamParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]));
+//      if (FName='DiodLSM')or(FName='PhotoDiodLSM') then
+//       bool1:=(ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]));
+//      if not(bool1) then
+//                begin
+//                  WindowClear();
+//                  Exit;
+//                end;
+//
+//       bool:=(bool)and(abs((FXmax[i]-FXmin[i])/FXmin[i])<FXmaxlim[0]);
+//
+//
+//
+//
+//    bool1:=true;
+//     if FName='DiodLam' then
+//      bool1:=FG_LamShotA(V,FXmin,FXminlim,Sum)<>0;
+//     if FName='PhotoDiodLSM' then
+//      bool1:=(FG_ExpLightShotA(V,FXmin,FXminlim,Sum)<>0);
+//     if FName='PhotoDiodLam' then
+//      bool1:=(FG_LamLightShotA(V,FXmin[0],FXmin[1],
+//               FXmin[3],FXmin[2],FXmin[4],FXminlim,Sum)<>0);
+//     if FName='DiodLSM' then
+//      bool1:=(FG_ExpShotA(V,FXmin,FXminlim,Sum)<>0);
+//     if bool1 then
+//                begin
+//                  WindowClear();
+//                  Exit;
+//                end;
+//
+//     end;
+//
+//  if (Nitt mod 25)=0 then
+//     begin
+//      WindowDataShow(Nitt,FXmin);
+//      for I := 0 to FNs - 1 do
+//       begin
+//       if (FXname[i]='Rs')and(FXmin[i]<=1e-4) then
+//                   Labels[i+FNs].Caption:='0';
+//       if (FXname[i]='Rsh')and(FXmin[i]>=9e11) then
+//                   Labels[i+FNs].Caption:='INF';
+//       end;
+//
+//         Application.ProcessMessages;
+//     end;
+//  Inc(Nitt);
+//
+////until (Nitt>10000) or not(App.Visible);
+//until (abs((sum2-sum)/sum)<FXmaxlim[0]) or bool or (Nitt>FNit) or not(App.Visible);
+//
+////QueryPerformanceCounter(EndValue);
+////QueryPerformanceFrequency(Freq);
+////showmessage('tics='+inttostr(EndValue-StartValue)+#10+#13+
+////             'time='+floattostr((EndValue-StartValue)/Freq)
+////             +' s'+#10+#13+
+////                'freq+'+inttostr(Freq));
+//
+//if App.Visible then
+//    begin
+//    for i := 0 to High(FXmin) do
+//       Param[i]:=FXmin[i];
+//    if FName='PhotoDiodLam' then
+//       begin
+//       Param[2]:=(FXmin[2]+(FXmin[1]*FXmin[2]-FXmin[4])/FXmin[3])*exp(-FXmin[4]/FXmin[0]/Kb/V^.T)/
+//                       (1-exp((FXmin[1]*FXmin[2]-FXmin[4])/FXmin[0]/Kb/V^.T));
+//       Param[4]:= Param[2]*(exp(FXmin[4]/FXmin[0]/Kb/V^.T)-1)+FXmin[4]/FXmin[3];
+//       end;
+//    end;
+//
+//WindowClear();
+//App.Close;
+//end;
+
+
+
+
+
+end;
+//-------------------------------------------------------
+
+
+
+
 
 Constructor TFitFunctionAAA.Create(N:integer);
 begin
@@ -2363,44 +3603,44 @@ end;
 
 
 
-Constructor TExponent.Create;
-begin
- inherited Create(3);
- FName:='Exponent';
- FXname[0]:='Io';
- FXname[1]:='n';
- FXname[2]:='Fb';
- FPNs:=3;
- SetLength(FParam,FPNs);
- SetLength(FPname,FPNs);
- FPName[0]:='V';
- FPName[1]:='I';
- FPName[2]:='T';
-// FPName[3]:='S';
-// FPName[4]:='A*';
- SetLength(FPbool,FPNs-2);
- SetLength(FPValue,FPNs-2);
- FSample:=Diod;
- FCaption:='Linear least-squares fitting of semi-log plot';
-end;
-
-Function TExponent.Func(Variab:TArrSingle):double;
-begin
-Result:=Variab[0]*exp(FParam[0]/(Variab[1]*Kb*FParam[2]));
-end;
-
-Procedure TExponent.BeforeFitness(AP:Pvector);
- {виконується перед початком апроксимації,
- полягає у заповненні полів потрібними
- значеннями}
-//var    ConfigFile:TOIniFile;
-begin
-// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
-// FParam[3]:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
-// FParam[4]:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
-// ConfigFile.Free;
- FParam[2]:=AP^.T;
-end;
+//Constructor TExponent.Create;
+//begin
+// inherited Create(3);
+// FName:='Exponent';
+// FXname[0]:='Io';
+// FXname[1]:='n';
+// FXname[2]:='Fb';
+// FPNs:=3;
+// SetLength(FParam,FPNs);
+// SetLength(FPname,FPNs);
+// FPName[0]:='V';
+// FPName[1]:='I';
+// FPName[2]:='T';
+//// FPName[3]:='S';
+//// FPName[4]:='A*';
+// SetLength(FPbool,FPNs-2);
+// SetLength(FPValue,FPNs-2);
+// FSample:=Diod;
+// FCaption:='Linear least-squares fitting of semi-log plot';
+//end;
+//
+//Function TExponent.Func(Variab:TArrSingle):double;
+//begin
+//Result:=Variab[0]*exp(FParam[0]/(Variab[1]*Kb*FParam[2]));
+//end;
+//
+//Procedure TExponent.BeforeFitness(AP:Pvector);
+// {виконується перед початком апроксимації,
+// полягає у заповненні полів потрібними
+// значеннями}
+////var    ConfigFile:TOIniFile;
+//begin
+//// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+//// FParam[3]:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
+//// FParam[4]:=ConfigFile.ReadFloat('Parameters','RichConst',1.12e6);
+//// ConfigFile.Free;
+// FParam[2]:=AP^.T;
+//end;
 
 //Constructor TSmoothing.Create;
 //begin
@@ -2440,61 +3680,61 @@ end;
 
 
 
-Constructor TIvanov.Create;
-begin
- inherited Create(2);
- FName:='Ivanov';
- FXname[0]:='Fb';
- FXname[1]:='d/ep';
-// FPNs:=5;
- FPNs:=3;
- SetLength(FParam,FPNs);
- SetLength(FPname,FPNs);
- FPName[0]:='V';
- FPName[1]:='I';
- FPName[2]:='T';
-// FPName[3]:='Nd';
-// FPName[4]:='ep';
- SetLength(FPbool,FPNs-2);
- SetLength(FPValue,FPNs-2);
- ReadValue;
- if FIsReady then
-      begin
-       FIsReady:=FSample.Nd<>ErResult;
-       FIsReady:=FSample.Material.Eps<>ErResult;
-      end;
- FCaption:='I-V fitting for dielectric layer width d determination, Ivanov method';
-end;
-
-Function TIvanov.Func(Variab:TArrSingle):double;
-begin
-Result:=ErResult;
-end;
-
-Function TIvanov.FinalFunc(var X:double;Variab:TArrSingle):double;
-var Vd,x0:double;
-begin
-  x0:=X;
-  Vd:=Variab[1]*sqrt(2*Qelem*FSample.Nd*FSample.Material.Eps/Eps0)*(sqrt(Variab[0])-sqrt(Variab[0]-x0));
-  X:=Vd+x0;
-//  Result:=FArich*FSzr*sqr(FParam[2])*exp(-Variab[0]/Kb/FParam[2])*exp(x0/Kb/FParam[2]);
-  Result:=FSample.I0(FParam[2],Variab[0])*exp(x0/Kb/FParam[2]);
-end;
-
-Procedure TIvanov.BeforeFitness(AP:Pvector);
- {виконується перед початком апроксимації,
- полягає у заповненні полів потрібними
- значеннями}
-//var
-//    ConfigFile:TOIniFile;
-begin
-// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
-// FParam[3]:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
-// FParam[4]:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
-// ConfigFile.Free;
- FParam[2]:=AP^.T;
-end;
-
+//Constructor TIvanov.Create;
+//begin
+// inherited Create(2);
+// FName:='Ivanov';
+// FXname[0]:='Fb';
+// FXname[1]:='d/ep';
+//// FPNs:=5;
+// FPNs:=3;
+// SetLength(FParam,FPNs);
+// SetLength(FPname,FPNs);
+// FPName[0]:='V';
+// FPName[1]:='I';
+// FPName[2]:='T';
+//// FPName[3]:='Nd';
+//// FPName[4]:='ep';
+// SetLength(FPbool,FPNs-2);
+// SetLength(FPValue,FPNs-2);
+// ReadValue;
+// if FIsReady then
+//      begin
+//       FIsReady:=FSample.Nd<>ErResult;
+//       FIsReady:=FSample.Material.Eps<>ErResult;
+//      end;
+// FCaption:='I-V fitting for dielectric layer width d determination, Ivanov method';
+//end;
+//
+//Function TIvanov.Func(Variab:TArrSingle):double;
+//begin
+//Result:=ErResult;
+//end;
+//
+//Function TIvanov.FinalFunc(var X:double;Variab:TArrSingle):double;
+//var Vd,x0:double;
+//begin
+//  x0:=X;
+//  Vd:=Variab[1]*sqrt(2*Qelem*FSample.Nd*FSample.Material.Eps/Eps0)*(sqrt(Variab[0])-sqrt(Variab[0]-x0));
+//  X:=Vd+x0;
+////  Result:=FArich*FSzr*sqr(FParam[2])*exp(-Variab[0]/Kb/FParam[2])*exp(x0/Kb/FParam[2]);
+//  Result:=FSample.I0(FParam[2],Variab[0])*exp(x0/Kb/FParam[2]);
+//end;
+//
+//Procedure TIvanov.BeforeFitness(AP:Pvector);
+// {виконується перед початком апроксимації,
+// полягає у заповненні полів потрібними
+// значеннями}
+////var
+////    ConfigFile:TOIniFile;
+//begin
+//// ConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+//// FParam[3]:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
+//// FParam[4]:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
+//// ConfigFile.Free;
+// FParam[2]:=AP^.T;
+//end;
+//
 
 Constructor TNGausian.Create(NGaus:byte);
 var i:byte;
@@ -4520,32 +5760,32 @@ end;
 
 
 
-Procedure TExponent.Fitting (V:PVector; var Par:TArrSingle);
-begin
-  SetLength(Par,FNs);
-  Par[0]:=ErResult;
-  try
-   BeforeFitness(V);
-   ExKalk(V,FSample,Par[1],Par[0],Par[2]);
-//   ExKalk(V,FParam[4],FParam[3],Par[1],Par[0],Par[2]);
-  except
-   MessageDlg('Approximation unseccessful', mtError,[mbOk],0)
-  end;
-end;
+//Procedure TExponent.Fitting (V:PVector; var Par:TArrSingle);
+//begin
+//  SetLength(Par,FNs);
+//  Par[0]:=ErResult;
+//  try
+//   BeforeFitness(V);
+//   ExKalk(V,FSample,Par[1],Par[0],Par[2]);
+////   ExKalk(V,FParam[4],FParam[3],Par[1],Par[0],Par[2]);
+//  except
+//   MessageDlg('Approximation unseccessful', mtError,[mbOk],0)
+//  end;
+//end;
 
 
 
-Procedure TIvanov.Fitting (V:PVector; var Par:TArrSingle);
-begin
-  SetLength(Par,FNs);
-  Par[0]:=ErResult;
-  try
-   BeforeFitness(V);
-   IvanovAprox(V,FSample,Par[1],Par[0]);
-  except
-   MessageDlg('Approximation unseccessful', mtError,[mbOk],0)
-  end;
-end;
+//Procedure TIvanov.Fitting (V:PVector; var Par:TArrSingle);
+//begin
+//  SetLength(Par,FNs);
+//  Par[0]:=ErResult;
+//  try
+//   BeforeFitness(V);
+//   IvanovAprox(V,FSample,Par[1],Par[0]);
+//  except
+//   MessageDlg('Approximation unseccessful', mtError,[mbOk],0)
+//  end;
+//end;
 
 
 Procedure TFitFunctionAAA.FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries);
@@ -4888,22 +6128,22 @@ end;
 //  Str1.Free;
 //end;
 
-Procedure TIvanov.FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries);
-const Np=150; //кількість точок, по яким будується апроксимація
-var h,x,y:double;
-    i:integer;
-begin
-  Fitting(V,Par);
-  if Par[0]=ErResult then Exit;
-  Series.Clear;
-  h:=(V^.X[High(V^.X)]-V^.X[0])/Np;
-  for I := 0 to Np do
-    begin
-    x:=V^.X[0]+i*h;
-    y:=FinalFunc(x,Par);
-    Series.AddXY(x, y);
-    end;
-end;
+//Procedure TIvanov.FittingGraph (V:PVector; var Par:TArrSingle;Series: TLineSeries);
+//const Np=150; //кількість точок, по яким будується апроксимація
+//var h,x,y:double;
+//    i:integer;
+//begin
+//  Fitting(V,Par);
+//  if Par[0]=ErResult then Exit;
+//  Series.Clear;
+//  h:=(V^.X[High(V^.X)]-V^.X[0])/Np;
+//  for I := 0 to Np do
+//    begin
+//    x:=V^.X[0]+i*h;
+//    y:=FinalFunc(x,Par);
+//    Series.AddXY(x, y);
+//    end;
+//end;
 
 Function LamLightParamIsBad(V:PVector;n0,Rs0,Rsh0,Isc0,Voc0:double):boolean;
 {перевіряє чи параметри можна використовувати для
@@ -6499,215 +7739,7 @@ DodParDetermination(V,Param);
 end;
 
 
-//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
-//              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
-//              Light:boolean;Func:byte);
-//{по даним у векторі А будує залежність похідної
-//диференційного нахилу ВАХ від напруги (метод Булярського)
-//fun - кількість зглажувань
-//Isc - струм короткого замикання
-//Iscbool=true - потрібно враховувати Isc
-//Rbool=true - потрібно враховувати послідовний
-//та шунтуючі опори
-//D, Mode, Light та Func потрібні лише для
-//виклику функції ExpKalkNew}
-//var j,id:integer;
-//    temp,A_apr,temp_apr,B_apr,Alim:Pvector;
-//    tsingle:double;
-//    EvolParam:TArrSingle;
-//    Fit:TFitFunction;
-//begin
-// B^.n:=0;
-// new(Alim);
-// A_B_Diapazon(Light,A,Alim,D);
-//
-//
-// if (Alim^.T=0)or(Alim^.n<3) then
-//     begin
-//     dispose(Alim);
-//     Exit;
-//     end;
-//
-//
-//
-//new(temp);
-//new(A_apr);
-//new(temp_apr);
-//new(B_apr);
-//
-//IVchar(Alim,temp);
-//IVchar(Alim,A_apr);
-//IVchar(Alim,temp_apr);
-//
-//
-//
-//
-//if Rbool then
-//  begin
-//{  if Light then MABC (temp,DoubleDiodLight,Mode,EvolParam)
-//           else MABC (temp,DoubleDiod,Mode,EvolParam);{}
-//  if Light then Fit:=TDoubleDiodLight.Create
-//           else Fit:=TDoubleDiodLight.Create;
-//  Fit.Fitting(temp,EvolParam);
-////  MABC (temp,DoubleDiodLight,Mode,EvolParam)
-//////           else DifEvol (temp,DoubleDiod,Mode,EvolParam);
-////           else MABC (temp,DoubleDiod,Mode,EvolParam);
-//
-////  ExpKalkNew(A,D,Mode,Light,Func,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-//
-//  if EvolParam[0]=ErResult then
-//          begin
-//            dispose(temp);
-//            dispose(temp_apr);
-//            dispose(A_apr);
-//            dispose(B_apr); {}
-//            dispose(Alim);
-//            Exit;
-//          end;
-////  if Light then Iph:=EvolParam[6];
-////  Rss:=EvolParam[1];
-////  Rsh:=EvolParam[3];
-////------------------
-//  if not(Light) then
-//   begin
-//     SetLength(EvolParam,7);
-//     EvolParam[6]:=0;
-//   end;
-//
-//SetLenVector(A_apr,Alim^.n);
-//SetLenVector(temp_apr,Alim^.n);
-//
-//for j:=0 to High(Alim^.X) do
-// begin
-//   A_apr^.X[j]:=Alim^.X[j];
-//   A_apr^.Y[j]:=Full_IV_2Exp(Alim^.X[j],EvolParam[0]*Kb*Alim^.T,EvolParam[4]*Kb*Alim^.T,
-//               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
-// end;
-//
-////------------------
-//
-//{ for j:=0 to High(A^.X) do
-//    begin
-//     temp^.X[j]:=A^.X[j]-Rss*A^.Y[j];
-//     temp^.Y[j]:=A^.Y[j]-A^.X[j]/Rsh;
-////-------------------
-//     temp_apr^.X[j]:=A_apr^.X[j]-Rss*A_apr^.Y[j];
-//     temp_apr^.Y[j]:=A_apr^.Y[j]-A_apr^.X[j]/Rsh;
-////-------------------
-//    end;
-//  end;
-//}
-//
-// for j:=0 to High(Alim^.X) do
-//    begin
-//     temp^.X[j]:=Alim^.X[j];
-//     temp^.Y[j]:=Alim^.Y[j];
-////-------------------
-//     temp_apr^.X[j]:=A_apr^.X[j];
-//     temp_apr^.Y[j]:=A_apr^.Y[j];
-////-------------------
-//    end;
-//
-//
-//  end;
-//
-//
-//{if Iscbool then
-//  begin
-//   if (Rbool) and (Iph<>0)and(Iph<>ErResult) then
-//     for j:=0 to High(temp^.X) do
-//        temp^.Y[j]:=temp^.Y[j]+Iph;
-//   if not(Rbool) and (Isc0<>0)and(Isc0<>ErResult) then
-//     for j:=0 to High(temp^.X) do
-//        temp^.Y[j]:=temp^.Y[j]+Isc0;
-//  end;}
-//
-//{if Rbool then
-//  for j:=0 to High(A^.X) do
-//    begin
-//     temp^.X[j]:=A^.X[j]-Rss*A^.Y[j];
-//     temp^.Y[j]:=A^.Y[j]-A^.X[j]/Rsh;
-//    end;
-// }
-//
-// Diferen (temp,B);
-//
-// Diferen (temp_apr,B_apr);
-//
-// if B^.n=0 then
-//           begin
-//            dispose(temp);
-//            dispose(temp_apr);
-//            dispose(A_apr);
-//            dispose(B_apr); {}
-//            dispose(Alim);
-//            Exit;
-//          end;
-//
-//
-// tsingle:=Alim^.T*Kb;
-// for j:=0 to High(B^.X) do
-//        begin
-//        B^.Y[j]:=1/B^.Y[j]*Alim^.Y[j]/tsingle;
-//        B_apr^.Y[j]:=1/B_apr^.Y[j]*A_apr^.Y[j]/tsingle;
-//        end;
-//// Write_File('DeepL.dat',B);
-//// showmessage(inttostr(fun));
-//
-//
-// ForwardIV(B,temp);
-// IVchar(temp,B);
-// ForwardIV(B_apr,temp_apr);
-// IVchar(temp_apr,B_apr);
-//
-// for j:=1 to fun do
-//  begin
-//   Smoothing (B,temp);
-//   IVchar(temp,B);
-//   Smoothing (B_apr,temp_apr);
-//   IVchar(temp_apr,B_apr);
-//  end;
-//
-// Diferen (B,temp);
-// Diferen (B_apr,temp_apr);
-// id:=0;
-// for j:=0 to High(temp^.X) do
-//        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then id:=id+1;
-// if id<1 then
-//     begin
-//       B^.n:=0;
-//       dispose(temp);
-//       Exit;
-//     end;
-// SetLenVector(B,id);
-// SetLenVector(B_apr,id);
-//
-//{} id:=0;
-// for j:=0 to High(temp^.X) do
-//        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then
-//         begin
-//          B^.X[id]:=temp^.X[j];
-//          B^.Y[id]:=temp^.Y[j];
-//          B_apr^.X[id]:=temp_apr^.X[j];
-//          B_apr^.Y[id]:=temp_apr^.Y[j];
-//          id:=id+1;
-//         end;
-//
-//if (Rbool)and(not(Iscbool)) then
-//  for j := 0 to High(B^.X) do
-//    B^.Y[j]:=B^.Y[j]-B_apr^.Y[j];
-//{}
-//// IVchar(temp,B);
-//
-//// ForwardIV(temp,B);
-// dispose(temp);
-// dispose(temp_apr);
-// dispose(A_apr);
-// dispose(B_apr); {}
-// dispose(Alim);
-//
-//if (Rbool)and(Light) then DataFileWrite('rez.dat',A,EvolParam);
-//end;
+
 
 
 
@@ -6721,12 +7753,12 @@ begin
         then F:=TFitWithoutParameteres.Create(str);
   if str='Median filtr' then F:=TFitWithoutParameteres.Create('Median');
   //  if str='Smoothing' then F:=TSmoothing.Create;
-//  if str='Exponent' then F:=TExponent.Create;
+  if str='Exponent' then F:=TExponent.Create;
 //  if str='Median filtr' then F:=TMedian.Create;
 //  if str='Derivative' then F:=TDerivative.Create;
-//  if str='Diod' then F:=TDiod.Create;
   if str='Gromov / Lee' then F:=TGromov.Create;
-//  if str='Ivanov' then F:=TIvanov.Create;
+  if str='Ivanov' then F:=TIvanov.Create;
+//  if str='Diod' then F:=TDiod.Create;
 //  if str='PhotoDiod' then F:=TPhotoDiod.Create;
 //  if str='Diod, LSM' then F:=TDiodLSM.Create;
 //  if str='PhotoDiod, LSM' then F:=TPhotoDiodLSM.Create;
@@ -6759,12 +7791,12 @@ begin
 //  if str='Linear' then F:=TLinear.Create;
 //  if str='Quadratic' then F:=TQuadratic.Create;
 //  if str='Smoothing' then F:=TSmoothing.Create;
-  if str='Exponent' then F:=TExponent.Create;
+//  if str='Exponent' then F:=TExponent.Create;
 //  if str='Median filtr' then F:=TMedian.Create;
 //  if str='Derivative' then F:=TDerivative.Create;
   if str='Diod' then F:=TDiod.Create;
 //  if str='Gromov / Lee' then F:=TGromov.Create;
-  if str='Ivanov' then F:=TIvanov.Create;
+//  if str='Ivanov' then F:=TIvanov.Create;
   if str='PhotoDiod' then F:=TPhotoDiod.Create;
   if str='Diod, LSM' then F:=TDiodLSM.Create;
   if str='PhotoDiod, LSM' then F:=TPhotoDiodLSM.Create;
