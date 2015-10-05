@@ -469,8 +469,8 @@ private
  Procedure BeforeFitness(InputData:Pvector);override;
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
-public
- property Nit:integer read FNit write SetNit;
+ Procedure IterWindowPrepare(InputData:PVector);virtual;
+{підготовка вікна до показу даних}
  Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
  {для цього класу та нащадків стає обгорткою,
@@ -478,6 +478,8 @@ public
  сама інтерполяція відбувається в TrueFitting}
  Procedure TrueFitting (InputData:PVector;
          var OutputData:TArrSingle); virtual;abstract;
+public
+ property Nit:integer read FNit write SetNit;
 
 end;  // TFitIteration=class (TFitSampleIsUsed)
 
@@ -533,9 +535,10 @@ private
  {дані про кількість ітерацій}
  Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
  Procedure BeforeFitness(InputData:Pvector);override;
-public
-  Procedure RealFitting (InputData:PVector;
+ Procedure IterWindowPrepare(InputData:PVector);override;
+ Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
+public
 
 // Procedure AproxN (V:PVector; var Param:TArrSingle);override;
 // Function Func(Variab:TArrSingle):double; override;
@@ -1581,7 +1584,7 @@ begin
   try
    RealFitting (tempV,OutputData);
   except
-//   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
+   OutputData[0]:=ErResult;
   end;
  dispose(tempV);
  if (OutputData[0]=ErResult) then
@@ -1957,7 +1960,7 @@ end;
 Procedure TFitTemperatureIsUsed.BeforeFitness(InputData:Pvector);
 begin
  if fTemperatureIsRequired then FVariab[0]:=InputData^.T;
- inherited;
+ inherited BeforeFitness(InputData);
 end;
 
 //Procedure TFitTemperatureIsUsed.FIsNotReadyDetermination;
@@ -2260,11 +2263,43 @@ for I := 0 to High(FXmode) do
     end;
 end;
 
+Procedure TFitIteration.IterWindowPrepare(InputData:PVector);
+var i:byte;
+begin
+ SetLength(Labels,2*FNx);
+ for I := 0 to High(Labels) do
+  begin
+    Labels[i]:=TLabel.Create(fIterWindow);
+    Labels[i].Name:='Lb'+IntToStr(i)+FXname[i];
+    Labels[i+FNx]:=TLabel.Create(fIterWindow);
+    Labels[i+FNx].Name:='Lb'+IntToStr(i)+FXname[i]+'n';
+
+    Labels[i].Parent:=fIterWindow;
+    Labels[i+FNx].Parent:=fIterWindow;
+    Labels[i].Left:=24;
+    Labels[i+FNx].Left:=90;
+    Labels[i].Top:=round(3.5*fIterWindow.LNmax.Height)+i*round(1.5*Labels[i].Height);
+    Labels[i+FNx].Top:=Labels[i].Top;
+    Labels[i].Caption:=FXname[i]+' =';
+  end;
+ fIterWindow.LNmaxN.Caption:=inttostr(FNit);
+ fIterWindow.Height:=Labels[High(Labels)].Top+3*Labels[High(Labels)].Height;
+ if InputData^.name<>'' then fIterWindow.Caption:=', '+InputData^.name;
+end;
+
 Procedure TFitIteration.RealFitting (InputData:PVector;
          var OutputData:TArrSingle);
+//var i:byte;
 begin
 
-end;         
+ IterWindowPrepare(InputData);
+
+
+
+//
+
+
+end;
 
 
 //-----------------------------------------------------
@@ -2431,6 +2466,44 @@ begin
   end;
 end;
 
+Procedure TFitFunctLSM.IterWindowPrepare(InputData:PVector);
+//var i:byte;
+begin
+ inherited IterWindowPrepare(InputData);
+ if (Name='PhotoDiodLam') then
+  begin
+   Labels[2].Visible:=False;
+   Labels[2+fNx].Visible:=False;
+   Labels[4].Visible:=False;
+   Labels[4+fNx].Visible:=False;
+   Labels[3].Top:=Labels[2].Top;
+   Labels[3+fNx].Top:=Labels[3].Top;
+//    for i := fIterWindow.ComponentCount-1 downto 0 do
+//      begin
+//        if (fIterWindow.Components[i].Name='Lb2I0')or
+//           (fIterWindow.Components[i].Name='Lb2I0n')or
+//           (fIterWindow.Components[i].Name='Lb4Iph')or
+//           (fIterWindow.Components[i].Name='Lb4Iphn') then
+//             (fIterWindow.Components[i] as TLabel).Enabled:=False;
+//        if (fIterWindow.Components[i].Name='Lb3Rsh')or
+//           (fIterWindow.Components[i].Name='Lb3Rshn') then
+//             (fIterWindow.Components[i] as TLabel).Top:=
+//              (fIterWindow.Components[i] as TLabel).Top-round(1.5*Labels[0].Height);
+//      end;
+   fIterWindow.Height:=Labels[3].Top+3*Labels[3].Height;
+  end;
+
+if FName='DiodLSM' then
+  fIterWindow.Caption:='Direct Aproximation'+fIterWindow.Caption;
+if FName='DiodLam' then
+  fIterWindow.Caption:='Lambert Aproximation'+fIterWindow.Caption;
+if FName='PhotoDiodLSM' then
+  fIterWindow.Caption:='Direct Aproximation of Illuminated I-V'+fIterWindow.Caption;
+if FName='PhotoDiodLam' then
+  fIterWindow.Caption:='Lambert Aproximation of Illuminated I-V'+fIterWindow.Caption;
+end;
+
+
 Procedure TFitFunctLSM.RealFitting (InputData:PVector;
          var OutputData:TArrSingle);
 {апроксимуються ВАХ при освітленні у векторі V
@@ -2444,6 +2517,12 @@ Procedure TFitFunctLSM.RealFitting (InputData:PVector;
 //    bool,bool1:boolean;
 //    Sum,al,sum2:double;
 begin
+ if not((FName='DiodLSM')or(FName='DiodLam')
+    or(FName='PhotoDiodLSM')or(FName='PhotoDiodLam'))
+      then Exit;
+ if FVariab[0]<=0 then Exit;
+ if InputData^.n<7 then  Exit;
+ inherited RealFitting (InputData, OutputData);
 //
 //   Function Secant(num:word;a,b,F:double):double;
 //  {обчислюється оптимальне значення параметра al
@@ -2771,50 +2850,6 @@ begin
 //
 //
 //begin
-//SetLength(Param,FNs);
-//Param[0]:=ErResult;
-//
-//if not((FName='DiodLSM')or(FName='DiodLam')
-//    or(FName='PhotoDiodLSM')or(FName='PhotoDiodLam'))
-//      then Exit;
-//if V^.T=0 then Exit;
-//if V^.n<7 then  Exit;
-//
-//SetLength(Labels,2*FNs);
-// j:=0;
-// for I := 0 to FNs - 1 do
-//  begin
-//  Labels[i]:=TLabel.Create(App);
-//  Labels[i].Name:=Labels[i].Name+FXname[i];
-//  Labels[i+FNs]:=TLabel.Create(App);
-//  Labels[i+FNs].Name:=Labels[i].Name+FXname[i]+'n';
-//
-//  if ((Name='PhotoDiodLam')and((i=2)or(i=4))) then Continue;
-//  Labels[i].Parent:=App;
-//  Labels[i+FNs].Parent:=App;
-//  Labels[i].Left:=24;
-//  Labels[i+FNs].Left:=90;
-//  Labels[i].Top:=round(3.5*App.LNmax.Height)+j*round(1.5*Labels[i].Height);
-//  Labels[i+FNs].Top:=round(3.5*App.LNmax.Height)+j*round(1.5*Labels[i].Height);
-//  Labels[i].Caption:=FXname[i]+' =';
-//  inc(j);
-//  end;
-//  App.LNmaxN.Caption:=inttostr(FNit);
-//  if (Name='PhotoDiodLam') then
-//      App.Height:=Labels[3].Top+3*Labels[3].Height
-//                           else
-//  App.Height:=Labels[High(Labels)].Top+3*Labels[High(Labels)].Height;
-//
-//if FName='DiodLSM' then
-//  App.Caption:='Direct Aproximation';
-//if FName='DiodLam' then
-//  App.Caption:='Lambert Aproximation';
-//if FName='PhotoDiodLSM' then
-//  App.Caption:='Direct Aproximation of Illuminated I-V';
-//if FName='PhotoDiodLam' then
-//  App.Caption:='Lambert Aproximation of Illuminated I-V';
-//if V^.name<>'' then App.Caption:=App.Caption+', '+V^.name;
-//
 //
 //if FName='PhotoDiodLSM' then VuhDatExpLightmAprox(FXmin)
 //                        else VuhDatAprox (FXmin);
