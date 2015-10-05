@@ -471,6 +471,11 @@ private
                      Npar,Nvar:byte);
  Procedure IterWindowPrepare(InputData:PVector);virtual;
 {підготовка вікна до показу даних}
+ Procedure IterWindowClear;
+ {очищення вікна після апроксимації}
+ Procedure IterWindowDataShow(CurrentIterNumber:integer; InterimResult:TArrSingle);
+ {показ номера біжучої ітерації
+  та проміжних даних, які знаходяться в InterimResult}
  Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
  {для цього класу та нащадків стає обгорткою,
@@ -538,13 +543,73 @@ private
  Procedure IterWindowPrepare(InputData:PVector);override;
  Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
+ Procedure TrueFitting (InputData:PVector;var OutputData:TArrSingle); override;
+//------Cлужбові функції для МНК
+ Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);virtual;abstract;
+  {по значенням в InputData визначає початкове наближення
+  для n,Rs,I0,Rsh}
+ Function ParamCorect(InputData:PVector;var IA:TArrSingle):boolean;virtual;abstract;
+
+// Function ParamCorect(V:PVector;var n0,Rs0,Rsh0,Isc,Voc:double):boolean;overload;
+{для корекції параметрів, які використовуються
+для апроксимації ΒΑΧ при освітленні в V;}
+// Function ParamCorect(V:PVector;Fun:Funbool;var n0,Rs0,I00,Rsh0:double):boolean;overload;
+{коректує значення параметрів, які використовуються
+для апроксимації даних в V функцією Ламверта;
+якщо коректування все ж невдале, то
+повертається false}
+
 public
 
 // Procedure AproxN (V:PVector; var Param:TArrSingle);override;
 // Function Func(Variab:TArrSingle):double; override;
 // Procedure Fitting (V:PVector; var Param:TArrSingle); override;
 end; // TFitFunctLSM=class (TFitAdditionParam)
+//----------------------------------------------
+TDiodLSM_a=class (TFitFunctLSM)
+private
+ Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
+ Procedure IA_Begin(var AuxiliaryVector:PVector;var IA:TArrSingle);
+ Function IA_Determine3(Vector1,Vector2:PVector):double;
+ Procedure IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
+ Function ParamCorect(InputData:PVector;var IA:TArrSingle):boolean;override;
+ Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+  {перевіряє чи параметри можна використовувати для
+  апроксимації даних в InputData функцією I0(exp(q(V-IRs)/nkT)-1)+(V-IRs)/Rsh
+  IA[0] - n, IA[1] - Rs, IA[2] - I0, IA[3] - Rsh}
 
+ public
+// Constructor Create;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+ end; // TDiodLSM=class (TFitFunction)
+
+TDiodLam_a=class (TDiodLSM_a)
+private
+// Procedure InitialApproximation(InputData:PVector; IA:TArrSingle);override;
+ public
+// Constructor Create;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+ end; // TDiodLSM=class (TFitFunction)
+
+TPhotoDiodLam_a=class (TDiodLam_a)
+private
+ Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
+ public
+// Constructor Create;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+ end; // TDiodLSM=class (TFitFunction)
+
+TPhotoDiodLSM_a=class (TPhotoDiodLam_a)
+private
+ Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
+ public
+// Constructor Create;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+ end; // TDiodLSM=class (TFitFunction)
 
 //---------------------------------------------
 TFitFunctEvolution=class (TFitAdditionParam)
@@ -2285,6 +2350,29 @@ begin
  fIterWindow.LNmaxN.Caption:=inttostr(FNit);
  fIterWindow.Height:=Labels[High(Labels)].Top+3*Labels[High(Labels)].Height;
  if InputData^.name<>'' then fIterWindow.Caption:=', '+InputData^.name;
+ fIterWindow.Show;
+end;
+
+Procedure TFitIteration.IterWindowClear;
+ {очищення вікна після апроксимації}
+var i:byte;
+begin
+ for I := 0 to High(Labels) do
+  begin
+    Labels[i].Parent:=nil;
+    Labels[i].Free;
+  end;
+  fIterWindow.Close;
+end;
+
+Procedure TFitIteration.IterWindowDataShow(CurrentIterNumber:integer; InterimResult:TArrSingle);
+ {показ номера біжучої ітерації
+  та даних, які знаходяться в Х}
+var i:byte;
+begin
+  for I := 0 to FNx - 1 do
+   Labels[i+FNx].Caption:=floattostrf(InterimResult[i],ffExponent,4,3);
+   fIterWindow.LNitN.Caption:=Inttostr(CurrentIterNumber);
 end;
 
 Procedure TFitIteration.RealFitting (InputData:PVector;
@@ -2293,7 +2381,7 @@ Procedure TFitIteration.RealFitting (InputData:PVector;
 begin
 
  IterWindowPrepare(InputData);
-
+ TrueFitting (InputData,OutputData);
 
 
 //
@@ -2504,6 +2592,8 @@ if FName='PhotoDiodLam' then
 end;
 
 
+
+
 Procedure TFitFunctLSM.RealFitting (InputData:PVector;
          var OutputData:TArrSingle);
 {апроксимуються ВАХ при освітленні у векторі V
@@ -2616,412 +2706,440 @@ begin
 //    Result:=c;
 //  end;
 //
-// Procedure VuhDatExpLightmAprox (Par:TArrSingle);
-//  {по значенням в V визначає початкове наближення
-//  для n,Rs,I0,Rsh,Iph}
-//  var temp,temp2:Pvector;
-//      i,k:integer;
-//   begin
-//    Par[0]:=ErResult;
-//    if (VocCalc(V)<=0.002) then Exit;
-//    Par[4]:=IscCalc(V);
-//    if (Par[4]<=1e-8) then Exit;
-//
-//    new(temp2);
-//    IVchar(V,temp2);
-//     for I := 0 to High(temp2^.X) do
-//      temp2^.Y[i]:=temp2^.Y[i]+Par[4];
-//
-//    new(temp);
-//    Diferen (temp2,temp);
-//  {фактично, в temp залеженість оберненого опору від напруги}
-//    Par[3]:=(temp^.X[1]/temp^.y[2]-temp^.X[2]/temp^.y[1])/(temp^.X[1]-temp^.X[2]);
-//  {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
-//      значення при нульовій напрузі}
-//   if FXmode[3]=cons then Par[3]:=FXvalue[3];
-//
-//    for I := 0 to High(temp^.X) do
-//      temp^.Y[i]:=(temp2^.Y[i]-temp2^.X[i]/Par[3]);
-//    {в temp - ВАХ з врахуванням Rsh0}
-//
-//    k:=-1;
-//    for i:=0 to High(temp^.X) do
-//           if Temp^.Y[i]<0 then k:=i;
-//
-//   if k<0 then IVchar(temp,temp2)
-//          else
-//           begin
-//             SetLenVector(temp2,temp^.n-k-1);
-//             for i:=0 to High(temp2^.X) do
-//               begin
-//                temp2^.Y[i]:=temp^.Y[i+k+1];
-//                temp2^.X[i]:=temp^.X[i+k+1];
-//               end;
-//           end;
-//     for i:=0 to High(temp2^.X) do
-//       temp2^.Y[i]:=ln(temp2^.Y[i]);
-//
-//{}    if High(temp2^.X)>6 then
-//         begin
-//         SetLenVector(temp,High(temp2^.X)-3);
-//         for i:=3 to High(temp2^.X) do
-//          begin
-//           temp^.X[i-3]:=temp2^.X[i];
-//           temp^.Y[i-3]:=temp2^.Y[i];
-//          end;
-//         end;
-//    LinAprox(temp,Par[2],Par[0]);{}
-//    Par[2]:=exp(Par[2]);
-//    Par[0]:=1/(Kb*V^.T*Par[0]);
-//    {I00 та n0 в результаті лінійної апроксимації залежності
-//    ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
-//   if FXmode[2]=cons then Par[2]:=FXvalue[2];
-//   if FXmode[0]=cons then Par[0]:=FXvalue[0];
-//     for i:=0 to High(temp2^.X) do
-//       begin
-//       temp2^.Y[i]:=exp(temp2^.Y[i]);;
-//       end;
-//   {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
-//   значення струму додатні}
-//
-//    Diferen (temp2,temp);
-//     for i:=0 to High(temp.X) do
-//       begin
-//       temp^.X[i]:=1/temp2^.Y[i];
-//       temp^.Y[i]:=1/temp^.Y[i];
-//       end;
-//    {в temp - залежність dV/dI від 1/І}
-//
-//    if temp^.n>5 then
-//       begin
-//       SetLenVector(temp2,5);
-//       for i:=0 to 4 do
-//         begin
-//             temp2^.X[i]:=temp^.X[High(temp.X)-i];
-//             temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
-//         end;
-//       end
-//               else
-//           IVchar(temp2,temp);
-//
-//    LinAprox(temp2,Par[1],temp^.X[0]);
-//    {Rs0 - як вільних член лінійної апроксимації
-//    щонайбільше п'яти останніх точок залежності dV/dI від 1/І;
-//   dV/dI= (nKbT)/(qI)+Rs;
-//    temp^.X[0] використане лише для того, щоб
-//    не вводити допоміжну змінну}
-//   if FXmode[1]=cons then Par[1]:=FXvalue[1];
-//
-//    dispose(temp2);
-//    dispose(temp);
-//   end;
-//
-//
-//  Procedure VuhDatAprox (Par:TArrSingle);//overload;
-//  {по значенням в V визначає початкове наближення
-//  для n,Rs,I0,Rsh}
-//
-//  var temp,temp2:Pvector;
-//      i,k:integer;
-//   begin
-//    Par[0]:=ErResult;
-// if High(Par)=4 then
-//    begin
-//    Par[2]:=IscCalc(V);
-//    Par[4]:=VocCalc(V);
-//    if ( Par[4]<=0.002)or(Par[2]<1e-8) then Exit;
-//    end;
-//
-//    new(temp);
-//    Diferen (V,temp);
-//  {фактично, в temp залеженість оберненого опору від напруги}
-//    Par[3]:=(temp^.X[1]/temp^.y[2]-temp^.X[2]/temp^.y[1])/(temp^.X[1]-temp^.X[2]);
-//  {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
-//      значення при нульовій напрузі}
-//   if FXmode[3]=cons then Par[3]:=FXvalue[3];
-//
-// if High(Par)=4 then
-//    begin
-//        for I := 0 to High(temp^.X) do
-//          begin
-//          temp^.Y[i]:=1/temp^.Y[i];
-//          temp^.X[i]:=Kb*V^.T/(Par[2]+V^.Y[i]-V^.X[i]/Par[3]);
-//          end;
-//        new(temp2);
-//        if temp^.n>7 then
-//           begin
-//           SetLenVector(temp2,7);
-//           for i:=0 to 6 do
-//             begin
-//                 temp2^.X[i]:=temp^.X[High(temp.X)-i];
-//                 temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
-//             end;
-//           end
-//                   else
-//              IVchar(temp2,temp);
-//        LinAprox(temp2,Par[1],Par[0]);
-//          {n та Rs0 - як нахил та вільних член лінійної апроксимації
-//          щонайбільше семи останніх точок залежності
-//          dV/dI від kT/q(Isc+I-V/Rsh);}
-////          if Par[0]>1e5 then  Par[0]:=1;
-//         if FXmode[1]=cons then Par[1]:=FXvalue[1];
-//         if FXmode[0]=cons then Par[0]:=FXvalue[0];
-//    end
-//
-//    else
-//    begin
-//              for I := 0 to High(temp^.X) do
-//                temp^.Y[i]:=(V^.Y[i]-V^.X[i]/Par[3]);
-//              {в temp - ВАХ з врахуванням Rsh0}
-//              k:=-1;
-//              for i:=0 to High(temp^.X) do
-//                     if Temp^.Y[i]<0 then k:=i;
-//              new(temp2);
-//
-//             if k<0 then IVchar(temp,temp2)
-//                    else
-//                     begin
-//                       SetLenVector(temp2,temp^.n-k-1);
-//                       for i:=0 to High(temp2^.X) do
-//                         begin
-//                          temp2^.Y[i]:=temp^.Y[i+k+1];
-//                          temp2^.X[i]:=temp^.X[i+k+1];
-//                         end;
-//                     end;
-//               for i:=0 to High(temp2^.X) do
-//                 temp2^.Y[i]:=ln(temp2^.Y[i]);
-//
-//            {}    if High(temp2^.X)>6 then
-//                   begin
-//                   SetLenVector(temp,High(temp2^.X)-3);
-//                   for i:=3 to High(temp2^.X) do
-//                    begin
-//                     temp^.X[i-3]:=temp2^.X[i];
-//                     temp^.Y[i-3]:=temp2^.Y[i];
-//                    end;
-//                   end;
-//              LinAprox(temp,Par[2],Par[0]);{}
-//              Par[2]:=exp(Par[2]);
-//              Par[0]:=1/(Kb*V^.T*Par[0]);
-////              if Par[0]>1e5 then  Par[0]:=1;
-//              {I00 та n0 в результаті лінійної апроксимації залежності
-//              ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
-//            if FXmode[2]=cons then Par[2]:=FXvalue[2];
-//            if FXmode[0]=cons then Par[0]:=FXvalue[0];
-//
-//               for i:=0 to High(temp2^.X) do
-//                 begin
-//                 temp2^.Y[i]:=exp(temp2^.Y[i]);;
-//                 end;
-//             {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
-//             значення струму додатні}
-//
-//              Diferen (temp2,temp);
-//               for i:=0 to High(temp.X) do
-//                 begin
-//                 temp^.X[i]:=1/temp2^.Y[i];
-//                 temp^.Y[i]:=1/temp^.Y[i];
-//                 end;
-//              {в temp - залежність dV/dI від 1/І}
-//
-//              if temp^.n>5 then
-//                 begin
-//                 SetLenVector(temp2,5);
-//                 for i:=0 to 4 do
-//                   begin
-//                       temp2^.X[i]:=temp^.X[High(temp.X)-i];
-//                       temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
-//                   end;
-//                 end
-//                         else
-//                     IVchar(temp2,temp);
-//              LinAprox(temp2,Par[1],temp^.X[0]);
-//              {Rs0 - як вільних член лінійної апроксимації
-//              щонайбільше п'яти останніх точок залежності dV/dI від 1/І;
-//             dV/dI= (nKbT)/(qI)+Rs;
-//              temp^.X[0] використане лише для того, щоб
-//              не вводити допоміжну змінну}
-//             if FXmode[1]=cons then Par[1]:=FXvalue[1];
-//     end;
-//
-//    dispose(temp2);
-//    dispose(temp);
-//   end; //  VuhDatAprox
-//
-//
-//begin
-//
-//if FName='PhotoDiodLSM' then VuhDatExpLightmAprox(FXmin)
-//                        else VuhDatAprox (FXmin);
-//// showmessage(floattostr(FXmin[1]));
-// if FXmin[1]<0 then FXmin[1]:=1;
-//
-//
-//   if FXmin[0]=ErResult then
-//                begin
-//                  WindowClear();
-//                  Exit;
-//                end;
-//if FName='PhotoDiodLam' then
-//     begin
-//     FXmode[2]:=cons;
-//     FXmode[4]:=cons;
-//     end;
-//
-//bool:=true;
-//if FName='PhotoDiodLam'
-// then bool:=ParamCorect(V,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
-//if FName='DiodLam'
-// then bool:=ParamCorect(V,LamParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
-//if (FName='DiodLSM')or(FName='PhotoDiodLSM')
-// then bool:=ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
-//
-//if not(bool) then
-//                begin
-//                  WindowClear();
-//                  Exit;
-//                end;
-//
-////  showmessage(floattostr(FXmin[1]));
-//
-// Nitt:=0;
-// sum2:=1;
-//App.Show;
-//
-//
-////QueryPerformanceCounter(StartValue);
-//
-//repeat
-//
-// if Nitt<1 then
-//   begin
-//    bool1:=true;
-//     if FName='DiodLam' then
-//      bool1:=FG_LamShotA(V,FXmin,FXminlim,Sum)<>0;
-//     if FName='PhotoDiodLSM' then
-//      bool1:=(FG_ExpLightShotA(V,FXmin,FXminlim,Sum)<>0);
-//     if FName='PhotoDiodLam' then
-//      bool1:=(FG_LamLightShotA(V,FXmin[0],FXmin[1],
-//               FXmin[3],FXmin[2],FXmin[4],FXminlim,Sum)<>0);
-//     if FName='DiodLSM' then
-//      bool1:=(FG_ExpShotA(V,FXmin,FXminlim,Sum)<>0);
-//    if bool1 then
-//                begin
-//                  WindowClear();
-//                  Exit;
-//                end;
-//
-//
-//   end;
-//
-//
-//
-//
-//  bool:=true;
-//  if not(odd(Nitt)) then for I := 0 to High(FXmin) do FXmax[i]:=FXmin[i];
-//  if not(odd(Nitt))or (Nitt=0) then sum2:=sum;
-//
-//  for I := 0 to High(FXmin) do
-//     begin
-//
-//       if FXmode[i]=cons then Continue;
-//       if FXminlim[i]=0 then Continue;
-//       if abs(FXmin[i]/100/FXminlim[i])>1e30 then Continue;
-//
-//       al:=Secant(i,0,0.1*abs(FXmin[i]/FXminlim[i]),FXminlim[i]);
-//
-////    if i=1 then      showmessage(floattostr(FXmin[1]));
-////         showmessage(floattostr(FXminlim[0]));
-////          showmessage(inttostr(Nitt)+' '+floattostr(al*FXminlim[i]/FXmin[i]));
-//       if abs(al*FXminlim[i]/FXmin[i])>2 then Continue;
-//
-//       FXmin[i]:=FXmin[i]-al*FXminlim[i];
-//
-////   if i=1 then    showmessage('2 -- '+floattostr(FXmin[1]));
-//
-//      bool1:=true;
-//      if FName='PhotoDiodLam' then
-//       bool1:=(ParamCorect(V,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]));
-//      if FName='DiodLam' then
-//       bool1:=(ParamCorect(V,LamParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]));
-//      if (FName='DiodLSM')or(FName='PhotoDiodLSM') then
-//       bool1:=(ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]));
-//      if not(bool1) then
-//                begin
-//                  WindowClear();
-//                  Exit;
-//                end;
-//
-//       bool:=(bool)and(abs((FXmax[i]-FXmin[i])/FXmin[i])<FXmaxlim[0]);
-//
-//
-//
-//
-//    bool1:=true;
-//     if FName='DiodLam' then
-//      bool1:=FG_LamShotA(V,FXmin,FXminlim,Sum)<>0;
-//     if FName='PhotoDiodLSM' then
-//      bool1:=(FG_ExpLightShotA(V,FXmin,FXminlim,Sum)<>0);
-//     if FName='PhotoDiodLam' then
-//      bool1:=(FG_LamLightShotA(V,FXmin[0],FXmin[1],
-//               FXmin[3],FXmin[2],FXmin[4],FXminlim,Sum)<>0);
-//     if FName='DiodLSM' then
-//      bool1:=(FG_ExpShotA(V,FXmin,FXminlim,Sum)<>0);
-//     if bool1 then
-//                begin
-//                  WindowClear();
-//                  Exit;
-//                end;
-//
-//     end;
-//
-//  if (Nitt mod 25)=0 then
-//     begin
-//      WindowDataShow(Nitt,FXmin);
-//      for I := 0 to FNs - 1 do
-//       begin
-//       if (FXname[i]='Rs')and(FXmin[i]<=1e-4) then
-//                   Labels[i+FNs].Caption:='0';
-//       if (FXname[i]='Rsh')and(FXmin[i]>=9e11) then
-//                   Labels[i+FNs].Caption:='INF';
-//       end;
-//
-//         Application.ProcessMessages;
-//     end;
-//  Inc(Nitt);
-//
-////until (Nitt>10000) or not(App.Visible);
-//until (abs((sum2-sum)/sum)<FXmaxlim[0]) or bool or (Nitt>FNit) or not(App.Visible);
-//
-////QueryPerformanceCounter(EndValue);
-////QueryPerformanceFrequency(Freq);
-////showmessage('tics='+inttostr(EndValue-StartValue)+#10+#13+
-////             'time='+floattostr((EndValue-StartValue)/Freq)
-////             +' s'+#10+#13+
-////                'freq+'+inttostr(Freq));
-//
-//if App.Visible then
-//    begin
-//    for i := 0 to High(FXmin) do
-//       Param[i]:=FXmin[i];
-//    if FName='PhotoDiodLam' then
-//       begin
-//       Param[2]:=(FXmin[2]+(FXmin[1]*FXmin[2]-FXmin[4])/FXmin[3])*exp(-FXmin[4]/FXmin[0]/Kb/V^.T)/
-//                       (1-exp((FXmin[1]*FXmin[2]-FXmin[4])/FXmin[0]/Kb/V^.T));
-//       Param[4]:= Param[2]*(exp(FXmin[4]/FXmin[0]/Kb/V^.T)-1)+FXmin[4]/FXmin[3];
-//       end;
-//    end;
-//
-//WindowClear();
-//App.Close;
-//end;
-
-
-
-
 
 end;
+
+
+
+
+Procedure TFitFunctLSM.TrueFitting (InputData:PVector;
+         var OutputData:TArrSingle);
+var X:TArrSingle;
+    bool:boolean;
+begin
+  InitialApproximation(InputData,X);
+  if X[1]<0 then X[1]:=1;
+
+  if X[0]=ErResult then
+                  begin
+                    IterWindowClear();
+                    Exit;
+                  end;
+
+  bool:=ParamCorect(InputData,X);
+//  bool:=true;
+//  if FName='PhotoDiodLam'
+//   then bool:=ParamCorect(V,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]);
+//  if FName='DiodLam'
+//   then bool:=ParamCorect(V,LamParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//  if (FName='DiodLSM')or(FName='PhotoDiodLSM')
+//   then bool:=ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+
+  //if not(bool) then
+  //                begin
+  //                  WindowClear();
+  //                  Exit;
+  //                end;
+  //
+  ////  showmessage(floattostr(FXmin[1]));
+  //
+  // Nitt:=0;
+  // sum2:=1;
+  //App.Show;
+  //
+  //
+  ////QueryPerformanceCounter(StartValue);
+  //
+  //repeat
+  //
+  // if Nitt<1 then
+  //   begin
+  //    bool1:=true;
+  //     if FName='DiodLam' then
+  //      bool1:=FG_LamShotA(V,FXmin,FXminlim,Sum)<>0;
+  //     if FName='PhotoDiodLSM' then
+  //      bool1:=(FG_ExpLightShotA(V,FXmin,FXminlim,Sum)<>0);
+  //     if FName='PhotoDiodLam' then
+  //      bool1:=(FG_LamLightShotA(V,FXmin[0],FXmin[1],
+  //               FXmin[3],FXmin[2],FXmin[4],FXminlim,Sum)<>0);
+  //     if FName='DiodLSM' then
+  //      bool1:=(FG_ExpShotA(V,FXmin,FXminlim,Sum)<>0);
+  //    if bool1 then
+  //                begin
+  //                  WindowClear();
+  //                  Exit;
+  //                end;
+  //
+  //
+  //   end;
+  //
+  //
+  //
+  //
+  //  bool:=true;
+  //  if not(odd(Nitt)) then for I := 0 to High(FXmin) do FXmax[i]:=FXmin[i];
+  //  if not(odd(Nitt))or (Nitt=0) then sum2:=sum;
+  //
+  //  for I := 0 to High(FXmin) do
+  //     begin
+  //
+  //       if FXmode[i]=cons then Continue;
+  //       if FXminlim[i]=0 then Continue;
+  //       if abs(FXmin[i]/100/FXminlim[i])>1e30 then Continue;
+  //
+  //       al:=Secant(i,0,0.1*abs(FXmin[i]/FXminlim[i]),FXminlim[i]);
+  //
+  ////    if i=1 then      showmessage(floattostr(FXmin[1]));
+  ////         showmessage(floattostr(FXminlim[0]));
+  ////          showmessage(inttostr(Nitt)+' '+floattostr(al*FXminlim[i]/FXmin[i]));
+  //       if abs(al*FXminlim[i]/FXmin[i])>2 then Continue;
+  //
+  //       FXmin[i]:=FXmin[i]-al*FXminlim[i];
+  //
+  ////   if i=1 then    showmessage('2 -- '+floattostr(FXmin[1]));
+  //
+  //      bool1:=true;
+  //      if FName='PhotoDiodLam' then
+  //       bool1:=(ParamCorect(V,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4]));
+  //      if FName='DiodLam' then
+  //       bool1:=(ParamCorect(V,LamParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]));
+  //      if (FName='DiodLSM')or(FName='PhotoDiodLSM') then
+  //       bool1:=(ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]));
+  //      if not(bool1) then
+  //                begin
+  //                  WindowClear();
+  //                  Exit;
+  //                end;
+  //
+  //       bool:=(bool)and(abs((FXmax[i]-FXmin[i])/FXmin[i])<FXmaxlim[0]);
+  //
+  //
+  //
+  //
+  //    bool1:=true;
+  //     if FName='DiodLam' then
+  //      bool1:=FG_LamShotA(V,FXmin,FXminlim,Sum)<>0;
+  //     if FName='PhotoDiodLSM' then
+  //      bool1:=(FG_ExpLightShotA(V,FXmin,FXminlim,Sum)<>0);
+  //     if FName='PhotoDiodLam' then
+  //      bool1:=(FG_LamLightShotA(V,FXmin[0],FXmin[1],
+  //               FXmin[3],FXmin[2],FXmin[4],FXminlim,Sum)<>0);
+  //     if FName='DiodLSM' then
+  //      bool1:=(FG_ExpShotA(V,FXmin,FXminlim,Sum)<>0);
+  //     if bool1 then
+  //                begin
+  //                  WindowClear();
+  //                  Exit;
+  //                end;
+  //
+  //     end;
+  //
+  //  if (Nitt mod 25)=0 then
+  //     begin
+  //      WindowDataShow(Nitt,FXmin);
+  //      for I := 0 to FNs - 1 do
+  //       begin
+  //       if (FXname[i]='Rs')and(FXmin[i]<=1e-4) then
+  //                   Labels[i+FNs].Caption:='0';
+  //       if (FXname[i]='Rsh')and(FXmin[i]>=9e11) then
+  //                   Labels[i+FNs].Caption:='INF';
+  //       end;
+  //
+  //         Application.ProcessMessages;
+  //     end;
+  //  Inc(Nitt);
+  //
+  ////until (Nitt>10000) or not(App.Visible);
+  //until (abs((sum2-sum)/sum)<FXmaxlim[0]) or bool or (Nitt>FNit) or not(App.Visible);
+  //
+  ////QueryPerformanceCounter(EndValue);
+  ////QueryPerformanceFrequency(Freq);
+  ////showmessage('tics='+inttostr(EndValue-StartValue)+#10+#13+
+  ////             'time='+floattostr((EndValue-StartValue)/Freq)
+  ////             +' s'+#10+#13+
+  ////                'freq+'+inttostr(Freq));
+  //
+  //if App.Visible then
+  //    begin
+  //    for i := 0 to High(FXmin) do
+  //       Param[i]:=FXmin[i];
+  //    if FName='PhotoDiodLam' then
+  //       begin
+  //       Param[2]:=(FXmin[2]+(FXmin[1]*FXmin[2]-FXmin[4])/FXmin[3])*exp(-FXmin[4]/FXmin[0]/Kb/V^.T)/
+  //                       (1-exp((FXmin[1]*FXmin[2]-FXmin[4])/FXmin[0]/Kb/V^.T));
+  //       Param[4]:= Param[2]*(exp(FXmin[4]/FXmin[0]/Kb/V^.T)-1)+FXmin[4]/FXmin[3];
+  //       end;
+  //    end;
+  //
+  //WindowClear();
+  //App.Close;
+  //end;
+
+end;
+
+//Function LamLightParamIsBad(V:PVector;n0,Rs0,Rsh0,Isc0,Voc0:double):boolean;
+//{перевіряє чи параметри можна використовувати для
+//апроксимації ВАХ при освітленні в V функцію Ламверта}
+//var nkT,t1,t2:double;
+//begin
+//  Result:=true;
+//  if V^.T<=0 then Exit;
+//  nkT:=n0*Kb*V^.T;
+//  if n0<=0 then Exit;
+//  if Rs0<=0 then Exit;
+//  if Rsh0<=0 then Exit;
+//  if Isc0<=0 then Exit;
+//  if Voc0<=0 then Exit;
+//  if 2*(Voc0+Isc0*Rs0)/nkT > ln(1e308) then Exit;
+//  if exp(Voc0/nkT) = exp(Isc0*Rs0/nkT) then Exit;
+//  t1:=(Rs0*Isc0-Voc0)/nkT;
+//  if t1 > ln(1e308) then Exit;
+//  t2:=Rsh0*Rs0/nkT/(Rs0+Rsh0)*
+//      (Voc0/Rsh0+(Isc0+(Rs0*Isc0-Voc0)/Rsh0)/(1-exp(t1))+V^.X[V^.n-1]/Rs0);
+//  if abs(t2) > ln(1e308) then Exit;
+//  if Rs0/nkT*(Isc0-Voc0/(Rs0+Rsh0))*exp(-Voc0/nkT)*exp(t2)/(1-exp(t1))> ln(1e308)then Exit;
+//  Result:=false;
+//end;
+//
+//
+//Function TFitFunctLSM.ParamCorect(V:PVector;var n0,Rs0,Rsh0,Isc,Voc:double):boolean;overload;
+//{для корекції параметрів, які використовуються
+//для апроксимації ΒΑΧ при освітленні в V;
+//}
+//begin
+//  Result:=false;
+//  if (V^.T<=0) or (Isc<=5e-8) or (Voc<=1e-3) then Exit;
+//  if (n0=0)or(n0=ErResult) then Exit;
+//  if Rs0<0.0001 then Rs0:=0.0001;
+//  if (Rsh0<=0) or (Rsh0>1e12) then Rsh0:=1e12;
+//  while (LamLightParamIsBad(V,n0,Rs0,Rsh0,Isc,Voc))and(n0<1000) do
+//   n0:=n0*2;
+//  if  LamLightParamIsBad(V,n0,Rs0,Rsh0,Isc,Voc) then Exit;
+//  Result:=true;
+//end;
+//
+//
+
+
 //-------------------------------------------------------
+Procedure TDiodLSM_a.IA_Begin(var AuxiliaryVector:PVector;var IA:TArrSingle);
+begin
+   SetLength(IA,fNx);
+   IA[0]:=ErResult;
+   new(AuxiliaryVector);
+end;
+
+Function TDiodLSM_a.IA_Determine3(Vector1,Vector2:PVector):double;
+begin
+ Diferen (Vector1,Vector2);
+   {фактично, в temp залеженість оберненого опору від напруги}
+ if FXmode[3]=cons then Result:=FXvalue[3]
+                   else
+         Result:=(Vector2^.X[1]/Vector2^.y[2]-Vector2^.X[2]/Vector2^.y[1])/
+                (Vector2^.X[1]-Vector2^.X[2]);
+    {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
+        значення при нульовій напрузі}
+end;
+
+Procedure TDiodLSM_a.IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
+var i,k:integer;
+    temp2:PVector;
+begin
+
+   k:=-1;
+  for i:=0 to High(AuxiliaryVector^.X) do
+         if AuxiliaryVector^.Y[i]<0 then k:=i;
+  new(temp2);
+
+  if k<0 then IVchar(AuxiliaryVector,temp2)
+         else
+         begin
+           SetLenVector(temp2,AuxiliaryVector^.n-k-1);
+           for i:=0 to High(temp2^.X) do
+             begin
+              temp2^.Y[i]:=AuxiliaryVector^.Y[i+k+1];
+              temp2^.X[i]:=AuxiliaryVector^.X[i+k+1];
+             end;
+         end;
+   for i:=0 to High(temp2^.X) do
+     temp2^.Y[i]:=ln(temp2^.Y[i]);
+
+    if High(temp2^.X)>6 then
+       begin
+       SetLenVector(AuxiliaryVector,High(temp2^.X)-3);
+       for i:=3 to High(temp2^.X) do
+        begin
+         AuxiliaryVector^.X[i-3]:=temp2^.X[i];
+         AuxiliaryVector^.Y[i-3]:=temp2^.Y[i];
+        end;
+       end;
+  LinAprox(AuxiliaryVector,IA[2],IA[0]);{}
+  IA[2]:=exp(IA[2]);
+  IA[0]:=1/(Kb*FVariab[0]*IA[0]);
+  {I00 та n0 в результаті лінійної апроксимації залежності
+  ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
+  if FXmode[2]=cons then IA[2]:=FXvalue[2];
+  if FXmode[0]=cons then IA[0]:=FXvalue[0];
+
+   for i:=0 to High(temp2^.X) do
+     begin
+     temp2^.Y[i]:=exp(temp2^.Y[i]);;
+     end;
+ {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
+ значення струму додатні}
+
+  Diferen (temp2,AuxiliaryVector);
+   for i:=0 to High(AuxiliaryVector.X) do
+     begin
+     AuxiliaryVector^.X[i]:=1/temp2^.Y[i];
+     AuxiliaryVector^.Y[i]:=1/AuxiliaryVector^.Y[i];
+     end;
+  {в temp - залежність dV/dI від 1/І}
+
+  if AuxiliaryVector^.n>5 then
+     begin
+     SetLenVector(temp2,5);
+     for i:=0 to 4 do
+       begin
+           temp2^.X[i]:=AuxiliaryVector^.X[High(AuxiliaryVector.X)-i];
+           temp2^.Y[i]:=AuxiliaryVector^.Y[High(AuxiliaryVector.X)-i];
+       end;
+     end
+             else
+         IVchar(temp2,AuxiliaryVector);
+  LinAprox(temp2,IA[1],AuxiliaryVector^.X[0]);
+  {Rs0 - як вільних член лінійної апроксимації
+  щонайбільше п'яти останніх точок залежності dV/dI від 1/І;
+ dV/dI= (nKbT)/(qI)+Rs;
+  temp^.X[0] використане лише для того, щоб
+  не вводити допоміжну змінну}
+  if FXmode[1]=cons then IA[1]:=FXvalue[1];
+ dispose(temp2);
+end;
+
+Procedure TDiodLSM_a.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
+  var temp:Pvector;
+      i:integer;
+begin
+ IA_Begin(temp,IA);
+ IA[3]:=IA_Determine3(InputData,temp);
+ for I := 0 to High(temp^.X) do
+    temp^.Y[i]:=(InputData^.Y[i]-InputData^.X[i]/IA[3]);
+  {в temp - ВАХ з врахуванням Rsh0}
+ IA_Determine012(temp,IA);
+ dispose(temp);
+end;
+
+
+Function TDiodLSM_a.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+{перевіряє чи параметри можна використовувати для
+апроксимації даних в V функцією I0(exp(q(V-IRs)/nkT)-1)+(V-IRs)/Rsh}
+var bt:double;
+    i:integer;
+begin
+  Result:=true;
+  if FVariab[0]<=0 then Exit;
+  if IA[0]<=0 then Exit;
+  bt:=2/Kb/FVariab[0]/IA[0];
+
+  if IA[1]<0 then Exit;
+  if (IA[2]<0) or (IA[2]>1) then Exit;
+  if IA[3]<=1e-4 then Exit;
+  for I := 0 to High(InputData^.X) do
+    if bt*(InputData^.X[i]-IA[1]*InputData^.Y[i])>700 then Exit;
+  Result:=false;
+end;
+
+Function TDiodLSM_a.ParamCorect(InputData:PVector;var IA:TArrSingle):boolean;
+
+begin
+//ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
+//Function TFitFunctLSM.ParamCorect(V:PVector;Fun:Funbool;var n0,Rs0,I00,Rsh0:double):boolean;overload;
+//{коректує значення параметрів, які використовуються
+//для апроксимації даних в V функцією Ламверта;
+//якщо коректування все ж невдале, то
+//повертається false}
+//begin
+  Result:=false;
+  if FVariab[0]<=0 then Exit;
+  if IA[1]<0.0001 then IA[1]:=0.0001;
+  if (IA[3]<=0) or (IA[3]>1e12) then IA[3]:=1e12;
+  while (ParamIsBad(InputData,IA))and(IA[0]<1000) do
+   IA[0]:=IA[0]*2;
+  while (ParamIsBad(InputData,IA))and(IA[2]>1e-15) do
+    IA[2]:=IA[2]/1.5;
+  if  ParamIsBad(InputData,IA) then Exit;
+  Result:=true;
+end;
+
+
+Procedure TPhotoDiodLam_a.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
+  var temp,temp2:Pvector;
+      i:integer;
+begin
+   IA_Begin(temp,IA);
+
+   IA[2]:=IscCalc(InputData);
+   IA[4]:=VocCalc(InputData);
+   if (IA[4]<=0.002)or(IA[2]<1e-8) then Exit;
+   FXmode[2]:=cons;
+   FXmode[4]:=cons;
+
+   IA[3]:=IA_Determine3(InputData,temp);
+
+   {n та Rs0 - як нахил та вільних член лінійної апроксимації
+    щонайбільше семи останніх точок залежності dV/dI від kT/q(Isc+I-V/Rsh);}
+    for I := 0 to High(temp^.X) do
+       begin
+         temp^.Y[i]:=1/temp^.Y[i];
+         temp^.X[i]:=Kb*FVariab[0]/(IA[2]+InputData^.Y[i]-InputData^.X[i]/IA[3]);
+       end;
+    new(temp2);
+    if temp^.n>7 then
+       begin
+        SetLenVector(temp2,7);
+       for i:=0 to 6 do
+          begin
+            temp2^.X[i]:=temp^.X[High(temp.X)-i];
+            temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
+          end;
+       end
+                else IVchar(temp2,temp);
+       LinAprox(temp2,IA[1],IA[0]);
+    if FXmode[1]=cons then IA[1]:=FXvalue[1];
+    if FXmode[0]=cons then IA[0]:=FXvalue[0];
+    dispose(temp2);
+    dispose(temp);
+end;
+
+
+Procedure TPhotoDiodLSM_a.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
+var temp,temp2:Pvector;
+      i:integer;
+begin
+ IA_Begin(temp,IA);
+
+ if (VocCalc(InputData)<=0.002) then Exit;
+ IA[4]:=IscCalc(InputData);
+ if (IA[4]<=1e-8) then Exit;
+
+ new(temp2);
+ IVchar(InputData,temp2);
+ for I := 0 to High(temp2^.X) do
+   temp2^.Y[i]:=temp2^.Y[i]+IA[4];
+
+ IA[3]:=IA_Determine3(temp2,temp);
+
+ for I := 0 to High(temp^.X) do
+   temp^.Y[i]:=(temp2^.Y[i]-temp2^.X[i]/IA[3]);
+    {в temp - ВАХ з врахуванням Rsh0}
+ dispose(temp2);
+ IA_Determine012(temp,IA);
+
+  dispose(temp);
+end;
+
+//--------------------------------------------------
 
 Constructor TFitFunctEvolution.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar,NaddX:byte);
