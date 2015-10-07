@@ -3075,7 +3075,7 @@ begin
   repeat
 
    if Nitt<1 then
-//     begin
+   //     begin
 //      bool1:=(FG_ExpShotA(InputData,X,derivX,Sum1)<>0);
 //    if bool1 then
 //                begin
@@ -3132,6 +3132,7 @@ begin
               IterWindowClear();
               Exit;
             end;
+
   //    bool1:=true;
   //     if FName='DiodLam' then
   //      bool1:=FG_LamShotA(V,FXmin,FXminlim,Sum)<>0;
@@ -3399,19 +3400,18 @@ var i:integer;
     n, Rs, I0, Rsh,
     Zi,ZIi,nkT,vi,ei,eiI0:double;
 begin
-  for I := 0 to High(RezF) do RezF[i]:=ErResult;
-  RezSum:=ErResult;
-  Result:=False;
+//  for I := 0 to High(RezF) do RezF[i]:=ErResult;
+//  RezSum:=ErResult;
+ n:=X[0];
+ Rs:=X[1];
+ I0:=X[2];
+ Rsh:=X[3];
+ //  if ParamIsBad(InputData,X) then Exit;
+ nkT:=n*Kb*FVariab[0];
+ for I := 0 to High(RezF) do  RezF[i]:=0;
+ RezSum:=0;
 
-  n:=X[0];
-  Rs:=X[1];
-  I0:=X[2];
-  Rsh:=X[3];
-
-  if ParamIsBad(InputData,X) then Exit;
-  nkT:=n*Kb*FVariab[0];
-  for I := 0 to High(RezF) do  RezF[i]:=0;
-    RezSum:=0;
+ try
   for I := 0 to High(InputData^.X) do
      begin
        vi:=(InputData^.X[i]-InputData^.Y[i]*Rs);
@@ -3430,6 +3430,9 @@ begin
   RezF[0]:=RezF[0]/n;
   RezF[3]:=RezF[3]/Rsh/Rsh;
   Result:=True;
+ except
+  Result:=False;
+ end;
 end;
 
 Function TDiodLSM.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
@@ -3444,20 +3447,23 @@ Function TDiodLSM.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
 
 var i:integer;
     Zi,Rez,nkT,vi,ei,eiI0,
-    n,Rs,I0,Rsh:double;
+    n,Rs,I0,Rsh,Iph:double;
 begin
  Result:=ErResult;
- if ParamIsBad(InputData,X) then  Exit;
+// if ParamIsBad(InputData,X) then  Exit;
  n:=X[0];
  Rs:=X[1];
  I0:=X[2];
  Rsh:=X[3];
+ Iph:=0;
+ if High(X)>3 then Iph:=X[4];
  try
   case num of
    0:n:=n-al*F;
    1:Rs:=Rs-al*F;
    2:I0:=I0-al*F;
    3:Rsh:=Rsh-al*F;
+   4:Iph:=Iph-al*F;
   end;//case
 
   if ParamIsBad(InputData,X) then  Exit;
@@ -3469,6 +3475,7 @@ begin
      vi:=(InputData^.X[i]-InputData^.Y[i]*Rs);
      ei:=exp(vi/nkT);
      Zi:=I0*(ei-1)+vi/Rsh-InputData^.Y[i];
+     if High(X)>3 then Zi:=Zi-Iph;
      eiI0:=ei*I0/nkT;
 
      case num of
@@ -3555,7 +3562,7 @@ Function TDiodLam_a.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
 var bt:double;
 begin
   Result:=true;
-  if FVariab[0]<=0 then Exit;
+//  if FVariab[0]<=0 then Exit;
   if IA[0]<=0 then Exit;
   bt:=1/Kb/FVariab[0];
   if IA[0]<=0 then Exit;
@@ -3588,23 +3595,24 @@ var i:integer;
     I0Rs,nWi,ci,ZIi,s23,
     F2,F1:double;
 begin
-  for I := 0 to High(RezF) do  RezF[i]:=ErResult;
-  RezSum:=ErResult;
-  Result:=False;
+//  for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+//  RezSum:=ErResult;
+//  Result:=False;
 
-  n:=X[0];
-  Rs:=X[1];
-  I0:=X[2];
-  Rsh:=X[3];
+ n:=X[0];
+ Rs:=X[1];
+ I0:=X[2];
+ Rsh:=X[3];
 
-  if ParamIsBad(InputData,X) then Exit;
-  bt:=1/Kb/FVariab[0];
-  for I := 0 to High(RezF) do  RezF[i]:=0;
-  RezSum:=0;
+//  if ParamIsBad(InputData,X) then Exit;
+ bt:=1/Kb/FVariab[0];
+ for I := 0 to High(RezF) do  RezF[i]:=0;
+ RezSum:=0;
 
   I0Rs:=I0*Rs;
   F2:=bt*I0Rs;
   F1:=bt*Rs;
+ try
   for I := 0 to High(InputData^.X) do
      begin
        ci:=bt*(InputData^.X[i]+I0Rs);
@@ -3627,6 +3635,9 @@ begin
   RezF[2]:=RezF[2]/I0;
   RezF[3]:=RezF[3]/Rsh/Rsh;
   Result:=True;
+ except
+  Result:=False;
+ end;
 end;
 
 Function TDiodLam_a.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
@@ -3641,7 +3652,7 @@ var i:integer;
     n,Rs,I0,Rsh:double;
 begin
  Result:=ErResult;
- if ParamIsBad(InputData,X) then  Exit;
+// if ParamIsBad(InputData,X) then  Exit;
  n:=X[0];
  Rs:=X[1];
  I0:=X[2];
@@ -3716,7 +3727,7 @@ Procedure TPhotoDiodLam_a.InitialApproximation(InputData:PVector;var  IA:TArrSin
       i:integer;
 begin
    IA_Begin(temp,IA);
-                     
+
    IA[2]:=IscCalc(InputData);
    IA[4]:=VocCalc(InputData);
    if (IA[4]<=0.002)or(IA[2]<1e-8) then Exit;
@@ -3756,7 +3767,7 @@ Function TPhotoDiodLam_a.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):
 //Function ParamCorect(V:PVector;var n0,Rs0,Rsh0,Isc,Voc:double):boolean;overload;
 begin
   Result:=false;
-  if FVariab[0]<=0 then Exit;
+//  if FVariab[0]<=0 then Exit;
   if (FVariab[0]<=0) or (IA[2]<=5e-8) or (IA[4]<=1e-3) then Exit;
   if (IA[0]=0)or(IA[0]=ErResult) then Exit;
   if IA[1]<0.0001 then IA[1]:=0.0001;
@@ -3773,7 +3784,7 @@ Function TPhotoDiodLam_a.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
 var nkT,t1,t2:double;
 begin
   Result:=true;
-  if FVariab[0]<=0 then Exit;
+//  if FVariab[0]<=0 then Exit;
   nkT:=IA[0]*Kb*FVariab[0];
   if IA[0]<=0 then Exit;
   if IA[1]<=0 then Exit;
@@ -3809,12 +3820,12 @@ var i:integer;
    ZIi,nkT,W_W1,
    n,Rs,Rsh,Isc,Voc:double;
 begin
-  for I := 0 to High(RezF) do  RezF[i]:=ErResult;
-  RezSum:=ErResult;
-  Result:=False;
+//  for I := 0 to High(RezF) do  RezF[i]:=ErResult;
+//  RezSum:=ErResult;
+ Result:=False;
 
-  if FVariab[0]<=0 then Exit;
-  if ParamIsBad(InputData,X) then Exit;
+//  if FVariab[0]<=0 then Exit;
+//  if ParamIsBad(InputData,X) then Exit;
 
   for I := 0 to High(RezF) do  RezF[i]:=0;
   RezSum:=0;
@@ -3824,6 +3835,7 @@ begin
   Isc:=X[2];
   Voc:=X[4];
 
+ try
   nkT:=n*kb*FVariab[0];
   GVI:=(exp(Isc*Rs/nkT)-exp(Voc/nkT));
   Z1:=Rsh/(Rs+Rsh)*((Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT))+Voc/Rsh);
@@ -3861,6 +3873,8 @@ begin
      end;
   for I := 0 to High(RezF) do RezF[i]:=RezF[i]*2;
   Result:=True;
+ finally
+ end;
 end;
 
 Function TPhotoDiodLam_a.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
@@ -3875,7 +3889,7 @@ var i:integer;
     n,Rs,Rsh,Isc,Voc:double;
 begin
  Result:=ErResult;
- if ParamIsBad(InputData,X) then  Exit;
+// if ParamIsBad(InputData,X) then  Exit;
  n:=X[0];
  Rs:=X[1];
  Rsh:=X[3];
