@@ -42,4 +42,5 @@ if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
  then Key:=#0;
 end;
 
+
 end.

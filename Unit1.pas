@@ -1225,6 +1225,9 @@ FitName - назва функції, якв буде використовуватись
 var
   Form1: TForm1;
   Fit:TFitFunction;
+
+  Ft:TFitFunction;
+
   BohlinMethod: Boolean;
   {використовується при показі віконечок для введення параметрів методів}
   Directory, Directory0, CurDirectory:string;
@@ -6509,7 +6512,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          then
       begin
         if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
+                   else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
         dat[ord(Rs_ExN)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_ExN)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
@@ -7328,7 +7331,7 @@ case CBKalk.ItemIndex of
    4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
         if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
+                   else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diExp]);
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
@@ -10193,7 +10196,7 @@ begin
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
         if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
+                   else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[1];
         Fit.Free;
@@ -10264,7 +10267,7 @@ begin
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
         if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
+                   else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[1];
         Fit.Free;
@@ -10357,7 +10360,7 @@ case CB.ItemIndex of
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
         if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
+                   else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[0];
         Fit.Free;
@@ -10426,7 +10429,7 @@ case CB.ItemIndex of
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
         if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
+                   else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[0];
         Fit.Free;
