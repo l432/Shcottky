@@ -4524,7 +4524,7 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 //          Fit:=TDiodLSM.Create;
 //          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
 
-          Fit:=TDiodLam.Create;
+          Ft:=TDiodLam.Create;
           Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
 
 //     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
@@ -6511,7 +6511,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_ExN in ColNames) or (FF_ExN in ColNames)
          then
       begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
                    else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
         dat[ord(Rs_ExN)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
@@ -6566,8 +6566,8 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_Lam in ColNames) or (FF_Lam in ColNames)
          then
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Lam then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
         dat[ord(Rs_Lam)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_Lam)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
@@ -7330,7 +7330,7 @@ case CBKalk.ItemIndex of
 //---------------------------------------------------------------
    4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
                    else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diExp]);
         Rss:=EvolParam[1];
@@ -7387,8 +7387,8 @@ case CBKalk.ItemIndex of
      ExKalk(3,VaxFile,D[diE2R],Rss,Diod,nn,I00,Fbb);
    19:  //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Lam then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diLam]);
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
@@ -10195,7 +10195,7 @@ begin
     14: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
                    else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[1];
@@ -10206,8 +10206,8 @@ begin
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Lam then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
         Result:=EvolParam[1];
         Fit.Free;
@@ -10266,7 +10266,7 @@ begin
     12: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
                    else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[1];
@@ -10277,8 +10277,8 @@ begin
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Lam then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
         Result:=EvolParam[1];
         Fit.Free;
@@ -10359,7 +10359,7 @@ case CB.ItemIndex of
     15: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
                    else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[0];
@@ -10370,8 +10370,8 @@ case CB.ItemIndex of
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Lam then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
         Result:=EvolParam[0];
         Fit.Free;
@@ -10428,7 +10428,7 @@ case CB.ItemIndex of
     11: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
                    else Ft:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
         Result:=EvolParam[0];
@@ -10439,8 +10439,8 @@ case CB.ItemIndex of
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Lam then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
         Result:=EvolParam[0];
         Fit.Free;
@@ -10498,8 +10498,8 @@ case CB.ItemIndex of
     10: //Fb рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
       begin
-        if Iph_Exp then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Exp then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
         if Iph_Exp then Result:=ErResult
                    else Result:=Fit.DodX[0];
@@ -10510,8 +10510,8 @@ case CB.ItemIndex of
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
+        if Iph_Lam then Ft:=TPhotoDiodLam.Create
+                   else Ft:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
         if Iph_Lam then Result:=ErResult
                    else Result:=Fit.DodX[0];

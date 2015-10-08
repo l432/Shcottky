@@ -534,6 +534,8 @@ private
  fAccurancy:double;
 { величина, пов'язана з критерієм
  припинення ітераційного процесу}
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar:byte);
  Procedure RealReadFromIniFile;override;
  {безпосередньо зчитує дані з ini-файла, в цьому класі - fAccurancy}
  Procedure RealWriteToIniFile;override;
@@ -554,17 +556,24 @@ private
          var OutputData:TArrSingle); override;
  Procedure TrueFitting (InputData:PVector;var OutputData:TArrSingle); override;
 //------Cлужбові функції для МНК-----------------------
- Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);virtual;abstract;
+ Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);virtual;
   {по значенням в InputData визначає початкове наближення
   для параметрів і заносяться в IA,
   крім того встановлюються потрібні довжини
   для масивів IA та Another}
- Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;virtual;abstract;
+ Procedure IA_Begin(var AuxiliaryVector:PVector;var IA:TArrSingle);
+ Function IA_Determine3(Vector1,Vector2:PVector):double;
+ Procedure IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
+ Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;virtual;
 {коректуються величини в IA, щоб їх можна було використовувати для
 апроксимації InputData, якщо таки не вдалося -
 повертається False}
+ Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;virtual;
+  {перевіряє чи параметри можна використовувати для
+  апроксимації даних в InputData функцією I0(exp(q(V-IRs)/nkT)-1)+(V-IRs)/Rsh
+  IA[0] - n, IA[1] - Rs, IA[2] - I0, IA[3] - Rsh}
  Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;virtual;abstract;
+             var RezF:TArrSingle; var RezSum:double):boolean;virtual;
 {обчислюються значення квадратичної форми RezSum,
 розрахованої для InputData та значень параметрів в Х;
 також обчислюються значення функцій RezF,
@@ -576,7 +585,7 @@ private
   використовується метод дихотомії;
   а та b задають початковий відрізок, де шукається розв'язок}
  Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;virtual;abstract;
+                     X:TArrSingle):double;virtual;
 {розраховується значення похідної квадратичної форми,
 функція використовується при  покоординатному спуску і обчислюється
 похідна по al, яка описує зміну  того чи іншого параметра апроксимації
@@ -589,37 +598,32 @@ end; // TFitFunctLSM=class (TFitAdditionParam)
 //----------------------------------------------
 TDiodLSM=class (TFitFunctLSM)
 private
- Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
- Procedure IA_Begin(var AuxiliaryVector:PVector;var IA:TArrSingle);
- Function IA_Determine3(Vector1,Vector2:PVector):double;
- Procedure IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
- Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;override;
- Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;virtual;
+// Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
+// Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;override;
+// Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;virtual;
   {перевіряє чи параметри можна використовувати для
   апроксимації даних в InputData функцією I0(exp(q(V-IRs)/nkT)-1)+(V-IRs)/Rsh
   IA[0] - n, IA[1] - Rs, IA[2] - I0, IA[3] - Rsh}
- Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;override;
- Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;override;
+// Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+//             var RezF:TArrSingle; var RezSum:double):boolean;override;
+// Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+//                     X:TArrSingle):double;override;
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TDiodLSM=class (TFitFunctLSM)
 
 
-TPhotoDiodLSM_a=class (TDiodLSM)
+TPhotoDiodLSM=class (TFitFunctLSM)
 private
  Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);override;
 {Param = n  при num = 0; Rs при 1; I0 при 2; Rsh при 3; Iph при 4}
-
+ Function Func(Parameters:TArrSingle):double; override;
 public
-// Constructor Create;
-// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
-// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
- end; // TPhotoDiodLSM_a=class (TDiodLSM)
+ Constructor Create;
+ end; // TPhotoDiodLSM=class (TFitFunctLSM)
 
-TDiodLam_a=class (TDiodLSM)
+TDiodLam=class (TFitFunctLSM)
 private
  Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
  {перевіряє чи параметри можна використовувати для
@@ -629,20 +633,20 @@ private
              var RezF:TArrSingle; var RezSum:double):boolean;override;
  Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
                      X:TArrSingle):double;override;
-
+ Function Func(Parameters:TArrSingle):double; override;
 public
-// Constructor Create;
+ Constructor Create;
 // Function FinalFunc(X:double;Variab:TArrSingle):double; override;
 // Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
- end; // TDiodLam_a=class (TDiodLSM)
+ end; // TDiodLam=class (TFitFunctLSM)
 
-TPhotoDiodLam_a=class (TPhotoDiodLSM_a)
+TPhotoDiodLam=class (TFitFunctLSM)
 private
  Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
  Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;override;
  Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
  {перевіряє чи параметри можна використовувати для
- апроксимації ВАХ при освітленні в V функцію Ламверта,
+ апроксимації ВАХ при освітленні в InputData функцію Ламверта,
   A[0] - n, IA[1] - Rs, IA[2] - Isc, IA[3] - Rsh, IA[3] - Voc}
  Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
              var RezF:TArrSingle; var RezSum:double):boolean;override;
@@ -652,11 +656,12 @@ RezF[0] - похідна по n, RezF[1] - по Rs, RezF[3] - по Rsh}
                      X:TArrSingle):double;override;
  Procedure EndFitting(FinalResult:TArrSingle;
               var OutputData:TArrSingle);override;
+ Function Func(Parameters:TArrSingle):double; override;
 public
-// Constructor Create;
+ Constructor Create;
 // Function FinalFunc(X:double;Variab:TArrSingle):double; override;
 // Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
- end; // TPhotoDiodLam_a=class (TPhotoDiodLSM_a)
+ end; // TPhotoDiodLam=class (TFitFunctLSM)
 
 
 
@@ -1356,26 +1361,26 @@ TFitFunctionLSM=class (TFitFunctionAAA)
 // Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
 // end; // TDiodLSM=class (TFitFunction)
 
-TPhotoDiodLSM=class (TFitFunctionLSM)
- public
- Constructor Create;
- Function FinalFunc(X:double;Variab:TArrSingle):double; override;
- Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
- end; //  TPhotoDiodLSM=class (TFitFunctionLSM)
+//TPhotoDiodLSM=class (TFitFunctionLSM)
+// public
+// Constructor Create;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+// end; //  TPhotoDiodLSM=class (TFitFunctionLSM)
 
-TDiodLam=class (TFitFunctionLSM)
- public
- Constructor Create;
- Function FinalFunc(X:double;Variab:TArrSingle):double; override;
- Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
- end; // TDiodLSM=class (TFitFunction)
+//TDiodLam=class (TFitFunctionLSM)
+// public
+// Constructor Create;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+// end; // TDiodLSM=class (TFitFunction)
 
-TPhotoDiodLam=class (TFitFunctionLSM)
- public
- Constructor Create;
- Function FinalFunc(X:double;Variab:TArrSingle):double; override;
- Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
- end; //  TPhotoDiodLSM=class (TFitFunctionLSM)
+//TPhotoDiodLam=class (TFitFunctionLSM)
+// public
+// Constructor Create;
+// Function FinalFunc(X:double;Variab:TArrSingle):double; override;
+//// Procedure DodParDetermination(V: PVector; Variab:TArrSingle); override;
+// end; //  TPhotoDiodLSM=class (TFitFunctionLSM)
 
 
 procedure PictLoadScale(Img: TImage; ResName:String);
@@ -2557,7 +2562,25 @@ begin
 end;
 
 //---------------------------------------------------------
-
+Constructor TFitFunctLSM.Create(FunctionName,FunctionCaption:string;
+                     Npar{,Nvar,NaddX}:byte);
+begin
+ if Npar=4 then
+     begin
+     inherited Create(FunctionName,FunctionCaption,Npar,1,1);
+     fIsDiod:=True;
+     end;
+ if Npar=5 then
+     begin
+     inherited Create(FunctionName,FunctionCaption,Npar,1,4);
+     fIsPhotoDiod:=True;
+     end;
+ FXname[0]:='n';
+ FXname[1]:='Rs';
+ FXname[2]:='Io';
+ FXname[3]:='Rsh';
+ if Npar=5 then FXname[4]:='Iph'
+end;
 
 Procedure TFitFunctLSM.RealReadFromIniFile;
 begin
@@ -3190,15 +3213,14 @@ begin
 end;
 
 
-//-------------------------------------------------------
-Procedure TDiodLSM.IA_Begin(var AuxiliaryVector:PVector;
+Procedure TFitFunctLSM.IA_Begin(var AuxiliaryVector:PVector;
                var IA:TArrSingle);
 begin
    IA[0]:=ErResult;
    new(AuxiliaryVector);
 end;
 
-Function TDiodLSM.IA_Determine3(Vector1,Vector2:PVector):double;
+Function TFitFunctLSM.IA_Determine3(Vector1,Vector2:PVector):double;
 begin
  Diferen (Vector1,Vector2);
    {фактично, в temp залеженість оберненого опору від напруги}
@@ -3210,16 +3232,14 @@ begin
         значення при нульовій напрузі}
 end;
 
-Procedure TDiodLSM.IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
+Procedure TFitFunctLSM.IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
 var i,k:integer;
     temp2:PVector;
 begin
-
    k:=-1;
   for i:=0 to High(AuxiliaryVector^.X) do
          if AuxiliaryVector^.Y[i]<0 then k:=i;
   new(temp2);
-
   if k<0 then IVchar(AuxiliaryVector,temp2)
          else
          begin
@@ -3286,7 +3306,7 @@ begin
  dispose(temp2);
 end;
 
-Procedure TDiodLSM.InitialApproximation(InputData:PVector;var IA:TArrSingle);
+Procedure TFitFunctLSM.InitialApproximation(InputData:PVector;var IA:TArrSingle);
   var temp:Pvector;
       i:integer;
 begin
@@ -3300,8 +3320,7 @@ begin
 end;
 
 
-
-Function TDiodLSM.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
+Function TFitFunctLSM.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
 //ParamCorect(V,ExpParamIsBad,FXmin[0],FXmin[1],FXmin[2],FXmin[3]);
 //Function TFitFunctLSM.ParamCorect(V:PVector;Fun:Funbool;var n0,Rs0,I00,Rsh0:double):boolean;overload;
 //{коректує значення параметрів, які використовуються
@@ -3344,7 +3363,7 @@ end;
 
 
 
-Function TDiodLSM.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+Function TFitFunctLSM.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
 var bt:double;
     i:integer;
 begin
@@ -3382,7 +3401,7 @@ end;
 //  Result:=false;
 //end;
 
-Function TDiodLSM.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+Function TFitFunctLSM.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
              var RezF:TArrSingle; var RezSum:double):boolean;
 //Function FG_ExpShotA(AP:Pvector; Variab:TArrSingle;
 //                  var RezF:TArrSingle;
@@ -3435,7 +3454,7 @@ begin
  end;
 end;
 
-Function TDiodLSM.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+Function TFitFunctLSM.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
                      X:TArrSingle):double;
 //Function aSdal_ExpShot(AP:Pvector;num:word;al,F,n,Rs,I0,Rsh:double):double;
 //Function aSdal_ExpLightShot(AP:Pvector;num:word;al,F,n,Rs,I0,Rsh,Iph:double):double;
@@ -3537,17 +3556,18 @@ end;
 //end;//try
 //end;
 
+//-------------------------------------------------------
 
 Constructor TDiodLSM.Create;
 begin
  inherited Create('DiodLSM','Diod function, least-squares fitting',
-                     4,1,1);
- FXname[0]:='n';
- FXname[1]:='Rs';
- FXname[2]:='Io';
- FXname[3]:='Rsh';
+                     4);
+// FXname[0]:='n';
+// FXname[1]:='Rs';
+// FXname[2]:='Io';
+// FXname[3]:='Rsh';
 // FXname[4]:='Fb';
- fIsDiod:=True;
+// fIsDiod:=True;
  ReadFromIniFile();
 end;
 
@@ -3558,7 +3578,7 @@ begin
 end;
 
 
-Function TDiodLam_a.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+Function TDiodLam.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
 var bt:double;
 begin
   Result:=true;
@@ -3577,7 +3597,7 @@ begin
 end;
 
 
-Function TDiodLam_a.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+Function TDiodLam.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
              var RezF:TArrSingle; var RezSum:double):boolean;
 //Function FG_LamShotA(AP:Pvector; Variab:TArrSingle;
 //                  RezF:TArrSingle;
@@ -3640,7 +3660,7 @@ begin
  end;
 end;
 
-Function TDiodLam_a.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+Function TDiodLam.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
                      X:TArrSingle):double;
 //Function aSdal_LamShot(AP:Pvector;num:word;al,F,n,Rs,I0,Rsh:double):double;
 //де  Param = n  при num = 0
@@ -3694,9 +3714,24 @@ begin
  end;//try
 end;
 
+Constructor TDiodLam.Create;
+begin
+ inherited Create('DiodLam','Diod function, Lambert function fitting',
+                     4);
+// inherited Create();
+// FName:='DiodLam';
+// FCaption:='Diod function, Lambert function fitting';
+ ReadFromIniFile();
+end;
+
+Function TDiodLam.Func(Parameters:TArrSingle):double;
+begin
+ Result:=LambertAprShot(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],
+                 Parameters[2],Parameters[3]);
+end;
 
 
-Procedure TPhotoDiodLSM_a.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
+Procedure TPhotoDiodLSM.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
 var temp,temp2:Pvector;
       i:integer;
 begin
@@ -3722,7 +3757,72 @@ begin
   dispose(temp);
 end;
 
-Procedure TPhotoDiodLam_a.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
+
+Constructor TPhotoDiodLSM.Create;
+begin
+ inherited Create('PhotoDiodLSM',
+                  'Function of lightened diod, least-squares fitting',
+                    5);
+// FXname[0]:='n';
+// FXname[1]:='Rs';
+// FXname[2]:='Io';
+// FXname[3]:='Rsh';
+// FXname[4]:='Iph';
+// fIsPhotoDiod:=True;
+ ReadFromIniFile();
+end;
+
+Function TPhotoDiodLSM.Func(Parameters:TArrSingle):double;
+begin
+ Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],
+                 Parameters[2],Parameters[3],Parameters[4]);
+end;
+//Constructor TPhotoDiodLSM.Create;
+//begin
+// inherited Create(5);
+// FName:='PhotoDiodLSM';
+// FXname[0]:='n';
+// FXname[1]:='Rs';
+// FXname[2]:='Io';
+// FXname[3]:='Rsh';
+// FXname[4]:='Iph';
+// FPNs:=3;
+// SetLength(FParam,FPNs);
+// SetLength(FPname,FPNs);
+// FPName[0]:='V';
+// FPName[1]:='I';
+// FPName[2]:='T';
+// SetLength(FPbool,FPNs-2);
+// SetLength(FPValue,FPNs-2);
+// FPEst:=1;
+// FCaption:='Function of lightened diod, least-squares fitting';
+// SetLength(FDodXname,4);
+// SetLength(FDodX,4);
+// FDodXname[0]:='Voc';
+// FDodXname[1]:='Isc';
+// FDodXname[2]:='Pm';
+// FDodXname[3]:='FF';
+// ReadValue;
+// FDbool:=True;
+
+
+Constructor TPhotoDiodLam.Create;
+begin
+ inherited Create('PhotoDiodLam',
+                  'Function of lightened diod, Lambert function fitting',
+                    5);
+// FXname[0]:='n';
+// FXname[1]:='Rs';
+// FXname[2]:='Io';
+// FXname[3]:='Rsh';
+// FXname[4]:='Iph';
+// fIsPhotoDiod:=True;
+ ReadFromIniFile();
+end;
+
+
+
+Procedure TPhotoDiodLam.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
   var temp,temp2:Pvector;
       i:integer;
 begin
@@ -3762,7 +3862,7 @@ begin
 end;
 
 
-Function TPhotoDiodLam_a.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
+Function TPhotoDiodLam.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
 //ParamCorect(V,FXmin[0],FXmin[1],FXmin[3],FXmin[2],FXmin[4])
 //Function ParamCorect(V:PVector;var n0,Rs0,Rsh0,Isc,Voc:double):boolean;overload;
 begin
@@ -3779,7 +3879,7 @@ begin
 end;
 
 
-Function TPhotoDiodLam_a.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+Function TPhotoDiodLam.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
 //Function LamLightParamIsBad(V:PVector;n0,Rs0,Rsh0,Isc0,Voc0:double):boolean;
 var nkT,t1,t2:double;
 begin
@@ -3805,7 +3905,7 @@ begin
 end;
 
 
-Function TPhotoDiodLam_a.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+Function TPhotoDiodLam.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
              var RezF:TArrSingle; var RezSum:double):boolean;
 //FG_LamLightShotA(V,FXmin[0],FXmin[1],
 //                 FXmin[3],FXmin[2],FXmin[4],FXminlim,Sum)
@@ -3877,7 +3977,7 @@ begin
  end;
 end;
 
-Function TPhotoDiodLam_a.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+Function TPhotoDiodLam.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
                      X:TArrSingle):double;
 //Function aSdal_LamLightShotA(AP:Pvector;num:word;al,F,n,Rs,Rsh,Isc,Voc:double):double;
 //де  Param = n  при num = 0
@@ -3948,7 +4048,7 @@ begin
  end;//try
 end;
 
-Procedure TPhotoDiodLam_a.EndFitting(FinalResult:TArrSingle;
+Procedure TPhotoDiodLam.EndFitting(FinalResult:TArrSingle;
               var OutputData:TArrSingle);
 begin
  inherited EndFitting(FinalResult,OutputData);
@@ -3957,6 +4057,12 @@ begin
               (1-exp((FinalResult[1]*FinalResult[2]-FinalResult[4])/FinalResult[0]/Kb/FVariab[0]));
  OutputData[4]:= OutputData[2]*(exp(FinalResult[4]/FinalResult[0]/Kb/FVariab[0])-1)+
                 FinalResult[4]/FinalResult[3];
+end;
+
+Function TPhotoDiodLam.Func(Parameters:TArrSingle):double;
+begin
+ Result:=LambertLightAprShot(fX,Parameters[0]*Kb*FVariab[0],
+        Parameters[1],Parameters[2],Parameters[3],Parameters[4]);
 end;
 
 //--------------------------------------------------
@@ -5764,152 +5870,152 @@ inherited;
 if FXmode[2]=cons then FPEst:=1;
 end;
 
-Constructor TPhotoDiodLSM.Create;
-begin
- inherited Create(5);
- FName:='PhotoDiodLSM';
- FXname[0]:='n';
- FXname[1]:='Rs';
- FXname[2]:='Io';
- FXname[3]:='Rsh';
- FXname[4]:='Iph';
- FPNs:=3;
- SetLength(FParam,FPNs);
- SetLength(FPname,FPNs);
- FPName[0]:='V';
- FPName[1]:='I';
- FPName[2]:='T';
- SetLength(FPbool,FPNs-2);
- SetLength(FPValue,FPNs-2);
- FPEst:=1;
- FCaption:='Function of lightened diod, least-squares fitting';
- SetLength(FDodXname,4);
- SetLength(FDodX,4);
- FDodXname[0]:='Voc';
- FDodXname[1]:='Isc';
- FDodXname[2]:='Pm';
- FDodXname[3]:='FF';
- ReadValue;
- FDbool:=True;
-end;
+//Constructor TPhotoDiodLSM.Create;
+//begin
+// inherited Create(5);
+// FName:='PhotoDiodLSM';
+// FXname[0]:='n';
+// FXname[1]:='Rs';
+// FXname[2]:='Io';
+// FXname[3]:='Rsh';
+// FXname[4]:='Iph';
+// FPNs:=3;
+// SetLength(FParam,FPNs);
+// SetLength(FPname,FPNs);
+// FPName[0]:='V';
+// FPName[1]:='I';
+// FPName[2]:='T';
+// SetLength(FPbool,FPNs-2);
+// SetLength(FPValue,FPNs-2);
+// FPEst:=1;
+// FCaption:='Function of lightened diod, least-squares fitting';
+// SetLength(FDodXname,4);
+// SetLength(FDodX,4);
+// FDodXname[0]:='Voc';
+// FDodXname[1]:='Isc';
+// FDodXname[2]:='Pm';
+// FDodXname[3]:='FF';
+// ReadValue;
+// FDbool:=True;
+//end;
 
 
 
 
-Function TPhotoDiodLSM.FinalFunc(X:double;Variab:TArrSingle):double;
-begin
- Result:=Full_IV(X,Variab[0]*Kb*FParam[2],Variab[1],
-                 Variab[2],Variab[3],Variab[4]);
-end;
+//Function TPhotoDiodLSM.FinalFunc(X:double;Variab:TArrSingle):double;
+//begin
+// Result:=Full_IV(X,Variab[0]*Kb*FParam[2],Variab[1],
+//                 Variab[2],Variab[3],Variab[4]);
+//end;
 
-Procedure TPhotoDiodLSM.DodParDetermination(V: PVector; Variab:TArrSingle);
-begin
-FDodX[0]:=ErResult;
-FDodX[1]:=ErResult;
-FDodX[2]:=ErResult;
-FDodX[3]:=ErResult;
-if (Variab[4]>1e-7) then
-   begin
-    FDodX[0]:=Voc_Isc_Pm(1,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-    FDodX[1]:=Voc_Isc_Pm(2,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-   end;
-if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
-    FDodX[2]:=Voc_Isc_Pm(3,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
-   FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
-end;
+//Procedure TPhotoDiodLSM.DodParDetermination(V: PVector; Variab:TArrSingle);
+//begin
+//FDodX[0]:=ErResult;
+//FDodX[1]:=ErResult;
+//FDodX[2]:=ErResult;
+//FDodX[3]:=ErResult;
+//if (Variab[4]>1e-7) then
+//   begin
+//    FDodX[0]:=Voc_Isc_Pm(1,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
+//    FDodX[1]:=Voc_Isc_Pm(2,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
+//   end;
+//if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
+//    FDodX[2]:=Voc_Isc_Pm(3,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
+//if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
+//   FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
+//end;
 
-Constructor TDiodLam.Create;
-begin
- inherited Create(4);
- FName:='DiodLam';
- FXname[0]:='n';
- FXname[1]:='Rs';
- FXname[2]:='Io';
- FXname[3]:='Rsh';
- FPNs:=3;
- SetLength(FParam,FPNs);
- SetLength(FPname,FPNs);
- FPName[0]:='V';
- FPName[1]:='I';
- FPName[2]:='T';
- SetLength(FPbool,FPNs-2);
- SetLength(FPValue,FPNs-2);
- ReadValue;
- FCaption:='Diod function, Lambert function fitting';
- SetLength(FDodXname,1);
- SetLength(FDodX,1);
- FDodXname[0]:='Fb'; 
-end;
+//Constructor TDiodLam.Create;
+//begin
+// inherited Create(4);
+// FName:='DiodLam';
+// FXname[0]:='n';
+// FXname[1]:='Rs';
+// FXname[2]:='Io';
+// FXname[3]:='Rsh';
+// FPNs:=3;
+// SetLength(FParam,FPNs);
+// SetLength(FPname,FPNs);
+// FPName[0]:='V';
+// FPName[1]:='I';
+// FPName[2]:='T';
+// SetLength(FPbool,FPNs-2);
+// SetLength(FPValue,FPNs-2);
+// ReadValue;
+// FCaption:='Diod function, Lambert function fitting';
+// SetLength(FDodXname,1);
+// SetLength(FDodX,1);
+// FDodXname[0]:='Fb';
+//end;
 
-Function TDiodLam.FinalFunc(X:double;Variab:TArrSingle):double;
-begin
- Result:=LambertAprShot(X,Variab[0]*Kb*FParam[2],Variab[1],
-                 Variab[2],Variab[3]);
-end;
+//Function TDiodLam.FinalFunc(X:double;Variab:TArrSingle):double;
+//begin
+// Result:=LambertAprShot(X,Variab[0]*Kb*FParam[2],Variab[1],
+//                 Variab[2],Variab[3]);
+//end;
 
-Procedure TDiodLam.DodParDetermination(V: PVector; Variab:TArrSingle);
-begin
-FDodX[0]:=ErResult;
-if FIsReady then FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
-//if (FSzr<>0)and(FSzr<>ErResult)and(FArich<>0)and(FArich<>ErResult) then
-//   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
-end;
+//Procedure TDiodLam.DodParDetermination(V: PVector; Variab:TArrSingle);
+//begin
+//FDodX[0]:=ErResult;
+//if FIsReady then FDodX[0]:=FSample.Fb(FParam[2],Variab[2]);
+////if (FSzr<>0)and(FSzr<>ErResult)and(FArich<>0)and(FArich<>ErResult) then
+////   FDodX[0]:=Kb*FParam[2]*ln(FSzr*FArich*sqr(FParam[2])/Variab[2]);
+//end;
 
-Constructor TPhotoDiodLam.Create;
-begin
- inherited Create(5);
- FName:='PhotoDiodLam';
- FXname[0]:='n';
- FXname[1]:='Rs';
- FXname[2]:='Io';
- FXname[3]:='Rsh';
- FXname[4]:='Iph';
- FPNs:=3;
- SetLength(FParam,FPNs);
- SetLength(FPname,FPNs);
- FPName[0]:='V';
- FPName[1]:='I';
- FPName[2]:='T';
- SetLength(FPbool,FPNs-2);
- SetLength(FPValue,FPNs-2);
- FPEst:=1;
- FCaption:='Function of lightened diod, Lambert function fitting';
- SetLength(FDodXname,4);
- SetLength(FDodX,4);
- FDodXname[0]:='Voc';
- FDodXname[1]:='Isc';
- FDodXname[2]:='Pm';
- FDodXname[3]:='FF';
- ReadValue;
- FDbool:=True;
-end;
+//Constructor TPhotoDiodLam.Create;
+//begin
+// inherited Create(5);
+// FName:='PhotoDiodLam';
+// FXname[0]:='n';
+// FXname[1]:='Rs';
+// FXname[2]:='Io';
+// FXname[3]:='Rsh';
+// FXname[4]:='Iph';
+// FPNs:=3;
+// SetLength(FParam,FPNs);
+// SetLength(FPname,FPNs);
+// FPName[0]:='V';
+// FPName[1]:='I';
+// FPName[2]:='T';
+// SetLength(FPbool,FPNs-2);
+// SetLength(FPValue,FPNs-2);
+// FPEst:=1;
+// FCaption:='Function of lightened diod, Lambert function fitting';
+// SetLength(FDodXname,4);
+// SetLength(FDodX,4);
+// FDodXname[0]:='Voc';
+// FDodXname[1]:='Isc';
+// FDodXname[2]:='Pm';
+// FDodXname[3]:='FF';
+// ReadValue;
+// FDbool:=True;
+//end;
+//
+//
+//
+//
+//Function TPhotoDiodLam.FinalFunc(X:double;Variab:TArrSingle):double;
+//begin
+// Result:=LambertLightAprShot(X,Variab[0]*Kb*FParam[2],Variab[1],
+//                 Variab[2],Variab[3],Variab[4])
+//end;
 
-
-
-
-Function TPhotoDiodLam.FinalFunc(X:double;Variab:TArrSingle):double;
-begin
- Result:=LambertLightAprShot(X,Variab[0]*Kb*FParam[2],Variab[1],
-                 Variab[2],Variab[3],Variab[4])
-end;
-
-Procedure TPhotoDiodLam.DodParDetermination(V: PVector; Variab:TArrSingle);
-begin
-FDodX[0]:=ErResult;
-FDodX[1]:=ErResult;
-FDodX[2]:=ErResult;
-FDodX[3]:=ErResult;
-if (Variab[4]>1e-7) then
-   begin
-    FDodX[0]:=Voc_Isc_Pm(1,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-    FDodX[1]:=Voc_Isc_Pm(2,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-   end;
-if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
-    FDodX[2]:=Voc_Isc_Pm(3,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
-if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
-   FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
-end;
+//Procedure TPhotoDiodLam.DodParDetermination(V: PVector; Variab:TArrSingle);
+//begin
+//FDodX[0]:=ErResult;
+//FDodX[1]:=ErResult;
+//FDodX[2]:=ErResult;
+//FDodX[3]:=ErResult;
+//if (Variab[4]>1e-7) then
+//   begin
+//    FDodX[0]:=Voc_Isc_Pm(1,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
+//    FDodX[1]:=Voc_Isc_Pm(2,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
+//   end;
+//if (FDodX[0]>0.002)and(FDodX[1]>1e-7)and(FDodX[0]<>ErResult)and(FDodX[1]<>ErResult) then
+//    FDodX[2]:=Voc_Isc_Pm(3,V,Variab[0],Variab[1],Variab[2],Variab[3],Variab[4]);
+//if (FDodX[0]<>0)and(FDodX[0]<>ErResult)and(FDodX[1]<>0)and(FDodX[1]<>ErResult) then
+//   FDodX[3]:=FDodX[2]/FDodX[0]/FDodX[1];
+//end;
 
 
 
@@ -8905,9 +9011,9 @@ begin
 //  if str='Diod' then F:=TDiod.Create;
 //  if str='PhotoDiod' then F:=TPhotoDiod.Create;
   if str='Diod, LSM' then F:=TDiodLSM.Create;
-//  if str='PhotoDiod, LSM' then F:=TPhotoDiodLSM.Create;
-//  if str='Diod, Lambert' then F:=TDiodLam.Create;
-//  if str='PhotoDiod, Lambert' then F:=TPhotoDiodLam.Create;
+  if str='PhotoDiod, LSM' then F:=TPhotoDiodLSM.Create;
+  if str='Diod, Lambert' then F:=TDiodLam.Create;
+  if str='PhotoDiod, Lambert' then F:=TPhotoDiodLam.Create;
 //  if str='Two Diod' then F:=TDiodTwo.Create;
 //  if str='Two Diod Full' then F:=TDiodTwoFull.Create;
 //  if str='D-Gaussian' then F:=TDGaus.Create;
@@ -8943,9 +9049,9 @@ begin
 //  if str='Ivanov' then F:=TIvanov.Create;
   if str='PhotoDiod' then F:=TPhotoDiod.Create;
 //  if str='Diod, LSM' then F:=TDiodLSM.Create;
-  if str='PhotoDiod, LSM' then F:=TPhotoDiodLSM.Create;
-  if str='Diod, Lambert' then F:=TDiodLam.Create;
-  if str='PhotoDiod, Lambert' then F:=TPhotoDiodLam.Create;
+//  if str='PhotoDiod, LSM' then F:=TPhotoDiodLSM.Create;
+//  if str='Diod, Lambert' then F:=TDiodLam.Create;
+//  if str='PhotoDiod, Lambert' then F:=TPhotoDiodLam.Create;
   if str='Two Diod' then F:=TDiodTwo.Create;
   if str='Two Diod Full' then F:=TDiodTwoFull.Create;
   if str='D-Gaussian' then F:=TDGaus.Create;
