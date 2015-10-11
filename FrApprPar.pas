@@ -51,7 +51,7 @@ var Form:TForm;
     CB:TComBobox;
     Koef:array[0..2] of TLabeledEdit;
 //    str,str1:string;
-    i{,j}:byte;
+    i{,j}:integer;
 //    ParamName:array of string;
 begin
 // ConfigFile:=TIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');

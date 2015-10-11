@@ -48,7 +48,6 @@ type
       FParameters:TMaterialParameters;
      procedure SetAbsValue(Index:integer; value:double);
      procedure SetEpsValue (value:double);
-     function Varshni(F0,T:double):double;
 
      public
      Constructor Create(MaterialName:TMaterialName);
@@ -65,6 +64,7 @@ type
      procedure ReadFromIniFile(ConfigFile:TIniFile);
      procedure WriteToIniFile(ConfigFile:TIniFile);
 
+     function Varshni(F0,T:double):double;
      function EgT(T:double):double;
       // ширина забороненої зони при температурі Т
      function Nc(T:double):double;
@@ -83,6 +83,7 @@ type
      procedure SetAbsValue(Index:integer; value:double);
      procedure SetEpsValue (value:double);
      procedure SetMaterial(value:TMaterial);
+     function Get_nu():double;
 
      public
      property Area:double Index 1 read FArea write SetAbsValue;
@@ -90,6 +91,7 @@ type
      property Nd:double Index 2 read FNd write SetAbsValue;
      property Thick_i:double Index 3 read FThick_i write SetAbsValue;
      property Material:TMaterial read FMaterial write SetMaterial;
+     property nu:double read Get_nu;
 
      procedure ReadFromIniFile(ConfigFile:TIniFile);
      procedure WriteToIniFile(ConfigFile:TIniFile);
@@ -106,7 +108,7 @@ type
      {об'ємний потенціал (build in)}
      function Em(Vrev,T,Fb0:double):double;
      {максимальне значення електричного поля}
-    end; // TDiod=class
+     end; // TDiod=class
 
 var
   Semi:TMaterial;
@@ -241,6 +243,11 @@ procedure TDiodSample.SetMaterial(value:TMaterial);
       Value:=TMaterial.Create(High(TMaterialName));
    FMaterial:=value;
   end;
+
+function TDiodSample.Get_nu():double;
+begin
+  Result:=Eps0*Material.Eps/Qelem/Nd;
+end;
 
 function TDiodSample.kTln(T:double):double;
 {повертає значення kT ln(Area*ARich*T^2)}

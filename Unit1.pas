@@ -1226,7 +1226,7 @@ var
   Form1: TForm1;
   Fit:TFitFunction;
 
-  Ft:TFitFunction;
+//  Ft:TFitFunction;
 
   BohlinMethod: Boolean;
   {використовується при показі віконечок для введення параметрів методів}
@@ -3532,7 +3532,7 @@ end;
 procedure TForm1.ButGLAutoClick(Sender: TObject);
 var tempVector:PVector;
     i:byte;
-    Fit:TFitFunctionAAA;
+//    Fit:TFitFunctionAAA;
 begin
  try
   new(tempVector);
@@ -4432,7 +4432,7 @@ var
     T:integer;
     V,I,n,Rs,Fb,I0:double;
     RsAv,delRsAv,FbAv,delFbAv,nAv,delnAv{,FbEAv,delFbEAv,nEAv,delnEAv}:double;
-    Fit:TFitFunctionAAA;
+//    Fit:TFitFunctionAAA;
 begin
 if not(SetCurrentDir(CurDirectory)) then
    begin
@@ -4524,8 +4524,9 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 //          Fit:=TDiodLSM.Create;
 //          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
 
-          Ft:=TDiodLam.Create;
+          Fit:=TDiodLam.Create;
           Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
+          Fit.Free;
 
 //     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
 //     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
@@ -4573,21 +4574,21 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 //}
 {}
           if (abs((EvolParam[1]-Rs)/Rs)>10)or
-             (EvolParam[1]=ErResult)or(Fit.DodX[0]=ErResult)or(EvolParam[0]=ErResult)or
+             (EvolParam[1]=ErResult)or(EvolParam[4]=ErResult)or(EvolParam[0]=ErResult)or
              (abs((EvolParam[0]-n)/n)>10)or
-             (abs((Fit.DodX[0]-Fb)/Fb)>10)or
+             (abs((EvolParam[4]-Fb)/Fb)>10)or
              (EvolParam[1]<0)or
              (EvolParam[0]<0)or
-             (Fit.DodX[0]<0)
+             (EvolParam[4]<0)
                       then  Continue;
 
              RsAv:=RsAv+EvolParam[1];
              delRsAv:=delRsAv+abs((EvolParam[1]-Rs)/Rs);
-             FbAv:=FbAv+Fit.DodX[0];
-             delFbAv:=delFbAv+abs((Fit.DodX[0]-Fb)/Fb);
+             FbAv:=FbAv+EvolParam[4];
+             delFbAv:=delFbAv+abs((EvolParam[4]-Fb)/Fb);
              nAv:=nAv+EvolParam[0];
              delnAv:=delnAv+abs((EvolParam[0]-n)/n);
-             Fit.Free;
+
  {}
             dispose(Vax);
             inc(k);
@@ -6155,7 +6156,7 @@ var
   Nf:integer;
   nnn,temp_str:string;
   nameBool:boolean;
-  Fit:TFitFunctionAAA;
+//  FitA:TFitFunctionAAA;
 
 begin
 DecimalSeparator:='.';
@@ -6165,7 +6166,7 @@ if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
   FunCreate(LDateFun.Caption,Fit);
 
-  SetLength(dat,High(dat)+1+High(Fit.Xname)+1+High(Fit.DodXname)+1);
+  SetLength(dat,High(dat)+1+High(Fit.Xname)+1{+High(Fit.DodXname)+1});
 
   Fit.Free;
  end;
@@ -6511,9 +6512,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_ExN in ColNames) or (FF_ExN in ColNames)
          then
       begin
-        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
-                   else Ft:=TDiodLSM.Create;
+        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+                   else Fit:=TDiodLSM.Create;
         Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
+        Fit.Free;
         dat[ord(Rs_ExN)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_ExN)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is_ExN)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6522,14 +6524,14 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
           begin
             dat[ord(Fb_ExN)]:='555';
             dat[ord(If_ExN)]:=FloatToStrF(EvolParam[4],ffExponent,3,2);
-            dat[ord(Isc_ExN)]:=FloatToStrF(Fit.DodX[1],ffExponent,3,2);
-            dat[ord(Pm_ExN)]:=FloatToStrF(Fit.DodX[2],ffExponent,3,2);
-            dat[ord(Voc_ExN)]:=FloatToStrF(Fit.DodX[0],ffGeneral,4,3);
-            dat[ord(FF_ExN)]:=FloatToStrF(Fit.DodX[3],ffGeneral,4,3);
+            dat[ord(Isc_ExN)]:=FloatToStrF(EvolParam[6],ffExponent,3,2);
+            dat[ord(Pm_ExN)]:=FloatToStrF(EvolParam[7],ffExponent,3,2);
+            dat[ord(Voc_ExN)]:=FloatToStrF(EvolParam[5],ffGeneral,4,3);
+            dat[ord(FF_ExN)]:=FloatToStrF(EvolParam[8],ffGeneral,4,3);
           end
                   else
           begin
-            dat[ord(Fb_ExN)]:=FloatToStrF(Fit.DodX[0],ffGeneral,4,3);
+            dat[ord(Fb_ExN)]:=FloatToStrF(EvolParam[4],ffGeneral,4,3);
             dat[ord(If_ExN)]:='0';
             dat[ord(Isc_ExN)]:='0';
             dat[ord(Pm_ExN)]:='0';
@@ -6539,10 +6541,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
           Rsmy:=EvolParam[1];
           nmy:=EvolParam[0];
-          Fbmy:=Fit.DodX[0];
+          Fbmy:=EvolParam[4];
           nnn:='LSM';
 
-        Fit.Free;
+
 
 //      ExpKalkNew(Vax,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
 //      dat[ord(Rs_ExN)]:=FloatToStrF(Rss,ffExponent,3,2);
@@ -6566,9 +6568,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_Lam in ColNames) or (FF_Lam in ColNames)
          then
       begin
-        if Iph_Lam then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Lam then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
+        Fit.Free;
         dat[ord(Rs_Lam)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_Lam)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is_Lam)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6577,14 +6580,14 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
           begin
             dat[ord(Fb_Lam)]:='555';
             dat[ord(If_Lam)]:=FloatToStrF(EvolParam[4],ffExponent,3,2);
-            dat[ord(Isc_Lam)]:=FloatToStrF(Fit.DodX[1],ffExponent,3,2);
-            dat[ord(Pm_Lam)]:=FloatToStrF(Fit.DodX[2],ffExponent,3,2);
-            dat[ord(Voc_Lam)]:=FloatToStrF(Fit.DodX[0],ffGeneral,4,3);
-            dat[ord(FF_Lam)]:=FloatToStrF(Fit.DodX[3],ffGeneral,4,3);
+            dat[ord(Isc_Lam)]:=FloatToStrF(EvolParam[6],ffExponent,3,2);
+            dat[ord(Pm_Lam)]:=FloatToStrF(EvolParam[7],ffExponent,3,2);
+            dat[ord(Voc_Lam)]:=FloatToStrF(EvolParam[5],ffGeneral,4,3);
+            dat[ord(FF_Lam)]:=FloatToStrF(EvolParam[8],ffGeneral,4,3);
           end
                   else
           begin
-            dat[ord(Fb_Lam)]:=FloatToStrF(Fit.DodX[0],ffGeneral,4,3);
+            dat[ord(Fb_Lam)]:=FloatToStrF(EvolParam[4],ffGeneral,4,3);
             dat[ord(If_Lam)]:='0';
             dat[ord(Isc_Lam)]:='0';
             dat[ord(Pm_Lam)]:='0';
@@ -6594,11 +6597,11 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
           Rsmy:=EvolParam[1];
           nmy:=EvolParam[0];
-          Fbmy:=Fit.DodX[0];
+          Fbmy:=EvolParam[4];
           nnn:='Lam';
 
 
-        Fit.Free;
+//        Fit.Free;
 //
 // {}     ExpKalkNew(Vax,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
 //      dat[ord(Rs_Lam)]:=FloatToStrF(Rss,ffExponent,3,2);
@@ -6701,6 +6704,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         if Iph_DE then Fit:=TPhotoDiod.Create
                    else Fit:=TDiod.Create;
         Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
+        Fit.Free;
         dat[ord(Rs_DE)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_DE)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is_DE)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6709,14 +6713,14 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
           begin
             dat[ord(Fb_DE)]:='555';
             dat[ord(If_DE)]:=FloatToStrF(EvolParam[4],ffExponent,3,2);
-            dat[ord(Isc_DE)]:=FloatToStrF(Fit.DodX[1],ffExponent,3,2);
-            dat[ord(Pm_DE)]:=FloatToStrF(Fit.DodX[2],ffExponent,3,2);
-            dat[ord(Voc_DE)]:=FloatToStrF(Fit.DodX[0],ffGeneral,4,3);
-            dat[ord(FF_DE)]:=FloatToStrF(Fit.DodX[3],ffGeneral,4,3);
+            dat[ord(Isc_DE)]:=FloatToStrF(EvolParam[6],ffExponent,3,2);
+            dat[ord(Pm_DE)]:=FloatToStrF(EvolParam[7],ffExponent,3,2);
+            dat[ord(Voc_DE)]:=FloatToStrF(EvolParam[5],ffGeneral,4,3);
+            dat[ord(FF_DE)]:=FloatToStrF(EvolParam[8],ffGeneral,4,3);
           end
                   else
           begin
-            dat[ord(Fb_DE)]:=FloatToStrF(Fit.DodX[0],ffGeneral,4,3);
+            dat[ord(Fb_DE)]:=FloatToStrF(EvolParam[4],ffGeneral,4,3);
             dat[ord(If_DE)]:='0';
             dat[ord(Isc_DE)]:='0';
             dat[ord(Pm_DE)]:='0';
@@ -6726,10 +6730,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
           Rsmy:=EvolParam[1];
           nmy:=EvolParam[0];
-          Fbmy:=Fit.DodX[0];
+          Fbmy:=EvolParam[4];
           nnn:='MABC';
 
-        Fit.Free;
+
 //
 ////     ExpKalkNew(Vax,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
 //     KalkOneDiod(Vax,D[diDE],Mode_DE,Iph_DE,EvolType,nn,I00,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
@@ -6760,6 +6764,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         if Iph_DE then Fit:=TDoubleDiodLight.Create
                    else Fit:=TDoubleDiod.Create;
         Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
+        Fit.Free;
         dat[ord(Rs_EA)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n1_EA)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is1_EA)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6769,10 +6774,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         if Iph_DE then
           begin
             dat[ord(If_EA)]:=FloatToStrF(EvolParam[6],ffExponent,4,3);
-            dat[ord(Isc_EA)]:=FloatToStrF(Fit.DodX[1],ffExponent,4,3);
-            dat[ord(Pm_EA)]:=FloatToStrF(Fit.DodX[2],ffExponent,4,3);
-            dat[ord(Voc_EA)]:=FloatToStrF(Fit.DodX[0],ffGeneral,4,3);
-            dat[ord(FF_EA)]:=FloatToStrF(Fit.DodX[3],ffGeneral,4,3);
+            dat[ord(Isc_EA)]:=FloatToStrF(EvolParam[8],ffExponent,4,3);
+            dat[ord(Pm_EA)]:=FloatToStrF(EvolParam[9],ffExponent,4,3);
+            dat[ord(Voc_EA)]:=FloatToStrF(EvolParam[7],ffGeneral,4,3);
+            dat[ord(FF_EA)]:=FloatToStrF(EvolParam[10],ffGeneral,4,3);
           end
                   else
           begin
@@ -6782,7 +6787,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
             dat[ord(Voc_EA)]:='0';
             dat[ord(FF_EA)]:='0';
           end;
-        Fit.Free;
+
 
 //
 //     KalkTwoDiod(Vax,D[diDE],Mode_DE,Iph_DE,EvolType,nn,I00,n2,I02,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
@@ -6810,9 +6815,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
            FloatToStrF(EvolParam[i],ffExponent,4,3);
 
 //      showmessage(inttostr(ord(High(TColName))+1+High(Fit.Xname)+1));
-      for i:=0 to High(Fit.DodXname) do
-        dat[ord(High(TColName))+1+High(Fit.Xname)+1+i]:=
-           FloatToStrF(Fit.DodX[i],ffExponent,4,3);
+//      for i:=0 to High(Fit.DodXname) do
+//        dat[ord(High(TColName))+1+High(Fit.Xname)+1+i]:=
+//           FloatToStrF(Fit.DodX[i],ffExponent,4,3);
       Fit.Free;
      end;
 
@@ -6881,12 +6886,12 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      begin
       FunCreate(LDateFun.Caption,Fit);
 
-      for i:=0 to High(Fit.DodXname) do
-        StrGridData.Cells[StrGridData.ColCount-2-i,StrGridData.RowCount-1]:=
-           dat[High(dat)-i];
+//      for i:=0 to High(Fit.DodXname) do
+//        StrGridData.Cells[StrGridData.ColCount-2-i,StrGridData.RowCount-1]:=
+//           dat[High(dat)-i];
       for i:=0 to High(Fit.Xname) do
-        StrGridData.Cells[StrGridData.ColCount-2-High(Fit.DodXname)-1-i,StrGridData.RowCount-1]:=
-           dat[High(dat)-High(Fit.DodXname)-1-i];
+        StrGridData.Cells[StrGridData.ColCount-2{-High(Fit.DodXname)-1}-i,StrGridData.RowCount-1]:=
+           dat[High(dat){-High(Fit.DodXname)-1}-i];
       Fit.Free;
      end;
 
@@ -7279,7 +7284,7 @@ end;
 //end;
 
 procedure TForm1.ButtonKalkClick(Sender: TObject);
-var Fit:TFitFunctionAAA;
+//var FitA:TFitFunctionAAA;
 begin
 LabelKalk1.Visible:=False;
 LabelKalk2.Visible:=False;
@@ -7330,14 +7335,14 @@ case CBKalk.ItemIndex of
 //---------------------------------------------------------------
    4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
-                   else Ft:=TDiodLSM.Create;
+        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+                   else Fit:=TDiodLSM.Create;
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diExp]);
+        Fit.Free;
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
         if Iph_Exp then Fbb:=ErResult
-                   else Fbb:=Fit.DodX[0];
-        Fit.Free;
+                   else Fbb:=EvolParam[4];
      end;
 
 //    ExpKalkNew(VaxFile,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
@@ -7387,14 +7392,14 @@ case CBKalk.ItemIndex of
      ExKalk(3,VaxFile,D[diE2R],Rss,Diod,nn,I00,Fbb);
    19:  //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
       begin
-        if Iph_Lam then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Lam then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diLam]);
+        Fit.Free;
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
         if Iph_Lam then Fbb:=ErResult
-                   else Fbb:=Fit.DodX[0];
-        Fit.Free;
+                   else Fbb:=EvolParam[4];
       end;
 //    ExpKalkNew(VaxFile,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
    20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
@@ -7402,11 +7407,12 @@ case CBKalk.ItemIndex of
         if Iph_DE then Fit:=TPhotoDiod.Create
                    else Fit:=TDiod.Create;
         Fit.FittingDiapazon(VaxFile,EvolParam,D[diDE]);
+        Fit.Free;
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
         if Iph_DE then Fbb:=ErResult
-                   else Fbb:=Fit.DodX[0];
-        Fit.Free;
+                   else Fbb:=EvolParam[4];
+
       end;
 //
 //    ExpKalkNew(VaxFile,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
@@ -10153,7 +10159,7 @@ Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 значення n, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 var n_tmp:double;
-    Fit:TFitFunctionAAA;
+//    FitA:TFitFunctionAAA;
 begin
  Result:=ErResult;
  n_tmp:=ErResult;
@@ -10195,22 +10201,22 @@ begin
     14: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
-                   else Ft:=TDiodLSM.Create;
+        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+                   else Fit:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Result:=EvolParam[1];
         Fit.Free;
+        Result:=EvolParam[1];
      end;
 //          ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     15: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Lam then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Result:=EvolParam[1];
         Fit.Free;
+        Result:=EvolParam[1];
       end;
 //      ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     16: //Rs рахується шляхом апроксимації
@@ -10220,8 +10226,8 @@ begin
         if Iph_DE then Fit:=TPhotoDiod.Create
                    else Fit:=TDiod.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Result:=EvolParam[1];
         Fit.Free;
+        Result:=EvolParam[1];
       end;
 //      ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
@@ -10235,7 +10241,7 @@ Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;
 використовується для методів,
 які дозволяють визначити Rs спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
-var Fit:TFitFunctionAAA;
+//var FitA:TFitFunctionAAA;
 begin
  Result:=ErResult;
  case CB.ItemIndex of
@@ -10266,22 +10272,22 @@ begin
     12: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
-                   else Ft:=TDiodLSM.Create;
+        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+                   else Fit:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Result:=EvolParam[1];
         Fit.Free;
+        Result:=EvolParam[1];
      end;
 //       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     13: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Lam then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Result:=EvolParam[1];
         Fit.Free;
+        Result:=EvolParam[1];
       end;
 //       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     14: //Rs рахується шляхом апроксимації
@@ -10289,10 +10295,10 @@ begin
       //метод differential evolution
       begin
         if Iph_DE then Fit:=TPhotoDiod.Create
-                   else Fit:=TDiod.Create;
+                  else Fit:=TDiod.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Result:=EvolParam[1];
         Fit.Free;
+        Result:=EvolParam[1];
       end;
 //       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
@@ -10307,7 +10313,7 @@ Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 значення Rs, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 var Rs_tmp:double;
-    Fit:TFitFunctionAAA;
+//    FitA:TFitFunctionAAA;
 begin
 Result:=ErResult;
 Rs_tmp:=ErResult;
@@ -10359,22 +10365,22 @@ case CB.ItemIndex of
     15: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
-                   else Ft:=TDiodLSM.Create;
+        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+                   else Fit:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Result:=EvolParam[0];
         Fit.Free;
+        Result:=EvolParam[0];
      end;
 //       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     16: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Lam then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Result:=EvolParam[0];
         Fit.Free;
+        Result:=EvolParam[0];
       end;
 //       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     17: //n рахується шляхом апроксимації
@@ -10382,10 +10388,10 @@ case CB.ItemIndex of
       //метод differential evolution
       begin
         if Iph_DE then Fit:=TPhotoDiod.Create
-                   else Fit:=TDiod.Create;
+                  else Fit:=TDiod.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Result:=EvolParam[0];
         Fit.Free;
+        Result:=EvolParam[0];
       end;
 //       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
@@ -10399,7 +10405,7 @@ Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;
 використовується для методів,
 які дозволяють визначити n спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
-var Fit:TFitFunctionAAA;
+//var FitA:TFitFunctionAAA;
 begin
 Result:=ErResult;
 case CB.ItemIndex of
@@ -10428,22 +10434,22 @@ case CB.ItemIndex of
     11: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Ft:=TPhotoDiodLSM.Create
-                   else Ft:=TDiodLSM.Create;
+        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
+                   else Fit:=TDiodLSM.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Result:=EvolParam[0];
         Fit.Free;
+        Result:=EvolParam[0];
      end;
 //       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     12: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Lam then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Result:=EvolParam[0];
         Fit.Free;
+        Result:=EvolParam[0];
       end;
 //       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     13: //n рахується шляхом апроксимації
@@ -10451,10 +10457,10 @@ case CB.ItemIndex of
       //метод differential evolution
       begin
         if Iph_DE then Fit:=TPhotoDiod.Create
-                   else Fit:=TDiod.Create;
+                  else Fit:=TDiod.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Result:=EvolParam[0];
         Fit.Free;
+        Result:=EvolParam[0];
       end;
 //       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
@@ -10467,7 +10473,7 @@ Function FbDefineCB(A:PVector; CB:TComboBox; Rs:double):double;
 визначаеться величина висоти бар'єру,
 для деякий методів необхідне значення Rs,
 яке використовується як параметр}
-var Fit:TFitFunctionAAA;
+//var FitA:TFitFunctionAAA;
 begin
 Result:=ErResult;
 if (Rs=ErResult) and (CB.ItemIndex in [1,2]) then Exit;
@@ -10498,24 +10504,24 @@ case CB.ItemIndex of
     10: //Fb рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
       begin
-        if Iph_Exp then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Exp then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        if Iph_Exp then Result:=ErResult
-                   else Result:=Fit.DodX[0];
         Fit.Free;
+        if Iph_Exp then Result:=ErResult
+                   else Result:=EvolParam[4];
       end;
 //       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Result,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     11: //Fb рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Ft:=TPhotoDiodLam.Create
-                   else Ft:=TDiodLam.Create;
+        if Iph_Lam then Fit:=TPhotoDiodLam.Create
+                   else Fit:=TDiodLam.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        if Iph_Lam then Result:=ErResult
-                   else Result:=Fit.DodX[0];
         Fit.Free;
+        if Iph_Lam then Result:=ErResult
+                   else Result:=EvolParam[4];
       end;
 //       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Result,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     12: //Fb рахується шляхом апроксимації
@@ -10523,11 +10529,11 @@ case CB.ItemIndex of
       //метод differential evolution
       begin
         if Iph_DE then Fit:=TPhotoDiod.Create
-                   else Fit:=TDiod.Create;
+                  else Fit:=TDiod.Create;
         Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        if Iph_DE then Result:=ErResult
-                   else Result:=Fit.DodX[0];
         Fit.Free;
+        if Iph_DE then Result:=ErResult
+                  else Result:=EvolParam[4];
       end;
 //       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Result,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
