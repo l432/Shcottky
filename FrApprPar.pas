@@ -147,7 +147,7 @@ begin
    Koef[i].Parent:=Form;
    Koef[i].Top:= Labt.Top+ Labt.Height+30;
    Koef[i].LabelPosition:=lpLeft;
-   Koef[i].Width:=50;
+   Koef[i].Width:=70;
    Koef[i].Left:=45+i*(Koef[i].Width+35);
    Koef[i].OnKeyPress:=minIn.OnKeyPress;
   end;

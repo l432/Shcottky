@@ -5062,7 +5062,7 @@ var
     Nf,ip:integer;
     SR : TSearchRec;
   T,k, Nsprob: Integer;
-  RsAv,delRsAv,FbAv,delFbAv,nAv,delnAv,Fb,n,Rs,V,I,Ilim,SigV,SigI: Double;
+  RsAv,delRsAv,FbAv,delFbAv,nAv,delnAv,Fb,n,Rs,V,I,Ilim,SigV,SigI,I0: Double;
   name:string;
 
 begin

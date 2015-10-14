@@ -106,7 +106,7 @@ type
      Fb=kT*ln(Area*ARich*T^2/I0)}
      function Vbi(T:double):double;
      {об'Їмний потенц≥ал (build in)}
-     function Em(Vrev,T,Fb0:double):double;
+     function Em(T,Fb0:double;Vrev:double=0):double;
      {максимальне значенн€ електричного пол€}
      end; // TDiod=class
 
@@ -287,7 +287,7 @@ function TDiodSample.Vbi(T:double):double;
    end;
   end;
 
-function TDiodSample.Em(Vrev,T,Fb0:double):double;
+function TDiodSample.Em(T,Fb0:double;Vrev:double=0):double;
 {максимальне значенн€ електричного пол€}
 begin
  try

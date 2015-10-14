@@ -20,8 +20,8 @@ type
     { Public declarations }
   end;
 
-var
-  App: TApp;
+//var
+//  App: TApp;
 
 implementation
 

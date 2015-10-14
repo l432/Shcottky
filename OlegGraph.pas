@@ -8,9 +8,10 @@ uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
 {змінні та константи, які потрібні для співпраці
 з потоком, де проводиться розрахунок апроксимації
 за формулою Ламберта}
-var Rs,Rsh,I0,n,Voc,Isc,Iph:double;
-    mode,Func:byte;
-    Vec:Pvector;
+//var
+//    Rs,Rsh,I0,n,Voc,Isc,Iph:double;
+//    mode,Func:byte;
+//    Vec:Pvector;
 
 
 
