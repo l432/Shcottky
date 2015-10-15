@@ -122,11 +122,7 @@ type
     ButtonMax: TButton;
     SpButLimit: TSpeedButton;
     GroupBox4: TGroupBox;
-//    CBAppr: TComboBox;
-//    LAppr: TLabel;
     MemoAppr: TMemo;
-//    CBoxAppr: TCheckBox;
-//    Label1: TLabel;
     BApprClear: TButton;
     Series4: TLineSeries; // аппроксимація
     GroupBoxParam0: TGroupBox;
@@ -643,8 +639,6 @@ type
     CBoxDLBuild: TCheckBox;
     LDLBuild: TLabel;
     LabIsc: TLabel;
-//    CBoxIscCons: TCheckBox;
-//    LabIscCons: TLabel;
     SpinEditDL: TSpinEdit;
     LSmoothDL: TLabel;
     ButGLAdd: TButton;
@@ -827,26 +821,12 @@ type
     procedure ButtonMinClick(Sender: TObject);
     procedure ButtonMaxClick(Sender: TObject);
     procedure SpButLimitClick(Sender: TObject);
-//    procedure CBApprChange(Sender: TObject);
     procedure BApprClearClick(Sender: TObject);
-//    procedure CBoxApprClick(Sender: TObject);
-//    procedure ButtonParamExpClick(Sender: TObject);
-//    procedure ButtonParamChungClick(Sender: TObject);
-//    procedure ButtonParamHClick(Sender: TObject);
-//    procedure ButtonParamExClick(Sender: TObject);
-//    procedure ButtonParamNordClick(Sender: TObject);
     procedure ButtonParamRectClick(Sender: TObject);
     procedure ButtonKalkClick(Sender: TObject);
     procedure ButtonKalkParClick(Sender: TObject);
-//    procedure Label1Click(Sender: TObject);
     procedure CBKalkChange(Sender: TObject);
-//    procedure ButtonParamNssClick(Sender: TObject);
-//    procedure ButtonAreaClick(Sender: TObject);
-//    procedure RBnSiClick(Sender: TObject);
-//    procedure ButtonRichClick(Sender: TObject);
-//    procedure ButtonPermClick(Sender: TObject);
     procedure ButtonDelClick(Sender: TObject);
-//    procedure ButtonEpClick(Sender: TObject);
     procedure ButtonCurDirClick(Sender: TObject);
     procedure CBForwRsClick(Sender: TObject);
     procedure ButtonCreateFileClick(Sender: TObject);
@@ -857,44 +837,28 @@ type
     procedure ListBoxVoltClick(Sender: TObject);
     procedure ButVoltAddClick(Sender: TObject);
     procedure ButtonVoltClick(Sender: TObject);
-//    procedure ButtonParamKam2Click(Sender: TObject);
-//    procedure ButtonParamKam1Click(Sender: TObject);
     procedure ComboBoxRSChange(Sender: TObject);
     procedure ComboBoxNChange(Sender: TObject);
     procedure ComBForwRsChange(Sender: TObject);
     procedure ButRAClick(Sender: TObject);
     procedure ButRBClick(Sender: TObject);
-{    procedure OnlyNumberPress(Sender: TObject; var Key: Char);
-{процедура чіпляється до дії KeyPress всіх дочірніх форм,
-дозволяє вводити в поля лише числові значення}
     procedure DataSheetDrawCell(Sender: TObject; ACol, ARow: Integer;
-      Rect: TRect; State: TGridDrawState);
+        Rect: TRect; State: TGridDrawState);
     procedure DataSheetSelectCell(Sender: TObject; ACol, ARow: Integer;
       var CanSelect: Boolean);
     procedure ButDelClick(Sender: TObject);
     procedure ButInputTClick(Sender: TObject);
-//    procedure ButtonParamGr1Click(Sender: TObject);
-//    procedure ButtonParamGr2Click(Sender: TObject);
-//    procedure ButtonParamBhClick(Sender: TObject);
     procedure ButtonParamCibClick(Sender: TObject);
     procedure ButtonVaClick(Sender: TObject);
-//    procedure ButtonParamLeeClick(Sender: TObject);
-//    procedure ButtonParamWerClick(Sender: TObject);
-//    procedure ButtonParamMikhClick(Sender: TObject);
     procedure ComboBoxNssRsChange(Sender: TObject);
     procedure ComboBoxNssFbChange(Sender: TObject);
-//    procedure ButtonConcenClick(Sender: TObject);
-//    procedure ButtonParamIvanClick(Sender: TObject);
     procedure ButRCClick(Sender: TObject);
-//    procedure ButtonParamE2FClick(Sender: TObject);
-//    procedure ButtonParamE2RClick(Sender: TObject);
     procedure RadioButtonM_VClick(Sender: TObject);
     procedure RadioButtonM_VDblClick(Sender: TObject);
     procedure CheckBoxM_VClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
     procedure CBoxDLBuildClick(Sender: TObject);
     procedure LDLBuildClick(Sender: TObject);
-//    procedure LabIscConsClick(Sender: TObject);
     procedure CBoxBaseLineVisibClick(Sender: TObject);
     procedure ButSaveDLClick(Sender: TObject);
     procedure CBoxBaseLineUseClick(Sender: TObject);
@@ -914,8 +878,6 @@ type
     procedure ButGLResClick(Sender: TObject);
     procedure ButGLLoadClick(Sender: TObject);
     procedure ButGausSaveClick(Sender: TObject);
-//    procedure ButtonParamLamClick(Sender: TObject);
-//    procedure ButtonParamDEClick(Sender: TObject);
     procedure LabRConsClick(Sender: TObject);
     procedure ButFitSelectClick(Sender: TObject);
     procedure SButFitClick(Sender: TObject);
@@ -930,7 +892,6 @@ type
     procedure OnClickButton(Sender: TObject);
     procedure ButLDFitSelectClick(Sender: TObject);
     procedure RBAveSelectClick(Sender: TObject);
-    procedure GrBoxGausClick(Sender: TObject);
     procedure ButAveLeftClick(Sender: TObject);
     procedure ButGLAutoClick(Sender: TObject);
     procedure CBDateFunClick(Sender: TObject);
@@ -945,9 +906,6 @@ type
    будується залежно від назви об'єкта Sender}
   public
     { Public declarations }
-// procedure OnlyNumberPress(Sender: TObject; var Key: Char);
-//{процедура чіпляється до дії KeyPress всіх дочірніх форм,
-//дозволяє вводити в поля лише числові значення}
   end;
 
 
@@ -1002,10 +960,6 @@ procedure ClearGraphLog(Form1:TForm1);
 апроксимаційних кривих тощо); виконується
 перед кожною зміною логарифмічності}
 
-{procedure ParamExp(Form1:TForm1; A:IRE);}
-{записує на форму початкові значення аппроксимації
-за формулою I=I0[exp(eV/nkT)-1]}
-
 procedure DiapShow(D:TDiapazon;XMin,Ymin,Xmax,YMax:TLabel);
 {відображення компонентів запису D у відповідних мітках}
 
@@ -1024,20 +978,6 @@ procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:TDiapazon);
 текстових віконечках, виконується при використанні
 вікон зміни діапазону}
 procedure FormFrToDiap(FrDp:TFrDp; var D:TDiapazon);
-
-//procedure ModeShow(Mode:integer;Iph:boolean;LRs,LRsh,LIph:TLabel);
-//{відображення режиму апроксимації
-//ВАХ у відповідних мітках}
-
-//procedure ModeToForm(Mode:integer;Iph:boolean;CB_Rs,CB_Rsh,CB_Iph:TCheckBox);
-//{встановлення перемикачів CB_Rs,CB_Rsh,CB_Iph
-//відповідно до режиму апроксимації, що
-//задається параметрами Mode та Iph}
-//
-//procedure FormToMode(CB_Rs,CB_Rsh,CB_Iph:TCheckBox;var Mode:integer;var Iph:boolean);
-//{встановлення  режиму апроксимації
-//(параметрів Mode та Iph) відповідно до
-//перемикачів CB_Rs,CB_Rsh,CB_Iph}
 
 procedure StrToNumber(St:TCaption; Def:double; var Num:double);
 {процедура переведення тестового рядка St в чисельне
@@ -1103,19 +1043,6 @@ Procedure DiapToLimToTForm1(D:TDiapazon; F:TForm1);
 зі змінної D в блок головної форми, пов'язаний
 з обмеженим відображенням графіку (і в змінну GrLim,
 і на саму форму, у відповідні написи}
-
-//Procedure DiodParam(F:TForm1;N_Mat:integer;var Ar:double; var Eps:double);
-//{встановлення в залежності від значення N_Mat величин
-//сталої Річардсона Ar, діелектричної проникності
-//напівпровідника Eps та виведення цих значень
-//у відповідний блок
-//N_Mat
-//1 - n-Si; 2 - p-Si; 3 - n-GaAs; 4 - n-InP;
-//5 - 4H-SiC; 6 - n-GaN; 7 - n-CdTe; 8 - CuInSe2;
-//9 - p-GaTe; 10 - p-GaSe; 11- Other
-//У відповідних RadioButton Tag потрібно встановити
-//так само як ці номери, тобто RBnSi.Tag=1, RBOther.Tag=11...
-//}
 
 Procedure MaterialOnForm;
 {виведення на форму параметрів матеріалу, які
@@ -1199,18 +1126,6 @@ Function DiapFunName(Sender: TObject; var bohlin: Boolean):TDiapazons;
 апроксимації;
 використовується разом з FormDiapazon}
 
-//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte; Isc0:double;
-//              Iscbool,Rbool:boolean;D:Diapazon; Mode:byte;
-//              Light:boolean;Func:byte);
-//{по даним у векторі А будує залежність похідної
-//диференційного нахилу ВАХ від напруги (метод Булярського)
-//fun - кількість зглажувань
-//Isc - струм короткого замикання
-//Iscbool=true - потрібно враховувати Isc
-//Rbool=true - потрібно враховувати послідовний
-//та шунтуючі опори
-//D, Mode, Light та Func потрібні лише для
-//виклику функції ExpKalkNew}
 Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
                     FitName:string;Rbool:boolean);
 {по даним у векторі А будує залежність похідної
@@ -1225,16 +1140,11 @@ FitName - назва функції, якв буде використовуватись
 var
   Form1: TForm1;
   Fit:TFitFunction;
-
-//  Ft:TFitFunction;
-
   BohlinMethod: Boolean;
   {використовується при показі віконечок для введення параметрів методів}
   Directory, Directory0, CurDirectory:string;
   VaxFile, VaxGraph, VaxTemp, VaxTempLim{,my_temp}:Pvector;
   GrLim:Limits;
-//  EvolType:TEvolutionType;{змінна, де зберігається
-//           спосіб еволюційної апроксимації}
   GausLines:array of TLineSeries; {масив для ліній, які
   виводяться при апроксимації гаусіанами}
   GausLinesCur:array of Curve3;
@@ -1244,11 +1154,8 @@ var
   BaseLineCur:Curve3;
   {для збереження параметрів параболи, яка описує
   лінію відліку в методі визначення глибоких рівнів}
-//  ApprFormula:TStringList; {масив зі виглядом формул апроксимації}
   ApprExp:IRE;{початкові значення для аппроксимації експонентою}
   D:array[diChung..diHfunc] of TDiapazon;
-{  DChung, DHfunc, DExp, DEx, DNord, DNss, DKam1, DKam2,
-  DGr1, DGr2, DCib, DLee, DWer, DMikh: Diapazon;}
   Gamma:double;
   {Gamma - величина параметра гамма у функції Норда}
   Vrect:double;{напруга, при якій відбувається вимірювання
@@ -1262,18 +1169,8 @@ var
   Va - напруга, яка використовується для побудови
        допоміжних функцій у методах Сібілса та Лі
   }
-//  Semi:TMaterial;
-//  {містить параметри матеріалу}
-
-//  AA, Sk, del, ep, eps, Ndd, RA, RB, RC:double;
   RA, RB, RC:double;
-  {АА - стала Річардсона
-  Sk - площа контакту
-  del - товщина діелектричного прошарку
-  ep - відносна діелектрична проникність діелектричного шару
-  eps - відносна діелектрична проникність напівпровідника
-  Ndd - концентрація ноcіїв в напіпровіднику
-  RA, RB, RC - змінні для обчислення послідовного опору за залежністю
+  {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
       Rs=A+B*T+C*T^2}
   Isc,Voc,Iph,Rsh,Pm,FF:double;
   {Isc - струм короткого замикання
@@ -1282,17 +1179,6 @@ var
   Rsh - шунтуючий опір
   Pm - максимальна вихідна потужність фотоелементв
   FF - коефіцієнт форми ВАХ фотоелементу}
-//  Mode_Exp,Mode_Lam,Mode_DE:integer;
-  {при апроксамації функцією
-  I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-  визначають чи всі параметри шукаються:
-  0 - підбираються I0,n,Rs,Rsh;
-  1 - вважається, що Rsh нескінченність (1е12);
-  2 - вважається, що Rs нульовий(1е-4)
-  3 - Rsh нескінченність + Rs нульовий
-  Mode_Exp - пряма апроксимація за МНК
-  Mode_Lam - апроксимація за МНК функції Ламберта
-  Mode_DE - метод диференційної еволюції}
   Iph_Exp,Iph_Lam,Iph_DE,DDiod_DE:boolean;
   {визначають, чи потрібно підбирати фотострум
   (при True) у формулі
@@ -1622,8 +1508,6 @@ begin
 
 
  CBMaterial.Sorted:=False;
-// for idMaterialName :=Low(TMaterialName) to High(TMaterialName) do
-//      CBMaterial.Items.Add(Materials[idMaterialName].Name);
  for i :=Ord(Low(TMaterialName)) to ord(High(TMaterialName)) do
       CBMaterial.Items.Add(Materials[TMaterialName(i)].Name);
  CBMaterial.ItemIndex:=ConfigFile.ReadInteger('Parameters','Material',0);
@@ -1634,29 +1518,12 @@ begin
     then Semi.ReadFromIniFile(ConfigFile);
 
  MaterialOnForm;
-//showmessage(Semi.Name);
 
  Diod:=TDiodSample.Create;
  Diod.ReadFromIniFile(ConfigFile);
  Diod.Material:=Semi;
 
  DiodOnForm;
-// showmessage(floattostr(Diod.Area));
-// showmessage(floattostr(Diod.Material.ARich));
-
-
-
-//  Sk:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
-//  Ndd:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
-//  del:=ConfigFile.ReadFloat('Parameters','InsulDepth',3e-7);
-//  ep:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
-//
-//
-//  LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
-//  LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
-//  LabelDel.Caption:=FloatToStrF(del,ffExponent,3,2);
-//  LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
-
 
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
@@ -1666,26 +1533,10 @@ GrLim.MaxValue[0]:=ConfigFile.ReadFloat('Limit','MaxV0',ErResult);
 GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
 
-{  ApprExp[1]:=ConfigFile.ReadFloat('Approx','I0',1e-8);
-  ApprExp[3]:=ConfigFile.ReadFloat('Approx','Et',0.025);
-  ApprExp[2]:=ConfigFile.ReadFloat('Approx','Rs',15000);
-  ParamExp(Form1,ApprExp);}
-// Mode_Exp:=ConfigFile.ReadInteger('Approx','ModeExp',0);
-// Mode_Lam:=ConfigFile.ReadInteger('Approx','ModeLam',0);
-// Mode_DE:=ConfigFile.ReadInteger('Approx','ModeDE',0);
  Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
  Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
  Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
  DDiod_DE:=ConfigFile.ReadBool('Approx','DDiod_DE',True);
-
-// RBGausSelect.OnClick(Self);
-// ModeShow(Mode_Exp,Iph_Exp,LabelExpRs,LabelExpRsh,LabelExpIph);
-// ModeShow(Mode_Lam,Iph_Lam,LabelLamRs,LabelLamRsh,LabelLamIph);
-// ModeShow(Mode_DE,Iph_DE,LabelDERs,LabelDERsh,LabelDEIph);
-// if DDiod_DE then LabelDERs.Caption:='Double diod is used'
-//             else LabelDERs.Caption:='Double diod does not used';
-
-
 
   for DP := Low(DP) to High(DP) do
    begin
@@ -1711,25 +1562,12 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
   Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
   Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
-//  LabelNordGamma.Caption:='gamma: '+FloatToStrF(Gamma,ffGeneral,2,1);
-//  LabBohGam1.Caption:='gamma1 = '+FloatToStrF(Gamma1,ffGeneral,2,1);
-//  LabBohGam2.Caption:='gamma2 = '+FloatToStrF(Gamma2,ffGeneral,2,1);
   LabelVa.Caption:='Va = '+FloatToStrF(Va,ffGeneral,3,2)+' V';
   LabelRect.Caption:=FloatToStrF(Vrect,ffGeneral,3,2)+' V';
-
-//  Sk:=ConfigFile.ReadFloat('Parameters','Square',3.14e-6);
-//  Ndd:=ConfigFile.ReadFloat('Parameters','Concentration',5e21);
-//  del:=ConfigFile.ReadFloat('Parameters','InsulDepth',3e-7);
-//  ep:=ConfigFile.ReadFloat('Parameters','InsulPerm',4);
 
   RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
   RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
   RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
-
-//  LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
-//  LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
-//  LabelDel.Caption:=FloatToStrF(del,ffExponent,3,2);
-//  LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
 
   LabRA.Caption:='A = '+FloatToStrF(RA,ffGeneral,3,2);
   LabRB.Caption:='B = '+FloatToStrF(RB,ffExponent,3,2);
@@ -1737,44 +1575,8 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName','Photo D-Diod');
   LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName','Photo D-Diod');
   ButDateOption.Enabled:=not((LDateFun.Caption='None'));
-//    if ((LDateFun.Caption='None')or
-////           (LDateFun.Caption='Linear')or
-////           (LDateFun.Caption='Quadratic')or
-////           (LDateFun.Caption='Exponent')or
-////           (LDateFun.Caption='Median filtr')or
-////           (LDateFun.Caption='Derivative')or
-////           (LDateFun.Caption='Smoothing')or
-////           (LDateFun.Caption='Gromov / Lee')or
-//           (LDateFun.Caption='Ivanov'))
-//           then
-//               ButDateOption.Enabled:=False
-//           else
-//               ButDateOption.Enabled:=True;
-
-
   for DP := Low(DP) to High(DP) do
       DiapShowNew(DP);
- {
-  DiapShow(D[diExp],LabelExpXmin,LabelExpYmin,LabelExpXmax,LabelExpYmax);
-  DiapShow(D[diChung],LabelChungXmin,LabelChungYmin,LabelChungXmax,LabelChungYmax);
-  DiapShow(D[diHfunc],LabelHXmin,LabelHYmin,LabelHXmax,LabelHYmax);
-  DiapShow(D[diNord],LabelNordXmin,LabelNordYmin,LabelNordXmax,LabelNordYmax);
-  DiapShow(D[diCib],LabelCibXmin,LabelCibYmin,LabelCibXmax,LabelCibYmax);
-  DiapShow(D[diLee],LabelLeeXmin,LabelLeeYmin,LabelLeeXmax,LabelLeeYmax);
-  DiapShow(D[diWer],LabelWerXmin,LabelWerYmin,LabelWerXmax,LabelWerYmax);
-  DiapShow(D[diMikh],LabelMikhXmin,LabelMikhYmin,LabelMikhXmax,LabelMikhYmax);
-  DiapShow(D[diNss],LabelNssXmin,LabelNssYmin,LabelNssXmax,LabelNssYmax);
-  DiapShow(D[diEx],LabelExXmin,LabelExYmin,LabelExXmax,LabelExYmax);
-  DiapShow(D[diKam2],LabelKam2Xmin,LabelKam2Ymin,LabelKam2Xmax,LabelKam2Ymax);
-  DiapShow(D[diKam1],LabelKam1Xmin,LabelKam1Ymin,LabelKam1Xmax,LabelKam1Ymax);
-  DiapShow(D[diGr1],LabelGr1Xmin,LabelGr1Ymin,LabelGr1Xmax,LabelGr1Ymax);
-  DiapShow(D[diGr2],LabelGr2Xmin,LabelGr2Ymin,LabelGr2Xmax,LabelGr2Ymax);
-  DiapShow(D[diIvan],LabelIvanXmin,LabelIvanYmin,LabelIvanXmax,LabelIvanYmax);
-  DiapShow(D[diE2F],LabelE2FXmin,LabelE2FYmin,LabelE2FXmax,LabelE2FYmax);
-  DiapShow(D[diE2R],LabelE2RXmin,LabelE2RYmin,LabelE2RXmax,LabelE2RYmax);
-  DiapShow(D[diLam],LabelLamXmin,LabelLamYmin,LabelLamXmax,LabelLamYmax);
-  DiapShow(D[diDE],LabelDEXmin,LabelDEYmin,LabelDEXmax,LabelDEYmax);
-}
   CheckBoxLnIT2.Checked:=ConfigFile.ReadBool('Volts2','LnIT2',False);
   CheckBoxnLnIT2.Checked:=ConfigFile.ReadBool('Volts2','nLnIT2',False);
     try
@@ -1815,12 +1617,6 @@ for CL:=Low(CL) to High(CL) do
       False)
      then Include(ColNames, CL);
 for CL:=fname to kT_1 do Include(ColNames, CL);
-
-
-
-
-//Imat:=ConfigFile.ReadInteger('Parameters','MaterialNumber',1);
-//DiodParam(Form1,Imat,AA,eps);
 
 with Form1 do
 begin
@@ -1936,42 +1732,8 @@ CBDateFun.Checked:=ConfigFile.ReadBool('Column',
 
 RadioButtonNssNvM.Checked:=ConfigFile.ReadBool('Graph','Nss_N(V)',False);
 RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
-//ColParam(StrGridData);
-
-//i:=ConfigFile.ReadInteger('Parameters','EvolutionType',0);
-//case i of
-// 1:EvolType:=TMABC;
-// 2:EvolType:=TTLBO;
-// 3:EvolType:=TPSO;
-// else EvolType:=TDE;
-//end;
-//case EvolType of
-//       TMABC:GroupBoxParamDE.Caption:='MABC';
-//       TTLBO:GroupBoxParamDE.Caption:='TLBO';
-//       TPSO:GroupBoxParamDE.Caption:='PSO';
-//       else GroupBoxParamDE.Caption:='DE';
-//    end;
-
-//  ApprFormula:=TStringlist.Create;
-//  ApprFormula.Add('');
-//  ApprFormula.Add('y=A+Bx');
-//  ApprFormula.Add('y=A+Bx+Cx^2');
-//  ApprFormula.Add('y=I0exp(x/nkT)');
-//  ApprFormula.Add('Y=I0[exp(Xef/E)-1]+Xef/Rsh-Yph');
-//  ApprFormula.Add('3-point smoothing');
-//  ApprFormula.Add('3-point median filtering');
-//  ApprFormula.Add('Derivation');
-//  ApprFormula.Add('y=A+Bx+Cln(x)');
-//  ApprFormula.Add('Parametric aproxmation');
-//  ApprFormula.Add('One Diod, Lambert aproxmation');
-//  ApprFormula.Add('One Diod, Evolution Method');
-////  ApprFormula.Add('Teaching Learning');
-////  ApprFormula.Add('Artificial Bee Colony');
-//  ApprFormula.Add('Double Diod, Evolution Method');
-//  CBAppr.ItemIndex:=0;
   SButFit.Caption:='None';
   CBKalk.ItemIndex:=0;
-//  LAppr.Caption:=ApprFormula.Strings[CBAppr.ItemIndex];
   MemoAppr.Clear;
 
   new(VaxFile);
@@ -2212,7 +1974,6 @@ var
     CL:TColName;
 begin
  ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
-// ApprFormula.Free;
  ChDir(Directory0);
 
  ConfigFile.WriteBool('Volts2','LnIT2',CheckBoxLnIT2.Checked);
@@ -2232,12 +1993,6 @@ ConfigFile.WriteFloat('Limit','MinV1',GrLim.MinValue[1]);
 ConfigFile.WriteFloat('Limit','MaxV0',GrLim.MaxValue[0]);
 ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
 
-{ ConfigFile.WriteFloat('Approx','I0',ApprExp[1]);
- ConfigFile.WriteFloat('Approx','Et',ApprExp[3]);
- ConfigFile.WriteFloat('Approx','Rs',ApprExp[2]);}
-// ConfigFile.WriteInteger('Approx','ModeExp',Mode_Exp);
-// ConfigFile.WriteInteger('Approx','ModeLam',Mode_Lam);
-// ConfigFile.WriteInteger('Approx','ModeDE',Mode_DE);
  ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
  ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
  ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
@@ -2265,11 +2020,6 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
   ConfigFile.WriteFloat('Diapaz','Va',Va);
   ConfigFile.WriteFloat('Diapaz','Vrect',Vrect);
 
-//  ConfigFile.WriteFloat('Parameters','Square',Sk);
-//  ConfigFile.WriteFloat('Parameters','Concentration',Ndd);
-//  ConfigFile.WriteFloat('Parameters','InsulDepth',del);
-//  ConfigFile.WriteFloat('Parameters','InsulPerm',ep);
-//  ConfigFile.WriteFloat('Parameters','RichConst',AA);
   ConfigFile.WriteFloat('Resistivity','RA',RA);
   ConfigFile.WriteFloat('Resistivity','RB',RB);
   ConfigFile.WriteFloat('Resistivity','RC',RC);
@@ -2334,18 +2084,11 @@ if Semi.Name=Materials[High(TMaterialName)].Name
     then  Semi.WriteToIniFile(ConfigFile);
 Semi.Free;
 
-//case EvolType of
-//   TDE:ConfigFile.WriteInteger('Parameters','EvolutionType',0);
-//   TMABC:ConfigFile.WriteInteger('Parameters','EvolutionType',1);
-//   TTLBO:ConfigFile.WriteInteger('Parameters','EvolutionType',2);
-//   TPSO:ConfigFile.WriteInteger('Parameters','EvolutionType',3);
-//end;
-
   if Assigned(BaseLine) then BaseLine.Free;
   if Assigned(BaseLineCur) then BaseLineCur.Free;
   GausLinesSave;
   GausLinesFree;
-  
+
  dispose(VaxFile);
  dispose(VaxGraph);
  dispose(VaxTemp);
@@ -2377,11 +2120,8 @@ end;
 procedure TForm1.FullIVClick(Sender: TObject);
 begin
  ClearGraph(Form1);
-
  IVchar(VaxFile,VaxGraph);
-//  showmessage('2222 '+inttostr(VaxGraph^.n));
  DataToGraph(Series1,Series2,Graph,'I-V-characteristic',VaxGraph);
-
  IVChar(VaxGraph,VaxTemp);
 end;
 
@@ -2450,37 +2190,15 @@ if TComponent(Sender).Name='ForIV' then Result:=Fo;
 if TComponent(Sender).Name='RevIV' then Result:=Rev;
 end;
 
-procedure TForm1.GrBoxGausClick(Sender: TObject);
-begin
-
-end;
-
-//procedure TForm1.Label1Click(Sender: TObject);
-//begin
-//CBoxAppr.Checked:= not CBoxAppr.Checked;
-////CBoxApprClick(Label1);
-//end;
-
-
-
-
 procedure TForm1.LabelXLogClick(Sender: TObject);
 begin
  XLogCheck.Checked:= not XLogCheck.Checked;
-// XLogCheckClick(LabelXLog);
 end;
 
 procedure TForm1.LabelYLogClick(Sender: TObject);
 begin
  YLogCheck.Checked:= not YLogCheck.Checked;
-// YLogCheckClick(LabelYLog);
- end;
-
-//procedure TForm1.LabIscConsClick(Sender: TObject);
-//begin
-// CBoxIscCons.Checked:= not CBoxIscCons.Checked;
-// CBoxDLBuildClick(LabIscCons);
-//end;
+end;
 
 procedure TForm1.LabRConsClick(Sender: TObject);
 begin
@@ -2522,7 +2240,6 @@ end;
 procedure TForm1.LDLBuildClick(Sender: TObject);
 begin
  CBoxDLBuild.Checked:= not CBoxDLBuild.Checked;
-// CBoxDLBuildClick(LDLBuild);
 end;
 
 procedure TForm1.ListBoxVoltClick(Sender: TObject);
@@ -2535,7 +2252,6 @@ var
   drive:char;
   path, fileName:string;
 begin
-//showmessage(inttostr(High(GausLinesCur)));
    Try    ChDir(Directory);
           OpenDialog1.InitialDir:=Directory;
    Except ChDir(Directory0);
@@ -2565,17 +2281,11 @@ begin
              begin
                SetLength(GausLines,1);
                GausLines[0]:=TLineSeries.Create(Form1);
-//               GausLines[0].SeriesColor:=clRed;
-//               GausLines[0].Active:=True;
                SEGauss.Enabled:=True;
-//               GausLines[0].ParentChart:=Graph;
-//               Series1.Active:=False;
-//               Series2.Active:=False;
                SGridGaussian.Enabled:=True;
                ButGlDel.Enabled:=True;
                ButGausSave.Enabled:=True;
              end; // if High(GausLines)<0 then
-//          showmessage(inttostr(High(GausLines)));
           SetLength(GausLines,High(GausLines)+2);
           GausLines[High(GausLines)]:=TLineSeries.Create(Form1);
           VectorToGraph(VaxFile,GausLines[High(GausLines)]);
@@ -2586,9 +2296,7 @@ begin
 
           if SEGauss.Value<>0 then GausLines[SEGauss.Value].SeriesColor:=clNavy;
           GausLines[High(GausLines)].SeriesColor:=clBlue;
-//          Graph.RemoveSeries(GausLines[0]);
           GraphAverage(GausLines);
-//          GausLines[0].ParentChart:=Graph;
           GausLines[High(GausLines)].ParentChart:=Graph;
           GausLines[High(GausLines)].Active:=True;
           SEGauss.MaxValue:=High(GausLines);
@@ -2597,8 +2305,6 @@ begin
           VaxFile^.T:=0;
           VaxFile^.name:='average';
          end;
-          // if (PageControl1.ActivePageIndex=3)and(RBAveSelect.Checked) then
-//                                                                   else
          GraphShow(Form1);
        end;
 end;
@@ -2933,7 +2639,6 @@ if RBAveSelect.Checked then
    ButGLRes.Visible:=False;
    CBoxGLShow.Visible:=False;
    CBoxGLShow.Checked:=False;
-//   CBoxGLShow.Enabled:=False;
 
    GausLinesSave;
    GausLinesFree;
@@ -2952,19 +2657,13 @@ if RBAveSelect.Checked then
    GrBoxGaus.Caption:='Lines for Averaging';
 
    GraphShow(Form1);
-
    ButGLAdd.Enabled:=True;
-//   GroupBox36.Enabled:=True;
-//   ButLGAdd.Enabled:=True;
-//   SetLength(GausLinesCur,0);
-//   SetLength(GausLines,0);
  end
                        else
  begin
    ButGLLoad.Visible:=True;
    ButGLRes.Visible:=True;
    CBoxGLShow.Visible:=True;
-//   CBoxGLShow.Enabled:=True;
 
    SGridGaussian.ColCount:=6;
    SGridGaussian.RowCount:=4;
@@ -2990,14 +2689,7 @@ if RBAveSelect.Checked then
    GausLinesFree;
    GraphShow(Form1);
    CompEnable(Form1,700,CBoxGLShow.Checked);
-//   RBPointClick(Self);
-//   SEGauss.MaxValue:=0;
    SEGauss.Value:=0;
-//   CBoxGLShow.Checked:=False;
-
-//   SetLength(GausLinesCur,0);
-//   SetLength(GausLines,0);
-
  end
 
 end;
@@ -3007,11 +2699,6 @@ begin
  Series1.Active:=False;
  Series2.Active:=True;
 end;
-
-//procedure TForm1.RBnSiClick(Sender: TObject);
-//begin
-//DiodParam(Form1,(Sender as TComponent).Tag,AA,eps);
-//end;
 
 procedure TForm1.RBPointClick(Sender: TObject);
 begin
@@ -3054,9 +2741,6 @@ if RdGrMin.ItemIndex=GrLim.MinXY
 end;
 
 procedure TForm1.SButFitClick(Sender: TObject);
-//var
-//    i:integer;
-//    F:TFitFunction;
 begin
  if SButFit.Down then
   begin
@@ -3069,9 +2753,6 @@ begin
        Fit.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
                                  else
        Fit.FittingGraphFile(VaxGraph,EvolParam,Series4);
-//       Fit.FittingGraphFile(XLogCheck.Checked,YLogCheck.Checked,VaxGraph,EvolParam,Series4)
-//                                 else
-//       Fit.FittingGraphFile(VaxGraph,EvolParam,Series4);
 
    if EvolParam[0]=ErResult then Exit;
    Series4.Active:=True;
@@ -3087,12 +2768,6 @@ begin
         end;
 
    Fit.DataToStrings(EvolParam,MemoAppr.Lines);
-//   for I := 0 to Fit.Ns-1 do
-//               MemoAppr.Lines.Add(Fit.Xname[i]+'='+
-//                        FloatToStrF(EvolParam[i],ffExponent,4,3));
-//   for I := 0 to High(Fit.DodX) do
-//               MemoAppr.Lines.Add(Fit.DodXname[i]+'='+
-//                        FloatToStrF(Fit.DodX[i],ffExponent,4,3));
   Fit.Free;
   end  //if SButFit.Down then
    else Series4.Active:=False;
@@ -3101,11 +2776,7 @@ end;
 procedure TForm1.SEGaussChange(Sender: TObject);
 var i:integer;
 begin
-
-// showmessage(inttostr(SEGauss.Value));
  if High(GausLines)<0 then Exit;
-
-
  if SEGauss.Value=0 then
     begin
     SEGauss.Value:=1;
@@ -3117,7 +2788,6 @@ begin
     SEGauss.Value:=SEGauss.MaxValue;
     Exit;
     end;
-
 
  if (RButGaussianLines.Checked)and(RBGausSelect.Checked)  then GaussianLinesParam;
  for i:=1 to High(GausLines) do
@@ -3420,31 +3090,10 @@ begin
        LDateFun.Caption:=str;
        CBDateFun.Checked:=False;
        end;
-
-//    if ((str='None')or
-////           (str='Linear')or
-////           (str='Quadratic')or
-////           (str='Exponent')or
-////           (str='Median filtr')or
-////           (str='Derivative')or
-////           (str='Smoothing')or
-////           (str='Gromov / Lee')or
-////           (str='Ivanov'))
-//           then
-//            begin
              if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
                then ButFitOption.Enabled:=not(str='None');
             if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
                then ButDateOption.Enabled:=not(str='None');
-//            end
-//
-//           else
-//            begin
-//             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
-//               then ButFitOption.Enabled:=True;
-//            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
-//               then ButDateOption.Enabled:=True;
-//            end
   end;
 end;
 
@@ -3523,7 +3172,6 @@ if RBAveSelect.Checked then
    GausLines[High(GausLines)].Active:=True;
    SEGauss.MaxValue:=High(GausLines);
    SEGauss.Value:=SEGauss.MaxValue;
-//   Showmessage(inttostr(SEGauss.MaxValue));
 
    GaussLinesToGrid;
  end; // else  RBAveSelect.Checked
@@ -3531,8 +3179,7 @@ end;
 
 procedure TForm1.ButGLAutoClick(Sender: TObject);
 var tempVector:PVector;
-    i:byte;
-//    Fit:TFitFunctionAAA;
+    i:integer;
 begin
  try
   new(tempVector);
@@ -3546,8 +3193,6 @@ begin
   dispose(tempVector);
   Exit;
  end;
-
-
 
  Fit:=TNGausian.Create(SEGauss.MaxValue);
  Fit.Fitting(tempVector,EvolParam);
@@ -3563,7 +3208,6 @@ begin
  dispose(tempVector);
  ButGLResClick(Sender);
  SEGaussChange(Sender);
-// SEGauss.Value:=SEGauss.maxValue;
 end;
 
 procedure TForm1.ButGLDelClick(Sender: TObject);
@@ -5215,7 +4859,7 @@ repeat
                  end;
                 if I>Ilim then Break;
            until false;
- 
+
 
 
           if method='Nord' then
@@ -5324,7 +4968,6 @@ var
     Nf:integer;
     SR : TSearchRec;
     Str1: TStringList;
-//  Fit:TFitFunction;
    Rsmy,nmy,Fbmy,nmyE,FbmyE:double;
    Rsmyk,nmyk,Fbmyk,nmyEk,FbmyEk:double;
    nnn:string;
@@ -5350,8 +4993,6 @@ if not(SetCurrentDir(CurDirectory)) then
    Nf:=0;
    nmyEk:=0;
    FbmyEk:=0;
-
-
 
     // обчислення за функцією Чюнга
   Str1.Clear;
@@ -5425,9 +5066,6 @@ if not(SetCurrentDir(CurDirectory)) then
                  length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
                  '.dat');
     // обчислення за функцією Чюнга
-
-
-
 
 
      // обчислення за функцією Камінські І-роду
@@ -6100,42 +5738,6 @@ AccurSet(0.050001,0.00300001,0.005,0.00025,0.02);
 end;
 
 
-
-
-//procedure TForm1.ButtonAreaClick(Sender: TObject);
-//var st,stHint:string;
-//    Sk_temp:double;
-//begin
-//Sk_temp:=Sk;
-//st:=FloatToStrF(Sk,ffExponent,3,2);
-//stHint:='Input contact area, [ ] = m2';
-//st:=InputBox('Diode area',stHint,st);
-//StrToNumber(st, Sk_temp, Sk);
-//if Sk<=0 then
-//         begin
-//         MessageDlg('Contact area must be positive', mtError,[mbOk],0);
-//         Sk:=Sk_temp;
-//         end;
-//LabelArea.Caption:=FloatToStrF(Sk,ffExponent,3,2)+' m2';
-//end;
-
-//procedure TForm1.ButtonConcenClick(Sender: TObject);
-//var st,stHint:string;
-//    Ndd_temp:double;
-//begin
-//Ndd_temp:=Ndd;
-//st:=FloatToStrF(Ndd,ffExponent,3,2);
-//stHint:='Input carrier concentration, [ ] = m^-3';
-//st:=InputBox('carrier concentration',stHint,st);
-//StrToNumber(st, Ndd_temp, Ndd);
-//if Ndd<=0 then
-//         begin
-//         MessageDlg('Carrier concentration must be positive', mtError,[mbOk],0);
-//         Ndd:=Ndd_temp;
-//         end;
-//LabelConcentr.Caption:=FloatToStrF(Ndd,ffExponent,3,2)+' m-3';
-//end;
-
 procedure TForm1.ButtonCreateDateClick(Sender: TObject);
 var
   SR : TSearchRec;
@@ -6161,7 +5763,6 @@ var
 begin
 DecimalSeparator:='.';
 SetLength(dat,ord(High(TColName))+1);
-//showmessage(inttostr(High(dat)));
 if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
   FunCreate(LDateFun.Caption,Fit);
@@ -6544,19 +6145,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
           Fbmy:=EvolParam[4];
           nnn:='LSM';
 
-
-
-//      ExpKalkNew(Vax,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-//      dat[ord(Rs_ExN)]:=FloatToStrF(Rss,ffExponent,3,2);
-//      dat[ord(n_ExN)]:=FloatToStrF(nn,ffGeneral,4,3);
-//      dat[ord(Is_ExN)]:=FloatToStrF(I00,ffExponent,3,2);
-//      dat[ord(Fb_ExN)]:=FloatToStrF(Fbb,ffGeneral,3,2);
-//      dat[ord(Rsh_ExN)]:=FloatToStrF(Rsh,ffExponent,3,2);
-//      dat[ord(If_ExN)]:=FloatToStrF(Iph,ffExponent,3,2);
-//      dat[ord(Isc_ExN)]:=FloatToStrF(Isc,ffExponent,3,2);
-//      dat[ord(Pm_ExN)]:=FloatToStrF(Pm,ffExponent,3,2);
-//      dat[ord(Voc_ExN)]:=FloatToStrF(Voc,ffGeneral,4,3);
-//      dat[ord(FF_ExN)]:=FloatToStrF(FF,ffGeneral,4,3);
       end;
 
    //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
@@ -6600,34 +6188,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
           Fbmy:=EvolParam[4];
           nnn:='Lam';
 
-
-//        Fit.Free;
-//
-// {}     ExpKalkNew(Vax,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-//      dat[ord(Rs_Lam)]:=FloatToStrF(Rss,ffExponent,3,2);
-//      dat[ord(n_Lam)]:=FloatToStrF(nn,ffGeneral,4,3);
-//      dat[ord(Is_Lam)]:=FloatToStrF(I00,ffExponent,3,2);
-//      dat[ord(Fb_Lam)]:=FloatToStrF(Fbb,ffGeneral,3,2);
-//      dat[ord(Rsh_Lam)]:=FloatToStrF(Rsh,ffExponent,3,2);
-//      dat[ord(If_Lam)]:=FloatToStrF(Iph,ffExponent,3,2);
-//      dat[ord(Isc_Lam)]:=FloatToStrF(Isc,ffExponent,3,2);
-//      dat[ord(Pm_Lam)]:=FloatToStrF(Pm,ffExponent,3,2);
-//      dat[ord(Voc_Lam)]:=FloatToStrF(Voc,ffGeneral,4,3);
-//      dat[ord(FF_Lam)]:=FloatToStrF(FF,ffGeneral,4,3);
-//      {}
-
- {
-//      A_B_Diapazon(False,Vax,Vax2,D[diDE]);
-     // DifEvol (Vax2,RevShSCLC,0,EvolParam);
-//      DifEvol (Vax,RevShTwo,0,EvolParam);
-//      MABC (Vax,RevShTwo,0,EvolParam);
-      DifEvol (Vax,RevShNew,0,EvolParam);
-      dat[ord(Rs_Lam)]:=FloatToStrF(EvolParam[2],ffExponent,4,3);
-      dat[ord(n_Lam)]:=FloatToStrF(EvolParam[1],ffGeneral,4,3);
-      dat[ord(Is_Lam)]:=FloatToStrF(EvolParam[0],ffExponent,4,3);
- //     dat[ord(Voc_Lam)]:=FloatToStrF(EvolParam[3],ffExponent,4,3);
-      CreateFile(ShotName+'tt.dat',Vax,EvolParam);
-   }
  //  Str1:=TStringList.Create;
 
 
@@ -6670,23 +6230,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
   Str1.SaveToFile(ShotName+'tt.dat');}
 //  Str1.SaveToFile('del_rev.dat');
 //  Str1.Free;
-
- {    KalkDiodTwo(Vax,D[diDE],AA,Sk,nn,I00,Fbb,Rss,Iph,FF);
-      dat[ord(Rs_Lam)]:=FloatToStrF(Rss,ffExponent,4,3);
-      dat[ord(n_Lam)]:=FloatToStrF(nn,ffGeneral,4,3);
-      dat[ord(Is_Lam)]:=FloatToStrF(I00,ffExponent,4,3);
-      dat[ord(Fb_Lam)]:=FloatToStrF(Fbb,ffGeneral,4,3);
-      dat[ord(If_Lam)]:=FloatToStrF(Iph,ffExponent,4,3);
-      dat[ord(Voc_Lam)]:=FloatToStrF(FF,ffGeneral,4,3);{}
-
- {    KalkDiodTwoFull(Vax,D[diDE],AA,Sk,nn,I00,Fbb,Rss,Iph,Voc,Isc);
-      dat[ord(Rs_Lam)]:=FloatToStrF(Rss,ffExponent,4,3);
-      dat[ord(n_Lam)]:=FloatToStrF(nn,ffGeneral,4,3);
-      dat[ord(Is_Lam)]:=FloatToStrF(I00,ffExponent,4,3);
-      dat[ord(Fb_Lam)]:=FloatToStrF(Fbb,ffGeneral,4,3);
-      dat[ord(If_Lam)]:=FloatToStrF(Iph,ffExponent,4,3);
-      dat[ord(Voc_Lam)]:=FloatToStrF(Voc,ffGeneral,4,3);
-      dat[ord(Isc_Lam)]:=FloatToStrF(Isc,ffGeneral,4,3);{}
 
       end;
 
@@ -6733,21 +6276,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
           Fbmy:=EvolParam[4];
           nnn:='MABC';
 
-
-//
-////     ExpKalkNew(Vax,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-//     KalkOneDiod(Vax,D[diDE],Mode_DE,Iph_DE,EvolType,nn,I00,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-//      dat[ord(Rs_DE)]:=FloatToStrF(Rss,ffExponent,4,3);
-//      dat[ord(n_DE)]:=FloatToStrF(nn,ffGeneral,4,3);
-//      dat[ord(Is_DE)]:=FloatToStrF(I00,ffExponent,4,3);
-//      dat[ord(Fb_DE)]:=FloatToStrF(Kb*Vax^.T*ln(Sk*AA*sqr(Vax^.T)/I00),
-//                                   ffGeneral,4,3);
-//      dat[ord(Rsh_DE)]:=FloatToStrF(Rsh,ffExponent,4,3);
-//      dat[ord(If_DE)]:=FloatToStrF(Iph,ffExponent,4,3);
-//      dat[ord(Isc_DE)]:=FloatToStrF(Isc,ffExponent,4,3);
-//      dat[ord(Pm_DE)]:=FloatToStrF(Pm,ffExponent,4,3);
-//      dat[ord(Voc_DE)]:=FloatToStrF(Voc,ffGeneral,4,3);
-//      dat[ord(FF_DE)]:=FloatToStrF(FF,ffGeneral,4,3);
       end;
 
 
@@ -6788,20 +6316,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
             dat[ord(FF_EA)]:='0';
           end;
 
-
-//
-//     KalkTwoDiod(Vax,D[diDE],Mode_DE,Iph_DE,EvolType,nn,I00,n2,I02,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-//      dat[ord(Rs_EA)]:=FloatToStrF(Rss,ffExponent,4,3);
-//      dat[ord(n1_EA)]:=FloatToStrF(nn,ffGeneral,4,3);
-//      dat[ord(Is1_EA)]:=FloatToStrF(I00,ffExponent,4,3);
-//      dat[ord(n2_EA)]:=FloatToStrF(n2,ffGeneral,4,3);
-//      dat[ord(Is2_EA)]:=FloatToStrF(I02,ffExponent,4,3);
-//      dat[ord(Rsh_EA)]:=FloatToStrF(Rsh,ffExponent,4,3);
-//      dat[ord(If_EA)]:=FloatToStrF(Iph,ffExponent,4,3);
-//      dat[ord(Isc_EA)]:=FloatToStrF(Isc,ffExponent,4,3);
-//      dat[ord(Pm_EA)]:=FloatToStrF(Pm,ffExponent,4,3);
-//      dat[ord(Voc_EA)]:=FloatToStrF(Voc,ffGeneral,4,3);
-//      dat[ord(FF_EA)]:=FloatToStrF(FF,ffGeneral,4,3);{}
       end;
 
     //обчислення за допомогою обраної функції
@@ -6871,8 +6385,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
        end;
   Str1.Add(temp_str);
-
-
 
     i:=0;
     for CL:=Low(CL) to High(CL) do
@@ -7082,15 +6594,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 {---------------------------------------------}
        Norde:
          NordeFun(Vax,tempVax,Diod,Gamma);
-//begin
-//  NordeFun(Vax,tempVax,AA,Sk,Gamma);
-//  new(ttt);
-//Splain3Vec(tempVax,tempVax^.X[0],0.01,ttt);
-//  Write_File(CurDirectory+'\'+
-//         GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+ShotName+
-//         'ttt.dat',ttt);
-//  dispose(ttt);
-//end;
 {---------------------------------------------}
        Ideal:
          N_V_Fun(Vax,tempVax,RsDefineCB(Vax,ComBNRs,ComBNRs_n));
@@ -7210,7 +6713,6 @@ end;
 procedure TForm1.ButtonCurDirClick(Sender: TObject);
 var st:string;
 begin
-//showmessage(floattostr(Lambert(1000)));
 st:=CurDirectory;
 SelectDirectory('Chose Directory','C:', CurDirectory);
 ChooseDirect(Form1);
@@ -7266,25 +6768,7 @@ DiodOnForm;
 
 end;
 
-//procedure TForm1.ButtonEpClick(Sender: TObject);
-//var st,stHint:string;
-//    temp:double;
-//begin
-//temp:=ep;
-//st:=FloatToStrF(ep,ffGeneral,3,2);
-//stHint:='Permittivity of the interfacial insulator layer';
-//st:=InputBox('Layer permittivity',stHint,st);
-//StrToNumber(st, temp, ep);
-//if ep<=0 then
-//         begin
-//         MessageDlg('Layer permittivity must be positive', mtError,[mbOk],0);
-//         ep:=temp;
-//         end;
-//LabelEp.Caption:=FloatToStrF(ep,ffGeneral,3,2);
-//end;
-
 procedure TForm1.ButtonKalkClick(Sender: TObject);
-//var FitA:TFitFunctionAAA;
 begin
 LabelKalk1.Visible:=False;
 LabelKalk2.Visible:=False;
@@ -7401,7 +6885,6 @@ case CBKalk.ItemIndex of
         if Iph_Lam then Fbb:=ErResult
                    else Fbb:=EvolParam[4];
       end;
-//    ExpKalkNew(VaxFile,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
    20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
       begin
         if Iph_DE then Fit:=TPhotoDiod.Create
@@ -7414,8 +6897,6 @@ case CBKalk.ItemIndex of
                    else Fbb:=EvolParam[4];
 
       end;
-//
-//    ExpKalkNew(VaxFile,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
  end; //case;
 
 //QueryPerformanceCounter(EndValue);
@@ -7458,9 +6939,6 @@ end;
 
 procedure TForm1.ButtonKalkParClick(Sender: TObject);
 begin
-
-
-
 case CBKalk.ItemIndex of
   0: ;//не вибрано спосіб апроксамації
   6: //Обчислення коефіцієнту випрямлення
@@ -7471,48 +6949,6 @@ case CBKalk.ItemIndex of
    CBKalkChange(ButtonKalkPar);
    end;
  end //case
-// //-------------------------------------------
-//  1: // обчислення за функцією Чюнга
-//     ButtonParamCibClick(ButtonKalkPar);
-////    ButtonParamChungClick(ButtonKalkPar);
-//  2:  // обчислення за Н-функцією
-//    ButtonParamCibClick(ButtonKalkPar);
-//  3:   // обчислення за функцією Норда
-//    ButtonParamCibClick(ButtonKalkPar);
-//  4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-//    ButtonParamCibClick(ButtonKalkPar);
-//  5: //обчислення шляхом апроксимації І=I0exp(V/nkT)
-//    ButtonParamCibClick(ButtonKalkPar);
-//  7: //обчислення за функцією Камінськи І-роду
-//    ButtonParamCibClick(ButtonKalkPar);
-//  8: //обчислення за функцією Камінськи ІІ-роду
-//    ButtonParamCibClick(ButtonKalkPar);
-//  9: //обчислення за методом Громова І-роду
-//    ButtonParamCibClick(ButtonKalkPar);
-//  10: //обчислення за методом Громова ІI-роду
-//    ButtonParamCibClick(ButtonKalkPar);
-//  11: //обчислення за методом Бохліна
-//    ButtonParamCibClick(ButtonKalkPar);
-//  12: //обчислення за методом Сібліса
-//    ButtonParamCibClick(ButtonKalkPar);
-//  13: //обчислення за методом Лі
-//    ButtonParamCibClick(ButtonKalkPar);
-//  14: //обчислення за методом Вернера
-//    ButtonParamCibClick(ButtonKalkPar);
-//  15: //обчислення за методом Міхелешвілі
-//    ButtonParamCibClick(ButtonKalkPar);
-//  16: //обчислення за методом Іванова
-//    ButtonParamCibClick(ButtonKalkPar);
-//  17: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка
-//    ButtonParamCibClick(ButtonKalkPar);
-//  18: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка
-//    ButtonParamCibClick(ButtonKalkPar);
-//  19: //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
-//    ButtonParamCibClick(ButtonKalkPar);
-//  20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
-//    ButtonParamCibClick(ButtonKalkPar);
-// end; //case;
-//CBKalkChange(ButtonKalkPar);
 end;
 
 procedure TForm1.ButtonMaxClick(Sender: TObject);
@@ -7561,245 +6997,6 @@ if Form1.SpButLimit.Down then
                 end;
 end;
 
-//procedure TForm1.ButtonParamBhClick(Sender: TObject);
-//var Gamma1tmp,Gamma2tmp:double;
-//begin
-//if BohlinForm.ShowModal=mrOk then
-// begin
-// Gamma1tmp:=Gamma1;
-// Gamma2tmp:=Gamma2;
-// if BohlinForm.EditGamma1.Text='' then Gamma1:=2
-//                                  else
-//          begin
-//           try
-//            Gamma1:=StrToFloat(BohlinForm.EditGamma1.Text);
-//           except
-//            on Exception : EConvertError do
-//                   begin
-//                   ShowMessage(Exception.Message);
-//                   Gamma1:=Gamma1tmp;
-//                   end;
-//           end;//try
-//          end;//else
-// if BohlinForm.EditGamma2.Text='' then Gamma2:=2.5
-//         else
-//          begin
-//           try
-//            Gamma2:=StrToFloat(BohlinForm.EditGamma2.Text);
-//           except
-//            on Exception : EConvertError do
-//                   begin
-//                   ShowMessage(Exception.Message);
-//                   Gamma2:=Gamma2tmp;
-//                   end;
-//           end;//try
-//          end;//else
-//if Gamma1<2 then
-//            begin
-//            Gamma1:=Gamma1tmp;
-//            MessageDlg('Gamma must be more or equal 2', mtError,[mbOk],0);
-//            end;
-//if Gamma2<2 then
-//            begin
-//            Gamma2:=Gamma2tmp;
-//            MessageDlg('Gamma must be more or equal 2', mtError,[mbOk],0);
-//            end;
-//if abs(Gamma2-Gamma1)<1e-3 then
-//            begin
-//            Gamma1:=Gamma1tmp;
-//            Gamma2:=Gamma2tmp;
-//            MessageDlg('Gamma1 cannot be equal Gamma2', mtError,[mbOk],0);
-//            end;
-// LabBohGam1.Caption:='gamma1 = '+FloatToStrF(Gamma1,ffGeneral,2,1);
-// LabBohGam2.Caption:='gamma2 = '+FloatToStrF(Gamma2,ffGeneral,2,1);
-// end;//if BohlinForm.ShowModal=mrOk
-//end;
-
-//procedure TForm1.ButtonParamChungClick(Sender: TObject);
-//begin
-//if ChungForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(ChungForm.LEXmin,ChungForm.LEYmin,
-//         ChungForm.LEXmax,ChungForm.LEYMax,D[diChung]);
-//      DiapShow(D[diChung],LabelChungXmin,LabelChungYmin,LabelChungXmax,LabelChungYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamE2FClick(Sender: TObject);
-//begin
-//if Ex2FForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(Ex2FForm.LEXmin,Ex2FForm.LEYmin,
-//         Ex2FForm.LEXmax,Ex2FForm.LEYMax,D[diE2F]);
-//      DiapShow(D[diE2F],LabelE2FXmin,LabelE2FYmin,LabelE2FXmax,LabelE2FYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamE2RClick(Sender: TObject);
-//begin
-//if Ex2RForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(Ex2RForm.LEXmin,Ex2RForm.LEYmin,
-//         Ex2RForm.LEXmax,Ex2RForm.LEYMax,D[diE2R]);
-//      DiapShow(D[diE2R],LabelE2RXmin,LabelE2RYmin,LabelE2RXmax,LabelE2RYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamExClick(Sender: TObject);
-//begin
-//if ExForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(ExForm.LEXmin,ExForm.LEYmin,
-//         ExForm.LEXmax,ExForm.LEYMax,D[diEx]);
-//      DiapShow(D[diEx],LabelExXmin,LabelExYmin,LabelExXmax,LabelExYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamExpClick(Sender: TObject);
-//begin
-//if ExpForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(ExpForm.LEXmin,ExpForm.LEYmin,
-//         ExpForm.LEXmax,ExpForm.LEYMax,D[diExp]);
-//      FormToMode(ExpForm.CB_Rs,ExpForm.CB_Rsh,ExpForm.CB_Iph,
-//                 Mode_Exp,Iph_Exp);
-//      DiapShow(D[diExp],LabelExpXmin,LabelExpYmin,LabelExpXmax,LabelExpYmax);
-//      ModeShow(Mode_Exp,Iph_Exp,LabelExpRs,LabelExpRsh,LabelExpIph);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamGr1Click(Sender: TObject);
-//begin
-//if GrIForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(GrIForm.LEXmin,GrIForm.LEYmin,
-//         GrIForm.LEXmax,GrIForm.LEYMax,D[diGr1]);
-//      DiapShow(D[diGr1],LabelGr1Xmin,LabelGr1Ymin,LabelGr1Xmax,LabelGr1Ymax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamGr2Click(Sender: TObject);
-//begin
-//if GrIIForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(GrIIForm.LEXmin,GrIIForm.LEYmin,
-//         GrIIForm.LEXmax,GrIIForm.LEYMax,D[diGr2]);
-//      DiapShow(D[diGr2],LabelGr2Xmin,LabelGr2Ymin,LabelGr2Xmax,LabelGr2Ymax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamHClick(Sender: TObject);
-//begin
-//if HfuncForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(HfuncForm.LEXmin,HfuncForm.LEYmin,
-//         HfuncForm.LEXmax,HfuncForm.LEYMax,D[diHfunc]);
-//      DiapShow(D[diHfunc],LabelHXmin,LabelHYmin,LabelHXmax,LabelHYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamIvanClick(Sender: TObject);
-//begin
-//if IvanovForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(IvanovForm.LEXmin,IvanovForm.LEYmin,
-//         IvanovForm.LEXmax,IvanovForm.LEYMax,D[diIvan]);
-//      DiapShow(D[diIvan],LabelIvanXmin,LabelIvanYmin,LabelIvanXmax,LabelIvanYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamKam1Click(Sender: TObject);
-//begin
-//if Kam1Form.ShowModal=mrOk then
-//    begin
-//      FormToDiap(Kam1Form.LEXmin,Kam1Form.LEYmin,
-//         Kam1Form.LEXmax,Kam1Form.LEYMax,D[diKam1]);
-//      DiapShow(D[diKam1],LabelKam1Xmin,LabelKam1Ymin,LabelKam1Xmax,LabelKam1Ymax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamKam2Click(Sender: TObject);
-//begin
-//if Kam2Form.ShowModal=mrOk then
-//    begin
-//      FormToDiap(Kam2Form.LEXmin,Kam2Form.LEYmin,
-//         Kam2Form.LEXmax,Kam2Form.LEYMax,D[diKam2]);
-//      DiapShow(D[diKam2],LabelKam2Xmin,LabelKam2Ymin,LabelKam2Xmax,LabelKam2Ymax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamLamClick(Sender: TObject);
-//begin
-//if LambForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(LambForm.LEXmin,LambForm.LEYmin,
-//         LambForm.LEXmax,LambForm.LEYMax,D[diLam]);
-//      FormToMode(LambForm.CB_Rs,LambForm.CB_Rsh,LambForm.CB_Iph,
-//                 Mode_Lam,Iph_Lam);
-//      DiapShow(D[diLam],LabelLamXmin,LabelLamYmin,LabelLamXmax,LabelLamYmax);
-//      ModeShow(Mode_Lam,Iph_Lam,LabelLamRs,LabelLamRsh,LabelLamIph);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamLeeClick(Sender: TObject);
-//begin
-//if LeeForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(LeeForm.LEXmin,LeeForm.LEYmin,
-//         LeeForm.LEXmax,LeeForm.LEYMax,D[diLee]);
-//      DiapShow(D[diLee],LabelLeeXmin,LabelLeeYmin,LabelLeeXmax,LabelLeeYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamMikhClick(Sender: TObject);
-//begin
-//if MikhelashviliForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(MikhelashviliForm.LEXmin,MikhelashviliForm.LEYmin,
-//         MikhelashviliForm.LEXmax,MikhelashviliForm.LEYMax,D[diMikh]);
-//      DiapShow(D[diMikh],LabelMikhXmin,LabelMikhYmin,LabelMikhXmax,LabelMikhYmax);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamNordClick(Sender: TObject);
-//begin
-//if NordForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(NordForm.LEXmin,NordForm.LEYmin,
-//         NordForm.LEXmax,NordForm.LEYMax,D[diNord]);
-//      DiapShow(D[diNord],LabelNordXmin,LabelNordYmin,LabelNordXmax,LabelNordYmax);
-//      if NordForm.EditGamma.Text='' then Gamma:=2
-//         else
-//          begin
-//           try
-//            StrToInt(NordForm.EditGamma.Text);
-//           except
-//            on Exception : EConvertError do
-//                   begin
-//                   ShowMessage(Exception.Message);
-//                   Exit;
-//                   end;
-//           end;//try
-//           Gamma:=StrToInt(NordForm.EditGamma.Text);
-//          end;//else
-//       if Gamma<2 then
-//                  begin
-//                    Gamma:=2;
-//                    MessageDlg('Gamma must be integer and more 1', mtError,[mbOk],0);
-//                  end;
-//      LabelNordGamma.Caption:='gamma: '+IntToStr(Gamma);
-//    end;
-//end;
-
-//procedure TForm1.ButtonParamNssClick(Sender: TObject);
-//begin
-//if NssForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(NssForm.LEXmin,NssForm.LEYmin,
-//         NssForm.LEXmax,NssForm.LEYMax,D[diNss]);
-//      DiapShow(D[diNss],LabelNssXmin,LabelNssYmin,LabelNssXmax,LabelNssYmax);
-//    end;
-//end;
 
 procedure TForm1.ButtonParamRectClick(Sender: TObject);
 var st, stHint:string;
@@ -7815,86 +7012,11 @@ StrToNumber(st, 0.12, Vrect);
 LabelRect.Caption:=FloatToStrF(Vrect,ffGeneral,3,2)+' V';
 end;
 
-//procedure TForm1.ButtonParamWerClick(Sender: TObject);
-//begin
-//if WernerForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(WernerForm.LEXmin,WernerForm.LEYmin,
-//         WernerForm.LEXmax,WernerForm.LEYMax,D[diWer]);
-//      DiapShow(D[diWer],LabelWerXmin,LabelWerYmin,LabelWerXmax,LabelWerYmax);
-//    end;
-//end;
 
 procedure TForm1.ButtonParamCibClick(Sender: TObject);
 begin
-FormDiapazon(DiapFunName(Sender, BohlinMethod));
-//if CibilsForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(CibilsForm.LEXmin,CibilsForm.LEYmin,
-//         CibilsForm.LEXmax,CibilsForm.LEYMax,D[diCib]);
-//      DiapShow(D[diCib],LabelCibXmin,LabelCibYmin,LabelCibXmax,LabelCibYmax);
-//    end;
+ FormDiapazon(DiapFunName(Sender, BohlinMethod));
 end;
-
-//procedure TForm1.ButtonParamDEClick(Sender: TObject);
-//begin
-//if DEForm.ShowModal=mrOk then
-//    begin
-//      FormToDiap(DEForm.LEXmin,DEForm.LEYmin,
-//         DEForm.LEXmax,DEForm.LEYMax,D[diDE]);
-//      FormToMode(DEForm.CB_Rs,DEForm.CB_Rsh,DEForm.CB_Iph,
-//                 Mode_DE,Iph_DE);
-//      case DEForm.RG.ItemIndex of
-//        1:EvolType:=TMABC;
-//        2:EvolType:=TTLBO;
-//        3:EvolType:=TPSO;
-//       else EvolType:=TDE;
-//      end;
-//      case EvolType of
-//       TMABC:GroupBoxParamDE.Caption:='MABC';
-//       TTLBO:GroupBoxParamDE.Caption:='TLBO';
-//       TPSO:GroupBoxParamDE.Caption:='PSO';
-//       else GroupBoxParamDE.Caption:='DE';
-//      end;
-//
-//      DiapShow(D[diDE],LabelDEXmin,LabelDEYmin,LabelDEXmax,LabelDEYmax);
-//      ModeShow(Mode_DE,Iph_DE,LabelDERs,LabelDERsh,LabelDEIph);
-//    end;
-//end;
-
-//procedure TForm1.ButtonPermClick(Sender: TObject);
-//var st,stHint:string;
-//    temp:double;
-//begin
-//temp:=eps;
-//st:=FloatToStrF(eps,ffGeneral,3,2);
-//stHint:='Input semiconductor relative permittivity';
-//st:=InputBox('Semiconductor permittivity',stHint,st);
-//StrToNumber(st, temp, eps);
-//if eps<=0 then
-//         begin
-//         MessageDlg('Semiconductor permittivity must be positive', mtError,[mbOk],0);
-//         eps:=temp;
-//         end;
-//LabelPerm.Caption:=FloatToStrF(eps,ffGeneral,3,2);
-//end;
-//
-//procedure TForm1.ButtonRichClick(Sender: TObject);
-//var st,stHint:string;
-//    temp:double;
-//begin
-//temp:=AA;
-//st:=FloatToStrF(AA,ffExponent,3,2);
-//stHint:='Input effective Richardson constant, '+#10+'[ ] = A/(m K)^2';
-//st:=InputBox('Richardson constant',stHint,st);
-//StrToNumber(st, temp, AA);
-//if AA<=0 then
-//         begin
-//         MessageDlg('Richardson constant must be positive', mtError,[mbOk],0);
-//         AA:=temp;
-//         end;
-//LabelRich.Caption:=FloatToStrF(AA,ffExponent,3,2);
-//end;
 
 procedure TForm1.ButtonVoltClick(Sender: TObject);
 var
@@ -8054,60 +7176,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 {}  Write_File(CurDirectory+'\Zriz\'+
        Inttostr(round(abs(10*Volt[i])))+'s.dat',Vax);
 
-{  repeat
-     try
-//       DifEvol (Vax,RevZriz,0,EvolParam)
-       DifEvol (Vax,RevZriz2,0,EvolParam)
-//       DifEvol (Vax,RevZriz3,0,EvolParam)
-      except
-        SetLength(EvolParam,1);
-        EvolParam[0]:=ErResult;
-       end;
-  until((EvolParam[0]<>ErResult)and(EvolParam[3]>0.4));
-
-      if EvolParam[0]=ErResult then  Continue;
-
-       for j := 0 to High(Vax^.X) do
-               begin
-//               a:=EvolParam[0]*exp(-EvolParam[1]*Vax^.X[j])*Power(Vax^.X[j]*Kb,Tpow);
-               a:=RevZrizSCLC(Vax^.X[j],-Tpow,EvolParam[0],EvolParam[1]);
-//               a:=EvolParam[0]*exp(-Power((EvolParam[1]*Vax^.X[j]*Kb),0.25))*Power(Vax^.X[j]*Kb,-2);
-               b:=RevZrizFun(Vax^.X[j],2,EvolParam[2],EvolParam[3]);
-               StrAppr.Add(FloatToStrF(Vax^.X[j],ffExponent,4,0)+' '+
-                       FloatToStrF(Vax^.Y[j],ffExponent,4,0)+' '+
-                       FloatToStrF(a,ffExponent,4,0)+' '+
-                       FloatToStrF(b,ffExponent,4,0)+' '+
-                       FloatToStrF(a+b,ffExponent,4,0));
-               end;
-}
-{        StrAppr.SaveToFile(CurDirectory+'\Zriz\'+'vol'+mask+'t.dat');
-        StrAppr.Clear;
-{
-   str:=FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' ';
-   T:=130;
-   repeat
-     a:=RevZrizSCLC(1/(T*Kb),-Tpow,EvolParam[0],EvolParam[1]);
-     b:=RevZrizFun(1/(T*Kb),2,EvolParam[2],EvolParam[3]);
-     a:=a/(a+b);
-//     a:=RevZrizSCLC(1/(T*Kb),-Tpow,II01[round(abs(Volt[i])*10)],IA[round(abs(Volt[i])*10)]);
-     b:=RevZrizSCLC(1/(T*Kb),-Tpow,II01[round(abs(Volt[i])*10)],IA[round(abs(Volt[i])*10)]);
-     b:=b/(b+RevZrizFun(1/(T*Kb),2,II02[round(abs(Volt[i])*10)],IE[round(abs(Volt[i])*10)]));
-//     str:=str+FloatToStrF(a/(a+b),ffExponent,4,0)+' ';
-     str:=str+FloatToStrF(b-a,ffExponent,4,0)+' ';
-     T:=T+5;
-   until (T>330);
-   str:=str+FloatToStrF(EvolParam[3],ffExponent,4,0);
-   StrRez.Add(str);
-
-     {   StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-                   FloatToStrF(EvolParam[0],ffExponent,4,0)+' '+
-                   FloatToStrF(EvolParam[1],ffExponent,4,0)+' '+
-                   FloatToStrF(EvolParam[2],ffExponent,4,0)+' '+
-                   FloatToStrF(EvolParam[3],ffExponent,4,0));
-      }
     end;
-{     StrRez.SaveToFile(CurDirectory+'\Zriz\sqr.dat');
- }
     dispose(Vax);
     FindClose(SR);
     Grid.Free;
@@ -8162,11 +7231,6 @@ if ListBoxVolt.ItemIndex>=0 then
   end;
 end;
 
-//procedure TForm1.CBApprChange(Sender: TObject);
-//begin
-// LAppr.Caption:=ApprFormula.Strings[CBAppr.ItemIndex];
-// ApproxHide(Form1);
-//end;
 
 procedure TForm1.CBDateFunClick(Sender: TObject);
 var i:integer;
@@ -8175,7 +7239,6 @@ ColParam(Form1.StrGridData);
 if LDateFun.Caption='None' then Exit;
 if CBDateFun.Checked then
        begin
-//        if LDateFun.Caption='None' then Exit;
         FunCreate(LDateFun.Caption,Fit);
         if  not(Assigned(Fit)) then Exit;
 
@@ -8185,13 +7248,6 @@ if CBDateFun.Checked then
           StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.Xname[i];
           StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
           end;
-//        for i:=0 to High(Fit.DodXname) do
-//          begin
-//          StrGridData.ColCount:=StrGridData.ColCount+1;
-//          StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.DodXname[i];
-//          StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
-//          end;
-
         Fit.Free;
        end
 end;
@@ -8334,1318 +7390,8 @@ if (CBMaterial.Text=Materials[High(TMaterialName)].Name)
       end;
 if Semi.Name<>CBMaterial.Text then Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
 MaterialOnForm;
-//showmessage(floattostr(Semi.ARich));
 end;
 
-//procedure TForm1.CBoxApprClick(Sender: TObject);
-//const Np=150; //кількість точок, по яким будується апроксимація
-//var h:double; //крок між точками
-//    y,x,xl,a,b,c,d,e,f{,g}:double;
-// {   IREap:IRE;}
-//    i{,rez}:integer;
-//    tempVax:Pvector;
-//     Str1:TStringList;
-////     F:TFitFunction;
-//
-//Function Linear(x,a,b:double):double;
-//begin
-//Result:=a+b*x;
-//end;
-//
-//Function Parab(x,a,b,c:double):double;
-//begin
-//  Result:=a+b*x+c*x*x;
-//end;
-//
-//Function ExpIE(x,a,b:double):double;
-////y=a[exp(x/b)-1]
-//begin
-//  Result:=a*(exp(x/b)-1);
-//end;
-//
-//Function ExpIERsh(x,a,b,c:double):double;
-////y=a[exp(x/b)-1]+x/c;
-//begin
-//  Result:=a*(exp(x/b)-1)+x/c;
-//end;
-//
-//Function Gromov(x,a,b,c:double):double;
-//begin
-//  Result:=a+b*x+c*ln(x);
-//end;
-//
-//Procedure Ivanov(x0,AA,Szr,T,Nd,ep,del,Fb:double;var x,y:double);
-//var Vd:double;
-//begin
-//  Vd:=del*sqrt(2*Qelem*Nd*ep/Eps0)*(sqrt(Fb)-sqrt(Fb-x0));
-//  x:=Vd+x0;
-//  y:=AA*Szr*T*T*exp(-Fb/Kb/T)*exp(x0/Kb/T);
-//end;
-//
-//begin
-//if CBoxAppr.Checked then
-//    begin
-//      new(tempVax);
-//      tempVax.n:=VaxGraph.n;
-//      SetLength(tempVax^.X, tempVax^.n);
-//      SetLength(tempVax^.Y, tempVax^.n);
-//
-//      for i := 0 to High(tempVax^.X)do
-//      begin
-//        if XLogCheck.Checked then tempVax^.X[i]:=Log10(VaxGraph^.X[i])
-//                             else tempVax^.X[i]:=VaxGraph^.X[i];
-//        if YLogCheck.Checked then tempVax^.Y[i]:=Log10(VaxGraph^.Y[i])
-//                             else tempVax^.Y[i]:=VaxGraph^.Y[i];
-//      end;
-//
-//
-//      h:=(Series1.MaxXValue-Series1.MinXValue)/Np;
-//      Series4.Clear;
-//      case CBAppr.ItemIndex of
-//       0:  //не вибрано спосіб апроксимації
-//           begin
-//{            F:=TPhotodiod.Create;
-//
-//            F.FittingGraphFile(VaxGraph,EvolParam,Series4);
-//            Series4.Active:=True;
-//            if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//            MemoAppr.Lines.Add('');
-//            MemoAppr.Lines.Add(VaxFile.name);
-//            MemoAppr.Lines.Add(SButFit.Caption);
-//            for I := 0 to F.Ns-1 do
-//               MemoAppr.Lines.Add(F.Xname[i]+'='+
-//                        FloatToStrF(EvolParam[i],ffExponent,4,3));
-//            F.Free;
-// }
-//{
-//  F:=TDiodLSM.Create;
-//  F.AproxN(VaxGraph,EvolParam);
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=Full_IV(x,EvolParam[0]*Kb*VaxFile^.T,EvolParam[1],EvolParam[2],EvolParam[3],0);
-//              Series4.AddXY(x, y);
-//              end;
-//   Series4.Active:=True;
-//   if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//   if ((SButFit.Caption<>'Smoothing')and
-//       (SButFit.Caption<>'Median filtr')and
-//       (SButFit.Caption<>'Derivative'))
-//       then
-//        begin
-//         MemoAppr.Lines.Add('');
-//         MemoAppr.Lines.Add(VaxFile.name);
-//         MemoAppr.Lines.Add(SButFit.Caption);
-//        end;
-//   for I := 0 to F.Ns-1 do
-//               MemoAppr.Lines.Add(F.Xname[i]+'='+
-//                        FloatToStrF(EvolParam[i],ffExponent,4,3));
-//   for I := 0 to High(F.DodX) do
-//               MemoAppr.Lines.Add(F.DodXname[i]+'='+
-//                        FloatToStrF(F.DodX[i],ffExponent,4,3));
-//  F.Free;
-//{}
-// {          try
-////           DifEvol (VaxGraph,RevShNew2,0,EvolParam)
-//           MABC (VaxGraph,RevShNew2,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=RevShNewFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam[0],EvolParam[1],EvolParam[2]);
-//               b:=RevShNewFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam[3],EvolParam[4],0);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(a+b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=RevShNewFun(x,VaxGraph^.T,EvolParam[0],EvolParam[1],EvolParam[2])
-//                 +RevShNewFun(x,VaxGraph^.T,EvolParam[3],EvolParam[4],0);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al1='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Bt='+ FloatToStrF(EvolParam[2],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al2='+ FloatToStrF(EvolParam[4],ffExponent,4,3));
-//           {}
-//
-// {          try
-//           DifEvol (VaxGraph,RevShNew,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(RevShNewFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam[0],EvolParam[1],EvolParam[2]),ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=RevShNewFun(x,VaxGraph^.T,EvolParam[0],EvolParam[1],EvolParam[2]);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I0='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Bt='+ FloatToStrF(EvolParam[2],ffGeneral,4,3));
-//           {}
-// {          try
-//           DifEvol (VaxGraph,Tun,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=TunFun(VaxGraph^.X[i],EvolParam);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=TunFun(x,EvolParam);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I0='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('A='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('B='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           {}
-//
-// {          try
-//           DifEvol (VaxGraph,RevZriz3,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               c:=VaxFile^.X[i]*Kb;
-//               a:=EvolParam[0]*exp(-Power((EvolParam[1]*c),0.25))*Power(c,-2);
-//               b:=EvolParam[2]/sqr(c)*exp(-EvolParam[3]*VaxFile^.X[i]);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(a+b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              c:=x*Kb;
-//              y:=EvolParam[0]*exp(-Power((EvolParam[1]*c),0.25))*Power(c,-2)
-//                +EvolParam[2]/sqr(c)*exp(-EvolParam[3]*x);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Tc='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('E='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           {}
-// {         try
-//           DifEvol (VaxGraph,RevShSCLC3,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=EvolParam[0]*Power(VaxGraph^.X[i],EvolParam[1])+EvolParam[2]*Power(VaxGraph^.X[i],EvolParam[3]);
-//              c:=0.775-7.021e-4*sqr(VaxGraph^.T)/(VaxGraph^.T+1108);
-//              d:=Kb*VaxGraph^.T*ln(2.5e4*1.12*Power(VaxGraph^.T/300,1.5)/7.25);
-//              e:=2*Qelem*7.25e21/8.85e-12/11.7;
-//              f:=4.9e-5*1.12e6*sqr(VaxGraph^.T)*exp(-DbGaus(VaxGraph^.T,0.9995,0.775,0.018,1.066,0.0118)/Kb/VaxGraph^.T);
-//              b:=f*exp(EvolParam[5]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-////               b:=EvolParam[4]*exp(EvolParam[5]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(a+b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//
-//              y:=EvolParam[0]*Power(x,EvolParam[1])+EvolParam[2]*Power(x,EvolParam[3])+
-//                f*exp(EvolParam[5]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)*(1-exp(-x/Kb/VaxGraph^.T));
-////                EvolParam[4]*exp(EvolParam[5]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)*(1-exp(-x/Kb/VaxGraph^.T));
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('m1='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('m2='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           MemoAppr.Lines.Add('I03='+ FloatToStrF(EvolParam[4],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al='+ FloatToStrF(EvolParam[5],ffGeneral,4,3));
-//           {}
-// {         try
-//           DifEvol (VaxGraph,RevShSCLC2,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=EvolParam[0]*(Power(VaxGraph^.X[i],1+477.6/VaxGraph^.T)+0.1169*Power(VaxGraph^.X[i],1+2212/VaxGraph^.T));
-//              c:=0.775-7.021e-4*sqr(VaxGraph^.T)/(VaxGraph^.T+1108);
-//              d:=Kb*VaxGraph^.T*ln(2.5e4*1.12*Power(VaxGraph^.T/300,1.5)/7.25);
-//              e:=2*Qelem*7.25e21/8.85e-12/11.7;
-//              f:=4.9e-5*1.12e6*sqr(VaxGraph^.T)*exp(-DbGaus(VaxGraph^.T,0.9995,0.775,0.018,1.066,0.0118)/Kb/VaxGraph^.T);
-////              b:=f*exp(EvolParam[2]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-//               b:=EvolParam[1]*exp(EvolParam[2]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(a+b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//
-//              y:=EvolParam[0]*(Power(x,1+477.6/VaxGraph^.T)+0.1169*Power(x,1+2212/VaxGraph^.T))+
-////                f*exp(EvolParam[2]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)*(1-exp(-x/Kb/VaxGraph^.T));
-//                EvolParam[1]*exp(EvolParam[2]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)*(1-exp(-x/Kb/VaxGraph^.T));
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al='+ FloatToStrF(EvolParam[2],ffGeneral,4,3));
-//           {}
-// {          try
-//           DifEvol (VaxGraph,Power2,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=EvolParam[0]*Power(VaxGraph^.X[i],EvolParam[2]);
-//               b:=EvolParam[0]*EvolParam[1]*Power(VaxGraph^.X[i],EvolParam[3]);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(a+b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=EvolParam[0]*(Power(x,EvolParam[2])+
-//                 EvolParam[1]*Power(x,EvolParam[3]));
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('A1='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('m1='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('A2='+ FloatToStrF(EvolParam[1],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('m2='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           {}
-// {          try
-//           DifEvol (VaxGraph,RevZriz2,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-////               c:=VaxFile^.X[i]*Kb;
-//               a:=RevZrizSCLC(VaxFile^.X[i],-Tpow,EvolParam[0],EvolParam[1]);
-////               EvolParam[0]*Power(c,Tpow)*Power(EvolParam[1],EvolParam[4]*c);
-//               b:=RevZrizFun(VaxFile^.X[i],2,EvolParam[2],EvolParam[3]);
-////               EvolParam[2]/sqr(c)*exp(-EvolParam[3]*VaxFile^.X[i]);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(a+b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              c:=x*Kb;
-//              y:=RevZrizSCLC(x,-Tpow,EvolParam[0],EvolParam[1])+
-//                 RevZrizFun(x,2,EvolParam[2],EvolParam[3]);
-////              EvolParam[0]*Power(c,Tpow)*Power(EvolParam[1],EvolParam[4]*c)
-////                +EvolParam[2]/sqr(c)*exp(-EvolParam[3]*x);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('B='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-////           MemoAppr.Lines.Add('Tc='+ FloatToStrF(EvolParam[4],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('E='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           {}
-//
-// {          try
-//           MABC (VaxGraph,DiodTwo,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=EvolParam[4]*(exp(VaxGraph^.X[i]/(EvolParam[3]*Kb*VaxFile^.T))-1);
-//               b:=Full_IV(VaxGraph^.X[i],EvolParam[0]*Kb*VaxFile^.T,EvolParam[1],EvolParam[2],1e13,0);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i]-a,ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i]-b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=Full_IV(x,EvolParam[0]*Kb*VaxFile^.T,EvolParam[1],EvolParam[2],1e13,0)+
-//                 EvolParam[4]*(exp(x/(EvolParam[3]*Kb*VaxFile^.T))-1);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('n1='+ FloatToStrF(EvolParam[0],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('Rs='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[4],ffExponent,4,3));
-//           MemoAppr.Lines.Add('n2='+ FloatToStrF(EvolParam[3],ffGeneral,4,3));
-//           {}
-// {          try
-////           MABC (VaxGraph,RevShSCLC,0,EvolParam)
-//           DifEvol (VaxGraph,RevShSCLC,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=EvolParam[0]*Power(VaxGraph^.X[i],EvolParam[1]);
-//              c:=0.775-7.021e-4*sqr(VaxGraph^.T)/(VaxGraph^.T+1108);
-//              d:=Kb*VaxGraph^.T*ln(2.5e4*1.12*Power(VaxGraph^.T/300,1.5)/7.25);
-//              e:=2*Qelem*7.25e21/8.85e-12/11.7;
-//              f:=4.9e-5*1.12e6*sqr(VaxGraph^.T)*exp(-DbGaus(VaxGraph^.T,0.9995,0.775,0.018,1.066,0.0118)/Kb/VaxGraph^.T);
-////              b:=f*exp(EvolParam[2]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-//               b:=EvolParam[3]*exp(EvolParam[2]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(a+b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//
-//              y:=EvolParam[0]*Power(x,EvolParam[1])+
-////                f*exp(EvolParam[2]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)*(1-exp(-x/Kb/VaxGraph^.T));
-//                EvolParam[3]*exp(EvolParam[2]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)*(1-exp(-x/Kb/VaxGraph^.T));
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('m='+ FloatToStrF(EvolParam[1],ffGeneral,4,3));
-// //          MemoAppr.Lines.Add('I02='+ FloatToStrF(f,ffExponent,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al='+ FloatToStrF(EvolParam[2],ffGeneral,4,3));
-//           {}
-//
-// {          try
-//      //     DifEvol (VaxGraph,RevShTwo,0,EvolParam)
-//           MABC (VaxGraph,RevShTwo,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-////              c:=0.775-7.021e-4*sqr(VaxGraph^.T)/(VaxGraph^.T+1108);
-////              d:=Kb*VaxGraph^.T*ln(2.5e4*1.12*Power(VaxGraph^.T/300,1.5)/7.25);
-////              e:=2*Qelem*7.25e21/8.85e-12/11.7;
-//
-////              f:=4.9e-5*1.12e6*sqr(VaxGraph^.T)*exp(-DbGaus(VaxGraph^.T,0.9995,0.775,0.018,1.066,0.0118)/Kb/VaxGraph^.T);
-////              b:=f*exp(EvolParam[2]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-//        //      a:=RevShFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam[0],EvolParam[2]);
-//          //    b:=RevShFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam[1],EvolParam[3]);
-////              a:=EvolParam[0]*exp(EvolParam[2]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-////              b:=EvolParam[1]*exp(EvolParam[3]*sqrt(e*(c-d+VaxGraph^.X[i]))/Kb/VaxGraph^.T)*(1-exp(-VaxGraph^.X[i]/Kb/VaxGraph^.T));
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(RevShFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam[0],EvolParam[2]),ffExponent,4,0)+' '+
-//                       FloatToStrF(RevShFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam[1],EvolParam[3]),ffExponent,4,0)+' '+
-//                       FloatToStrF(RevShTwoFun(VaxGraph^.X[i],VaxGraph^.T,EvolParam),ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//
-//              y:=RevShTwoFun(x,VaxGraph^.T,EvolParam);
-////              (EvolParam[0]*exp(EvolParam[2]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)
-//              // f*exp(EvolParam[2]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T)*(1-exp(-x/Kb/VaxGraph^.T));
-//  //              +EvolParam[1]*exp(EvolParam[3]*sqrt(e*(c-d+x))/Kb/VaxGraph^.T))*(1-exp(-x/Kb/VaxGraph^.T));
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al1='+ FloatToStrF(EvolParam[2],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Al2='+ FloatToStrF(EvolParam[3],ffGeneral,4,3));
-//           {}
-// {          try
-//           DifEvol (VaxGraph,RevZriz,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-////               a:=RevZrizFun(VaxFile^.X[i],-Tpow,EvolParam[0],EvolParam[1]);
-////               b:=RevZrizFun(VaxFile^.X[i],2,EvolParam[2],EvolParam[3]);
-////               a:=EvolParam[0]*exp(-EvolParam[1]*VaxFile^.X[i])*Power(VaxFile^.X[i]*Kb,Tpow);
-////               b:=EvolParam[2]/sqr(VaxFile^.X[i]*Kb)*exp(-EvolParam[3]*VaxFile^.X[i]);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(RevZrizFun(VaxFile^.X[i],-Tpow,EvolParam[0],EvolParam[1]),ffExponent,4,0)+' '+
-//                       FloatToStrF(RevZrizFun(VaxFile^.X[i],2,EvolParam[2],EvolParam[3]),ffExponent,4,0)+' '+
-//                       FloatToStrF(RevZrizFitFun(VaxFile^.X[i],EvolParam),ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=RevZrizFitFun(x,EvolParam);
-////              y:=EvolParam[0]*exp(-EvolParam[1]*x)*Power(x*Kb,Tpow)
-////                +EvolParam[2]/sqr(x*Kb)*exp(-EvolParam[3]*x);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('E1='+ FloatToStrF(EvolParam[1],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('E2='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           {}
-// {          try
-//           MABC (VaxGraph,DiodTwoFull,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           Str1:=TStringList.Create;
-//
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=Full_IV(VaxGraph^.X[i],EvolParam[3]*Kb*VaxFile^.T,EvolParam[5],EvolParam[4],1e13,0);
-//               b:=Full_IV(VaxGraph^.X[i],EvolParam[0]*Kb*VaxFile^.T,EvolParam[1],EvolParam[2],1e13,0);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i]-a,ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i]-b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=Full_IV(x,EvolParam[0]*Kb*VaxFile^.T,EvolParam[1],EvolParam[2],1e13,0)+
-//                 Full_IV(x,EvolParam[3]*Kb*VaxFile^.T,EvolParam[5],EvolParam[4],1e13,0);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('n1='+ FloatToStrF(EvolParam[0],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('Rs1='+ FloatToStrF(EvolParam[1],ffExponent,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[4],ffExponent,4,3));
-//           MemoAppr.Lines.Add('n2='+ FloatToStrF(EvolParam[3],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('Rs2='+ FloatToStrF(EvolParam[5],ffExponent,4,3));
-//           {}
-// {          try
-//     //      MABC (VaxGraph,DGaus,0,EvolParam)
-//           DifEvol (VaxGraph,DGaus,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              a:=x*Kb;
-//              y:=-a*ln(EvolParam[0]*exp(-(EvolParam[1]-7.021e-4*sqr(x)/(1108+x))/a+sqr(EvolParam[2])/2/sqr(a))+
-//               (1-EvolParam[0])*exp(-(EvolParam[3]-7.021e-4*sqr(x)/(1108+x))/a+sqr(EvolParam[4])/2/sqr(a)));
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           Write_File_Series('Fbapr.dat',Series4);
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('A1='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('A2='+ FloatToStrF(1-EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Fb1='+ FloatToStrF(EvolParam[1],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('Sig1='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Fb2='+ FloatToStrF(EvolParam[3],ffExponent,4,3));
-//           MemoAppr.Lines.Add('Sig2='+ FloatToStrF(EvolParam[4],ffGeneral,4,3));
-//           {}
-// {          try
-//           MABC (VaxGraph,LinEg,0,EvolParam)
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           h:=(260-120)/Np;
-//           for I := 0 to Np do
-//              begin
-//              x:=120+i*h;
-////              x:=Series1.MinXValue+i*h;
-// //             y:=EvolParam[0]-7.021e-4*sqr(x)/(1108+x)-Kb*x*ln(EvolParam[1]);
-//              y:=LinEgF(x,EvolParam);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           Write_File_Series('Fbapr.dat',Series4);
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-////           MemoAppr.Lines.Add('Fb0='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-////           MemoAppr.Lines.Add('fp='+ FloatToStrF(EvolParam[1],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('gamm0='+ FloatToStrF(EvolParam[0],ffExponent,4,3));
-//           MemoAppr.Lines.Add('C1='+ FloatToStrF(EvolParam[1],ffGeneral,4,3));
-////           MemoAppr.Lines.Add('Fb0='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           {}
-//          end;
-//       1: //лінійнa апроксимація y=a+b*x
-//          begin
-//           LinAprox(tempVax,a,b);
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              if XLogCheck.Checked then xl:=log10(x)
-//                                   else xl:=x;
-//              if YLogCheck.Checked
-//                 then y:=exp(Linear(xl,a,b)*ln(10))
-//                 else y:=Linear(xl,a,b);
-//
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('A='+ FloatToStrF(a,ffExponent,3,2));
-//           MemoAppr.Lines.Add('B='+ FloatToStrF(b,ffExponent,3,2));
-//          end; // '1' case
-//        2: //параболічна апроксимація y=a+b*x+c*x^2
-//           begin
-//           ParabAprox(tempVax,a,b,c);
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              if XLogCheck.Checked then xl:=log10(x)
-//                                   else xl:=x;
-//              if YLogCheck.Checked
-//                 then y:=exp(Parab(xl,a,b,c)*ln(10))
-//                 else y:=Parab(xl,a,b,c);
-//
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('A='+ FloatToStrF(a,ffExponent,3,2));
-//           MemoAppr.Lines.Add('B='+ FloatToStrF(b,ffExponent,3,2));
-//           MemoAppr.Lines.Add('C='+ FloatToStrF(c,ffExponent,3,2));
-//           end; //'2' case
-//        3: //експоненціна апроксимація y=I0exp(x/E)
-//           begin
-//           try
-//           ExKalk(VaxGraph,AA,Sk,nn,I00,Fbb);
-//{           Newts(4,VaxGraph,1e-6,ApprExp,IREap,rez);}
-//           except
-//           MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//           nn:=ErResult;
-//           end;
-//           if nn=ErResult then
-//                 begin
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=I00*exp(x/nn/Kb/VaxFile^.T);
-//{              y:=ExpIE(x,IREap[1],IREap[3]);}
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I0='+ FloatToStrF(I00,ffExponent,3,2));
-//           MemoAppr.Lines.Add('n='+ FloatToStrF(nn,ffGeneral,3,2));
-//           MemoAppr.Lines.Add('Fb='+ FloatToStrF(Fbb,ffGeneral,3,2));
-//{           MemoAppr.Lines.Add('I0='+ FloatToStrF(IREap[1],ffExponent,3,2));
-//           MemoAppr.Lines.Add('n='+ FloatToStrF(IREap[3]/Kb/VaxFile.T,ffGeneral,3,2));}
-//           end; //'3' case
-//        4: //експоненціна апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-//           begin
-//           Iph:=0;
-//           try
-//           if Iph_Exp then Aprox (3,VaxGraph, Mode_Exp,nn,Rss,I00,Rsh,Isc,Voc,Iph)
-//                      else Aprox (0,VaxGraph,Mode_Exp,nn,Rss,I00,Rsh,Isc,Voc,Iph);
-//           except
-//           nn:=ErResult;
-//           end;
-//            if nn=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=Full_IV(x,nn*Kb*VaxFile^.T,Rss,I00,Rsh,Iph);
-//{              y:=ExpIE(x,IREap[1],IREap[3]);}
-//{              y:=ExpIERsh(x,IREap[1],IREap[3],IREap[2]);}
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I0='+ FloatToStrF(I00,ffExponent,3,2));
-//           MemoAppr.Lines.Add('n='+ FloatToStrF(nn,ffGeneral,3,2));
-//           case Mode_exp of
-//             0:begin
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,3,2));
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,3,2));
-//               end;
-//              1:
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,3,2));
-//              2:
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,3,2));
-//           end;
-//           if Iph_exp then
-//             begin
-//             MemoAppr.Lines.Add('Voc='+ FloatToStrF(Voc,ffGeneral,3,2));
-//             MemoAppr.Lines.Add('Isc='+ FloatToStrF(Isc,ffExponent,3,2));
-//             MemoAppr.Lines.Add('Iph='+ FloatToStrF(Iph,ffExponent,3,2));
-//             end;
-//           end; //'4' case
-//        5: //зглажування
-//           begin
-//           Smoothing (VaxGraph,tempVax);
-//           if tempVax^.n=0 then
-//                    begin
-//                    MessageDlg('The smoothing is imposible,'+#10+
-//                    'the points" quantity is very low', mtError, [mbOK], 0);
-//                    CBoxAppr.Checked:=False;
-//                    dispose(tempVax);
-//                    Exit;
-//                    end;
-//           for I := 0 to High(tempVax^.X) do
-//               Series4.AddXY(tempVax^.X[i],tempVax^.Y[i]);
-//           Series4.Active:=True;
-//           end;
-//        6: //застосування медіанного фільтру
-//           begin
-//           Median (VaxGraph,tempVax);
-//           if tempVax^.n=0 then
-//                    begin
-//                    MessageDlg('The median filter"s using is imposible,'+#10+
-//                    'the points" quantity is very low', mtError, [mbOK], 0);
-//                    CBoxAppr.Checked:=False;
-//                    dispose(tempVax);
-//                    Exit;
-//                    end;
-//           for I := 0 to High(tempVax^.X) do
-//               Series4.AddXY(tempVax^.X[i],tempVax^.Y[i]);
-//           Series4.Active:=True;
-//           end;       //6:
-//        7: //знаходження похідної
-//           begin
-//           Diferen (VaxGraph,tempVax);
-//           if tempVax^.n=0 then
-//                    begin
-//                    MessageDlg('The derivation is imposible,'+#10+
-//                    'the points" quantity is very low', mtError, [mbOK], 0);
-//                    CBoxAppr.Checked:=False;
-//                    dispose(tempVax);
-//                    Exit;
-//                    end;
-//           for I := 0 to High(tempVax^.X) do
-//               Series4.AddXY(tempVax^.X[i],tempVax^.Y[i]);
-//           Series4.Active:=True;
-//           end;  //7:
-//        8: //апроксимація залежністю y=a+b*x+c*ln(x)
-//          begin
-//          GromovAprox(VaxGraph,a,b,c);
-//          if a=ErResult then
-//                 begin
-//                 MessageDlg('The approximation is imposible'+#10+
-//               '(may be some points have negative abscissa)', mtError, [mbOK], 0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//          for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=Gromov(x,a,b,c);
-//              Series4.AddXY(x,y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('A='+ FloatToStrF(a,ffExponent,3,2));
-//           MemoAppr.Lines.Add('B='+ FloatToStrF(b,ffExponent,3,2));
-//           MemoAppr.Lines.Add('C='+ FloatToStrF(c,ffExponent,3,2));
-//          end;  // 8:
-//        9:{апроксимація параметричною залежністю
-//            I=Szr AA T^2 exp(-Fb/kT) exp(qVs/kT)
-//            V=Vs+del*[Sqrt(2q Nd ep / eps0) (Sqrt(Fb/q)-Sqrt(Fb/q-Vs))]}
-//           begin
-//           IvanovAprox(VaxGraph,AA,Sk,Ndd,eps,a,b);
-//           if b=ErResult then
-//               begin
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//               end;
-//           for I := 0 to Np do
-//              begin
-//              Ivanov(Series1.MinXValue+i*h,AA,Sk,VaxFile^.T,Ndd,eps,a,b,x,y);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('del/epd ='+ FloatToStrF(a,ffExponent,2,1)+' m');
-//           MemoAppr.Lines.Add('Фb='+ FloatToStrF(b,ffGeneral,3,2)+' eV');
-//           end; //'9' case
-//          10: //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
-//           begin
-//           Iph:=0;
-//           try
-//           if Iph_Lam then Aprox (4,VaxGraph, Mode_Lam,nn,Rss,I00,Rsh,Isc,Voc,Iph)
-//                      else Aprox (1,VaxGraph,Mode_Lam,nn,Rss,I00,Rsh,Isc,Voc,Iph);
-//           except
-//           nn:=ErResult;
-//           end;
-//            if nn=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//     {             Str1:=TStringList.Create;
-//            for I := 0 to High(VaxGraph^.X) do
-//               begin
-//               b:=LambertAprShot(VaxGraph^.X[i],nn*Kb*VaxFile^.T,Rss,I00,Rsh);
-////               b:=LambertLightAprShot(VaxGraph^.X[i],nn*Kb*VaxFile^.T,Rss,I00,Rsh,Iph);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//      {}
-//
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              if Iph_Lam then y:=LambertLightAprShot(x,nn*Kb*VaxFile^.T,Rss,I00,Rsh,Iph)//y:=LambertAprShot(x,nn*Kb*VaxFile^.T,Rss,I00,Rsh)
-//                         else y:=LambertAprShot(x,nn*Kb*VaxFile^.T,Rss,I00,Rsh);//y:=LambertLightAprShot(x,nn*Kb*VaxFile^.T,Rss,I00,Rsh,Iph);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I0='+ FloatToStrF(I00,ffExponent,3,2));
-//           MemoAppr.Lines.Add('n='+ FloatToStrF(nn,ffGeneral,3,2));
-//           case Mode_Lam of
-//             0:begin
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,3,2));
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,3,2));
-//               end;
-//              1:
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,3,2));
-//              2:
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,3,2));
-//           end;
-//           if Iph_Lam then
-//             begin
-//             MemoAppr.Lines.Add('Voc='+ FloatToStrF(Voc,ffGeneral,3,2));
-//             MemoAppr.Lines.Add('Isc='+ FloatToStrF(Isc,ffExponent,3,2));
-//             MemoAppr.Lines.Add('Iph='+ FloatToStrF(Iph,ffExponent,3,2));
-//             end;
-//           end; //'10' case
-//          11: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-//              //еволюційні методи
-//           begin
-//           Iph:=0;
-//           try
-//           if Iph_DE then
-//                case EvolType of
-//                  TMABC:MABC (VaxGraph,photodiod,Mode_DE,EvolParam);
-//                  TTLBO:TLBO (VaxGraph,photodiod,Mode_DE,EvolParam);
-//                  TPSO:DifEvol (VaxGraph,photodiod,Mode_DE,EvolParam);
-//                  else DifEvol (VaxGraph,photodiod,Mode_DE,EvolParam);
-//                end
-//                     else
-//                case EvolType of
-//                  TMABC:MABC (VaxGraph,diod,Mode_DE,EvolParam);
-//                  TTLBO:TLBO (VaxGraph,diod,Mode_DE,EvolParam);
-//                  TPSO:DifEvol (VaxGraph,diod,Mode_DE,EvolParam);
-//                  else DifEvol (VaxGraph,diod,Mode_DE,EvolParam);
-//                end;
-//
-//
-//{           case CBAppr.ItemIndex of
-//             11:if Iph_DE then DifEvol (VaxGraph,photodiod,Mode_DE,EvolParam)
-//                           else DifEvol (VaxGraph,diod,Mode_DE,EvolParam);
-//             12:if Iph_DE then TLBO (VaxGraph,photodiod,Mode_DE,EvolParam)
-//                            else TLBO (VaxGraph,diod,Mode_DE,EvolParam);
-//             13:begin
-//               if Iph_DE then MABC (VaxGraph,photodiod,Mode_DE,EvolParam)
-//                            else MABC (VaxGraph,diod,Mode_DE,EvolParam);
-//
-//               end;
-//             end; //case}
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//
-//
-//          nn:=EvolParam[0];
-//          Rss:=EvolParam[1];
-//          I00:=EvolParam[2];
-//          Rsh:=EvolParam[3];
-//          if Iph_DE then Iph:=EvolParam[4];
-//          if (Iph>1e-7) then
-//            begin
-//              Voc:=Voc_Isc_Pm(1,VaxGraph,nn,Rss,I00,Rsh,Iph);
-//              Isc:=Voc_Isc_Pm(2,VaxGraph,nn,Rss,I00,Rsh,Iph);
-//            end;
-//
-//            Str1:=TStringList.Create;
-//            for I := 0 to High(VaxGraph^.X) do
-//               begin
-//               b:=Full_IV(VaxGraph^.X[i],nn*Kb*VaxFile^.T,Rss,I00,Rsh,Iph);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(b,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=Full_IV(x,nn*Kb*VaxFile^.T,Rss,I00,Rsh,Iph);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I0='+ FloatToStrF(I00,ffExponent,4,3));
-//           MemoAppr.Lines.Add('n='+ FloatToStrF(nn,ffGeneral,4,3));
-//           case Mode_DE of
-//             0:begin
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,4,3));
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,4,3));
-//               end;
-//              1:
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,4,3));
-//              2:
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,4,3));
-//           end;
-//           if Iph_DE then
-//             begin
-//             MemoAppr.Lines.Add('Voc='+ FloatToStrF(Voc,ffGeneral,4,3));
-//             MemoAppr.Lines.Add('Isc='+ FloatToStrF(Isc,ffExponent,4,3));
-//             MemoAppr.Lines.Add('Iph='+ FloatToStrF(Iph,ffExponent,4,3));
-//             end;
-//           end; //'11' case
-//          12: //функція І=I01*[exp(q(V-IRs)/n1kT)-1]+I02*[exp(q(V-IRs)/n2kT)-1]
-//                  // +(V-IRs)/Rsh-Iph,
-//                 //методи еволюційної апроксимації
-//           begin
-//           Iph:=0;
-//           try
-//           if Iph_DE then
-//                case EvolType of
-//                  TMABC:MABC (VaxGraph,DoubleDiodLight,Mode_DE,EvolParam);
-//                  TTLBO:TLBO (VaxGraph,DoubleDiodLight,Mode_DE,EvolParam);
-//                  TPSO:DifEvol (VaxGraph,DoubleDiodLight,Mode_DE,EvolParam);
-//                  else DifEvol (VaxGraph,DoubleDiodLight,Mode_DE,EvolParam);
-//                end
-//                     else
-//                case EvolType of
-//                  TMABC:MABC (VaxGraph,DoubleDiod,Mode_DE,EvolParam);
-//                  TTLBO:TLBO (VaxGraph,DoubleDiod,Mode_DE,EvolParam);
-//                  TPSO:DifEvol (VaxGraph,DoubleDiod,Mode_DE,EvolParam);
-//                  else DifEvol (VaxGraph,DoubleDiod,Mode_DE,EvolParam);
-//                end
-//           except
-//           SetLength(EvolParam,1);
-//           EvolParam[0]:=ErResult;
-//           end;
-//            if EvolParam[0]=ErResult then
-//                 begin
-//                  MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-//                  CBoxAppr.Checked:=False;
-//                  dispose(tempVax);
-//                  Exit;
-//                 end;
-//
-//
-//          nn:=EvolParam[0];
-//          Rss:=EvolParam[1];
-//          I00:=EvolParam[2];
-//          Rsh:=EvolParam[3];
-//          if Iph_DE then Iph:=EvolParam[6]
-//             else
-//             begin
-//             SetLength(EvolParam,7);
-//             EvolParam[6]:=0;
-//             end;
-//
-//      {}    if (Iph>1e-7) then
-//            begin
-//              Voc:=Voc_Isc_Pm_DoubleDiod(1,EvolParam[0]*Kb*VaxFile^.T,EvolParam[4]*Kb*VaxFile^.T,
-//               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
-//              Isc:=Voc_Isc_Pm_DoubleDiod(2,EvolParam[0]*Kb*VaxFile^.T,EvolParam[4]*Kb*VaxFile^.T,
-//               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
-//              Pm:=Voc_Isc_Pm_DoubleDiod(3,EvolParam[0]*Kb*VaxFile^.T,EvolParam[4]*Kb*VaxFile^.T,
-//               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
-//            end;
-//       {}
-//            Str1:=TStringList.Create();
-//            for I := 0 to High(VaxGraph^.x) do
-//               begin
-//               a:=Full_IV_2Exp(VaxGraph^.X[i],EvolParam[0]*Kb*VaxFile^.T,EvolParam[4]*Kb*VaxFile^.T,
-//               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
-//               Str1.Add(FloatToStrF(VaxGraph^.X[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(VaxGraph^.Y[i],ffExponent,4,0)+' '+
-//                       FloatToStrF(a,ffExponent,4,0));
-//               end;
-//            Str1.SaveToFile('000.dat');
-//            Str1.Free;
-//
-//
-//           for I := 0 to Np do
-//              begin
-//              x:=Series1.MinXValue+i*h;
-//              y:=Full_IV_2Exp(x,EvolParam[0]*Kb*VaxFile^.T,EvolParam[4]*Kb*VaxFile^.T,
-//               EvolParam[1],EvolParam[2],EvolParam[5],EvolParam[3],EvolParam[6]);
-//              Series4.AddXY(x, y);
-//              end;
-//           Series4.Active:=True;
-//           if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-//           MemoAppr.Lines.Add(LAppr.Caption);
-//           MemoAppr.Lines.Add('I01='+ FloatToStrF(EvolParam[2],ffExponent,4,3));
-//           MemoAppr.Lines.Add('n1='+ FloatToStrF(EvolParam[0],ffGeneral,4,3));
-//           MemoAppr.Lines.Add('I02='+ FloatToStrF(EvolParam[5],ffExponent,4,3));
-//           MemoAppr.Lines.Add('n2='+ FloatToStrF(EvolParam[4],ffGeneral,4,3));
-//           case Mode_DE of
-//             0:begin
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,4,3));
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,4,3));
-//               end;
-//              1:
-//               MemoAppr.Lines.Add('Rs='+ FloatToStrF(Rss,ffExponent,4,3));
-//              2:
-//               MemoAppr.Lines.Add('Rsh='+ FloatToStrF(Rsh,ffExponent,4,3));
-//           end;
-//           if Iph_DE then
-//             begin
-//             MemoAppr.Lines.Add('Voc='+ FloatToStrF(Voc,ffGeneral,4,3));
-//             MemoAppr.Lines.Add('Isc='+ FloatToStrF(Isc,ffExponent,4,3));
-//             MemoAppr.Lines.Add('Iph='+ FloatToStrF(Iph,ffExponent,4,3));
-//             MemoAppr.Lines.Add('Pm='+ FloatToStrF(Pm,ffExponent,4,3));
-//             end;
-//           end; //'14,15' case
-//       else;
-//      end; //case
-//    dispose(tempVax);
-//    end    //then CBoxAppr.Checked
-//                    else
-//                   Series4.Active:=False;
-//end;
 
 procedure TForm1.CBoxBaseLineUseClick(Sender: TObject);
 var i,j:word;
@@ -9720,8 +7466,6 @@ if CBoxDLBuild.Checked then
         GaussLinesToGrid;
         end;
       dB_dV_Fun(VaxFile,VaxGraph,SpinEditDL.Value,LabIsc.Caption,CBoxRCons.Checked);
-//     dB_dV_Fun(VaxFile,VaxGraph,SpinEditDL.Value,Isc,CBoxIscCons.Checked,
-//               CBoxRCons.Checked,D[diDE],Mode_DE,Iph_DE,2);
      str:='dB/dV';
     end;
 ShowGraph(Form1,str);
@@ -9758,8 +7502,6 @@ if CBoxGLShow.Checked then
            RButGaussianLines.Checked:=True;
            end;
 
-//      showmessage(inttostr(SEGauss.MaxValue));
-
   end //CBoxGSShow.Checked then
                         else
       begin
@@ -9789,20 +7531,6 @@ if RadioButtonFP.Checked then
 if RadioButtonFPEm.Checked then
                  RadioButtonM_VClick(RadioButtonFPEm);
 end;
-
-//procedure TForm1.OnlyNumberPress(Sender: TObject; var Key: Char);
-//{процедура чіпляється до дії onKeyPress всіх дочірніх форм,
-//дозволяє вводити в поля лише числові значення}
-//begin
-//if Key=#13 then
-//    begin
-//   SelectNext((Sender as TForm).ActiveControl,True,True);
-//    Key:=#0;
-////    SendMessage( Self.Handle, WM_NEXTDLGCTL, 0, 0);
-//    end;
-//if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
-// then Key:=#0;
-//end;
 
 
 procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
@@ -9838,7 +7566,6 @@ begin
 
  if a^.n>0 then
   begin
-//      showmessage('1111');
    for i:=0 to High(a^.X) do
     begin
      SeriesPoint.AddXY(a^.X[i],a^.Y[i],'',clRed);
@@ -9895,7 +7622,7 @@ begin
   for I := 0 to F.ComponentCount-1 do
    if (F.Components[i].Tag=58)or(F.Components[i].Tag=59) then
       (F.Components[i] as TControl).Enabled:=False;
-  {про Tag=58 і Tag=59 див. у методі CBMarkerClick}    
+  {про Tag=58 і Tag=59 див. у методі CBMarkerClick}
 
 end;
 
@@ -9967,13 +7694,6 @@ if Form1.SpButLimit.Down then
 ApproxHide(Form1);
 end;
 
-{procedure ParamExp(Form1:TForm1; A:IRE);
-{записує на форму початкові значення аппроксимації
-за формулою I=I0[exp(eV/nkT)-1]}
-{begin
-  Form1.LabelExpI0.Caption:='I0='+FloatToStrF(A[1],ffExponent,2,1);
-  Form1.LabelExpN.Caption:='n='+FloatToStrF(A[3]/Kb/290,ffGeneral,3,2);
-end;}
 
 procedure DiapShow(D:TDiapazon;Xmin,Ymin,Xmax,Ymax:TLabel);
 {відображення компонентів запису D у відповідних мітках}
@@ -10089,42 +7809,6 @@ begin
   FormToDiap(FrDp.LEXMin,FrDp.LEYmin,FrDp.LEXmax,FrDp.LEYMax,D)
 end;
 
-//procedure ModeShow(Mode:integer;Iph:boolean;LRs,LRsh,LIph:TLabel);
-//{відображення режиму апроксимації
-//ВАХ у відповідних мітках}
-//begin
-//if Iph then LIph.Caption:='Iph is varied'
-//       else LIph.Caption:='Iph = 0';
-//if (Mode=1)or(Mode=3) then LRsh.Caption:='Rsh = 1 TOhm'
-//                      else LRsh.Caption:='Rsh is varied';
-//if (Mode=2)or(Mode=3) then LRs.Caption:='Rs = 0 Ohm'
-//                      else LRs.Caption:='Rs is varied';
-//end;
-
-//procedure ModeToForm(Mode:integer;Iph:boolean;CB_Rs,CB_Rsh,CB_Iph:TCheckBox);
-//{встановлення перемикачів CB_Rs,CB_Rsh,CB_Iph
-//відповідно до режиму апроксимації, що
-//задається параметрами Mode та Iph}
-//begin
-//if (Mode=2) or (Mode=3) then CB_Rs.Checked:=False
-//                        else CB_Rs.Checked:=True;
-//if (Mode=1) or (Mode=3) then CB_Rsh.Checked:=False
-//                        else CB_Rsh.Checked:=True;
-//CB_Iph.Checked:=Iph;
-//end;
-//
-//procedure FormToMode(CB_Rs,CB_Rsh,CB_Iph:TCheckBox;var Mode:integer;var Iph:boolean);
-//{встановлення  режиму апроксимації
-//(параметрів Mode та Iph) відповідно до
-//перемикачів CB_Rs,CB_Rsh,CB_Iph}
-//begin
-//Iph:=CB_Iph.Checked;
-//if (CB_Rsh.Checked)and(CB_Rsh.Checked) then Mode:=0;
-//if not(CB_Rsh.Checked) then Mode:=1;
-//if not(CB_Rs.Checked) then Mode:=2;
-//if (not(CB_Rsh.Checked))and(not(CB_Rs.Checked)) then Mode:=3;
-//end;
-
 procedure StrToNumber(St:TCaption; Def:double; var Num:double);
 {процедура переведення тестового рядка St в чисельне
 значення Num;
@@ -10159,7 +7843,6 @@ Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 значення n, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 var n_tmp:double;
-//    FitA:TFitFunctionAAA;
 begin
  Result:=ErResult;
  n_tmp:=ErResult;
@@ -10207,7 +7890,6 @@ begin
         Fit.Free;
         Result:=EvolParam[1];
      end;
-//          ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     15: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
@@ -10218,7 +7900,6 @@ begin
         Fit.Free;
         Result:=EvolParam[1];
       end;
-//      ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     16: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
@@ -10229,7 +7910,6 @@ begin
         Fit.Free;
         Result:=EvolParam[1];
       end;
-//      ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
  end; //case
 end;
@@ -10241,7 +7921,6 @@ Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;
 використовується для методів,
 які дозволяють визначити Rs спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
-//var FitA:TFitFunctionAAA;
 begin
  Result:=ErResult;
  case CB.ItemIndex of
@@ -10278,7 +7957,6 @@ begin
         Fit.Free;
         Result:=EvolParam[1];
      end;
-//       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     13: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
@@ -10289,7 +7967,6 @@ begin
         Fit.Free;
         Result:=EvolParam[1];
       end;
-//       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     14: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
@@ -10300,7 +7977,6 @@ begin
         Fit.Free;
         Result:=EvolParam[1];
       end;
-//       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Fbb,Result,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
  end; //case
 end;
@@ -10313,7 +7989,6 @@ Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 значення Rs, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 var Rs_tmp:double;
-//    FitA:TFitFunctionAAA;
 begin
 Result:=ErResult;
 Rs_tmp:=ErResult;
@@ -10371,7 +8046,6 @@ case CB.ItemIndex of
         Fit.Free;
         Result:=EvolParam[0];
      end;
-//       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     16: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
@@ -10382,7 +8056,6 @@ case CB.ItemIndex of
         Fit.Free;
         Result:=EvolParam[0];
       end;
-//       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     17: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
@@ -10393,7 +8066,6 @@ case CB.ItemIndex of
         Fit.Free;
         Result:=EvolParam[0];
       end;
-//       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
  end; //case
 end;
@@ -10405,7 +8077,6 @@ Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;
 використовується для методів,
 які дозволяють визначити n спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
-//var FitA:TFitFunctionAAA;
 begin
 Result:=ErResult;
 case CB.ItemIndex of
@@ -10440,7 +8111,6 @@ case CB.ItemIndex of
         Fit.Free;
         Result:=EvolParam[0];
      end;
-//       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     12: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
@@ -10451,7 +8121,6 @@ case CB.ItemIndex of
         Fit.Free;
         Result:=EvolParam[0];
       end;
-//       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     13: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
@@ -10462,7 +8131,6 @@ case CB.ItemIndex of
         Fit.Free;
         Result:=EvolParam[0];
       end;
-//       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,Result,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
  end; //case
 end;
@@ -10473,7 +8141,6 @@ Function FbDefineCB(A:PVector; CB:TComboBox; Rs:double):double;
 визначаеться величина висоти бар'єру,
 для деякий методів необхідне значення Rs,
 яке використовується як параметр}
-//var FitA:TFitFunctionAAA;
 begin
 Result:=ErResult;
 if (Rs=ErResult) and (CB.ItemIndex in [1,2]) then Exit;
@@ -10511,7 +8178,6 @@ case CB.ItemIndex of
         if Iph_Exp then Result:=ErResult
                    else Result:=EvolParam[4];
       end;
-//       ExpKalkNew(A,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Result,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     11: //Fb рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
@@ -10523,7 +8189,6 @@ case CB.ItemIndex of
         if Iph_Lam then Result:=ErResult
                    else Result:=EvolParam[4];
       end;
-//       ExpKalkNew(A,D[diLam],Mode_Lam,Iph_Lam,1,AA,Sk,nn,I00,Result,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     12: //Fb рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
@@ -10535,7 +8200,6 @@ case CB.ItemIndex of
         if Iph_DE then Result:=ErResult
                   else Result:=EvolParam[4];
       end;
-//       ExpKalkNew(A,D[diDE],Mode_DE,Iph_DE,2,AA,Sk,nn,I00,Result,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
     else;
  end; //case
 end;
@@ -10599,43 +8263,6 @@ with F do
   LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
  end;
 end;
-
-//Procedure DiodParam(F:TForm1;N_Mat:integer;var Ar:double; var Eps:double);
-//{встановлення в залежності від значення N_Mat величин
-//сталої Річардсона Ar, діелектричної проникності
-//напівпровідника Eps та виведення цих значень
-//у відповідний блок
-//N_Mat
-//1 - n-Si; 2 - p-Si; 3 - n-GaAs; 4 - n-InP;
-//5 - 4H-SiC; 6 - n-GaN; 7 - n-CdTe; 8 - CuInSe2;
-//9 - p-GaTe; 10 - p-GaSe; 11- Other
-//У відповідних RadioButton Tag потрібно встановити
-//так само як ці номери, тобто RBnSi.Tag=1, RBOther.Tag=11...
-//}
-//const
-//   Nm=11;
-//   Richard:array [1..Nm] of double=
-//    (1.12e6, 0.32e6, 0.0816e6, 0.6e6, 0.75e6, 0.269e6,
-//     0.12e6, 0.853e6, 1.19e6, 2.47e6, ErResult);
-//   Perm:array [1..Nm] of double=
-//    (11.7, 11.7, 12.9, 12.5, 9.7, 8.9,
-//     ErResult, ErResult, ErResult, ErResult, ErResult);
-//begin
-//  F.LabelPerm.Visible:=True;
-//  F.ButtonRich.Enabled:=False;
-//  F.ButtonPerm.Enabled:=False;
-//  if (Richard[N_Mat]<>ErResult) then Ar:=Richard[N_Mat];
-//  if (Perm[N_Mat]<>ErResult) then Eps:=Perm[N_Mat]
-//                        else F.LabelPerm.Visible:=False;
-//  if N_Mat=Nm then
-//    begin
-//    F.LabelPerm.Visible:=True;
-//    F.ButtonRich.Enabled:=True;
-//    F.ButtonPerm.Enabled:=True;
-//    end;
-// F.LabelRich.Caption:=FloatToStrF(Ar,ffExponent,3,2);
-// F.LabelPerm.Caption:=FloatToStrF(Eps,ffGeneral,3,2);
-//end;
 
 Procedure MaterialOnForm;
 {виведення на форму параметрів матеріалу, які
@@ -11045,7 +8672,6 @@ Function StrToFloatDef(FloatString : string; Default : double ) : double;
 функція використовується при введенні переметра гамма
 у функції Норда (Бохліна)}
 begin
-//Result:=Default;
 if FloatString='' then Result:=Default
            else
             begin
@@ -11340,10 +8966,7 @@ end;
 
  Form.Width:=Img.Width+MarginLeft+MarginRight;
 
-
-
  Dp.Top:=VerticalEnd+25;
-
 
  Buttons:=TFrBut.Create(Form);
  Buttons.Parent:=Form;
@@ -11601,7 +9224,6 @@ FitName - назва функції, якв буде використовуватись
 var j,id:integer;
     temp,A_apr,{temp_apr,}B_apr,Alim:Pvector;
     tsingle:double;
-//    Fit:TFitFunction;
     Light:boolean;
     Diap:TDiapazon;
 begin
@@ -11622,8 +9244,6 @@ begin
   if (FitName= FuncName[14])or
      (FitName= FuncName[13])
               then Diap:=D[diLam];
-
-//  showmessage(BooltoStr(Light));
 
  B^.n:=0;
  new(Alim);
@@ -11688,8 +9308,6 @@ begin
  dispose(temp);
 //--------------------------------------------
 
-
-
 if Rbool then
   begin
   FunCreate(FitName,Fit);
@@ -11705,7 +9323,7 @@ if Rbool then
   for j:=0 to High(Alim^.X) do
      A_apr^.Y[j]:=Fit.FinalFunc(Alim^.X[j],EvolParam);
 
-  Fit.Free;  
+  Fit.Free;
   IVchar(A_apr,temp);
   new(B_apr);
   Diferen (temp,B_apr);
@@ -11716,8 +9334,6 @@ if Rbool then
 
   ForwardIV(B_apr,temp);
   IVchar(temp,B_apr);
-
-
 
   for j:=1 to fun do
    begin
@@ -11737,7 +9353,6 @@ if Rbool then
          end;
   for j := 0 to High(B^.X) do
     B^.Y[j]:=B^.Y[j]-B_apr^.Y[j];
-//  showmessage(FitName);
 
  dispose(temp);
  dispose(B_apr);

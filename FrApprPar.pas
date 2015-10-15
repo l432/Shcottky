@@ -44,17 +44,13 @@ implementation
 
 procedure TFrApprP.BtClick(Sender: TObject);
 var Form:TForm;
-//    ConfigFile:TIniFile;
     Buttons:TFrBut;
     Img:TImage;
     Lab,Labt:Tlabel;
     CB:TComBobox;
     Koef:array[0..2] of TLabeledEdit;
-//    str,str1:string;
-    i{,j}:integer;
-//    ParamName:array of string;
+    i:integer;
 begin
-// ConfigFile:=TIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
  Form:=Tform.Create(Application);
  Form.Position:=poMainFormCenter;
  Form.AutoScroll:=True;
@@ -96,50 +92,13 @@ begin
  CB.Items.Clear;
  CB.Sorted:=False;
  CB.Items.Add('none');
-// str:=ConfigFile.ReadString(Panel1.Parent.Parent.Name,'Pnames','');
-
-// str1:='';
-// j:=1;
-// for I := 1 to Length(str) do
-//  begin
-//   if str[i]='*' then
-//      begin
-//       SetLength(ParamName,j);
-//       ParamName[High(ParamName)]:=str1;
-//       str1:='';
-//       inc(j);
-//      end
-//                else
-//      str1:=str1+str[i];
-//  end;
-// for I := 2 to High(ParamName) do
-//  CB.Items.Add(' '+ParamName[i]+' ');
-// for I := 2 to High(ParamName) do
-//  CB.Items.Add(' '+ParamName[i]+', inverse');
 
  for I := 0 to High(FVarName) do
   CB.Items.Add(' '+FVarName[i]+' ');
  for I := 0 to High(FVarName) do
   CB.Items.Add(' '+FVarName[i]+', inverse');
 
-
-// j:=ConfigFile.ReadInteger(Panel1.Parent.Parent.Name,
-//                  Panel1.Parent.Name+'tt',0);
-// if j=0 then CB.ItemIndex:=0;
-//
-// if ((j>0) and (j<=High(ParamName))) then CB.ItemIndex:=j-1;
-//
-// if (j>High(ParamName)) then CB.ItemIndex:=j-High(ParamName)-1;
-
  CB.ItemIndex:=FXt;
-
-
-//(FXt[i]<FPNs)and(FXt[i]>0)
-  {містить числа, пов'язані з параметрами,
- які використовуються для розрахунку змінної:
- 0 - без параметрів, тобто змінна = А
- 2..(FPNs-1) - FParam[FXt[i]]
- (FPNs+2)..(2FPNs-1) - FParam[FXt[i]-FPNs]^(-1)}
 
  for i:=0 to High(Koef) do
   begin
@@ -159,16 +118,6 @@ begin
  Koef[1].Text:=ValueToStr555(FB);
  Koef[2].Text:=ValueToStr555(FC);
 
-// Koef[0].Text:=ValueToStr555(
-//      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
-//                             Panel1.Parent.Name+'A',555));
-// Koef[1].Text:=ValueToStr555(
-//      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
-//                             Panel1.Parent.Name+'B',555));
-// Koef[2].Text:=ValueToStr555(
-//      ConfigFile.ReadFloat(Panel1.Parent.Parent.Name,
-//                             Panel1.Parent.Name+'C',555));
-
  Buttons:=TFrBut.Create(Form);
  Buttons.Parent:=Form;
  Buttons.Left:=10;
@@ -177,56 +126,18 @@ begin
 
  Form.Width:=Buttons.Left+Buttons.Width+40;
  Form.Height:= Buttons.Top+70;
-// ConfigFile.Free;
 
  if Form.ShowModal=mrOk then
    begin
-//     ConfigFile:=TIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
-//     if CB.ItemIndex=0 then j:=0;
-//     if ((CB.ItemIndex>0)and(CB.ItemIndex<High(ParamName)))
-//         then j:=CB.ItemIndex+1;
-//     if (CB.ItemIndex>=High(ParamName))
-//         then j:=CB.ItemIndex+1+High(ParamName);
-//     ConfigFile.WriteInteger(Panel1.Parent.Parent.Name,
-//                  Panel1.Parent.Name+'tt',j);
      FXt:=CB.ItemIndex;
      FA:=StrToFloat555(Koef[0].Text);
      FB:=StrToFloat555(Koef[1].Text);
      FC:=StrToFloat555(Koef[2].Text);
-//     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
-//                             Panel1.Parent.Name+'A',
-//                             StrToFloat555(Koef[0].Text));
-//     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
-//                             Panel1.Parent.Name+'B',
-//                             StrToFloat555(Koef[1].Text));
-//     ConfigFile.WriteFloat(Panel1.Parent.Parent.Name,
-//                             Panel1.Parent.Name+'C',
-//                             StrToFloat555(Koef[2].Text));
-//
-//     ConfigFile.Free;
    end;
-
-
-// Buttons.Parent:=nil;
-// Buttons.Free;
-// for i:=0 to High(Koef) do
-//  begin
-//   Koef[i].Parent:=nil;
-//   Koef[i].Free;
-//  end;
-// CB.Parent:=nil;
-// CB.Free;
-// Lab.Parent:=nil;
-// Lab.Free;
-// Labt.Parent:=nil;
-// Labt.Free;
-// Img.Parent:=nil;
-// Img.Free;
 
  ElementsFromForm(Form);
  Form.Hide;
  Form.Release;
-
 end;
 
 

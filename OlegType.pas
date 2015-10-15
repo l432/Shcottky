@@ -11,7 +11,6 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Hpl=1.05457e-34; {постійна Планка перекреслена, []=Дж c}
       m0=9.11e-31; {маса електрону []=кг}
       ErResult=555;
-//      Tpow=0.83;
 var   StartValue,EndValue,Freq:Int64;
 
 //QueryPerformanceCounter(StartValue);
@@ -36,29 +35,9 @@ type
          N_begin:integer; //номери початкової і кінцевої точок
          N_end:integer;  //даних, які відображаються на графіку
          end;
-         
+
     PVector=^Vector;
 
-//   TFuncType=(diod,photodiod,DiodTwo,DiodTwoFull,DGaus,
-//              DoubleDiod,DoubleDiodLight,LinEg,RevZriz,RevShSCLC,
-//              RevShSCLC2,RevShSCLC3,RevShTwo,RevShNew,RevShNew2,
-//              RevZriz2,RevZriz3,
-//              Power2,Tun);
-{функції, які можна апроксимувати еволюційними методами:
-diod - I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh;
-photodiod - I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph;
-DiodTwo - I=I01[exp((V-IRs1)/n1kT)-1]+I02[exp(V/n2kT)-1];
-DiodTwoFull  - I=I01[exp((V-IRs1)/n1kT)-1]+I02[exp((V-IRs2)/n2kT)-1]
-DoubleDiod  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh;
-DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh-Iph;
-}
-{   TEvolutionType= //еволюційний метод, який використовується для апроксимації
-    (TDE, //differential evolution
-     TMABC, // modified artificial bee colony
-     TTLBO,  //teaching learning based optimization algorithm
-     TPSO    // particle swarm optimization
-     );
- }
   T2DArray=array of array of double;
 
   SysEquation=record
@@ -75,8 +54,6 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
     N - кількість рівнянь}
 
   PSysEquation=^SysEquation;
-
- // T2DArray=array of array of double;
 
   TFun1D=Function(A:Pvector; Variab:array of double;
                   Param:array of double;
@@ -124,14 +101,6 @@ DoubleDiodLight  - I=I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/R
   PClassroom=^TArrArrSingle;
 
   TArrStr=array of string;
-
- { TVar_Rand=(lin,logar,cons);
-  {для змінних, які використовуються у еволюційних методах,
-  lin - еволюціонує значення змінної
-  logar - еволюціонує значення логарифму змінної
-  сons - змінна залишається сталою}
-{  TArrVar_Rand=array of TVar_Rand;
-  PTArrVar_Rand=^TArrVar_Rand;     {}
 
   IRE=array[1..3] of double;
   {масив використовується при апроксимації
@@ -345,9 +314,6 @@ begin
   SetLength(A^.X, A^.n);
   SetLength(A^.Y, A^.n);
 end;
-
-
-
 
 
 end.
