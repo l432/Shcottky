@@ -3,7 +3,7 @@ unit OlegType;
 
 interface
 //uses Windows,Messages,SysUtils,Forms;
-// uses IniFiles;
+ uses IniFiles;
 
 const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Eps0=8.85e-12; {діелектрична стала, []=Ф/м}
@@ -141,6 +141,8 @@ type
            property YMax:double Index 4 read GetData write SetData;
            property Br:Char read fBr write SetDataBr;
            procedure Copy (Souсe:TDiapazon);
+           procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+           procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
          end;
 
    Curve3=class //(TObject)// тип для збереження трьох параметрів,
@@ -183,7 +185,21 @@ type
 Procedure SetLenVector(A:Pvector;n:integer);
 {встановлюється кількість точок у векторі А}
 
+ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                     Value:double; Default:double=ErResult);overload;
+{записує в .ini-файл значення тільки якщо воно не дорівнює Default}
 
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:integer; Default:integer=ErResult);overload;
+{записує в .ini-файл значення тільки якщо воно не дорівнює Default}
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:string; Default:string='');overload;
+{записує в .ini-файл значення тільки якщо воно не дорівнює Default}
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:Boolean);overload;
+{записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 implementation
 
@@ -226,6 +242,24 @@ YMin:=Souсe.Ymin;
 XMax:=Souсe.Xmax;
 YMax:=Souсe.Ymax;
 Br:=Souсe.Br;
+end;
+
+procedure TDiapazon.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+begin
+  XMin:=ConfigFile.ReadFloat(Section,Ident+' XMin',0.001);
+  YMin:=ConfigFile.ReadFloat(Section,Ident+' YMin',0);
+  XMax:=ConfigFile.ReadFloat(Section,Ident+' XMax',ErResult);
+  YMax:=ConfigFile.ReadFloat(Section,Ident+' Ymax',ErResult);
+  Br:=ConfigFile.ReadString(Section,Ident+' Br','F')[1];
+end;
+
+procedure TDiapazon.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+begin
+ WriteIniDef(ConfigFile,Section,Ident,Xmin,0.001);
+ WriteIniDef(ConfigFile,Section,Ident,Ymin,0);
+ WriteIniDef(ConfigFile,Section,Ident,Xmax);
+ WriteIniDef(ConfigFile,Section,Ident,Ymax);
+ WriteIniDef(ConfigFile,Section,Ident,Br,'F');
 end;
 
 
@@ -315,5 +349,32 @@ begin
   SetLength(A^.Y, A^.n);
 end;
 
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:double; Default:double=ErResult);
+{записує в .ini-файл значення тільки якщо воно не дорівнює Default}
+begin
+ if (Value<>Default) then ConfigFile.WriteFloat(Section,Ident,Value);
+end;
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:integer; Default:integer=ErResult);
+{записує в .ini-файл значення тільки якщо воно не дорівнює Default}
+begin
+ if (Value<>Default) then ConfigFile.WriteInteger(Section,Ident,Value);
+end;
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:string; Default:string='');overload;
+{записує в .ini-файл значення тільки якщо воно не дорівнює Default}
+begin
+ if (Value<>Default) then ConfigFile.WriteString(Section,Ident,Value);
+end;
+
+Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
+                      Value:Boolean);
+{записує в .ini-файл значення тільки якщо воно не дорівнює True}
+begin
+ if Value then ConfigFile.WriteBool(Section,Ident,Value);
+end;
 
 end.

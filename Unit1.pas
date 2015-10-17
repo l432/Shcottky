@@ -1172,7 +1172,7 @@ var
   RA, RB, RC:double;
   {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
       Rs=A+B*T+C*T^2}
-  Isc,Voc,Iph,Rsh,Pm,FF:double;
+//  Isc,Voc,Iph,Rsh,Pm,FF:double;
   {Isc - струм короткого замикання
   Voc - напруга холостого ходу
   Iph - фотострум
@@ -1218,83 +1218,82 @@ begin
 end;
 
 procedure TForm1.ComBForwRsChange(Sender: TObject);
-var i:integer;
+ var i:integer;
 begin
-with Form1 do
-begin
- for I := 0 to ComponentCount-1 do
-   if (Components[i].Tag=(Sender as TComponent).Tag)
-      and (AnsiPos('_',Components[i].Name)<>0)
-       then
-         begin
-           CBEnable((Sender as TComboBox),
-                    (Components[i] as TComboBox));
-           Break;
-         end;
-end; //with Form1 do
+  with Form1 do
+    begin
+     for I := 0 to ComponentCount-1 do
+       if (Components[i].Tag=(Sender as TComponent).Tag)
+          and (AnsiPos('_',Components[i].Name)<>0)
+           then
+             begin
+               CBEnable((Sender as TComboBox),
+                        (Components[i] as TComboBox));
+               Break;
+             end;
+    end; //with Form1 do
 end;
 
 procedure TForm1.ComboBoxNChange(Sender: TObject);
 begin
-if Hfunc.Checked then RadioButtonM_VClick(Hfunc);
-CBEnable(ComboBoxN,ComboBoxN_Rs);
+  if Hfunc.Checked then RadioButtonM_VClick(Hfunc);
+  CBEnable(ComboBoxN,ComboBoxN_Rs);
 end;
 
 procedure TForm1.ComboBoxNssFbChange(Sender: TObject);
 begin
-if RadioButtonNss.Checked then
+  if RadioButtonNss.Checked then
                  RadioButtonM_VClick(RadioButtonNss);
 end;
 
 procedure TForm1.ComboBoxNssRsChange(Sender: TObject);
 begin
-CBEnable(ComboBoxNssRS,ComboBoxNssRS_n);
-if RadioButtonNss.Checked then
-                 RadioButtonM_VClick(RadioButtonNss);
-if RadioButtonDit.Checked then
-                 RadioButtonM_VClick(RadioButtonDit);
+  CBEnable(ComboBoxNssRS,ComboBoxNssRS_n);
+  if RadioButtonNss.Checked then
+                   RadioButtonM_VClick(RadioButtonNss);
+  if RadioButtonDit.Checked then
+                   RadioButtonM_VClick(RadioButtonDit);
 end;
 
 procedure TForm1.ComboBoxRSChange(Sender: TObject);
 begin
-if VaxFile.T<=0 then
+ if VaxFile.T<=0 then
   if not (ComboBoxRS.ItemIndex in [0,1,2,3,6,7,10,11,13,14,15,16]) then
    begin
    MessageDlg('Rs can not be calculated by this method,'+#10+#13+
               'because T is undefined',mtError, [mbOK], 0);
    ComboBoxRS.ItemIndex:=6;
    end;
-CBEnable(ComboBoxRS,ComboBoxRS_n);
+ CBEnable(ComboBoxRS,ComboBoxRS_n);
 
-if RadioButtonForwRs.Checked then
+ if RadioButtonForwRs.Checked then
                  RadioButtonM_VClick(RadioButtonForwRs);
-if RadioButtonN.Checked then
+ if RadioButtonN.Checked then
                  RadioButtonM_VClick(RadioButtonN);
-if RadioButtonEx2F.Checked then
+ if RadioButtonEx2F.Checked then
                  RadioButtonM_VClick(RadioButtonEx2F);
-if RadioButtonEx2R.Checked then
+ if RadioButtonEx2R.Checked then
                  RadioButtonM_VClick(RadioButtonEx2R);
 end;
 
 procedure TForm1.DataSheetDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
 begin
-if (ACol>0) and (ARow>0) then
-begin
- if StrtoFloat(DataSheet.Cells[Acol,ARow])<0 then
-   begin
-   DataSheet.Canvas.Brush.Color:=RGB(204,241,248);
-   DataSheet.Canvas.FillRect(Rect);
-   DataSheet.Canvas.TextOut(Rect.Left+2,Rect.Top+2,DataSheet.Cells[Acol,Arow]);
-   end
+ if (ACol>0) and (ARow>0) then
+  begin
+   if StrtoFloat(DataSheet.Cells[Acol,ARow])<0 then
+    begin
+     DataSheet.Canvas.Brush.Color:=RGB(204,241,248);
+     DataSheet.Canvas.FillRect(Rect);
+     DataSheet.Canvas.TextOut(Rect.Left+2,Rect.Top+2,DataSheet.Cells[Acol,Arow]);
+    end
                                             else
-   begin
-   DataSheet.Canvas.Brush.Color:=RGB(252,218,208);
-   DataSheet.Canvas.FillRect(Rect);
-   DataSheet.Canvas.TextOut(Rect.Left+2,Rect.Top+2,DataSheet.Cells[Acol,Arow]);
-   end
-end;
-
+    begin
+     DataSheet.Canvas.Brush.Color:=RGB(252,218,208);
+     DataSheet.Canvas.FillRect(Rect);
+     DataSheet.Canvas.TextOut(Rect.Left+2,Rect.Top+2,DataSheet.Cells[Acol,Arow]);
+    end
+ end;
 end;
 
 procedure TForm1.DataSheetSelectCell(Sender: TObject; ACol, ARow: Integer;
@@ -1305,14 +1304,13 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-    i,j{Imat}:integer;
+ var
+    i,j:integer;
     ConfigFile:TIniFile;
     st:string;
     DP: TDiapazons;
     DR:TDirName;
     CL:TColName;
-//    idMaterialName :TMaterialName;
 begin
  Form1.Scaled:=false;
  GroupBox20.ParentBackground:=False;
@@ -1328,7 +1326,7 @@ begin
   CBKalk.Items.Add('H-function');
   CBKalk.Items.Add('Norde');
   CBKalk.Items.Add('I=I0[exp(Vef/E)-1]+Vef/Rsh-Iph');
-  CBKalk.Items.Add('I=I0exp(eV/nkT)');
+  CBKalk.Items.Add('I=I0exp(qV/nkT)');
   CBKalk.Items.Add('Rect.Koef');
   CBKalk.Items.Add('Kaminskii I');
   CBKalk.Items.Add('Kaminskii II');
@@ -1541,16 +1539,17 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   for DP := Low(DP) to High(DP) do
    begin
     D[DP]:=TDiapazon.Create;
-    D[DP].XMin:=ConfigFile.ReadFloat('Diapaz',
-        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMin',0.001);
-    D[DP].YMin:=ConfigFile.ReadFloat('Diapaz',
-        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' YMin',0);
-    D[DP].XMax:=ConfigFile.ReadFloat('Diapaz',
-        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',ErResult);
-    D[DP].YMax:=ConfigFile.ReadFloat('Diapaz',
-        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',ErResult);
-    D[DP].Br:=ConfigFile.ReadString('Diapaz',
-        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Br','F')[1];
+    D[Dp].ReadFromIniFile(ConfigFile,'Diapaz',GetEnumName(TypeInfo(TDiapazons),ord(DP)));
+//    D[DP].XMin:=ConfigFile.ReadFloat('Diapaz',
+//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMin',0.001);
+//    D[DP].YMin:=ConfigFile.ReadFloat('Diapaz',
+//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' YMin',0);
+//    D[DP].XMax:=ConfigFile.ReadFloat('Diapaz',
+//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',ErResult);
+//    D[DP].YMax:=ConfigFile.ReadFloat('Diapaz',
+//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',ErResult);
+//    D[DP].Br:=ConfigFile.ReadString('Diapaz',
+//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Br','F')[1];
    end;
   if D[diEx].XMin<0.06 then D[diEx].XMin:=0.07;
   if D[diIvan].XMin<0.06 then D[diIvan].XMin:=0.07;
@@ -1961,8 +1960,6 @@ II02[39]:=0.01458;
 II02[40]:=0.01232;
 II02[41]:=0.01014;
 
-
-
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -1986,12 +1983,12 @@ begin
  ConfigFile.WriteString('Direct','Dir',Directory);
  ConfigFile.WriteString('Direct','CDir',CurDirectory);
 
-ConfigFile.WriteInteger('Limit','MinXY',GrLim.MinXY);
-ConfigFile.WriteInteger('Limit','MaxXY',GrLim.MaxXY);
-ConfigFile.WriteFloat('Limit','MinV0',GrLim.MinValue[0]);
-ConfigFile.WriteFloat('Limit','MinV1',GrLim.MinValue[1]);
-ConfigFile.WriteFloat('Limit','MaxV0',GrLim.MaxValue[0]);
-ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
+ ConfigFile.WriteInteger('Limit','MinXY',GrLim.MinXY);
+ ConfigFile.WriteInteger('Limit','MaxXY',GrLim.MaxXY);
+ ConfigFile.WriteFloat('Limit','MinV0',GrLim.MinValue[0]);
+ ConfigFile.WriteFloat('Limit','MinV1',GrLim.MinValue[1]);
+ ConfigFile.WriteFloat('Limit','MaxV0',GrLim.MaxValue[0]);
+ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
 
  ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
  ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
@@ -2001,16 +1998,17 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
 
   for DP := Low(DP) to High(DP) do
    begin
-   ConfigFile.WriteFloat('Diapaz',
-    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMin',D[Dp].XMin);
-   ConfigFile.WriteFloat('Diapaz',
-    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' YMin',D[Dp].YMin);
-   ConfigFile.WriteFloat('Diapaz',
-    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',D[Dp].XMax);
-   ConfigFile.WriteFloat('Diapaz',
-    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',D[Dp].YMax);
-   ConfigFile.WriteString('Diapaz',
-    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Br',D[Dp].Br);
+//   ConfigFile.WriteFloat('Diapaz',
+//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMin',D[Dp].XMin);
+//   ConfigFile.WriteFloat('Diapaz',
+//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' YMin',D[Dp].YMin);
+//   ConfigFile.WriteFloat('Diapaz',
+//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',D[Dp].XMax);
+//   ConfigFile.WriteFloat('Diapaz',
+//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',D[Dp].YMax);
+//   ConfigFile.WriteString('Diapaz',
+//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Br',D[Dp].Br);
+   D[Dp].WriteToIniFile(ConfigFile,'Diapaz',GetEnumName(TypeInfo(TDiapazons),ord(DP)));
    D[DP].Free;
    end;
 
@@ -2027,17 +2025,17 @@ ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
   ConfigFile.WriteString('Parameters','DateFunctionName',LDateFun.Caption);
 
 {запис стану вибору директорій для створення}
-for DR:=Low(DR) to High(DR) do
- ConfigFile.WriteBool('Dir',
-          'Select '+GetEnumName(TypeInfo(TDirName),ord(DR)),
-          (DR in DirNames));
-{запис стану вибору колонок для створення}
-for CL:=Low(CL) to High(CL) do
- ConfigFile.WriteBool('Column',
-     'Select '+GetEnumName(TypeInfo(TColName),ord(CL)),
-     (CL in ColNames));
+ for DR:=Low(DR) to High(DR) do
+  ConfigFile.WriteBool('Dir',
+           'Select '+GetEnumName(TypeInfo(TDirName),ord(DR)),
+           (DR in DirNames));
+ {запис стану вибору колонок для створення}
+ for CL:=Low(CL) to High(CL) do
+  ConfigFile.WriteBool('Column',
+      'Select '+GetEnumName(TypeInfo(TColName),ord(CL)),
+      (CL in ColNames));
 
-ConfigFile.WriteBool('Column','SelectFun',CBDateFun.Checked);
+ ConfigFile.WriteBool('Column','SelectFun',CBDateFun.Checked);
 
 
 
@@ -2070,19 +2068,17 @@ begin
                   Length(Components[i].Name)-Length('ComBDate')),
                (Components[i] as TComboBox).ItemIndex);
    end; //   case Components[i].Tag of
-
-
 end; // with Form1 do
 
-ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
-ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
+  ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
+  ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 
-Diod.WriteToIniFile(ConfigFile);
-Diod.Free;
-ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
-if Semi.Name=Materials[High(TMaterialName)].Name
-    then  Semi.WriteToIniFile(ConfigFile);
-Semi.Free;
+  Diod.WriteToIniFile(ConfigFile);
+  Diod.Free;
+  ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
+  if Semi.Name=Materials[High(TMaterialName)].Name
+      then  Semi.WriteToIniFile(ConfigFile);
+  Semi.Free;
 
   if Assigned(BaseLine) then BaseLine.Free;
   if Assigned(BaseLineCur) then BaseLineCur.Free;
@@ -2098,23 +2094,23 @@ Semi.Free;
  end;
 
 procedure TForm1.FormShow(Sender: TObject);
-var i,j:integer;
+ var i,j:integer;
 begin
-with Form1 do
-begin
-  for I := 0 to ComponentCount-1 do
-{--------------------------------------------}
-{малювання штрихів на шкалах}
-     if (Components[i] is TTrackBar)and(Components[i].Name<>'TrackBarMar')
-        then
-          begin
-           j:=0;
-           repeat
-            (Components[i] as TTrackBar).SetTick(j);
-            Inc(j,100);
-           until (j>1000);
-          end;
-end;
+  with Form1 do
+    begin
+      for I := 0 to ComponentCount-1 do
+    {--------------------------------------------}
+    {малювання штрихів на шкалах}
+         if (Components[i] is TTrackBar)and(Components[i].Name<>'TrackBarMar')
+            then
+              begin
+               j:=0;
+               repeat
+                (Components[i] as TTrackBar).SetTick(j);
+                Inc(j,100);
+               until (j>1000);
+              end;
+    end;
 end;
 
 procedure TForm1.FullIVClick(Sender: TObject);
@@ -2129,65 +2125,65 @@ function TForm1.GraphType(Sender: TObject): TGraph;
    {повертає значення, яке зв'язане з типом графіку, який
    будується залежно від назви об'єкта Sender}
 begin
-Result:=Non;
-if (TComponent(Sender).Name='RadioButtonM_V') or
-   (TComponent(Sender).Name='ButM_V') then Result:=IP;
-if (TComponent(Sender).Name='RadioButtonFN') or
-   (TComponent(Sender).Name='ButFow_Nor') then Result:=FN;
-if (TComponent(Sender).Name='RadioButtonFNEm') or
-   (TComponent(Sender).Name='ButFow_NorE') then Result:=FNm;
-if (TComponent(Sender).Name='RadioButtonAb') or
-   (TComponent(Sender).Name='ButAbeles') then Result:=Ab;
-if (TComponent(Sender).Name='RadioButtonAbEm') or
-   (TComponent(Sender).Name='ButAbelesE') then Result:=Abm;
-if (TComponent(Sender).Name='RadioButtonFP') or
-   (TComponent(Sender).Name='ButFr_Pool') then Result:=FP;
-if (TComponent(Sender).Name='RadioButtonFPEm') or
-   (TComponent(Sender).Name='ButFr_PoolE') then Result:=FPm;
-if (TComponent(Sender).Name='RadioButtonLee') or
-   (TComponent(Sender).Name='ButLee')  then Result:=Lef;
-if (TComponent(Sender).Name='RadioButtonKam1') or
-   (TComponent(Sender).Name='ButKam1') then Result:=Ka1;
-if (TComponent(Sender).Name='RadioButtonKam2') or
-   (TComponent(Sender).Name='ButKam2') then Result:=Ka2;
-if (TComponent(Sender).Name='RadioButtonGr1') or
-   (TComponent(Sender).Name='ButGr1')  then Result:=Gr1;
-if (TComponent(Sender).Name='RadioButtonGr2') or
-   (TComponent(Sender).Name='ButGr2')  then Result:=Gr2;
-if (TComponent(Sender).Name='Chung') or
-   (TComponent(Sender).Name='ButChung')then Result:=Chu;
-if (TComponent(Sender).Name='RadioButtonCib') or
-   (TComponent(Sender).Name='ButCib')  then Result:=Ci;
-if (TComponent(Sender).Name='RadioButtonWer') or
-   (TComponent(Sender).Name='ButWer')  then Result:=Wer;
-if (TComponent(Sender).Name='RadioButtonForwRs') or
-   (TComponent(Sender).Name='ButForwRs')then Result:=FoRs;
-if (TComponent(Sender).Name='RadioButtonN') or
-   (TComponent(Sender).Name='ButtonN')  then Result:=Ide;
-if (TComponent(Sender).Name='RadioButtonEx2F') or
-   (TComponent(Sender).Name='ButExp2F') then Result:=E2F;
-if (TComponent(Sender).Name='RadioButtonEx2R') or
-   (TComponent(Sender).Name='ButExp2R') then Result:=E2R;
-if (TComponent(Sender).Name='Hfunc') or
-   (TComponent(Sender).Name='ButHfunc') then Result:=Hf;
-if (TComponent(Sender).Name='Nord') or
-   (TComponent(Sender).Name='ButNord')  then Result:=Nor;
-if (TComponent(Sender).Name='RadioButtonF_V') then Result:=FV;
-if (TComponent(Sender).Name='RadioButtonF_I') then Result:=FI;
-if (TComponent(Sender).Name='RadioButtonMikhAlpha') or
-   (TComponent(Sender).Name='ButMAlpha')then Result:=MAl;
-if (TComponent(Sender).Name='RadioButtonMikhN') or
-   (TComponent(Sender).Name='ButMN')    then Result:=MId;
-if (TComponent(Sender).Name='RadioButtonMikhRs') or
-   (TComponent(Sender).Name='ButMRs')   then Result:=MRs;
-if (TComponent(Sender).Name='RadioButtonMikhBetta') or
-   (TComponent(Sender).Name='ButMBetta')then Result:=MBe;
-if (TComponent(Sender).Name='RadioButtonNss') or
-   (TComponent(Sender).Name='ButNss')   then Result:=Nssf;
-if (TComponent(Sender).Name='RadioButtonDit') or
-   (TComponent(Sender).Name='ButDit')   then Result:=Ditf;
-if TComponent(Sender).Name='ForIV' then Result:=Fo;
-if TComponent(Sender).Name='RevIV' then Result:=Rev;
+  Result:=Non;
+  if (TComponent(Sender).Name='RadioButtonM_V') or
+     (TComponent(Sender).Name='ButM_V') then Result:=IP;
+  if (TComponent(Sender).Name='RadioButtonFN') or
+     (TComponent(Sender).Name='ButFow_Nor') then Result:=FN;
+  if (TComponent(Sender).Name='RadioButtonFNEm') or
+     (TComponent(Sender).Name='ButFow_NorE') then Result:=FNm;
+  if (TComponent(Sender).Name='RadioButtonAb') or
+     (TComponent(Sender).Name='ButAbeles') then Result:=Ab;
+  if (TComponent(Sender).Name='RadioButtonAbEm') or
+     (TComponent(Sender).Name='ButAbelesE') then Result:=Abm;
+  if (TComponent(Sender).Name='RadioButtonFP') or
+     (TComponent(Sender).Name='ButFr_Pool') then Result:=FP;
+  if (TComponent(Sender).Name='RadioButtonFPEm') or
+     (TComponent(Sender).Name='ButFr_PoolE') then Result:=FPm;
+  if (TComponent(Sender).Name='RadioButtonLee') or
+     (TComponent(Sender).Name='ButLee')  then Result:=Lef;
+  if (TComponent(Sender).Name='RadioButtonKam1') or
+     (TComponent(Sender).Name='ButKam1') then Result:=Ka1;
+  if (TComponent(Sender).Name='RadioButtonKam2') or
+     (TComponent(Sender).Name='ButKam2') then Result:=Ka2;
+  if (TComponent(Sender).Name='RadioButtonGr1') or
+     (TComponent(Sender).Name='ButGr1')  then Result:=Gr1;
+  if (TComponent(Sender).Name='RadioButtonGr2') or
+     (TComponent(Sender).Name='ButGr2')  then Result:=Gr2;
+  if (TComponent(Sender).Name='Chung') or
+     (TComponent(Sender).Name='ButChung')then Result:=Chu;
+  if (TComponent(Sender).Name='RadioButtonCib') or
+     (TComponent(Sender).Name='ButCib')  then Result:=Ci;
+  if (TComponent(Sender).Name='RadioButtonWer') or
+     (TComponent(Sender).Name='ButWer')  then Result:=Wer;
+  if (TComponent(Sender).Name='RadioButtonForwRs') or
+     (TComponent(Sender).Name='ButForwRs')then Result:=FoRs;
+  if (TComponent(Sender).Name='RadioButtonN') or
+     (TComponent(Sender).Name='ButtonN')  then Result:=Ide;
+  if (TComponent(Sender).Name='RadioButtonEx2F') or
+     (TComponent(Sender).Name='ButExp2F') then Result:=E2F;
+  if (TComponent(Sender).Name='RadioButtonEx2R') or
+     (TComponent(Sender).Name='ButExp2R') then Result:=E2R;
+  if (TComponent(Sender).Name='Hfunc') or
+     (TComponent(Sender).Name='ButHfunc') then Result:=Hf;
+  if (TComponent(Sender).Name='Nord') or
+     (TComponent(Sender).Name='ButNord')  then Result:=Nor;
+  if (TComponent(Sender).Name='RadioButtonF_V') then Result:=FV;
+  if (TComponent(Sender).Name='RadioButtonF_I') then Result:=FI;
+  if (TComponent(Sender).Name='RadioButtonMikhAlpha') or
+     (TComponent(Sender).Name='ButMAlpha')then Result:=MAl;
+  if (TComponent(Sender).Name='RadioButtonMikhN') or
+     (TComponent(Sender).Name='ButMN')    then Result:=MId;
+  if (TComponent(Sender).Name='RadioButtonMikhRs') or
+     (TComponent(Sender).Name='ButMRs')   then Result:=MRs;
+  if (TComponent(Sender).Name='RadioButtonMikhBetta') or
+     (TComponent(Sender).Name='ButMBetta')then Result:=MBe;
+  if (TComponent(Sender).Name='RadioButtonNss') or
+     (TComponent(Sender).Name='ButNss')   then Result:=Nssf;
+  if (TComponent(Sender).Name='RadioButtonDit') or
+     (TComponent(Sender).Name='ButDit')   then Result:=Ditf;
+  if TComponent(Sender).Name='ForIV' then Result:=Fo;
+  if TComponent(Sender).Name='RevIV' then Result:=Rev;
 end;
 
 procedure TForm1.LabelXLogClick(Sender: TObject);
@@ -2207,34 +2203,32 @@ begin
 end;
 
 procedure TForm1.LaVarBClick(Sender: TObject);
-var Value:double;
-    st:string;
+ var Value:double;
+     st:string;
 begin
-if (Sender as TLabel).Name='LaVarB' then Value:=Semi.VarshB;
-if (Sender as TLabel).Name='LaVarA' then Value:=Semi.VarshA;
-if (Sender as TLabel).Name='LaMeff' then Value:=Semi.Meff;
-if (Sender as TLabel).Name='LaEg' then Value:=Semi.Eg0;
-if (Sender as TLabel).Name='LaPerm' then Value:=Semi.Eps;
-if (Sender as TLabel).Name='LaRich' then Value:=Semi.ARich;
+  if (Sender as TLabel).Name='LaVarB' then Value:=Semi.VarshB;
+  if (Sender as TLabel).Name='LaVarA' then Value:=Semi.VarshA;
+  if (Sender as TLabel).Name='LaMeff' then Value:=Semi.Meff;
+  if (Sender as TLabel).Name='LaEg' then Value:=Semi.Eg0;
+  if (Sender as TLabel).Name='LaPerm' then Value:=Semi.Eps;
+  if (Sender as TLabel).Name='LaRich' then Value:=Semi.ARich;
 
+  st:=FloatToStrF(Value,ffGeneral,4,3);
+  if st='ErResult' then st:='';
 
-st:=FloatToStrF(Value,ffGeneral,4,3);
-if st='ErResult' then st:='';
+  st:=InputBox('Input value',
+               'the material parameter value is expected',
+               st);
 
+  StrToNumber(st, ErResult, Value);
+  if (Sender as TLabel).Name='LaVarB' then Semi.VarshB:=Value;
+  if (Sender as TLabel).Name='LaVarA' then Semi.VarshA:=Value;
+  if (Sender as TLabel).Name='LaMeff' then Semi.Meff:=Value;
+  if (Sender as TLabel).Name='LaEg' then Semi.Eg0:=Value;
+  if (Sender as TLabel).Name='LaPerm' then Semi.Eps:=Value;
+  if (Sender as TLabel).Name='LaRich' then Semi.ARich:=Value;
 
-st:=InputBox('Input value',
-             'the material parameter value is expected',
-             st);
-
-StrToNumber(st, ErResult, Value);
-if (Sender as TLabel).Name='LaVarB' then Semi.VarshB:=Value;
-if (Sender as TLabel).Name='LaVarA' then Semi.VarshA:=Value;
-if (Sender as TLabel).Name='LaMeff' then Semi.Meff:=Value;
-if (Sender as TLabel).Name='LaEg' then Semi.Eg0:=Value;
-if (Sender as TLabel).Name='LaPerm' then Semi.Eps:=Value;
-if (Sender as TLabel).Name='LaRich' then Semi.ARich:=Value;
-
-MaterialOnForm;
+  MaterialOnForm;
 end;
 
 procedure TForm1.LDLBuildClick(Sender: TObject);
@@ -2244,11 +2238,11 @@ end;
 
 procedure TForm1.ListBoxVoltClick(Sender: TObject);
 begin
-if ListBoxVolt.ItemIndex>=0 then ButVoltDel.Enabled:=True;
+ if ListBoxVolt.ItemIndex>=0 then ButVoltDel.Enabled:=True;
 end;
 
 procedure TForm1.OpenFileClick(Sender: TObject);
-var
+ var
   drive:char;
   path, fileName:string;
 begin
@@ -2311,7 +2305,7 @@ end;
 
 procedure TForm1.PageControl1Change(Sender: TObject);
 begin
-case PageControl1.ActivePageIndex of
+ case PageControl1.ActivePageIndex of
  1,3:begin
    Graph.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
    Close1.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
@@ -2343,8 +2337,8 @@ end;
 
 procedure TForm1.RButGaussianLinesClick(Sender: TObject);
 begin
-if not(CBoxGLShow.Checked) then Exit;
-if RButGaussianLines.Checked then GaussianLinesParam;
+  if not(CBoxGLShow.Checked) then Exit;
+  if RButGaussianLines.Checked then GaussianLinesParam;
 end;
 
 procedure TForm1.RadioButtonM_VClick(Sender: TObject);
@@ -2714,13 +2708,13 @@ end;
 
 procedure TForm1.RButBaseLineClick(Sender: TObject);
 begin
-if not(CBoxBaseLineVisib.Checked) then Exit;
-if RButBaseLine.Checked then BaseLineParam;
+  if not(CBoxBaseLineVisib.Checked) then Exit;
+  if RButBaseLine.Checked then BaseLineParam;
 end;
 
 procedure TForm1.RdGrMaxClick(Sender: TObject);
 begin
-if RdGrMax.ItemIndex=GrLim.MaxXY
+ if RdGrMax.ItemIndex=GrLim.MaxXY
     then Exit
     else
      begin
@@ -2731,7 +2725,7 @@ end;
 
 procedure TForm1.RdGrMinClick(Sender: TObject);
 begin
-if RdGrMin.ItemIndex=GrLim.MinXY
+ if RdGrMin.ItemIndex=GrLim.MinXY
     then Exit
     else
      begin
@@ -2774,7 +2768,7 @@ begin
 end;
 
 procedure TForm1.SEGaussChange(Sender: TObject);
-var i:integer;
+ var i:integer;
 begin
  if High(GausLines)<0 then Exit;
  if SEGauss.Value=0 then
@@ -2819,14 +2813,14 @@ end;
 procedure TForm1.SGridGaussianSelectCell(Sender: TObject; ACol, ARow: Integer;
   var CanSelect: Boolean);
 begin
-CanSelect:=false;
-if (ARow>0)and(ARow<SGridGaussian.RowCount-3) then SEGauss.Value:=Arow;
+  CanSelect:=false;
+  if (ARow>0)and(ARow<SGridGaussian.RowCount-3) then SEGauss.Value:=Arow;
 end;
 
 procedure TForm1.SpButLimitClick(Sender: TObject);
 begin
-MarkerHide(Form1);
-CBMarker.Checked:=False;
+  MarkerHide(Form1);
+  CBMarker.Checked:=False;
 
  if SpButLimit.Down then
     begin
@@ -2841,7 +2835,7 @@ CBMarker.Checked:=False;
     end
                     else  IVchar(VaxTempLim,VaxGraph);
 
-DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
+  DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
 end;
 
 
@@ -2851,10 +2845,10 @@ begin
 end;
 
 procedure TForm1.TrackPanAChange(Sender: TObject);
-var bool:boolean;
-    i:integer;
+ var bool:boolean;
+     i:integer;
 begin
-if (RButBaseLine.Checked) and (CBoxBaseLineVisib.Checked) then
+ if (RButBaseLine.Checked) and (CBoxBaseLineVisib.Checked) then
    begin
     bool:=CBoxBaseLineUse.Checked;
     if bool then CBoxBaseLineUse.Checked:=False;
@@ -2883,7 +2877,7 @@ if (RButBaseLine.Checked) and (CBoxBaseLineVisib.Checked) then
     if bool then CBoxBaseLineUse.Checked:=True;
    end;
 
-if (RButGaussianLines.Checked) and (CBoxGLShow.Checked) then
+ if (RButGaussianLines.Checked) and (CBoxGLShow.Checked) then
    begin
     if (Sender as TWinControl).Parent.Name='PanelA' then
       begin
@@ -2909,16 +2903,13 @@ if (RButGaussianLines.Checked) and (CBoxGLShow.Checked) then
     GraphSum(GausLines);
     GaussLinesToGrid;
    end;
-
-
 end;
 
 procedure TForm1.XLogCheckClick(Sender: TObject);
-var temp:PVector;
+ var temp:PVector;
 begin
-ClearGraphLog(Form1);
-
-if XLogCheck.Checked then
+ ClearGraphLog(Form1);
+ if XLogCheck.Checked then
   begin
    new(temp);
    LogX(VaxGraph,temp);
@@ -2935,7 +2926,7 @@ if XLogCheck.Checked then
    dispose(temp);
   end;
 
-if not(XLogCheck.Checked) then
+ if not(XLogCheck.Checked) then
   begin
    if YLogCheck.Checked then LogY(VaxTemp,VaxGraph);
    if not(YLogCheck.Checked) then IVChar(VaxTemp,VaxGraph);
@@ -2945,11 +2936,10 @@ if not(XLogCheck.Checked) then
 end;
 
 procedure TForm1.YLogCheckClick(Sender: TObject);
-var temp:PVector;
+ var temp:PVector;
 begin
-ClearGraphLog(Form1);
-
-if YLogCheck.Checked then
+ ClearGraphLog(Form1);
+ if YLogCheck.Checked then
   begin
    new(temp);
    LogY(VaxGraph,temp);
@@ -2966,7 +2956,7 @@ if YLogCheck.Checked then
    dispose(temp);
   end;
 
-if not(YLogCheck.Checked) then
+ if not(YLogCheck.Checked) then
   begin
    if XLogCheck.Checked then LogX(VaxTemp,VaxGraph);
    if not(XLogCheck.Checked) then IVChar(VaxTemp,VaxGraph);
@@ -2977,28 +2967,28 @@ end;
 
 procedure TForm1.BApprClearClick(Sender: TObject);
 begin
-MemoAppr.Clear;
+ MemoAppr.Clear;
 end;
 
 procedure TForm1.BMarAddClick(Sender: TObject);
 var st:string;
 begin
-SGMarker.RowCount:=SGMarker.RowCount+1;
-SGMarker.Cells[0,SGMarker.RowCount-4]:=IntToStr(SGMarker.RowCount-4);
-st:=VaxGraph^.name;
-delete(st,LastDelimiter('.',VaxGraph^.name),4);
-SGMarker.Cells[1,SGMarker.RowCount-4]:=st;
-SGMarker.Cells[2,SGMarker.RowCount-4]:=
- FloatToStrF(VaxFile^.X[TrackBarMar.Position+VaxGraph^.N_begin],ffGeneral,4,3);
-SGMarker.Cells[3,SGMarker.RowCount-4]:=
- FloatToStrF(VaxFile^.Y[TrackBarMar.Position+VaxGraph^.N_begin],ffExponent,3,2);
+  SGMarker.RowCount:=SGMarker.RowCount+1;
+  SGMarker.Cells[0,SGMarker.RowCount-4]:=IntToStr(SGMarker.RowCount-4);
+  st:=VaxGraph^.name;
+  delete(st,LastDelimiter('.',VaxGraph^.name),4);
+  SGMarker.Cells[1,SGMarker.RowCount-4]:=st;
+  SGMarker.Cells[2,SGMarker.RowCount-4]:=
+   FloatToStrF(VaxFile^.X[TrackBarMar.Position+VaxGraph^.N_begin],ffGeneral,4,3);
+  SGMarker.Cells[3,SGMarker.RowCount-4]:=
+   FloatToStrF(VaxFile^.Y[TrackBarMar.Position+VaxGraph^.N_begin],ffExponent,3,2);
 end;
 
 procedure TForm1.BmarClearClick(Sender: TObject);
-var i:integer;
+ var i:integer;
 begin
-SGMarker.RowCount:=4;
-for I := 1 to 3 do SGMarker.Rows[i].Clear;
+  SGMarker.RowCount:=4;
+  for I := 1 to 3 do SGMarker.Rows[i].Clear;
 end;
 
 procedure TForm1.ButAveLeftClick(Sender: TObject);

@@ -29,17 +29,7 @@ Procedure CompEnable(Fm:TForm;Tag:integer;State:boolean);
 властивості Enable встановлюється значення State}
 
 
-Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
-                     Value:double);overload;
-{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
 
-Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
-                      Value:integer);overload;
-{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
-
-Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
-                      Value:Boolean);overload;
-{записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 
 implementation
@@ -130,25 +120,6 @@ for I := 0 to Fm.ComponentCount-1 do
      then (Fm.Components[i] as TControl).Enabled:=State;
 end;
 
-Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
-                      Value:double);
-{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
-begin
- if (Value<>ErResult) then ConfigFile.WriteFloat(Section,Ident,Value);
-end;
 
-Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
-                      Value:integer);
-{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
-begin
- if (Value<>ErResult) then ConfigFile.WriteInteger(Section,Ident,Value);
-end;
-
-Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
-                      Value:Boolean);
-{записує в .ini-файл значення тільки якщо воно не дорівнює ErResult}
-begin
- if Value then ConfigFile.WriteBool(Section,Ident,Value);
-end;
 
 end.
