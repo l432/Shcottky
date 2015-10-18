@@ -1996,6 +1996,8 @@ begin
  ConfigFile.WriteBool('Approx','DDiod_DE',DDiod_DE);
  ConfigFile.WriteBool('Approx','SelectGaus',RBGausSelect.Checked);
 
+ ConfigFile.EraseSection('Diapaz');
+
   for DP := Low(DP) to High(DP) do
    begin
 //   ConfigFile.WriteFloat('Diapaz',
