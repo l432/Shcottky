@@ -55,7 +55,7 @@ if  Assigned(F) then
 begin
   Img.Visible:=True;
   SizeInit;
-  PictLoadScale(Img,F.Name+'Fig');
+  PictLoadScale(Img,F.PictureName);
   Img.Visible:=True;
   Lab.Caption:=F.Caption;
   F.Free;

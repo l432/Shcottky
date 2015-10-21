@@ -361,6 +361,13 @@ Function n_T(T:double):double;
 Function GromovDistance(Xa,Ya,C0,C1,C2:double):double;
 {відстань від точки (Ха,Ya) до кривої С0+C1*x+C2*ln(x)}
 
+Function Brailsford(T,w:double;Parameters:TArrSingle):double;
+{поглинання звуку, формула Брейсфорда
+ alpha(T,w) = A*w/T*(B*w*exp(E/kT))/(1+(B*w*exp(E/kT)^2);
+ Parameters[0] - A;
+ Parameters[1] - B;
+ Parameters[2] - E}
+
 implementation
 
 procedure Swap(var A:integer; var B:integer);  overload;
@@ -2720,6 +2727,15 @@ Result:=ErResult;
     if (i>1e5) then Exit;
   Result:=sqrt(sqr(Xa-c)+sqr(Ya-Gromov(c)));
 
+end;
+
+Function Brailsford(T,w:double;Parameters:TArrSingle):double;
+ var d:double;
+begin
+ Result:=ErResult;
+ if (T<=0)or(w<=0)or(High(Parameters)<>2) then Exit;
+ d:=Parameters[1]*w*exp(Parameters[2]/Kb/T);
+ Result:=Parameters[0]*w/T*d/(1+sqr(d));
 end;
 
 end.

@@ -246,7 +246,7 @@ ff
 ff
 
 \begin{equation*}
-    \alpha(T)=A \,\frac{\omega}{T} \,\frac{B\omega\exp\left(\frac{E}{kT}\right)}{1+(B\omega)^2\exp\left(\frac{2E}{kT}\right)}
+    \alpha(T,\omega)=A \,\frac{\omega}{T} \,\frac{B\omega\exp\left(\frac{E}{kT}\right)}{1+(B\omega)^2\exp\left(\frac{2E}{kT}\right)}
 \end{equation*}
 
 ff
@@ -319,13 +319,14 @@ $\Phi_b$ is zero bias Schottky barrier height.
 \pagebreak
 
 \begin{eqnarray*}
-    I_{rev}\left(\frac{1}{kT}\right)&=&qSN_{ss}W \\
-    W&=&\frac{qE}{8m^*\varepsilon_t}\left(1-\frac{\gamma}{\gamma_1}\right)^{1/2}\exp
-    \left\{-\frac{4\sqrt{2m^*}\,\varepsilon_t^{3/2}\left(\gamma_1-\gamma\right)^2}{3qE\hbar}
+    I_{rev}\left(\frac{1}{kT}, V\right)&=&qSN_{ss}W \\
+    W&=&\frac{qE_m}{8m^*\varepsilon_t}\left(1-\frac{\gamma}{\gamma_1}\right)^{1/2}\exp
+    \left\{-\frac{4\sqrt{2m^*}\,\varepsilon_t^{3/2}\left(\gamma_1-\gamma\right)^2}{3qE_m\hbar}
     [\gamma_1+0.5\gamma]\right\}\\
     \gamma_1&=&(1+\gamma^2)^{1/2}\\
-    \gamma&=&\frac{a\hbar\omega^2\sqrt{2m^*}}{qE\sqrt{\varepsilon_t}}
+    \gamma&=&\frac{a\hbar\omega^2\sqrt{2m^*}}{qE_m\sqrt{\varepsilon_t}}
     \left\{\frac{\exp\left(\frac{\hbar\omega}{kT}\right)+1}{\exp\left(\frac{\hbar\omega}{kT}\right)-1}\right\}\\
+    E_m&=&\left\{\frac{2qN_d}{\varepsilon_0\varepsilon_s}\left[\Phi_{b0}-\frac{\beta T^2}{\alpha+T}-\frac{kT}{q}\ln\left(\frac{N_C}{N_d}\right)+V\right]\right\}^{1/2}
 \end{eqnarray*}
 
 

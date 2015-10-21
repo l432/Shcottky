@@ -8,7 +8,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..32]of string=
+  FuncName:array[0..33]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -17,7 +17,8 @@ const
            'D-Diod', 'Photo D-Diod','Tunneling','Two power','TE and SCLC',
            'TE and SCLC (II)','TE and SCLC (III)','TE reverse',
            'Ir on 1/T (I)','Ir on 1/T (II)','Ir on 1/T (III)',
-           'Brailsford on T','Brailsford on w','Phohon Tunneling');
+           'Brailsford on T','Brailsford on w',
+           'Phohon Tunneling on 1/kT','Phohon Tunneling on V');
 type
 
   TVar_Rand=(lin,logar,cons);
@@ -52,6 +53,7 @@ TFitFunction=class //(TObject)//
 private
  FName:string;//ім'я функції
  FCaption:string; // опис функції
+ FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
  FXname:TArrStr; // імена змінних
  fHasPicture:boolean;//наявність картинки
  Constructor Create(FunctionName,FunctionCaption:string);
@@ -65,6 +67,7 @@ private
  Procedure PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
 public
  property Name:string read FName;
+ property PictureName:string read FPictureName;
  property Caption:string read FCaption;
  property Xname:TArrStr read FXname;
  procedure SetValueGR;virtual;
@@ -867,15 +870,36 @@ public
  Constructor Create;
 end; // TRevShSCLC2=class (TFitFunctEvolutionEm)
 
-//TPhonAsTun=class (TFitFunctionAAA)
-//{Розраховується залежність струму, пов'язаного
-//з phonon-assisted tunneling як функції температури,
-//тобто при сталому значенні напругии,
-//величина поля підбирається як параметр}
-// public
-// Constructor Create;
-// Function Func(Variab:TArrSingle):double; override;
-// end; // TRevZriz3=class (TFitFunction)
+TPhonAsTun=class (TFitFunctEvolutionEm)
+{Розраховується залежність струму, пов'язаного
+з phonon-assisted tunneling}
+private
+ fmeff: Double; //абсолютна величина ефективної маси
+ Procedure BeforeFitness(InputData:Pvector);override;
+ Function Weight(OutputData:TArrSingle):double;override;
+ Constructor Create(FunctionName:string);
+ Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
+public
+end; // TPhonAsTun=class (TFitFunctEvolutionEm)
+
+TPhonAsTun_kT1=class (TPhonAsTun)
+{струм як функція 1/kT,
+тобто стале значення напруги потрібно вводити}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TPhonAsTun_kT1=class (TPhonAsTun)
+
+TPhonAsTun_V=class (TPhonAsTun)
+{струм як функція зворотньої напруги,
+потрібна температура}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TPhonAsTun_V=class (TPhonAsTun)
+
 //-------------------------------------------------
 procedure PictLoadScale(Img: TImage; ResName:String);
 {в Img завантажується bmp-картинка з ресурсу з назвою
@@ -944,6 +968,7 @@ begin
  FName:=FunctionName;
  FCaption:=FunctionCaption;
  fHasPicture:=True;
+ FPictureName:=FName+'Fig';
 end;
 
 Procedure TFitFunction.SetValueGR;
@@ -984,7 +1009,7 @@ if fHasPicture then
  Img.Height:=maxHeight;
  Img.Width:=maxWidth;
  Img.Stretch:=True;
- PictLoadScale(Img,FName+'Fig');
+ PictLoadScale(Img,FPictureName);
  Form.Width:=max(Form.Width,Img.Left+Img.Width+10);
  Form.Height:=max(Form.Height,Img.Top+Img.Height+10);
  end;
@@ -4023,6 +4048,7 @@ begin
  FVarManualDefinedOnly[0]:=True;
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
+ FPictureName:='BrailsfordFig';
 end;
 
 Function TBrails.Weight(OutputData:TArrSingle):double;
@@ -4033,33 +4059,27 @@ end;
 Constructor TBrailsford.Create;
 begin
  inherited Create('Brailsford');
+ FCaption:=FCaption+' Dependence on temperature.';
  FVarName[0]:='w';
  ReadFromIniFile()
 end;
 
 Function TBrailsford.Func(Parameters:TArrSingle):double;
-var d:double;
 begin
- Result:=ErResult;
- if FVariab[0]<=0 then Exit;
- d:=Parameters[1]*FVariab[0]*exp(Parameters[2]/Kb/fX);
- Result:=Parameters[0]*FVariab[0]/fX*d/(1+sqr(d));
+ Result:=Brailsford(fX,FVariab[0],Parameters);
 end;
 
 Constructor TBrailsfordw.Create;
 begin
  inherited Create('Brailsfordw');
+ FCaption:=FCaption+' Dependence on frequancy.';
  FVarName[0]:='T';
  ReadFromIniFile();
 end;
 
 Function TBrailsfordw.Func(Parameters:TArrSingle):double;
- var d:double;
 begin
- Result:=ErResult;
- if FVariab[0]<=0 then Exit;
- d:=Parameters[1]*fX*exp(Parameters[2]/Kb/FVariab[0]);
- Result:=Parameters[0]*fX/FVariab[0]*d/(1+sqr(d));
+ Result:=Brailsford(FVariab[0],fX,Parameters);
 end;
 
 //-----------------------------------------------------------------------
@@ -4157,7 +4177,7 @@ end;
 Function TRevShSCLC3.Func(Parameters:TArrSingle):double;
 begin
  Result:=Parameters[0]*Power(fX,Parameters[1])+Parameters[2]*Power(fX,Parameters[3])+
-   Parameters[4]*exp(Parameters[5]*sqrt(F2*(F1+fX))/fKT)*(1-exp(-fX/fKT));
+   Parameters[4]*exp(Parameters[5]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fKT));
 end;
 
 Constructor TRevShSCLC2.Create;
@@ -4189,42 +4209,72 @@ begin
  Fm2:=1+FVariab[3]/FVariab[0];
 end;
 
-//Constructor TPhonAsTun.Create;
-//begin
-// inherited Create(3);
-// FName:='PhonAsTun';
-// FXname[0]:='Nss';
-// FXname[1]:='Et';
-// FXname[2]:='Em';
-// FPNs:=5;
-// SetLength(FParam,FPNs);
-// SetLength(FPname,FPNs);
-// FPName[0]:='1/kT';
-// FPName[1]:='I';
-// FPName[2]:='a';
-// FPName[3]:='hw';
-// FPName[4]:='meff';
-// SetLength(FPbool,FPNs-2);
-// SetLength(FPValue,FPNs-2);
-// ReadValue;
-// FCaption:='Dependence of reverse photon-assisted tunneling current at constant bias on inverse temperature';
-//end;
-//
-//Function TPhonAsTun.Func(Variab:TArrSingle):double;
-//var g,gam,gam1,meff,qE,Et:double;
-//begin
-//Result:=ErResult;
-//if FParam[0]<=0 then Exit;
-//meff:=FParam[4]*m0;
-//qE:=Qelem*Variab[2];
-//Et:=Variab[1]*Qelem;
-//g:=FParam[2]*sqr(FParam[3]*Qelem)*(1+2/(exp(FParam[3]*FParam[0])-1));
-//gam:=sqrt(2*meff)*g/(Hpl*qE*sqrt(Et));
-//gam1:=sqrt(1+sqr(gam));
-//Result:=FSample.Area*Variab[0]*qE/sqrt(8*meff*Variab[1])*sqrt(1-gam/gam1)*
-//        exp(-4*sqrt(2*meff)*Et*sqrt(Et)/(3*Hpl*qE)*
-//            sqr(gam1-gam)*(gam1+0.5*gam));
-//end;
+Constructor TPhonAsTun.Create(FunctionName:string);
+begin
+ inherited Create(FunctionName,'Dependence of reverse photon-assisted tunneling current at constant bias on ',
+                  2,4);
+ FXname[0]:='Nss';
+ FXname[1]:='Et';
+ FVarName[2]:='a';
+ FVarName[3]:='hw';
+ FVarManualDefinedOnly[1]:=True;
+ FVarManualDefinedOnly[2]:=True;
+ FVarManualDefinedOnly[3]:=True;
+ FPictureName:='PhonAsTunFig';
+end;
+
+Procedure TPhonAsTun.BeforeFitness(InputData:Pvector);
+begin
+ inherited BeforeFitness(InputData);
+ fmeff:=m0*FSample.Material.Meff;
+end;
+
+Function TPhonAsTun.Weight(OutputData:TArrSingle):double;
+begin
+ Result:=sqr(fY);
+end;
+
+Function TPhonAsTun.PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
+var g,gam,gam1,qE,Et:double;
+begin
+  Result:=ErResult;
+  if kT1<=0 then Exit;
+  qE:=Qelem*FSample.Em(1/(kT1*Kb),FVariab[1],V);
+  Et:=Parameters[1]*Qelem;
+  g:=FVariab[2]*sqr(FVariab[3]*Qelem)*(1+2/(exp(FVariab[3]*kT1)-1));
+  gam:=sqrt(2*fmeff)*g/(Hpl*qE*sqrt(Et));
+  gam1:=sqrt(1+sqr(gam));
+  Result:=FSample.Area*Parameters[0]*qE/sqrt(8*fmeff*Parameters[1])*sqrt(1-gam/gam1)*
+          exp(-4*sqrt(2*fmeff)*Et*sqrt(Et)/(3*Hpl*qE)*
+              sqr(gam1-gam)*(gam1+0.5*gam));
+end;
+
+Constructor TPhonAsTun_kT1.Create;
+begin
+ inherited Create('PhonAsTun');
+ FCaption:=FCaption+'inverse temperature';
+ fTemperatureIsRequired:=False;
+ FVarName[0]:='V_volt';
+ FVarManualDefinedOnly[0]:=True;
+ ReadFromIniFile();
+end;
+
+Function TPhonAsTun_kT1.Func(Parameters:TArrSingle):double;
+begin
+  Result:=PhonAsTun(FVariab[0],fX,Parameters);
+end;
+
+Constructor TPhonAsTun_V.Create;
+begin
+ inherited Create('PhonAsTunV');
+ FCaption:=FCaption+'reverse voltage';
+ ReadFromIniFile();
+end;
+
+Function TPhonAsTun_V.Func(Parameters:TArrSingle):double;
+begin
+  Result:=PhonAsTun(fX,1/fkT,Parameters);
+end;
 
 //-----------------------------------------------------------------------------------
 
@@ -4288,8 +4338,8 @@ begin
   if str='TE reverse' then F:=TRevSh.Create;
   if str='Brailsford on T' then F:=TBrailsford.Create;
   if str='Brailsford on w' then F:=TBrailsfordw.Create;
-
-//  if str='Phohon Tunneling' then F:=TPhonAsTun.Create;
+  if str='Phohon Tunneling on 1/kT' then F:=TPhonAsTun_kT1.Create;
+  if str='Phohon Tunneling on V' then F:=TPhonAsTun_V.Create;
 //  if str='None' then F:=TDiod.Create;
 end;
 
