@@ -8,7 +8,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..33]of string=
+  FuncName:array[0..36]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -16,9 +16,10 @@ const
            'Two Diod Full','D-Gaussian','Patch Barrier',
            'D-Diod', 'Photo D-Diod','Tunneling','Two power','TE and SCLC',
            'TE and SCLC (II)','TE and SCLC (III)','TE reverse',
-           'Ir on 1/T (I)','Ir on 1/T (II)','Ir on 1/T (III)',
+           'Ir on 1/T (I)','Ir on 1/T (II)','Ir on 1/T (IIa)','Ir on 1/T (III)',
            'Brailsford on T','Brailsford on w',
-           'Phohon Tunneling on 1/kT','Phohon Tunneling on V');
+           'Phonon Tunneling on 1/kT','Phonon Tunneling on V',
+           'TE and Phonon Tunn. on 1/kT','TE and Phonon Tunn. on V');
 type
 
   TVar_Rand=(lin,logar,cons);
@@ -70,6 +71,7 @@ public
  property PictureName:string read FPictureName;
  property Caption:string read FCaption;
  property Xname:TArrStr read FXname;
+ property HasPicture:boolean read fHasPicture;
  procedure SetValueGR;virtual;
  Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
      Xlog:boolean=False;Ylog:boolean=False):double; virtual;abstract;
@@ -779,7 +781,7 @@ private
  Function Summand(OutputData:TArrSingle):double;override;
 public
  Constructor Create;
- end; // TRevZriz2=class (TFitFunctEvolution)
+end; // TRevZriz2=class (TFitFunctEvolution)
 
 TRevZriz3=class (TFitFunctEvolution)
 {I(1/kT)=I01*T^2*exp(-E/kT)+I02*T^(m)*exp(-(Tc/T)^p)}
@@ -828,8 +830,23 @@ private
  Procedure BeforeFitness(InputData:Pvector);override;
  Procedure FIsNotReadyDetermination;override;
  Function Weight(OutputData:TArrSingle):double;override;
+ Function TECurrent(V,T,Seff,A:double):double;
+ {повертає величину Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))}
 public
 end; // TFitFunctEvolutionEm=class (TFitFunctEvolution)
+
+
+TRevZriz2ΤΕ=class (TFitFunctEvolutionEm)
+{ I(1/kT)=Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))
+          +I02*T^(m)*A^(-300/T)}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function Weight(OutputData:TArrSingle):double;override;
+ Function Summand(OutputData:TArrSingle):double;override;
+public
+ Constructor Create;
+end; // TRevZriz2ΤΕ=class (TFitFunctEvolutionEm)
+
 
 TRevSh=class(TFitFunctEvolutionEm)
 {I(V) = I01*exp(A1*Em(V)+B*Em(V)^0.5)*(1-exp(-V/kT))+
@@ -875,30 +892,63 @@ TPhonAsTun=class (TFitFunctEvolutionEm)
 з phonon-assisted tunneling}
 private
  fmeff: Double; //абсолютна величина ефективної маси
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Function Weight(OutputData:TArrSingle):double;override;
- Constructor Create(FunctionName:string);
+ Constructor Create (FunctionName,FunctionCaption:string;
+                     Npar:byte);
  Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
 public
 end; // TPhonAsTun=class (TFitFunctEvolutionEm)
 
-TPhonAsTun_kT1=class (TPhonAsTun)
+TPhonAsTunOnly=class (TPhonAsTun)
+{базовий клас для розрахунків, де лище струм, пов'язаний
+з phonon-assisted tunneling}
+private
+ Constructor Create(FunctionName:string);overload;
+end; // TPhonAsTunOnly=class (TPhonAsTun)
+
+TPhonAsTun_kT1=class (TPhonAsTunOnly)
 {струм як функція 1/kT,
 тобто стале значення напруги потрібно вводити}
 private
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
-end; // TPhonAsTun_kT1=class (TPhonAsTun)
+end; // TPhonAsTun_kT1=class (TPhonAsTunOnly)
 
-TPhonAsTun_V=class (TPhonAsTun)
+TPhonAsTun_V=class (TPhonAsTunOnly)
 {струм як функція зворотньої напруги,
 потрібна температура}
 private
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
-end; // TPhonAsTun_V=class (TPhonAsTun)
+end; // TPhonAsTun_V=class (TPhonAsTunOnly)
+
+TPhonAsTunAndTE=class (TPhonAsTun)
+{базовий клас для розрахунків, де струм, пов'язаний
+з phonon-assisted tunneling та термоемісійний}
+private
+ Constructor Create(FunctionName:string);overload;
+end; // TPhonAsTunAndTE=class (TPhonAsTun)
+
+TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
+{струм як функція 1/kT,
+тобто стале значення напруги потрібно вводити}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
+
+TPhonAsTunAndTE_V=class (TPhonAsTunAndTE)
+{струм як функція зворотньої напруги,
+потрібна температура}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TPhonAsTunAndTE_V=class (TPhonAsTunAndTE)
 
 //-------------------------------------------------
 procedure PictLoadScale(Img: TImage; ResName:String);
@@ -997,22 +1047,22 @@ begin
 end;
 
 Procedure TFitFunction.PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
-var Img:TImage;
+ var Img:TImage;
 begin
-if fHasPicture then
- begin
- Img:=TImage.Create(Form);
- Img.Name:='Image';
- Img.Parent:=Form;
- Img.Top:=Top;
- Img.Left:=Left;
- Img.Height:=maxHeight;
- Img.Width:=maxWidth;
- Img.Stretch:=True;
- PictLoadScale(Img,FPictureName);
- Form.Width:=max(Form.Width,Img.Left+Img.Width+10);
- Form.Height:=max(Form.Height,Img.Top+Img.Height+10);
- end;
+ if fHasPicture then
+  begin
+   Img:=TImage.Create(Form);
+   Img.Name:='Image';
+   Img.Parent:=Form;
+   Img.Top:=Top;
+   Img.Left:=Left;
+   Img.Height:=maxHeight;
+   Img.Width:=maxWidth;
+   Img.Stretch:=True;
+   PictLoadScale(Img,FPictureName);
+   Form.Width:=max(Form.Width,Img.Left+Img.Width+10);
+   Form.Height:=max(Form.Height,Img.Top+Img.Height+10);
+  end;
 end;
 
 //------------------------------------------------------
@@ -4118,6 +4168,52 @@ begin
  Result:=abs(fY);
 end;
 
+Function TFitFunctEvolutionEm.TECurrent(V,T,Seff,A:double):double;
+ var kT:double;
+begin
+  kT:=Kb*T;
+  Result:=Seff*FSample.I0(T,FVariab[1])*exp(A*FSample.Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
+end;
+
+
+Constructor TRevZriz2ΤΕ.Create;
+begin
+ inherited Create('RevZriz2TE','Dependence of reverse current'+
+                'at constant bias on inverse temperature. '+
+                'First component is TE current, second is SCLC current (exponential trap distribution)',
+                 4,3);
+ FXname[0]:='Seff';
+ FXname[1]:='Al';
+ FXname[2]:='Io2';
+ FXname[3]:='A';
+ FVarName[2]:='m';
+ FVarName[0]:='V';
+ fTemperatureIsRequired:=False;
+ FVarManualDefinedOnly[0]:=True;
+ FVarManualDefinedOnly[2]:=True;
+ fHasPicture:=false;
+ ReadFromIniFile();
+end;
+
+Function TRevZriz2ΤΕ.Func(Parameters:TArrSingle):double;
+begin
+  Result:=ErResult;
+  if fX<=0 then Exit;
+  Result:=TECurrent(FVariab[0],1/fx/Kb,Parameters[0],Parameters[1])+
+    RevZrizSCLC(fX,FVariab[2],Parameters[2],Parameters[3]);
+end;
+
+Function TRevZriz2ΤΕ.Weight(OutputData:TArrSingle):double;
+begin
+ Result:=sqr(ln(fY));
+end;
+
+Function TRevZriz2ΤΕ.Summand(OutputData:TArrSingle):double;
+begin
+ Result:=ln(Func(OutputData))-ln(fY);
+end;
+
+
 Constructor TRevSh.Create;
 begin
  inherited Create('RevSh','Dependence of reverse TE current on bias',
@@ -4209,25 +4305,22 @@ begin
  Fm2:=1+FVariab[3]/FVariab[0];
 end;
 
-Constructor TPhonAsTun.Create(FunctionName:string);
+Constructor TPhonAsTun.Create(FunctionName,FunctionCaption:string;
+                     Npar:byte);
 begin
- inherited Create(FunctionName,'Dependence of reverse photon-assisted tunneling current at constant bias on ',
-                  2,4);
- FXname[0]:='Nss';
- FXname[1]:='Et';
+ inherited Create(FunctionName,FunctionCaption,Npar,4);
+ if Npar>1 then
+  begin
+   FXname[0]:='Nss';
+   FXname[1]:='Et';
+  end;
  FVarName[2]:='a';
  FVarName[3]:='hw';
- FVarManualDefinedOnly[1]:=True;
  FVarManualDefinedOnly[2]:=True;
  FVarManualDefinedOnly[3]:=True;
- FPictureName:='PhonAsTunFig';
-end;
-
-Procedure TPhonAsTun.BeforeFitness(InputData:Pvector);
-begin
- inherited BeforeFitness(InputData);
  fmeff:=m0*FSample.Material.Meff;
 end;
+
 
 Function TPhonAsTun.Weight(OutputData:TArrSingle):double;
 begin
@@ -4247,6 +4340,13 @@ begin
   Result:=FSample.Area*Parameters[0]*qE/sqrt(8*fmeff*Parameters[1])*sqrt(1-gam/gam1)*
           exp(-4*sqrt(2*fmeff)*Et*sqrt(Et)/(3*Hpl*qE)*
               sqr(gam1-gam)*(gam1+0.5*gam));
+end;
+
+Constructor TPhonAsTunOnly.Create(FunctionName:string);
+begin
+ inherited Create(FunctionName,'Dependence of reverse photon-assisted tunneling current at constant bias on ',
+                  2);
+ FPictureName:='PhonAsTunFig';
 end;
 
 Constructor TPhonAsTun_kT1.Create;
@@ -4274,6 +4374,42 @@ end;
 Function TPhonAsTun_V.Func(Parameters:TArrSingle):double;
 begin
   Result:=PhonAsTun(fX,1/fkT,Parameters);
+end;
+
+Constructor TPhonAsTunAndTE.Create(FunctionName:string);
+begin
+ inherited Create(FunctionName,'Dependence of reverse thermionic emission current and photon-assisted tunneling current at constant bias on ',
+                  4);
+ FXname[2]:='Seff';
+ FXname[3]:='A';
+ fHasPicture:=false;
+end;
+
+Constructor TPhonAsTunAndTE_kT1.Create;
+begin
+ inherited Create('PhonAsTunTEkT1');
+ FCaption:=FCaption+'inverse temperature';
+ fTemperatureIsRequired:=False;
+ FVarName[0]:='V_volt';
+ FVarManualDefinedOnly[0]:=True;
+ ReadFromIniFile();
+end;
+
+Function TPhonAsTunAndTE_kT1.Func(Parameters:TArrSingle):double;
+begin
+  Result:=PhonAsTun(FVariab[0],fX,Parameters)+TECurrent(FVariab[0],1/fx/Kb,Parameters[2],Parameters[3]);
+end;
+
+Constructor TPhonAsTunAndTE_V.Create;
+begin
+ inherited Create('PhonAsTunTEV');
+ FCaption:=FCaption+'reverse voltage';
+ ReadFromIniFile();
+end;
+
+Function TPhonAsTunAndTE_V.Func(Parameters:TArrSingle):double;
+begin
+  Result:=PhonAsTun(fX,1/fkT,Parameters)+TECurrent(fX,FVariab[0],Parameters[2],Parameters[3]);
 end;
 
 //-----------------------------------------------------------------------------------
@@ -4338,8 +4474,11 @@ begin
   if str='TE reverse' then F:=TRevSh.Create;
   if str='Brailsford on T' then F:=TBrailsford.Create;
   if str='Brailsford on w' then F:=TBrailsfordw.Create;
-  if str='Phohon Tunneling on 1/kT' then F:=TPhonAsTun_kT1.Create;
-  if str='Phohon Tunneling on V' then F:=TPhonAsTun_V.Create;
+  if str='Phonon Tunneling on 1/kT' then F:=TPhonAsTun_kT1.Create;
+  if str='Phonon Tunneling on V' then F:=TPhonAsTun_V.Create;
+  if str='TE and Phonon Tunn. on 1/kT' then F:=TPhonAsTunAndTE_kT1.Create;
+  if str='TE and Phonon Tunn. on V' then F:=TPhonAsTunAndTE_V.Create;
+  if str='Ir on 1/T (IIa)' then F:=TRevZriz2ΤΕ.Create;
 //  if str='None' then F:=TDiod.Create;
 end;
 

@@ -53,10 +53,15 @@ if CB.Items[FormSF.CB.ItemIndex]='None' then
 FunCreate(CB.Items[FormSF.CB.ItemIndex],F);
 if  Assigned(F) then
 begin
-  Img.Visible:=True;
+//  Img.Visible:=True;
   SizeInit;
-  PictLoadScale(Img,F.PictureName);
-  Img.Visible:=True;
+  if F.HasPicture then
+   begin
+    PictLoadScale(Img,F.PictureName);
+    Img.Visible:=True;
+   end
+                  else
+    Img.Visible:=False;
   Lab.Caption:=F.Caption;
   F.Free;
 end;
