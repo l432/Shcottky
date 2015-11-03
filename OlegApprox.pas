@@ -8,18 +8,20 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..36]of string=
+  FuncName:array[0..37]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
            'Diod, Lambert','PhotoDiod, Lambert','Two Diod',
            'Two Diod Full','D-Gaussian','Patch Barrier',
-           'D-Diod', 'Photo D-Diod','Tunneling','Two power','TE and SCLC',
-           'TE and SCLC (II)','TE and SCLC (III)','TE reverse',
-           'Ir on 1/T (I)','Ir on 1/T (II)','Ir on 1/T (IIa)','Ir on 1/T (III)',
+           'D-Diod', 'Photo D-Diod','Tunneling','Two power','TE and SCLC on V',
+           'TE and SCLC on V (II)','TE and SCLC on V (III)','TE reverse',
+           'TE and SCLC on 1/kT','TE and SCLCexp on 1/kT',
+           'TEstrict and SCLCexp on 1/kT','TE and TAHT on 1/kT',
            'Brailsford on T','Brailsford on w',
            'Phonon Tunneling on 1/kT','Phonon Tunneling on V',
-           'TE and Phonon Tunn. on 1/kT','TE and Phonon Tunn. on V');
+           'PAT and TE on 1/kT','PAT and TE on V',
+           'PAT and TEsoft on 1/kT');
 type
 
   TVar_Rand=(lin,logar,cons);
@@ -333,7 +335,24 @@ public
 end; //TFitTemperature=class(TFitVariabSet)
 
 //----------------------------------------------
-TFitSampleIsUsed=class(TFitTemperatureIsUsed)
+TFitVoltageIsUsed=class(TFitTemperatureIsUsed)
+{для функцій, де потрібна напруга, яку можна
+визначити з назви файлу}
+private
+ fVoltageIsRequired:boolean;
+ {щоб використовувати можливість
+ автоматичного заповнення значення FVariab[0] напругою
+ потрібно цю змінну для спадкоємців у Сreate поставити цю змінну в Екгу}
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+ Procedure BeforeFitness(InputData:Pvector);override;
+ Function DetermineVoltage(InputData:Pvector):double;
+public
+end; //TFitVoltageIsUsed=class(TFitTemperatureIsUsed)
+
+//----------------------------------------------
+
+TFitSampleIsUsed=class(TFitVoltageIsUsed)
 {для функцій, де використовується параметри зразка}
 private
  fSampleIsRequired:boolean;
@@ -344,7 +363,7 @@ private
                      Npar,Nvar:byte);
  Procedure FIsNotReadyDetermination;override;
 public
-end; //TFitSampleIsUsed=class(TFitTemperatureIsUsed))
+end; //TFitSampleIsUsed=class(TFitVoltageIsUsed)
 
 //----------------------------------------------
 TExponent=class (TFitSampleIsUsed)
@@ -763,16 +782,16 @@ public
  Constructor Create;
 end; //TPower2=class (TFitFunctEvolution)
 
-TRevZriz=class (TFitFunctEvolution)
+TTEandSCLC_kT1=class (TFitFunctEvolution)
 {I(1/kT) = I01*T^2*exp(-E1/kT)+I02*T^m*exp(-E2/kT)
 m- константа}
 private
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
-end; // TRevZriz=class (TFitFunctEvolution)
+end; // TTEandSCLC_kT1=class (TFitFunctEvolution)
 
-TRevZriz2=class (TFitFunctEvolution)
+TTEandSCLCexp_kT1=class (TFitFunctEvolution)
 { I(1/kT)=I01*T^2*exp(-E/kT)+I02*T^(m)*A^(-300/T)
 залежності від x=1/(kT)}
 private
@@ -781,15 +800,15 @@ private
  Function Summand(OutputData:TArrSingle):double;override;
 public
  Constructor Create;
-end; // TRevZriz2=class (TFitFunctEvolution)
+end; // TTEandSCLCexp_kT1=class (TFitFunctEvolution)
 
-TRevZriz3=class (TFitFunctEvolution)
+TTEandTAHT_kT1=class (TFitFunctEvolution)
 {I(1/kT)=I01*T^2*exp(-E/kT)+I02*T^(m)*exp(-(Tc/T)^p)}
 private
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
-end; // TRevZriz3=class (TFitFunctEvolution)
+end; // TTEandTAHT_kT1=class (TFitFunctEvolution)
 
 //---------------------------------------------------
 TBrails=class (TFitFunctEvolution)
@@ -836,7 +855,7 @@ public
 end; // TFitFunctEvolutionEm=class (TFitFunctEvolution)
 
 
-TRevZriz2ΤΕ=class (TFitFunctEvolutionEm)
+TTEstrAndSCLCexp_kT1=class (TFitFunctEvolutionEm)
 { I(1/kT)=Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))
           +I02*T^(m)*A^(-300/T)}
 private
@@ -845,7 +864,7 @@ private
  Function Summand(OutputData:TArrSingle):double;override;
 public
  Constructor Create;
-end; // TRevZriz2ΤΕ=class (TFitFunctEvolutionEm)
+end; // TTEstrAndSCLCexp_kT1=class (TFitFunctEvolutionEm)
 
 
 TRevSh=class(TFitFunctEvolutionEm)
@@ -858,7 +877,7 @@ public
  Constructor Create;
 end; // class(TFitFunctEvolutionEm))
 
-TRevShSCLC=class (TFitFunctEvolutionEm)
+TTEandSCLCV=class (TFitFunctEvolutionEm)
 {I(V) = I01*V^m+I02*exp(A*Em(V)/kT)(1-exp(-eV/kT))}
 private
  Function Func(Parameters:TArrSingle):double; override;
@@ -925,14 +944,39 @@ public
  Constructor Create;
 end; // TPhonAsTun_V=class (TPhonAsTunOnly)
 
-TPhonAsTunAndTE=class (TPhonAsTun)
+TPATAndTE=class (TPhonAsTun)
+{базовий клас для розрахунків, де струм, пов'язаний
+з phonon-assisted tunneling та термоемісійний}
+private
+ Constructor Create(FunctionName:string);overload;
+end; // TPATAndTE=class (TPhonAsTun)
+
+TPATandTE_kT1=class (TPATAndTE)
+{струм як функція 1/kT,
+тобто стале значення напруги потрібно вводити}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TPATandTE_kT1=class (TPATAndTE)
+
+TPATandTE_V=class (TPATAndTE)
+{струм як функція зворотньої напруги,
+потрібна температура}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TPATandTE_V=class (TPATAndTE)
+
+TPhonAsTunAndTE2=class (TPhonAsTun)
 {базовий клас для розрахунків, де струм, пов'язаний
 з phonon-assisted tunneling та термоемісійний}
 private
  Constructor Create(FunctionName:string);overload;
 end; // TPhonAsTunAndTE=class (TPhonAsTun)
 
-TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
+TPhonAsTunAndTE2_kT1=class (TPhonAsTunAndTE2)
 {струм як функція 1/kT,
 тобто стале значення напруги потрібно вводити}
 private
@@ -941,14 +985,6 @@ public
  Constructor Create;
 end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
 
-TPhonAsTunAndTE_V=class (TPhonAsTunAndTE)
-{струм як функція зворотньої напруги,
-потрібна температура}
-private
- Function Func(Parameters:TArrSingle):double; override;
-public
- Constructor Create;
-end; // TPhonAsTunAndTE_V=class (TPhonAsTunAndTE)
 
 //-------------------------------------------------
 procedure PictLoadScale(Img: TImage; ResName:String);
@@ -1627,6 +1663,28 @@ Procedure TFitTemperatureIsUsed.BeforeFitness(InputData:Pvector);
 begin
  if fTemperatureIsRequired then FVariab[0]:=InputData^.T;
  inherited BeforeFitness(InputData);
+end;
+//----------------------------------------------------
+Constructor TFitVoltageIsUsed.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+begin
+ inherited Create(FunctionName,FunctionCaption,Npar,Nvar);
+ fVoltageIsRequired:=False;
+end;
+
+Procedure TFitVoltageIsUsed.BeforeFitness(InputData:Pvector);
+begin
+ if fVoltageIsRequired then FVariab[0]:=DetermineVoltage(InputData);
+ inherited BeforeFitness(InputData);
+end;
+
+Function TFitVoltageIsUsed.DetermineVoltage(InputData:Pvector):double;
+begin
+ try
+  Result:=StrToFloat(copy(InputData^.name,1,length(InputData^.name)-4))/10;
+ except
+  Result:=ErResult;
+ end;
 end;
 
 //------------------------------------------------------------
@@ -3993,9 +4051,9 @@ begin
         +Parameters[1]*Power(fX,Parameters[3]));
 end;
 
-Constructor TRevZriz.Create;
+Constructor TTEandSCLC_kT1.Create;
 begin
- inherited Create('RevZriz','Dependence of reverse current'+
+ inherited Create('TEandSCLC','Dependence of reverse current'+
                 'at constant bias on inverse temperature. '+
                 'First component is TE current, second is SCLC current',
                  4,2,0);
@@ -4012,7 +4070,7 @@ begin
  ReadFromIniFile();
 end;
 
-Function TRevZriz.Func(Parameters:TArrSingle):double;
+Function TTEandSCLC_kT1.Func(Parameters:TArrSingle):double;
  var I1,I2:double;
 begin
   Result:=ErResult;
@@ -4023,9 +4081,9 @@ begin
                   else Result:=I1*I2/(I1+I2);
 end;
 
-Constructor TRevZriz2.Create;
+Constructor TTEandSCLCexp_kT1.Create;
 begin
- inherited Create('RevZriz2','Dependence of reverse current'+
+ inherited Create('TEandSCLCexp','Dependence of reverse current'+
                 'at constant bias on inverse temperature. '+
                 'First component is TE current, second is SCLC current (exponential trap distribution)',
                  4,1,0);
@@ -4040,7 +4098,7 @@ begin
  ReadFromIniFile();
 end;
 
-Function TRevZriz2.Func(Parameters:TArrSingle):double;
+Function TTEandSCLCexp_kT1.Func(Parameters:TArrSingle):double;
 begin
   Result:=ErResult;
   if fX<=0 then Exit;
@@ -4048,19 +4106,19 @@ begin
    RevZrizSCLC(fX,FVariab[0],Parameters[2],Parameters[3]);
 end;
 
-Function TRevZriz2.Weight(OutputData:TArrSingle):double;
+Function TTEandSCLCexp_kT1.Weight(OutputData:TArrSingle):double;
 begin
  Result:=sqr(ln(fY));
 end;
 
-Function TRevZriz2.Summand(OutputData:TArrSingle):double;
+Function TTEandSCLCexp_kT1.Summand(OutputData:TArrSingle):double;
 begin
  Result:=ln(Func(OutputData))-ln(fY);
 end;
 
-Constructor TRevZriz3.Create;
+Constructor TTEandTAHT_kT1.Create;
 begin
- inherited Create('RevZriz3','Dependence of reverse current'+
+ inherited Create('TEandTAHT','Dependence of reverse current'+
                 'at constant bias on inverse temperature. '+
                 'First component is TE current, second is termally-assisted hopping transport',
                  4,2,0);
@@ -4077,7 +4135,7 @@ begin
  ReadFromIniFile()
 end;
 
-Function TRevZriz3.Func(Parameters:TArrSingle):double;
+Function TTEandTAHT_kT1.Func(Parameters:TArrSingle):double;
  var T1:double;
 begin
  Result:=ErResult;
@@ -4172,18 +4230,19 @@ Function TFitFunctEvolutionEm.TECurrent(V,T,Seff,A:double):double;
  var kT:double;
 begin
   kT:=Kb*T;
-  Result:=Seff*FSample.I0(T,FVariab[1])*exp(A*FSample.Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
+  Result:=Seff*FSample.I0(T,FVariab[1])*
+    exp(A*FSample.Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
 end;
 
 
-Constructor TRevZriz2ΤΕ.Create;
+Constructor TTEstrAndSCLCexp_kT1.Create;
 begin
- inherited Create('RevZriz2TE','Dependence of reverse current'+
+ inherited Create('TEstrAndSCLCexp','Dependence of reverse current'+
                 'at constant bias on inverse temperature. '+
-                'First component is TE current, second is SCLC current (exponential trap distribution)',
+                'First component is TE current (strict rule), second is SCLC current (exponential trap distribution)',
                  4,3);
  FXname[0]:='Seff';
- FXname[1]:='Al';
+ FXname[1]:='alpha';
  FXname[2]:='Io2';
  FXname[3]:='A';
  FVarName[2]:='m';
@@ -4191,11 +4250,11 @@ begin
  fTemperatureIsRequired:=False;
  FVarManualDefinedOnly[0]:=True;
  FVarManualDefinedOnly[2]:=True;
- fHasPicture:=false;
+// fHasPicture:=false;
  ReadFromIniFile();
 end;
 
-Function TRevZriz2ΤΕ.Func(Parameters:TArrSingle):double;
+Function TTEstrAndSCLCexp_kT1.Func(Parameters:TArrSingle):double;
 begin
   Result:=ErResult;
   if fX<=0 then Exit;
@@ -4203,12 +4262,12 @@ begin
     RevZrizSCLC(fX,FVariab[2],Parameters[2],Parameters[3]);
 end;
 
-Function TRevZriz2ΤΕ.Weight(OutputData:TArrSingle):double;
+Function TTEstrAndSCLCexp_kT1.Weight(OutputData:TArrSingle):double;
 begin
  Result:=sqr(ln(fY));
 end;
 
-Function TRevZriz2ΤΕ.Summand(OutputData:TArrSingle):double;
+Function TTEstrAndSCLCexp_kT1.Summand(OutputData:TArrSingle):double;
 begin
  Result:=ln(Func(OutputData))-ln(fY);
 end;
@@ -4240,9 +4299,9 @@ begin
                     else Result:=inherited Weight(OutputData);
 end;
 
-Constructor TRevShSCLC.Create;
+Constructor TTEandSCLCV.Create;
 begin
- inherited Create('RevShSCLC','Dependence of reverse current on bias. First component is SCLC current, second is TE current',
+ inherited Create('TEandSCLCV','Dependence of reverse current on bias. First component is SCLC current, second is TE current',
                   4,2);
  FXname[0]:='Io1';
  FXname[1]:='p';
@@ -4251,7 +4310,7 @@ begin
  ReadFromIniFile();
 end;
 
-Function TRevShSCLC.Func(Parameters:TArrSingle):double;
+Function TTEandSCLCV.Func(Parameters:TArrSingle):double;
 begin
  Result:=Parameters[0]*Power(fX,Parameters[1])+
    Parameters[3]*exp(Parameters[2]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fkT));
@@ -4355,7 +4414,8 @@ begin
  FCaption:=FCaption+'inverse temperature';
  fTemperatureIsRequired:=False;
  FVarName[0]:='V_volt';
- FVarManualDefinedOnly[0]:=True;
+ fVoltageIsRequired:=True;
+// FVarManualDefinedOnly[0]:=True;
  ReadFromIniFile();
 end;
 
@@ -4376,41 +4436,73 @@ begin
   Result:=PhonAsTun(fX,1/fkT,Parameters);
 end;
 
-Constructor TPhonAsTunAndTE.Create(FunctionName:string);
+Constructor TPATAndTE.Create(FunctionName:string);
 begin
- inherited Create(FunctionName,'Dependence of reverse thermionic emission current and photon-assisted tunneling current at constant bias on ',
+ inherited Create(FunctionName,'Dependence of photon-assisted tunneling current and thermionic emission current (strict rule) at constant bias on ',
                   4);
  FXname[2]:='Seff';
- FXname[3]:='A';
- fHasPicture:=false;
+ FXname[3]:='alpha';
+ FPictureName:='PATandTEFig';
+// fHasPicture:=false;
 end;
 
-Constructor TPhonAsTunAndTE_kT1.Create;
+Constructor TPATandTE_kT1.Create;
 begin
- inherited Create('PhonAsTunTEkT1');
+ inherited Create('PATandTEkT1');
  FCaption:=FCaption+'inverse temperature';
  fTemperatureIsRequired:=False;
  FVarName[0]:='V_volt';
- FVarManualDefinedOnly[0]:=True;
+ fVoltageIsRequired:=True;
+// FVarManualDefinedOnly[0]:=True;
  ReadFromIniFile();
+// showmessage(floattostr(FVarValue[0]));
+//
+// showmessage(floattostr(FSample.Em(250,FVarValue[1],FVarValue[0])));
 end;
 
-Function TPhonAsTunAndTE_kT1.Func(Parameters:TArrSingle):double;
+Function TPATandTE_kT1.Func(Parameters:TArrSingle):double;
 begin
   Result:=PhonAsTun(FVariab[0],fX,Parameters)+TECurrent(FVariab[0],1/fx/Kb,Parameters[2],Parameters[3]);
 end;
 
-Constructor TPhonAsTunAndTE_V.Create;
+Constructor TPATandTE_V.Create;
 begin
- inherited Create('PhonAsTunTEV');
+ inherited Create('PATandTEV');
  FCaption:=FCaption+'reverse voltage';
  ReadFromIniFile();
 end;
 
-Function TPhonAsTunAndTE_V.Func(Parameters:TArrSingle):double;
+Function TPATandTE_V.Func(Parameters:TArrSingle):double;
 begin
   Result:=PhonAsTun(fX,1/fkT,Parameters)+TECurrent(fX,FVariab[0],Parameters[2],Parameters[3]);
 end;
+
+Constructor TPhonAsTunAndTE2.Create(FunctionName:string);
+begin
+ inherited Create(FunctionName,'Dependence of photon-assisted tunneling current and thermionic emission current (soft rule)  at constant bias on ',
+                  4);
+ FXname[2]:='I0';
+ FXname[3]:='E';
+// fHasPicture:=false;
+end;
+
+Constructor TPhonAsTunAndTE2_kT1.Create;
+begin
+ inherited Create('PATandTEsoftkT1');
+ FCaption:=FCaption+'inverse temperature';
+ fTemperatureIsRequired:=False;
+ FVarName[0]:='V_volt';
+ fVoltageIsRequired:=True;
+// FVarManualDefinedOnly[0]:=True;
+ ReadFromIniFile();
+end;
+
+Function TPhonAsTunAndTE2_kT1.Func(Parameters:TArrSingle):double;
+begin
+  Result:=PhonAsTun(FVariab[0],fX,Parameters)+
+      RevZrizFun(fx,2,Parameters[2],Parameters[3]);
+end;
+
 
 //-----------------------------------------------------------------------------------
 
@@ -4463,12 +4555,12 @@ begin
   if str='Patch Barrier' then F:=TLinEg.Create;
   if str='D-Diod' then F:=TDoubleDiod.Create;
   if str='Photo D-Diod' then F:=TDoubleDiodLight.Create;
-  if str='Ir on 1/T (I)' then F:=TRevZriz.Create;
-  if str='Ir on 1/T (II)' then F:=TRevZriz2.Create;
-  if str='Ir on 1/T (III)' then F:=TRevZriz3.Create;
-  if str='TE and SCLC' then F:=TRevShSCLC.Create;
-  if str='TE and SCLC (II)' then F:=TRevShSCLC2.Create;
-  if str='TE and SCLC (III)' then F:=TRevShSCLC3.Create;
+  if str='TE and SCLC on 1/kT' then F:=TTEandSCLC_kT1.Create;
+  if str='TE and SCLCexp on 1/kT' then F:=TTEandSCLCexp_kT1.Create;
+  if str='TE and TAHT on 1/kT' then F:=TTEandTAHT_kT1.Create;
+  if str='TE and SCLC on V' then F:=TTEandSCLCV.Create;
+  if str='TE and SCLC on V (II)' then F:=TRevShSCLC2.Create;
+  if str='TE and SCLC on V (III)' then F:=TRevShSCLC3.Create;
   if str='Tunneling' then F:=TTunnel.Create;
   if str='Two power' then F:=TPower2.Create;
   if str='TE reverse' then F:=TRevSh.Create;
@@ -4476,9 +4568,10 @@ begin
   if str='Brailsford on w' then F:=TBrailsfordw.Create;
   if str='Phonon Tunneling on 1/kT' then F:=TPhonAsTun_kT1.Create;
   if str='Phonon Tunneling on V' then F:=TPhonAsTun_V.Create;
-  if str='TE and Phonon Tunn. on 1/kT' then F:=TPhonAsTunAndTE_kT1.Create;
-  if str='TE and Phonon Tunn. on V' then F:=TPhonAsTunAndTE_V.Create;
-  if str='Ir on 1/T (IIa)' then F:=TRevZriz2ΤΕ.Create;
+  if str='PAT and TE on 1/kT' then F:=TPATandTE_kT1.Create;
+  if str='PAT and TE on V' then F:=TPATandTE_V.Create;
+  if str='TEstrict and SCLCexp on 1/kT' then F:=TTEstrAndSCLCexp_kT1.Create;
+  if str='PAT and TEsoft on 1/kT' then F:=TPhonAsTunAndTE2_kT1.Create;
 //  if str='None' then F:=TDiod.Create;
 end;
 

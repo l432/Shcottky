@@ -7021,6 +7021,9 @@ var
   Cur,Rs{,a,b}:double;
   StrRez,StrAppr:TStringList;
 //  str:string;
+   Str:TStringList;
+   TT:double;
+
 
 begin
 if ListBoxVolt.Items.Count=0 then Exit;
@@ -7034,6 +7037,8 @@ mask:='*.dat';
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
     new(Vax);
+    Str:=TStringList.Create;
+    Str.Add('V T I logI');
       try
       MkDir('Zriz');
       except
@@ -7159,14 +7164,40 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       end;
     Sorting (Vax);
     for j:= 0 to High(Vax^.X) do
-      if Vax^.Y[j]<9e-8 then Break;
+      if Vax^.Y[j]<9e-10 then Break;
     if j<Vax^.n-1 then SetLenVector(Vax,j);
 
 //    for j:= 0 to High(Vax^.X) do
 //      Vax^.X[j]:=1/(Vax^.X[j]*Kb);
 
-{}  Write_File(CurDirectory+'\Zriz\'+
-       Inttostr(round(abs(10*Volt[i])))+'s.dat',Vax);
+  Write_File(CurDirectory+'\Zriz\'+
+       Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
+
+    SetLenVector(Vax,Grid.RowCount-1);
+    for j := 1 to Grid.RowCount-1 do
+      begin
+       Vax^.X[j-1]:=StrToFloat(Grid.Cells[2,j]);
+       Vax^.Y[j-1]:=StrToFloat(Grid.Cells[k*i+4,j]);
+      end;
+    Sorting (Vax,False);
+    for j:= 0 to High(Vax^.X) do
+      if Vax^.Y[j]<6e-10 then Break;
+    if j<Vax^.n-1 then SetLenVector(Vax,j);
+
+    SetLenVector(Vax,Vax^.n+1);
+    Vax^.X[High(Vax^.X)]:=100;
+    Vax^.Y[High(Vax^.X)]:=1e-15;
+    Sorting (Vax);
+//    Write_File(CurDirectory+'\Zriz\'+
+//       Inttostr(round(abs(10*Volt[i])))+'tt.dat',Vax);
+    TT:=125;
+    repeat
+     Str.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
+           FloatToStrF(TT,ffExponent,4,0)+' '+
+           FloatToStrF(ChisloY(Vax,TT),ffExponent,4,0)+' '+
+           FloatToStrF(log10(ChisloY(Vax,TT)),ffExponent,4,0));
+     TT:=TT+5;
+    until (TT>330);
 
     end;
     dispose(Vax);
@@ -7174,6 +7205,8 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     Grid.Free;
     StrRez.Free;
     StrAppr.Free;
+    Str.SaveToFile(CurDirectory+'\Zriz\'+'sqr.dat');
+    Str.Free;
     MessageDlg('Files with current value were created sucsesfully', mtInformation,[mbOk],0);
   end
                                      else

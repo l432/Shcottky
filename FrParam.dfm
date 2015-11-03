@@ -18,18 +18,18 @@ object FrParamP: TFrParamP
     ParentFont = False
     TabOrder = 0
     object LName: TLabel
-      Left = 16
+      Left = 10
       Top = 8
       Width = 35
       Height = 16
       Caption = 'Name'
     end
     object CBIntr: TCheckBox
-      Left = 64
+      Left = 51
       Top = 9
-      Width = 50
+      Width = 66
       Height = 17
-      Caption = 'def'
+      Caption = 'manual'
       TabOrder = 0
       OnClick = CBIntrClick
     end

@@ -21,9 +21,9 @@ Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
 {записує у файл з іменем sfile дані з Series;
 якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
 
-Procedure Sorting (var A:PVector);
+Procedure Sorting (var A:PVector;Increase:bool=True);
 {процедура сортування (методом бульбашки)
-даних у масиві А по зростанню компоненти А^.Х}
+даних у масиві А по зростанню (при Increase=True) компоненти А^.Х}
 
 Procedure IVchar(a:Pvector; var b:Pvector);
 {заносить копію з а в b}
@@ -720,18 +720,23 @@ Str.SaveToFile(sfile);
 Str.Free;
 end;
 
-Procedure Sorting (var A:PVector);
+Procedure Sorting (var A:PVector;Increase:bool=True);
 {процедура сортування (методом бульбашки)
-даних у масиві А по зростанню компоненти А^.Х}
+даних у масиві А по зростанню (при Increase=True) компоненти А^.Х}
 var i,j:integer;
+    ChangeNeed:boolean;
 begin
 for I := 0 to High(A^.X)-1 do
   for j := 0 to High(A^.X)-1-i do
-      if A^.X[j]>A^.X[j+1] then
+     begin
+      if Increase then ChangeNeed:=A^.X[j]>A^.X[j+1]
+                  else ChangeNeed:=A^.X[j]<A^.X[j+1];
+      if ChangeNeed then
           begin
           Swap(A^.X[j],A^.X[j+1]);
           Swap(A^.Y[j],A^.Y[j+1]);
           end;
+     end;
 end;
 
  Procedure IVchar(a:Pvector; var b:Pvector);
