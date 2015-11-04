@@ -59,14 +59,21 @@ private
  FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
  FXname:TArrStr; // імена змінних
  fHasPicture:boolean;//наявність картинки
+ fFileHeading:string;
+ {назви колонок у файлі з результатами апроксимації,
+ що утворюється впроцедурі FittingGraphFile}
  Constructor Create(FunctionName,FunctionCaption:string);
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); virtual;abstract;
  {див. FittingGraph}
  Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);virtual;abstract;
+              Xlog,Ylog:boolean; suf:string);virtual;//abstract;
  {див. FittingGraphFile}
+ Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;virtual;
+ {створюється рядок, який вноситься у файл з результатами
+ інтерполяції; використовується в RealToFile}
  Procedure PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
 public
  property Name:string read FName;
@@ -144,8 +151,8 @@ private
   Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
-  Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);override;
+  Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
 public
  Constructor Create(FunctionName:string);
  Procedure Free;
@@ -188,8 +195,9 @@ private
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
- Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);override;
+ Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
+
 public
  Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
                      Xlog:boolean=False;Ylog:boolean=False):double; override;
@@ -342,7 +350,7 @@ private
  fVoltageIsRequired:boolean;
  {щоб використовувати можливість
  автоматичного заповнення значення FVariab[0] напругою
- потрібно цю змінну для спадкоємців у Сreate поставити цю змінну в Екгу}
+ потрібно цю змінну для спадкоємців у Сreate поставити цю змінну в True}
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
@@ -351,8 +359,28 @@ public
 end; //TFitVoltageIsUsed=class(TFitTemperatureIsUsed)
 
 //----------------------------------------------
+TFitSumFunction=class(TFitVoltageIsUsed)
+{для функцій, які є сумою двох інших і
+потрібно при занесенні апроксимації у файл
+окремо також показувати кожну складову}
+private
+ fSumFunctionIsUsed:boolean;
+ {за умовчанням - False,
+ щоб використовувати передбачуваний у класі функціонал
+ потрібно для спадкоємців у Сreate змінити на True}
+ Constructor Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+ Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; virtual;
+ Function Sum2(Parameters:TArrSingle):double; virtual;
+ Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
+public
+end; //TFitSumFunction=class(TFitVoltageIsUsed)
 
-TFitSampleIsUsed=class(TFitVoltageIsUsed)
+//----------------------------------------------
+
+TFitSampleIsUsed=class(TFitSumFunction)
 {для функцій, де використовується параметри зразка}
 private
  fSampleIsRequired:boolean;
@@ -363,7 +391,7 @@ private
                      Npar,Nvar:byte);
  Procedure FIsNotReadyDetermination;override;
 public
-end; //TFitSampleIsUsed=class(TFitVoltageIsUsed)
+end; //TFitSampleIsUsed=class(TFitSumFunction)
 
 //----------------------------------------------
 TExponent=class (TFitSampleIsUsed)
@@ -707,7 +735,8 @@ end; //  TPhotoDiod=class (TFitFunctEvolution)
 TDiodTwo=class (TFitFunctEvolution)
 {I=I01[exp((V-IRs1)/n1kT)-1]+I02[exp(V/n2kT)-1]}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TDiodTwo=class (TFitFunctEvolution)
@@ -715,7 +744,8 @@ end; // TDiodTwo=class (TFitFunctEvolution)
 TDiodTwoFull=class (TFitFunctEvolution)
 {I=I01[exp((V-IRs1)/n1kT)-1]+I02[exp((V-IRs2)/n2kT)-1]}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; //TDiodTwoFull=class (TFitFunctEvolution)
@@ -777,7 +807,8 @@ end; //TTunnel=class (TFitFunctEvolution)
 TPower2=class (TFitFunctEvolution)
 {A1*(x^m1 + A2*x^m2)}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; //TPower2=class (TFitFunctEvolution)
@@ -787,6 +818,8 @@ TTEandSCLC_kT1=class (TFitFunctEvolution)
 m- константа}
 private
  Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TTEandSCLC_kT1=class (TFitFunctEvolution)
@@ -795,7 +828,8 @@ TTEandSCLCexp_kT1=class (TFitFunctEvolution)
 { I(1/kT)=I01*T^2*exp(-E/kT)+I02*T^(m)*A^(-300/T)
 залежності від x=1/(kT)}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;override;
  Function Summand(OutputData:TArrSingle):double;override;
 public
@@ -805,7 +839,9 @@ end; // TTEandSCLCexp_kT1=class (TFitFunctEvolution)
 TTEandTAHT_kT1=class (TFitFunctEvolution)
 {I(1/kT)=I01*T^2*exp(-E/kT)+I02*T^(m)*exp(-(Tc/T)^p)}
 private
- Function Func(Parameters:TArrSingle):double; override;
+// Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TTEandTAHT_kT1=class (TFitFunctEvolution)
@@ -859,7 +895,8 @@ TTEstrAndSCLCexp_kT1=class (TFitFunctEvolutionEm)
 { I(1/kT)=Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))
           +I02*T^(m)*A^(-300/T)}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;override;
  Function Summand(OutputData:TArrSingle):double;override;
 public
@@ -871,7 +908,8 @@ TRevSh=class(TFitFunctEvolutionEm)
 {I(V) = I01*exp(A1*Em(V)+B*Em(V)^0.5)*(1-exp(-V/kT))+
         I02*exp(A2*Em(V)+B*Em(V)^0.5)*(1-exp(-V/kT))}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;override;
 public
  Constructor Create;
@@ -880,7 +918,8 @@ end; // class(TFitFunctEvolutionEm))
 TTEandSCLCV=class (TFitFunctEvolutionEm)
 {I(V) = I01*V^m+I02*exp(A*Em(V)/kT)(1-exp(-eV/kT))}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TRevShSCLC=class (TFitFunctEvolutionEm)
@@ -888,7 +927,8 @@ end; // TRevShSCLC=class (TFitFunctEvolutionEm)
 TRevShSCLC3=class (TFitFunctEvolutionEm)
 {I(V) = I01*V^m1+I02*V^m2+I03*exp(A*Em(V)/kT)*(1-exp(-eV/kT))}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TRevShSCLC3=class (TFitFunctEvolutionEm)
@@ -900,7 +940,8 @@ m2=1+T02/T}
 private
  Fm1:double;
  Fm2:double;
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
  Procedure BeforeFitness(InputData:Pvector);override;
 public
  Constructor Create;
@@ -911,7 +952,6 @@ TPhonAsTun=class (TFitFunctEvolutionEm)
 з phonon-assisted tunneling}
 private
  fmeff: Double; //абсолютна величина ефективної маси
-// Procedure BeforeFitness(InputData:Pvector);override;
  Function Weight(OutputData:TArrSingle):double;override;
  Constructor Create (FunctionName,FunctionCaption:string;
                      Npar:byte);
@@ -955,7 +995,8 @@ TPATandTE_kT1=class (TPATAndTE)
 {струм як функція 1/kT,
 тобто стале значення напруги потрібно вводити}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TPATandTE_kT1=class (TPATAndTE)
@@ -964,7 +1005,9 @@ TPATandTE_V=class (TPATAndTE)
 {струм як функція зворотньої напруги,
 потрібна температура}
 private
- Function Func(Parameters:TArrSingle):double; override;
+// Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TPATandTE_V=class (TPATAndTE)
@@ -980,7 +1023,8 @@ TPhonAsTunAndTE2_kT1=class (TPhonAsTunAndTE2)
 {струм як функція 1/kT,
 тобто стале значення напруги потрібно вводити}
 private
- Function Func(Parameters:TArrSingle):double; override;
+ Function Sum1(Parameters:TArrSingle):double; override;
+ Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
@@ -1055,6 +1099,7 @@ begin
  FCaption:=FunctionCaption;
  fHasPicture:=True;
  FPictureName:=FName+'Fig';
+ fFileHeading:='';
 end;
 
 Procedure TFitFunction.SetValueGR;
@@ -1080,6 +1125,27 @@ begin
   FittingGraph(InputData,OutputData,Series,Xlog,Ylog);
   if OutputData[0]=ErResult then Exit;
   RealToFile (InputData,OutputData,Xlog,Ylog,suf);
+end;
+
+Procedure TFitFunction.RealToFile (InputData:PVector; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);
+var Str1:TStringList;
+    i:integer;
+begin
+  Str1:=TStringList.Create;
+  if fFileHeading<>'' then Str1.Add(fFileHeading);
+  for I := 0 to High(InputData^.X) do
+    Str1.Add(StringToFile(InputData,i,OutputData,Xlog,Ylog));
+  Str1.SaveToFile(FitName(InputData,suf));
+  Str1.Free;
+end;
+
+Function TFitFunction.StringToFile(InputData:PVector;
+              Number:integer; OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;
+begin
+ Result:=FloatToStrF(InputData^.X[Number],ffExponent,4,0)+' '+
+         FloatToStrF(InputData^.Y[Number],ffExponent,4,0);
 end;
 
 Procedure TFitFunction.PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
@@ -1127,6 +1193,7 @@ begin
           'the points" quantity is very low';
       end;
  new(FtempVector);
+ fFileHeading:='X In Out';
 end;
 
 Procedure TFitWithoutParameteres.RealTransform(InputData:PVector);
@@ -1147,19 +1214,14 @@ begin
      Series.AddXY(FtempVector^.X[i],FtempVector^.Y[i]);
 end;
 
-Procedure TFitWithoutParameteres.RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);
-var Str1:TStringList;
-    i:integer;
+Function TFitWithoutParameteres.StringToFile(InputData:PVector;
+                   Number:integer; OutputData:TArrSingle;
+                   Xlog,Ylog:boolean):string;
 begin
-  Str1:=TStringList.Create;
-   for I := 0 to High(FtempVector^.X) do
-     Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
-           FloatToStrF(InputData^.Y[i],ffExponent,4,0)+' '+
-           FloatToStrF(FtempVector^.Y[i],ffExponent,4,0));
-  Str1.SaveToFile(FitName(InputData,suf));
-  Str1.Free;
+  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+          FloatToStrF(FtempVector^.Y[Number],ffExponent,4,0);
 end;
+
 
 Procedure TFitWithoutParameteres.Free;
 begin
@@ -1219,6 +1281,7 @@ begin
      end;
  if High(FXname)>1 then FXname[2]:='C';
  fYminDontUsed:=False;
+ fFileHeading:='X Y Yfit';
 end;
 
 Function TFitFunctionSimple.RealFunc(Parameters:TArrSingle):double;
@@ -1242,20 +1305,14 @@ begin
     end;
 end;
 
-Procedure TFitFunctionSimple.RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);
-var Str1:TStringList;
-    i:integer;
+Function TFitFunctionSimple.StringToFile(InputData:PVector;
+              Number:integer; OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;
 begin
-  Str1:=TStringList.Create;
-  for I := 0 to High(InputData^.X) do
-   Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
-            FloatToStrF(InputData^.Y[i],ffExponent,4,0)+' '+
-            FloatToStrF(FinalFunc(InputData^.X[i],OutputData,Xlog,Ylog),ffExponent,4,0)
-            );
-  Str1.SaveToFile(FitName(InputData,suf));
-  Str1.Free;
+  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+          FloatToStrF(FinalFunc(InputData^.X[Number],OutputData,Xlog,Ylog),ffExponent,4,0);
 end;
+
 
 Function TFitFunctionSimple.FinalFunc(X:double;DeterminedParameters:TArrSingle;
                      Xlog:boolean=False;Ylog:boolean=False):double;
@@ -1687,6 +1744,41 @@ begin
  end;
 end;
 
+//----------------------------------------------------
+Constructor TFitSumFunction.Create(FunctionName,FunctionCaption:string;
+                     Npar,Nvar:byte);
+begin
+ inherited Create(FunctionName,FunctionCaption,Npar,Nvar);
+ fSumFunctionIsUsed:=False;
+end;
+
+Function TFitSumFunction.Func(Parameters:TArrSingle):double;
+begin
+ if fSumFunctionIsUsed then
+       Result:=Sum1(Parameters)+Sum2(Parameters)
+                       else
+       Result:=ErResult;
+end;
+
+Function TFitSumFunction.Sum1(Parameters:TArrSingle):double;
+begin
+ Result:=ErResult;
+end;
+
+Function TFitSumFunction.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=ErResult;
+end;
+
+Function TFitSumFunction.StringToFile(InputData:PVector;
+              Number:integer; OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;
+begin
+  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+          FloatToStrF(Sum1(OutputData),ffExponent,4,0)+' '+
+          FloatToStrF(Sum2(OutputData),ffExponent,4,0);
+end;
+
 //------------------------------------------------------------
 Constructor TFitSampleIsUsed.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
@@ -2109,7 +2201,8 @@ begin
  FXname[1]:='Rs';
  FXname[2]:='Io';
  FXname[3]:='Rsh';
- if Npar=5 then FXname[4]:='Iph'
+ if Npar=5 then FXname[4]:='Iph';
+ fFileHeading:='V I Ifit';
 end;
 
 Procedure TFitFunctLSM.RealReadFromIniFile;
@@ -3773,14 +3866,21 @@ begin
  FXname[3]:='n2';
  FXname[4]:='Io2';
  fSampleIsRequired:=False;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='V I Ifit I1 I2';
  ReadFromIniFile();
 end;
 
-Function TDiodTwo.Func(Parameters:TArrSingle):double;
+Function TDiodTwo.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0)+
-       Parameters[4]*(exp(fX/(Parameters[3]*Kb*FVariab[0]))-1);
+ Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0);
 end;
+
+Function TDiodTwo.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[4]*(exp(fX/(Parameters[3]*Kb*FVariab[0]))-1);
+end;
+
 
 Constructor TDiodTwoFull.Create;
 begin
@@ -3794,13 +3894,19 @@ begin
  FXname[4]:='Io2';
  FXname[5]:='Rs2';
  fSampleIsRequired:=False;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='V I Ifit I1 I2'; 
  ReadFromIniFile();
 end;
 
-Function TDiodTwoFull.Func(Parameters:TArrSingle):double;
+Function TDiodTwoFull.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0)+
-         Full_IV(fX,Parameters[3]*Kb*FVariab[0],Parameters[5],Parameters[4],1e13,0);
+ Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0);
+end;
+
+Function TDiodTwoFull.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=Full_IV(fX,Parameters[3]*Kb*FVariab[0],Parameters[5],Parameters[4],1e13,0);
 end;
 
 Constructor TDGaus.Create;
@@ -4042,13 +4148,19 @@ begin
  FXname[3]:='m2';
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='X Y Yfit Y1 Y2';
  ReadFromIniFile();
 end;
 
-Function TPower2.Func(Parameters:TArrSingle):double;
+Function TPower2.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[0]*(Power(fX,Parameters[2])
-        +Parameters[1]*Power(fX,Parameters[3]));
+ Result:=Parameters[0]*Power(fX,Parameters[2]);
+end;
+
+Function TPower2.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[0]*Parameters[1]*Power(fX,Parameters[3]);
 end;
 
 Constructor TTEandSCLC_kT1.Create;
@@ -4067,6 +4179,8 @@ begin
  fSampleIsRequired:=False;
  FVarManualDefinedOnly[0]:=True;
  FVarManualDefinedOnly[1]:=True;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='kT1 I Ifit Ite Isclc';
  ReadFromIniFile();
 end;
 
@@ -4075,10 +4189,20 @@ Function TTEandSCLC_kT1.Func(Parameters:TArrSingle):double;
 begin
   Result:=ErResult;
   if fX<=0 then Exit;
-  I1:=RevZrizFun(fX,FVariab[0],Parameters[2],Parameters[3]);
-  I2:=RevZrizFun(fX,2,Parameters[0],Parameters[1]);
+  I1:=Sum1(Parameters);
+  I2:=Sum2(Parameters);
   if FVariab[1]>=0 then Result:=I1+I2
                   else Result:=I1*I2/(I1+I2);
+end;
+
+Function TTEandSCLC_kT1.Sum2(Parameters:TArrSingle):double;
+begin
+  Result:=RevZrizFun(fX,FVariab[0],Parameters[2],Parameters[3]);
+end;
+
+Function TTEandSCLC_kT1.Sum1(Parameters:TArrSingle):double;
+begin
+  Result:=RevZrizFun(fX,2,Parameters[0],Parameters[1]);
 end;
 
 Constructor TTEandSCLCexp_kT1.Create;
@@ -4095,15 +4219,19 @@ begin
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
  FVarManualDefinedOnly[0]:=True;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='kT1 I Ifit Ite Isclc';
  ReadFromIniFile();
 end;
 
-Function TTEandSCLCexp_kT1.Func(Parameters:TArrSingle):double;
+Function TTEandSCLCexp_kT1.Sum1(Parameters:TArrSingle):double;
 begin
-  Result:=ErResult;
-  if fX<=0 then Exit;
-  Result:=RevZrizFun(fX,2,Parameters[0],Parameters[1])+
-   RevZrizSCLC(fX,FVariab[0],Parameters[2],Parameters[3]);
+  Result:=RevZrizFun(fX,2,Parameters[0],Parameters[1]);
+end;
+
+Function TTEandSCLCexp_kT1.Sum2(Parameters:TArrSingle):double;
+begin
+  Result:=RevZrizSCLC(fX,FVariab[0],Parameters[2],Parameters[3]);
 end;
 
 Function TTEandSCLCexp_kT1.Weight(OutputData:TArrSingle):double;
@@ -4132,17 +4260,21 @@ begin
  FVarManualDefinedOnly[1]:=True;
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='kT1 I Ifit Ite Itant';
  ReadFromIniFile()
 end;
 
-Function TTEandTAHT_kT1.Func(Parameters:TArrSingle):double;
+Function TTEandTAHT_kT1.Sum2(Parameters:TArrSingle):double;
  var T1:double;
 begin
- Result:=ErResult;
- if fX<=0 then Exit;
  T1:=Kb*fX;
- Result:=RevZrizFun(fX,2,Parameters[0],Parameters[1])+
-   Parameters[2]*exp(-Power((Parameters[3]*T1),FVariab[1]))*Power(T1,-FVariab[0]);
+ Result:=Parameters[2]*exp(-Power((Parameters[3]*T1),FVariab[1]))*Power(T1,-FVariab[0]);
+end;
+
+Function TTEandTAHT_kT1.Sum1(Parameters:TArrSingle):double;
+begin
+ Result:=RevZrizFun(fX,2,Parameters[0],Parameters[1]);
 end;
 
 
@@ -4250,16 +4382,19 @@ begin
  fTemperatureIsRequired:=False;
  FVarManualDefinedOnly[0]:=True;
  FVarManualDefinedOnly[2]:=True;
-// fHasPicture:=false;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='kT1 I Ifit Ite Isclc';
  ReadFromIniFile();
 end;
 
-Function TTEstrAndSCLCexp_kT1.Func(Parameters:TArrSingle):double;
+Function TTEstrAndSCLCexp_kT1.Sum1(Parameters:TArrSingle):double;
 begin
-  Result:=ErResult;
-  if fX<=0 then Exit;
-  Result:=TECurrent(FVariab[0],1/fx/Kb,Parameters[0],Parameters[1])+
-    RevZrizSCLC(fX,FVariab[2],Parameters[2],Parameters[3]);
+  Result:=TECurrent(FVariab[0],1/fx/Kb,Parameters[0],Parameters[1]);
+end;
+
+Function TTEstrAndSCLCexp_kT1.Sum2(Parameters:TArrSingle):double;
+begin
+  Result:=RevZrizSCLC(fX,FVariab[2],Parameters[2],Parameters[3]);
 end;
 
 Function TTEstrAndSCLCexp_kT1.Weight(OutputData:TArrSingle):double;
@@ -4282,16 +4417,24 @@ begin
  FXname[2]:='B1';
  FXname[3]:='Io2';
  FXname[4]:='A2';
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='V I Ifit I1 I2';
  ReadFromIniFile();
 end;
 
-Function TRevSh.Func(Parameters:TArrSingle):double;
+Function TRevSh.Sum1(Parameters:TArrSingle):double;
  var Em:double;
 begin
  Em:=sqrt(F2*(F1+fX));
- Result:=(Parameters[0]*exp((Parameters[1]*Em+Parameters[2]*sqrt(Em))/fkT)+
-        Parameters[3]*exp(Parameters[4]*Em/fkT))*(1-exp(-fX/fkT));
+ Result:=Parameters[0]*(1-exp(-fX/fkT))*
+         exp((Parameters[1]*Em+Parameters[2]*sqrt(Em))/fkT);
 end;
+
+Function TRevSh.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[3]*exp(Parameters[4]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fkT));
+end;
+
 
 Function TRevSh.Weight(OutputData:TArrSingle):double;
 begin
@@ -4307,13 +4450,19 @@ begin
  FXname[1]:='p';
  FXname[2]:='A';
  FXname[3]:='Io2';
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='V I Ifit Isclc Ite';
  ReadFromIniFile();
 end;
 
-Function TTEandSCLCV.Func(Parameters:TArrSingle):double;
+Function TTEandSCLCV.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[0]*Power(fX,Parameters[1])+
-   Parameters[3]*exp(Parameters[2]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fkT));
+ Result:=Parameters[0]*Power(fX,Parameters[1]);
+end;
+
+Function TTEandSCLCV.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[3]*exp(Parameters[2]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fkT));
 end;
 
 Constructor TRevShSCLC3.Create;
@@ -4326,13 +4475,19 @@ begin
  FXname[3]:='p2';
  FXname[4]:='Io3';
  FXname[5]:='A';
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='V I Ifit Isclc Ite';
  ReadFromIniFile();
 end;
 
-Function TRevShSCLC3.Func(Parameters:TArrSingle):double;
+Function TRevShSCLC3.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[0]*Power(fX,Parameters[1])+Parameters[2]*Power(fX,Parameters[3])+
-   Parameters[4]*exp(Parameters[5]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fKT));
+ Result:=Parameters[0]*Power(fX,Parameters[1])+Parameters[2]*Power(fX,Parameters[3]);
+end;
+
+Function TRevShSCLC3.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[4]*exp(Parameters[5]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fKT));
 end;
 
 Constructor TRevShSCLC2.Create;
@@ -4348,13 +4503,19 @@ begin
  FVarManualDefinedOnly[3]:=True;
  FVarName[4]:='b';
  FVarManualDefinedOnly[4]:=True;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='V I Ifit Isclc Ite';
  ReadFromIniFile();
 end;
 
-Function TRevShSCLC2.Func(Parameters:TArrSingle):double;
+Function TRevShSCLC2.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[0]*(Power(fX,Fm1)+FVariab[4]*Power(fX,Fm2))+
-    Parameters[1]*exp(Parameters[2]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fkT));
+ Result:=Parameters[0]*(Power(fX,Fm1)+FVariab[4]*Power(fX,Fm2));
+end;
+
+Function TRevShSCLC2.Sum2(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[1]*exp(Parameters[2]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fkT));
 end;
 
 Procedure TRevShSCLC2.BeforeFitness(InputData:Pvector);
@@ -4415,7 +4576,6 @@ begin
  fTemperatureIsRequired:=False;
  FVarName[0]:='V_volt';
  fVoltageIsRequired:=True;
-// FVarManualDefinedOnly[0]:=True;
  ReadFromIniFile();
 end;
 
@@ -4443,7 +4603,6 @@ begin
  FXname[2]:='Seff';
  FXname[3]:='alpha';
  FPictureName:='PATandTEFig';
-// fHasPicture:=false;
 end;
 
 Constructor TPATandTE_kT1.Create;
@@ -4453,29 +4612,41 @@ begin
  fTemperatureIsRequired:=False;
  FVarName[0]:='V_volt';
  fVoltageIsRequired:=True;
-// FVarManualDefinedOnly[0]:=True;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='kT1 I Ifit Ipat Ite';
  ReadFromIniFile();
-// showmessage(floattostr(FVarValue[0]));
-//
-// showmessage(floattostr(FSample.Em(250,FVarValue[1],FVarValue[0])));
 end;
 
-Function TPATandTE_kT1.Func(Parameters:TArrSingle):double;
+Function TPATandTE_kT1.Sum1(Parameters:TArrSingle):double;
 begin
-  Result:=PhonAsTun(FVariab[0],fX,Parameters)+TECurrent(FVariab[0],1/fx/Kb,Parameters[2],Parameters[3]);
+  Result:=PhonAsTun(FVariab[0],fX,Parameters);
+end;
+
+Function TPATandTE_kT1.Sum2(Parameters:TArrSingle):double;
+begin
+  Result:=TECurrent(FVariab[0],1/fx/Kb,Parameters[2],Parameters[3]);
 end;
 
 Constructor TPATandTE_V.Create;
 begin
  inherited Create('PATandTEV');
  FCaption:=FCaption+'reverse voltage';
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='V I Ifit Ipat Ite';
  ReadFromIniFile();
 end;
 
-Function TPATandTE_V.Func(Parameters:TArrSingle):double;
+Function TPATandTE_V.Sum1(Parameters:TArrSingle):double;
 begin
-  Result:=PhonAsTun(fX,1/fkT,Parameters)+TECurrent(fX,FVariab[0],Parameters[2],Parameters[3]);
+  Result:=PhonAsTun(fX,1/fkT,Parameters);
 end;
+
+
+Function TPATandTE_V.Sum2(Parameters:TArrSingle):double;
+begin
+  Result:=TECurrent(fX,FVariab[0],Parameters[2],Parameters[3]);
+end;
+
 
 Constructor TPhonAsTunAndTE2.Create(FunctionName:string);
 begin
@@ -4483,7 +4654,6 @@ begin
                   4);
  FXname[2]:='I0';
  FXname[3]:='E';
-// fHasPicture:=false;
 end;
 
 Constructor TPhonAsTunAndTE2_kT1.Create;
@@ -4493,14 +4663,19 @@ begin
  fTemperatureIsRequired:=False;
  FVarName[0]:='V_volt';
  fVoltageIsRequired:=True;
-// FVarManualDefinedOnly[0]:=True;
+ fSumFunctionIsUsed:=True;
+ fFileHeading:='kT1 I Ifit Ipat Ite';
  ReadFromIniFile();
 end;
 
-Function TPhonAsTunAndTE2_kT1.Func(Parameters:TArrSingle):double;
+Function TPhonAsTunAndTE2_kT1.Sum1(Parameters:TArrSingle):double;
 begin
-  Result:=PhonAsTun(FVariab[0],fX,Parameters)+
-      RevZrizFun(fx,2,Parameters[2],Parameters[3]);
+  Result:=PhonAsTun(FVariab[0],fX,Parameters);
+end;
+
+Function TPhonAsTunAndTE2_kT1.Sum2(Parameters:TArrSingle):double;
+begin
+  Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
 end;
 
 
