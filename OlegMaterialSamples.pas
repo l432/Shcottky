@@ -3,8 +3,8 @@ unit OlegMaterialSamples;
 interface
 uses IniFiles, TypInfo, OlegType;
 type
-    TMaterialName=(nSi,pSi,nGaAs,nInP,H4SiC,nGaN,
-                   nCdTe,CuInSe2,pGaTe,pGaSe,Ge,Other);
+    TMaterialName=(nSi,pSi,nGaAs,pGaAs,nInP,pInP,H4SiC,nGaN,
+                   nCdTe,pCdTe,CuInSe2,pGaTe,pGaSe,nGe,pGe,Other);
     TMaterialParametersName=(
             nEg0,   //ширина забороненої зони при T=0, []=eV
             nEps,   //діелектрична проникність
@@ -24,15 +24,19 @@ const
 //                                Eg0,     Eps,  ARich,    Meff, VarshA,   VarshB
    ((Name:'n-Si';   Parameters: (1.169,    11.7, 1.12e6,   1.08, 1108,     7.021e-4)),
     (Name:'p-Si';   Parameters: (1.169,    11.7, 0.32e6,   0.58, 1108,     7.021e-4)),
-    (Name:'n-GaAs'; Parameters: (1.519,    12.9, 8.16e4,   1,    204,      5.405e-4)),
-    (Name:'n-InP';  Parameters: (ErResult, 12.5, 0.6e6,    1,    ErResult, ErResult)),
+    (Name:'n-GaAs'; Parameters: (1.519,    12.9, 8.16e4,   0.06, 204,      5.405e-4)),
+    (Name:'p-GaAs'; Parameters: (1.519,    12.9, ErResult, 0.50, 204,      5.405e-4)),
+    (Name:'n-InP';  Parameters: (1.39,     12.5, 0.6e6,    0.08, 0,        4.6e-4)),
+    (Name:'p-InP';  Parameters: (1.39,     12.5, ErResult, 0.60, 0,        4.6e-4)),
     (Name:'4H-SiC'; Parameters: (ErResult, 9.7,  0.75e6,   1,    ErResult, ErResult)),
     (Name:'n-GaN';  Parameters: (ErResult, 8.9,  2.69e5,   1,    ErResult, ErResult)),
-    (Name:'n-CdTe'; Parameters: (ErResult, 1,    0.12e6,   1,    ErResult, ErResult)),
+    (Name:'n-CdTe'; Parameters: (1.57,     12,   0.12e6,   1.08, 0,        4e-4)),
+    (Name:'p-CdTe'; Parameters: (1.57,     12,   ErResult, 0.60, 0,        4e-4)),
     (Name:'CuInSe2';Parameters: (ErResult, 1,    8.53e5,   1,    ErResult, ErResult)),
     (Name:'p-GaTe'; Parameters: (ErResult, 1,    1.19e6,   1,    ErResult, ErResult)),
     (Name:'p-GaSe'; Parameters: (ErResult, 1,    2.47e6,   1,    ErResult, ErResult)),
-    (Name:'Ge';     Parameters: (0.7437,   1,    ErResult, 1,    235,      4.774e-4)),
+    (Name:'n-Ge';   Parameters: (0.7437,   16,   ErResult, 0.55, 235,      4.774e-4)),
+    (Name:'p-Ge';   Parameters: (0.7437,   16,   ErResult, 0.36, 235,      4.774e-4)),
     (Name:'Other';  Parameters: (ErResult, 1,    ErResult, 1,    ErResult, ErResult))
     );
 
