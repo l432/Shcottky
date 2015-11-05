@@ -350,7 +350,8 @@ private
  fVoltageIsRequired:boolean;
  {щоб використовувати можливість
  автоматичного заповнення значення FVariab[0] напругою
- потрібно цю змінну для спадкоємців у Сreate поставити цю змінну в True}
+ потрібно цю змінну для спадкоємців у Сreate
+ поставити цю змінну в True}
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
@@ -880,6 +881,15 @@ private
  F1:double; //містить Fb(T)-Vn
  F2:double; // містить  2qNd/(eps_0 eps_s)
  fkT:double; //містить kT
+ fEmIsNeeded:boolean;
+ {якщо Тrue, то як додатковий параметр
+ розраховується середнє (по діапазону
+ температур) значення максимального
+ електричного поля на границі;
+ необхідно, апроксимувалась залежність
+ струму від 1/кТ, а значення
+ напруги для цієї характеристики
+ знаходилась в FVariab[0]}
  Constructor Create (FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
@@ -888,6 +898,8 @@ private
  Function TECurrent(V,T,Seff,A:double):double;
  {повертає величину Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))}
 public
+ Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
 end; // TFitFunctEvolutionEm=class (TFitFunctEvolution)
 
 
@@ -4332,6 +4344,7 @@ begin
    FVarName[1]:='Fb0';
    FVarManualDefinedOnly[1]:=True;
   end;
+ fEmIsNeeded:=False;
 end;
 
 
@@ -4366,6 +4379,22 @@ begin
     exp(A*FSample.Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
 end;
 
+Procedure TFitFunctEvolutionEm.Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);
+begin
+  if fEmIsNeeded then
+    begin
+      inc(fNAddX);
+      SetLength(FXname,FNx+fNAddX);
+      FXname[High(FXname)]:='Em';
+    end;
+  inherited;
+  if fEmIsNeeded then
+   OutputData[High(OutputData)]:=
+     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0])+
+        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0]));
+end;
+
 
 Constructor TTEstrAndSCLCexp_kT1.Create;
 begin
@@ -4380,10 +4409,11 @@ begin
  FVarName[2]:='m';
  FVarName[0]:='V';
  fTemperatureIsRequired:=False;
- FVarManualDefinedOnly[0]:=True;
  FVarManualDefinedOnly[2]:=True;
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ite Isclc';
+ fEmIsNeeded:=True;
+ fVoltageIsRequired:=True;
  ReadFromIniFile();
 end;
 
@@ -4576,6 +4606,7 @@ begin
  fTemperatureIsRequired:=False;
  FVarName[0]:='V_volt';
  fVoltageIsRequired:=True;
+ fEmIsNeeded:=True;
  ReadFromIniFile();
 end;
 
@@ -4614,6 +4645,7 @@ begin
  fVoltageIsRequired:=True;
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ipat Ite';
+ fEmIsNeeded:=True;
  ReadFromIniFile();
 end;
 
@@ -4665,6 +4697,7 @@ begin
  fVoltageIsRequired:=True;
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ipat Ite';
+ fEmIsNeeded:=True;
  ReadFromIniFile();
 end;
 
