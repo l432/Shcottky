@@ -897,6 +897,7 @@ private
  Function Weight(OutputData:TArrSingle):double;override;
  Function TECurrent(V,T,Seff,A:double):double;
  {повертає величину Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))}
+ Procedure CreateFooter;virtual;
 public
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
@@ -4379,15 +4380,26 @@ begin
     exp(A*FSample.Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
 end;
 
+Procedure TFitFunctEvolutionEm.CreateFooter;
+begin
+ if fEmIsNeeded then
+  begin
+   inc(fNAddX);
+   SetLength(FXname,FNx+fNAddX);
+   FXname[High(FXname)]:='Em';
+  end;
+ ReadFromIniFile();
+end;
+
 Procedure TFitFunctEvolutionEm.Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);
 begin
-  if fEmIsNeeded then
-    begin
-      inc(fNAddX);
-      SetLength(FXname,FNx+fNAddX);
-      FXname[High(FXname)]:='Em';
-    end;
+//  if fEmIsNeeded then
+//    begin
+//      inc(fNAddX);
+//      SetLength(FXname,FNx+fNAddX);
+//      FXname[High(FXname)]:='Em';
+//    end;
   inherited;
   if fEmIsNeeded then
    OutputData[High(OutputData)]:=
@@ -4414,7 +4426,8 @@ begin
  fFileHeading:='kT1 I Ifit Ite Isclc';
  fEmIsNeeded:=True;
  fVoltageIsRequired:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TTEstrAndSCLCexp_kT1.Sum1(Parameters:TArrSingle):double;
@@ -4449,7 +4462,8 @@ begin
  FXname[4]:='A2';
  fSumFunctionIsUsed:=True;
  fFileHeading:='V I Ifit I1 I2';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TRevSh.Sum1(Parameters:TArrSingle):double;
@@ -4482,7 +4496,8 @@ begin
  FXname[3]:='Io2';
  fSumFunctionIsUsed:=True;
  fFileHeading:='V I Ifit Isclc Ite';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TTEandSCLCV.Sum1(Parameters:TArrSingle):double;
@@ -4507,7 +4522,8 @@ begin
  FXname[5]:='A';
  fSumFunctionIsUsed:=True;
  fFileHeading:='V I Ifit Isclc Ite';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TRevShSCLC3.Sum1(Parameters:TArrSingle):double;
@@ -4535,7 +4551,8 @@ begin
  FVarManualDefinedOnly[4]:=True;
  fSumFunctionIsUsed:=True;
  fFileHeading:='V I Ifit Isclc Ite';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TRevShSCLC2.Sum1(Parameters:TArrSingle):double;
@@ -4607,7 +4624,8 @@ begin
  FVarName[0]:='V_volt';
  fVoltageIsRequired:=True;
  fEmIsNeeded:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPhonAsTun_kT1.Func(Parameters:TArrSingle):double;
@@ -4619,7 +4637,8 @@ Constructor TPhonAsTun_V.Create;
 begin
  inherited Create('PhonAsTunV');
  FCaption:=FCaption+'reverse voltage';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPhonAsTun_V.Func(Parameters:TArrSingle):double;
@@ -4646,7 +4665,8 @@ begin
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ipat Ite';
  fEmIsNeeded:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPATandTE_kT1.Sum1(Parameters:TArrSingle):double;
@@ -4665,7 +4685,8 @@ begin
  FCaption:=FCaption+'reverse voltage';
  fSumFunctionIsUsed:=True;
  fFileHeading:='V I Ifit Ipat Ite';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPATandTE_V.Sum1(Parameters:TArrSingle):double;
@@ -4698,7 +4719,8 @@ begin
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ipat Ite';
  fEmIsNeeded:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPhonAsTunAndTE2_kT1.Sum1(Parameters:TArrSingle):double;

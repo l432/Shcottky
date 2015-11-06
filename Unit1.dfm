@@ -57,10 +57,11 @@ object Form1: TForm1
           ParentFont = False
         end
         object LDateFun: TLabel
-          Left = 568
-          Top = 15
-          Width = 70
-          Height = 14
+          Left = 554
+          Top = 10
+          Width = 116
+          Height = 29
+          AutoSize = False
           Caption = 'Photo D-Diod'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1442,7 +1443,7 @@ object Form1: TForm1
           end
         end
         object ButDateSelect: TButton
-          Left = 547
+          Left = 533
           Top = 45
           Width = 44
           Height = 25
@@ -1451,7 +1452,7 @@ object Form1: TForm1
           OnClick = ButFitSelectClick
         end
         object ButDateOption: TButton
-          Left = 615
+          Left = 601
           Top = 45
           Width = 44
           Height = 25
@@ -1461,8 +1462,8 @@ object Form1: TForm1
           OnClick = ButFitOptionClick
         end
         object CBDateFun: TCheckBox
-          Left = 544
-          Top = 15
+          Left = 530
+          Top = 10
           Width = 22
           Height = 17
           TabOrder = 6
@@ -6439,7 +6440,7 @@ object Form1: TForm1
           Top = 21
           Width = 80
           Height = 24
-          ItemHeight = 0
+          ItemHeight = 16
           TabOrder = 0
           OnChange = CBMaterialChange
         end
@@ -6703,10 +6704,6 @@ object Form1: TForm1
     object TabSheet4: TTabSheet
       Caption = 'Deep Level'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox36: TGroupBox
         Left = 3
         Top = 0
