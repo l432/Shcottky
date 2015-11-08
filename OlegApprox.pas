@@ -130,10 +130,10 @@ public
                             D:TDiapazon);virtual;abstract;
 {апроксимуються дані у векторі V відповідно до обмежень
  в D, отримані параметри розміщуються в OutputData}
- Function Deviation (InputData:PVector):double;virtual;abstract;
- {повертає середнеє квадратичне відносне
- відхилення апроксимації даних у InputData
- від самих даних}
+// Function Deviation (InputData:PVector):double;virtual;abstract;
+// {повертає середнеє квадратичне відносне
+// відхилення апроксимації даних у InputData
+// від самих даних}
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);virtual;abstract;
  {в OutStrings додаються рядки, які містять
@@ -162,7 +162,7 @@ public
                     Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure FittingDiapazon (InputData:PVector;
                    var OutputData:TArrSingle;D:TDiapazon);override;
- Function Deviation (InputData:PVector):double;override;
+// Function Deviation (InputData:PVector):double;override;
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);override;
 end;  //TFitWithoutParameteres=class (TFitFunction)
@@ -214,7 +214,11 @@ public
                     Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
                             D:TDiapazon);override;
- Function Deviation (InputData:PVector):double;override;
+ Function Deviation (InputData:PVector):double;overload;
+ {повертає середнеє квадратичне відносне
+ відхилення апроксимації даних у InputData
+ від самих даних}
+ Function Deviation (InputData:PVector;OutputData:TArrSingle):double;overload;
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);override;
 end;   // TFitFunc=class
@@ -513,6 +517,7 @@ private
  однодіодної моделі}
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar,NaddX:byte);
+ Procedure CreateFooter;virtual;
  procedure AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle); virtual;
 {розраховуються додаткові параметри}
@@ -785,6 +790,7 @@ private
  Function Weight(OutputData:TArrSingle):double;override;
  Procedure AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle); override;
+ Procedure CreateFooter;override;
 public
  Constructor Create;
 end; // TDoubleDiodLight=class (TFitFunctEvolution)
@@ -897,10 +903,12 @@ private
  Function Weight(OutputData:TArrSingle):double;override;
  Function TECurrent(V,T,Seff,A:double):double;
  {повертає величину Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))}
- Procedure CreateFooter;virtual;
+ Procedure CreateFooter;override;
+ Procedure AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle); override;
 public
- Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);override;
+// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);override;
 end; // TFitFunctEvolutionEm=class (TFitFunctEvolution)
 
 
@@ -1270,10 +1278,10 @@ Procedure TFitWithoutParameteres.FittingDiapazon (InputData:PVector;
 begin
 end;
 
-Function TFitWithoutParameteres.Deviation (InputData:PVector):double;
-begin
- Result:=ErResult;
-end;
+//Function TFitWithoutParameteres.Deviation (InputData:PVector):double;
+//begin
+// Result:=ErResult;
+//end;
 
 Procedure TFitWithoutParameteres.DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);
@@ -1378,17 +1386,38 @@ begin
   dispose(temp);
 end;
 
-Function TFitFunctionSimple.Deviation (InputData:PVector):double;
- var Param:TArrSingle;
-     i:integer;
+Function TFitFunctionSimple.Deviation (InputData:PVector;OutputData:TArrSingle):double;
+ var i:integer;
+     Yfit:double;
 begin
  Result:=ErResult;
- Fitting (InputData,Param);
- if Param[0]=ErResult then Exit;
+// Fitting (InputData,Param);
+ if OutputData[0]=ErResult then Exit;
  Result:=0;
  for I := 0 to High(InputData^.X) do
-  Result:=Result+sqr((InputData^.Y[i]-FinalFunc(InputData^.X[i],Param))/InputData^.Y[i]);
+  begin
+   Yfit:=FinalFunc(InputData^.X[i],OutputData);
+   if InputData^.Y[i]<>0 then
+         Result:=Result+sqr((InputData^.Y[i]-Yfit)/InputData^.Y[i])
+                         else
+         if Yfit<>0 then
+           Result:=Result+sqr((InputData^.Y[i]-Yfit)/Yfit);
+  end;
  Result:=sqrt(Result)/InputData^.n;
+end;
+
+Function TFitFunctionSimple.Deviation (InputData:PVector):double;
+ var Param:TArrSingle;
+//     i:integer;
+begin
+// Result:=ErResult;
+ Fitting (InputData,Param);
+ Result:=Deviation (InputData,Param);
+// if Param[0]=ErResult then Exit;
+// Result:=0;
+// for I := 0 to High(InputData^.X) do
+//  Result:=Result+sqr((InputData^.Y[i]-FinalFunc(InputData^.X[i],Param))/InputData^.Y[i]);
+// Result:=sqrt(Result)/InputData^.n;
 end;
 
 Procedure TFitFunctionSimple.DataToStrings(DeterminedParameters:TArrSingle;
@@ -2146,21 +2175,37 @@ Constructor TFitAdditionParam.Create(FunctionName,FunctionCaption:string;
 begin
  inherited Create(FunctionName,FunctionCaption,Npar{+NaddX},Nvar);
  fNAddX:=NaddX;
- SetLength(FXname,FNx+fNAddX);
+// SetLength(FXname,FNx+fNAddX);
  fIsDiod:=False;
  fIsPhotoDiod:=False;
+// CreateFooter();
+end;
+
+Procedure TFitAdditionParam.CreateFooter;
+begin
+  inc(fNAddX);
+//  SetLength(OutputData,FNx+fNAddX);
+  SetLength(FXname,FNx+fNAddX);
+  FXname[High(FXname)]:='dev';
+  ReadFromIniFile();
 end;
 
 procedure TFitAdditionParam.AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle);
 begin
-  if (fIsDiod and(fNaddX=1) and (FNx>3)) then
+//  fNAddX:=fNAddX+1;
+  SetLength(OutputData,FNx+fNAddX);
+//  SetLength(FXname,FNx+fNAddX);
+//  FXname[High(FXname)]:='dev';
+  OutputData[High(OutputData)]:=Deviation(InputData,OutputData);
+
+  if (fIsDiod and(fNaddX=2) and (FNx>3)) then
    begin
      FXname[FNx]:='Fb';
      OutputData[FNx]:=FSample.Fb(FVariab[0],OutputData[2]);
    end;
 
-  if (fIsPhotoDiod and (fNaddX=4) and (FNx>4)) then
+  if (fIsPhotoDiod and (fNaddX=5) and (FNx>4)) then
    begin
      FXname[FNx]:='Voc';
      FXname[FNx+1]:='Isc';
@@ -2189,9 +2234,9 @@ Procedure TFitAdditionParam.Fitting (InputData:PVector; var OutputData:TArrSingl
                     Xlog:boolean=False;Ylog:boolean=False);
 begin
   inherited;
-  if (fNaddX>0)and(not(FIsNotReady))and(OutputData[0]<>ErResult) then
+  if {(fNaddX>0)and}(not(FIsNotReady))and(OutputData[0]<>ErResult) then
    begin
-     SetLength(OutputData,FNx+fNAddX);
+//     SetLength(OutputData,FNx+fNAddX);
      AddParDetermination(InputData,OutputData);
    end;
 end;
@@ -2702,7 +2747,8 @@ Constructor TDiodLSM.Create;
 begin
  inherited Create('DiodLSM','Diod function, least-squares fitting',
                      4);
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TDiodLSM.Func(Parameters:TArrSingle):double;
@@ -2828,7 +2874,8 @@ Constructor TDiodLam.Create;
 begin
  inherited Create('DiodLam','Diod function, Lambert function fitting',
                      4);
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TDiodLam.Func(Parameters:TArrSingle):double;
@@ -2870,7 +2917,8 @@ begin
                   'Function of lightened diod, least-squares fitting',
                     5);
  fYminDontUsed:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPhotoDiodLSM.Func(Parameters:TArrSingle):double;
@@ -2885,7 +2933,8 @@ begin
                   'Function of lightened diod, Lambert function fitting',
                     5);
  fYminDontUsed:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 
@@ -3819,7 +3868,8 @@ begin
  FXname[2]:='Io';
  FXname[3]:='Rsh';
  fIsDiod:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TDiod.Func(Parameters:TArrSingle):double;
@@ -3846,7 +3896,8 @@ begin
  FXname[4]:='Iph';
  fIsPhotoDiod:=True;
  fYminDontUsed:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPhotoDiod.Func(Parameters:TArrSingle):double;
@@ -3881,7 +3932,8 @@ begin
  fSampleIsRequired:=False;
  fSumFunctionIsUsed:=True;
  fFileHeading:='V I Ifit I1 I2';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TDiodTwo.Sum1(Parameters:TArrSingle):double;
@@ -3909,7 +3961,8 @@ begin
  fSampleIsRequired:=False;
  fSumFunctionIsUsed:=True;
  fFileHeading:='V I Ifit I1 I2'; 
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TDiodTwoFull.Sum1(Parameters:TArrSingle):double;
@@ -3932,7 +3985,8 @@ begin
  FXname[3]:='Fb02';
  FXname[4]:='Sig2';
  fTemperatureIsRequired:=False;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TDGaus.Func(Parameters:TArrSingle):double;
@@ -3957,7 +4011,8 @@ begin
  FXname[1]:='C1';
  FXname[2]:='Fb0';
  fTemperatureIsRequired:=False;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TLinEg.Func(Parameters:TArrSingle):double;
@@ -3985,7 +4040,8 @@ begin
  FXname[4]:='n2';
  FXname[5]:='Io2';
  fSampleIsRequired:=False;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TDoubleDiod.Func(Parameters:TArrSingle):double;
@@ -4012,12 +4068,22 @@ begin
  FXname[4]:='n2';
  FXname[5]:='Io2';
  FXname[6]:='Iph';
- FXname[7]:='Voc';
- FXname[8]:='Isc';
- FXname[9]:='Pm';
- FXname[10]:='FF';
+// FXname[7]:='Voc';
+// FXname[8]:='Isc';
+// FXname[9]:='Pm';
+// FXname[10]:='FF';
  fYminDontUsed:=True;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
+end;
+
+Procedure TDoubleDiodLight.CreateFooter;
+begin
+  inherited;
+  FXname[7]:='Voc';
+  FXname[8]:='Isc';
+  FXname[9]:='Pm';
+  FXname[10]:='FF';
 end;
 
 Function TDoubleDiodLight.Func(Parameters:TArrSingle):double;
@@ -4043,6 +4109,7 @@ end;
 procedure TDoubleDiodLight.AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle);
 begin
+  inherited;
   OutputData[FNx]:=ErResult;
   OutputData[FNx+1]:=ErResult;
   OutputData[FNx+2]:=ErResult;
@@ -4143,7 +4210,8 @@ begin
  FXname[2]:='B';
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TTunnel.Func(Parameters:TArrSingle):double;
@@ -4163,7 +4231,8 @@ begin
  fSampleIsRequired:=False;
  fSumFunctionIsUsed:=True;
  fFileHeading:='X Y Yfit Y1 Y2';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TPower2.Sum1(Parameters:TArrSingle):double;
@@ -4194,7 +4263,8 @@ begin
  FVarManualDefinedOnly[1]:=True;
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ite Isclc';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TTEandSCLC_kT1.Func(Parameters:TArrSingle):double;
@@ -4234,7 +4304,8 @@ begin
  FVarManualDefinedOnly[0]:=True;
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ite Isclc';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TTEandSCLCexp_kT1.Sum1(Parameters:TArrSingle):double;
@@ -4275,7 +4346,8 @@ begin
  fSampleIsRequired:=False;
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ite Itant';
- ReadFromIniFile()
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TTEandTAHT_kT1.Sum2(Parameters:TArrSingle):double;
@@ -4314,7 +4386,8 @@ begin
  inherited Create('Brailsford');
  FCaption:=FCaption+' Dependence on temperature.';
  FVarName[0]:='w';
- ReadFromIniFile()
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TBrailsford.Func(Parameters:TArrSingle):double;
@@ -4327,7 +4400,8 @@ begin
  inherited Create('Brailsfordw');
  FCaption:=FCaption+' Dependence on frequancy.';
  FVarName[0]:='T';
- ReadFromIniFile();
+ CreateFooter();
+// ReadFromIniFile();
 end;
 
 Function TBrailsfordw.Func(Parameters:TArrSingle):double;
@@ -4382,30 +4456,51 @@ end;
 
 Procedure TFitFunctEvolutionEm.CreateFooter;
 begin
+
  if fEmIsNeeded then
   begin
    inc(fNAddX);
    SetLength(FXname,FNx+fNAddX);
    FXname[High(FXname)]:='Em';
   end;
- ReadFromIniFile();
+ inherited CreateFooter();
+// ReadFromIniFile();
 end;
 
-Procedure TFitFunctEvolutionEm.Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);
+Procedure TFitFunctEvolutionEm.AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle);
 begin
-//  if fEmIsNeeded then
-//    begin
-//      inc(fNAddX);
-//      SetLength(FXname,FNx+fNAddX);
-//      FXname[High(FXname)]:='Em';
-//    end;
-  inherited;
-  if fEmIsNeeded then
-   OutputData[High(OutputData)]:=
+// if fEmIsNeeded then
+//  begin
+//   inc(fNAddX);
+////   SetLength(FXname,FNx+fNAddX);
+////   FXname[High(FXname)]:='Em';
+//  end;
+ inherited AddParDetermination(InputData,OutputData);
+ if fEmIsNeeded then
+  begin
+   FXname[High(FXname)-1]:='Em';
+   OutputData[High(OutputData)-1]:=
      0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0])+
         FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0]));
+  end;
 end;
+
+//Procedure TFitFunctEvolutionEm.Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);
+//begin
+////  if fEmIsNeeded then
+////    begin
+////      inc(fNAddX);
+////      SetLength(FXname,FNx+fNAddX);
+////      FXname[High(FXname)]:='Em';
+////    end;
+//  inherited;
+//  if fEmIsNeeded then
+//   OutputData[High(OutputData)]:=
+//     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0])+
+//        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0]));
+//end;
 
 
 Constructor TTEstrAndSCLCexp_kT1.Create;
