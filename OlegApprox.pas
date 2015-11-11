@@ -4450,6 +4450,8 @@ Function TFitFunctEvolutionEm.TECurrent(V,T,Seff,A:double):double;
  var kT:double;
 begin
   kT:=Kb*T;
+//  Result:=Seff*FSample.Em(T,FVariab[1],V)*Power(T,-2.33)*FSample.I0(T,FVariab[1])*
+//    exp(A*sqrt(FSample.Em(T,FVariab[1],V))/kT)*(1-exp(-V/kT));
   Result:=Seff*FSample.I0(T,FVariab[1])*
     exp(A*FSample.Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
 end;
