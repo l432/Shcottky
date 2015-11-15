@@ -8,7 +8,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..37]of string=
+  FuncName:array[0..38]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -21,7 +21,7 @@ const
            'Brailsford on T','Brailsford on w',
            'Phonon Tunneling on 1/kT','Phonon Tunneling on V',
            'PAT and TE on 1/kT','PAT and TE on V',
-           'PAT and TEsoft on 1/kT');
+           'PAT and TEsoft on 1/kT','Tunneling trapezoidal');
 type
 
   TVar_Rand=(lin,logar,cons);
@@ -805,6 +805,18 @@ end; // TNGausian=class (TFitFunctEvolution)
 
 TTunnel=class (TFitFunctEvolution)
 {I0*exp(-A*(B+x)^0.5)}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; //TTunnel=class (TFitFunctEvolution)
+
+TTunnelFNmy=class (TFitFunctEvolution)
+{I(V)=I0*exp(-4/3h (2mq)^0.5 d/(nu V) [(Uo + nu V)^3/2-Uo^3/2])
+тунелювання через трапеціїдальний бар'єр шириною d,
+вважається, що на бар'єрі падає (nu V) від прикладеної
+напруги V, а без напруги бар'єр прямокутний
+висотою Uo}
 private
  Function Func(Parameters:TArrSingle):double; override;
 public
@@ -4219,6 +4231,28 @@ begin
  Result:=TunFun(fX,Parameters);
 end;
 
+Constructor TTunnelFNmy.Create;
+begin
+ inherited Create('Tunnel','Tunneling through rectangular barrier',
+                  3,1,0);
+ FXname[0]:='Io';
+ FXname[1]:='d';
+ FXname[2]:='nu';
+ FVarName[0]:='Uo';
+ FVarManualDefinedOnly[0]:=True;
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ CreateFooter();
+// ReadFromIniFile();
+end;
+
+Function TTunnelFNmy.Func(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[0]*exp(-Parameters[1]/(Parameters[2]*fX)*
+    (Power((FVariab[0]+Parameters[2]*fX),1.5)-Power(FVariab[0],1.5)));
+end;
+
 Constructor TPower2.Create;
 begin
  inherited Create('Power2','Two power function',
@@ -4899,6 +4933,8 @@ begin
   if str='PAT and TE on V' then F:=TPATandTE_V.Create;
   if str='TEstrict and SCLCexp on 1/kT' then F:=TTEstrAndSCLCexp_kT1.Create;
   if str='PAT and TEsoft on 1/kT' then F:=TPhonAsTunAndTE2_kT1.Create;
+  if str='Tunneling trapezoidal' then F:=TTunnelFNmy.Create;
+
 //  if str='None' then F:=TDiod.Create;
 end;
 
