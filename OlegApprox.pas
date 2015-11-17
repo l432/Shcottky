@@ -818,10 +818,12 @@ TTunnelFNmy=class (TFitFunctEvolution)
 напруги V, а без напруги бар'єр прямокутний
 висотою Uo}
 private
+// Function Weight(OutputData:TArrSingle):double;override;
+// Function Summand(OutputData:TArrSingle):double;override;
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
-end; //TTunnel=class (TFitFunctEvolution)
+end; //TTunnelFNmy=class (TFitFunctEvolution)
 
 TPower2=class (TFitFunctEvolution)
 {A1*(x^m1 + A2*x^m2)}
@@ -1056,12 +1058,24 @@ TPhonAsTunAndTE2_kT1=class (TPhonAsTunAndTE2)
 {струм як функція 1/kT,
 тобто стале значення напруги потрібно вводити}
 private
+ Procedure BeforeFitness(InputData:Pvector);override;
  Function Sum1(Parameters:TArrSingle):double; override;
  Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
 
+
+//TPhonAsTunAndTE3_kT1=class (TPhonAsTun)
+//{базовий клас для розрахунків, де струм, пов'язаний
+//з phonon-assisted tunneling та термоемісійний}
+//private
+//// Constructor Create(FunctionName:string);overload;
+// Function Sum1(Parameters:TArrSingle):double; override;
+// Function Sum2(Parameters:TArrSingle):double; override;
+//public
+// Constructor Create;
+//end; // TPhonAsTunAndTE=class (TPhonAsTun)
 
 //-------------------------------------------------
 procedure PictLoadScale(Img: TImage; ResName:String);
@@ -4233,25 +4247,41 @@ end;
 
 Constructor TTunnelFNmy.Create;
 begin
- inherited Create('Tunnel','Tunneling through rectangular barrier',
-                  3,1,0);
+// inherited Create('TunnelFNMy','Tunneling through trapezoidal barrier',
+//                  3,1,0);
+ inherited Create('TunnelFNMy','Tunneling through trapezoidal barrier',
+                  4,0,0);
  FXname[0]:='Io';
  FXname[1]:='d';
  FXname[2]:='nu';
- FVarName[0]:='Uo';
- FVarManualDefinedOnly[0]:=True;
+ FXname[3]:='Uo';
+
+// FVarName[0]:='Uo';
+// FVarManualDefinedOnly[0]:=True;
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
  fHasPicture:=False;
  CreateFooter();
-// ReadFromIniFile();
 end;
 
 Function TTunnelFNmy.Func(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[0]*exp(-Parameters[1]/(Parameters[2]*fX)*
-    (Power((FVariab[0]+Parameters[2]*fX),1.5)-Power(FVariab[0],1.5)));
+// Result:=Parameters[0]*exp(-2/Hpl*sqrt(2*Qelem*m0)*Parameters[1]*
+//    Power((Parameters[3]+Parameters[2]*fX/2),0.5));
+ Result:=Parameters[0]*exp(-4/(3*Hpl)*sqrt(2*Qelem*m0)*
+                           Parameters[1]/(Parameters[2]*fX)*
+    (Power((Parameters[3]+Parameters[2]*fX),1.5)-Power(Parameters[3],1.5)));
 end;
+
+//Function TTunnelFNmy.Weight(OutputData:TArrSingle):double;
+//begin
+// Result:=sqr(ln(fY));
+//end;
+//
+//Function TTunnelFNmy.Summand(OutputData:TArrSingle):double;
+//begin
+// Result:=ln(Func(OutputData))-ln(fY);
+//end;
 
 Constructor TPower2.Create;
 begin
@@ -4864,6 +4894,54 @@ begin
   Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
 end;
 
+Procedure TPhonAsTunAndTE2_kT1.BeforeFitness(InputData:Pvector);
+begin
+  inherited BeforeFitness(InputData);
+  FVariab[0]:=FVariab[0]*0.5;
+//  FVariab[0]:=FVariab[0]*0.424;
+end;
+
+
+//Constructor TPhonAsTunAndTE3_kT1.Create;
+//begin
+//// inherited Create('PATandTEsoftkT1');
+// TFitFunctEvolutionEm.Create('PATTEsoftVox','Bla-Bla',4,5);
+// FXname[0]:='Nss';
+// FXname[1]:='Et';
+// FXname[2]:='I0';
+// FXname[3]:='E';
+//
+// FVarName[0]:='V_volt';
+// FVarName[2]:='a';
+// FVarName[3]:='hw';
+// FVarName[4]:='nu';
+//
+// FVarManualDefinedOnly[2]:=True;
+// FVarManualDefinedOnly[3]:=True;
+// FVarManualDefinedOnly[4]:=True;
+//
+// fmeff:=m0*FSample.Material.Meff;
+//
+//// FCaption:=FCaption+'inverse temperature';
+// fTemperatureIsRequired:=False;
+//// FVarName[0]:='V_volt';
+// fVoltageIsRequired:=True;
+// fSumFunctionIsUsed:=True;
+// fFileHeading:='kT1 I Ifit Ipat Ite';
+// fEmIsNeeded:=True;
+// fHasPicture:=False;
+// CreateFooter();
+//end;
+//
+//Function TPhonAsTunAndTE3_kT1.Sum1(Parameters:TArrSingle):double;
+//begin
+//  Result:=PhonAsTun(FVariab[0]*FVariab[4],fX,Parameters);
+//end;
+//
+//Function TPhonAsTunAndTE3_kT1.Sum2(Parameters:TArrSingle):double;
+//begin
+//  Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
+//end;
 
 //-----------------------------------------------------------------------------------
 
@@ -4934,6 +5012,7 @@ begin
   if str='TEstrict and SCLCexp on 1/kT' then F:=TTEstrAndSCLCexp_kT1.Create;
   if str='PAT and TEsoft on 1/kT' then F:=TPhonAsTunAndTE2_kT1.Create;
   if str='Tunneling trapezoidal' then F:=TTunnelFNmy.Create;
+//  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
 end;
