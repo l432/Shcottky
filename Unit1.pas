@@ -5683,10 +5683,12 @@ end;
 
 Procedure Sample3;
 var F:TextFile;
-    i,n:integer;
-    V,T,Cur,CurUS,eCur:TArrSingle;
+    i,n,j,nn,j0:integer;
+    V,T,Cur,CurUS,eCur,smCur:TArrSingle;
     a,b:double;
-    Vax:PVector;
+    Vax,Vax2:PVector;
+//    FitWithoutParameteres:TFitWithoutParameteres;
+
 begin
    AssignFile(f,'tm.dat');
    Reset(f);
@@ -5703,6 +5705,8 @@ begin
    SetLength(Cur, i-1);
    SetLength(CurUs, i-1);
    SetLength(eCur, i-1);
+   SetLength(smCur, i-1);
+
 
    Reset(f);
    readln(f);
@@ -5728,10 +5732,44 @@ begin
      writeln(f,V[i],' ',T[i],' ',eCur[i]);
    CloseFile(f);
 
+//-----------------------------------
+
+//   AssignFile(f,'eUS2.dat');
+//   Reset(f);
+//   i:=0;
+//   while not(eof(f)) do
+//       begin
+//        i:=i+1;
+//        readln(f);
+//       end;
+//   CloseFile(f);
+//
+//   SetLength(V, i-1);
+//   SetLength(T, i-1);
+//   SetLength(Cur, i-1);
+//   SetLength(CurUs, i-1);
+//   SetLength(eCur, i-1);
+//   SetLength(smCur, i-1);
+//
+//
+//   Reset(f);
+//   readln(f);
+//   for i := 0 to High (V) do
+//      readln(f,V[i],T[i],eCur[i]);
+//   CloseFile(f);
+
+//----------------------------------
+
    new(Vax);
+   new(Vax2);
    a:=V[0];
    n:=0;
-   for i := 0 to High (V) do
+   i:=0;
+   nn:=0;
+   repeat
+//      showmessage('i='+inttostr(i)+
+//                 ' V='+floattostr(V[i]));
+
     if V[i]=a then
       begin
         if eCur[i]<>0 then
@@ -5741,12 +5779,83 @@ begin
         Vax^.X[High(Vax^.X)]:=T[i];
         Vax^.Y[High(Vax^.X)]:=eCur[i];
         end;
-      end
-             else
-      begin
+//      showmessage('i='+inttostr(i)+
+//                 ' T='+floattostr(Vax^.X[High(Vax^.X)])+
+//                 ' eCur='+floattostr(Vax^.Y[High(Vax^.X)]));
+      i:=i+1;
+      if T[i-1]=330 then
+//      showmessage('i='+inttostr(i-1)+
+//                 ' imax='+inttostr(High(Vax^.X))+
+//                 ' Vax='+floattostr(Vax^.Y[High(Vax^.X)])+
+//                 ' V='+floattostr(V[i-1])+
+//                 ' T='+floattostr(T[i-1])
+//                 );
 
       end;
+//             else
+
+    if (V[i]<>a)or(i=High(V)) then
+      begin
+        Median(Vax,Vax2);
+
+        Smoothing(Vax2,Vax);
+
+//       showmessage('i='+inttostr(i-1)+
+//                 ' dd='+floattostr(smCur[i-1])+
+//                 ' Vax='+floattostr(Vax^.Y[High(Vax^.X)])+
+//                 ' Vax='+floattostr(Vax^.Y[i-1-nn])+
+//                 ' V='+floattostr(V[i-1])+
+//                 ' T='+floattostr(T[i-1])
+//                 );
+
+//        Smoothing(Vax,Vax2);
+//        IVchar(Vax2,Vax);
+
+        j0:=0;
+        for j := nn to i-1 do
+          if eCur[j]=0 then
+                       begin
+                        smCur[j]:=0;
+                        j0:=j0+1;
+                       end
+                       else smCur[j]:=Vax^.Y[j-nn-j0];
+
+//       showmessage('i='+inttostr(i-1)+
+//                 ' dd='+floattostr(smCur[i-1])+
+//                 ' Vax='+floattostr(Vax^.Y[i-1-nn-j0])+
+//                 ' V='+floattostr(V[i-1])+
+//                 ' T='+floattostr(T[i-1])
+//                 );
+
+        n:=0;
+        nn:=i;
+        a:=V[i];
+
+         if (abs(V[i]-0.1)<1e-3) then
+       showmessage('i='+inttostr(i)+
+                 ' imax='+inttostr(High(V))+
+                 ' V='+floattostr(V[i])+
+                 ' a='+floattostr(a)
+                 );
+
+      end;
+
+//        if {(V[i]=4.3)and}(T[i]=330) then
+//       showmessage('i='+inttostr(i)+
+//                 ' imax='+inttostr(High(V))+
+//                 ' V='+floattostr(V[i])+
+//                 ' a='+floattostr(a)
+//                 );
+
+   until (i>High(V));
    dispose(Vax);
+   dispose(Vax2);
+
+   AssignFile(f,'smeus.dat');
+     Rewrite(f);
+   for i := 0 to High (V) do
+     writeln(f,V[i],' ',T[i],' ',smCur[i]);
+   CloseFile(f);
 
 end;
 

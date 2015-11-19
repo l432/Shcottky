@@ -144,18 +144,21 @@ public
 //--------------------------------------------------------------------
 TFitWithoutParameteres=class (TFitFunction)
 private
-  FtempVector:PVector;  //результати операції саме тут розміщуються
+//  FtempVector:PVector;  //результати операції саме тут розміщуються
   FErrorMessage:string; //виводиться при помилці
-  procedure RealTransform(InputData:PVector);
-  {cаме тут в FtempVector вноситься перетворений потрібним чином InputData}
+//  procedure RealTransform(InputData:PVector);
+//  {cаме тут в FtempVector вноситься перетворений потрібним чином InputData}
   Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
   Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
 public
+ FtempVector:PVector;  //результати операції саме тут розміщуються
  Constructor Create(FunctionName:string);
  Procedure Free;
+ procedure RealTransform(InputData:PVector);
+  {cаме тут в FtempVector вноситься перетворений потрібним чином InputData}
  Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
                      Xlog:boolean=False;Ylog:boolean=False):double;override;
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;

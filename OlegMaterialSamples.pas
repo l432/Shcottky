@@ -3,7 +3,7 @@ unit OlegMaterialSamples;
 interface
 uses IniFiles, TypInfo, OlegType;
 type
-    TMaterialName=(nSi,pSi,nGaAs,pGaAs,nInP,pInP,H4SiC,nGaN,
+    TMaterialName=(nSi,pSi,nGaAs,pGaAs,nInP,pInP,H4SiC,nGaN,pGaN,
                    nCdTe,pCdTe,CuInSe2,pGaTe,pGaSe,nGe,pGe,Other);
     TMaterialParametersName=(
             nEg0,   //ширина забороненої зони при T=0, []=eV
@@ -29,7 +29,8 @@ const
     (Name:'n-InP';  Parameters: (1.39,     12.5, 0.6e6,    0.08, 0,        4.6e-4)),
     (Name:'p-InP';  Parameters: (1.39,     12.5, ErResult, 0.60, 0,        4.6e-4)),
     (Name:'4H-SiC'; Parameters: (ErResult, 9.7,  0.75e6,   1,    ErResult, ErResult)),
-    (Name:'n-GaN';  Parameters: (ErResult, 8.9,  2.69e5,   1,    ErResult, ErResult)),
+    (Name:'n-GaN';  Parameters: (ErResult, 8.9,  2.64e5,   0.22, ErResult, ErResult)),
+    (Name:'p-GaN';  Parameters: (ErResult, 8.9,  7.50e5,   0.60, ErResult, ErResult)),
     (Name:'n-CdTe'; Parameters: (1.57,     12,   0.12e6,   1.08, 0,        4e-4)),
     (Name:'p-CdTe'; Parameters: (1.57,     12,   ErResult, 0.60, 0,        4e-4)),
     (Name:'CuInSe2';Parameters: (ErResult, 1,    8.53e5,   1,    ErResult, ErResult)),
