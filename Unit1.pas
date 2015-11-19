@@ -5681,7 +5681,74 @@ if not(SetCurrentDir(CurDirectory)) then
 
 end;
 
+Procedure Sample3;
+var F:TextFile;
+    i,n:integer;
+    V,T,Cur,CurUS,eCur:TArrSingle;
+    a,b:double;
+    Vax:PVector;
+begin
+   AssignFile(f,'tm.dat');
+   Reset(f);
+   i:=0;
+   while not(eof(f)) do
+       begin
+        i:=i+1;
+        readln(f);
+       end;
+   CloseFile(f);
 
+   SetLength(V, i-1);
+   SetLength(T, i-1);
+   SetLength(Cur, i-1);
+   SetLength(CurUs, i-1);
+   SetLength(eCur, i-1);
+
+   Reset(f);
+   readln(f);
+   for i := 0 to High (V) do
+      readln(f,V[i],T[i],Cur[i]);
+   CloseFile(f);
+
+   AssignFile(f,'us.dat');
+   Reset(f);
+   readln(f);
+   for i := 0 to High (V) do
+      readln(f,a,b,CurUS[i]);
+   CloseFile(f);
+
+   for i := 0 to High (V) do
+      if (Cur[i]>1e-9)and(CurUs[i]>1e-9) then
+         eCur[i]:=100*(CurUS[i]-Cur[i])/Cur[i]
+                      else
+         eCur[i]:=0;
+   AssignFile(f,'eus.dat');
+     Rewrite(f);
+   for i := 0 to High (V) do
+     writeln(f,V[i],' ',T[i],' ',eCur[i]);
+   CloseFile(f);
+
+   new(Vax);
+   a:=V[0];
+   n:=0;
+   for i := 0 to High (V) do
+    if V[i]=a then
+      begin
+        if eCur[i]<>0 then
+        begin
+        n:=n+1;
+        SetLenVector(Vax,n);
+        Vax^.X[High(Vax^.X)]:=T[i];
+        Vax^.Y[High(Vax^.X)]:=eCur[i];
+        end;
+      end
+             else
+      begin
+
+      end;
+   dispose(Vax);
+
+end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 //var comment,dat:TStringList;
@@ -5707,7 +5774,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 //AdditData('Bohlin');
 //-------------------------------------------------------
 //AccurSet(0.050001,0.00300001,0.002,0.0001,0.02);
-AccurSet(0.050001,0.00300001,0.005,0.00025,0.02);
+//AccurSet(0.050001,0.00300001,0.005,0.00025,0.02);
 //AccurSet(0.000050001,0.00000300001,0.005,0.0002,0.02);
 //--------------------------------------------------------
 //All_Method()
@@ -5727,7 +5794,10 @@ AccurSet(0.050001,0.00300001,0.005,0.00025,0.02);
 //TemperIdAve(0.02,'I');
 //TemperIdAve(Ilim:double);
 //-----------------------------------
+Sample3();
+
 end;
+
 
 
 procedure TForm1.ButtonCreateDateClick(Sender: TObject);
