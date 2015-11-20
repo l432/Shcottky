@@ -2548,6 +2548,8 @@ T:=1/Kb/x;
 Result:=I0*Power(T,m)*exp(-E*x);
 end;
 
+
+
 Function RevZrizSCLC(x,m,I0,A:double):double;
 {функція I=I0*(T^m)*A^(300/T);
 проте вважається, що x=1/kT

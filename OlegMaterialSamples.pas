@@ -121,6 +121,8 @@ var
   Diod:TDiodSample;
   {містить параметри зразка}
 
+Function PAT(V,kT1,Fb0,a,hw:double;Parameters:TArrSingle;Sample:TDiodSample):double;
+
 
 implementation
 
@@ -302,5 +304,21 @@ begin
   Result:=ErResult;
  end;
 end;
+
+Function PAT(V,kT1,Fb0,a,hw:double;Parameters:TArrSingle;Sample:TDiodSample):double;
+var g,gam,gam1,qE,Et:double;
+begin
+  Result:=ErResult;
+  if kT1<=0 then Exit;
+  qE:=Qelem*Sample.Em(1/(kT1*Kb),Fb0,V);
+  Et:=Parameters[1]*Qelem;
+  g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
+  gam:=sqrt(2*m0*Sample.Material.Meff)*g/(Hpl*qE*sqrt(Et));
+  gam1:=sqrt(1+sqr(gam));
+  Result:=Sample.Area*Parameters[0]*qE/sqrt(8*m0*Sample.Material.Meff*Parameters[1])*sqrt(1-gam/gam1)*
+          exp(-4*sqrt(2*m0*Sample.Material.Meff)*Et*sqrt(Et)/(3*Hpl*qE)*
+              sqr(gam1-gam)*(gam1+0.5*gam));
+end;
+
 
 end.

@@ -256,8 +256,8 @@ TFitVariabSet=class(TFitFunctionSimple)
 {для функцій, де потрібно більше величин ніж лише Х та Y}
 private
  FVarNum:byte; //кількість додаткових (крім X та Y) величин, які потрібні для розрахунку функції
- FVariab:TArrSingle;
- {величини, які потрібні для розрахунку функції}
+// FVariab:TArrSingle;
+// {величини, які потрібні для розрахунку функції}
  FVarName:array of string;  //імена додаткових величин
  FVarBool:array of boolean;
  {якщо True, то значення відповідної додаткової
@@ -330,6 +330,8 @@ private
  Procedure GRButtonsToForm(Form:TForm);
  {На форму виводяться кнопки Ok, Cancel}
 public
+ FVariab:TArrSingle;
+ {величини, які потрібні для розрахунку функції}
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
  procedure SetValueGR;override;
@@ -993,8 +995,9 @@ private
  Function Weight(OutputData:TArrSingle):double;override;
  Constructor Create (FunctionName,FunctionCaption:string;
                      Npar:byte);
- Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
+// Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
 public
+ Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
 end; // TPhonAsTun=class (TFitFunctEvolutionEm)
 
 TPhonAsTunOnly=class (TPhonAsTun)

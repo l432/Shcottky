@@ -6503,6 +6503,23 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //      for i:=0 to High(Fit.DodXname) do
 //        dat[ord(High(TColName))+1+High(Fit.Xname)+1+i]:=
 //           FloatToStrF(Fit.DodX[i],ffExponent,4,3);
+
+//   fff:=TPhonAsTunAndTE2_kT1.Create;
+//    TT:=125;
+//    repeat
+//     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
+//     Ipat:=fff.PhonAsTun(0.5*Volt[i],1/Kb/TT,EvolParam);
+//     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
+//           FloatToStrF(TT,ffExponent,4,0)+' '+
+//           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
+//           FloatToStrF(Ite,ffExponent,4,0)+' '+
+//           FloatToStrF(Ipat,ffExponent,4,0)+' '+
+//           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
+//     TT:=TT+5;
+//    until (TT>330);
+//   fff.Free;
+
+
       Fit.Free;
      end;
 
@@ -7203,6 +7220,10 @@ var
    Str:TStringList;
    TT:double;
 
+   fff:TPhonAsTunAndTE2_kT1;
+  Ite: Double;
+  Ipat: Double;
+
 
 begin
 if ListBoxVolt.Items.Count=0 then Exit;
@@ -7307,6 +7328,8 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
    until (T>330);
    StrRez.Add(str);
 }
+   StrRez.Add('V T I Ite Ipat eIpat');
+
    for I := 0 to High(Volt) do
     begin
     mask:=FloatToStrF(Volt[i],ffGeneral,3,2);
@@ -7349,8 +7372,39 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //    for j:= 0 to High(Vax^.X) do
 //      Vax^.X[j]:=1/(Vax^.X[j]*Kb);
 
+
   Write_File(CurDirectory+'\Zriz\'+
        Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
+
+  fff:=TPhonAsTunAndTE2_kT1.Create;
+//  Read_File(CurDirectory+'\Zriz\'+
+//       Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
+//  showmessage(floattostr(Vax^.X[High(Vax^.X)])+' '+loattostr(Vax^.Y[High(Vax^.X)]));
+//  showmessage(floattostr(Vax^.X[0])+' '+floattostr(Vax^.Y[0]));
+  Vax^.name:=Inttostr(round(abs(10*Volt[i])))+'.dat';
+  fff.Fitting(Vax,EvolParam);
+    TT:=125;
+    repeat
+     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
+     Ipat:=PAT(0.5*Volt[i],1/Kb/TT,1.145,6,0.16,EvolParam,Diod);
+
+//     Ipat:=fff.PhonAsTun(0.5*Volt[i],1/Kb/TT,EvolParam);
+//     fff.FVariab[0]:=0.5*Volt[i];
+//     Ipat:=fff.FinalFunc(1/Kb/TT,EvolParam);
+
+// showmessage('FVariab[1]='+floattostr(EvolParam[0])+
+//            'FVariab[2]='+floattostr(fff.FVariab[2])+
+//             'FVariab[3]='+floattostr(EvolParam[1]));
+
+     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
+           FloatToStrF(TT,ffExponent,4,0)+' '+
+           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
+           FloatToStrF(Ite,ffExponent,4,0)+' '+
+           FloatToStrF(Ipat,ffExponent,4,0)+' '+
+           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
+     TT:=TT+5;
+    until (TT>330);
+   fff.Free;
 
     SetLenVector(Vax,Grid.RowCount-1);
     for j := 1 to Grid.RowCount-1 do
@@ -7382,6 +7436,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     dispose(Vax);
     FindClose(SR);
     Grid.Free;
+    StrRez.SaveToFile(CurDirectory+'\Zriz\'+'delta.dat');
     StrRez.Free;
     StrAppr.Free;
     Str.SaveToFile(CurDirectory+'\Zriz\'+'sqr.dat');
