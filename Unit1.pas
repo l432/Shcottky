@@ -7377,25 +7377,14 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
        Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
 
   fff:=TPhonAsTunAndTE2_kT1.Create;
-//  Read_File(CurDirectory+'\Zriz\'+
-//       Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
-//  showmessage(floattostr(Vax^.X[High(Vax^.X)])+' '+loattostr(Vax^.Y[High(Vax^.X)]));
-//  showmessage(floattostr(Vax^.X[0])+' '+floattostr(Vax^.Y[0]));
   Vax^.name:=Inttostr(round(abs(10*Volt[i])))+'.dat';
+
   fff.Fitting(Vax,EvolParam);
+
     TT:=125;
     repeat
      Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
-     Ipat:=PAT(0.5*Volt[i],1/Kb/TT,1.145,6,0.16,EvolParam,Diod);
-
-//     Ipat:=fff.PhonAsTun(0.5*Volt[i],1/Kb/TT,EvolParam);
-//     fff.FVariab[0]:=0.5*Volt[i];
-//     Ipat:=fff.FinalFunc(1/Kb/TT,EvolParam);
-
-// showmessage('FVariab[1]='+floattostr(EvolParam[0])+
-//            'FVariab[2]='+floattostr(fff.FVariab[2])+
-//             'FVariab[3]='+floattostr(EvolParam[1]));
-
+     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
      StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
            FloatToStrF(TT,ffExponent,4,0)+' '+
            FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
