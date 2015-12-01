@@ -5722,7 +5722,7 @@ begin
    CloseFile(f);
 
    for i := 0 to High (V) do
-      if (Cur[i]>1e-9)and(CurUs[i]>1e-9) then
+      if (Cur[i]>1e-9)and(CurUs[i]>1e-9)and(Cur[i]<>ErResult)and(CurUs[i]<>ErResult) then
          eCur[i]:=100*(CurUS[i]-Cur[i])/Cur[i]
                       else
          eCur[i]:=0;
@@ -7379,20 +7379,20 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
   fff:=TPhonAsTunAndTE2_kT1.Create;
   Vax^.name:=Inttostr(round(abs(10*Volt[i])))+'.dat';
 
-  fff.Fitting(Vax,EvolParam);
-
-    TT:=125;
-    repeat
-     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
-     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
-     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-           FloatToStrF(TT,ffExponent,4,0)+' '+
-           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
-           FloatToStrF(Ite,ffExponent,4,0)+' '+
-           FloatToStrF(Ipat,ffExponent,4,0)+' '+
-           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
-     TT:=TT+5;
-    until (TT>330);
+//  fff.Fitting(Vax,EvolParam);
+//
+//    TT:=125;
+//    repeat
+//     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
+//     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
+//     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
+//           FloatToStrF(TT,ffExponent,4,0)+' '+
+//           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
+//           FloatToStrF(Ite,ffExponent,4,0)+' '+
+//           FloatToStrF(Ipat,ffExponent,4,0)+' '+
+//           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
+//     TT:=TT+5;
+//    until (TT>330);
    fff.Free;
 
     SetLenVector(Vax,Grid.RowCount-1);
