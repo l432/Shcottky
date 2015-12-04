@@ -4895,7 +4895,10 @@ end;
 
 Function TPhonAsTunAndTE2_kT1.Sum2(Parameters:TArrSingle):double;
 begin
-  Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
+Result:=RevZrizFun(fx,2,Parameters[2],
+     FSample.Material.Varshni(Parameters[3],1/Kb/fx))*
+     (1-exp(-FVariab[0]*fx));
+//  Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
 end;
 
 Procedure TPhonAsTunAndTE2_kT1.BeforeFitness(InputData:Pvector);
