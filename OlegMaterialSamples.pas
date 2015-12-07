@@ -111,7 +111,8 @@ type
      Fb=kT*ln(Area*ARich*T^2/I0)}
      function Vbi(T:double):double;
      {об'ємний потенціал (build in)}
-     function Em(T,Fb0:double;Vrev:double=0):double;
+//     function Em(T,Fb0:double;Vrev:double=0):double;
+     function Em(T,Fb0:double;Vrev:double=0;C1:double=0):double;
      {максимальне значення електричного поля}
      end; // TDiod=class
 
@@ -294,16 +295,71 @@ function TDiodSample.Vbi(T:double):double;
    end;
   end;
 
-function TDiodSample.Em(T,Fb0:double;Vrev:double=0):double;
+//function TDiodSample.Em(T,Fb0:double;Vrev:double=0):double;
+//{максимальне значення електричного поля}
+//begin
+// try
+//  Result:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
+//            (Material.Varshni(Fb0,T)-Vbi(T)+Vrev));
+// except
+//  Result:=ErResult;
+// end;
+//end;
+
+function TDiodSample.Em(T,Fb0:double;Vrev:double=0;C1:double=0):double;
 {максимальне значення електричного поля}
+ var a,b,c,Fb,Fa:double;
+     i:integer;
+ function FunEmTemp(Emtemp:double):double;
+  begin
+   try
+    Result:=Emtemp-sqrt(2*Qelem*Nd/Material.Eps/Eps0*
+            (Material.Varshni(Fb0,T)-C1*Emtemp-Vbi(T)+Vrev));
+   except
+    Result:=ErResult;
+   end;
+  end;
+
 begin
+ Result:=ErResult;
  try
-  Result:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
+  if (C1=0) then
+   begin
+   Result:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
             (Material.Varshni(Fb0,T)-Vbi(T)+Vrev));
+   end
+                     else
+   begin
+    a:=0;
+    b:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
+            (Material.Varshni(Fb0,T)-Vbi(T)+Vrev));
+
+    Fa:=FunEmTemp(a);
+    Fb:=FunEmTemp(b);
+    if (Fa=ErResult)or(Fb=ErResult) then Exit;
+    repeat
+     if Fb*Fa<=0 then Break;
+     b:=2*b;
+     Fb:=FunEmTemp(b);
+    until false;
+    i:=0;
+    repeat
+      inc(i);
+      c:=(a+b)/2;
+      Fb:=FunEmTemp(c);
+      Fa:=FunEmTemp(a);
+      if (Fb*Fa<=0) or (Fb=ErResult)
+        then b:=c
+        else a:=c;
+    until (i>1e5)or(abs((b-a)/c)<1e-4);
+    if (i>1e5) then Exit;
+    Result:=c;
+   end;
  except
-  Result:=ErResult;
+//  Result:=ErResult;
  end;
 end;
+
 
 Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiodSample):double;
 var g,gam,gam1,qE,Et:double;

@@ -995,7 +995,7 @@ private
                      Npar:byte);
 // Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
 public
- Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
+ Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;virtual;
 end; // TPhonAsTun=class (TFitFunctEvolutionEm)
 
 TPhonAsTunOnly=class (TPhonAsTun)
@@ -1065,7 +1065,10 @@ private
  Procedure BeforeFitness(InputData:Pvector);override;
  Function Sum1(Parameters:TArrSingle):double; override;
  Function Sum2(Parameters:TArrSingle):double; override;
+ Procedure AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle); override;
 public
+ Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;override;
  Constructor Create;
 end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
 
@@ -4281,7 +4284,7 @@ end;
 //begin
 // Result:=sqr(ln(fY));
 //end;
-//
+
 //Function TTunnelFNmy.Summand(OutputData:TArrSingle):double;
 //begin
 // Result:=ln(Func(OutputData))-ln(fY);
@@ -4876,6 +4879,21 @@ end;
 
 Constructor TPhonAsTunAndTE2_kT1.Create;
 begin
+
+// inherited Create(FunctionName,FunctionCaption,Npar,4);
+// if Npar>1 then
+//  begin
+//   FXname[0]:='Nss';
+//   FXname[1]:='Et';
+//  end;
+// FVarName[2]:='a';
+// FVarName[3]:='hw';
+// FVarManualDefinedOnly[2]:=True;
+// FVarManualDefinedOnly[3]:=True;
+// fmeff:=m0*FSample.Material.Meff;
+
+
+
  inherited Create('PATandTEsoftkT1');
  FCaption:=FCaption+'inverse temperature';
  fTemperatureIsRequired:=False;
@@ -4884,13 +4902,55 @@ begin
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ipat Ite';
  fEmIsNeeded:=True;
- CreateFooter();
-// ReadFromIniFile();
+
+
+  FVarNum:=FVarNum+1;
+  SetLength(FVariab,FVarNum);
+  SetLength(FVarName,FVarNum);
+  SetLength(FVarBool,FVarNum);
+  SetLength(FVarValue,FVarNum);
+  SetLength(FVarManualDefinedOnly,FVarNum);
+  FVarbool[4]:=True;
+  FVarManualDefinedOnly[4]:=True;
+  FVarName[4]:='C1';
+
+  CreateFooter();
+
+ // ReadFromIniFile();
+end;
+
+Function TPhonAsTunAndTE2_kT1.PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
+var g,gam,gam1,qE,Et:double;
+begin
+  Result:=ErResult;
+  if kT1<=0 then Exit;
+  qE:=Qelem*FSample.Em(1/(kT1*Kb),FVariab[1],V,FVariab[4]);
+  Et:=Parameters[1]*Qelem;
+  g:=FVariab[2]*sqr(FVariab[3]*Qelem)*(1+2/(exp(FVariab[3]*kT1)-1));
+  gam:=sqrt(2*fmeff)*g/(Hpl*qE*sqrt(Et));
+  gam1:=sqrt(1+sqr(gam));
+  Result:=FSample.Area*Parameters[0]*qE/sqrt(8*fmeff*Parameters[1])*sqrt(1-gam/gam1)*
+          exp(-4*sqrt(2*fmeff)*Et*sqrt(Et)/(3*Hpl*qE)*
+              sqr(gam1-gam)*(gam1+0.5*gam));
 end;
 
 Function TPhonAsTunAndTE2_kT1.Sum1(Parameters:TArrSingle):double;
 begin
   Result:=PhonAsTun(FVariab[0],fX,Parameters);
+end;
+
+
+Procedure TPhonAsTunAndTE2_kT1.AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle);
+begin
+ inherited AddParDetermination(InputData,OutputData);
+// if fEmIsNeeded then
+//  begin
+//   FXname[High(FXname)-1]:='Em';
+   OutputData[High(OutputData)-1]:=
+     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0],FVariab[4])+
+        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0],FVariab[4]));
+//  end;
 end;
 
 Function TPhonAsTunAndTE2_kT1.Sum2(Parameters:TArrSingle):double;

@@ -7366,7 +7366,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       end;
     Sorting (Vax);
     for j:= 0 to High(Vax^.X) do
-      if Vax^.Y[j]<9e-10 then Break;
+      if (Vax^.Y[j]<9e-10)
+          or(Vax^.X[j]>82.82)
+              then Break;
     if j<Vax^.n-1 then SetLenVector(Vax,j);
 
 //    for j:= 0 to High(Vax^.X) do
