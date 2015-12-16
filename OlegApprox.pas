@@ -4275,7 +4275,7 @@ Function TTunnelFNmy.Func(Parameters:TArrSingle):double;
 begin
 // Result:=Parameters[0]*exp(-2/Hpl*sqrt(2*Qelem*m0)*Parameters[1]*
 //    Power((Parameters[3]+Parameters[2]*fX/2),0.5));
- Result:=Parameters[0]*exp(-4/(3*Hpl)*sqrt(2*Qelem*m0)*
+ Result:=Parameters[0]*exp(-4/(3*Hpl)*sqrt(2*Qelem*m0*0.5)*
                            Parameters[1]/(Parameters[2]*fX)*
     (Power((Parameters[3]+Parameters[2]*fX),1.5)-Power(Parameters[3],1.5)));
 end;
