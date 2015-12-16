@@ -28,7 +28,7 @@ const
     (Name:'p-GaAs'; Parameters: (1.519,    12.9, ErResult, 0.50, 204,      5.405e-4)),
     (Name:'n-InP';  Parameters: (1.39,     12.5, 0.6e6,    0.08, 0,        4.6e-4)),
     (Name:'p-InP';  Parameters: (1.39,     12.5, ErResult, 0.60, 0,        4.6e-4)),
-    (Name:'4H-SiC'; Parameters: (ErResult, 9.7,  0.75e6,   1,    ErResult, ErResult)),
+    (Name:'4H-SiC'; Parameters: (3.26,     9.7,  0.75e6,   1,    0,        3.3e-4)),
     (Name:'n-GaN';  Parameters: (ErResult, 8.9,  2.64e5,   0.22, ErResult, ErResult)),
     (Name:'p-GaN';  Parameters: (ErResult, 8.9,  7.50e5,   0.60, ErResult, ErResult)),
     (Name:'n-CdTe'; Parameters: (1.57,     12,   0.12e6,   1.08, 0,        4e-4)),
