@@ -5685,7 +5685,7 @@ Procedure Sample3;
 var F:TextFile;
     i,n,j,nn,j0:integer;
     V,T,Cur,CurUS,eCur,smCur:TArrSingle;
-    a,b:double;
+    a1,a2,a3,a4,a5:double;
     Vax,Vax2:PVector;
 //    FitWithoutParameteres:TFitWithoutParameteres;
 
@@ -5711,6 +5711,7 @@ begin
    Reset(f);
    readln(f);
    for i := 0 to High (V) do
+//      readln(f,V[i],T[i],a1,a2,a3,Cur[i]);
       readln(f,V[i],T[i],Cur[i]);
    CloseFile(f);
 
@@ -5718,14 +5719,20 @@ begin
    Reset(f);
    readln(f);
    for i := 0 to High (V) do
-      readln(f,a,b,CurUS[i]);
-   CloseFile(f);
+//      readln(f,a1,a2,a3,a1,a2,CurUS[i]);
+      readln(f,a1,a2,CurUS[i]);
+   CloseFile(f);       
 
    for i := 0 to High (V) do
-      if (Cur[i]>1e-9)and(CurUs[i]>1e-9)and(Cur[i]<>ErResult)and(CurUs[i]<>ErResult) then
-         eCur[i]:=100*(CurUS[i]-Cur[i])/Cur[i]
-                      else
-         eCur[i]:=0;
+         if Cur[i]=0 then eCur[i]:=Cur[i]
+                     else eCur[i]:=CurUS[i];
+         
+//          eCur[i]:=(CurUS[i]-Cur[i])*100;
+
+//      if (Cur[i]>1e-9)and(CurUs[i]>1e-9)and(Cur[i]<>ErResult)and(CurUs[i]<>ErResult) then
+//         eCur[i]:=100*(CurUS[i]-Cur[i])/Cur[i]
+//                      else
+//         eCur[i]:=0;
    AssignFile(f,'eus.dat');
      Rewrite(f);
    for i := 0 to High (V) do
@@ -5762,7 +5769,7 @@ begin
 
    new(Vax);
    new(Vax2);
-   a:=V[0];
+   a1:=V[0];
    n:=0;
    i:=0;
    nn:=0;
@@ -5770,7 +5777,7 @@ begin
 //      showmessage('i='+inttostr(i)+
 //                 ' V='+floattostr(V[i]));
 
-    if V[i]=a then
+    if V[i]=a1 then
       begin
         if eCur[i]<>0 then
         begin
@@ -5794,7 +5801,7 @@ begin
       end;
 //             else
 
-    if (V[i]<>a)or(i=High(V)) then
+    if (V[i]<>a1)or(i=High(V)) then
       begin
         Median(Vax,Vax2);
 
@@ -5829,13 +5836,13 @@ begin
 
         n:=0;
         nn:=i;
-        a:=V[i];
+        a1:=V[i];
 
          if (abs(V[i]-0.1)<1e-3) then
        showmessage('i='+inttostr(i)+
                  ' imax='+inttostr(High(V))+
                  ' V='+floattostr(V[i])+
-                 ' a='+floattostr(a)
+                 ' a='+floattostr(a1)
                  );
 
       end;
@@ -7381,20 +7388,25 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
   fff:=TPhonAsTunAndTE2_kT1.Create;
   Vax^.name:=Inttostr(round(abs(10*Volt[i])))+'.dat';
 
-//  fff.Fitting(Vax,EvolParam);
-//
-//    TT:=125;
-//    repeat
+  fff.Fitting(Vax,EvolParam);
+
+    TT:=125;
+    repeat
 //     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
-//     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
-//     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-//           FloatToStrF(TT,ffExponent,4,0)+' '+
-//           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
-//           FloatToStrF(Ite,ffExponent,4,0)+' '+
-//           FloatToStrF(Ipat,ffExponent,4,0)+' '+
-//           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
-//     TT:=TT+5;
-//    until (TT>330);
+
+     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],
+     Diod.Material.Varshni(EvolParam[3],TT))*
+     (1-exp(0.5*Volt[i]/Kb/TT));
+
+     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
+     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
+           FloatToStrF(TT,ffExponent,4,0)+' '+
+           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
+           FloatToStrF(Ite,ffExponent,4,0)+' '+
+           FloatToStrF(Ipat,ffExponent,4,0)+' '+
+           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
+     TT:=TT+5;
+    until (TT>330);
    fff.Free;
 
     SetLenVector(Vax,Grid.RowCount-1);
