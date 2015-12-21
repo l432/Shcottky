@@ -5685,7 +5685,7 @@ Procedure Sample3;
 var F:TextFile;
     i,n,j,nn,j0:integer;
     V,T,Cur,CurUS,eCur,smCur:TArrSingle;
-    a1,a2,a3,a4,a5:double;
+    a1,a2:double;
     Vax,Vax2:PVector;
 //    FitWithoutParameteres:TFitWithoutParameteres;
 
@@ -5866,6 +5866,48 @@ begin
 
 end;
 
+Procedure Sample2;
+const Et0=0.7;
+      betta=13e-5;
+      Fb0=1.09;
+      alfa=7.3e-8;
+      r=0.99;
+      I0=1;
+      Nss=1;
+      a=6;
+      hw=0.016;
+var F:TextFile;
+    V,T,Ite,Ipat,Em:double;
+begin
+   AssignFile(f,'variate.dat');
+   Rewrite(f);
+   writeln(f,'V T Ite Ipat eIteFb eIteA eIpatEt eIpatB');
+   V:=4.5;
+   repeat
+    T:=125;
+    repeat
+      Em:=Diod.Em(T,Fb0,V/2);
+      Ite:=RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(Fb0-alfa*Em,T))*
+     (1-exp(-V/2/T/Kb));
+     Ipat:=TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-betta*sqrt(Em),Nss);
+
+      writeln(f,V,' ',T,' ',Ite,' ',Ipat,' ',
+       (RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(r*Fb0-alfa*Em,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
+       (RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(Fb0-r*alfa*Em,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
+       (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,r*Et0-betta*sqrt(Em),Nss){-Ipat})/Ipat,' ',
+       (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-r*betta*sqrt(Em),Nss){-Ipat})/Ipat
+      );
+      T:=T+5;
+    until (T>330);
+
+    V:=V-0.1;
+   until (V<0.05);
+
+   CloseFile(f);
+
+end;
+
+
 procedure TForm1.Button1Click(Sender: TObject);
 //var comment,dat:TStringList;
 //    name:string;
@@ -5910,7 +5952,8 @@ procedure TForm1.Button1Click(Sender: TObject);
 //TemperIdAve(0.02,'I');
 //TemperIdAve(Ilim:double);
 //-----------------------------------
-Sample3();
+//Sample3();
+Sample2();
 
 end;
 

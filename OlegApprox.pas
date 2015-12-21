@@ -996,6 +996,7 @@ private
 // Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
 public
  Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;virtual;
+ class Function PAT(Sample:TDiodSample; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
 end; // TPhonAsTun=class (TFitFunctEvolutionEm)
 
 TPhonAsTunOnly=class (TPhonAsTun)
@@ -4763,17 +4764,34 @@ begin
 end;
 
 Function TPhonAsTun.PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
-var g,gam,gam1,qE,Et:double;
+//var g,gam,gam1,qE,Et:double;
+begin
+ Result:=PAT(FSample,V,kT1,FVariab[1],FVariab[2],FVariab[3],Parameters[1],Parameters[0]);
+//  Result:=ErResult;
+//  if kT1<=0 then Exit;
+//  qE:=Qelem*FSample.Em(1/(kT1*Kb),FVariab[1],V);
+//  Et:=Parameters[1]*Qelem;
+//  g:=FVariab[2]*sqr(FVariab[3]*Qelem)*(1+2/(exp(FVariab[3]*kT1)-1));
+//  gam:=sqrt(2*fmeff)*g/(Hpl*qE*sqrt(Et));
+//  gam1:=sqrt(1+sqr(gam));
+//  Result:=FSample.Area*Parameters[0]*qE/sqrt(8*fmeff*Parameters[1])*sqrt(1-gam/gam1)*
+//          exp(-4*sqrt(2*fmeff)*Et*sqrt(Et)/(3*Hpl*qE)*
+//              sqr(gam1-gam)*(gam1+0.5*gam));
+end;
+
+class Function TPhonAsTun.PAT(Sample:TDiodSample; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
+ var g,gam,gam1,qE,Et,meff:double;
 begin
   Result:=ErResult;
   if kT1<=0 then Exit;
-  qE:=Qelem*FSample.Em(1/(kT1*Kb),FVariab[1],V);
-  Et:=Parameters[1]*Qelem;
-  g:=FVariab[2]*sqr(FVariab[3]*Qelem)*(1+2/(exp(FVariab[3]*kT1)-1));
-  gam:=sqrt(2*fmeff)*g/(Hpl*qE*sqrt(Et));
+  qE:=Qelem*Sample.Em(1/(kT1*Kb),Fb0,V);
+  Et:=Ett*Qelem;
+  meff:=m0*Sample.Material.Meff;
+  g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
+  gam:=sqrt(2*meff)*g/(Hpl*qE*sqrt(Et));
   gam1:=sqrt(1+sqr(gam));
-  Result:=FSample.Area*Parameters[0]*qE/sqrt(8*fmeff*Parameters[1])*sqrt(1-gam/gam1)*
-          exp(-4*sqrt(2*fmeff)*Et*sqrt(Et)/(3*Hpl*qE)*
+  Result:=Sample.Area*Nss*qE/sqrt(8*meff*Ett)*sqrt(1-gam/gam1)*
+          exp(-4*sqrt(2*meff)*Et*sqrt(Et)/(3*Hpl*qE)*
               sqr(gam1-gam)*(gam1+0.5*gam));
 end;
 
