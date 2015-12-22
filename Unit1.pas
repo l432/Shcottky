@@ -5871,28 +5871,31 @@ const Et0=0.7;
       betta=13e-5;
       Fb0=1.09;
       alfa=7.3e-8;
-      r=0.99;
+      r=0.95;
       I0=1;
       Nss=1;
       a=6;
       hw=0.016;
 var F:TextFile;
-    V,T,Ite,Ipat,Em:double;
+    V,T,Ite,Ipat,Em,Emr:double;
 begin
    AssignFile(f,'variate.dat');
    Rewrite(f);
-   writeln(f,'V T Ite Ipat eIteFb eIteA eIpatEt eIpatB');
+//   writeln(f,'V T Ite Ipat eIteFb eIteA eIpatEt eIpatB');
+   writeln(f,'V T eIteFb eIteA eIpatEt eIpatB');
    V:=4.5;
    repeat
     T:=125;
     repeat
       Em:=Diod.Em(T,Fb0,V/2);
+      Emr:=Diod.Em(T,r*Fb0,V/2);
+
       Ite:=RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(Fb0-alfa*Em,T))*
      (1-exp(-V/2/T/Kb));
      Ipat:=TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-betta*sqrt(Em),Nss);
 
-      writeln(f,V,' ',T,' ',Ite,' ',Ipat,' ',
-       (RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(r*Fb0-alfa*Em,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
+      writeln(f,V,' ',T,' ',{Ite,' ',Ipat,' ',}
+       (RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(r*Fb0-alfa*Emr,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
        (RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(Fb0-r*alfa*Em,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
        (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,r*Et0-betta*sqrt(Em),Nss){-Ipat})/Ipat,' ',
        (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-r*betta*sqrt(Em),Nss){-Ipat})/Ipat
