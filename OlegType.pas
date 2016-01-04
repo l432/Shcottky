@@ -3,7 +3,7 @@ unit OlegType;
 
 interface
 //uses Windows,Messages,SysUtils,Forms;
- uses IniFiles;
+ uses IniFiles,SysUtils;
 
 const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Eps0=8.85e-12; {діелектрична стала, []=Ф/м}
@@ -34,6 +34,19 @@ type
          time:string; //час створення файлу, година:хвилини
          N_begin:integer; //номери початкової і кінцевої точок
          N_end:integer;  //даних, які відображаються на графіку
+         Procedure SetLenVector(Number:integer);
+         procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+         procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+         procedure Add(newX,newY:double);
+         procedure Delete(Ndel:integer);
+         {видання з масиву точки з номером Ndel}
+         Procedure Sorting (Increase:boolean=True);
+         {процедура сортування (методом бульбашки)
+          точок по зростанню (при Increase=True) компоненти Х}
+         Procedure DeleteDuplicate;
+         {видаляються точки, для яких значення абсциси вже зустрічалося}
+         Procedure DeleteErResult;
+         {видаляються точки, для абсциса чи ордината рівна ErResult}
          end;
 
     PVector=^Vector;
@@ -255,11 +268,11 @@ end;
 
 procedure TDiapazon.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
 begin
- WriteIniDef(ConfigFile,Section,Ident,Xmin,0.001);
- WriteIniDef(ConfigFile,Section,Ident,Ymin,0);
- WriteIniDef(ConfigFile,Section,Ident,Xmax);
- WriteIniDef(ConfigFile,Section,Ident,Ymax);
- WriteIniDef(ConfigFile,Section,Ident,Br,'F');
+ WriteIniDef(ConfigFile,Section,Ident+' XMin',Xmin,0.001);
+ WriteIniDef(ConfigFile,Section,Ident+' YMin',Ymin,0);
+ WriteIniDef(ConfigFile,Section,Ident+' XMax',Xmax);
+ WriteIniDef(ConfigFile,Section,Ident+' Ymax',Ymax);
+ WriteIniDef(ConfigFile,Section,Ident+' Br',Br,'F');
 end;
 
 
@@ -348,6 +361,139 @@ begin
   SetLength(A^.X, A^.n);
   SetLength(A^.Y, A^.n);
 end;
+
+Procedure Vector.SetLenVector(Number:integer);
+{встановлюється кількість точок у векторі А}
+begin
+  n:=Number;
+  SetLength(X, n);
+  SetLength(Y, n);
+end;
+
+procedure Vector.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+ var i:integer;
+begin
+  i:=ConfigFile.ReadInteger(Section,Ident+'n',0);
+  if i>0 then
+    begin
+      Self.SetLenVector(i);
+      for I := 0 to High(X) do
+        begin
+          X[i]:=ConfigFile.ReadFloat(Section,Ident+'X'+IntToStr(i),ErResult);
+          Y[i]:=ConfigFile.ReadFloat(Section,Ident+'Y'+IntToStr(i),ErResult);
+        end;
+    end
+         else
+    n:=0;
+  name:=ConfigFile.ReadString(Section,Ident+'name','');
+  time:=ConfigFile.ReadString(Section,Ident+'time','');
+  T:=ConfigFile.ReadFloat(Section,Ident+'T',ErResult);
+  N_begin:=ConfigFile.ReadInteger(Section,Ident+'N_begin',0);
+  N_end:=ConfigFile.ReadInteger(Section,Ident+'N_end',n-1);
+end;
+
+procedure Vector.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+var
+  I: Integer;
+begin
+ WriteIniDef(ConfigFile,Section,Ident+'n',n,0);
+ WriteIniDef(ConfigFile,Section,Ident+'name',name);
+ WriteIniDef(ConfigFile,Section,Ident+'time',time);
+ WriteIniDef(ConfigFile,Section,Ident+'T',T);
+ WriteIniDef(ConfigFile,Section,Ident+'N_begin',N_begin,0);
+ WriteIniDef(ConfigFile,Section,Ident+'N_end',N_end,n-1);
+ for I := 0 to High(X) do
+  begin
+   ConfigFile.WriteFloat(Section,Ident+'X'+IntToStr(i),X[i]);
+   ConfigFile.WriteFloat(Section,Ident+'Y'+IntToStr(i),Y[i])
+  end;
+end;
+
+procedure Vector.Add(newX,newY:double);
+begin
+ Self.SetLenVector(n+1);
+ X[n-1]:=newX;
+ Y[n-1]:=newY;
+end;
+
+procedure Vector.Delete(Ndel:integer);
+var
+  I: Integer;
+begin
+ if (Ndel<0)or(Ndel>(n-1)) then Exit;
+ if n<1 then Exit;
+ for I := Ndel to n-2 do
+  begin
+    X[i]:=X[i+1];
+    Y[i]:=Y[i+1];
+  end;
+ if N_end=n then N_end:=N_end-1;
+ Self.SetLenVector(n-1);
+end;
+
+Procedure Vector.Sorting (Increase:boolean=True);
+var i,j:integer;
+    ChangeNeed:boolean;
+    temp:double;
+begin
+for I := 0 to High(X)-1 do
+  for j := 0 to High(X)-1-i do
+     begin
+      if Increase then ChangeNeed:=X[j]>X[j+1]
+                  else ChangeNeed:=X[j]<X[j+1];
+      if ChangeNeed then
+          begin
+          temp:=X[j];
+          X[j]:=X[j+1];
+          X[j+1]:=temp;
+          temp:=Y[j];
+          Y[j]:=Y[j+1];
+          Y[j+1]:=temp;
+          end;
+     end;
+end;
+
+Procedure Vector.DeleteDuplicate;
+ var i,j,PointToDelete,Point:integer;
+ label Start;
+begin
+  Point:=0;
+  PointToDelete:=-1;
+ Start:
+  if PointToDelete<>-1 then
+//    begin
+     Self.Delete(PointToDelete);
+//     PointToDelete:=-1;
+//    end;
+  for I := Point to High(X)-1 do
+    begin
+      for j := i+1 to High(X) do
+        if X[i]=X[j] then
+          begin
+            PointToDelete:=j;
+            goto Start;
+          end;
+      Point:=I+1;
+    end;
+end;
+
+Procedure Vector.DeleteErResult;
+ var i,Point:integer;
+ label Start;
+begin
+  Point:=0;
+  i:=-1;
+ Start:
+  if i<>-1 then
+     Self.Delete(i);
+  for I := Point to High(X)-1 do
+    begin
+      if (X[i]=ErResult)or(Y[i]=ErResult) then
+            goto Start;
+      Point:=I+1;
+    end;
+end;
+
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
                       Value:double; Default:double=ErResult);

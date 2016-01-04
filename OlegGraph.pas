@@ -21,7 +21,7 @@ Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
 {записує у файл з іменем sfile дані з Series;
 якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
 
-Procedure Sorting (var A:PVector;Increase:bool=True);
+Procedure Sorting (var A:PVector;Increase:boolean=True);
 {процедура сортування (методом бульбашки)
 даних у масиві А по зростанню (при Increase=True) компоненти А^.Х}
 
@@ -720,7 +720,7 @@ Str.SaveToFile(sfile);
 Str.Free;
 end;
 
-Procedure Sorting (var A:PVector;Increase:bool=True);
+Procedure Sorting (var A:PVector;Increase:boolean=True);
 {процедура сортування (методом бульбашки)
 даних у масиві А по зростанню (при Increase=True) компоненти А^.Х}
 var i,j:integer;
