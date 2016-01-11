@@ -259,20 +259,21 @@ end;
 
 procedure TDiapazon.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
 begin
-  XMin:=ConfigFile.ReadFloat(Section,Ident+' XMin',0.001);
-  YMin:=ConfigFile.ReadFloat(Section,Ident+' YMin',0);
-  XMax:=ConfigFile.ReadFloat(Section,Ident+' XMax',ErResult);
-  YMax:=ConfigFile.ReadFloat(Section,Ident+' Ymax',ErResult);
-  Br:=ConfigFile.ReadString(Section,Ident+' Br','F')[1];
+  XMin:=ConfigFile.ReadFloat(Section,Ident+'XMin',0.001);
+  YMin:=ConfigFile.ReadFloat(Section,Ident+'YMin',0);
+  XMax:=ConfigFile.ReadFloat(Section,Ident+'XMax',ErResult);
+  YMax:=ConfigFile.ReadFloat(Section,Ident+'Ymax',ErResult);
+  Br:=ConfigFile.ReadString(Section,Ident+'Br','F')[1];
 end;
 
 procedure TDiapazon.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
 begin
- WriteIniDef(ConfigFile,Section,Ident+' XMin',Xmin,0.001);
- WriteIniDef(ConfigFile,Section,Ident+' YMin',Ymin,0);
- WriteIniDef(ConfigFile,Section,Ident+' XMax',Xmax);
- WriteIniDef(ConfigFile,Section,Ident+' Ymax',Ymax);
- WriteIniDef(ConfigFile,Section,Ident+' Br',Br,'F');
+ WriteIniDef(ConfigFile,Section,Ident+'XMin',Xmin,0.001);
+ WriteIniDef(ConfigFile,Section,Ident+'YMin',Ymin,0);
+ WriteIniDef(ConfigFile,Section,Ident+'XMax',Xmax);
+ WriteIniDef(ConfigFile,Section,Ident+'Ymax',Ymax);
+ ConfigFile.WriteString(Section,Ident+'Br',Br);
+// WriteIniDef(ConfigFile,Section,Ident+'Br',Br,'F');
 end;
 
 
