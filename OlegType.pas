@@ -519,7 +519,7 @@ end;
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
                       Value:Boolean);
-{записує в .ini-файл значення тільки якщо воно не дорівнює True}
+{записує в .ini-файл значення тільки якщо воно дорівнює True}
 begin
  if Value then ConfigFile.WriteBool(Section,Ident,Value);
 end;
