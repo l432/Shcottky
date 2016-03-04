@@ -47,7 +47,25 @@ type
          {видаляються точки, для яких значення абсциси вже зустрічалося}
          Procedure DeleteErResult;
          {видаляються точки, для абсциса чи ордината рівна ErResult}
-         end;
+         Function MaxX:double;
+          {повертається найбільше значення з масиву Х}
+         Function MaxY:double;
+          {повертається найбільше значення з масиву Y}
+         Function MinX:double;
+          {повертається найменше значення з масиву Х}
+         Function MinY:double;
+          {повертається найменше значення з масиву Y}
+         Function Xvalue(Yvalue:double):double;
+         {повертає визначає приблизну абсцису точки з
+          ординатою Yvalue;
+          якщо Yvalue не належить діапазону зміни
+         ординат вектора, то повертається ErResult}
+         Function Yvalue(Xvalue:double):double;
+         {повертає визначає приблизну ординату точки з
+          ординатою Xvalue;
+          якщо Xvalue не належить діапазону зміни
+         ординат вектора, то повертається ErResult}
+        end;
 
     PVector=^Vector;
 
@@ -215,6 +233,7 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 {записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 implementation
+uses OlegMath,OlegGraph;
 
 function TDiapazon.GetData(Index:integer):double;
 begin
@@ -495,6 +514,77 @@ begin
     end;
 end;
 
+Function Vector.MaxX:double;
+begin
+  if n<1 then
+    Result:=ErResult
+         else
+    Result:=X[MaxElemNumber(X)];
+end;
+
+Function Vector.MaxY:double;
+begin
+  if n<1 then
+    Result:=ErResult
+         else
+    Result:=Y[MaxElemNumber(Y)];
+end;
+
+Function Vector.MinX:double;
+begin
+  if n<1 then
+    Result:=ErResult
+         else
+    Result:=X[MinElemNumber(X)];
+end;
+
+Function Vector.MinY:double;
+begin
+  if n<1 then
+    Result:=ErResult
+         else
+    Result:=Y[MinElemNumber(Y)];
+end;
+
+Function Vector.Xvalue(Yvalue:double):double;
+var i:integer;
+//    bool:boolean;
+begin
+//  bool:=false;
+  i:=1;
+  Result:=ErResult;
+  if High(X)<0 then Exit;
+  repeat
+   if ((Y[i]-Yvalue)*(Y[i-1]-Yvalue))<=0 then
+     begin
+     Result:=X_Y0(X[i],Y[i],X[i-1],Y[i-1],Yvalue);
+     i:=High(X);
+//     bool:= true;
+     end;
+   i:=i+1;
+//  until ((bool) or (i>High(X)));
+  until (i>High(X));
+end;
+
+Function Vector.Yvalue(Xvalue:double):double;
+var i:integer;
+//    bool:boolean;
+begin
+//  bool:=false;
+  i:=1;
+  Result:=ErResult;
+  if High(X)<0 then Exit;
+  repeat
+   if ((X[i]-Xvalue)*(X[i-1]-Xvalue))<=0 then
+     begin
+     Result:=Y_X0(X[i],Y[i],X[i-1],Y[i-1],Xvalue);
+     i:=High(X);
+//     bool:= true;
+     end;
+   i:=i+1;
+  until (i>High(X));
+//  until ((bool) or (i>High(X)));
+end;
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
                       Value:double; Default:double=ErResult);
@@ -519,7 +609,7 @@ end;
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
                       Value:Boolean);
-{записує в .ini-файл значення тільки якщо воно дорівнює True}
+{записує в .ini-файл значення тільки якщо воно не дорівнює True}
 begin
  if Value then ConfigFile.WriteBool(Section,Ident,Value);
 end;

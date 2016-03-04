@@ -236,6 +236,12 @@ Procedure Median (A:Pvector; var B:PVector);
 якщо у вихідному масиві кількість точок менша трьох,
 то у результуючому буде нульова кількість}
 
+Function MedianFiltr(a,b,c:double):double;
+{повертає середнє за величиною з трьох чисел a, b, c}
+
+Function Linear(a,b,x:double):double;
+{повертає a+b*x}
+
 Procedure Diferen (A:Pvector; var B:PVector);
 {в В розміщується похідна від значень, розташованих
 у векторі А;
@@ -1914,28 +1920,42 @@ B^.y[0]:=(W1*A^.y[0]+W2*A^.y[1])/(W1+W2);
 B^.y[High(B^.X)]:=(W1*A^.y[High(B^.X)]+W0*A^.y[High(B^.X)-1])/(W1+W0);
 end;
 
-
-Procedure Median (A:Pvector; var B:PVector);
-{в В розміщується результат дії на дані в А
-медіанного трьохточкового фільтра;
-якщо у вихідному масиві кількість точок менша трьох,
-то у результуючому буде нульова кількість}
-Function Med(a,b,c:double):double;
+Function MedianFiltr(a,b,c:double):double;
 {повертає середнє за величиною з трьох чисел a, b, c}
  begin
   if a>b then swap(a,b);
   if b>c then swap(b,c);
   if a>b then swap(a,b);
   Result:=b;
-
-  {Result:=b;
-  if ((a<b)or(a=b))and((a>c)or(a=c)) then Result:=a;
-  if ((a>b)or(a=b))and((a<c)or(a=c)) then Result:=a;
-  if ((b<a)or(a=b))and((b>c)or(b=c)) then Result:=b;
-  if ((b>a)or(a=b))and((b<c)or(b=c)) then Result:=b;
-  if ((c<b)or(c=b))and((c>a)or(c=a)) then Result:=c;
-  if ((c>b)or(c=b))and((c<a)or(c=a)) then Result:=c;}
  end;
+
+Function Linear(a,b,x:double):double;
+{повертає a+b*x}
+begin
+  Result:=a+b*x;
+end; 
+
+Procedure Median (A:Pvector; var B:PVector);
+{в В розміщується результат дії на дані в А
+медіанного трьохточкового фільтра;
+якщо у вихідному масиві кількість точок менша трьох,
+то у результуючому буде нульова кількість}
+//Function Med(a,b,c:double):double;
+//{повертає середнє за величиною з трьох чисел a, b, c}
+// begin
+//  if a>b then swap(a,b);
+//  if b>c then swap(b,c);
+//  if a>b then swap(a,b);
+//  Result:=b;
+//
+//  {Result:=b;
+//  if ((a<b)or(a=b))and((a>c)or(a=c)) then Result:=a;
+//  if ((a>b)or(a=b))and((a<c)or(a=c)) then Result:=a;
+//  if ((b<a)or(a=b))and((b>c)or(b=c)) then Result:=b;
+//  if ((b>a)or(a=b))and((b<c)or(b=c)) then Result:=b;
+//  if ((c<b)or(c=b))and((c>a)or(c=a)) then Result:=c;
+//  if ((c>b)or(c=b))and((c<a)or(c=a)) then Result:=c;}
+// end;
 
 var i:integer;
 begin
@@ -1952,7 +1972,7 @@ B^.N_end:=A^.N_end;
 for i:=1 to High(B^.X)-1 do
 begin
 B^.x[i]:=A^.x[i];
-B^.y[i]:=Med(A^.y[i-1],A^.y[i],A^.y[i+1]);;
+B^.y[i]:=MedianFiltr(A^.y[i-1],A^.y[i],A^.y[i+1]);;
 end;
 B^.x[0]:=A^.x[0];
 B^.x[High(B^.X)]:=A^.x[High(B^.X)];

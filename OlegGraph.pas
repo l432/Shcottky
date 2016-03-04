@@ -9,9 +9,10 @@ Procedure Read_File (sfile:string; var a:PVector);
 змінну a, з файлу comments в тій самій директорії
 зчитується значення температури в a.T}
 
-Procedure Write_File(sfile:string; A:PVector);
+ Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
 {записує у файл з іменем sfile дані з масиву А;
-якщо A^.n=0, то запис у файл не відбувається}
+якщо A^.n=0, то запис у файл не відбувається;
+NumberDigit - кількість значущих цифр}
 
 Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
 {записує у файл з іменем sfile дані з Series;
@@ -616,6 +617,11 @@ var F:TextFile;
 begin
    a^.name:=sfile;
  {--------определяет колличество строк------------}
+   if not(FileExists(sfile)) then
+     begin
+      a.SetLenVector(0);
+      Exit;
+     end;
    AssignFile(f,sfile);
    Reset(f);
    a^.n:=0;
@@ -675,17 +681,18 @@ begin
  Sorting(A);
  end;
 
- Procedure Write_File(sfile:string; A:PVector);
+ Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
 {записує у файл з іменем sfile дані з масиву А;
-якщо A^.n=0, то запис у файл не відбувається}
+якщо A^.n=0, то запис у файл не відбувається;
+NumberDigit - кількість значущих цифр}
 var i:integer;
     Str:TStringList;
 begin
 if A^.n=0 then Exit;
 Str:=TStringList.Create;
 for I := 0 to High(A^.x) do
-   Str.Add(FloatToStrF(A^.X[i],ffExponent,4,0)+' '+
-           FloatToStrF(A^.Y[i],ffExponent,4,0));
+   Str.Add(FloatToStrF(A^.X[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(A^.Y[i],ffExponent,NumberDigit,0));
 Str.SaveToFile(sfile);
 Str.Free;
 end;
