@@ -47,6 +47,8 @@ type
          {видаляються точки, для яких значення абсциси вже зустрічалося}
          Procedure DeleteErResult;
          {видаляються точки, для абсциса чи ордината рівна ErResult}
+         Procedure SwapXY;
+         {обмінюються знчення Х та Y}
          Function MaxX:double;
           {повертається найбільше значення з масиву Х}
          Function MaxY:double;
@@ -512,6 +514,13 @@ begin
             goto Start;
       Point:=I+1;
     end;
+end;
+
+Procedure Vector.SwapXY;
+ var i:integer;
+begin
+ for I := 0 to High(X) do
+   Swap(X[i],Y[i]);
 end;
 
 Function Vector.MaxX:double;
