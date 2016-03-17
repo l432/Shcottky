@@ -67,6 +67,23 @@ type
           ординатою Xvalue;
           якщо Xvalue не належить діапазону зміни
          ординат вектора, то повертається ErResult}
+         Procedure Copy (Target:Vector);
+         {копіюються поля з даного вектора в Target}
+         Procedure PositiveX(Target:Vector);
+         {заносить в Target ті точки, для яких X більше або рівне нулю;
+         окрім X, Y та n ніякі інші поля Target не змінюються}
+         Procedure PositiveY(Target:Vector);
+         {заносить в Target ті точки, для яких Y більше або рівне нулю;
+         окрім X, Y та n ніякі інші поля Target не змінюються}
+         Procedure NegativeX(Target:Vector);
+         {заносить в Target ті точки, для яких X менше нуля;
+         окрім X, Y та n ніякі інші поля Target не змінюються}
+         Procedure NegativeY(Target:Vector);
+         {заносить в Target ті точки, для яких Y менше нуля;
+         окрім X, Y та n ніякі інші поля Target не змінюються}
+         Procedure Write_File(sfile:string; NumberDigit:Byte=4);
+        {записує у файл з іменем sfile дані з масивів X та Y;
+        якщо n=0, то запис не відбувається; NumberDigit - кількість значущих цифр}
         end;
 
     PVector=^Vector;
@@ -235,7 +252,7 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 {записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 implementation
-uses OlegMath,OlegGraph;
+uses OlegMath,OlegGraph, Classes;
 
 function TDiapazon.GetData(Index:integer):double;
 begin
@@ -594,6 +611,73 @@ begin
   until (i>High(X));
 //  until ((bool) or (i>High(X)));
 end;
+
+
+Procedure Vector.Copy (Target:Vector);
+ var i:integer;
+begin
+  Target.SetLenVector(n);
+  for I := 0 to n-1 do
+    begin
+     Target.X[i]:=X[i];
+     Target.Y[i]:=Y[i];
+    end;
+  Target.T:=T;
+  Target.name:=name;
+  Target.time:=time;
+  Target.N_begin:=N_begin;
+  Target.N_end:=N_end;
+end;
+
+Procedure Vector.PositiveX(Target:Vector);
+ var i:integer;
+begin
+ Target.SetLenVector(0);
+ for I := 0 to n - 1 do
+   if X[i]>=0 then
+     Target.Add(X[i],Y[i]);
+end;
+
+Procedure Vector.PositiveY(Target:Vector);
+ var i:integer;
+begin
+ Target.SetLenVector(0);
+ for I := 0 to n - 1 do
+   if Y[i]>=0 then
+     Target.Add(X[i],Y[i]);
+end;
+
+Procedure Vector.NegativeX(Target:Vector);
+ var i:integer;
+begin
+ Target.SetLenVector(0);
+ for I := 0 to n - 1 do
+   if X[i]<0 then
+     Target.Add(X[i],Y[i]);
+end;
+
+Procedure Vector.NegativeY(Target:Vector);
+ var i:integer;
+begin
+ Target.SetLenVector(0);
+ for I := 0 to n - 1 do
+   if Y[i]<0 then
+     Target.Add(X[i],Y[i]);
+end;
+
+Procedure Vector.Write_File(sfile:string; NumberDigit:Byte=4);
+var i:integer;
+    Str:TStringList;
+begin
+  if n=0 then Exit;
+  Str:=TStringList.Create;
+  for I := 0 to High(X) do
+     Str.Add(FloatToStrF(X[i],ffExponent,NumberDigit,0)+' '+
+             FloatToStrF(Y[i],ffExponent,NumberDigit,0));
+  Str.SaveToFile(sfile);
+  Str.Free;
+end;
+
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
                       Value:double; Default:double=ErResult);
