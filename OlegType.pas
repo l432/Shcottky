@@ -67,18 +67,18 @@ type
           ординатою Xvalue;
           якщо Xvalue не належить діапазону зміни
          ординат вектора, то повертається ErResult}
-         Procedure Copy (Target:Vector);
+         Procedure Copy (var Target:Vector);
          {копіюються поля з даного вектора в Target}
-         Procedure PositiveX(Target:Vector);
+         Procedure PositiveX(var Target:Vector);
          {заносить в Target ті точки, для яких X більше або рівне нулю;
          окрім X, Y та n ніякі інші поля Target не змінюються}
-         Procedure PositiveY(Target:Vector);
+         Procedure PositiveY(var Target:Vector);
          {заносить в Target ті точки, для яких Y більше або рівне нулю;
          окрім X, Y та n ніякі інші поля Target не змінюються}
-         Procedure NegativeX(Target:Vector);
+         Procedure NegativeX(var Target:Vector);
          {заносить в Target ті точки, для яких X менше нуля;
          окрім X, Y та n ніякі інші поля Target не змінюються}
-         Procedure NegativeY(Target:Vector);
+         Procedure NegativeY(var Target:Vector);
          {заносить в Target ті точки, для яких Y менше нуля;
          окрім X, Y та n ніякі інші поля Target не змінюються}
          Procedure Write_File(sfile:string; NumberDigit:Byte=4);
@@ -613,7 +613,7 @@ begin
 end;
 
 
-Procedure Vector.Copy (Target:Vector);
+Procedure Vector.Copy (var Target:Vector);
  var i:integer;
 begin
   Target.SetLenVector(n);
@@ -629,7 +629,7 @@ begin
   Target.N_end:=N_end;
 end;
 
-Procedure Vector.PositiveX(Target:Vector);
+Procedure Vector.PositiveX(var Target:Vector);
  var i:integer;
 begin
  Target.SetLenVector(0);
@@ -638,7 +638,7 @@ begin
      Target.Add(X[i],Y[i]);
 end;
 
-Procedure Vector.PositiveY(Target:Vector);
+Procedure Vector.PositiveY(var Target:Vector);
  var i:integer;
 begin
  Target.SetLenVector(0);
@@ -647,7 +647,7 @@ begin
      Target.Add(X[i],Y[i]);
 end;
 
-Procedure Vector.NegativeX(Target:Vector);
+Procedure Vector.NegativeX(var Target:Vector);
  var i:integer;
 begin
  Target.SetLenVector(0);
@@ -656,7 +656,7 @@ begin
      Target.Add(X[i],Y[i]);
 end;
 
-Procedure Vector.NegativeY(Target:Vector);
+Procedure Vector.NegativeY(var Target:Vector);
  var i:integer;
 begin
  Target.SetLenVector(0);
