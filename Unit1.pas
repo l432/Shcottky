@@ -6372,8 +6372,21 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
      begin
       FunCreate(LDateFun.Caption,Fit);
-      Fit.Fitting(Vax,EvolParam);
-//      showmessage(inttostr(ord(High(TColName))+1));
+      new(Vax2);
+      Vax.Copy(Vax2^);
+      if (LDateFun.Caption='D-Diod') then
+       begin
+        A_B_Diapazon(Vax,Vax2,D[diDE]);
+       end;
+
+      if (LDateFun.Caption='Photo D-Diod') then
+       begin
+        A_B_Diapazon(Vax,Vax2,D[diDE],True);
+       end;
+      Fit.Fitting(Vax2,EvolParam);
+
+//      Fit.Fitting(Vax,EvolParam);
+      dispose(Vax2);
       for i:=0 to High(Fit.Xname) do
         dat[ord(High(TColName))+1+i]:=
            FloatToStrF(EvolParam[i],ffExponent,4,3);

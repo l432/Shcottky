@@ -2267,7 +2267,7 @@ end;
 Procedure TFitAdditionParam.Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);
 begin
-  inherited;
+  inherited ;
   if {(fNaddX>0)and}(not(FIsNotReady))and(OutputData[0]<>ErResult) then
    begin
 //     SetLength(OutputData,FNx+fNAddX);

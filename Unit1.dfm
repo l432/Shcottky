@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -1929,7 +1929,7 @@ object Form1: TForm1
             Width = 95
             Height = 122
             Caption = 'I=I0exp(eV/nkT)'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 4
@@ -2066,7 +2066,7 @@ object Form1: TForm1
             Width = 95
             Height = 122
             Caption = 'Kaminski funct II'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 7
@@ -2121,7 +2121,7 @@ object Form1: TForm1
             Width = 95
             Height = 122
             Caption = 'Kaminski funct I'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 8
@@ -2286,7 +2286,7 @@ object Form1: TForm1
             Width = 195
             Height = 52
             Caption = 'Bohlin method, parameters'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 11
@@ -2430,7 +2430,7 @@ object Form1: TForm1
             Width = 95
             Height = 122
             Caption = 'Werner function'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 14
@@ -2485,7 +2485,7 @@ object Form1: TForm1
             Width = 95
             Height = 122
             Caption = 'Mikhelashili meth'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 15
@@ -2595,7 +2595,7 @@ object Form1: TForm1
             Width = 95
             Height = 133
             Caption = 'I/[1-exp(-qV/kT)]'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 17
@@ -2663,7 +2663,7 @@ object Form1: TForm1
             Width = 95
             Height = 133
             Caption = 'I/[1-exp(-qV/kT)]'
-            Color = clHighlightText
+            Color = clBtnHighlight
             ParentBackground = False
             ParentColor = False
             TabOrder = 18
