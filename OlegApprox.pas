@@ -4094,7 +4094,7 @@ end;
 Constructor TDoubleDiodLight.Create;
 begin
  inherited Create('DoubleDiodLight','Double diod fitting of lightened solar cell I-V',
-                  7,1,4);
+                  7,1,6);
  FXname[0]:='n1';
  FXname[1]:='Rs';
  FXname[2]:='Io1';
@@ -4118,6 +4118,8 @@ begin
   FXname[8]:='Isc';
   FXname[9]:='Pm';
   FXname[10]:='FF';
+  FXname[11]:='Vm';
+  FXname[12]:='Im';
 end;
 
 Function TDoubleDiodLight.Func(Parameters:TArrSingle):double;
@@ -4148,6 +4150,8 @@ begin
   OutputData[FNx+1]:=ErResult;
   OutputData[FNx+2]:=ErResult;
   OutputData[FNx+3]:=ErResult;
+  OutputData[FNx+4]:=ErResult;
+  OutputData[FNx+5]:=ErResult;
   if (OutputData[6]>1e-7) then
     begin
      OutputData[7]:=Voc_Isc_Pm_DoubleDiod(1,OutputData[0]*Kb*FVariab[0],
@@ -4163,6 +4167,12 @@ begin
      (OutputData[FNx+1]<>ErResult) then
     begin
      OutputData[9]:=Voc_Isc_Pm_DoubleDiod(3,OutputData[0]*Kb*FVariab[0],
+                        OutputData[4]*Kb*FVariab[0],OutputData[1],
+                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+     OutputData[FNx+4]:=Voc_Isc_Pm_DoubleDiod(4,OutputData[0]*Kb*FVariab[0],
+                        OutputData[4]*Kb*FVariab[0],OutputData[1],
+                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+     OutputData[FNx+5]:=Voc_Isc_Pm_DoubleDiod(5,OutputData[0]*Kb*FVariab[0],
                         OutputData[4]*Kb*FVariab[0],OutputData[1],
                         OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
      OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];

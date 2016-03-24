@@ -592,17 +592,17 @@ a саме, методом дихотомії знаходиться екстремум функції Pm=I*V
 }
 
 Function Voc_Isc_Pm_DoubleDiod(mode:byte;E1,E2,Rs,I01,I02,Rsh,Iph:double):double;
-
 {обчислюється Voc (при mode=1),
-Isc (при mode=2) чи максимальну
-вихідну потужність (при mode=3) по відомим значенням
+Isc (при mode=2)
+максимальну вихідну потужність (при mode=3)
+Vm (при mode=4)
+Im (при mode=5)
+по відомим значенням
 Е1, Е2, Rs, I01, I02, Rsh, Iph, вважаючи, що  ВАХ
 має описуватися двома експонентами.
 Використовується метод дихотомії
 для розв'язку рівняння
 I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
-або
-I01*[exp(qRsIsc/Е1)-1]+I02*[exp(qRsIsc/Е2)-1]+RsIsc/Rsh-Iph+Isc=0.
 }
 
 Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
@@ -3527,8 +3527,11 @@ end;
 
 Function Voc_Isc_Pm_DoubleDiod(mode:byte;E1,E2,Rs,I01,I02,Rsh,Iph:double):double;
 {обчислюється Voc (при mode=1),
-Isc (при mode=2) чи максимальну
-вихідну потужність (при mode=3) по відомим значенням
+Isc (при mode=2)
+максимальну вихідну потужність (при mode=3)
+Vm (при mode=4)
+Im (при mode=5)
+по відомим значенням
 Е1, Е2, Rs, I01, I02, Rsh, Iph, вважаючи, що  ВАХ
 має описуватися двома експонентами.
 Використовується метод дихотомії
@@ -3555,7 +3558,7 @@ I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
  if (Rs<0) or (Rs=ErResult) then Exit;
  if (Rsh<=0) or (Rsh=ErResult) then Exit;
  if mode<1 then Exit;
- if mode>3 then Exit;
+ if mode>5 then Exit;
 
 if mode=2 then
   begin
@@ -3604,7 +3607,7 @@ if mode=1 then
     Result:=c;
   end; //if mode=1 then
 
-if mode=3 then
+if mode in [3,4,5] then
   begin
     temp:=0.01;
     a:=0;
@@ -3619,7 +3622,12 @@ if mode=3 then
       end;
     a:=b;
     until (abs(temp)<0.00005);
-   Result:=abs(a*Full_IV_2Exp(a,E1,E2,Rs,I01,I02,Rsh,Iph));
+   case mode of
+     4:Result:=a;
+     5:Result:=abs(Full_IV_2Exp(a,E1,E2,Rs,I01,I02,Rsh,Iph));
+     else  Result:=abs(a*Full_IV_2Exp(a,E1,E2,Rs,I01,I02,Rsh,Iph));
+   end;
+//   Result:=abs(a*Full_IV_2Exp(a,E1,E2,Rs,I01,I02,Rsh,Iph));
   end; //if mode=3 then
 
 end;
