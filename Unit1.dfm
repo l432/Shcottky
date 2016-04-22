@@ -18,7 +18,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
@@ -1549,8 +1549,8 @@ object Form1: TForm1
         end
       end
       object GroupBox20: TGroupBox
-        Left = 2
-        Top = 122
+        Left = 3
+        Top = 120
         Width = 201
         Height = 245
         Caption = 'CURRENT AT CERTAIN VOLTAGE'
@@ -1631,7 +1631,7 @@ object Form1: TForm1
           OnClick = ButtonVoltClick
         end
         object CheckBoxLnIT2: TCheckBox
-          Left = 16
+          Left = 8
           Top = 187
           Width = 75
           Height = 17
@@ -1639,12 +1639,20 @@ object Form1: TForm1
           TabOrder = 5
         end
         object CheckBoxnLnIT2: TCheckBox
-          Left = 114
+          Left = 76
           Top = 187
           Width = 84
           Height = 17
           Caption = 'n ln( I /T^2 )'
           TabOrder = 6
+        end
+        object CBVoc: TCheckBox
+          Left = 154
+          Top = 187
+          Width = 40
+          Height = 17
+          Caption = 'Voc'
+          TabOrder = 7
         end
       end
       object ScrollBox2: TScrollBox

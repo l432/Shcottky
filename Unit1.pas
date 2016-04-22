@@ -800,6 +800,7 @@ type
     ButEps_i: TButton;
     ButNd: TButton;
     ButArea: TButton;
+    CBVoc: TCheckBox;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -7142,8 +7143,13 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     k:=1;
     if CheckBoxLnIT2.Checked then k:=k+1;
     if CheckBoxnLnIT2.Checked then k:=k+1;
+    if CBVoc.Checked then
+
 
     Grid.ColCount:=k*ListBoxVolt.Items.Count+5;
+    //************
+    if CBVoc.Checked then Grid.ColCount:=Grid.ColCount+1;
+    //************
     Grid.Cells[0,0]:='name';
     Grid.Cells[2,0]:='T';
     Grid.Cells[3,0]:='kT_1';
@@ -7155,6 +7161,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
        if (CheckBoxnLnIT2.Checked)and(not(CheckBoxLnIT2.Checked)) then
                                            Grid.Cells[k*i+1+4,0]:='nLnIT2';
        if k=3 then Grid.Cells[k*i+2+4,0]:='nLnIT2';
+       //************
+       if CBVoc.Checked then Grid.Cells[Grid.ColCount-1,0]:='Voc';
+       //************
        end;
 
     repeat
@@ -7200,6 +7209,13 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
                                   FloatToStrF(nn*ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
                          else Grid.Cells[k*i+2+4,Grid.RowCount-1]:='555';
      end;
+    //************
+    if CBVoc.Checked then
+     begin
+     Cur:=abs(ChisloX(Vax,0));
+     Grid.Cells[Grid.ColCount-1,Grid.RowCount-1]:=FloatToStrF(Cur,ffExponent,4,3);
+     end;
+    //************
     Grid.RowCount:=Grid.RowCount+1;
     until FindNext(SR) <> 0;
 
@@ -7248,6 +7264,24 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       Writeln(f);
      end;
     CloseFile(f);
+
+    //************
+    if CBVoc.Checked then
+     begin
+      AssignFile(f,CurDirectory+'\Zriz\'+'Voc.dat');
+      Rewrite(f);
+      for j := 0 to Grid.RowCount-1 do
+       if Grid.Cells[k*i+4,j]<>'5.55E+02' then
+        begin
+        Write(f,Grid.Cells[0,j],' ',Grid.Cells[1,j],' ',
+                Grid.Cells[2,j],' ',Grid.Cells[3,j],' ',
+                Grid.Cells[Grid.ColCount-1,j]);
+        Writeln(f);
+        end;
+      CloseFile(f);
+     end;
+    //************
+
 
     if Grid.RowCount<2 then Continue;
     SetLenVector(Vax,Grid.RowCount-1);
