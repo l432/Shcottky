@@ -7104,18 +7104,17 @@ var
   SR : TSearchRec;
   mask,ShotName:string;
   Vax:Pvector;
-  i,j,k{,nt,T}:integer;
+  i,j,k:integer;
   F:TextFile;
   Grid:TStringGrid;
-  Cur,Rs{,a,b}:double;
-  StrRez,StrAppr:TStringList;
-//  str:string;
-   Str:TStringList;
-   TT:double;
-
-   fff:TPhonAsTunAndTE2_kT1;
-  Ite: Double;
-  Ipat: Double;
+  Cur,Rs:double;
+//  StrRez,StrAppr:TStringList;
+//   Str:TStringList;
+//   TT:double;
+//
+//   fff:TPhonAsTunAndTE2_kT1;
+//  Ite: Double;
+//  Ipat: Double;
 
 
 begin
@@ -7130,8 +7129,8 @@ mask:='*.dat';
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
     new(Vax);
-    Str:=TStringList.Create;
-    Str.Add('V T I logI');
+//    Str:=TStringList.Create;
+//    Str.Add('V T I logI');
       try
       MkDir('Zriz');
       except
@@ -7143,7 +7142,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     k:=1;
     if CheckBoxLnIT2.Checked then k:=k+1;
     if CheckBoxnLnIT2.Checked then k:=k+1;
-    if CBVoc.Checked then
+//    if CBVoc.Checked then
 
 
     Grid.ColCount:=k*ListBoxVolt.Items.Count+5;
@@ -7168,7 +7167,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
     repeat
      ShotName:=AnsiUpperCase(SR.name);
-     if ShotName[length(ShotName)-4]<>'N' then Continue;
+//     if ShotName[length(ShotName)-4]<>'N' then Continue;
      Read_File(SR.name,Vax);
      ShotName:=copy(ShotName,1,length(ShotName)-5);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
@@ -7176,9 +7175,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if length(ShotName)<3 then insert('0',ShotName,1);
 
      Grid.Cells[0,Grid.RowCount-1]:=ShotName;
-     {mask:=TimeToStr(FileDateToDateTime (SR.Time));
-     delete(mask,length(mask)-2,3);
-     Grid.Cells[1,Grid.RowCount-1]:=mask;}
      Grid.Cells[1,Grid.RowCount-1]:=Vax^.time;
      Grid.Cells[2,Grid.RowCount-1]:=FloatToStrF(Vax^.T,ffGeneral,4,1);
      if Vax^.T=0 then Grid.Cells[3,Grid.RowCount-1]:='555'
@@ -7221,22 +7217,12 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
    Grid.RowCount:=Grid.RowCount-1;
    SortGrid(Grid,0);
-   Grid.ColCount:=Grid.ColCount-1;
+//   Grid.ColCount:=Grid.ColCount-1;
 
-   StrRez:=TStringList.Create;
-   StrAppr:=TStringList.Create;
-{//   StrRez.Add('V I01 E1 I02 E2');
-//   StrRez.Add('V I01 A I02 E');
-//   StrRez.Add('V I01 Tc I02 E');
-   str:='555 ';
-   T:=130;
-   repeat
-     str:=str+inttostr(T)+' ';
-     T:=T+5;
-   until (T>330);
-   StrRez.Add(str);
-}
-   StrRez.Add('V T I Ite Ipat eIpat');
+//   StrRez:=TStringList.Create;
+//   StrAppr:=TStringList.Create;
+//
+//   StrRez.Add('V T I Ite Ipat eIpat');
 
    for I := 0 to High(Volt) do
     begin
@@ -7283,86 +7269,80 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     //************
 
 
-    if Grid.RowCount<2 then Continue;
-    SetLenVector(Vax,Grid.RowCount-1);
-    for j := 1 to Grid.RowCount-1 do
-      begin
-       Vax^.X[j-1]:=StrToFloat(Grid.Cells[3,j]);
-       Vax^.Y[j-1]:=StrToFloat(Grid.Cells[k*i+4,j]);
-      end;
-    Sorting (Vax);
-    for j:= 0 to High(Vax^.X) do
-      if (Vax^.Y[j]<9e-10)
-          or(Vax^.X[j]>82.82)
-              then Break;
-    if j<Vax^.n-1 then SetLenVector(Vax,j);
-
+//    if Grid.RowCount<2 then Continue;
+//    SetLenVector(Vax,Grid.RowCount-1);
+//    for j := 1 to Grid.RowCount-1 do
+//      begin
+//       Vax^.X[j-1]:=StrToFloat(Grid.Cells[3,j]);
+//       Vax^.Y[j-1]:=StrToFloat(Grid.Cells[k*i+4,j]);
+//      end;
+//    Sorting (Vax);
 //    for j:= 0 to High(Vax^.X) do
-//      Vax^.X[j]:=1/(Vax^.X[j]*Kb);
-
-
-  Write_File(CurDirectory+'\Zriz\'+
-       Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
-
-  fff:=TPhonAsTunAndTE2_kT1.Create;
-  Vax^.name:=Inttostr(round(abs(10*Volt[i])))+'.dat';
-
-  fff.Fitting(Vax,EvolParam);
-
-    TT:=125;
-    repeat
-//     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
-
-     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],
-     Diod.Material.Varshni(EvolParam[3],TT))*
-     (1-exp(0.5*Volt[i]/Kb/TT));
-
-     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
-     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-           FloatToStrF(TT,ffExponent,4,0)+' '+
-           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
-           FloatToStrF(Ite,ffExponent,4,0)+' '+
-           FloatToStrF(Ipat,ffExponent,4,0)+' '+
-           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
-     TT:=TT+5;
-    until (TT>330);
-   fff.Free;
-
-    SetLenVector(Vax,Grid.RowCount-1);
-    for j := 1 to Grid.RowCount-1 do
-      begin
-       Vax^.X[j-1]:=StrToFloat(Grid.Cells[2,j]);
-       Vax^.Y[j-1]:=StrToFloat(Grid.Cells[k*i+4,j]);
-      end;
-    Sorting (Vax,False);
-    for j:= 0 to High(Vax^.X) do
-      if Vax^.Y[j]<6e-10 then Break;
-    if j<Vax^.n-1 then SetLenVector(Vax,j);
-
-    SetLenVector(Vax,Vax^.n+1);
-    Vax^.X[High(Vax^.X)]:=100;
-    Vax^.Y[High(Vax^.X)]:=1e-15;
-    Sorting (Vax);
-//    Write_File(CurDirectory+'\Zriz\'+
-//       Inttostr(round(abs(10*Volt[i])))+'tt.dat',Vax);
-    TT:=125;
-    repeat
-     Str.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-           FloatToStrF(TT,ffExponent,4,0)+' '+
-           FloatToStrF(ChisloY(Vax,TT),ffExponent,4,0)+' '+
-           FloatToStrF(log10(ChisloY(Vax,TT)),ffExponent,4,0));
-     TT:=TT+5;
-    until (TT>330);
+//      if (Vax^.Y[j]<9e-10)
+//          or(Vax^.X[j]>82.82)
+//              then Break;
+//    if j<Vax^.n-1 then SetLenVector(Vax,j);
+//
+//  Write_File(CurDirectory+'\Zriz\'+
+//       Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
+//
+//  fff:=TPhonAsTunAndTE2_kT1.Create;
+//  Vax^.name:=Inttostr(round(abs(10*Volt[i])))+'.dat';
+//
+//  fff.Fitting(Vax,EvolParam);
+//
+//    TT:=125;
+//    repeat
+//
+//     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],
+//     Diod.Material.Varshni(EvolParam[3],TT))*
+//     (1-exp(0.5*Volt[i]/Kb/TT));
+//
+//     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
+//     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
+//           FloatToStrF(TT,ffExponent,4,0)+' '+
+//           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
+//           FloatToStrF(Ite,ffExponent,4,0)+' '+
+//           FloatToStrF(Ipat,ffExponent,4,0)+' '+
+//           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
+//     TT:=TT+5;
+//    until (TT>330);
+//   fff.Free;
+//
+//    SetLenVector(Vax,Grid.RowCount-1);
+//    for j := 1 to Grid.RowCount-1 do
+//      begin
+//       Vax^.X[j-1]:=StrToFloat(Grid.Cells[2,j]);
+//       Vax^.Y[j-1]:=StrToFloat(Grid.Cells[k*i+4,j]);
+//      end;
+//    Sorting (Vax,False);
+//    for j:= 0 to High(Vax^.X) do
+//      if Vax^.Y[j]<6e-10 then Break;
+//    if j<Vax^.n-1 then SetLenVector(Vax,j);
+//
+//    SetLenVector(Vax,Vax^.n+1);
+//    Vax^.X[High(Vax^.X)]:=100;
+//    Vax^.Y[High(Vax^.X)]:=1e-15;
+//    Sorting (Vax);
+//    TT:=125;
+//    repeat
+//     Str.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
+//           FloatToStrF(TT,ffExponent,4,0)+' '+
+//           FloatToStrF(ChisloY(Vax,TT),ffExponent,4,0)+' '+
+//           FloatToStrF(log10(ChisloY(Vax,TT)),ffExponent,4,0));
+//     TT:=TT+5;
+//    until (TT>330);
 
     end;
     dispose(Vax);
     FindClose(SR);
     Grid.Free;
-    StrRez.SaveToFile(CurDirectory+'\Zriz\'+'delta.dat');
-    StrRez.Free;
-    StrAppr.Free;
-    Str.SaveToFile(CurDirectory+'\Zriz\'+'sqr.dat');
-    Str.Free;
+
+//    StrRez.SaveToFile(CurDirectory+'\Zriz\'+'delta.dat');
+//    StrRez.Free;
+//    StrAppr.Free;
+//    Str.SaveToFile(CurDirectory+'\Zriz\'+'sqr.dat');
+//    Str.Free;
     MessageDlg('Files with current value were created sucsesfully', mtInformation,[mbOk],0);
   end
                                      else
