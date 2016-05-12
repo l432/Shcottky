@@ -8,7 +8,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..38]of string=
+  FuncName:array[0..39]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -21,7 +21,7 @@ const
            'Brailsford on T','Brailsford on w',
            'Phonon Tunneling on 1/kT','Phonon Tunneling on V',
            'PAT and TE on 1/kT','PAT and TE on V',
-           'PAT and TEsoft on 1/kT','Tunneling trapezoidal');
+           'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR');
 type
 
   TVar_Rand=(lin,logar,cons);
@@ -774,6 +774,14 @@ private
 public
  Constructor Create;
 end; //TLinEg=class (TFitFunctEvolution)
+
+TTauG=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+// Function Weight(OutputData:TArrSingle):double;override;
+public
+ Constructor Create;
+end; //TTauG=class (TFitFunctEvolution)
 
 TDoubleDiod=class (TFitFunctEvolution)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh}
@@ -4063,6 +4071,30 @@ begin
  Result:=1;
 end;
 
+Constructor TTauG.Create;
+begin
+ inherited Create('TauG','Lifetime in SCR',
+                  2,0,0);
+ FXname[0]:='SnSp';
+ FXname[1]:='Et';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ CreateFooter();
+// ReadFromIniFile();
+end;
+
+Function TTauG.Func(Parameters:TArrSingle):double;
+// var Fb,Vbb:double;
+begin
+ Result:=Sqrt(Parameters[0])*(exp(Parameters[0]*fX)+exp(-Parameters[0]*fX));
+end;
+
+//Function TTauG.Weight(OutputData:TArrSingle):double;
+//begin
+// Result:=1;
+//end;
+
 Constructor TDoubleDiod.Create;
 begin
  inherited Create('DoubleDiod','Double diod fitting of solar cell I-V',
@@ -5107,6 +5139,7 @@ begin
   if str='TEstrict and SCLCexp on 1/kT' then F:=TTEstrAndSCLCexp_kT1.Create;
   if str='PAT and TEsoft on 1/kT' then F:=TPhonAsTunAndTE2_kT1.Create;
   if str='Tunneling trapezoidal' then F:=TTunnelFNmy.Create;
+  if str='Lifetime in SCR' then F:=TTauG.Create;
 //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
