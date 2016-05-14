@@ -4,7 +4,7 @@ interface
 uses IniFiles, TypInfo, OlegType,SysUtils,Dialogs;
 type
     TMaterialName=(nSi,pSi,nGaAs,pGaAs,nInP,pInP,H4SiC,nGaN,pGaN,
-                   nCdTe,pCdTe,CuInSe2,pGaTe,pGaSe,nGe,pGe,Other);
+                   nCdTe,pCdTe,nCdS,nCdSe,CuInSe2,pGaTe,pGaSe,nGe,pGe,Other);
     TMaterialParametersName=(
             nEg0,   //ширина забороненої зони при T=0, []=eV
             nEps,   //діелектрична проникність
@@ -33,6 +33,8 @@ const
     (Name:'p-GaN';  Parameters: (ErResult, 8.9,  7.50e5,   0.60, ErResult, ErResult)),
     (Name:'n-CdTe'; Parameters: (1.57,     12,   0.12e6,   1.08, 0,        4e-4)),
     (Name:'p-CdTe'; Parameters: (1.57,     12,   ErResult, 0.60, 0,        4e-4)),
+    (Name:'n-CdS';  Parameters: (1.42,     1,    2.34e5,   0.17, 0,        ErResult)),
+    (Name:'n-CdSe'; Parameters: (1.9,      10.2, 1.56e5,   0.13, 0,        2.8e-4)),
     (Name:'CuInSe2';Parameters: (ErResult, 1,    8.53e5,   1,    ErResult, ErResult)),
     (Name:'p-GaTe'; Parameters: (ErResult, 1,    1.19e6,   1,    ErResult, ErResult)),
     (Name:'p-GaSe'; Parameters: (ErResult, 1,    2.47e6,   1,    ErResult, ErResult)),
