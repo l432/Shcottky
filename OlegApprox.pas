@@ -2130,11 +2130,11 @@ begin
     begin
      FXvalue[i]:=FA[i];
      if (FXt[i]<=FVarNum)and(FXt[i]>0) then
-       FXvalue[i]:=FXvalue[i]+FB[i]*FVariab[FXt[i]]+
-                   FC[i]*sqr(FVariab[FXt[i]]);
+       FXvalue[i]:=FXvalue[i]+FB[i]*FVariab[FXt[i]-1]+
+                   FC[i]*sqr(FVariab[FXt[i]-1]);
      if FXt[i]>FVarNum then
-       FXvalue[i]:=FXvalue[i]+FB[i]/FVariab[FXt[i]-FVarNum]+
-                     FC[i]/sqr(FVariab[FXt[i]-FVarNum]);
+       FXvalue[i]:=FXvalue[i]+FB[i]/FVariab[FXt[i]-FVarNum-1]+
+                     FC[i]/sqr(FVariab[FXt[i]-FVarNum-1]);
     end;
 end;
 
@@ -2228,6 +2228,15 @@ begin
   inc(fNAddX);
 //  SetLength(OutputData,FNx+fNAddX);
   SetLength(FXname,FNx+fNAddX);
+
+  if (fIsPhotoDiod and (fNaddX=5) and (FNx>4)) then
+   begin
+     FXname[FNx]:='Voc';
+     FXname[FNx+1]:='Isc';
+     FXname[FNx+2]:='Pm';
+     FXname[FNx+3]:='FF';
+   end;
+
   FXname[High(FXname)]:='dev';
   ReadFromIniFile();
 end;
@@ -2249,19 +2258,19 @@ begin
 
   if (fIsPhotoDiod and (fNaddX=5) and (FNx>4)) then
    begin
-     FXname[FNx]:='Voc';
-     FXname[FNx+1]:='Isc';
-     FXname[FNx+2]:='Pm';
-     FXname[FNx+3]:='FF';
-    if (OutputData[4]>1e-7) then
+//     FXname[FNx]:='Voc';
+//     FXname[FNx+1]:='Isc';
+//     FXname[FNx+2]:='Pm';
+//     FXname[FNx+3]:='FF';
+    if (OutputData[4]>1e-11) then
        begin
         OutputData[FNx]:=
            Voc_Isc_Pm(1,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
         OutputData[FNx+1]:=
            Voc_Isc_Pm(2,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
        end;
-    if (OutputData[FNx]>0.002)and
-       (OutputData[FNx+1]>1e-7)and
+    if (OutputData[FNx]>0.0002)and
+       (OutputData[FNx+1]>1e-11)and
        (OutputData[FNx]<>ErResult)and
        (OutputData[FNx+1]<>ErResult) then
          begin
@@ -3958,7 +3967,11 @@ end;
 
 Function TPhotoDiod.Weight(OutputData:TArrSingle):double;
 begin
+// if fY<-0.5*OutputData[4] then Result:=sqr(fY+OutputData[4])
+//                          else Result:=sqr(fY);
+
  Result:=sqr(fY+OutputData[4]);
+// Result:=sqr(fY);
 end;
 
 Constructor TDiodTwo.Create;
@@ -4184,7 +4197,7 @@ begin
   OutputData[FNx+3]:=ErResult;
   OutputData[FNx+4]:=ErResult;
   OutputData[FNx+5]:=ErResult;
-  if (OutputData[6]>1e-7) then
+  if (OutputData[6]>1e-11) then
     begin
      OutputData[7]:=Voc_Isc_Pm_DoubleDiod(1,OutputData[0]*Kb*FVariab[0],
                         OutputData[4]*Kb*FVariab[0],OutputData[1],
@@ -4193,8 +4206,8 @@ begin
                         OutputData[4]*Kb*FVariab[0],OutputData[1],
                         OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
     end;
-  if (OutputData[FNx]>0.002)and
-     (OutputData[FNx+1]>1e-7)and
+  if (OutputData[FNx]>0.0002)and
+     (OutputData[FNx+1]>1e-11)and
      (OutputData[FNx]<>ErResult)and
      (OutputData[FNx+1]<>ErResult) then
     begin

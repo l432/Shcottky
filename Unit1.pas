@@ -6375,12 +6375,17 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       FunCreate(LDateFun.Caption,Fit);
       new(Vax2);
       Vax.Copy(Vax2^);
-      if (LDateFun.Caption='D-Diod') then
+      if (LDateFun.Caption='D-Diod')
+       or(LDateFun.Caption='Diod')
+       or(LDateFun.Caption='PhotoDiod')
+      then
        begin
         A_B_Diapazon(Vax,Vax2,D[diDE]);
        end;
 
-      if (LDateFun.Caption='Photo D-Diod') then
+      if (LDateFun.Caption='Photo D-Diod')
+//         or(LDateFun.Caption='PhotoDiod')
+           then
        begin
         A_B_Diapazon(Vax,Vax2,D[diDE],True);
        end;
@@ -6649,9 +6654,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
     repeat
      ShotName:=AnsiUpperCase(SR.name);
-     if ShotName[length(ShotName)-4]<>'N' then Continue;
+//     if ShotName[length(ShotName)-4]<>'N' then Continue;
      Read_File(SR.name,Vax);
-     ShotName:=copy(ShotName,1,length(ShotName)-5);
+     ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
      Inform.Add(ShotName);
      Inform.Add('T='+FloatToStrF(Vax^.T,ffGeneral,4,1));
@@ -7169,7 +7174,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      ShotName:=AnsiUpperCase(SR.name);
 //     if ShotName[length(ShotName)-4]<>'N' then Continue;
      Read_File(SR.name,Vax);
-     ShotName:=copy(ShotName,1,length(ShotName)-5);
+     ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
      if length(ShotName)<3 then insert('0',ShotName,1);
      if length(ShotName)<3 then insert('0',ShotName,1);
