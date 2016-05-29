@@ -3336,7 +3336,12 @@ begin
      I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
      repeat
          V:=V+0.01;
-         I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+//         I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+         I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
+
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
          if (I>=1e-10) then
            begin
              dat.Add(FloatToStrF(RandG(V,sigV),ffExponent,4,0)+' '+
@@ -3476,7 +3481,8 @@ repeat
            V:=0;
            repeat
                V:=V+0.01;
-               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
                if (I>=1e-10) then
                  begin
                    inc(ip);
@@ -3714,7 +3720,8 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 
            repeat
                V:=V+0.01;
-               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
                if (I>=1e-10) then
                  begin
                    inc(ip);
@@ -3968,7 +3975,8 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 
            repeat
                V:=V+0.01;
-               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
                if (I>=1e-10) then
                  begin
                    inc(ip);
@@ -4214,7 +4222,8 @@ repeat
            V:=0;
            repeat
                V:=V+0.01;
-               I:=Full_IV(V,nT*Kb*T,RsT,I0T,1e13,0);
+//               I:=Full_IV(V,nT*Kb*T,RsT,I0T,1e13,0);
+               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,RsT]);
                if (I>=1e-10) then
                  begin
                    inc(ip);
@@ -4405,7 +4414,8 @@ repeat
 
            repeat
                V:=V+0.01;
-               I:=Full_IV(V,nT*Kb*T,RsT,I0T,1e13,0);
+//               I:=Full_IV(V,nT*Kb*T,RsT,I0T,1e13,0);
+               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,RsT]);
                if (I>=1e-10) then
                  begin
                    inc(ip);
@@ -4666,7 +4676,8 @@ repeat
 
            repeat
                V:=V+0.01;
-               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
+               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
                if (I>=1e-10) then
                  begin
                    inc(ip);

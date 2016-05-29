@@ -4,7 +4,10 @@ interface
  uses OlegType, Dialogs, SysUtils, Math, Classes;
 
 Type FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
+//     TFun_IV=Function(V,E,I0:double;I:double=0;Rs:double=0):double;
+     TFun_IV=Function(Argument:double;Parameters:array of double;Key:double):double;
 
+     
 Procedure Swap (var A:integer; var B:integer); overload;
 {процедура обміну значеннями між цілими змінними А та В}
 
@@ -291,18 +294,46 @@ Function LambertAprShot(V,E,Rs,I0,Rsh:double):double;
 Е=KbTn/q, використовується спрошений варіант,
 справедливий для Rs<<Rsh}
 
+
 Function LambertLightAprShot (V,E,Rs,I0,Rsh,Iph:double):double;
 {розраховує апроксимацію освітленої ВАХ при напрузі V
 за функцією Ламверта по значеннях параметрів Е,Rs,I0,Rsh,Iph
 Е=KbTn/q}
 
-Function Full_IV(V,E,Rs,I0,Rsh,Iph:double):double;
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//TFun_IV=Function(Argument:double;Parameters:array of double;Key:double):double;
+Function IV_Diod(V:double;Data:array of double;I:double=0):double;
+{I=I0*[exp(q(V-I Rs)/E)-1]
+Data[0] - Ε
+Data[1] - Rs
+Data[2] - Ι0
+}
+
+Function IV_DiodTunnel(V:double;Data:array of double;I:double=0):double;
+{I=I0*exp[A(V-I Rs)]
+Data[0] - A
+Data[1] - Rs
+Data[2] - Ι0
+}
+
+Function IV_DiodDouble(V:double;Data:array of double;I:double=0):double;
+{I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])
+Data[0] - Ε1
+Data[1] - Rs
+Data[2] - Ι01
+Data[3] - E2
+Data[4] - Ι02
+}
+
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
+Function Full_IV(F:TFun_IV;V:double;Data:array of double;Rsh:double=1e12;Iph:double=0):double;
 {розраховує значення функції
-I=I0*[exp(q(V-I Rs)/E)-1]+(V-I Rs)/Rsh-Iph)}
+I=F(V,E,I0,I,Rs)+(V-I Rs)/Rsh-Iph)}
 
-Function Full_IV_A(V,E,Rs,I0,Rsh,Iph:double):double;
+//Function Full_IV_A(V,E,Rs,I0,Rsh,Iph:double):double;
 
-Function Full_IV_2Exp(V,E1,E2,Rs,I01,I02,Rsh,Iph:double):double;
+//Function Full_IV_2Exp(V,E1,E2,Rs,I01,I02,Rsh,Iph:double):double;
 {розраховує значення функції
 I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1]+(V-I Rs)/Rsh-Iph)}
 
@@ -357,6 +388,9 @@ Function NumberMax(A:Pvector):integer;
 {обчислюється кількість локальних
 максимумів у векторі А;
 дані мають бути упорядковані по координаті X}
+
+Function IsEqual(a,b,eps:double):boolean;
+{True, якщо відносна різниця a та b менше eps}
 
 
 Function Rs_T(T:double):double;
@@ -2298,160 +2332,228 @@ begin
           E/Rs*Lambert(Rs*I0*Rsh/E/(Rs+Rsh)*exp(Rsh*(Rs*Iph+Rs*I0+V)/E/(Rs+Rsh)));
 end;
 
-Function Full_IV(V,E,Rs,I0,Rsh,Iph:double):double;
-{розраховує значення функції
-I=I0*[exp(q(V-I Rs)/E)-1]+(V-I Rs)/Rsh-Iph)}
-    Function I_V(mode:byte;I,V,I0,Rs,kT,Rsh,Iph:double):double;
-    begin
-      case mode of
-         1:Result:=I-I0*exp((V-I*Rs)/kT)+I0+Iph;
-       else Result:=I-I0*exp((V-I*Rs)/kT)+I0-(V-I*Rs)/Rsh+Iph;
-      end;
-    end;
-
-var mode,md:byte;
-    i:integer;
-    a,b,c,min:double;
-    bool:boolean;
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//Function IV_Diod(Data:array of double):double;
+//{I=I0*[exp(q(V-I Rs)/E)-1]
+//Data[0] - V
+//Data[1] - Ε
+//Data[2] - Ι0
+//Data[3] - Rs
+//Data[4] - I
+//}
+Function IV_Diod(V:double;Data:array of double;I:double=0):double;
+{I=I0*[exp(q(V-I Rs)/E)-1]
+Data[0] - Ε
+Data[1] - Rs
+Data[2] - Ι0
+}
 begin
-Result:=ErResult;
-if E=0 then Exit;
-mode:=0;
-if Rsh>=1e12 then mode:=1;
-if Rs<=1e-4 then mode:=2;
-if (Rsh>=1e12)and(Rs<=1e-4) then mode:=3;
-case mode of
-  2:Result:=I0*(exp(V/E)-1)+V/Rsh-Iph;
-  3:Result:=I0*(exp(V/E)-1)-Iph;
-  else
-     begin
-     if Rsh>1e12 then Rsh:=1e12;
-     c:=I0*(exp(V/E)-1)-Iph;
-     if c*Rs>88 then c:=10/Rs;
+//  Result:=I0*(exp((V-I*Rs)/E)-1);
+//  Result:=Data[2]*(exp((Data[0]-Data[3]*Data[4])/Data[1])-1);
+ if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)
+        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1);
+end;
 
-     if abs(c)<1e-8 then
-          begin
+Function IV_DiodTunnel(V:double;Data:array of double;I:double=0):double;
+{I=I0*exp[A(V-I Rs)]
+Data[0] - A
+Data[1] - Rs
+Data[2] - Ι0
+}
+begin
+ if I=0 then Result:=Data[2]*exp(V*Data[0])
+        else Result:=Data[2]*exp((V-I*Data[1])*Data[0]);
+end;
+
+Function IV_DiodDouble(V:double;Data:array of double;I:double=0):double;
+{I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])
+Data[0] - Ε1
+Data[1] - Rs
+Data[2] - Ι01
+Data[3] - E2
+Data[4] - Ι02
+}
+begin
+ if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)+Data[4]*(exp(V/Data[3])-1)
+        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)+
+                     Data[4]*(exp((V-I*Data[1])/Data[3])-1);
+end;
+
+
+
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
+Function Full_IV(F:TFun_IV;V:double;Data:array of double;Rsh:double=1e12;Iph:double=0):double;
+{Data[1] має бути Rs}
+{розраховує значення функції
+I=F(V,E,I0,I,Rs)+(V-I Rs)/Rsh-Iph)}
+//    Function I_V({mode:byte;}I,V,I0,Rs,E,Rsh,Iph:double):double;
+    Function I_V(I:double):double;
+    begin
+      Result:=I-F(V, Data,I)+Iph;
+//      Result:=I-F([V, E, I0, Rs,I])+Iph;
+//      Result:=I-F(V,E,I0,I,Rs)+Iph;
+//      Result:=I-I0*exp((V-I*Rs)/E)+I0+Iph;
+      if Rsh<1e12 then Result:=Result-(V-I*Data[1])/Rsh;
+//      case mode of
+//         1:Result:=I-I0*exp((V-I*Rs)/kT)+I0+Iph;
+//       else Result:=I-I0*exp((V-I*Rs)/kT)+I0-(V-I*Rs)/Rsh+Iph;
+//      end;
+    end;
+const eps=1e-6;
+      Nit_Max=1e6;
+var {mode,md:byte;}
+    i:integer;
+    a,b,c{,min}:double;
+//    bool:boolean;
+begin
+ try
+  if Rsh>1e12 then Rsh:=1e12;
+//  if (Rs<=1e-4) then
+  if (Data[1]<=1e-4) then
+   begin
+//     if (Rsh=1e12) then Result:=F([V,E,I0,0,0])-Iph
+//                   else Result:=F([V,E,I0,0,0])+V/Rsh-Iph;
+     if (Rsh=1e12) then Result:=F(V,Data,0)-Iph
+                   else Result:=F(V,Data,0)+V/Rsh-Iph;
+     Exit;
+   end;
+
+  c:=F(V,Data,0)-Iph;
+//     c:=F([V,E,I0,0,0])-Iph;
+//     c:=I0*(exp(V/E)-1)-Iph;
+  if c*Data[1]>88 then c:=10/Data[1];
+
+//     if abs(c)<1e-8 then
+  if abs(c)<1e-11 then
+        begin
            if Iph>0 then a:=-3e-2
                     else a:=0;
            b:=3e-2;
-         end
-           else
+        end
+                  else
          begin
           a:=c;
           b:=c;
           try
           repeat
             a:=a-0.1*abs(c);
-          until I_V(mode,a,V,I0,Rs,E,Rsh,Iph)<0;
+          until I_V(a)<0;
+//          until I_V({mode,}a,V,I0,Rs,E,Rsh,Iph)<0;
           repeat
             b:=b+0.1*abs(c);
-          until I_V(mode,b,V,I0,Rs,E,Rsh,Iph)>0;
+          until I_V(b)>0;
+//          until I_V({mode,}b,V,I0,Rs,E,Rsh,Iph)>0;
 
-//           a:=a-0.1*abs(c);
-//           b:=b+0.1*abs(c);
-//          until (I_V(mode,a,V,I0,Rs,E,Rsh,Iph)*I_V(mode,b,V,I0,Rs,E,Rsh,Iph)<=0);
           except
-   showmessage('c='+floattostr(c)+#10+#13+
-                'a='+floattostr(a)+#10+#13+
-                'b='+floattostr(b));
+
           end;
          end;//else
      i:=0;
-     md:=0;
+//     md:=0;
      repeat
        inc(i);
        c:=(a+b)/2;
-       if (I_V(mode,c,V,I0,Rs,E,Rsh,Iph)*I_V(mode,a,V,I0,Rs,E,Rsh,Iph)<=0)
+       if (I_V(c)*I_V(a)<=0)
+//       if (I_V({mode,}c,V,I0,Rs,E,Rsh,Iph)*I_V({mode,}a,V,I0,Rs,E,Rsh,Iph)<=0)
            then b:=c
            else a:=c;
+      {
        if abs(a)<abs(b) then min:=abs(a)
                         else min:=abs(b);
        if a=0 then md:=1;
        if b=0 then md:=2;
        if (a=0) and (b=0) then md:=3;
        case md of
-         1:bool:=abs((b-a)/b)<1e-8;
-         2:bool:=abs((b-a)/a)<1e-8;
+         1:bool:=abs((b-a)/b)<eps;
+         2:bool:=abs((b-a)/a)<eps;
          3:bool:=true;
-        else bool:=abs((b-a)/min)<1e-8;
-       end;//case
-     until ((i>1e6)or bool);
-     if (i>1e6) then Exit;
+        else bool:=abs((b-a)/min)<eps;
+       end;//case}
+     until ((i>Nit_Max)or IsEqual(a,b,eps));
+     if (i>Nit_Max) then
+        begin
+        Result:=ErResult;
+        Exit;
+        end;
      Result:=c;
-    end;//else-case
-end;//case
+ except
+  Result:=ErResult;
+ end;
+
 end;
 
-Function Full_IV_A(V,E,Rs,I0,Rsh,Iph:double):double;
-{розраховує значення функції
-I=I0*[exp(q(V-I Rs)/E)-1]+(V-I Rs)/Rsh-Iph)}
-    Function I_V(mode:byte;I,V,I0,Rs,kT,Rsh,Iph:double):double;
-    begin
-      case mode of
-         1:Result:=I-I0*exp((V-I*Rs)/kT)+I0{+Iph};
-       else Result:=I-I0*exp((V-I*Rs)/kT)+I0-(V-I*Rs)/Rsh{+Iph};
-      end;
-    end;
+//Function Full_IV_A(V,E,Rs,I0,Rsh,Iph:double):double;
+//{розраховує значення функції
+//I=I0*[exp(q(V-I Rs)/E)-1]+(V-I Rs)/Rsh-Iph)}
+//    Function I_V(mode:byte;I,V,I0,Rs,kT,Rsh,Iph:double):double;
+//    begin
+//      case mode of
+//         1:Result:=I-I0*exp((V-I*Rs)/kT)+I0{+Iph};
+//       else Result:=I-I0*exp((V-I*Rs)/kT)+I0-(V-I*Rs)/Rsh{+Iph};
+//      end;
+//    end;
+//
+//var mode,md:byte;
+//    i:integer;
+//    a,b,c,min:double;
+//    bool:boolean;
+//begin
+//Result:=ErResult;
+//if E=0 then Exit;
+//mode:=0;
+//if Rsh>=1e12 then mode:=1;
+//if Rs<=1e-4 then mode:=2;
+//if (Rsh>=1e12)and(Rs<=1e-4) then mode:=3;
+//case mode of
+//  2:Result:=I0*(exp(V/E)-1)+V/Rsh-Iph;
+//  3:Result:=I0*(exp(V/E)-1)-Iph;
+//  else
+//     begin
+//     if Rsh>1e12 then Rsh:=1e12;
+//     c:=I0*(exp(V/E)-1){-Iph};
+//     {if abs(c)<1e-8 then
+//          begin
+//           if Iph>0 then a:=-3e-2
+//                    else a:=0;
+//           b:=3e-2;
+//         end
+//           else
+//         begin}
+//          a:=c;
+//          b:=c;
+//          repeat
+//           a:=a-0.1*abs(c);
+//           b:=b+0.1*abs(c);
+//          until (I_V(mode,a,V,I0,Rs,E,Rsh,Iph)*I_V(mode,b,V,I0,Rs,E,Rsh,Iph)<=0);
+//{         end;//else}
+//     i:=0;
+//     md:=0;
+//     repeat
+//       inc(i);
+//       c:=(a+b)/2;
+//       if (I_V(mode,c,V,I0,Rs,E,Rsh,Iph)*I_V(mode,a,V,I0,Rs,E,Rsh,Iph)<=0)
+//           then b:=c
+//           else a:=c;
+//       if abs(a)<abs(b) then min:=abs(a)
+//                        else min:=abs(b);
+//       if a=0 then md:=1;
+//       if b=0 then md:=2;
+//       if (a=0) and (b=0) then md:=3;
+//       case md of
+//         1:bool:=abs((b-a)/b)<1e-8;
+//         2:bool:=abs((b-a)/a)<1e-8;
+//         3:bool:=true;
+//        else bool:=abs((b-a)/min)<1e-8;
+//       end;//case
+//     until ((i>1e6)or bool);
+//     if (i>1e6) then Exit;
+//     Result:=c-Iph;
+//    end;//else-case
+//end;//case
+//end;
 
-var mode,md:byte;
-    i:integer;
-    a,b,c,min:double;
-    bool:boolean;
-begin
-Result:=ErResult;
-if E=0 then Exit;
-mode:=0;
-if Rsh>=1e12 then mode:=1;
-if Rs<=1e-4 then mode:=2;
-if (Rsh>=1e12)and(Rs<=1e-4) then mode:=3;
-case mode of
-  2:Result:=I0*(exp(V/E)-1)+V/Rsh-Iph;
-  3:Result:=I0*(exp(V/E)-1)-Iph;
-  else
-     begin
-     if Rsh>1e12 then Rsh:=1e12;
-     c:=I0*(exp(V/E)-1){-Iph};
-     {if abs(c)<1e-8 then
-          begin
-           if Iph>0 then a:=-3e-2
-                    else a:=0;
-           b:=3e-2;
-         end
-           else
-         begin}
-          a:=c;
-          b:=c;
-          repeat
-           a:=a-0.1*abs(c);
-           b:=b+0.1*abs(c);
-          until (I_V(mode,a,V,I0,Rs,E,Rsh,Iph)*I_V(mode,b,V,I0,Rs,E,Rsh,Iph)<=0);
-{         end;//else}
-     i:=0;
-     md:=0;
-     repeat
-       inc(i);
-       c:=(a+b)/2;
-       if (I_V(mode,c,V,I0,Rs,E,Rsh,Iph)*I_V(mode,a,V,I0,Rs,E,Rsh,Iph)<=0)
-           then b:=c
-           else a:=c;
-       if abs(a)<abs(b) then min:=abs(a)
-                        else min:=abs(b);
-       if a=0 then md:=1;
-       if b=0 then md:=2;
-       if (a=0) and (b=0) then md:=3;
-       case md of
-         1:bool:=abs((b-a)/b)<1e-8;
-         2:bool:=abs((b-a)/a)<1e-8;
-         3:bool:=true;
-        else bool:=abs((b-a)/min)<1e-8;
-       end;//case
-     until ((i>1e6)or bool);
-     if (i>1e6) then Exit;
-     Result:=c-Iph;
-    end;//else-case
-end;//case
-end;
-
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
 Function Full_IV_2Exp(V,E1,E2,Rs,I01,I02,Rsh,Iph:double):double;
 {розраховує значення функції
 I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1]+(V-I Rs)/Rsh-Iph)}
@@ -2665,6 +2767,25 @@ for i:=1 to High(A^.X)-1 do
  if (A^.Y[i]>A^.Y[i-1])and(A^.Y[i]>A^.Y[i+1]) then
    inc(Result);
 end;
+
+Function IsEqual(a,b,eps:double):boolean;
+{True, якщо відносна різниця a та b менше eps}
+  var max, min:double;
+begin
+ min:=abs(a);
+ max:=abs(b);
+ if ((min=0)and(max=0)) then
+  begin
+    Result:=True;
+    Exit;
+  end;
+ if min>max then Swap(min,max);
+ if min=0 then Result:=(abs((b-a)/max)<eps)
+          else Result:=(abs((b-a)/min)<eps);
+end;
+
+
+
 
 Function Rs_T(T:double):double;
 begin

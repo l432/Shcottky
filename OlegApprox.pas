@@ -8,7 +8,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..39]of string=
+  FuncName:array[0..41]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -21,7 +21,11 @@ const
            'Brailsford on T','Brailsford on w',
            'Phonon Tunneling on 1/kT','Phonon Tunneling on V',
            'PAT and TE on 1/kT','PAT and TE on V',
-           'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR');
+           'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
+           'Tunneling diod forward','Illuminated tunneling diod');
+  Voc_min=0.0002;
+  Isc_min=1e-11;
+
 type
 
   TVar_Rand=(lin,logar,cons);
@@ -732,6 +736,15 @@ public
  Constructor Create;
 end; // TDiod=class (TFitFunctEvolution)
 
+TDiodTun=class (TFitFunctEvolution)
+{I=I0*exp(A*(V-IRs)+(V-IRs)/Rsh}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function RealFunc(DeterminedParameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TDiodTun=class (TFitFunctEvolution)
+
 TPhotoDiod=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
@@ -740,6 +753,19 @@ private
 public
  Constructor Create;
 end; //  TPhotoDiod=class (TFitFunctEvolution)
+
+TPhotoDiodTun=class (TFitFunctEvolution)
+{I=I0*exp(A*(V-IRs)+(V-IRs)/Rsh}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function RealFunc(DeterminedParameters:TArrSingle):double; override;
+ Function Weight(OutputData:TArrSingle):double;override;
+ Procedure AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle); override;
+ Procedure CreateFooter;override;
+public
+ Constructor Create;
+end; //  TPhotoDiodTun=class (TFitFunctEvolution)
 
 TDiodTwo=class (TFitFunctEvolution)
 {I=I01[exp((V-IRs1)/n1kT)-1]+I02[exp(V/n2kT)-1]}
@@ -2237,6 +2263,9 @@ begin
      FXname[FNx+3]:='FF';
    end;
 
+  if (fIsDiod and(fNaddX=2) and (FNx>3)) then
+     FXname[FNx]:='Fb';
+
   FXname[High(FXname)]:='dev';
   ReadFromIniFile();
 end;
@@ -2251,10 +2280,10 @@ begin
   OutputData[High(OutputData)]:=Deviation(InputData,OutputData);
 
   if (fIsDiod and(fNaddX=2) and (FNx>3)) then
-   begin
-     FXname[FNx]:='Fb';
+//   begin
+//     FXname[FNx]:='Fb';
      OutputData[FNx]:=FSample.Fb(FVariab[0],OutputData[2]);
-   end;
+//   end;
 
   if (fIsPhotoDiod and (fNaddX=5) and (FNx>4)) then
    begin
@@ -2262,20 +2291,28 @@ begin
 //     FXname[FNx+1]:='Isc';
 //     FXname[FNx+2]:='Pm';
 //     FXname[FNx+3]:='FF';
-    if (OutputData[4]>1e-11) then
+    if (OutputData[4]>Isc_min) then
        begin
         OutputData[FNx]:=
-           Voc_Isc_Pm(1,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+           Voc_Isc_Pm_Vm_Im(1,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
+           OutputData[3],OutputData[4]);
+//Function Voc_Isc_Pm_Vm_Im(mode:byte;F:TFun_IV;Data:array of double;
+//                          Rsh:double=1e12;Iph:double=0):double;
+//           Voc_Isc_Pm(1,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
         OutputData[FNx+1]:=
-           Voc_Isc_Pm(2,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+           Voc_Isc_Pm_Vm_Im(2,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
+           OutputData[3],OutputData[4]);
+//           Voc_Isc_Pm(2,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
        end;
-    if (OutputData[FNx]>0.0002)and
-       (OutputData[FNx+1]>1e-11)and
+    if (OutputData[FNx]>Voc_min)and
+       (OutputData[FNx+1]>Isc_min)and
        (OutputData[FNx]<>ErResult)and
        (OutputData[FNx+1]<>ErResult) then
          begin
           OutputData[FNx+2]:=
-            Voc_Isc_Pm(3,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+           Voc_Isc_Pm_Vm_Im(3,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
+           OutputData[3],OutputData[4]);
+//            Voc_Isc_Pm(3,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
           OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
          end;
    end;
@@ -2804,8 +2841,14 @@ end;
 
 Function TDiodLSM.Func(Parameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],
-                 Parameters[2],Parameters[3],0);
+// Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],
+//                 Parameters[2],Parameters[3],0);
+ Result:=Full_IV(IV_Diod,fX,[Parameters[0]*Kb*FVariab[0],
+                 Parameters[1],Parameters[2]],Parameters[3]);
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V:double;Data:array of double;Rsh:double=1e12;Iph:double=0):double;
 end;
 
 
@@ -2974,8 +3017,13 @@ end;
 
 Function TPhotoDiodLSM.Func(Parameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],
-                 Parameters[2],Parameters[3],Parameters[4]);
+// Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],
+//                 Parameters[2],Parameters[3],Parameters[4]);
+ Result:=Full_IV(IV_Diod,fX,[Parameters[0]*Kb*FVariab[0],
+                 Parameters[1],Parameters[2]],Parameters[3],Parameters[4]);
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
 end;
 
 Constructor TPhotoDiodLam.Create;
@@ -3931,14 +3979,50 @@ end;
 
 Function TDiod.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,DeterminedParameters[0]*Kb*FVariab[0],
-          DeterminedParameters[1],DeterminedParameters[2],DeterminedParameters[3],0);
+// Result:=Full_IV(fX,DeterminedParameters[0]*Kb*FVariab[0],
+//          DeterminedParameters[1],DeterminedParameters[2],DeterminedParameters[3],0);
+
+ Result:=Full_IV(IV_Diod,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+                 DeterminedParameters[1],DeterminedParameters[2]],DeterminedParameters[3]);
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
+
+end;
+
+Constructor TDiodTun.Create;
+begin
+ inherited Create('diodtun','Diod funneling function,  evolution fitting',
+                   4,0,0);
+ FXname[0]:='A';
+ FXname[1]:='Rs';
+ FXname[2]:='Io';
+ FXname[3]:='Rsh';
+// fIsDiod:=True;
+ fHasPicture:=False;
+ fTemperatureIsRequired:=False;
+ CreateFooter();
+// ReadFromIniFile();
+end;
+
+Function TDiodTun.Func(Parameters:TArrSingle):double;
+begin
+// Result:=Parameters[2]*(exp((fX-fY*Parameters[1])*Parameters[0]))
+//      +(fX-fY*Parameters[1])/Parameters[3];
+ Result:=Full_IV(IV_DiodTunnel,fX,[Parameters[0],
+                 Parameters[1],Parameters[2]],Parameters[3]);
+end;
+
+Function TDiodTun.RealFunc(DeterminedParameters:TArrSingle):double;
+begin
+ Result:=Full_IV(IV_DiodTunnel,fX,[DeterminedParameters[0],
+                 DeterminedParameters[1],DeterminedParameters[2]],DeterminedParameters[3]);
 end;
 
 
 Constructor TPhotoDiod.Create;
 begin
- inherited Create('PhotoDiod','Function of lightened diod, evolution fitting',
+ inherited Create('PhotoDiod','Function of lightened diod',
                   5,1,4);
  FXname[0]:='n';
  FXname[1]:='Rs';
@@ -3960,9 +4044,17 @@ end;
 
 Function TPhotoDiod.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,DeterminedParameters[0]*Kb*FVariab[0],
-          DeterminedParameters[1],DeterminedParameters[2],
-          DeterminedParameters[3],DeterminedParameters[4]);
+// Result:=Full_IV(fX,DeterminedParameters[0]*Kb*FVariab[0],
+//          DeterminedParameters[1],DeterminedParameters[2],
+//          DeterminedParameters[3],DeterminedParameters[4]);
+
+ Result:=Full_IV(IV_Diod,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+                 DeterminedParameters[1],DeterminedParameters[2]],
+                 DeterminedParameters[3],DeterminedParameters[4]);
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
+
 end;
 
 Function TPhotoDiod.Weight(OutputData:TArrSingle):double;
@@ -3973,6 +4065,84 @@ begin
  Result:=sqr(fY+OutputData[4]);
 // Result:=sqr(fY);
 end;
+
+Constructor TPhotoDiodTun.Create;
+begin
+ inherited Create('photodiodtun','Diod funneling function under illumination',
+                   5,0,4);
+ FXname[0]:='A';
+ FXname[1]:='Rs';
+ FXname[2]:='Io';
+ FXname[3]:='Rsh';
+ FXname[4]:='Iph';
+ fHasPicture:=False;
+ fTemperatureIsRequired:=False;
+ fYminDontUsed:=True;
+ CreateFooter();
+// ReadFromIniFile();
+end;
+
+Procedure TPhotoDiodTun.CreateFooter;
+begin
+  inherited;
+  FXname[5]:='Voc';
+  FXname[6]:='Isc';
+  FXname[7]:='Pm';
+  FXname[8]:='FF';
+end;
+
+Function TPhotoDiodTun.Func(Parameters:TArrSingle):double;
+begin
+  Result:=Parameters[2]*exp((fX-fY*Parameters[1])*Parameters[0])
+      +(fX-fY*Parameters[1])/Parameters[3]-Parameters[4];
+// Result:=Full_IV(IV_DiodTunnel,fX,[Parameters[0],
+//                 Parameters[1],Parameters[2]],
+//                 Parameters[3],Parameters[4]);
+end;
+
+
+Function TPhotoDiodTun.RealFunc(DeterminedParameters:TArrSingle):double;
+begin
+ Result:=Full_IV(IV_DiodTunnel,fX,[DeterminedParameters[0],
+                 DeterminedParameters[1],DeterminedParameters[2]],
+                 DeterminedParameters[3],DeterminedParameters[4]);
+end;
+
+Function TPhotoDiodTun.Weight(OutputData:TArrSingle):double;
+begin
+ Result:=sqr(fY+OutputData[4]);
+end;
+
+procedure TPhotoDiodTun.AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle);
+begin
+  inherited;
+  OutputData[FNx]:=ErResult;
+  OutputData[FNx+1]:=ErResult;
+  OutputData[FNx+2]:=ErResult;
+  OutputData[FNx+3]:=ErResult;
+  OutputData[FNx+5]:=ErResult;
+  if (OutputData[4]>Isc_min) then
+    begin
+     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnel,
+                                     [OutputData[0],OutputData[1],
+                                      OutputData[2]],OutputData[3],OutputData[4]);
+     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnel,
+                                     [OutputData[0],OutputData[1],
+                                      OutputData[2]],OutputData[3],OutputData[4]);
+    end;
+  if (OutputData[FNx]>Voc_min)and
+     (OutputData[FNx+1]>Isc_min)and
+     (OutputData[FNx]<>ErResult)and
+     (OutputData[FNx+1]<>ErResult) then
+    begin
+     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnel,
+                                     [OutputData[0],OutputData[1],
+                                      OutputData[2]],OutputData[3],OutputData[4]);
+     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+    end;
+end;
+
 
 Constructor TDiodTwo.Create;
 begin
@@ -3993,7 +4163,14 @@ end;
 
 Function TDiodTwo.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0);
+// Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0);
+
+ Result:=Full_IV(IV_Diod,fX,[Parameters[0]*Kb*FVariab[0],
+                 Parameters[1],Parameters[2]]);
+//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
+//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
+//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
+
 end;
 
 Function TDiodTwo.Sum2(Parameters:TArrSingle):double;
@@ -4022,12 +4199,16 @@ end;
 
 Function TDiodTwoFull.Sum1(Parameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0);
+// Result:=Full_IV(fX,Parameters[0]*Kb*FVariab[0],Parameters[1],Parameters[2],1e13,0);
+ Result:=Full_IV(IV_Diod,fX,[Parameters[0]*Kb*FVariab[0],
+                 Parameters[1],Parameters[2]]);
 end;
 
 Function TDiodTwoFull.Sum2(Parameters:TArrSingle):double;
 begin
- Result:=Full_IV(fX,Parameters[3]*Kb*FVariab[0],Parameters[5],Parameters[4],1e13,0);
+// Result:=Full_IV(fX,Parameters[3]*Kb*FVariab[0],Parameters[5],Parameters[4],1e13,0);
+ Result:=Full_IV(IV_Diod,fX,[Parameters[3]*Kb*FVariab[0],
+                 Parameters[5],Parameters[4]]);
 end;
 
 Constructor TDGaus.Create;
@@ -4132,8 +4313,12 @@ end;
 
 Function TDoubleDiod.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
- Result:=Full_IV_2Exp(fX,DeterminedParameters[0]*Kb*FVariab[0],DeterminedParameters[4]*Kb*FVariab[0],
-    DeterminedParameters[1],DeterminedParameters[2],DeterminedParameters[5],DeterminedParameters[3],0);
+// Result:=Full_IV_2Exp(fX,DeterminedParameters[0]*Kb*FVariab[0],DeterminedParameters[4]*Kb*FVariab[0],
+//    DeterminedParameters[1],DeterminedParameters[2],DeterminedParameters[5],DeterminedParameters[3],0);
+ Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+                 DeterminedParameters[1],DeterminedParameters[2],
+                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5]],
+                 DeterminedParameters[3],0);
 end;
 
 Constructor TDoubleDiodLight.Create;
@@ -4176,10 +4361,14 @@ end;
 
 Function TDoubleDiodLight.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
- Result:=Full_IV_2Exp(fX,DeterminedParameters[0]*Kb*FVariab[0],
-          DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[1],
-          DeterminedParameters[2],DeterminedParameters[5],
-          DeterminedParameters[3],DeterminedParameters[6]);
+// Result:=Full_IV_2Exp(fX,DeterminedParameters[0]*Kb*FVariab[0],
+//          DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[1],
+//          DeterminedParameters[2],DeterminedParameters[5],
+//          DeterminedParameters[3],DeterminedParameters[6]);
+ Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+                 DeterminedParameters[1],DeterminedParameters[2],
+                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5]],
+                 DeterminedParameters[3],DeterminedParameters[6]);
 end;
 
 Function TDoubleDiodLight.Weight(OutputData:TArrSingle):double;
@@ -4197,29 +4386,50 @@ begin
   OutputData[FNx+3]:=ErResult;
   OutputData[FNx+4]:=ErResult;
   OutputData[FNx+5]:=ErResult;
-  if (OutputData[6]>1e-11) then
+  if (OutputData[6]>Isc_min) then
     begin
-     OutputData[7]:=Voc_Isc_Pm_DoubleDiod(1,OutputData[0]*Kb*FVariab[0],
-                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
-     OutputData[8]:=Voc_Isc_Pm_DoubleDiod(2,OutputData[0]*Kb*FVariab[0],
-                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+//     OutputData[7]:=Voc_Isc_Pm_DoubleDiod(1,OutputData[0]*Kb*FVariab[0],
+//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
+//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+     OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodDouble,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                      OutputData[5]],OutputData[3],OutputData[6]);
+//     OutputData[8]:=Voc_Isc_Pm_DoubleDiod(2,OutputData[0]*Kb*FVariab[0],
+//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
+//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+     OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodDouble,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                      OutputData[5]],OutputData[3],OutputData[6]);
     end;
-  if (OutputData[FNx]>0.0002)and
-     (OutputData[FNx+1]>1e-11)and
+  if (OutputData[FNx]>Voc_min)and
+     (OutputData[FNx+1]>Isc_min)and
      (OutputData[FNx]<>ErResult)and
      (OutputData[FNx+1]<>ErResult) then
     begin
-     OutputData[9]:=Voc_Isc_Pm_DoubleDiod(3,OutputData[0]*Kb*FVariab[0],
-                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
-     OutputData[FNx+4]:=Voc_Isc_Pm_DoubleDiod(4,OutputData[0]*Kb*FVariab[0],
-                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
-     OutputData[FNx+5]:=Voc_Isc_Pm_DoubleDiod(5,OutputData[0]*Kb*FVariab[0],
-                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+//     OutputData[9]:=Voc_Isc_Pm_DoubleDiod(3,OutputData[0]*Kb*FVariab[0],
+//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
+//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+//     OutputData[FNx+4]:=Voc_Isc_Pm_DoubleDiod(4,OutputData[0]*Kb*FVariab[0],
+//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
+//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+//     OutputData[FNx+5]:=Voc_Isc_Pm_DoubleDiod(5,OutputData[0]*Kb*FVariab[0],
+//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
+//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
+//     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+     OutputData[9]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodDouble,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                     OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                     OutputData[5]],OutputData[3],OutputData[6]);
+     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,IV_DiodDouble,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                     OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                     OutputData[5]],OutputData[3],OutputData[6]);
+     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,IV_DiodDouble,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                     OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                     OutputData[5]],OutputData[3],OutputData[6]);
      OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
     end;
 end;
@@ -5153,6 +5363,9 @@ begin
   if str='PAT and TEsoft on 1/kT' then F:=TPhonAsTunAndTE2_kT1.Create;
   if str='Tunneling trapezoidal' then F:=TTunnelFNmy.Create;
   if str='Lifetime in SCR' then F:=TTauG.Create;
+  if str='Tunneling diod forward' then F:=TDiodTun.Create;
+  if str='Illuminated tunneling diod' then F:=TPhotoDiodTun.Create;
+
 //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
