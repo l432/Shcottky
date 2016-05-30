@@ -3999,7 +3999,7 @@ begin
  FXname[2]:='Io';
  FXname[3]:='Rsh';
 // fIsDiod:=True;
- fHasPicture:=False;
+// fHasPicture:=False;
  fTemperatureIsRequired:=False;
  CreateFooter();
 // ReadFromIniFile();
@@ -4075,7 +4075,7 @@ begin
  FXname[2]:='Io';
  FXname[3]:='Rsh';
  FXname[4]:='Iph';
- fHasPicture:=False;
+// fHasPicture:=False;
  fTemperatureIsRequired:=False;
  fYminDontUsed:=True;
  CreateFooter();
