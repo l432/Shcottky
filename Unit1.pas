@@ -6389,6 +6389,8 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       if (LDateFun.Caption='D-Diod')
        or(LDateFun.Caption='Diod')
        or(LDateFun.Caption='PhotoDiod')
+       or(LDateFun.Caption='Tunneling diod forward')
+       or(LDateFun.Caption='Illuminated tunneling diod')
       then
        begin
         A_B_Diapazon(Vax,Vax2,D[diDE]);
