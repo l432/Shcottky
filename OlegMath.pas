@@ -316,6 +316,19 @@ Data[1] - Rs
 Data[2] - Ι0
 }
 
+Function IV_DiodTATrev(V:double;Data:array of double;I:double=0):double;
+{I=I0*(Ud+V-I Rs)*exp(-4 (2m*)^0.5 Et^1.5/
+                     (3 q h (q Nd (Ud+V-I Rs)/2 Eps Eps0)))
+
+Data[0] - I0
+Data[1] - Et
+Data[2] - Ud
+Data[3] - Rs
+Data[4] - meff
+Data[5] - Nd
+Data[6] - Eps
+}
+
 Function IV_DiodDouble(V:double;Data:array of double;I:double=0):double;
 {I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])
 Data[0] - Ε1
@@ -2363,6 +2376,28 @@ Data[2] - Ι0
 begin
  if I=0 then Result:=Data[2]*exp(V*Data[0])
         else Result:=Data[2]*exp((V-I*Data[1])*Data[0]);
+end;
+
+Function IV_DiodTATrev(V:double;Data:array of double;I:double=0):double;
+{I=I0*(Ud+V-I Rs)*exp(-4 (2m*)^0.5 Et^1.5/
+                     (3 q h (q Nd (Ud+V-I Rs)/2 Eps Eps0)))
+
+Data[0] - I0
+Data[1] - Rs
+Data[2] - Ud
+Data[3] - Et
+Data[4] - meff
+Data[5] - Nd
+Data[6] - Eps
+}
+  var F,Vreal:double;
+begin
+  if I=0 then Vreal:=V
+         else Vreal:=V-I*Data[1];
+  F:=sqrt(Qelem*Data[5]*(Data[2]+Vreal)/2/Data[6]/Eps0);
+  Result:=(Data[2]+Vreal)*Data[0]*exp(-4*sqrt(2*Data[4]*m0)*
+                           Power(Qelem*Data[3],1.5)/
+                           (3*Qelem*Hpl*F));
 end;
 
 Function IV_DiodDouble(V:double;Data:array of double;I:double=0):double;
