@@ -751,8 +751,8 @@ TTunRevers=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
 // Function RealFunc(DeterminedParameters:TArrSingle):double; override;
- Function Weight(OutputData:TArrSingle):double;override;
- Function RealFunc(Parameters:TArrSingle):double; override;
+// Function Weight(OutputData:TArrSingle):double;override;
+// Function RealFunc(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TTunRevers=class (TFitFunctEvolution)
@@ -4033,13 +4033,15 @@ end;
 
 Constructor TTunRevers.Create;
 begin
+// inherited Create('TunRev','Trap-assisted tunneling, rewers diod',
+//                   5,0,0);
  inherited Create('TunRev','Trap-assisted tunneling, rewers diod',
-                   5,0,0);
+                   4,0,0);
  FXname[0]:='Io';
  FXname[1]:='Et';
  FXname[2]:='Ud';
- FXname[3]:='Rs';
- FXname[4]:='Iph';
+// FXname[3]:='Rs';
+ FXname[3]:='Iph';
 // fIsDiod:=True;
  fHasPicture:=False;
  fTemperatureIsRequired:=False;
@@ -4047,14 +4049,14 @@ begin
 // ReadFromIniFile();
 end;
 
-Function TTunRevers.RealFunc(Parameters:TArrSingle):double;
-begin
- Result:=Full_IV(IV_DiodTATrev,fX,[Parameters[0],
-                 Parameters[3],Parameters[2],Parameters[1],
-                 FSample.Material.Meff,FSample.Nd,FSample.Material.Eps],
-                 1e12,Parameters[4]);
-
-end;
+//Function TTunRevers.RealFunc(Parameters:TArrSingle):double;
+//begin
+// Result:=Full_IV(IV_DiodTATrev,fX,[Parameters[0],
+//                 Parameters[3],Parameters[2],Parameters[1],
+//                 FSample.Material.Meff,FSample.Nd,FSample.Material.Eps],
+//                 1e12,Parameters[4]);
+//
+//end;
 
 Function TTunRevers.Func(Parameters:TArrSingle):double;
  var F,V:double;
@@ -4064,24 +4066,24 @@ begin
 //                 FSample.Material.Meff,FSample.Nd,FSample.Material.Eps],
 //                 1e12,Parameters[4]);
 
- V:=fX-fY*Parameters[3];
+ V:=fX;//-fY*Parameters[3];
  F:=sqrt(Qelem*FSample.Nd*(Parameters[2]+V)/2/FSample.Material.Eps/Eps0);
 // Result:=F*V*Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
 //                           Power(Qelem*Parameters[1],1.5)/
 //                           (3*Qelem*Hpl*F))+Parameters[3];
 
- Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
+ Result:={(Parameters[2]+V)*}Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
                            Power(Qelem*Parameters[1],1.5)/
-                           (3*Qelem*Hpl*F))+Parameters[4];
+                           (3*Qelem*Hpl*F))+Parameters[3];
 
 // Result:=Parameters[0]*exp(-Parameters[1]/sqrt(Parameters[2]+fX))+Parameters[3];
 // Result:=sqrt(Parameters[2]+fX)*Parameters[0]*exp(-Parameters[1]/sqrt(Parameters[2]+fX))+Parameters[3];
 end;
 
-Function TTunRevers.Weight(OutputData:TArrSingle):double;
-begin
- Result:=sqr(fY-OutputData[4]);
-end;
+//Function TTunRevers.Weight(OutputData:TArrSingle):double;
+//begin
+// Result:=sqr(fY-OutputData[3]);
+//end;
 
 
 Constructor TPhotoDiod.Create;
