@@ -18,7 +18,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0

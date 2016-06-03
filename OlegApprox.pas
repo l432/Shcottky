@@ -4042,6 +4042,7 @@ begin
  FXname[2]:='Ud';
 // FXname[3]:='Rs';
  FXname[3]:='Iph';
+
 // fIsDiod:=True;
  fHasPicture:=False;
  fTemperatureIsRequired:=False;
@@ -4072,7 +4073,7 @@ begin
 //                           Power(Qelem*Parameters[1],1.5)/
 //                           (3*Qelem*Hpl*F))+Parameters[3];
 
- Result:={(Parameters[2]+V)*}Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
+ Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
                            Power(Qelem*Parameters[1],1.5)/
                            (3*Qelem*Hpl*F))+Parameters[3];
 

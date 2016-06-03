@@ -6386,23 +6386,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       FunCreate(LDateFun.Caption,Fit);
       new(Vax2);
       Vax.Copy(Vax2^);
-      if (LDateFun.Caption='D-Diod')
-       or(LDateFun.Caption='Diod')
-       or(LDateFun.Caption='PhotoDiod')
-       or(LDateFun.Caption='Tunneling diod forward')
-       or(LDateFun.Caption='Illuminated tunneling diod')
-       or(LDateFun.Caption='Tunneling diod rewers')
-      then
-       begin
-        A_B_Diapazon(Vax,Vax2,D[diDE]);
-       end;
-
       if (LDateFun.Caption='Photo D-Diod')
-//         or(LDateFun.Caption='PhotoDiod')
-           then
-       begin
-        A_B_Diapazon(Vax,Vax2,D[diDE],True);
-       end;
+           then  A_B_Diapazon(Vax,Vax2,D[diDE],True)
+           else  A_B_Diapazon(Vax,Vax2,D[diDE]);
+
       Fit.Fitting(Vax2,EvolParam);
 
 //      Fit.Fitting(Vax,EvolParam);
