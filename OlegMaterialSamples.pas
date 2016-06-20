@@ -171,7 +171,7 @@ end;
 function TMaterial.Nc(T:double):double;
 //    ефективна густина станів
 begin
- Result:=2.5e25*Meff*(T/300.0)*sqrt(T/300.0);
+ Result:=2.5e25*Meff*(T/300.0)*sqrt(Meff*T/300.0);
 end;
 
 

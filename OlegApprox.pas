@@ -8,7 +8,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..42]of string=
+  FuncName:array[0..43]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -23,7 +23,7 @@ const
            'PAT and TE on 1/kT','PAT and TE on V',
            'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
            'Tunneling diod forward','Illuminated tunneling diod',
-           'Tunneling diod rewers');
+           'Tunneling diod rewers', 'Barrier height');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -943,6 +943,18 @@ public
 end; // TBrailsford=class (TBrails))
 
 //-----------------------------------------------------------------------
+TBarierHeigh=class (TFitFunctEvolution)
+{Fb=Fb0-a*x- b*x^0.5}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+// Function Weight(OutputData:TArrSingle):double;override;
+public
+ Constructor Create;
+end; // TBarierHeigh=class (TFitFunctEvolution)
+
+
+
+//--------------------------------------------------------
 TFitFunctEvolutionEm=class (TFitFunctEvolution)
 {для функцій, де обчислюється
 максимальне поле на інтерфейсі Em}
@@ -1114,8 +1126,9 @@ private
  Function Sum2(Parameters:TArrSingle):double; override;
  Procedure AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle); override;
+ Procedure CreateFooter;override;
 public
- Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;override;
+// Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;override;
  Constructor Create;
 end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
 
@@ -4814,6 +4827,34 @@ begin
 end;
 
 //-----------------------------------------------------------------------
+{ TBarierHeigh }
+
+Constructor TBarierHeigh.Create;
+begin
+ inherited Create('BarierHeigh','Barier heigh on electric field, Schottky (Poole-Frenkel) effect (b value) and linear (a value)',
+                 3,0,0);
+ FXname[0]:='Fbo';
+ FXname[1]:='a';
+ FXname[2]:='b';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+// FPictureName:='BarierHeighFig';
+ fHasPicture:=False;
+ CreateFooter();
+end;
+
+function TBarierHeigh.Func(Parameters: TArrSingle): double;
+begin
+ Result:=Parameters[0]-Parameters[1]*fx-Parameters[2]*sqrt(fx);
+end;
+
+//function TBarierHeigh.Weight(OutputData: TArrSingle): double;
+//begin
+// Result:=abs(fY);
+//end;
+
+//-----------------------------------------------------------------------
+
 Constructor TFitFunctEvolutionEm.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
 begin
@@ -5122,7 +5163,7 @@ begin
   g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
   gam:=sqrt(2*meff)*g/(Hpl*qE*sqrt(Et));
   gam1:=sqrt(1+sqr(gam));
-  Result:=Sample.Area*Nss*qE/sqrt(8*meff*Ett)*sqrt(1-gam/gam1)*
+  Result:=Sample.Area*Nss*qE*Qelem/sqrt(8*meff*Et)*sqrt(1-gam/gam1)*
           exp(-4*sqrt(2*meff)*Et*sqrt(Et)/(3*Hpl*qE)*
               sqr(gam1-gam)*(gam1+0.5*gam));
 end;
@@ -5224,25 +5265,12 @@ begin
  inherited Create(FunctionName,'Dependence of photon-assisted tunneling current and thermionic emission current (soft rule)  at constant bias on ',
                   4);
  FXname[2]:='I0';
- FXname[3]:='E';
+// FXname[3]:='E';
+ FXname[3]:='Fb0';
 end;
 
 Constructor TPhonAsTunAndTE2_kT1.Create;
 begin
-
-// inherited Create(FunctionName,FunctionCaption,Npar,4);
-// if Npar>1 then
-//  begin
-//   FXname[0]:='Nss';
-//   FXname[1]:='Et';
-//  end;
-// FVarName[2]:='a';
-// FVarName[3]:='hw';
-// FVarManualDefinedOnly[2]:=True;
-// FVarManualDefinedOnly[3]:=True;
-// fmeff:=m0*FSample.Material.Meff;
-
-
 
  inherited Create('PATandTEsoftkT1');
  FCaption:=FCaption+'inverse temperature';
@@ -5252,41 +5280,47 @@ begin
  fSumFunctionIsUsed:=True;
  fFileHeading:='kT1 I Ifit Ipat Ite';
  fEmIsNeeded:=True;
+  FVarbool[1]:=True;
+  FVarManualDefinedOnly[1]:=True;
+  FVarName[1]:='V_smpl';
 
 
-  FVarNum:=FVarNum+1;
-  SetLength(FVariab,FVarNum);
-  SetLength(FVarName,FVarNum);
-  SetLength(FVarBool,FVarNum);
-  SetLength(FVarValue,FVarNum);
-  SetLength(FVarManualDefinedOnly,FVarNum);
-  FVarbool[4]:=True;
-  FVarManualDefinedOnly[4]:=True;
-  FVarName[4]:='C1';
+
+//  FVarNum:=FVarNum+1;
+//  SetLength(FVariab,FVarNum);
+//  SetLength(FVarName,FVarNum);
+//  SetLength(FVarBool,FVarNum);
+//  SetLength(FVarValue,FVarNum);
+//  SetLength(FVarManualDefinedOnly,FVarNum);
+//  FVarbool[4]:=True;
+//  FVarManualDefinedOnly[4]:=True;
+//  FVarName[4]:='C1';
 
   CreateFooter();
 
  // ReadFromIniFile();
 end;
 
-Function TPhonAsTunAndTE2_kT1.PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
-var g,gam,gam1,qE,Et:double;
-begin
-  Result:=ErResult;
-  if kT1<=0 then Exit;
-  qE:=Qelem*FSample.Em(1/(kT1*Kb),FVariab[1],V,FVariab[4]);
-  Et:=Parameters[1]*Qelem;
-  g:=FVariab[2]*sqr(FVariab[3]*Qelem)*(1+2/(exp(FVariab[3]*kT1)-1));
-  gam:=sqrt(2*fmeff)*g/(Hpl*qE*sqrt(Et));
-  gam1:=sqrt(1+sqr(gam));
-  Result:=FSample.Area*Parameters[0]*qE/sqrt(8*fmeff*Parameters[1])*sqrt(1-gam/gam1)*
-          exp(-4*sqrt(2*fmeff)*Et*sqrt(Et)/(3*Hpl*qE)*
-              sqr(gam1-gam)*(gam1+0.5*gam));
-end;
+//Function TPhonAsTunAndTE2_kT1.PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
+//var g,gam,gam1,qE,Et:double;
+//begin
+//  Result:=ErResult;
+//  if kT1<=0 then Exit;
+//  qE:=Qelem*FSample.Em(1/(kT1*Kb),FVariab[1],V,FVariab[4]);
+//  Et:=Parameters[1]*Qelem;
+//  g:=FVariab[2]*sqr(FVariab[3]*Qelem)*(1+2/(exp(FVariab[3]*kT1)-1));
+//  gam:=sqrt(2*fmeff)*g/(Hpl*qE*sqrt(Et));
+//  gam1:=sqrt(1+sqr(gam));
+//  Result:=FSample.Area*Parameters[0]*qE*Qelem/sqrt(8*fmeff*Et)*sqrt(1-gam/gam1)*
+//          exp(-4*sqrt(2*fmeff)*Et*sqrt(Et)/(3*Hpl*qE)*
+//              sqr(gam1-gam)*(gam1+0.5*gam));
+//end;
 
 Function TPhonAsTunAndTE2_kT1.Sum1(Parameters:TArrSingle):double;
 begin
-  Result:=PhonAsTun(FVariab[0],fX,Parameters);
+  Result:=PAT(FSample,FVariab[0],fX,Parameters[3],FVariab[2],FVariab[3],
+              Parameters[1],Parameters[0]);
+//  Result:=PhonAsTun(FVariab[0],fX,Parameters);
 end;
 
 
@@ -5294,13 +5328,13 @@ Procedure TPhonAsTunAndTE2_kT1.AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle);
 begin
  inherited AddParDetermination(InputData,OutputData);
-// if fEmIsNeeded then
-//  begin
-//   FXname[High(FXname)-1]:='Em';
    OutputData[High(OutputData)-1]:=
-     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0],FVariab[4])+
-        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0],FVariab[4]));
-//  end;
+//     FSample.Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]);
+      0.5*(FSample.Em(1/(InputData^.X[0]*Kb),OutputData[3],FVariab[0])+
+        FSample.Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]));
+   OutputData[High(OutputData)-2]:=FVariab[0]/FVariab[1];
+//     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0],FVariab[4])+
+//        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0],FVariab[4]));
 end;
 
 Function TPhonAsTunAndTE2_kT1.Sum2(Parameters:TArrSingle):double;
@@ -5314,8 +5348,16 @@ end;
 Procedure TPhonAsTunAndTE2_kT1.BeforeFitness(InputData:Pvector);
 begin
   inherited BeforeFitness(InputData);
-  FVariab[0]:=FVariab[0]*0.5;
+  FVariab[0]:=FVariab[0]*FVariab[1];
 //  FVariab[0]:=FVariab[0]*0.424;
+end;
+
+Procedure TPhonAsTunAndTE2_kT1.CreateFooter;
+begin
+  inc(fNAddX);
+  SetLength(FXname,FNx+fNAddX);
+  FXname[High(FXname)]:='V';
+ inherited CreateFooter();
 end;
 
 
@@ -5433,6 +5475,8 @@ begin
   if str='Tunneling diod forward' then F:=TDiodTun.Create;
   if str='Illuminated tunneling diod' then F:=TPhotoDiodTun.Create;
   if str='Tunneling diod rewers' then F:=TTunRevers.Create;
+  if str='Barrier height' then F:=TBarierHeigh.Create;
+
 //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
@@ -5449,5 +5493,7 @@ begin
     Insert(st, Result, Pos('.', Result));
   end;
 end;
+
+
 
 end.
