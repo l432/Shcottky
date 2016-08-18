@@ -2,7 +2,7 @@ unit OlegFunction;
 
 interface
 
-uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType;
+uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType, Dialogs;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -28,11 +28,20 @@ Procedure CompEnable(Fm:TForm;Tag:integer;State:boolean);
 {для всіх елементів, що знаходяться на формі Fm та мають таг Tag,
 властивості Enable встановлюється значення State}
 
-
+procedure StrToNumber(St:TCaption; Def:double; var Num:double);
+{процедура переведення тестового рядка St в чисельне
+значення Num;
+якщо формат рядка поганий - змінна не зміниться,
+буде показано віконечко з відповідним написом;
+якщо рядок порожній - Num  буде присвоєне
+значення Def}
 
 
 
 implementation
+
+uses
+  SysUtils;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -120,6 +129,29 @@ for I := 0 to Fm.ComponentCount-1 do
      then (Fm.Components[i] as TControl).Enabled:=State;
 end;
 
-
+procedure StrToNumber(St:TCaption; Def:double; var Num:double);
+{процедура переведення тестового рядка St в чисельне
+значення Num;
+якщо формат рядка поганий - змінна не зміниться,
+буде показано віконечко з відповідним написом;
+якщо рядок порожній - Num  буде присвоєне
+значення Def}
+var temp:real;
+begin
+if St='' then Num:=Def
+         else
+          begin
+           try
+            temp:=StrToFloat(St);
+           except
+            on Exception : EConvertError do
+                   begin
+                   ShowMessage(Exception.Message);
+                   Exit;
+                   end;
+           end;//try
+           Num:=temp;
+          end;//else
+end;
 
 end.

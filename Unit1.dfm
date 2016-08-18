@@ -18,23 +18,19 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 120
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet1
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Directory operation'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox13: TGroupBox
         Left = 3
         Top = 413
@@ -163,7 +159,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
+                  ItemHeight = 14
                   TabOrder = 0
                 end
               end
@@ -175,7 +171,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -230,7 +226,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
+                  ItemHeight = 14
                   TabOrder = 0
                 end
               end
@@ -242,7 +238,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -297,7 +293,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
+                  ItemHeight = 14
                   TabOrder = 0
                 end
               end
@@ -309,7 +305,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -374,7 +370,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
+                  ItemHeight = 14
                   TabOrder = 0
                 end
               end
@@ -386,7 +382,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -451,7 +447,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
+                  ItemHeight = 14
                   TabOrder = 0
                 end
               end
@@ -463,7 +459,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -528,7 +524,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
+                  ItemHeight = 14
                   TabOrder = 0
                 end
               end
@@ -540,7 +536,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -4266,7 +4262,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4278,7 +4274,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4305,7 +4301,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4317,7 +4313,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4344,7 +4340,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4356,7 +4352,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4383,7 +4379,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4395,7 +4391,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4422,7 +4418,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4434,7 +4430,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4454,7 +4450,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 0
             end
           end
@@ -4525,7 +4521,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4537,7 +4533,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4584,7 +4580,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4596,7 +4592,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4623,7 +4619,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
               end
             end
@@ -4635,7 +4631,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4855,10 +4851,6 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = 'File operation'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object DirLabel: TLabel
         Left = 664
         Top = 62
@@ -5438,7 +5430,7 @@ object Form1: TForm1
           Height = 22
           Style = csDropDownList
           DropDownCount = 21
-          ItemHeight = 0
+          ItemHeight = 14
           TabOrder = 0
           OnChange = CBKalkChange
         end
@@ -5846,7 +5838,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxRSChange
             end
@@ -5866,7 +5858,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxRSChange
               end
@@ -5895,7 +5887,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxNChange
               end
@@ -5908,7 +5900,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComboBoxNChange
             end
@@ -5928,7 +5920,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxNssRsChange
             end
@@ -5947,7 +5939,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxNssFbChange
               end
@@ -5999,7 +5991,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxNssFbChange
             end
@@ -6161,10 +6153,6 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'Diode'#39's parameters'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Close2: TBitBtn
         Left = 534
         Top = 562
@@ -6194,277 +6182,6 @@ object Form1: TForm1
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C00000000000000000000000000000000
           00001F7C1F7C}
       end
-      object GroupBoxMat: TGroupBox
-        Left = 15
-        Top = 51
-        Width = 290
-        Height = 190
-        Caption = 'Material parameters'
-        Color = clScrollBar
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentColor = False
-        ParentFont = False
-        TabOrder = 1
-        object LRich3: TLabel
-          Left = 10
-          Top = 73
-          Width = 173
-          Height = 16
-          Caption = 'Richardson ,  A / (m K)^2:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object LPermit: TLabel
-          Left = 10
-          Top = 51
-          Width = 81
-          Height = 16
-          Caption = 'Permittivity:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object LabelRich: TLabel
-          Left = 195
-          Top = 70
-          Width = 50
-          Height = 21
-          Caption = '1.16e6'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LabelPerm: TLabel
-          Left = 195
-          Top = 48
-          Width = 32
-          Height = 21
-          Caption = '8.85'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LEg: TLabel
-          Left = 10
-          Top = 95
-          Width = 87
-          Height = 16
-          Caption = 'Zero Gap, eV:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object LabelEg: TLabel
-          Left = 195
-          Top = 92
-          Width = 32
-          Height = 21
-          Caption = '1.17'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LMeff: TLabel
-          Left = 10
-          Top = 117
-          Width = 100
-          Height = 16
-          Caption = 'Mass effective:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object LabelMeff: TLabel
-          Left = 195
-          Top = 114
-          Width = 32
-          Height = 21
-          Caption = '1.08'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LVarA: TLabel
-          Left = 10
-          Top = 139
-          Width = 84
-          Height = 16
-          Caption = 'Varshni A, K:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object LabelVarA: TLabel
-          Left = 195
-          Top = 136
-          Width = 36
-          Height = 21
-          Caption = '1108'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LVarB: TLabel
-          Left = 10
-          Top = 161
-          Width = 130
-          Height = 16
-          Caption = 'Varshni B, eV/ K^2:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object LabelVarB: TLabel
-          Left = 195
-          Top = 158
-          Width = 56
-          Height = 21
-          Caption = '7.02e-4'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LaVarB: TLabel
-          Left = 270
-          Top = 158
-          Width = 15
-          Height = 21
-          Cursor = crHandPoint
-          Caption = '...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          OnClick = LaVarBClick
-        end
-        object LaPerm: TLabel
-          Left = 270
-          Top = 48
-          Width = 15
-          Height = 21
-          Cursor = crHandPoint
-          Caption = '...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          OnClick = LaVarBClick
-        end
-        object LaRich: TLabel
-          Left = 270
-          Top = 70
-          Width = 15
-          Height = 21
-          Cursor = crHandPoint
-          Caption = '...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          OnClick = LaVarBClick
-        end
-        object LaEg: TLabel
-          Left = 270
-          Top = 92
-          Width = 15
-          Height = 21
-          Cursor = crHandPoint
-          Caption = '...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          OnClick = LaVarBClick
-        end
-        object LaMeff: TLabel
-          Left = 270
-          Top = 114
-          Width = 15
-          Height = 21
-          Cursor = crHandPoint
-          Caption = '...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          OnClick = LaVarBClick
-        end
-        object LaVarA: TLabel
-          Left = 270
-          Top = 136
-          Width = 15
-          Height = 21
-          Cursor = crHandPoint
-          Caption = '...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          OnClick = LaVarBClick
-        end
-        object CBMaterial: TComboBox
-          Left = 10
-          Top = 21
-          Width = 80
-          Height = 24
-          ItemHeight = 0
-          TabOrder = 0
-          OnChange = CBMaterialChange
-        end
-      end
       object GroupBoxRsPar: TGroupBox
         Left = 23
         Top = 408
@@ -6477,7 +6194,7 @@ object Form1: TForm1
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 1
         object LabRsPar: TLabel
           Left = 55
           Top = 24
@@ -6541,20 +6258,20 @@ object Form1: TForm1
         end
       end
       object Button1: TButton
-        Left = 268
+        Left = 526
         Top = 20
         Width = 75
         Height = 25
         Caption = 'Button1'
-        TabOrder = 3
+        TabOrder = 2
         OnClick = Button1Click
       end
       object GBDiodParam: TGroupBox
-        Left = 349
-        Top = 51
-        Width = 300
-        Height = 190
-        Caption = 'Diod parameters '
+        Left = 3
+        Top = 3
+        Width = 366
+        Height = 310
+        Caption = 'Schottky diod parameters '
         Color = clCream
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -6564,10 +6281,10 @@ object Form1: TForm1
         ParentBackground = False
         ParentColor = False
         ParentFont = False
-        TabOrder = 4
+        TabOrder = 3
         object Linsulator: TLabel
-          Left = 20
-          Top = 100
+          Left = 38
+          Top = 239
           Width = 169
           Height = 16
           Caption = 'Interfacial insulator layer '
@@ -6579,8 +6296,8 @@ object Form1: TForm1
           ParentFont = False
         end
         object LArea: TLabel
-          Left = 10
-          Top = 24
+          Left = 270
+          Top = 253
           Width = 75
           Height = 16
           Caption = 'Area, m^2:'
@@ -6592,13 +6309,13 @@ object Form1: TForm1
           ParentFont = False
         end
         object LNd: TLabel
-          Left = 10
-          Top = 46
-          Width = 148
-          Height = 32
+          Left = 87
+          Top = 21
+          Width = 201
+          Height = 16
           Caption = 'Carrier concentration, m^(-3):'
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
+          Font.Color = clNavy
           Font.Height = -13
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
@@ -6606,8 +6323,8 @@ object Form1: TForm1
           WordWrap = True
         end
         object LEps_i: TLabel
-          Left = 10
-          Top = 125
+          Left = 12
+          Top = 262
           Width = 81
           Height = 16
           Caption = 'Permittivity:'
@@ -6619,8 +6336,8 @@ object Form1: TForm1
           ParentFont = False
         end
         object LThick_i: TLabel
-          Left = 10
-          Top = 150
+          Left = 11
+          Top = 284
           Width = 86
           Height = 16
           Caption = 'Thickness, m:'
@@ -6631,103 +6348,911 @@ object Form1: TForm1
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object LabelDel: TLabel
-          Left = 175
-          Top = 150
-          Width = 33
-          Height = 21
-          Caption = '5e-7'
+        object CBtypeFL: TCheckBox
+          Left = 8
+          Top = 20
+          Width = 73
+          Height = 17
+          Caption = 'n-type'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -17
+          Font.Height = -13
           Font.Name = 'Tahoma'
-          Font.Style = []
+          Font.Style = [fsBold]
           ParentFont = False
-        end
-        object LabelEp: TLabel
-          Left = 175
-          Top = 125
-          Width = 23
-          Height = 21
-          Caption = '7.0'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LabelConcentr: TLabel
-          Left = 175
-          Top = 52
-          Width = 50
-          Height = 21
-          Caption = '7.5e18'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object LabelArea: TLabel
-          Left = 175
-          Top = 24
-          Width = 47
-          Height = 21
-          Caption = '4.9e-5'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object ButtonDel: TButton
-          Left = 255
-          Top = 150
-          Width = 40
-          Height = 20
-          Caption = 'input'
           TabOrder = 0
-          OnClick = ButtonDelClick
         end
-        object ButEps_i: TButton
-          Left = 255
-          Top = 125
+        object STConcFL: TStaticText
+          Left = 294
+          Top = 19
           Width = 40
-          Height = 20
-          Caption = 'input'
+          Height = 25
+          Caption = '5e20'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 1
-          OnClick = ButtonDelClick
         end
-        object ButNd: TButton
-          Left = 255
-          Top = 52
-          Width = 40
-          Height = 20
-          Caption = 'input'
+        object STAreaFL: TStaticText
+          Left = 280
+          Top = 275
+          Width = 60
+          Height = 25
+          Caption = '3.14e-6'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 2
-          OnClick = ButtonDelClick
         end
-        object ButArea: TButton
-          Left = 255
-          Top = 24
-          Width = 40
-          Height = 20
-          Caption = 'input'
+        object STEp: TStaticText
+          Left = 176
+          Top = 260
+          Width = 22
+          Height = 25
+          Caption = '22'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 3
-          OnClick = ButtonDelClick
+        end
+        object STThick: TStaticText
+          Left = 176
+          Top = 282
+          Width = 37
+          Height = 25
+          Caption = '4e-7'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+        end
+        object GroupBoxMat: TGroupBox
+          Left = 3
+          Top = 43
+          Width = 360
+          Height = 190
+          Caption = 'Material'
+          Color = clInfoBk
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentBackground = False
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 5
+          object LRich3: TLabel
+            Left = 10
+            Top = 51
+            Width = 161
+            Height = 16
+            Caption = 'Richardson,  A/(K m)^2:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LPermit: TLabel
+            Left = 10
+            Top = 73
+            Width = 81
+            Height = 16
+            Caption = 'Permittivity:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelRich: TLabel
+            Left = 187
+            Top = 48
+            Width = 50
+            Height = 21
+            Caption = '1.16e6'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelPerm: TLabel
+            Left = 235
+            Top = 70
+            Width = 32
+            Height = 21
+            Caption = '8.85'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LEg: TLabel
+            Left = 10
+            Top = 95
+            Width = 87
+            Height = 16
+            Caption = 'Zero Gap, eV:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelEg: TLabel
+            Left = 235
+            Top = 92
+            Width = 32
+            Height = 21
+            Caption = '1.17'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LMeff: TLabel
+            Left = 10
+            Top = 117
+            Width = 100
+            Height = 16
+            Caption = 'Mass effective:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelMeff: TLabel
+            Left = 187
+            Top = 114
+            Width = 32
+            Height = 21
+            Caption = '1.08'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LVarA: TLabel
+            Left = 10
+            Top = 139
+            Width = 84
+            Height = 16
+            Caption = 'Varshni A, K:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelVarA: TLabel
+            Left = 235
+            Top = 136
+            Width = 36
+            Height = 21
+            Caption = '1108'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LVarB: TLabel
+            Left = 10
+            Top = 161
+            Width = 130
+            Height = 16
+            Caption = 'Varshni B, eV/ K^2:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelVarB: TLabel
+            Left = 235
+            Top = 158
+            Width = 56
+            Height = 21
+            Caption = '7.02e-4'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelRichp: TLabel
+            Left = 273
+            Top = 47
+            Width = 50
+            Height = 21
+            Caption = '1.16e6'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelMeffp: TLabel
+            Left = 270
+            Top = 114
+            Width = 23
+            Height = 21
+            Caption = '0.8'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object L_n: TLabel
+            Left = 206
+            Top = 18
+            Width = 13
+            Height = 24
+            Caption = 'n'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -20
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object L_p: TLabel
+            Left = 291
+            Top = 17
+            Width = 13
+            Height = 24
+            Caption = 'p'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clRed
+            Font.Height = -20
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object CBMaterial: TComboBox
+            Left = 10
+            Top = 21
+            Width = 80
+            Height = 24
+            Style = csDropDownList
+            ItemHeight = 16
+            TabOrder = 0
+          end
+        end
+      end
+      object GBDiodParamPN: TGroupBox
+        Left = 388
+        Top = 51
+        Width = 366
+        Height = 489
+        Caption = 'pn-diod parameters '
+        Color = clCream
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentBackground = False
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 4
+        object LAreaPN: TLabel
+          Left = 62
+          Top = 242
+          Width = 75
+          Height = 16
+          Caption = 'Area, m^2:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object LNdN: TLabel
+          Left = 75
+          Top = 21
+          Width = 220
+          Height = 18
+          Caption = 'Electron concentration, m^(-3):'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          WordWrap = True
+        end
+        object LNdP: TLabel
+          Left = 80
+          Top = 269
+          Width = 201
+          Height = 16
+          Caption = 'Carrier concentration, m^(-3):'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clRed
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          WordWrap = True
+        end
+        object CBtypeN: TCheckBox
+          Left = 5
+          Top = 20
+          Width = 73
+          Height = 17
+          Caption = 'n-type'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 0
+        end
+        object STConcN: TStaticText
+          Left = 290
+          Top = 19
+          Width = 40
+          Height = 25
+          Caption = '5e20'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+        end
+        object STAreaPN: TStaticText
+          Left = 216
+          Top = 239
+          Width = 60
+          Height = 25
+          Caption = '3.14e-6'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+        end
+        object GroupBoxMatN: TGroupBox
+          Left = 3
+          Top = 43
+          Width = 360
+          Height = 190
+          Caption = 'Material'
+          Color = clSkyBlue
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentBackground = False
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 3
+          object LRich3N: TLabel
+            Left = 10
+            Top = 51
+            Width = 161
+            Height = 16
+            Caption = 'Richardson,  A/(K m)^2:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LPermitN: TLabel
+            Left = 10
+            Top = 73
+            Width = 81
+            Height = 16
+            Caption = 'Permittivity:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelRichN: TLabel
+            Left = 187
+            Top = 48
+            Width = 50
+            Height = 21
+            Caption = '1.16e6'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelPermN: TLabel
+            Left = 235
+            Top = 70
+            Width = 32
+            Height = 21
+            Caption = '8.85'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LEgN: TLabel
+            Left = 10
+            Top = 95
+            Width = 87
+            Height = 16
+            Caption = 'Zero Gap, eV:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelEgN: TLabel
+            Left = 235
+            Top = 92
+            Width = 32
+            Height = 21
+            Caption = '1.17'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LMeffN: TLabel
+            Left = 10
+            Top = 117
+            Width = 100
+            Height = 16
+            Caption = 'Mass effective:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelMeffN: TLabel
+            Left = 187
+            Top = 114
+            Width = 32
+            Height = 21
+            Caption = '1.08'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LVarAN: TLabel
+            Left = 10
+            Top = 139
+            Width = 84
+            Height = 16
+            Caption = 'Varshni A, K:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelVarAN: TLabel
+            Left = 235
+            Top = 136
+            Width = 36
+            Height = 21
+            Caption = '1108'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LVarBN: TLabel
+            Left = 10
+            Top = 161
+            Width = 130
+            Height = 16
+            Caption = 'Varshni B, eV/ K^2:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelVarBN: TLabel
+            Left = 235
+            Top = 158
+            Width = 56
+            Height = 21
+            Caption = '7.02e-4'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelRichpN: TLabel
+            Left = 273
+            Top = 47
+            Width = 50
+            Height = 21
+            Caption = '1.16e6'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelMeffpN: TLabel
+            Left = 270
+            Top = 114
+            Width = 23
+            Height = 21
+            Caption = '0.8'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object L_nN: TLabel
+            Left = 206
+            Top = 18
+            Width = 13
+            Height = 24
+            Caption = 'n'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -20
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object L_pN: TLabel
+            Left = 291
+            Top = 17
+            Width = 13
+            Height = 24
+            Caption = 'p'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clRed
+            Font.Height = -20
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object CBMaterialN: TComboBox
+            Left = 10
+            Top = 21
+            Width = 80
+            Height = 24
+            Style = csDropDownList
+            ItemHeight = 16
+            TabOrder = 0
+          end
+        end
+        object CBtypeP: TCheckBox
+          Left = 8
+          Top = 268
+          Width = 73
+          Height = 17
+          Caption = 'n-type'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 4
+        end
+        object STConcFLP: TStaticText
+          Left = 290
+          Top = 267
+          Width = 40
+          Height = 25
+          Caption = '5e20'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+        end
+        object GroupBoxMatP: TGroupBox
+          Left = 3
+          Top = 291
+          Width = 360
+          Height = 190
+          Caption = 'Material'
+          Color = cl3DLight
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentBackground = False
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 6
+          object LRich3P: TLabel
+            Left = 10
+            Top = 51
+            Width = 161
+            Height = 16
+            Caption = 'Richardson,  A/(K m)^2:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LPermitP: TLabel
+            Left = 10
+            Top = 73
+            Width = 81
+            Height = 16
+            Caption = 'Permittivity:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelRichnP: TLabel
+            Left = 187
+            Top = 48
+            Width = 50
+            Height = 21
+            Caption = '1.16e6'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelPermP: TLabel
+            Left = 235
+            Top = 70
+            Width = 32
+            Height = 21
+            Caption = '8.85'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LEgP: TLabel
+            Left = 10
+            Top = 95
+            Width = 87
+            Height = 16
+            Caption = 'Zero Gap, eV:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelEgP: TLabel
+            Left = 235
+            Top = 92
+            Width = 32
+            Height = 21
+            Caption = '1.17'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LMeffP: TLabel
+            Left = 10
+            Top = 117
+            Width = 100
+            Height = 16
+            Caption = 'Mass effective:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelMeffnP: TLabel
+            Left = 187
+            Top = 114
+            Width = 32
+            Height = 21
+            Caption = '1.08'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LVarAP: TLabel
+            Left = 10
+            Top = 139
+            Width = 84
+            Height = 16
+            Caption = 'Varshni A, K:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelVarAP: TLabel
+            Left = 235
+            Top = 136
+            Width = 36
+            Height = 21
+            Caption = '1108'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LVarBP: TLabel
+            Left = 10
+            Top = 161
+            Width = 130
+            Height = 16
+            Caption = 'Varshni B, eV/ K^2:'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object LabelVarBP: TLabel
+            Left = 235
+            Top = 158
+            Width = 56
+            Height = 21
+            Caption = '7.02e-4'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelRichpP: TLabel
+            Left = 270
+            Top = 47
+            Width = 50
+            Height = 21
+            Caption = '1.16e6'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object LabelMeffpP: TLabel
+            Left = 270
+            Top = 114
+            Width = 23
+            Height = 21
+            Caption = '0.8'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object L_nP: TLabel
+            Left = 206
+            Top = 18
+            Width = 13
+            Height = 24
+            Caption = 'n'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -20
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object L_pP: TLabel
+            Left = 291
+            Top = 17
+            Width = 13
+            Height = 24
+            Caption = 'p'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clRed
+            Font.Height = -20
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object CBMaterialP: TComboBox
+            Left = 10
+            Top = 21
+            Width = 80
+            Height = 24
+            Style = csDropDownList
+            ItemHeight = 16
+            TabOrder = 0
+          end
         end
       end
     end
     object TabSheet4: TTabSheet
       Caption = 'Deep Level'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox36: TGroupBox
         Left = 3
         Top = 0

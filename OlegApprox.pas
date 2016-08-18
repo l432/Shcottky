@@ -399,7 +399,7 @@ private
  fSampleIsRequired:boolean;
  {якщо у функції дані про зразок не використовується,
  необхідно для спадкоємців у Сreate поставити цю змінну в False}
- FSample:TDiodSample;
+ FSample:TDiod_Schottky;
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure FIsNotReadyDetermination;override;
@@ -1054,7 +1054,7 @@ private
 // Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
 public
  Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;virtual;
- class Function PAT(Sample:TDiodSample; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
+ class Function PAT(Sample:TDiod_Schottky; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
 end; // TPhonAsTun=class (TFitFunctEvolutionEm)
 
 TPhonAsTunOnly=class (TPhonAsTun)
@@ -1933,7 +1933,7 @@ begin
        FIsNotReady:=True;
        Exit;
      end;
-   if (FSample.Area=ErResult)or(FSample.Material.ARich=ErResult) then FIsNotReady:=True;
+   if (FSample.Area=ErResult)or(FSample.Semiconductor.ARich=ErResult) then FIsNotReady:=True;
   end;
 end;
 
@@ -1980,7 +1980,7 @@ Function TIvanov.FinalFunc(var X:double;DeterminedParameters:TArrSingle):double;
  var Vd,x0:double;
 begin
   x0:=X;
-  Vd:=DeterminedParameters[1]*sqrt(2*Qelem*FSample.Nd*FSample.Material.Eps/Eps0)*
+  Vd:=DeterminedParameters[1]*sqrt(2*Qelem*FSample.Semiconductor.Nd*FSample.Semiconductor.Material.Eps/Eps0)*
     (sqrt(DeterminedParameters[0])-sqrt(DeterminedParameters[0]-x0));
   X:=Vd+x0;
   Result:=FSample.I0(FVariab[0],DeterminedParameters[0])*exp(x0/Kb/FVariab[0]);
@@ -1989,14 +1989,14 @@ end;
 Procedure TIvanov.FIsNotReadyDetermination;
 begin
  inherited FIsNotReadyDetermination;
- if (FSample.Material.Eps=ErResult)or(FSample.Nd=ErResult) then FIsNotReady:=True;
+ if (FSample.Semiconductor.Material.Eps=ErResult)or(FSample.Semiconductor.Nd=ErResult) then FIsNotReady:=True;
 end;
 
 
 Procedure TIvanov.RealFitting (InputData:PVector;
                        var OutputData:TArrSingle);
 begin
-   IvanovAprox(InputData,FSample,OutputData[1],OutputData[0],FVariab[0]);
+   IvanovAprox(InputData, FSample, OutputData[1],OutputData[0],FVariab[0]);
 end;
 
 Procedure TIvanov.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
@@ -4081,12 +4081,12 @@ begin
 //                 1e12,Parameters[4]);
 
  V:=fX;//-fY*Parameters[3];
- F:=sqrt(Qelem*FSample.Nd*(Parameters[2]+V)/2/FSample.Material.Eps/Eps0);
+ F:=sqrt(Qelem*FSample.Semiconductor.Nd*(Parameters[2]+V)/2/FSample.Semiconductor.Material.Eps/Eps0);
 // Result:=F*V*Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
 //                           Power(Qelem*Parameters[1],1.5)/
 //                           (3*Qelem*Hpl*F))+Parameters[3];
 
- Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
+ Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*FSample.Semiconductor.Meff*m0)*
                            Power(Qelem*Parameters[1],1.5)/
                            (3*Qelem*Hpl*F))+Parameters[3];
 
@@ -4309,8 +4309,8 @@ Function TDGaus.Func(Parameters:TArrSingle):double;
  var temp:double;
 begin
  temp:=Kb*fX;
- Result:=-temp*ln(Parameters[0]*exp(-FSample.Material.Varshni(Parameters[1],fX)/temp+sqr(Parameters[2])/2/sqr(temp))+
-   (1-Parameters[0])*exp(-FSample.Material.Varshni(Parameters[3],fX)/temp+sqr(Parameters[4])/2/sqr(temp)));
+ Result:=-temp*ln(Parameters[0]*exp(-FSample.Semiconductor.Material.Varshni(Parameters[1],fX)/temp+sqr(Parameters[2])/2/sqr(temp))+
+   (1-Parameters[0])*exp(-FSample.Semiconductor.Material.Varshni(Parameters[3],fX)/temp+sqr(Parameters[4])/2/sqr(temp)));
 end;
 
 Function TDGaus.Weight(OutputData:TArrSingle):double;
@@ -4334,7 +4334,7 @@ end;
 Function TLinEg.Func(Parameters:TArrSingle):double;
  var Fb,Vbb:double;
 begin
- Fb:=FSample.Material.Varshni(Parameters[2],fX);
+ Fb:=FSample.Semiconductor.Material.Varshni(Parameters[2],fX);
  Vbb:=Fb-FSample.Vbi(fX);
  Result:=Fb-Parameters[0]*Power(Vbb/FSample.nu,1.0/3.0)-
         Kb*fX*ln(Parameters[0]*Parameters[1]*4*3.14*Kb*fX/9*Power(FSample.nu/Vbb,2.0/3.0));
@@ -4872,7 +4872,7 @@ Procedure TFitFunctEvolutionEm.BeforeFitness(InputData:Pvector);
 begin
  inherited BeforeFitness(InputData);
  F2:=2/FSample.nu;
- F1:=FSample.Material.Varshni(FVariab[1],FVariab[0])-FSample.Vbi(FVariab[0]);
+ F1:=FSample.Semiconductor.Material.Varshni(FVariab[1],FVariab[0])-FSample.Vbi(FVariab[0]);
  fkT:=Kb*FVariab[0];
 end;
 
@@ -4880,9 +4880,9 @@ Procedure TFitFunctEvolutionEm.FIsNotReadyDetermination;
 begin
  inherited FIsNotReadyDetermination;
  if FIsNotReady then  Exit;
- if (FSample.Nd=ErResult)or
-    (FSample.Material.VarshA=ErResult)or
-    (FSample.Material.VarshB=ErResult)
+ if (FSample.Semiconductor.Nd=ErResult)or
+    (FSample.Semiconductor.Material.VarshA=ErResult)or
+    (FSample.Semiconductor.Material.VarshB=ErResult)
                    then FIsNotReady:=True;
 end;
 
@@ -5127,7 +5127,7 @@ begin
  FVarName[3]:='hw';
  FVarManualDefinedOnly[2]:=True;
  FVarManualDefinedOnly[3]:=True;
- fmeff:=m0*FSample.Material.Meff;
+ fmeff:=m0*FSample.Semiconductor.Meff;
 end;
 
 
@@ -5152,14 +5152,14 @@ begin
 //              sqr(gam1-gam)*(gam1+0.5*gam));
 end;
 
-class Function TPhonAsTun.PAT(Sample:TDiodSample; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
+class Function TPhonAsTun.PAT(Sample:TDiod_Schottky; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
  var g,gam,gam1,qE,Et,meff:double;
 begin
   Result:=ErResult;
   if kT1<=0 then Exit;
   qE:=Qelem*Sample.Em(1/(kT1*Kb),Fb0,V);
   Et:=Ett*Qelem;
-  meff:=m0*Sample.Material.Meff;
+  meff:=m0*Sample.Semiconductor.Meff;
   g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
   gam:=sqrt(2*meff)*g/(Hpl*qE*sqrt(Et));
   gam1:=sqrt(1+sqr(gam));
@@ -5340,7 +5340,7 @@ end;
 Function TPhonAsTunAndTE2_kT1.Sum2(Parameters:TArrSingle):double;
 begin
 Result:=RevZrizFun(fx,2,Parameters[2],
-     FSample.Material.Varshni(Parameters[3],1/Kb/fx))*
+     FSample.Semiconductor.Material.Varshni(Parameters[3],1/Kb/fx))*
      (1-exp(-FVariab[0]*fx));
 //  Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
 end;

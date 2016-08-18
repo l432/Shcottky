@@ -3,7 +3,7 @@ unit OlegType;
 
 interface
 //uses Windows,Messages,SysUtils,Forms;
- uses IniFiles,SysUtils;
+ uses IniFiles,SysUtils, StdCtrls;
 
 const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Eps0=8.85e-12; {діелектрична стала, []=Ф/м}
@@ -231,6 +231,37 @@ type
            {копіює значення полів з Souсe в даний}
          end;
 
+     TEvent = procedure() of object;
+
+  TParameterShow=class
+//  для відображення на формі
+//  а) значення параметру
+//  б) його назви
+//клік на значенні викликає появу віконця для його зміни
+   private
+    STData:TStaticText; //величина параметру
+//    BChange:TButton;//кнопка для зміни
+    fWindowCaption:string; //назва віконця зміни параметра
+    fWindowText:string;  //текст у цьому віконці
+    fHook:TEvent;
+    procedure ButtonClick(Sender: TObject);
+    function GetData:double;
+    procedure SetData(value:double);
+   public
+    STCaption:TLabel;
+    Constructor Create(STD:TStaticText;
+                       STC:TLabel;
+                       ParametrCaption:string;
+//                       BC:TButton;
+//                       ButtonCaption:string;
+                       WC,WT:string;
+                       InitValue:double
+    );
+    property Data:double read GetData write SetData;
+    property Hook:TEvent read fHook write fHook;
+
+  end;  //   TParameterShow=object
+
 
 Procedure SetLenVector(A:Pvector;n:integer);
 {встановлюється кількість точок у векторі А}
@@ -252,7 +283,7 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 {записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 implementation
-uses OlegMath,OlegGraph, Classes;
+uses OlegMath,OlegGraph, Classes, Dialogs, Controls;
 
 function TDiapazon.GetData(Index:integer):double;
 begin
@@ -392,6 +423,8 @@ begin
   B:=Souсe.B;
   C:=Souсe.C;
 end;
+
+
 
 Procedure SetLenVector(A:Pvector;n:integer);
 {встановлюється кількість точок у векторі А}
@@ -705,6 +738,58 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 {записує в .ini-файл значення тільки якщо воно не дорівнює True}
 begin
  if Value then ConfigFile.WriteBool(Section,Ident,Value);
+end;
+
+Constructor TParameterShow.Create(STD:TStaticText;
+                       STC:TLabel;
+                       ParametrCaption:string;
+//                       BC:TButton;
+//                       ButtonCaption:string;
+                       WC,WT:string;
+                       InitValue:double
+                       );
+begin
+  inherited Create;
+  STData:=STD;
+  STData.Caption:=FloatToStrF(InitValue,ffExponent,3,2);
+  STData.OnClick:=ButtonClick;
+  STData.Cursor:=crHandPoint;
+  STCaption:=STC;
+  STCaption.Caption:=ParametrCaption;
+  STCaption.WordWrap:=True;
+//  BChange:=BC;
+//  BChange.Caption:=ButtonCaption;
+//  BChange.OnClick:=ButtonClick;
+  fWindowCaption:=WC;
+  fWindowText:=WT;
+end;
+
+procedure TParameterShow.ButtonClick(Sender: TObject);
+ var temp:double;
+     st:string;
+begin
+  st:=InputBox(fWindowCaption,fWindowText,STData.Caption);
+  try
+    temp:=StrToFloat(st);
+    STData.Caption:=FloatToStrF(temp,ffExponent,3,2);
+    Hook();
+  finally
+
+  end;
+end;
+
+function TParameterShow.GetData:double;
+begin
+ Result:=StrToFloat(STData.Caption);
+end;
+
+procedure TParameterShow.SetData(value:double);
+begin
+  try
+    STData.Caption:=FloatToStrF(value,ffExponent,3,2);
+  finally
+
+  end;
 end;
 
 end.

@@ -196,8 +196,6 @@ type
     LPermit: TLabel;
     LabelRich: TLabel;
     LabelPerm: TLabel;
-    LabelDel: TLabel;
-    ButtonDel: TButton;
     GroupBox11: TGroupBox;
     Label7: TLabel;
     LabelCurDir: TLabel;
@@ -782,25 +780,67 @@ type
     LabelVarA: TLabel;
     LVarB: TLabel;
     LabelVarB: TLabel;
-    LaVarB: TLabel;
-    LaPerm: TLabel;
-    LaRich: TLabel;
-    LaEg: TLabel;
-    LaMeff: TLabel;
-    LaVarA: TLabel;
     GBDiodParam: TGroupBox;
     Linsulator: TLabel;
     LArea: TLabel;
     LNd: TLabel;
     LEps_i: TLabel;
     LThick_i: TLabel;
-    LabelEp: TLabel;
-    LabelConcentr: TLabel;
-    LabelArea: TLabel;
-    ButEps_i: TButton;
-    ButNd: TButton;
-    ButArea: TButton;
     CBVoc: TCheckBox;
+    LabelRichp: TLabel;
+    LabelMeffp: TLabel;
+    CBtypeFL: TCheckBox;
+    STConcFL: TStaticText;
+    STAreaFL: TStaticText;
+    STEp: TStaticText;
+    STThick: TStaticText;
+    L_n: TLabel;
+    L_p: TLabel;
+    GBDiodParamPN: TGroupBox;
+    LAreaPN: TLabel;
+    LNdN: TLabel;
+    CBtypeN: TCheckBox;
+    STConcN: TStaticText;
+    STAreaPN: TStaticText;
+    GroupBoxMatN: TGroupBox;
+    LRich3N: TLabel;
+    LPermitN: TLabel;
+    LabelRichN: TLabel;
+    LabelPermN: TLabel;
+    LEgN: TLabel;
+    LabelEgN: TLabel;
+    LMeffN: TLabel;
+    LabelMeffN: TLabel;
+    LVarAN: TLabel;
+    LabelVarAN: TLabel;
+    LVarBN: TLabel;
+    LabelVarBN: TLabel;
+    LabelRichpN: TLabel;
+    LabelMeffpN: TLabel;
+    L_nN: TLabel;
+    L_pN: TLabel;
+    CBMaterialN: TComboBox;
+    CBtypeP: TCheckBox;
+    LNdP: TLabel;
+    STConcFLP: TStaticText;
+    GroupBoxMatP: TGroupBox;
+    LRich3P: TLabel;
+    LPermitP: TLabel;
+    LabelRichnP: TLabel;
+    LabelPermP: TLabel;
+    LEgP: TLabel;
+    LabelEgP: TLabel;
+    LMeffP: TLabel;
+    LabelMeffnP: TLabel;
+    LVarAP: TLabel;
+    LabelVarAP: TLabel;
+    LVarBP: TLabel;
+    LabelVarBP: TLabel;
+    LabelRichpP: TLabel;
+    LabelMeffpP: TLabel;
+    L_nP: TLabel;
+    L_pP: TLabel;
+    CBMaterialP: TComboBox;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -827,7 +867,7 @@ type
     procedure ButtonKalkClick(Sender: TObject);
     procedure ButtonKalkParClick(Sender: TObject);
     procedure CBKalkChange(Sender: TObject);
-    procedure ButtonDelClick(Sender: TObject);
+//    procedure ButtonDelClick(Sender: TObject);
     procedure ButtonCurDirClick(Sender: TObject);
     procedure CBForwRsClick(Sender: TObject);
     procedure ButtonCreateFileClick(Sender: TObject);
@@ -896,8 +936,8 @@ type
     procedure ButAveLeftClick(Sender: TObject);
     procedure ButGLAutoClick(Sender: TObject);
     procedure CBDateFunClick(Sender: TObject);
-    procedure CBMaterialChange(Sender: TObject);
-    procedure LaVarBClick(Sender: TObject);
+//    procedure CBMaterialChange(Sender: TObject);
+//    procedure LaVarBClick(Sender: TObject);
     {чіпляється до Button деяких дочірніх форм,
     викликає вікно з параметрами апроксимації}
   private
@@ -980,13 +1020,13 @@ procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:TDiapazon);
 вікон зміни діапазону}
 procedure FormFrToDiap(FrDp:TFrDp; var D:TDiapazon);
 
-procedure StrToNumber(St:TCaption; Def:double; var Num:double);
-{процедура переведення тестового рядка St в чисельне
-значення Num;
-якщо формат рядка поганий - змінна не зміниться,
-буде показано віконечко з відповідним написом;
-якщо рядок порожній - Num  буде присвоєне
-значення Def}
+//procedure StrToNumber(St:TCaption; Def:double; var Num:double);
+//{процедура переведення тестового рядка St в чисельне
+//значення Num;
+//якщо формат рядка поганий - змінна не зміниться,
+//буде показано віконечко з відповідним написом;
+//якщо рядок порожній - Num  буде присвоєне
+//значення Def}
 
 Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 {в залежності від вибраного значення
@@ -1045,13 +1085,13 @@ Procedure DiapToLimToTForm1(D:TDiapazon; F:TForm1);
 з обмеженим відображенням графіку (і в змінну GrLim,
 і на саму форму, у відповідні написи}
 
-Procedure MaterialOnForm;
-{виведення на форму параметрів матеріалу, які
-беруться зі змінної Semi}
+//Procedure MaterialOnForm;
+//{виведення на форму параметрів матеріалу, які
+//беруться зі змінної Semi}
 
-Procedure DiodOnForm;
-{виведення на форму параметрів діоду, які
-беруться зі змінної Diod}
+//Procedure DiodOnForm;
+//{виведення на форму параметрів діоду, які
+//беруться зі змінної Diod}
 
 Procedure ChooseDirect(F:TForm1);
 {виведення на форму написів, пов'язаних
@@ -1203,6 +1243,11 @@ var
   виділене значення; використовується при видаленні точок}
   EvolParam:TArrSingle;
   {масив з double, використовується в еволюційних процедурах}
+  ConfigFile:TIniFile;
+  FirstLayer,pLayer,nLayer:TMaterialShow;
+  Diod_SchottkyShow:TDiod_SchottkyShow;
+  Diod_PNShow:TDiod_PNShow;
+
 
 implementation
 
@@ -1306,7 +1351,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
  var
     i,j:integer;
-    ConfigFile:TIniFile;
+//    ConfigFile:TIniFile;
     st:string;
     DP: TDiapazons;
     DR:TDirName;
@@ -1504,24 +1549,30 @@ begin
  CurDirectory:=ConfigFile.ReadString('Direct','CDir',Directory);
  ChooseDirect(Form1);
 
+ FirstLayer:=TMaterialShow.Create([LabelEg,LabelPerm,LabelRich,LabelRichp,LabelMeff,LabelMeffp,LabelVarA,LabelVarB],
+                                  CBMaterial,'FL',ConfigFile);
+ pLayer:=TMaterialShow.Create([LabelEgP,LabelPermP,LabelRichP,LabelRichpP,
+                               LabelMeffp,LabelMeffpP,LabelVarAP,LabelVarBP],
+                                  CBMaterialP,'P',ConfigFile);
+ nLayer:=TMaterialShow.Create([LabelEgN,LabelPermN,LabelRichN,LabelRichpN,
+                               LabelMeffN,LabelMeffpN,LabelVarAN,LabelVarBN],
+                                  CBMaterialN,'N',ConfigFile);
 
- CBMaterial.Sorted:=False;
- for i :=Ord(Low(TMaterialName)) to ord(High(TMaterialName)) do
-      CBMaterial.Items.Add(Materials[TMaterialName(i)].Name);
- CBMaterial.ItemIndex:=ConfigFile.ReadInteger('Parameters','Material',0);
-
- Semi:=TMaterial.Create(TMaterialName(CBMaterial.ItemIndex));
-
- if Semi.Name=Materials[High(TMaterialName)].Name
-    then Semi.ReadFromIniFile(ConfigFile);
-
- MaterialOnForm;
-
- Diod:=TDiodSample.Create;
+ Diod:=TDiod_Schottky.Create;
  Diod.ReadFromIniFile(ConfigFile);
- Diod.Material:=Semi;
+ Diod.Semiconductor.Material:=FirstLayer.Material;
 
- DiodOnForm;
+ Diod_SchottkyShow:=TDiod_SchottkyShow.Create(Diod,CBtypeFL,STConcFL,STAreaFL,STEp,STThick,
+                          LNd,LArea,LEps_i,LThick_i);
+
+ DiodPN:=TDiod_PN.Create;
+ DiodPN.ReadFromIniFile(ConfigFile);
+ DiodPN.LayerN.Material:=nLayer.Material;
+ DiodPN.LayerP.Material:=pLayer.Material;
+
+ Diod_PNShow:=TDiod_PNShow.Create(DiodPN,CBtypeN,CBtypeP,STConcN,STConcFLP,
+                                 STAreaPN,LNdN,LNdP,LAreaPN);
+
 
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
@@ -1785,19 +1836,19 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   if PageControl1.ActivePageIndex=3 then PageControl1Change(Sender);
 
   DLParamPassive;
-  ConfigFile.Free;
+//  ConfigFile.Free;
 
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 var
-    ConfigFile:TIniFile;
+//    ConfigFile:TIniFile;
     i:integer;
     DP:TDiapazons;
     DR:TDirName;
     CL:TColName;
 begin
- ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+// ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
  ChDir(Directory0);
 
  ConfigFile.WriteBool('Volts2','LnIT2',CheckBoxLnIT2.Checked);
@@ -1902,12 +1953,20 @@ end; // with Form1 do
   ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
   ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 
+  Diod_PNShow.Free;
+  DiodPN.WriteToIniFile(ConfigFile);
+  DiodPN.Free;
+
+  Diod_SchottkyShow.Free;
   Diod.WriteToIniFile(ConfigFile);
   Diod.Free;
-  ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
-  if Semi.Name=Materials[High(TMaterialName)].Name
-      then  Semi.WriteToIniFile(ConfigFile);
-  Semi.Free;
+  nLayer.Free;
+  pLayer.Free;
+  FirstLayer.Free;
+//  ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
+//  if Semi.Name=Materials[High(TMaterialName)].Name
+//      then  Semi.WriteToIniFile(ConfigFile);
+//  Semi.Free;
 
   if Assigned(BaseLine) then BaseLine.Free;
   if Assigned(BaseLineCur) then BaseLineCur.Free;
@@ -2031,34 +2090,34 @@ begin
  CBoxDLBuildClick(LabRCons);
 end;
 
-procedure TForm1.LaVarBClick(Sender: TObject);
- var Value:double;
-     st:string;
-begin
-  if (Sender as TLabel).Name='LaVarB' then Value:=Semi.VarshB;
-  if (Sender as TLabel).Name='LaVarA' then Value:=Semi.VarshA;
-  if (Sender as TLabel).Name='LaMeff' then Value:=Semi.Meff;
-  if (Sender as TLabel).Name='LaEg' then Value:=Semi.Eg0;
-  if (Sender as TLabel).Name='LaPerm' then Value:=Semi.Eps;
-  if (Sender as TLabel).Name='LaRich' then Value:=Semi.ARich;
-
-  st:=FloatToStrF(Value,ffGeneral,4,3);
-  if st='ErResult' then st:='';
-
-  st:=InputBox('Input value',
-               'the material parameter value is expected',
-               st);
-
-  StrToNumber(st, ErResult, Value);
-  if (Sender as TLabel).Name='LaVarB' then Semi.VarshB:=Value;
-  if (Sender as TLabel).Name='LaVarA' then Semi.VarshA:=Value;
-  if (Sender as TLabel).Name='LaMeff' then Semi.Meff:=Value;
-  if (Sender as TLabel).Name='LaEg' then Semi.Eg0:=Value;
-  if (Sender as TLabel).Name='LaPerm' then Semi.Eps:=Value;
-  if (Sender as TLabel).Name='LaRich' then Semi.ARich:=Value;
-
-  MaterialOnForm;
-end;
+//procedure TForm1.LaVarBClick(Sender: TObject);
+// var Value:double;
+//     st:string;
+//begin
+//  if (Sender as TLabel).Name='LaVarB' then Value:=Semi.VarshB;
+//  if (Sender as TLabel).Name='LaVarA' then Value:=Semi.VarshA;
+//  if (Sender as TLabel).Name='LaMeff' then Value:=Semi.Meff;
+//  if (Sender as TLabel).Name='LaEg' then Value:=Semi.Eg0;
+//  if (Sender as TLabel).Name='LaPerm' then Value:=Semi.Eps;
+//  if (Sender as TLabel).Name='LaRich' then Value:=Semi.ARich;
+//
+//  st:=FloatToStrF(Value,ffGeneral,4,3);
+//  if st='ErResult' then st:='';
+//
+//  st:=InputBox('Input value',
+//               'the material parameter value is expected',
+//               st);
+//
+//  StrToNumber(st, ErResult, Value);
+//  if (Sender as TLabel).Name='LaVarB' then Semi.VarshB:=Value;
+//  if (Sender as TLabel).Name='LaVarA' then Semi.VarshA:=Value;
+//  if (Sender as TLabel).Name='LaMeff' then Semi.Meff:=Value;
+//  if (Sender as TLabel).Name='LaEg' then Semi.Eg0:=Value;
+//  if (Sender as TLabel).Name='LaPerm' then Semi.Eps:=Value;
+//  if (Sender as TLabel).Name='LaRich' then Semi.ARich:=Value;
+//
+//  MaterialOnForm;
+//end;
 
 procedure TForm1.LDLBuildClick(Sender: TObject);
 begin
@@ -2666,6 +2725,7 @@ begin
 
   DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
 end;
+
 
 
 procedure TForm1.TrackBarMarChange(Sender: TObject);
@@ -5728,13 +5788,13 @@ begin
       Em:=Diod.Em(T,Fb0,V/2);
       Emr:=Diod.Em(T,r*Fb0,V/2);
 
-      Ite:=RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(Fb0-alfa*Em,T))*
+      Ite:=RevZrizFun(1/T/Kb,2,I0,Diod.Semiconductor.Material.Varshni(Fb0-alfa*Em,T))*
      (1-exp(-V/2/T/Kb));
      Ipat:=TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-betta*sqrt(Em),Nss);
 
       writeln(f,V,' ',T,' ',{Ite,' ',Ipat,' ',}
-       (RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(r*Fb0-alfa*Emr,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
-       (RevZrizFun(1/T/Kb,2,I0,Diod.Material.Varshni(Fb0-r*alfa*Em,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
+       (RevZrizFun(1/T/Kb,2,I0,Diod.Semiconductor.Material.Varshni(r*Fb0-alfa*Emr,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
+       (RevZrizFun(1/T/Kb,2,I0,Diod.Semiconductor.Material.Varshni(Fb0-r*alfa*Em,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
        (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,r*Et0-betta*sqrt(Em),Nss){-Ipat})/Ipat,' ',
        (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-r*betta*sqrt(Em),Nss){-Ipat})/Ipat
       );
@@ -6806,54 +6866,54 @@ ChooseDirect(Form1);
 Directory:=CurDirectory;
 end;
 
-procedure TForm1.ButtonDelClick(Sender: TObject);
-var st:string;
-    temp:double;
-
-begin
-if (Sender as TButton).Name='ButtonDel' then
- begin
-  temp:=Diod.Thick_i;
-  st:=InputBox('Layer thickness',
-               'Thickness of the interfacial insulator layer, [ ] = m',
-               FloatToStrF(temp,ffExponent,3,2));
-  StrToNumber(st, temp, temp);
-  Diod.Thick_i:=temp;
- end;
-
-if (Sender as TButton).Name='ButEps_i' then
- begin
-  temp:=Diod.Eps_i;
-  st:=InputBox('Layer permittivity',
-               'Permittivity of the interfacial insulator layer',
-               FloatToStrF(temp,ffExponent,3,2));
-  StrToNumber(st, temp, temp);
-  Diod.Eps_i:=temp;
- end;
-
-if (Sender as TButton).Name='ButNd' then
- begin
-  temp:=Diod.Nd;
-  st:=InputBox('Carrier concentration',
-               'Input carrier concentration, [ ] = m^(-3)',
-                FloatToStrF(temp,ffExponent,3,2));
-  StrToNumber(st, temp, temp);
-  Diod.Nd:=temp;
- end;
-
-if (Sender as TButton).Name='ButArea' then
- begin
-  temp:=Diod.Area;
-  st:=InputBox('Diode area',
-               'Input contact area, [ ] = m^2',
-               FloatToStrF(temp,ffExponent,3,2));
-  StrToNumber(st, temp, temp);
-  Diod.Area:=temp;
- end;
-
-DiodOnForm;
-
-end;
+//procedure TForm1.ButtonDelClick(Sender: TObject);
+//var st:string;
+//    temp:double;
+//
+//begin
+//if (Sender as TButton).Name='ButtonDel' then
+// begin
+//  temp:=Diod.Thick_i;
+//  st:=InputBox('Layer thickness',
+//               'Thickness of the interfacial insulator layer, [ ] = m',
+//               FloatToStrF(temp,ffExponent,3,2));
+//  StrToNumber(st, temp, temp);
+//  Diod.Thick_i:=temp;
+// end;
+//
+//if (Sender as TButton).Name='ButEps_i' then
+// begin
+//  temp:=Diod.Eps_i;
+//  st:=InputBox('Layer permittivity',
+//               'Permittivity of the interfacial insulator layer',
+//               FloatToStrF(temp,ffExponent,3,2));
+//  StrToNumber(st, temp, temp);
+//  Diod.Eps_i:=temp;
+// end;
+//
+//if (Sender as TButton).Name='ButNd' then
+// begin
+//  temp:=Diod.Semiconductor.Nd;
+//  st:=InputBox('Carrier concentration',
+//               'Input carrier concentration, [ ] = m^(-3)',
+//                FloatToStrF(temp,ffExponent,3,2));
+//  StrToNumber(st, temp, temp);
+//  Diod.Semiconductor.Nd:=temp;
+// end;
+//
+//if (Sender as TButton).Name='ButArea' then
+// begin
+//  temp:=Diod.Area;
+//  st:=InputBox('Diode area',
+//               'Input contact area, [ ] = m^2',
+//               FloatToStrF(temp,ffExponent,3,2));
+//  StrToNumber(st, temp, temp);
+//  Diod.Area:=temp;
+// end;
+//
+//DiodOnForm;
+//
+//end;
 
 procedure TForm1.ButtonKalkClick(Sender: TObject);
 begin
@@ -7535,29 +7595,29 @@ if CBMarker.Checked then
   end;
 end;
 
-procedure TForm1.CBMaterialChange(Sender: TObject);
-var ConfigFile:TIniFile;
-begin
-if (Semi.Name=Materials[High(TMaterialName)].Name)
-//MaterialName[High(MaterialName)])
-     and(Semi.Name<>CBMaterial.Text) then
-      begin
-       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
-       Semi.WriteToIniFile(ConfigFile);
-       ConfigFile.Free;
-      end;
-if (CBMaterial.Text=Materials[High(TMaterialName)].Name)
-     and(Semi.Name<>CBMaterial.Text) then
-      begin
-       Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
-       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
-       Semi.ReadFromIniFile(ConfigFile);
-       ConfigFile.Free;
-//       Exit;
-      end;
-if Semi.Name<>CBMaterial.Text then Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
-MaterialOnForm;
-end;
+//procedure TForm1.CBMaterialChange(Sender: TObject);
+//var ConfigFile:TIniFile;
+//begin
+//if (Semi.Name=Materials[High(TMaterialName)].Name)
+////MaterialName[High(MaterialName)])
+//     and(Semi.Name<>CBMaterial.Text) then
+//      begin
+//       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+//       Semi.WriteToIniFile(ConfigFile);
+//       ConfigFile.Free;
+//      end;
+//if (CBMaterial.Text=Materials[High(TMaterialName)].Name)
+//     and(Semi.Name<>CBMaterial.Text) then
+//      begin
+//       Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
+//       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+//       Semi.ReadFromIniFile(ConfigFile);
+//       ConfigFile.Free;
+////       Exit;
+//      end;
+//if Semi.Name<>CBMaterial.Text then Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
+//MaterialOnForm;
+//end;
 
 
 procedure TForm1.CBoxBaseLineUseClick(Sender: TObject);
@@ -7976,30 +8036,30 @@ begin
   FormToDiap(FrDp.LEXMin,FrDp.LEYmin,FrDp.LEXmax,FrDp.LEYMax,D)
 end;
 
-procedure StrToNumber(St:TCaption; Def:double; var Num:double);
-{процедура переведення тестового рядка St в чисельне
-значення Num;
-якщо формат рядка поганий - змінна не зміниться,
-буде показано віконечко з відповідним написом;
-якщо рядок порожній - Num  буде присвоєне
-значення Def}
-var temp:real;
-begin
-if St='' then Num:=Def
-         else
-          begin
-           try
-            temp:=StrToFloat(St);
-           except
-            on Exception : EConvertError do
-                   begin
-                   ShowMessage(Exception.Message);
-                   Exit;
-                   end;
-           end;//try
-           Num:=temp;
-          end;//else
-end;
+//procedure StrToNumber(St:TCaption; Def:double; var Num:double);
+//{процедура переведення тестового рядка St в чисельне
+//значення Num;
+//якщо формат рядка поганий - змінна не зміниться,
+//буде показано віконечко з відповідним написом;
+//якщо рядок порожній - Num  буде присвоєне
+//значення Def}
+//var temp:real;
+//begin
+//if St='' then Num:=Def
+//         else
+//          begin
+//           try
+//            temp:=StrToFloat(St);
+//           except
+//            on Exception : EConvertError do
+//                   begin
+//                   ShowMessage(Exception.Message);
+//                   Exit;
+//                   end;
+//           end;//try
+//           Num:=temp;
+//          end;//else
+//end;
 
 
 Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
@@ -8431,60 +8491,60 @@ with F do
  end;
 end;
 
-Procedure MaterialOnForm;
-{виведення на форму параметрів матеріалу, які
-беруться зі змінної Semi}
-begin
-with Form1 do
- begin
-  if Semi.Eg0<>ErResult
-     then LabelEg.Caption:=FloatToStrF(Semi.Eg0,ffFixed,3,2)
-     else LabelEg.Caption:='?';
-  LabelPerm.Caption:=FloatToStrF(Semi.Eps,ffFixed,3,2);
-  LabelMeff.Caption:=FloatToStrF(Semi.Meff,ffFixed,3,2);
-  if Semi.ARich<>ErResult
-     then LabelRich.Caption:=FloatToStrF(Semi.ARich,ffExponent,3,2)
-     else LabelRich.Caption:='?';
-  if Semi.VarshA<>ErResult
-     then LabelVarA.Caption:=FloatToStrF(Semi.VarshA,ffgeneral,5,1)
-     else LabelVarA.Caption:='?';
-  if Semi.VarshB<>ErResult
-     then LabelVarB.Caption:=FloatToStrF(Semi.VarshB,ffExponent,3,2)
-     else LabelVarB.Caption:='?';
-  if Semi.Name=Materials[High(TMaterialName)].Name then
-      begin
-       LaVarB.Visible:=True;
-       LaVarA.Visible:=True;
-       LaMeff.Visible:=True;
-       LaPerm.Visible:=True;
-       LaEg.Visible:=True;
-       LaRich.Visible:=True;
-      end
-                                                 else
-      begin
-       LaVarB.Visible:=False;
-       LaVarA.Visible:=False;
-       LaMeff.Visible:=False;
-       LaPerm.Visible:=False;
-       LaEg.Visible:=False;
-       LaRich.Visible:=False;
-      end
+//Procedure MaterialOnForm;
+//{виведення на форму параметрів матеріалу, які
+//беруться зі змінної Semi}
+//begin
+//with Form1 do
+// begin
+//  if Semi.Eg0<>ErResult
+//     then LabelEg.Caption:=FloatToStrF(Semi.Eg0,ffFixed,3,2)
+//     else LabelEg.Caption:='?';
+//  LabelPerm.Caption:=FloatToStrF(Semi.Eps,ffFixed,3,2);
+//  LabelMeff.Caption:=FloatToStrF(Semi.Meff,ffFixed,3,2);
+//  if Semi.ARich<>ErResult
+//     then LabelRich.Caption:=FloatToStrF(Semi.ARich,ffExponent,3,2)
+//     else LabelRich.Caption:='?';
+//  if Semi.VarshA<>ErResult
+//     then LabelVarA.Caption:=FloatToStrF(Semi.VarshA,ffgeneral,5,1)
+//     else LabelVarA.Caption:='?';
+//  if Semi.VarshB<>ErResult
+//     then LabelVarB.Caption:=FloatToStrF(Semi.VarshB,ffExponent,3,2)
+//     else LabelVarB.Caption:='?';
+//  if Semi.Name=Materials[High(TMaterialName)].Name then
+//      begin
+//       LaVarB.Visible:=True;
+//       LaVarA.Visible:=True;
+//       LaMeff.Visible:=True;
+//       LaPerm.Visible:=True;
+//       LaEg.Visible:=True;
+//       LaRich.Visible:=True;
+//      end
+//                                                 else
+//      begin
+//       LaVarB.Visible:=False;
+//       LaVarA.Visible:=False;
+//       LaMeff.Visible:=False;
+//       LaPerm.Visible:=False;
+//       LaEg.Visible:=False;
+//       LaRich.Visible:=False;
+//      end
+//
+// end;//with Form1 do
+//end;
 
- end;//with Form1 do
-end;
-
-Procedure DiodOnForm;
-{виведення на форму параметрів діоду, які
-беруться зі змінної Diod}
-begin
-with Form1 do
- begin
-  LabelArea.Caption:=FloatToStrF(Diod.Area,ffExponent,3,2);
-  LabelConcentr.Caption:=FloatToStrF(Diod.Nd,ffExponent,3,2);
-  LabelDel.Caption:=FloatToStrF(Diod.Thick_i,ffExponent,3,2);
-  LabelEp.Caption:=FloatToStrF(Diod.Eps_i,ffFixed,3,2);
- end;//with Form1 do
-end;
+//Procedure DiodOnForm;
+//{виведення на форму параметрів діоду, які
+//беруться зі змінної Diod}
+//begin
+//with Form1 do
+// begin
+//  LabelArea.Caption:=FloatToStrF(Diod.Area,ffExponent,3,2);
+//  LabelConcentr.Caption:=FloatToStrF(Diod.Semiconductor.Nd,ffExponent,3,2);
+//  LabelDel.Caption:=FloatToStrF(Diod.Thick_i,ffExponent,3,2);
+//  LabelEp.Caption:=FloatToStrF(Diod.Eps_i,ffFixed,3,2);
+// end;//with Form1 do
+//end;
 
 
 
@@ -8723,11 +8783,11 @@ end;
 Procedure GausLinesSave;
 {запис пареметрів гаусіан у ini-файл}
 var
-    ConfigFile:TIniFile;
+//    ConfigFile:TIniFile;
     i:integer;
     st:string;
 begin
- ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+// ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
  ConfigFile.WriteInteger('Gauss','NLine',High(GausLinesCur));
    for I := 1 to High(GausLinesCur) do
      begin
@@ -8736,17 +8796,17 @@ begin
        ConfigFile.WriteFloat('Gauss','B'+st,GausLinesCur[i].B);
        ConfigFile.WriteFloat('Gauss','C'+st,GausLinesCur[i].C);
      end;
- ConfigFile.Free;
+// ConfigFile.Free;
 end;
 
 Procedure GausLinesLoad;
 {зчитування пареметрів гаусіан з ini-файла}
 var
-    ConfigFile:TIniFile;
+//    ConfigFile:TIniFile;
     i:integer;
     st:string;
 begin
- ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+// ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
  i:=ConfigFile.ReadInteger('Gauss','NLine',-1);
  if i<1 then
       begin
@@ -8779,7 +8839,7 @@ begin
  Form1.SEGauss.Value:=1;
  GaussLinesToGraph(True);
  GaussLinesToGrid;
- ConfigFile.Free;
+// ConfigFile.Free;
 end;
 
 
