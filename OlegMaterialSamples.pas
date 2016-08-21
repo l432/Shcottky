@@ -106,6 +106,7 @@ type
      function Nc(T:double):double;
      function Nv(T:double):double;
 //    ефективна густина станів в зоні провідності та валентній
+     function n_i(T:double):double;
      end; // TMaterial=class
 
 //     TMatParNameLab=array[TMaterialParametersName]of TLabel;
@@ -242,6 +243,13 @@ type
        property LayerP:TMaterialLayer read FLayerP write FLayerP;
        procedure ReadFromIniFile(ConfigFile:TIniFile); override;
        procedure WriteToIniFile(ConfigFile:TIniFile);override;
+       function Vdif(T:double;V:double=0):double;
+       {дифузійний потенціал, пряма напруга V додатня, зворотня від'ємна, []=B}
+       function W(T:double;V:double=0):double;
+       {ширина ОПЗ, пряма напруга V додатня, зворотня від'ємна, []=м}
+       function Rnp(T,V,I:double):double;
+       {приведена швидкість рекомбінації, []=c^-1
+       I - струм через діод}
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -272,7 +280,7 @@ Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TD
 implementation
 
 uses
-  Controls, Graphics;
+  Controls, Graphics, Math;
 
 procedure TMaterial.SetAbsValue(Index:integer; value: Double);
 begin
@@ -312,18 +320,34 @@ end;
 
 function TMaterial.EgT(T: Double):Double;
 begin
- Result:=Varshni(Eg0,T);
+ if Eg0=ErResult then Result:=ErResult
+                 else Result:=Varshni(Eg0,T);
 end;
 
 function TMaterial.Nc(T:double):double;
 //    ефективна густина станів
 begin
- Result:=2.5e25*Me*(T/300.0)*sqrt(Me*T/300.0);
+ if Me=ErResult then Result:=ErResult
+                else Result:=2.5e25*Me*(T/300.0)*sqrt(Me*T/300.0);
 end;
 
 function TMaterial.Nv(T: double): double;
 begin
- Result:=2.5e25*Mh*(T/300.0)*sqrt(Mh*T/300.0);
+ if Mh=ErResult then Result:=ErResult
+                else Result:=2.5e25*Mh*(T/300.0)*sqrt(Mh*T/300.0);
+end;
+
+function TMaterial.n_i(T: double): double;
+begin
+ Result:=ErResult;
+ if Eg0=ErResult then Exit;
+ if Name='Si' then
+      begin
+       Result:=1.64e20*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
+       Exit;
+      end;
+ if (Mh=ErResult)or(Me=ErResult) then Exit;
+ Result:=sqrt(Nc(T)*Nv(T)*exp(-EgT(T)/T/Kb));
 end;
 
 procedure TMaterial.ReadFromIniFile(ConfigFile:TIniFile);
@@ -974,6 +998,49 @@ begin
   Area:=ConfigFile.ReadFloat(SecDiod,'Square pn-Diod',130e-6);
   LayerP.Nd:=ConfigFile.ReadFloat(SecDiod,'Concentration p-layer',1e16);
   LayerN.Nd:=ConfigFile.ReadFloat(SecDiod,'Concentration n-layer',1e20);
+end;
+
+function TDiod_PN.Rnp(T, V, I: double): double;
+ var Vd, Wd:double;
+begin
+ Wd:=W(T,V);
+ if (Wd=ErResult)or (Area=ErResult) then
+   begin
+     Result:=ErResult;
+     Exit
+   end;
+ Vd:=Vdif(T,V);
+ Result:=I/(Wd*Area*FLayerP.Material.n_i(T)*(exp(V/2/Kb/T)-1))*
+          (Vd-V)/2/Kb/T/Qelem;
+
+end;
+
+function TDiod_PN.Vdif(T, V: double): double;
+begin
+ if (FLayerP.FMaterial.Eg0=ErResult)or
+    (FLayerP.Material.Mh=ErResult)or
+    (FLayerN.Material.Me=ErResult)or
+    (FLayerP.Nd=ErResult)or
+    (FLayerN.Nd=ErResult) then
+      begin
+       Result:=ErResult;
+       Exit;
+      end;
+ Result:=FLayerP.Material.EgT(T)-
+         Kb*T*ln(FLayerP.Material.Nv(T)*FLayerN.Material.Nc(T)/FLayerP.Nd/FLayerN.Nd)-V;
+end;
+
+function TDiod_PN.W(T, V: double): double;
+ var Vd:double;
+begin
+ Vd:=Vdif(T,V);
+ if Vd=ErResult then
+  begin
+    Result:=ErResult;
+    Exit;
+  end;
+ Result:=sqrt(2*FLayerP.Material.Eps*Eps0/Qelem*Vd*
+             (FLayerN.Nd+FLayerP.Nd)/FLayerN.Nd/FLayerP.Nd);
 end;
 
 procedure TDiod_PN.WriteToIniFile(ConfigFile: TIniFile);
