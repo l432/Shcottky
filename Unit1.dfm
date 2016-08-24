@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -6685,8 +6685,8 @@ object Form1: TForm1
         object LNdN: TLabel
           Left = 75
           Top = 21
-          Width = 220
-          Height = 18
+          Width = 209
+          Height = 16
           Caption = 'Electron concentration, m^(-3):'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
@@ -7941,6 +7941,24 @@ object Form1: TForm1
         Enabled = False
         TabOrder = 11
         OnClick = ButGLAutoClick
+      end
+      object CBDLFunction: TComboBox
+        Left = 588
+        Top = 440
+        Width = 114
+        Height = 22
+        Style = csDropDownList
+        ItemHeight = 14
+        TabOrder = 12
+        OnClick = CBDLFunctionClick
+      end
+      object STDLFunction: TStaticText
+        Left = 588
+        Top = 416
+        Width = 101
+        Height = 18
+        Caption = 'Function build type'
+        TabOrder = 13
       end
     end
   end

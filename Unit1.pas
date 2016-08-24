@@ -841,6 +841,8 @@ type
     L_nP: TLabel;
     L_pP: TLabel;
     CBMaterialP: TComboBox;
+    CBDLFunction: TComboBox;
+    STDLFunction: TStaticText;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -936,6 +938,7 @@ type
     procedure ButAveLeftClick(Sender: TObject);
     procedure ButGLAutoClick(Sender: TObject);
     procedure CBDateFunClick(Sender: TObject);
+    procedure CBDLFunctionClick(Sender: TObject);
 //    procedure CBMaterialChange(Sender: TObject);
 //    procedure LaVarBClick(Sender: TObject);
     {чіпляється до Button деяких дочірніх форм,
@@ -1177,6 +1180,14 @@ Rbool=true - потрібно враховувати послідовний
 FitName - назва функції, якв буде використовуватись
 для апроксимації}
 
+Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;
+{дані в А апроксимуються відповідно до FitName,
+в В - результат апроксимації при тих же абсцисах,
+при невдачі - результат False}
+
+const
+ DLFunction:array[0..4]of string=
+           ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
 
 var
   Form1: TForm1;
@@ -1544,10 +1555,20 @@ begin
   ComboBNssFb.Sorted:=False;
   ComboBNssFb.Items:=ComboBoxNssFb.Items;
 
+  CBDLFunction.Sorted:=False;
+  for I := 0 to High(DLFunction) do CBDLFunction.Items.Add(DLFunction[i]);
+
+
  ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
  Directory:=ConfigFile.ReadString('Direct','Dir',GetCurrentDir);
  CurDirectory:=ConfigFile.ReadString('Direct','CDir',Directory);
  ChooseDirect(Form1);
+
+ CBDLFunction.ItemIndex:=ConfigFile.ReadInteger('DLFunction','Name',0);
+ CBDLFunctionClick(CBDLFunction);
+ SpinEditDL.OnChange:=nil;
+ SpinEditDL.Value:=ConfigFile.ReadInteger('DLFunction','SmoothNumber',5);
+ SpinEditDL.OnChange:=CBoxDLBuildClick;
 
  FirstLayer:=TMaterialShow.Create([LabelEg,LabelPerm,LabelRich,LabelRichp,LabelMeff,LabelMeffp,LabelVarA,LabelVarB],
                                   CBMaterial,'FL',ConfigFile);
@@ -1967,6 +1988,9 @@ end; // with Form1 do
 //  if Semi.Name=Materials[High(TMaterialName)].Name
 //      then  Semi.WriteToIniFile(ConfigFile);
 //  Semi.Free;
+
+  ConfigFile.WriteInteger('DLFunction','Name',CBDLFunction.ItemIndex);
+  ConfigFile.WriteInteger('DLFunction','SmoothNumber',SpinEditDL.Value);
 
   if Assigned(BaseLine) then BaseLine.Free;
   if Assigned(BaseLineCur) then BaseLineCur.Free;
@@ -7496,6 +7520,11 @@ CBDateFun.Checked:=not(CBDateFun.Checked);
 CBDateFun.Checked:=not(CBDateFun.Checked);
 end;
 
+procedure TForm1.CBDLFunctionClick(Sender: TObject);
+begin
+  GroupBox36.Caption:=CBDLFunction.Items[CBDLFunction.ItemIndex];
+end;
+
 procedure TForm1.CBForwRsClick(Sender: TObject);
 var i:integer;
     DR:TDirName;
@@ -7693,7 +7722,8 @@ if CBoxDLBuild.Checked then
         GaussLinesToGrid;
         end;
       dB_dV_Fun(VaxFile,VaxGraph,SpinEditDL.Value,LabIsc.Caption,CBoxRCons.Checked);
-     str:='dB/dV';
+//     str:='dB/dV';
+      str:=CBDLFunction.Items[CBDLFunction.ItemIndex];
     end;
 ShowGraph(Form1,str);
 end;
@@ -8845,12 +8875,12 @@ end;
 
 Procedure GaussLinesToGrid;
 {виведення параметрів гаусіан у таблицю}
- Function Eg(T:double):double;
-  {обчислення ширина забороненої зони кремнію
-  при температурі Т}
-  begin
-    Result:=1.169-7.021e-4*T*T/(T+1108);
-  end;
+// Function Eg(T:double):double;
+//  {обчислення ширина забороненої зони кремнію
+//  при температурі Т}
+//  begin
+//    Result:=1.169-7.021e-4*T*T/(T+1108);
+//  end;
 var i:integer;
     sq:double;
 begin
@@ -8867,8 +8897,24 @@ begin
                        IntToStr(i);
     Form1.SGridGaussian.Cells[1,Form1.SGridGaussian.RowCount-4]:=
                        FloatToStrF(GausLinesCur[i].B,ffFixed,3,2);
+    if (Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='dRnp/dV')
+      or(Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)')
+      then
     Form1.SGridGaussian.Cells[2,Form1.SGridGaussian.RowCount-4]:=
-      FloatToStrF((Eg(VaxFile.T)-GausLinesCur[i].B)/2,ffFixed,3,2);
+      FloatToStrF((DiodPN.LayerP.Material.EgT(VaxFile.T)-GausLinesCur[i].B)/2
+            +3*Kb*VaxFile.T/4
+            *ln(DiodPN.LayerP.Material.Me/DiodPN.LayerP.Material.Mh)
+            -Kb*VaxFile.T*ln(2),   ffFixed,3,2)
+      else
+    Form1.SGridGaussian.Cells[2,Form1.SGridGaussian.RowCount-4]:=
+      FloatToStrF((DiodPN.LayerP.Material.EgT(VaxFile.T)-GausLinesCur[i].B)/2
+            +3*Kb*VaxFile.T/4
+            *ln(DiodPN.LayerP.Material.Me/DiodPN.LayerP.Material.Mh),
+                   ffFixed,3,2);
+
+//    Form1.SGridGaussian.Cells[2,Form1.SGridGaussian.RowCount-4]:=
+//      FloatToStrF((Eg(VaxFile.T)-GausLinesCur[i].B)/2,ffFixed,3,2);
+
     Form1.SGridGaussian.Cells[3,Form1.SGridGaussian.RowCount-4]:=
                        FloatToStrF(GausLinesCur[i].C,ffExponent,3,2);
     Form1.SGridGaussian.Cells[4,Form1.SGridGaussian.RowCount-4]:=
@@ -9436,6 +9482,190 @@ F.SetValueGR;
 F.Free;
 end;
 
+Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;
+{дані в А апроксимуються відповідно до FitName,
+в В - результат апроксимації при тих же абсцисах,
+при невдачі - результат False}
+ var j:integer;
+begin
+  Result:=False;
+  FunCreate(FitName,Fit);
+  try
+   Fit.Fitting(A,EvolParam);
+   if EvolParam[0]=ErResult then Exit;
+   IVchar(A,B);
+   for j:=0 to High(A^.X) do
+     B^.Y[j]:=Fit.FinalFunc(A^.X[j],EvolParam);
+  finally
+   Fit.Free;
+  end;
+  Result:=True;
+end;
+
+
+Function Rnp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
+{по даним у векторі А будує в В залежність
+приведеної швидкості рекомбінації (див. Булярського)
+безпосередньо самі математичні перетворювання
+без підготовчих операцій
+fun - кількість зглажувань
+якщо все добре - повертається True}
+  var i:integer;
+begin
+  Result:=True;
+  B^.SetLenVector(A^.n);
+  try
+    for I := 0 to High(A^.X) do
+     begin
+       B^.X[i]:=A^.X[i];
+       B^.Y[i]:=DiodPN.Rnp(A^.T,A^.X[i],A^.Y[i]);
+     end;
+  except
+    Result:=False;
+  end;
+end;
+
+Function dRnp_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
+{по даним у векторі А будує в В залежність
+похідної приведеної швидкості рекомбінації (див. Булярського)
+безпосередньо самі математичні перетворювання
+без підготовчих операцій
+fun - кількість зглажувань
+якщо все добре - повертається True}
+  var j:integer;
+      temp:PVector;
+begin
+  Result:=False;
+  if not(Rnp_Build(A,B,fun)) then Exit;
+  new(temp);
+  Diferen (B,temp);
+  for j:=1 to fun do SmoothingA(temp);
+  temp^.CopyLimitedX(B^,0{.038},temp^.X[High(temp^.X)]{-0.04});
+  dispose(temp);
+  Result:=True;
+end;
+
+
+Function Rnp2_exp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
+{по даним у векторі А будує в В залежність
+функції L(V) (див. Булярського, ФТП, 1998, т.32, с.1193)
+безпосередньо самі математичні перетворювання
+без підготовчих операцій
+fun - кількість зглажувань
+якщо все добре - повертається True}
+  var j:integer;
+//      temp:PVector;
+begin
+  Result:=False;
+  if not(Rnp_Build(A,B,fun)) then Exit;
+  for j := 0 to High(B^.X) do
+    B^.Y[j]:=sqr(B^.Y[j])/exp(B^.X[j]/2/Kb/A^.T);
+  for j:=1 to fun do SmoothingA(B);
+  Result:=True;
+end;
+
+Function Gamma_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
+{по даним у векторі А будує в В залежність
+функції gamm(V) (див. Булярського, Письма в ЖТФ, 1999, т.25, №5, с.22)
+правильніше - 1/gamma, тому що в теорії положенню
+рівнів відповідає мінімум функції gamma,
+а я хотів дивитись тільки на максимуми
+безпосередньо самі математичні перетворювання
+без підготовчих операцій
+fun - кількість зглажувань
+якщо все добре - повертається True}
+  var j:integer;
+      temp:PVector;
+begin
+  Result:=False;
+  new(temp);
+  if not(dRnp_dV_Build(A,temp,fun)) then Exit;
+  if not(Rnp_Build(A,B,fun)) then Exit;
+  for j := 0 to High(B^.X) do
+//    temp^.Y[j]:=temp^.Y[j]/B^.Y[j]*2*Kb*A^.T;
+    temp^.Y[j]:=1/(temp^.Y[j]/B^.Y[j]*2*Kb*A^.T);
+
+  temp^.CopyLimitedX(B^,0.038,temp^.X[High(temp^.X)]-0.04);
+  dispose(temp);
+  Result:=True;
+end;
+
+
+Function dB_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
+{по даним у векторі А будує в В залежність похідної
+диференційного нахилу ВАХ від напруги (метод Булярського) -
+безпосередньо самі математичні перетворювання
+без підготовчих операцій
+fun - кількість зглажувань
+якщо все добре - повертається True}
+ var temp:PVector;
+     kT:double;
+     j:integer;
+//     A_apr,B_apr:Pvector;
+//     EvPar:TArrSingle;
+begin
+  Result:=False;
+
+////******************************
+//  new(A_apr);
+//  FunCreate(Form1.LabIsc.Caption,Fit);
+//  try
+//   Fit.Fitting(A,EvolParam);
+//   if EvolParam[0]=ErResult then Exit;
+//   SetLength(EvPar,High(EvolParam)+1);
+//   for j := 0 to High(EvPar) do
+//       if Fit.Xname[j]='Rs' then EvPar[j]:=0
+//         else if Fit.Xname[j]='Rsh' then EvPar[j]:=1e12
+//           else EvPar[j]:=EvolParam[j];
+//   SetLenVector(A_apr,A^.n);
+//
+//   for j:=0 to High(A^.X) do
+//     A_apr^.Y[j]:=Fit.FinalFunc(A^.X[j],EvolParam)-Fit.FinalFunc(A^.X[j],EvPar);
+//  finally
+//   Fit.Free;
+//  end;
+//  A^.DeltaY(A_apr^);
+//  dispose(A_apr);
+////*****************************
+  Diferen (A,B);
+  if B^.n=0 then Exit;
+
+  kT:=A^.T*Kb;
+  for j:=0 to High(B^.X) do
+        B^.Y[j]:=1/B^.Y[j]*A^.Y[j]/kT;
+
+  ForwardIV(B);
+
+////*************************
+//      new(A_apr);
+//       if not(FuncFitting(A,A_apr,Form1.LabIsc.Caption)) then
+//         begin
+//
+//         end;
+//      new(B_apr);
+//      Diferen (A_apr,B_apr);
+//
+//
+//      kT:=A_apr^.T*Kb;
+//      for j:=0 to High(B_apr^.X) do
+//            B_apr^.Y[j]:=1/B_apr^.Y[j]*A_apr^.Y[j]/kT;
+//
+//      ForwardIV(B_apr);
+//
+//      dispose(A_apr);
+//      B.DeltaY(B_apr^);
+//     dispose(B_apr);
+////*************************
+
+  for j:=1 to fun do SmoothingA(B);
+
+  new(temp);
+  Diferen (B,temp);
+  temp^.CopyLimitedX(B^,0.038,temp^.X[High(temp^.X)]-0.04);
+
+  dispose(temp);
+  Result:=True;
+end;
 
 
 Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
@@ -9447,13 +9677,44 @@ Rbool=true - потрібно враховувати послідовний
 та шунтуючі опори;
 FitName - назва функції, якв буде використовуватись
 для апроксимації}
+   Procedure Rs_Modification(InitPoint:Pvector; var FunctionPoint:Pvector;
+                             Action:TFunCorrection);
+        {модифікація точок, отриманих з InitPoint в FunctionPoint
+        за допомогою Action, яка полягає в тому, що враховується значення
+        послідовного та шунтуючого опорів }
+      var A_apr,B_apr:Pvector;
+    begin
+      new(A_apr);
+       if not(FuncFitting(InitPoint,A_apr,FitName)) then
+         begin
+           dispose(A_apr);
+           Exit;
+         end;
+      new(B_apr);
+      if not(Action(A_apr,B_apr,fun)) then
+         begin
+         dispose(A_apr);
+         dispose(B_apr);
+         Exit;
+         end;
+      dispose(A_apr);
+      FunctionPoint.DeltaY(B_apr^);
+     dispose(B_apr);
+    end;
 
-var j,id:integer;
-    temp,A_apr,{temp_apr,}B_apr,Alim:Pvector;
-    tsingle:double;
+
+var
+    Alim:Pvector;
     Light:boolean;
     Diap:TDiapazon;
+    Action:TFunCorrection;
 begin
+  Action:=dB_dV_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='Rnp' then  Action:=Rnp_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='dRnp/dV' then  Action:=dRnp_dV_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Action:=Rnp2_exp_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Action:=Gamma_Build;
+
   Light:=false;
   Diap:=D[diDE];
 
@@ -9472,7 +9733,6 @@ begin
      (FitName= FuncName[13])
               then Diap:=D[diLam];
 
- B^.n:=0;
  new(Alim);
  A_B_Diapazon(A,Alim,Diap,Light);
 
@@ -9483,110 +9743,17 @@ begin
      Exit;
      end;
 
-  new(temp);
-  IVchar(Alim,temp);
 
-  Diferen (temp,B);
 
- if B^.n=0 then
-           begin
-            dispose(temp);
-            dispose(Alim);
-            Exit;
-          end;
-
- tsingle:=Alim^.T*Kb;
- for j:=0 to High(B^.X) do
-        B^.Y[j]:=1/B^.Y[j]*Alim^.Y[j]/tsingle;
-
- ForwardIV(B,temp);
- IVchar(temp,B);
-
- for j:=1 to fun do
-  begin
-   Smoothing (B,temp);
-   IVchar(temp,B);
-  end;
-
- Diferen (B,temp);
-
- id:=0;
- for j:=0 to High(temp^.X) do
-        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then id:=id+1;
- if id<1 then
+  if not(Action(Alim,B,fun)) then
      begin
-       B^.n:=0;
-       dispose(temp);
-       dispose(Alim);
-       Exit;
+     dispose(Alim);
+     Exit;
      end;
+  if Rbool then Rs_Modification(Alim,B,Action);
 
- SetLenVector(B,id);
-
- id:=0;
- for j:=0 to High(temp^.X) do
-        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then
-         begin
-          B^.X[id]:=temp^.X[j];
-          B^.Y[id]:=temp^.Y[j];
-          id:=id+1;
-         end;
-
- dispose(temp);
-//--------------------------------------------
-
-if Rbool then
-  begin
-  FunCreate(FitName,Fit);
-  Fit.Fitting(Alim,EvolParam);
-  if EvolParam[0]=ErResult then
-          begin
-            dispose(Alim);
-            Exit;
-          end;
-  new(A_apr);
-  new(temp);
-  IVchar(Alim,A_apr);
-  for j:=0 to High(Alim^.X) do
-     A_apr^.Y[j]:=Fit.FinalFunc(Alim^.X[j],EvolParam);
-
-  Fit.Free;
-  IVchar(A_apr,temp);
-  new(B_apr);
-  Diferen (temp,B_apr);
-
-  for j:=0 to High(B_apr^.X) do
-      B_apr^.Y[j]:=1/B_apr^.Y[j]*A_apr^.Y[j]/tsingle;
-  dispose(A_apr);
-
-  ForwardIV(B_apr,temp);
-  IVchar(temp,B_apr);
-
-  for j:=1 to fun do
-   begin
-     Smoothing (B_apr,temp);
-     IVchar(temp,B_apr);
-   end;
- Diferen (B_apr,temp);
-
- SetLenVector(B_apr,B^.n);
- id:=0;
- for j:=0 to High(temp^.X) do
-        if (temp^.X[j]>0.038)and(temp^.X[j]<(temp^.X[High(temp^.X)]-0.04)) then
-         begin
-          B_apr^.X[id]:=temp^.X[j];
-          B_apr^.Y[id]:=temp^.Y[j];
-          id:=id+1;
-         end;
-  for j := 0 to High(B^.X) do
-    B^.Y[j]:=B^.Y[j]-B_apr^.Y[j];
-
- dispose(temp);
- dispose(B_apr);
- end;  //if Rbool then
-
+  
   dispose(Alim);
-// if (Rbool)and(Light) then DataFileWrite('rez.dat',A,EvolParam);
 end;
 
 end.

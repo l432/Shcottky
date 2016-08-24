@@ -69,6 +69,10 @@ type
          ординат вектора, то повертається ErResult}
          Procedure Copy (var Target:Vector);
          {копіюються поля з даного вектора в Target}
+         Procedure CopyLimitedX (var Target:Vector;Xmin,Xmax:double);
+         {копіюються з даного вектора в Target
+         - точки, для яких ордината в діапазоні від Xmin до Xmax включно
+         - поля Т та name}
          Procedure PositiveX(var Target:Vector);
          {заносить в Target ті точки, для яких X більше або рівне нулю;
          окрім X, Y та n ніякі інші поля Target не змінюються}
@@ -84,6 +88,11 @@ type
          Procedure Write_File(sfile:string; NumberDigit:Byte=4);
         {записує у файл з іменем sfile дані з масивів X та Y;
         якщо n=0, то запис не відбувається; NumberDigit - кількість значущих цифр}
+         Procedure DeltaY(deltaVector:Vector);
+         {від значень Y віднімаються значення deltaVector.Y;
+          якщо кількості точок різні - ніяких дій не відбувається}
+         Procedure Clear();
+         {просто зануляється кількість точок, інших операцій не проводиться}
         end;
 
     PVector=^Vector;
@@ -662,6 +671,17 @@ begin
   Target.N_end:=N_end;
 end;
 
+Procedure Vector.CopyLimitedX (var Target:Vector;Xmin,Xmax:double);
+ var i:integer;
+begin
+  Target.Clear;
+  Target.T:=T;
+  Target.name:=name;
+  for I := 0 to High(X) do
+    if (X[i]>=Xmin)and(X[i]<=Xmax) then
+       Target.Add(X[i],Y[i])
+end;
+
 Procedure Vector.PositiveX(var Target:Vector);
  var i:integer;
 begin
@@ -710,6 +730,20 @@ begin
   Str.SaveToFile(sfile);
   Str.Free;
 end;
+
+Procedure Vector.DeltaY(deltaVector:Vector);
+ var i:integer;
+begin
+ if High(X)<>High(deltaVector.X) then Exit;
+ for i := 0 to High(X) do
+        Y[i]:=Y[i]-deltaVector.Y[i];
+end;
+
+Procedure Vector.Clear();
+begin
+  SetLenVector(0);
+end;
+
 
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;

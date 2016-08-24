@@ -4,8 +4,10 @@ interface
  uses OlegType, Dialogs, SysUtils, Math, Classes;
 
 Type FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
-//     TFun_IV=Function(V,E,I0:double;I:double=0;Rs:double=0):double;
      TFun_IV=Function(Argument:double;Parameters:array of double;Key:double):double;
+     TFunCorrection=Function (A:Pvector; var B:Pvector; fun:byte=0):boolean;
+     {функція для перетворення даних в Pvector, зокрема використовується в диференціальних
+     методах аналізу ВАХ}
 
      
 Procedure Swap (var A:integer; var B:integer); overload;
@@ -232,6 +234,7 @@ Procedure Smoothing (A:Pvector; var B:PVector);
 які визначаються розподілом Гауса з дисперсією 0.6;
 якщо у вихідному масиві кількість точок менша трьох,
 то у результуючому буде нульова кількість}
+
 
 Procedure Median (A:Pvector; var B:PVector);
 {в В розміщується результат дії на дані в А
@@ -1966,6 +1969,9 @@ B^.x[High(B^.X)]:=A^.x[High(B^.X)];
 B^.y[0]:=(W1*A^.y[0]+W2*A^.y[1])/(W1+W2);
 B^.y[High(B^.X)]:=(W1*A^.y[High(B^.X)]+W0*A^.y[High(B^.X)-1])/(W1+W0);
 end;
+
+
+
 
 Function MedianFiltr(a,b,c:double):double;
 {повертає середнє за величиною з трьох чисел a, b, c}

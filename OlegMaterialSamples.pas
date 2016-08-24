@@ -1066,8 +1066,10 @@ begin
  Diod_PN:=Dpn;
  LayerNShow:=TMaterialLayerShow.Create(Diod_PN.LayerN,
                        CBNTn,STDataNdN,STCaptionNdN);
+ LayerNShow.MaterialLayer.fIsNType:=True;
  LayerPShow:=TMaterialLayerShow.Create(Diod_PN.LayerP,
                        CBNTp,STDataNdP,STCaptionNdP);
+ LayerPShow.MaterialLayer.fIsNType:=False;
  LayerNShow.NdShow.STCaption.Caption:='Electron density, m^(-3):';
  LayerPShow.NdShow.STCaption.Caption:='Hole concentration, m^(-3):';
  LayerNShow.CBNType.OnClick:=nil;

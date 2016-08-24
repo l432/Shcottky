@@ -37,9 +37,15 @@ Procedure LogY(A:Pvector; var B:Pvector);
 {записує з A в B тільки ті точки, для яких
 координата Y більше нуля}
 
-Procedure ForwardIV(A:Pvector; var B:Pvector);
+Procedure ForwardIV(A:Pvector; var B:Pvector);overload;
 {записує з A в B тільки ті точки, які відповідають
 прямій ділянці ВАХ (для яких координата X більше нуля)}
+Procedure ForwardIV(var A:Pvector);overload;
+{в А залишаються тільки ті точки, які відповідають
+прямій ділянці ВАХ (для яких координата X більше нуля)}
+
+Procedure SmoothingA (var A:PVector);
+{в В розміщується сглажена функція - див. Smoothing}
 
 Procedure ReverseIV(A:Pvector; var B:Pvector);
 {записує з A в B тільки ті точки, які відповідають
@@ -856,11 +862,38 @@ begin
 
 end;
 
-Procedure ForwardIV(A:Pvector; var B:Pvector);
+Procedure ForwardIV(A:Pvector; var B:Pvector);overload;
 {записує з A в B тільки ті точки, які відповідають
 прямій ділянці ВАХ (для яких координата X більше нуля)}
 begin
   LogX(A,B);
+end;
+
+Procedure ForwardIV(var A:Pvector);overload;
+{в А залишаються тільки ті точки, які відповідають
+прямій ділянці ВАХ (для яких координата X більше нуля)}
+ var temp:PVector;
+begin
+  new(temp);
+  try
+   ForwardIV(A,temp);
+   IVchar(temp,A);
+  finally
+   dispose(temp);
+  end;
+end;
+
+Procedure SmoothingA (var A:PVector);
+{в В розміщується сглажена функція - див. Smoothing}
+ var temp:PVector;
+begin
+  new(temp);
+  try
+   Smoothing(A,temp);
+   IVchar(temp,A);
+  finally
+   dispose(temp);
+  end;
 end;
 
 Procedure ReverseIV(A:Pvector; var B:Pvector);
