@@ -826,6 +826,7 @@ TDoubleDiod=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
+// Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
 public
  Constructor Create;
 end; // TDoubleDiodo=class (TFitFunctEvolution)
@@ -4384,11 +4385,42 @@ begin
 // ReadFromIniFile();
 end;
 
+//Function TDoubleDiod.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
+// var i:integer;
+//     tempI:PVector;
+//begin
+//  Result:=0;
+//  new(tempI);
+//  tempI.SetLenVector(InputData^.n);
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       fX:=InputData^.X[i];
+//       fY:=InputData^.Y[i];
+//       tempI.Y[i]:=Func(OutputData);
+//       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+//     end;
+//  for I := 0 to High(InputData^.X)-1 do
+//   begin
+//        if tempI.X[i]*tempI.X[i+1]<0 then
+//         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+//                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+//                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
+//                                     else
+//         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+//                        (tempI.X[i]+tempI.X[i+1]));
+//    end;
+//  dispose(tempI);
+//end;
+
 Function TDoubleDiod.Func(Parameters:TArrSingle):double;
 begin
  Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
        +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
        +(fX-fY*Parameters[1])/Parameters[3];
+// Result:=Full_IV(IV_DiodDouble,fX,[Parameters[0]*Kb*FVariab[0],
+//                 Parameters[1],Parameters[2],
+//                 Parameters[4]*Kb*FVariab[0],Parameters[5]],
+//                 Parameters[3],0);
 end;
 
 Function TDoubleDiod.RealFunc(DeterminedParameters:TArrSingle):double;
