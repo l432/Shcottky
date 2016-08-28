@@ -26,6 +26,115 @@ const
            'Tunneling diod rewers', 'Barrier height');
   Voc_min=0.0002;
   Isc_min=1e-11;
+weig:array[0..51]of double=(
+0.05481,
+0.06415,
+0.05905,
+0.05057,
+0.03789,
+0.02366,
+0.01205,
+0.00378,
+1.21673E-4,
+0.00226,
+0.00765,
+0.01546,
+0.02404,
+0.03231,
+0.04046,
+0.04579,
+0.0486,
+0.04983,
+0.04848,
+0.04439,
+0.03932,
+0.03251,
+0.03117,
+0.02168,
+0.01559,
+0.0094,
+0.00508,
+0.0018,
+2.33587E-4,
+8.4803E-5,
+0.00119,
+0.00367,
+0.00748,
+0.01144,
+0.01589,
+0.01587,
+0.01892,
+0.02079,
+0.01877,
+0.01442,
+0.01023,
+0.00705,
+0.00261,
+3.79731E-4,
+1.42552E-4,
+0.0023,
+0.00527,
+0.00689,
+0.00555,
+0.00344,
+2.45136E-5,
+0.00548
+
+//0.13547,
+//0.14401,
+//0.13407,
+//0.11963,
+//0.09908,
+//0.07537,
+//0.05372,
+//0.03447,
+//0.01937,
+//0.00693,
+//0.00201,
+//5.80011E-5,
+//5.67209E-4,
+//0.00251,
+//0.00539,
+//0.00816,
+//0.01028,
+//0.01208,
+//0.01285,
+//0.01254,
+//0.01167,
+//0.01001,
+//0.01038,
+//0.00752,
+//0.00565,
+//0.00355,
+//0.00206,
+//8.49858E-4,
+//2.04822E-4,
+//4.35799E-7,
+//1.76477E-4,
+//7.65055E-4,
+//0.00185,
+//0.00297,
+//0.00438,
+//0.00409,
+//0.00523,
+//0.00613,
+//0.0058,
+//0.00458,
+//0.00354,
+//0.00312,
+//0.00169,
+//8.20084E-4,
+//2.57948E-4,
+//1.23721E-5,
+//3.82087E-4,
+//9.91405E-4,
+//0.00162,
+//0.00315,
+//0.00358,
+//0.00442
+
+);
+
 
 type
 
@@ -827,6 +936,8 @@ private
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
 // Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+// Function Summand(OutputData:TArrSingle):double;override;
+// Function Weight(OutputData:TArrSingle):double;override;
 public
  Constructor Create;
 end; // TDoubleDiodo=class (TFitFunctEvolution)
@@ -4382,7 +4493,6 @@ begin
  FXname[5]:='Io2';
  fSampleIsRequired:=False;
  CreateFooter();
-// ReadFromIniFile();
 end;
 
 //Function TDoubleDiod.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
@@ -4390,26 +4500,54 @@ end;
 //     tempI:PVector;
 //begin
 //  Result:=0;
-//  new(tempI);
-//  tempI.SetLenVector(InputData^.n);
-//  for I := 0 to High(InputData^.X) do
+//
+//    for I := 0 to High(InputData^.X) do
 //     begin
 //       fX:=InputData^.X[i];
 //       fY:=InputData^.Y[i];
-//       tempI.Y[i]:=Func(OutputData);
-//       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+//       Result:=Result+Summand(OutputData)/Weight(OutputData);//*weig[i];
 //     end;
-//  for I := 0 to High(InputData^.X)-1 do
-//   begin
-//        if tempI.X[i]*tempI.X[i+1]<0 then
-//         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
-//                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
-//                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
-//                                     else
-//         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
-//                        (tempI.X[i]+tempI.X[i+1]));
-//    end;
-//  dispose(tempI);
+//
+////  new(tempI);
+////  tempI.SetLenVector(InputData^.n);
+////  for I := 0 to High(InputData^.X) do
+////     begin
+////       fX:=InputData^.X[i];
+////       fY:=InputData^.Y[i];
+////       tempI.Y[i]:=Func(OutputData);
+////       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+////     end;
+////  for I := 0 to High(InputData^.X)-1 do
+////   begin
+////        if tempI.X[i]*tempI.X[i+1]<0 then
+////         Result:=Result+sqr((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+////                         abs(tempI.X[i+1]-tempI.X[i])/(InputData^.Y[i+1]-InputData^.Y[i]))*weig[i]
+//////                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
+////                                     else
+////         Result:=Result+sqr((tempI.X[i]+tempI.X[i+1])/(InputData^.Y[i+1]-InputData^.Y[i]))*weig[i];
+////
+////
+//////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+//////                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+//////                         abs(tempI.X[i+1]-tempI.X[i]))
+////////                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
+//////                                     else
+//////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+//////                        (tempI.X[i]+tempI.X[i+1]));
+////    end;
+////  dispose(tempI);
+//end;
+//
+//Function TDoubleDiod.Summand(OutputData:TArrSingle):double;
+//begin
+// Result:=abs(Power((Func(OutputData)-fY),2));
+//// Result:=exp(Power((Func(OutputData)-fY)/fY,2))
+//end;
+//
+//Function TDoubleDiod.Weight(OutputData:TArrSingle):double;
+//begin
+//// Result:=1;
+// Result:=abs(Power(fY,2));
 //end;
 
 Function TDoubleDiod.Func(Parameters:TArrSingle):double;
@@ -4425,8 +4563,6 @@ end;
 
 Function TDoubleDiod.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
-// Result:=Full_IV_2Exp(fX,DeterminedParameters[0]*Kb*FVariab[0],DeterminedParameters[4]*Kb*FVariab[0],
-//    DeterminedParameters[1],DeterminedParameters[2],DeterminedParameters[5],DeterminedParameters[3],0);
  Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0]*Kb*FVariab[0],
                  DeterminedParameters[1],DeterminedParameters[2],
                  DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5]],
