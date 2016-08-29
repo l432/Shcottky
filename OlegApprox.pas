@@ -946,6 +946,11 @@ TDoubleDiodLight=class (TFitFunctEvolution)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]
          +(V-IRs)/Rsh-Iph}
 private
+//******************
+ Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+ Function Summand(OutputData:TArrSingle):double;override;
+
+//****************
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;override;
@@ -4600,12 +4605,98 @@ begin
   FXname[12]:='Im';
 end;
 
+Function TDoubleDiodLight.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
+ var i:integer;
+     tempI,sum:PVector;
+begin
+  Result:=0;
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       fX:=InputData^.X[i];
+//       fY:=InputData^.Y[i];
+//       Result:=Result+sqr(Summand(OutputData))/Weight(OutputData);
+//     end;
+
+  new(tempI);
+  tempI.SetLenVector(InputData^.n);
+  for I := 0 to High(InputData^.X) do
+     begin
+       fX:=InputData^.X[i];
+       fY:=InputData^.Y[i];
+       tempI.Y[i]:=Func(OutputData);
+       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+     end;
+
+  new(sum);
+  sum.SetLenVector(High(tempI^.X));
+  for I := 0 to High(sum.X) do
+      if tempI.X[i]*tempI.X[i+1]<0 then
+   begin
+     sum.X[i]:=sqr((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+                         abs(tempI.X[i+1]-tempI.X[i])/(InputData^.Y[i+1]-InputData^.Y[i]));
+     sum.Y[i]:=abs((InputData^.X[i+1]-InputData^.X[i])/2*
+                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+                         abs(tempI.X[i+1]-tempI.X[i]));
+   end                              else
+   begin
+     sum.X[i]:=sqr((tempI.X[i]+tempI.X[i+1])/(InputData^.Y[i+1]-InputData^.Y[i]));
+     sum.Y[i]:=abs((InputData^.X[i+1]-InputData^.X[i])/2*
+                        (tempI.X[i]+tempI.X[i+1]));
+   end;
+
+//  for I := 0 to High(sum.X) do
+//      Result:=Result+
+//             sqr(sum.X[i]);
+//             abs((sum.X[i]*sum.Y[i])*
+//             sqr((tempI.Y[i+1]-InputData^.Y[i+1])/(InputData^.Y[i+1]{+OutputData[6]})));
+
+  for I := 0 to High(tempI.X) do
+      Result:=Result+
+               sqr((tempI.Y[i]-InputData^.Y[i])/(InputData^.Y[i]+OutputData[6]));
+  dispose(sum);
+
+//  for I := 0 to High(InputData^.X)-1 do
+//   begin
+//        if tempI.X[i]*tempI.X[i+1]<0 then
+//
+//         Result:=Result+sqr((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+//                         abs(tempI.X[i+1]-tempI.X[i])/(InputData^.Y[i+1]-InputData^.Y[i]))//*weig[i]
+//                                     else
+//         Result:=Result+sqr((tempI.X[i]+tempI.X[i+1])/(InputData^.Y[i+1]-InputData^.Y[i]));//*weig[i];
+//
+//
+////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+////                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+////                         abs(tempI.X[i+1]-tempI.X[i]))
+//////                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
+////                                     else
+////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+////                        (tempI.X[i]+tempI.X[i+1]));
+//    end;
+  dispose(tempI);
+
+end;
+
+Function TDoubleDiodLight.Summand(OutputData:TArrSingle):double;
+begin
+ Result:=Func(OutputData)-fY;
+end;
+
+Function TDoubleDiodLight.Weight(OutputData:TArrSingle):double;
+begin
+ Result:=sqr(fY+OutputData[6]);
+// Result:=sqr(OutputData[6]);
+end;
+
 Function TDoubleDiodLight.Func(Parameters:TArrSingle):double;
 begin
   Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
         +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
         +(fX-fY*Parameters[1])/Parameters[3]-Parameters[6];
 end;
+
+
+
 
 Function TDoubleDiodLight.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
@@ -4619,10 +4710,6 @@ begin
                  DeterminedParameters[3],DeterminedParameters[6]);
 end;
 
-Function TDoubleDiodLight.Weight(OutputData:TArrSingle):double;
-begin
- Result:=sqr(fY+OutputData[6]);
-end;
 
 procedure TDoubleDiodLight.AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle);

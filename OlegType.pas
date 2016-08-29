@@ -67,6 +67,9 @@ type
           ординатою Xvalue;
           якщо Xvalue не належить діапазону зміни
          ординат вектора, то повертається ErResult}
+         Function SumX:double;
+         Function SumY:double;
+         {повертаються суми елементів масивів X та Y відповідно}
          Procedure Copy (var Target:Vector);
          {копіюються поля з даного вектора в Target}
          Procedure CopyLimitedX (var Target:Vector;Xmin,Xmax:double);
@@ -612,6 +615,22 @@ begin
     Result:=ErResult
          else
     Result:=Y[MinElemNumber(Y)];
+end;
+
+Function Vector.SumX:double;
+ var i:integer;
+begin
+ Result:=0;
+ for I := 0 to High(X) do
+   Result:=Result+X[i]
+end;
+
+Function Vector.SumY:double;
+ var i:integer;
+begin
+ Result:=0;
+ for I := 0 to High(Y) do
+   Result:=Result+Y[i]
 end;
 
 Function Vector.Xvalue(Yvalue:double):double;
