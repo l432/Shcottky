@@ -341,6 +341,19 @@ Data[3] - E2
 Data[4] - Ι02
 }
 
+Function IV_DiodTriple(V:double;Data:array of double;I:double=0):double;
+{I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1]
++I03*[exp(q(V-I Rs)/E3)-1])
+Data[0] - Ε1
+Data[1] - Rs
+Data[2] - Ι01
+Data[3] - E2
+Data[4] - Ι02
+Data[5] - E3
+Data[6] - Ι03
+}
+
+
 //Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
 //Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
 Function Full_IV(F:TFun_IV;V:double;Data:array of double;Rsh:double=1e12;Iph:double=0):double;
@@ -423,6 +436,13 @@ Function Brailsford(T,w:double;Parameters:TArrSingle):double;
  Parameters[0] - A;
  Parameters[1] - B;
  Parameters[2] - E}
+
+Function Trapezoid(x1,x2,y1,y2:double):double;
+{повертає площу трапеції, побудовану
+між точками (х1,у1), (х2,у2) та
+горизонтальною віссю;
+якщо х1 та х2 мають різний знак -
+сумарну плошу відповідних трикутників}
 
 implementation
 
@@ -2420,7 +2440,24 @@ begin
                      Data[4]*(exp((V-I*Data[1])/Data[3])-1);
 end;
 
-
+Function IV_DiodTriple(V:double;Data:array of double;I:double=0):double;
+{I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])
+Data[0] - Ε1
+Data[1] - Rs
+Data[2] - Ι01
+Data[3] - E2
+Data[4] - Ι02
+Data[5] - E3
+Data[6] - Ι03
+}
+begin
+ if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)+
+                     Data[4]*(exp(V/Data[3])-1)+
+                     Data[6]*(exp(V/Data[5])-1)
+        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)+
+                     Data[4]*(exp((V-I*Data[1])/Data[3])-1)+
+                     Data[6]*(exp((V-I*Data[1])/Data[5])-1);
+end;
 
 //Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
 //Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
@@ -2920,6 +2957,14 @@ begin
  if (T<=0)or(w<=0)or(High(Parameters)<>2) then Exit;
  d:=Parameters[1]*w*exp(Parameters[2]/Kb/T);
  Result:=Parameters[0]*w/T*d/(1+sqr(d));
+end;
+
+Function Trapezoid(x1,x2,y1,y2:double):double;
+begin
+ if y1*y2<0 then
+ Result:=abs((x2-x2)*(sqr(y1)+sqr(y2))/(y2-y1)/2)
+            else
+ Result:=abs((x2-x1)*(y1+y2)/2);
 end;
 
 end.

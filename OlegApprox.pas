@@ -8,7 +8,7 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..43]of string=
+  FuncName:array[0..45]of string=
            ('None','Linear','Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
@@ -23,117 +23,10 @@ const
            'PAT and TE on 1/kT','PAT and TE on V',
            'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
            'Tunneling diod forward','Illuminated tunneling diod',
-           'Tunneling diod rewers', 'Barrier height');
+           'Tunneling diod rewers', 'Barrier height',
+           'T-Diod','Photo T-Diod');
   Voc_min=0.0002;
   Isc_min=1e-11;
-weig:array[0..51]of double=(
-0.05481,
-0.06415,
-0.05905,
-0.05057,
-0.03789,
-0.02366,
-0.01205,
-0.00378,
-1.21673E-4,
-0.00226,
-0.00765,
-0.01546,
-0.02404,
-0.03231,
-0.04046,
-0.04579,
-0.0486,
-0.04983,
-0.04848,
-0.04439,
-0.03932,
-0.03251,
-0.03117,
-0.02168,
-0.01559,
-0.0094,
-0.00508,
-0.0018,
-2.33587E-4,
-8.4803E-5,
-0.00119,
-0.00367,
-0.00748,
-0.01144,
-0.01589,
-0.01587,
-0.01892,
-0.02079,
-0.01877,
-0.01442,
-0.01023,
-0.00705,
-0.00261,
-3.79731E-4,
-1.42552E-4,
-0.0023,
-0.00527,
-0.00689,
-0.00555,
-0.00344,
-2.45136E-5,
-0.00548
-
-//0.13547,
-//0.14401,
-//0.13407,
-//0.11963,
-//0.09908,
-//0.07537,
-//0.05372,
-//0.03447,
-//0.01937,
-//0.00693,
-//0.00201,
-//5.80011E-5,
-//5.67209E-4,
-//0.00251,
-//0.00539,
-//0.00816,
-//0.01028,
-//0.01208,
-//0.01285,
-//0.01254,
-//0.01167,
-//0.01001,
-//0.01038,
-//0.00752,
-//0.00565,
-//0.00355,
-//0.00206,
-//8.49858E-4,
-//2.04822E-4,
-//4.35799E-7,
-//1.76477E-4,
-//7.65055E-4,
-//0.00185,
-//0.00297,
-//0.00438,
-//0.00409,
-//0.00523,
-//0.00613,
-//0.0058,
-//0.00458,
-//0.00354,
-//0.00312,
-//0.00169,
-//8.20084E-4,
-//2.57948E-4,
-//1.23721E-5,
-//3.82087E-4,
-//9.91405E-4,
-//0.00162,
-//0.00315,
-//0.00358,
-//0.00442
-
-);
 
 
 type
@@ -948,8 +841,6 @@ TDoubleDiodLight=class (TFitFunctEvolution)
 private
 //******************
  Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
- Function Summand(OutputData:TArrSingle):double;override;
-
 //****************
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
@@ -960,6 +851,32 @@ private
 public
  Constructor Create;
 end; // TDoubleDiodLight=class (TFitFunctEvolution)
+
+TTripleDiod=class (TFitFunctEvolution)
+{I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+
+    I03[exp((V-IRs)/n3kT)-1]+(V-IRs)/Rsh}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function RealFunc(DeterminedParameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; // TTripleDiod=class (TFitFunctEvolution)
+
+TTripleDiodLight=class (TFitFunctEvolution)
+{I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]
+          I03[exp((V-IRs)/n3kT)-1]
+         +(V-IRs)/Rsh-Iph}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function RealFunc(DeterminedParameters:TArrSingle):double; override;
+ Function Weight(OutputData:TArrSingle):double;override;
+ Procedure AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle); override;
+ Procedure CreateFooter;override;
+public
+ Constructor Create;
+end; // TTripleDiodLight=class (TFitFunctEvolution)
+
 
 TNGausian=class (TFitFunctEvolution)
 private
@@ -4506,31 +4423,32 @@ end;
 //begin
 //  Result:=0;
 //
-//    for I := 0 to High(InputData^.X) do
-//     begin
-//       fX:=InputData^.X[i];
-//       fY:=InputData^.Y[i];
-//       Result:=Result+Summand(OutputData)/Weight(OutputData);//*weig[i];
-//     end;
-//
-////  new(tempI);
-////  tempI.SetLenVector(InputData^.n);
-////  for I := 0 to High(InputData^.X) do
+////    for I := 0 to High(InputData^.X) do
 ////     begin
 ////       fX:=InputData^.X[i];
 ////       fY:=InputData^.Y[i];
-////       tempI.Y[i]:=Func(OutputData);
-////       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+////       Result:=Result+sqr(Summand(OutputData))/Weight(OutputData);//*weig[i];
 ////     end;
-////  for I := 0 to High(InputData^.X)-1 do
-////   begin
-////        if tempI.X[i]*tempI.X[i+1]<0 then
-////         Result:=Result+sqr((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
-////                         abs(tempI.X[i+1]-tempI.X[i])/(InputData^.Y[i+1]-InputData^.Y[i]))*weig[i]
-//////                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
-////                                     else
-////         Result:=Result+sqr((tempI.X[i]+tempI.X[i+1])/(InputData^.Y[i+1]-InputData^.Y[i]))*weig[i];
-////
+//
+//  new(tempI);
+//  tempI.SetLenVector(InputData^.n);
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       fX:=InputData^.X[i];
+//       fY:=InputData^.Y[i];
+//       tempI.Y[i]:=Func(OutputData);
+//       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+//     end;
+//  for I := 0 to High(InputData^.X)-1 do
+//   begin
+//        if tempI.X[i]*tempI.X[i+1]<0 then
+//         Result:=Result+abs((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+//                  abs(tempI.X[i+1]-tempI.X[i])
+//                  /(InputData^.Y[i+1]-InputData^.Y[i]))
+//                                     else
+//         Result:=Result+abs((tempI.X[i]+tempI.X[i+1])
+//                   /(InputData^.Y[i+1]-InputData^.Y[i]));
+//
 ////
 //////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
 //////                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
@@ -4539,8 +4457,8 @@ end;
 //////                                     else
 //////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
 //////                        (tempI.X[i]+tempI.X[i+1]));
-////    end;
-////  dispose(tempI);
+//    end;
+//  dispose(tempI);
 //end;
 //
 //Function TDoubleDiod.Summand(OutputData:TArrSingle):double;
@@ -4585,10 +4503,6 @@ begin
  FXname[4]:='n2';
  FXname[5]:='Io2';
  FXname[6]:='Iph';
-// FXname[7]:='Voc';
-// FXname[8]:='Isc';
-// FXname[9]:='Pm';
-// FXname[10]:='FF';
  fYminDontUsed:=True;
  CreateFooter();
 // ReadFromIniFile();
@@ -4632,27 +4546,30 @@ begin
   for I := 0 to High(sum.X) do
       if tempI.X[i]*tempI.X[i+1]<0 then
    begin
-     sum.X[i]:=sqr((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
-                         abs(tempI.X[i+1]-tempI.X[i])/(InputData^.Y[i+1]-InputData^.Y[i]));
+     sum.X[i]:=abs((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+                   abs(tempI.X[i+1]-tempI.X[i])/
+                   (InputData^.Y[i+1]-InputData^.Y[i]));
      sum.Y[i]:=abs((InputData^.X[i+1]-InputData^.X[i])/2*
                          (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
-                         abs(tempI.X[i+1]-tempI.X[i]));
+                         (tempI.X[i+1]-tempI.X[i]));
    end                              else
    begin
-     sum.X[i]:=sqr((tempI.X[i]+tempI.X[i+1])/(InputData^.Y[i+1]-InputData^.Y[i]));
+     sum.X[i]:=abs((tempI.X[i]+tempI.X[i+1])/
+                   (InputData^.Y[i+1]-InputData^.Y[i]));
+
      sum.Y[i]:=abs((InputData^.X[i+1]-InputData^.X[i])/2*
                         (tempI.X[i]+tempI.X[i+1]));
    end;
 
 //  for I := 0 to High(sum.X) do
 //      Result:=Result+
-//             sqr(sum.X[i]);
+//             (sum.X[i]);
 //             abs((sum.X[i]*sum.Y[i])*
-//             sqr((tempI.Y[i+1]-InputData^.Y[i+1])/(InputData^.Y[i+1]{+OutputData[6]})));
 
   for I := 0 to High(tempI.X) do
       Result:=Result+
-               sqr((tempI.Y[i]-InputData^.Y[i])/(InputData^.Y[i]+OutputData[6]));
+       sqr((tempI.Y[i]-InputData^.Y[i])/(InputData^.Y[i]));
+//               sqr(((tempI.Y[i]-InputData^.Y[i])/(InputData^.Y[i]+OutputData[6])));
   dispose(sum);
 
 //  for I := 0 to High(InputData^.X)-1 do
@@ -4675,11 +4592,6 @@ begin
 //    end;
   dispose(tempI);
 
-end;
-
-Function TDoubleDiodLight.Summand(OutputData:TArrSingle):double;
-begin
- Result:=Func(OutputData)-fY;
 end;
 
 Function TDoubleDiodLight.Weight(OutputData:TArrSingle):double;
@@ -4768,6 +4680,147 @@ begin
      OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
     end;
 end;
+
+Constructor TTripleDiod.Create;
+begin
+ inherited Create('TripleDiod','Triple diod fitting of solar cell I-V',
+                  8,1,0);
+ FXname[0]:='n1';
+ FXname[1]:='Rs';
+ FXname[2]:='Io1';
+ FXname[3]:='Rsh';
+ FXname[4]:='n2';
+ FXname[5]:='Io2';
+ FXname[6]:='Io3';
+ FXname[7]:='n3';
+ fHasPicture:=False;
+ fSampleIsRequired:=False;
+ CreateFooter();
+end;
+
+
+Function TTripleDiod.Func(Parameters:TArrSingle):double;
+begin
+ Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
+       +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
+       +Parameters[6]*(exp((fX-fY*Parameters[1])/(Parameters[7]*Kb*FVariab[0]))-1)
+       +(fX-fY*Parameters[1])/Parameters[3];
+end;
+
+Function TTripleDiod.RealFunc(DeterminedParameters:TArrSingle):double;
+begin
+ Result:=Full_IV(IV_DiodTriple,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+                 DeterminedParameters[1],DeterminedParameters[2],
+                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5],
+                 DeterminedParameters[7]*Kb*FVariab[0],DeterminedParameters[6]],
+                 DeterminedParameters[3],0);
+end;
+
+
+Constructor TTripleDiodLight.Create;
+begin
+ inherited Create('TripleDiodLight','Triple diod fitting of lightened solar cell I-V',
+                  9,1,6);
+ FXname[0]:='n1';
+ FXname[1]:='Rs';
+ FXname[2]:='Io1';
+ FXname[3]:='Rsh';
+ FXname[4]:='n2';
+ FXname[5]:='Io2';
+ FXname[6]:='Iph';
+ FXname[7]:='Io3';
+ FXname[8]:='n3';
+ fHasPicture:=False;
+ fYminDontUsed:=True;
+ CreateFooter();
+// ReadFromIniFile();
+end;
+
+Procedure TTripleDiodLight.CreateFooter;
+begin
+  inherited;
+  FXname[9]:='Voc';
+  FXname[10]:='Isc';
+  FXname[11]:='Pm';
+  FXname[12]:='FF';
+  FXname[13]:='Vm';
+  FXname[14]:='Im';
+end;
+
+
+Function TTripleDiodLight.Weight(OutputData:TArrSingle):double;
+begin
+ Result:=sqr(fY+OutputData[6]);
+// Result:=sqr(OutputData[6]);
+end;
+
+Function TTripleDiodLight.Func(Parameters:TArrSingle):double;
+begin
+  Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
+        +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
+        +Parameters[7]*(exp((fX-fY*Parameters[1])/(Parameters[8]*Kb*FVariab[0]))-1)
+        +(fX-fY*Parameters[1])/Parameters[3]-Parameters[6];
+end;
+
+
+Function TTripleDiodLight.RealFunc(DeterminedParameters:TArrSingle):double;
+begin
+ Result:=Full_IV(IV_DiodTriple,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+                 DeterminedParameters[1],DeterminedParameters[2],
+                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5],
+                 DeterminedParameters[8]*Kb*FVariab[0],DeterminedParameters[7]],
+                 DeterminedParameters[3],DeterminedParameters[6]);
+end;
+
+
+procedure TTripleDiodLight.AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle);
+begin
+  inherited;
+  OutputData[FNx]:=ErResult;
+  OutputData[FNx+1]:=ErResult;
+  OutputData[FNx+2]:=ErResult;
+  OutputData[FNx+3]:=ErResult;
+  OutputData[FNx+4]:=ErResult;
+  OutputData[FNx+5]:=ErResult;
+  if (OutputData[6]>Isc_min) then
+    begin
+     OutputData[9]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTriple,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                      OutputData[5],OutputData[8],OutputData[7]],
+                                      OutputData[3],OutputData[6]);
+     OutputData[10]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTriple,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                      OutputData[5],OutputData[8],OutputData[7]],
+                                      OutputData[3],OutputData[6]);
+    end;
+  if (OutputData[FNx]>Voc_min)and
+     (OutputData[FNx+1]>Isc_min)and
+     (OutputData[FNx]<>ErResult)and
+     (OutputData[FNx+1]<>ErResult) then
+    begin
+     OutputData[11]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTriple,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                      OutputData[5],OutputData[8],OutputData[7]],
+                                      OutputData[3],OutputData[6]);
+     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,IV_DiodTriple,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                      OutputData[5],OutputData[8],OutputData[7]],
+                                      OutputData[3],OutputData[6]);
+     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,IV_DiodTriple,
+                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+                                      OutputData[5],OutputData[8],OutputData[7]],
+                                      OutputData[3],OutputData[6]);
+     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+    end;
+end;
+
+
 
 Constructor TNGausian.Create(NGaus:byte);
  var i:byte;
@@ -5731,7 +5784,8 @@ begin
   if str='Illuminated tunneling diod' then F:=TPhotoDiodTun.Create;
   if str='Tunneling diod rewers' then F:=TTunRevers.Create;
   if str='Barrier height' then F:=TBarierHeigh.Create;
-
+  if str='Photo T-Diod' then F:=TTripleDiodLight.Create;
+  if str='T-Diod' then F:=TTripleDiod.Create;
 //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
