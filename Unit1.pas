@@ -5846,6 +5846,9 @@ procedure TForm1.Button1Click(Sender: TObject);
 //    ip:integer;
 //    SigV,SigI,StepV,StepI,SigVMax,SigIMax:double;
 //    z,x,W,L0,z_max,x_Max,Fb0,Vn,Del,x0,Pot,Del2,x02,L02:double;
+ var comment,dat:TStringList;
+    name:string;
+    T,V,I:double;
  begin
 //------------------------------------------------------------
 // Patch();
@@ -5878,7 +5881,36 @@ procedure TForm1.Button1Click(Sender: TObject);
 //TemperIdAve(Ilim:double);
 //-----------------------------------
 //Sample3();
-Sample2();
+//Sample2();
+
+
+
+  dat:=TStringList.Create;
+  comment:=TStringList.Create;
+  T:=300;
+     name:='T'+inttostr(round(T))+'l.dat';
+     V:=0;
+     dat.Clear;
+     repeat
+         V:=V+0.01;
+         I:=Full_IV(IV_DiodDouble,V,[Kb*T,0.5,3e-11,2.8*Kb*T,5e-6],1e11,1.85e-4);
+
+         if (abs(I)>=1e-10) then
+           begin
+             dat.Add(FloatToStrF(V,ffExponent,4,0)+' '+
+                  FloatToStrF(I,ffExponent,4,0));
+           end;
+         if I>2e-2 then Break;
+     until false;
+     dat.SaveToFile(CurDirectory+'\'+name);
+     comment.Add(name);
+     comment.Add('T='+FloatToStrF(T,ffgeneral,4,1));
+     comment.Add('');
+
+  comment.SaveToFile(CurDirectory+'\'+'comments');
+  comment.Free;
+  dat.Free;
+
 
 end;
 

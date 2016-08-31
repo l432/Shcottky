@@ -444,6 +444,10 @@ Function Trapezoid(x1,x2,y1,y2:double):double;
 якщо х1 та х2 мають різний знак -
 сумарну плошу відповідних трикутників}
 
+Function V721A_ErrorI_DC(I:double):Double;
+{визначення відносної похибки вимірювання сили постійного струму
+вольтметром В7-21А залежно від виміряної величини}
+
 implementation
 
 procedure Swap(var A:integer; var B:integer);  overload;
@@ -2966,5 +2970,38 @@ begin
             else
  Result:=abs((x2-x1)*(y1+y2)/2);
 end;
+
+Function V721A_ErrorI_DC(I:double):Double;
+  function CalculError(Ilimit:double):double;
+  {формула з опису приладу}
+   begin
+    if Ilimit=1e-3 then
+       begin
+        if abs(I)<Ilimit then  Result:=(0.08+0.03*(Ilimit/abs(I)-1))*0.01
+                         else  Result:=0.0008;
+        Exit;
+       end;
+    if abs(I)<Ilimit then  Result:=(0.1+0.04*(Ilimit/abs(I)-1))*0.01
+                     else  Result:=0.001;
+   end;
+var
+  j:integer;
+begin
+  if I=0 then
+   begin
+     Result:=0.4;
+     Exit;
+   end;
+
+  for j := -7 to 1 do
+    if abs(I)<1.2*Power(10,j) then
+      begin
+       Result:=CalculError(Power(10,j));
+       Exit;
+      end;
+
+  Result:=ErResult;
+end;
+
 
 end.
