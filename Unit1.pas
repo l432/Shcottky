@@ -843,6 +843,7 @@ type
     CBMaterialP: TComboBox;
     CBDLFunction: TComboBox;
     STDLFunction: TStaticText;
+    CBBaseAuto: TCheckBox;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -9524,7 +9525,11 @@ begin
   FunCreate(FitName,Fit);
   try
    Fit.Fitting(A,EvolParam);
-   if EvolParam[0]=ErResult then Exit;
+   if EvolParam[0]=ErResult then
+     begin
+      Fit.Free;
+      Exit;
+     end;
    IVchar(A,B);
    for j:=0 to High(A^.X) do
      B^.Y[j]:=Fit.FinalFunc(A^.X[j],EvolParam);
@@ -9533,6 +9538,39 @@ begin
   end;
   Result:=True;
 end;
+
+Function RsRshIphModification(var A:Pvector;FitName:string):boolean;
+{дані в А модифікуються таким чином, щоб не лишилося
+впливів послідовного та шунтуючого опорів та
+фотоструму}
+ var j:integer;
+     EP:TArrSingle;
+begin
+  Result:=False;
+  FunCreate(FitName,Fit);
+  try
+   Fit.Fitting(A,EvolParam);
+   if EvolParam[0]=ErResult then
+     begin
+      Fit.Free;
+      Exit;
+     end;
+   SetLength(EP,High(EvolParam)+1);
+   for j := 0 to High(EP) do
+       if Fit.Xname[j]='Rs' then EP[j]:=0
+         else if Fit.Xname[j]='Rsh' then EP[j]:=1e12
+           else if Fit.Xname[j]='Iph' then EP[j]:=0
+             else EP[j]:=EvolParam[j];
+   for j:=0 to High(A^.X) do
+     A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(A^.X[j],EvolParam)
+                     +Fit.FinalFunc(A^.X[j],EP);
+  finally
+   Fit.Free;
+  end;
+  Result:=True;
+end;
+
+
 
 
 Function Rnp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
@@ -9734,6 +9772,17 @@ FitName - назва функції, якв буде використовуватись
      dispose(B_apr);
     end;
 
+   Procedure BaseAdd(A:PVector);
+    var Atemp:PVector;
+        i:integer;
+   begin
+    new(Atemp);
+    IVchar(A,Atemp);
+    for i:=0 to 9 do SmoothingA(Atemp);
+    A.DeltaY(Atemp^);
+    dispose(Atemp);
+   end; 
+
 
 var
     Alim:Pvector;
@@ -9775,6 +9824,8 @@ begin
      Exit;
      end;
 
+ if Form1.CBoxRCons.Checked then
+     RsRshIphModification(Alim,FitName);
 
 
   if not(Action(Alim,B,fun)) then
@@ -9782,7 +9833,10 @@ begin
      dispose(Alim);
      Exit;
      end;
-  if Rbool then Rs_Modification(Alim,B,Action);
+ if Form1.CBBaseAuto.Checked then
+   BaseAdd(B);
+ 
+ //  if Rbool then Rs_Modification(Alim,B,Action);
 
   
   dispose(Alim);

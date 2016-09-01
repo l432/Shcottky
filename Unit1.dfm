@@ -7287,25 +7287,25 @@ object Form1: TForm1
         object LSmoothDL: TLabel
           Tag = 56
           Left = 85
-          Top = 20
+          Top = 15
           Width = 50
           Height = 14
           Caption = 'Smoothing'
         end
         object LabRCons: TLabel
           Tag = 56
-          Left = 118
-          Top = 44
-          Width = 66
-          Height = 28
-          Caption = 'Resistances '#1057'onsideration'
+          Left = 120
+          Top = 39
+          Width = 58
+          Height = 14
+          Caption = 'Rs, Rsh, Isc'
           WordWrap = True
           OnClick = LabRConsClick
         end
         object SpinEditDL: TSpinEdit
           Tag = 56
           Left = 141
-          Top = 15
+          Top = 10
           Width = 41
           Height = 23
           TabStop = False
@@ -7330,8 +7330,8 @@ object Form1: TForm1
         end
         object CBoxRCons: TCheckBox
           Tag = 56
-          Left = 98
-          Top = 48
+          Left = 99
+          Top = 37
           Width = 13
           Height = 17
           TabOrder = 2
@@ -7357,6 +7357,15 @@ object Form1: TForm1
           Enabled = False
           TabOrder = 4
           OnClick = ButFitOptionClick
+        end
+        object CBBaseAuto: TCheckBox
+          Left = 99
+          Top = 55
+          Width = 97
+          Height = 17
+          Caption = 'Auto Base'
+          TabOrder = 5
+          OnClick = CBoxDLBuildClick
         end
       end
       object CBoxDLBuild: TCheckBox
