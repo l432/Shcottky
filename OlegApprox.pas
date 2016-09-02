@@ -401,7 +401,8 @@ private
  fSampleIsRequired:boolean;
  {якщо у функції дані про зразок не використовується,
  необхідно для спадкоємців у Сreate поставити цю змінну в False}
- FSample:TDiod_Schottky;
+ FSample: TDiodMaterial;
+// FSample:TDiod_Schottky;
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure FIsNotReadyDetermination;override;
@@ -1967,7 +1968,7 @@ begin
        FIsNotReady:=True;
        Exit;
      end;
-   if (FSample.Area=ErResult)or(FSample.Semiconductor.ARich=ErResult) then FIsNotReady:=True;
+   if (FSample.Area=ErResult)or((FSample as TDiod_Schottky).Semiconductor.ARich=ErResult) then FIsNotReady:=True;
   end;
 end;
 
@@ -1991,7 +1992,7 @@ end;
 Procedure TExponent.RealFitting (InputData:PVector;
          var OutputData:TArrSingle);
 begin
-   ExKalk(InputData,FSample,OutputData[1],OutputData[0],OutputData[2],FVariab[0]);
+   ExKalk(InputData,(FSample as TDiod_Schottky),OutputData[1],OutputData[0],OutputData[2],FVariab[0]);
 end;
 
 
@@ -2014,23 +2015,23 @@ Function TIvanov.FinalFunc(var X:double;DeterminedParameters:TArrSingle):double;
  var Vd,x0:double;
 begin
   x0:=X;
-  Vd:=DeterminedParameters[1]*sqrt(2*Qelem*FSample.Semiconductor.Nd*FSample.Semiconductor.Material.Eps/Eps0)*
+  Vd:=DeterminedParameters[1]*sqrt(2*Qelem*(FSample as TDiod_Schottky).Semiconductor.Nd*(FSample as TDiod_Schottky).Semiconductor.Material.Eps/Eps0)*
     (sqrt(DeterminedParameters[0])-sqrt(DeterminedParameters[0]-x0));
   X:=Vd+x0;
-  Result:=FSample.I0(FVariab[0],DeterminedParameters[0])*exp(x0/Kb/FVariab[0]);
+  Result:=(FSample as TDiod_Schottky).I0(FVariab[0],DeterminedParameters[0])*exp(x0/Kb/FVariab[0]);
 end;
 
 Procedure TIvanov.FIsNotReadyDetermination;
 begin
  inherited FIsNotReadyDetermination;
- if (FSample.Semiconductor.Material.Eps=ErResult)or(FSample.Semiconductor.Nd=ErResult) then FIsNotReady:=True;
+ if ((FSample as TDiod_Schottky).Semiconductor.Material.Eps=ErResult)or((FSample as TDiod_Schottky).Semiconductor.Nd=ErResult) then FIsNotReady:=True;
 end;
 
 
 Procedure TIvanov.RealFitting (InputData:PVector;
                        var OutputData:TArrSingle);
 begin
-   IvanovAprox(InputData, FSample, OutputData[1],OutputData[0],FVariab[0]);
+   IvanovAprox(InputData, (FSample as TDiod_Schottky), OutputData[1],OutputData[0],FVariab[0]);
 end;
 
 Procedure TIvanov.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
@@ -2341,7 +2342,10 @@ begin
   if (fIsDiod and(fNaddX=2) and (FNx>3)) then
 //   begin
 //     FXname[FNx]:='Fb';
-     OutputData[FNx]:=FSample.Fb(FVariab[0],OutputData[2]);
+     if (FSample is TDiod_Schottky) then
+      OutputData[FNx]:=(FSample as TDiod_Schottky).Fb(FVariab[0],OutputData[2])
+                                    else
+      OutputData[FNx]:=0;
 //   end;
 
   if (fIsPhotoDiod and (fNaddX=5) and (FNx>4)) then
@@ -4115,12 +4119,12 @@ begin
 //                 1e12,Parameters[4]);
 
  V:=fX;//-fY*Parameters[3];
- F:=sqrt(Qelem*FSample.Semiconductor.Nd*(Parameters[2]+V)/2/FSample.Semiconductor.Material.Eps/Eps0);
+ F:=sqrt(Qelem*(FSample as TDiod_Schottky).Semiconductor.Nd*(Parameters[2]+V)/2/(FSample as TDiod_Schottky).Semiconductor.Material.Eps/Eps0);
 // Result:=F*V*Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
 //                           Power(Qelem*Parameters[1],1.5)/
 //                           (3*Qelem*Hpl*F))+Parameters[3];
 
- Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*FSample.Semiconductor.Meff*m0)*
+ Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*(FSample as TDiod_Schottky).Semiconductor.Meff*m0)*
                            Power(Qelem*Parameters[1],1.5)/
                            (3*Qelem*Hpl*F))+Parameters[3];
 
@@ -4343,8 +4347,8 @@ Function TDGaus.Func(Parameters:TArrSingle):double;
  var temp:double;
 begin
  temp:=Kb*fX;
- Result:=-temp*ln(Parameters[0]*exp(-FSample.Semiconductor.Material.Varshni(Parameters[1],fX)/temp+sqr(Parameters[2])/2/sqr(temp))+
-   (1-Parameters[0])*exp(-FSample.Semiconductor.Material.Varshni(Parameters[3],fX)/temp+sqr(Parameters[4])/2/sqr(temp)));
+ Result:=-temp*ln(Parameters[0]*exp(-(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(Parameters[1],fX)/temp+sqr(Parameters[2])/2/sqr(temp))+
+   (1-Parameters[0])*exp(-(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(Parameters[3],fX)/temp+sqr(Parameters[4])/2/sqr(temp)));
 end;
 
 Function TDGaus.Weight(OutputData:TArrSingle):double;
@@ -4368,10 +4372,10 @@ end;
 Function TLinEg.Func(Parameters:TArrSingle):double;
  var Fb,Vbb:double;
 begin
- Fb:=FSample.Semiconductor.Material.Varshni(Parameters[2],fX);
- Vbb:=Fb-FSample.Vbi(fX);
- Result:=Fb-Parameters[0]*Power(Vbb/FSample.nu,1.0/3.0)-
-        Kb*fX*ln(Parameters[0]*Parameters[1]*4*3.14*Kb*fX/9*Power(FSample.nu/Vbb,2.0/3.0));
+ Fb:=(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(Parameters[2],fX);
+ Vbb:=Fb-(FSample as TDiod_Schottky).Vbi(fX);
+ Result:=Fb-Parameters[0]*Power(Vbb/(FSample as TDiod_Schottky).nu,1.0/3.0)-
+        Kb*fX*ln(Parameters[0]*Parameters[1]*4*3.14*Kb*fX/9*Power((FSample as TDiod_Schottky).nu/Vbb,2.0/3.0));
 end;
 
 Function TLinEg.Weight(OutputData:TArrSingle):double;
@@ -5109,8 +5113,8 @@ end;
 Procedure TFitFunctEvolutionEm.BeforeFitness(InputData:Pvector);
 begin
  inherited BeforeFitness(InputData);
- F2:=2/FSample.nu;
- F1:=FSample.Semiconductor.Material.Varshni(FVariab[1],FVariab[0])-FSample.Vbi(FVariab[0]);
+ F2:=2/(FSample as TDiod_Schottky).nu;
+ F1:=(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(FVariab[1],FVariab[0])-(FSample as TDiod_Schottky).Vbi(FVariab[0]);
  fkT:=Kb*FVariab[0];
 end;
 
@@ -5118,9 +5122,9 @@ Procedure TFitFunctEvolutionEm.FIsNotReadyDetermination;
 begin
  inherited FIsNotReadyDetermination;
  if FIsNotReady then  Exit;
- if (FSample.Semiconductor.Nd=ErResult)or
-    (FSample.Semiconductor.Material.VarshA=ErResult)or
-    (FSample.Semiconductor.Material.VarshB=ErResult)
+ if ((FSample as TDiod_Schottky).Semiconductor.Nd=ErResult)or
+    ((FSample as TDiod_Schottky).Semiconductor.Material.VarshA=ErResult)or
+    ((FSample as TDiod_Schottky).Semiconductor.Material.VarshB=ErResult)
                    then FIsNotReady:=True;
 end;
 
@@ -5135,8 +5139,8 @@ begin
   kT:=Kb*T;
 //  Result:=Seff*FSample.Em(T,FVariab[1],V)*Power(T,-2.33)*FSample.I0(T,FVariab[1])*
 //    exp(A*sqrt(FSample.Em(T,FVariab[1],V))/kT)*(1-exp(-V/kT));
-  Result:=Seff*FSample.I0(T,FVariab[1])*
-    exp(A*FSample.Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
+  Result:=Seff*(FSample as TDiod_Schottky).I0(T,FVariab[1])*
+    exp(A*(FSample as TDiod_Schottky).Em(T,FVariab[1],V)/kT)*(1-exp(-V/kT));
 end;
 
 Procedure TFitFunctEvolutionEm.CreateFooter;
@@ -5166,8 +5170,8 @@ begin
   begin
    FXname[High(FXname)-1]:='Em';
    OutputData[High(OutputData)-1]:=
-     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0])+
-        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0]));
+     0.5*((FSample as TDiod_Schottky).Em(InputData^.X[0],FVariab[1],FVariab[0])+
+        (FSample as TDiod_Schottky).Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0]));
   end;
 end;
 
@@ -5365,7 +5369,7 @@ begin
  FVarName[3]:='hw';
  FVarManualDefinedOnly[2]:=True;
  FVarManualDefinedOnly[3]:=True;
- fmeff:=m0*FSample.Semiconductor.Meff;
+ fmeff:=m0*(FSample as TDiod_Schottky).Semiconductor.Meff;
 end;
 
 
@@ -5377,7 +5381,7 @@ end;
 Function TPhonAsTun.PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
 //var g,gam,gam1,qE,Et:double;
 begin
- Result:=PAT(FSample,V,kT1,FVariab[1],FVariab[2],FVariab[3],Parameters[1],Parameters[0]);
+ Result:=PAT((FSample as TDiod_Schottky),V,kT1,FVariab[1],FVariab[2],FVariab[3],Parameters[1],Parameters[0]);
 //  Result:=ErResult;
 //  if kT1<=0 then Exit;
 //  qE:=Qelem*FSample.Em(1/(kT1*Kb),FVariab[1],V);
@@ -5556,7 +5560,7 @@ end;
 
 Function TPhonAsTunAndTE2_kT1.Sum1(Parameters:TArrSingle):double;
 begin
-  Result:=PAT(FSample,FVariab[0],fX,Parameters[3],FVariab[2],FVariab[3],
+  Result:=PAT((FSample as TDiod_Schottky),FVariab[0],fX,Parameters[3],FVariab[2],FVariab[3],
               Parameters[1],Parameters[0]);
 //  Result:=PhonAsTun(FVariab[0],fX,Parameters);
 end;
@@ -5568,8 +5572,8 @@ begin
  inherited AddParDetermination(InputData,OutputData);
    OutputData[High(OutputData)-1]:=
 //     FSample.Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]);
-      0.5*(FSample.Em(1/(InputData^.X[0]*Kb),OutputData[3],FVariab[0])+
-        FSample.Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]));
+      0.5*((FSample as TDiod_Schottky).Em(1/(InputData^.X[0]*Kb),OutputData[3],FVariab[0])+
+        (FSample as TDiod_Schottky).Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]));
    OutputData[High(OutputData)-2]:=FVariab[0]/FVariab[1];
 //     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0],FVariab[4])+
 //        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0],FVariab[4]));
@@ -5578,7 +5582,7 @@ end;
 Function TPhonAsTunAndTE2_kT1.Sum2(Parameters:TArrSingle):double;
 begin
 Result:=RevZrizFun(fx,2,Parameters[2],
-     FSample.Semiconductor.Material.Varshni(Parameters[3],1/Kb/fx))*
+     (FSample as TDiod_Schottky).Semiconductor.Material.Varshni(Parameters[3],1/Kb/fx))*
      (1-exp(-FVariab[0]*fx));
 //  Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
 end;

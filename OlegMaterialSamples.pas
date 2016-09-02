@@ -236,11 +236,14 @@ type
       private
        FLayerN:TMaterialLayer;
        FLayerP:TMaterialLayer;
+       function GetNd():double;
       public
        Constructor Create;
        procedure Free;
        property LayerN:TMaterialLayer read FLayerN write FLayerN;
        property LayerP:TMaterialLayer read FLayerP write FLayerP;
+       property Nd:double read GetNd;
+       {рівень легування для шару з більшим опором}
        procedure ReadFromIniFile(ConfigFile:TIniFile); override;
        procedure WriteToIniFile(ConfigFile:TIniFile);override;
        function Vdif(T:double;V:double=0):double;
@@ -250,6 +253,9 @@ type
        function Rnp(T,V,I:double):double;
        {приведена швидкість рекомбінації, []=c^-1
        I - струм через діод}
+       function n_i(T:double):double;
+       {концентрація власних носіїв
+       у шару з більшим опором}
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -343,7 +349,7 @@ begin
  if Eg0=ErResult then Exit;
  if Name='Si' then
       begin
-       Result:=1.64e20*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
+       Result:=1.64e21*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
        Exit;
       end;
  if (Mh=ErResult)or(Me=ErResult) then Exit;
@@ -991,6 +997,22 @@ begin
  FLayerN.Free;
  FLayerP.Free;
  inherited Free;
+end;
+
+function TDiod_PN.GetNd: double;
+begin
+  if FLayerN.Nd>FLayerP.Nd then
+    Result:=FLayerP.Nd
+                           else
+   Result:=FLayerN.Nd;
+end;
+
+function TDiod_PN.n_i(T: double): double;
+begin
+  if FLayerN.Nd>FLayerP.Nd then
+    Result:=FLayerP.Material.n_i(T)
+                           else
+   Result:=FLayerN.Material.n_i(T);
 end;
 
 procedure TDiod_PN.ReadFromIniFile(ConfigFile: TIniFile);
