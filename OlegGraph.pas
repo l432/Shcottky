@@ -548,7 +548,7 @@ Procedure VectorToGraph(A:PVector;Series:TLineSeries);
 Procedure GraphToVector(Series:TLineSeries;A:PVector);
 {заносить дані з Series в A, заповнюються лише масиви Х та Y координат}
 
-Procedure GraphAverage (Lines: array of TLineSeries; delX:double=0.002;
+Procedure GraphAverage (Lines: array of TLineSeries; Minus:boolean=False;delX:double=0.002;
                          NumLines:integer=0; shiftX:double=0.002);
 {зсувається графік, що знаходиться
 в елементі масиву з номером  NumLines,
@@ -610,6 +610,9 @@ I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
 Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
 
 implementation
+
+uses
+  Math;
 
 Procedure Read_File (sfile:string; var a:Pvector);
 var F:TextFile;
@@ -3353,7 +3356,8 @@ for I := 0 to High(A^.X) do
      end;
 end;
 
-Procedure GraphAverage (Lines: array of TLineSeries; delX:double=0.002;
+Procedure GraphAverage (Lines: array of TLineSeries;Minus:boolean=False;
+                         delX:double=0.002;
                          NumLines:integer=0; shiftX:double=0.002);
 {зсувається графік, що знаходиться
 в елементі масиву з номером  NumLines,
@@ -3402,7 +3406,9 @@ try
   repeat
     y:=0;
     for i:= 0 to High(VectorArr) do
-      y:=y+ChisloY(VectorArr[i],x);
+      if Minus then y:=y+Power(-1,i)*ChisloY(VectorArr[i],x)
+               else y:=y+ChisloY(VectorArr[i],x);
+
     Lines[0].AddXY(x,y/(High(VectorArr)+1));
     x:=x+delX;
   until x>Xmax;

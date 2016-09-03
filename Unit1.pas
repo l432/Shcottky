@@ -910,7 +910,7 @@ type
     procedure TrackPanAChange(Sender: TObject);
     procedure RButBaseLineClick(Sender: TObject);
     procedure ButBaseLineResetClick(Sender: TObject);
-    procedure CBoxGLShowClick(Sender: TObject);
+    procedure CBoxGLShowClickGaus(Sender: TObject);
     procedure SGridGaussianDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure RButGaussianLinesClick(Sender: TObject);
@@ -1613,16 +1613,6 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
    begin
     D[DP]:=TDiapazon.Create;
     D[Dp].ReadFromIniFile(ConfigFile,'Diapaz',GetEnumName(TypeInfo(TDiapazons),ord(DP)));
-//    D[DP].XMin:=ConfigFile.ReadFloat('Diapaz',
-//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMin',0.001);
-//    D[DP].YMin:=ConfigFile.ReadFloat('Diapaz',
-//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' YMin',0);
-//    D[DP].XMax:=ConfigFile.ReadFloat('Diapaz',
-//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',ErResult);
-//    D[DP].YMax:=ConfigFile.ReadFloat('Diapaz',
-//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',ErResult);
-//    D[DP].Br:=ConfigFile.ReadString('Diapaz',
-//        GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Br','F')[1];
    end;
   if D[diEx].XMin<0.06 then D[diEx].XMin:=0.07;
   if D[diIvan].XMin<0.06 then D[diIvan].XMin:=0.07;
@@ -1831,15 +1821,10 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   SGMarker.Cells[1,0]:='File';
   SGMarker.Cells[2,0]:='Voltage';
   SGMarker.Cells[3,0]:='Current';
-//  SGridGaussian.Cells[0,0]:='N';
-//  SGridGaussian.Cells[1,0]:='U0';
-//  SGridGaussian.Cells[2,0]:='Et';
-//  SGridGaussian.Cells[3,0]:='Deviation';
-//  SGridGaussian.Cells[4,0]:='Max Value';
-//  SGridGaussian.Cells[5,0]:='Quota';
 
-  RBGausSelect.Checked:=ConfigFile.ReadBool('Approx','SelectGaus',True);
-  RBAveSelect.Checked:=not(RBGausSelect.Checked);
+
+//  RBGausSelect.Checked:=ConfigFile.ReadBool('Approx','SelectGaus',True);
+//  RBAveSelect.Checked:=not(RBGausSelect.Checked);
 
 
   Graph.LeftAxis.Automatic:=true;
@@ -1854,8 +1839,14 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   DirName.Caption:='';
   ButVoltDel.Enabled:=False;
 
+//    RBGausSelect.Checked:=ConfigFile.ReadBool('Approx','SelectGaus',True);
+//  RBAveSelect.Checked:=not(RBGausSelect.Checked);
+
   {щоб на вкладку DeepLevel, якщо вона відкривається, перекинути елементи}
   if PageControl1.ActivePageIndex=3 then PageControl1Change(Sender);
+
+  RBGausSelect.Checked:=ConfigFile.ReadBool('Approx','SelectGaus',True);
+  RBAveSelect.Checked:=not(RBGausSelect.Checked);
 
   DLParamPassive;
 //  ConfigFile.Free;
@@ -2203,7 +2194,7 @@ begin
 
           if SEGauss.Value<>0 then GausLines[SEGauss.Value].SeriesColor:=clNavy;
           GausLines[High(GausLines)].SeriesColor:=clBlue;
-          GraphAverage(GausLines);
+          GraphAverage(GausLines,CBoxGLShow.Checked);
           GausLines[High(GausLines)].ParentChart:=Graph;
           GausLines[High(GausLines)].Active:=True;
           SEGauss.MaxValue:=High(GausLines);
@@ -2540,12 +2531,18 @@ end;
 procedure TForm1.RBAveSelectClick(Sender: TObject);
 var i:integer;
 begin
+
 if RBAveSelect.Checked then
  begin
    ButGLLoad.Visible:=False;
    ButGLRes.Visible:=False;
-   CBoxGLShow.Visible:=False;
+//   CBoxGLShow.Visible:=False;
+
+   CBoxGLShow.Caption:='Minus';
+
+   CBoxGLShow.OnClick:=CBoxGLShowClick;
    CBoxGLShow.Checked:=False;
+
 
    GausLinesSave;
    GausLinesFree;
@@ -2565,12 +2562,18 @@ if RBAveSelect.Checked then
 
    GraphShow(Form1);
    ButGLAdd.Enabled:=True;
+   CBoxGLShow.Enabled:=True;
+   CBoxGLShow.Tag:=0;
  end
                        else
  begin
    ButGLLoad.Visible:=True;
    ButGLRes.Visible:=True;
-   CBoxGLShow.Visible:=True;
+   CBoxGLShow.Caption:='Show';
+   CBoxGLShow.Checked:=False;
+   CBoxGLShow.OnClick:=CBoxGLShowClickGaus;
+   CBoxGLShow.Tag:=56;
+//   CBoxGLShow.Visible:=True;
 
    SGridGaussian.ColCount:=6;
    SGridGaussian.RowCount:=4;
@@ -2909,9 +2912,9 @@ procedure TForm1.ButAveLeftClick(Sender: TObject);
 begin
   GaussLinesToGraph(False);
   if(Sender is TButton)and((Sender as TButton).Caption='<')
-      then  GraphAverage(GausLines,0.002,SEGauss.Value,-0.002);
+      then  GraphAverage(GausLines,CBoxGLShow.Checked, 0.002,SEGauss.Value,-0.002);
   if(Sender is TButton)and((Sender as TButton).Caption='>')
-      then  GraphAverage(GausLines,0.002,SEGauss.Value,0.002);
+      then  GraphAverage(GausLines,CBoxGLShow.Checked, 0.002,SEGauss.Value,0.002);
   GaussLinesToGraph(True);
   GraphToVector(GausLines[0],VaxFile);
   GraphShow(Form1);
@@ -3130,7 +3133,7 @@ if RBAveSelect.Checked then
   SetLength(GausLines,High(GausLines));
 
   GaussLinesToGraph(True);
-  GraphAverage(GausLines);
+  GraphAverage(GausLines,CBoxGLShow.Checked);
   GraphToVector(GausLines[0],VaxFile);
   GraphShow(Form1);
 
@@ -7761,7 +7764,7 @@ if CBoxDLBuild.Checked then
 ShowGraph(Form1,str);
 end;
 
-procedure TForm1.CBoxGLShowClick(Sender: TObject);
+procedure TForm1.CBoxGLShowClickGaus(Sender: TObject);
 begin
 if CBoxGLShow.Checked then
   begin
@@ -7958,7 +7961,8 @@ Form1.CBoxRCons.Checked:=False;
 Form1.CBoxBaseLineVisib.Checked:=False;
 Form1.CBoxBaseLineUse.Checked:=False;
 if High(GausLinesCur)>0 then GausLinesSave;
-Form1.CBoxGLShow.Checked:=False;
+if Form1.RBGausSelect.Checked then
+       Form1.CBoxGLShow.Checked:=False;
 if High(GausLines)<0 then
   begin
     GausLinesFree;
@@ -9610,7 +9614,7 @@ begin
   new(temp);
   Diferen (B,temp);
   for j:=1 to fun do SmoothingA(temp);
-  temp^.CopyLimitedX(B^,0{.038},temp^.X[High(temp^.X)]{-0.04});
+  temp^.CopyLimitedX(B^,0.038,temp^.X[High(temp^.X)]-0.04);
   dispose(temp);
   Result:=True;
 end;
@@ -9705,27 +9709,6 @@ begin
         B^.Y[j]:=1/B^.Y[j]*A^.Y[j]/kT;
 
   ForwardIV(B);
-
-////*************************
-//      new(A_apr);
-//       if not(FuncFitting(A,A_apr,Form1.LabIsc.Caption)) then
-//         begin
-//
-//         end;
-//      new(B_apr);
-//      Diferen (A_apr,B_apr);
-//
-//
-//      kT:=A_apr^.T*Kb;
-//      for j:=0 to High(B_apr^.X) do
-//            B_apr^.Y[j]:=1/B_apr^.Y[j]*A_apr^.Y[j]/kT;
-//
-//      ForwardIV(B_apr);
-//
-//      dispose(A_apr);
-//      B.DeltaY(B_apr^);
-//     dispose(B_apr);
-////*************************
 
   for j:=1 to fun do SmoothingA(B);
 

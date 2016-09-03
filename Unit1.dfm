@@ -18,14 +18,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 120
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -7811,7 +7811,6 @@ object Form1: TForm1
           Caption = 'Show'
           TabOrder = 1
           WordWrap = True
-          OnClick = CBoxGLShowClick
         end
         object SGridGaussian: TStringGrid
           Tag = 700
