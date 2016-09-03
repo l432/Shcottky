@@ -354,6 +354,7 @@ private
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
 public
+// property T:double read FVariab[0] write FVariab[0];
 end; //TFitTemperature=class(TFitVariabSet)
 
 //----------------------------------------------

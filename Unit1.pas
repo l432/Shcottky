@@ -949,6 +949,7 @@ type
     function GraphType (Sender: TObject):TGraph;
    {повертає значення, яке зв'язане з типом графіку, який
    будується залежно від назви об'єкта Sender}
+    procedure CBoxGLShowClickAve(Sender: TObject);
   public
     { Public declarations }
   end;
@@ -1171,6 +1172,12 @@ Function DiapFunName(Sender: TObject; var bohlin: Boolean):TDiapazons;
 апроксимації;
 використовується разом з FormDiapazon}
 
+Function FuncLimit(A:Pvector; var B:Pvector;FitName:string):boolean;
+{розміщує в В обмежений набір точок з А відповідно до
+очікуваної згідно з FitName апроксимації;
+загалом допоміжна функція, використовується, зокрема,
+в dB_dV_Fun}
+
 Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
                     FitName:string;Rbool:boolean);
 {по даним у векторі А будує залежність похідної
@@ -1185,6 +1192,16 @@ Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;
 {дані в А апроксимуються відповідно до FitName,
 в В - результат апроксимації при тих же абсцисах,
 при невдачі - результат False}
+
+Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle;FitName:string);
+{вважаючи, що Source це набір визначених параметрів
+апроксимації функцією FitName,
+в Target записується спрощений варіант,
+в якому вважаються що Rs=0, Rsh=1e12, Iph=0}
+
+Function FunCorrectionDefine():TFunCorrection;
+{визначення, яка диференційна операція буде проводитися
+відповідно до вмісту CBDLFunction}
 
 const
  DLFunction:array[0..4]of string=
@@ -2540,9 +2557,9 @@ if RBAveSelect.Checked then
 
    CBoxGLShow.Caption:='Minus';
 
-   CBoxGLShow.OnClick:=CBoxGLShowClick;
+   CBoxGLShow.OnClick:=nil;
    CBoxGLShow.Checked:=False;
-
+   CBoxGLShow.OnClick:=CBoxGLShowClickAve;
 
    GausLinesSave;
    GausLinesFree;
@@ -2570,6 +2587,7 @@ if RBAveSelect.Checked then
    ButGLLoad.Visible:=True;
    ButGLRes.Visible:=True;
    CBoxGLShow.Caption:='Show';
+   CBoxGLShow.OnClick:=nil;
    CBoxGLShow.Checked:=False;
    CBoxGLShow.OnClick:=CBoxGLShowClickGaus;
    CBoxGLShow.Tag:=56;
@@ -3273,8 +3291,12 @@ end;
 
 
 procedure TForm1.ButSaveDLClick(Sender: TObject);
+Label fin;
 var
-    aprr:Pvector;
+    aprr,aprr2:Pvector;
+    Action:TFunCorrection;
+    EP:TArrSingle;
+    j:integer;
 begin
 SaveDialog1.FileName:=copy(VaxFile^.name,1,length(VaxFile^.name)-4)+'dl.dat';
    if SaveDialog1.Execute()
@@ -3286,6 +3308,35 @@ SaveDialog1.FileName:=copy(VaxFile^.name,1,length(VaxFile^.name)-4)+'dl.dat';
 new(aprr);
 Splain3Vec(VaxGraph,0.05,0.002,aprr);
 if aprr^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ap.dat',aprr);
+
+if CBoxRCons.Checked then
+  begin
+  if not(FuncLimit(VaxFile,aprr,LabIsc.Caption)) then  Goto fin;
+//  if EvolParam[0]=ErResult then Goto fin;
+  FunCreate(LabIsc.Caption,Fit);
+  Fit.Fitting(aprr,EvolParam);
+  if EvolParam[0]=ErResult then
+     begin
+      Fit.Free;
+      Goto fin;
+     end;
+  ParameterSimplify(EvolParam,EP,LabIsc.Caption);
+  for j:=0 to High(aprr^.X) do
+     aprr^.Y[j]:=Fit.FinalFunc(aprr^.X[j],EP);
+  Fit.Free;
+  Action:= FunCorrectionDefine();
+  new(aprr2);
+  if not(Action(aprr,aprr2,SpinEditDL.Value)) then
+     begin
+     dispose(aprr2);
+     Goto fin;
+     end;
+  if aprr2^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ft.dat',aprr2);
+  Splain3Vec(aprr2,0.05,0.002,aprr);
+  if aprr^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ftap.dat',aprr);
+  end;
+
+fin:
 dispose(aprr);
 end;
 
@@ -7764,6 +7815,14 @@ if CBoxDLBuild.Checked then
 ShowGraph(Form1,str);
 end;
 
+procedure TForm1.CBoxGLShowClickAve(Sender: TObject);
+begin
+ if High(GausLines)<0 then Exit;
+ GraphAverage(GausLines,CBoxGLShow.Checked);
+ GraphToVector(GausLines[0],VaxFile);
+ GraphShow(Form1);
+end;
+
 procedure TForm1.CBoxGLShowClickGaus(Sender: TObject);
 begin
 if CBoxGLShow.Checked then
@@ -9543,6 +9602,20 @@ begin
   Result:=True;
 end;
 
+Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle;FitName:string);
+ var Ft:TFitFunction;
+     j:integer;
+begin
+ FunCreate(FitName,Ft);
+ SetLength(Target,High(Source)+1);
+   for j := 0 to High(Target) do
+       if Ft.Xname[j]='Rs' then Target[j]:=0
+         else if Ft.Xname[j]='Rsh' then Target[j]:=1e12
+           else if Ft.Xname[j]='Iph' then Target[j]:=0
+             else Target[j]:=Source[j];
+ Ft.Free;
+end;
+
 Function RsRshIphModification(var A:Pvector;FitName:string):boolean;
 {дані в А модифікуються таким чином, щоб не лишилося
 впливів послідовного та шунтуючого опорів та
@@ -9559,12 +9632,8 @@ begin
       Fit.Free;
       Exit;
      end;
-   SetLength(EP,High(EvolParam)+1);
-   for j := 0 to High(EP) do
-       if Fit.Xname[j]='Rs' then EP[j]:=0
-         else if Fit.Xname[j]='Rsh' then EP[j]:=1e12
-           else if Fit.Xname[j]='Iph' then EP[j]:=0
-             else EP[j]:=EvolParam[j];
+   ParameterSimplify(EvolParam,EP,FitName);
+
    for j:=0 to High(A^.X) do
      A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(A^.X[j],EvolParam)
                      +Fit.FinalFunc(A^.X[j],EP);
@@ -9721,6 +9790,39 @@ begin
 end;
 
 
+
+Function FuncLimit(A:Pvector; var B:Pvector;FitName:string):boolean;
+var    Light:boolean;
+       Diap:TDiapazon;
+begin
+  Result:=False;
+  Light:=false;
+  Diap:=D[diDE];
+
+  if (FitName= FuncName[10])or
+     (FitName= FuncName[12])or
+     (FitName= FuncName[14])or
+     (FitName= FuncName[20])
+              then Light:=true;
+
+
+  if (FitName= FuncName[12])or
+     (FitName= FuncName[11])
+              then Diap:=D[diExp];
+
+  if (FitName= FuncName[14])or
+     (FitName= FuncName[13])
+              then Diap:=D[diLam];
+
+ try
+  A_B_Diapazon(A,B,Diap,Light);
+  if (B^.T=0)or(B^.n<3) then  Exit;
+ finally
+ end;
+ Result:=True;
+end;
+
+
 Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
                     FitName:string;Rbool:boolean);
 {по даним у векторі А будує залежність похідної
@@ -9764,44 +9866,17 @@ FitName - назва функції, якв буде використовуватись
     for i:=0 to 9 do SmoothingA(Atemp);
     A.DeltaY(Atemp^);
     dispose(Atemp);
-   end; 
+   end;
 
 
 var
     Alim:Pvector;
-    Light:boolean;
-    Diap:TDiapazon;
     Action:TFunCorrection;
 begin
-  Action:=dB_dV_Build;
-  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='Rnp' then  Action:=Rnp_Build;
-  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='dRnp/dV' then  Action:=dRnp_dV_Build;
-  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Action:=Rnp2_exp_Build;
-  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Action:=Gamma_Build;
-
-  Light:=false;
-  Diap:=D[diDE];
-
-  if (FitName= FuncName[10])or
-     (FitName= FuncName[12])or
-     (FitName= FuncName[14])or
-     (FitName= FuncName[20])
-              then Light:=true;
-
-
-  if (FitName= FuncName[12])or
-     (FitName= FuncName[11])
-              then Diap:=D[diExp];
-
-  if (FitName= FuncName[14])or
-     (FitName= FuncName[13])
-              then Diap:=D[diLam];
+  Action:= FunCorrectionDefine();
 
  new(Alim);
- A_B_Diapazon(A,Alim,Diap,Light);
-
-
- if (Alim^.T=0)or(Alim^.n<3) then
+ if not(FuncLimit(A,Alim,FitName)) then
      begin
      dispose(Alim);
      Exit;
@@ -9816,13 +9891,21 @@ begin
      dispose(Alim);
      Exit;
      end;
- if Form1.CBBaseAuto.Checked then
-   BaseAdd(B);
- 
+ if Form1.CBBaseAuto.Checked then BaseAdd(B);
+
  //  if Rbool then Rs_Modification(Alim,B,Action);
 
   
   dispose(Alim);
+end;
+
+Function FunCorrectionDefine():TFunCorrection;
+begin
+  Result:=dB_dV_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='Rnp' then  Result:=Rnp_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='dRnp/dV' then  Result:=dRnp_dV_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Result:=Rnp2_exp_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Result:=Gamma_Build;
 end;
 
 end.
