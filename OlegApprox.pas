@@ -353,8 +353,10 @@ private
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
+ procedure SetT(const Value: double);
+ Function GetT():double;
 public
-// property T:double read FVariab[0] write FVariab[0];
+ property T:double read GetT write SetT;
 end; //TFitTemperature=class(TFitVariabSet)
 
 //----------------------------------------------
@@ -1885,6 +1887,16 @@ begin
  inherited Create(FunctionName,FunctionCaption,Npar,Nvar);
  if FVarNum>0 then  FVarName[0]:='T';
  fTemperatureIsRequired:=(FVarNum>0);
+end;
+
+function TFitTemperatureIsUsed.GetT(): double;
+begin
+ Result:=FVariab[0];
+end;
+
+procedure TFitTemperatureIsUsed.SetT(const Value: double);
+begin
+  FVariab[0] := Value;
 end;
 
 Procedure TFitTemperatureIsUsed.BeforeFitness(InputData:Pvector);

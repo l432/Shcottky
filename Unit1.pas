@@ -1879,6 +1879,7 @@ var
     CL:TColName;
 begin
 // ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
+ DecimalSeparator:='.';
  ChDir(Directory0);
 
  ConfigFile.WriteBool('Volts2','LnIT2',CheckBoxLnIT2.Checked);
@@ -2175,6 +2176,7 @@ begin
    if OpenDialog1.Execute()
      then
        begin
+       DecimalSeparator:='.';
        ProcessPath(OpenDialog1.FileName, drive, path, fileName);
        Directory:=drive + ':' + path;
        CurDirectory:=Directory;
@@ -3311,16 +3313,11 @@ if aprr^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.File
 
 if CBoxRCons.Checked then
   begin
-  if not(FuncLimit(VaxFile,aprr,LabIsc.Caption)) then  Goto fin;
-//  if EvolParam[0]=ErResult then Goto fin;
+  if EvolParam[0]=ErResult then Goto fin;
   FunCreate(LabIsc.Caption,Fit);
-  Fit.Fitting(aprr,EvolParam);
-  if EvolParam[0]=ErResult then
-     begin
-      Fit.Free;
-      Goto fin;
-     end;
+  (Fit as TFitTemperatureIsUsed).T:=VaxFile^.T;
   ParameterSimplify(EvolParam,EP,LabIsc.Caption);
+  VaxFile^.Copy(aprr^);
   for j:=0 to High(aprr^.X) do
      aprr^.Y[j]:=Fit.FinalFunc(aprr^.X[j],EP);
   Fit.Free;
@@ -9622,11 +9619,19 @@ Function RsRshIphModification(var A:Pvector;FitName:string):boolean;
 фотоструму}
  var j:integer;
      EP:TArrSingle;
+     Alim:PVector;
 begin
   Result:=False;
+  new(Alim);
+  if not(FuncLimit(A,Alim,FitName)) then
+     begin
+     dispose(Alim);
+     Exit;
+     end;
+
   FunCreate(FitName,Fit);
   try
-   Fit.Fitting(A,EvolParam);
+   Fit.Fitting(Alim,EvolParam);
    if EvolParam[0]=ErResult then
      begin
       Fit.Free;
@@ -9637,10 +9642,11 @@ begin
    for j:=0 to High(A^.X) do
      A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(A^.X[j],EvolParam)
                      +Fit.FinalFunc(A^.X[j],EP);
+   Result:=True;
   finally
    Fit.Free;
+   dispose(Alim);
   end;
-  Result:=True;
 end;
 
 
@@ -9748,28 +9754,6 @@ fun - кількість зглажувань
 //     EvPar:TArrSingle;
 begin
   Result:=False;
-
-////******************************
-//  new(A_apr);
-//  FunCreate(Form1.LabIsc.Caption,Fit);
-//  try
-//   Fit.Fitting(A,EvolParam);
-//   if EvolParam[0]=ErResult then Exit;
-//   SetLength(EvPar,High(EvolParam)+1);
-//   for j := 0 to High(EvPar) do
-//       if Fit.Xname[j]='Rs' then EvPar[j]:=0
-//         else if Fit.Xname[j]='Rsh' then EvPar[j]:=1e12
-//           else EvPar[j]:=EvolParam[j];
-//   SetLenVector(A_apr,A^.n);
-//
-//   for j:=0 to High(A^.X) do
-//     A_apr^.Y[j]:=Fit.FinalFunc(A^.X[j],EvolParam)-Fit.FinalFunc(A^.X[j],EvPar);
-//  finally
-//   Fit.Free;
-//  end;
-//  A^.DeltaY(A_apr^);
-//  dispose(A_apr);
-////*****************************
   Diferen (A,B);
   if B^.n=0 then Exit;
 
@@ -9876,17 +9860,11 @@ begin
   Action:= FunCorrectionDefine();
 
  new(Alim);
- if not(FuncLimit(A,Alim,FitName)) then
-     begin
-     dispose(Alim);
-     Exit;
-     end;
+ A^.Copy(Alim^);;
 
  if Form1.CBoxRCons.Checked then
      RsRshIphModification(Alim,FitName);
-
-
-  if not(Action(Alim,B,fun)) then
+ if not(Action(Alim,B,fun)) then
      begin
      dispose(Alim);
      Exit;
@@ -9894,8 +9872,6 @@ begin
  if Form1.CBBaseAuto.Checked then BaseAdd(B);
 
  //  if Rbool then Rs_Modification(Alim,B,Action);
-
-  
   dispose(Alim);
 end;
 

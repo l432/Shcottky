@@ -1982,12 +1982,11 @@ B^.name:=A^.name;
 B^.T:=A^.T;
 B^.N_begin:=A^.N_begin;
 B^.N_end:=A^.N_end;
-//SetLength(B^.Y, B^.n);
 for i:=1 to High(B^.X)-1 do
-begin
-B^.x[i]:=A^.x[i];
-B^.y[i]:=(W0*A^.y[i-1]+W1*A^.y[i]+W2*A^.y[i+1])/(W0+W1+W2);
-end;
+  begin
+    B^.x[i]:=A^.x[i];
+    B^.y[i]:=(W0*A^.y[i-1]+W1*A^.y[i]+W2*A^.y[i+1])/(W0+W1+W2);
+  end;
 B^.x[0]:=A^.x[0];
 B^.x[High(B^.X)]:=A^.x[High(B^.X)];
 B^.y[0]:=(W1*A^.y[0]+W2*A^.y[1])/(W1+W2);
