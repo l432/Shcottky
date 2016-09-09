@@ -1199,13 +1199,26 @@ Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle;FitName:stri
 в Target записується спрощений варіант,
 в якому вважаються що Rs=0, Rsh=1e12, Iph=0}
 
+Function ParamDeterm(Source:TArrSingle;ParamName,FitName:string):double;
+{вважаючи, що Source це набір визначених параметрів
+апроксимації функцією FitName,
+вибирається параметр з назвою ParamNameв}
+
 Function FunCorrectionDefine():TFunCorrection;
 {визначення, яка диференційна операція буде проводитися
 відповідно до вмісту CBDLFunction}
 
+Function FileNameIsBad(FileName:string):boolean;
+{повертає True, якщо FileName містить
+щось з переліку BadName (масив констант)}
+
+
 const
  DLFunction:array[0..4]of string=
            ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
+ BadName:array[0..1]of string=
+           ('FIT','DATES');
+ mask='*.dat';
 
 var
   Form1: TForm1;
@@ -3319,7 +3332,11 @@ if CBoxRCons.Checked then
   ParameterSimplify(EvolParam,EP,LabIsc.Caption);
   VaxFile^.Copy(aprr^);
   for j:=0 to High(aprr^.X) do
+     begin
+     aprr^.X[j]:=VaxFile^.X[j]-
+         ParamDeterm(EvolParam,'Rs',LabIsc.Caption)*VaxFile^.Y[j];
      aprr^.Y[j]:=Fit.FinalFunc(aprr^.X[j],EP);
+     end;
   Fit.Free;
   Action:= FunCorrectionDefine();
   new(aprr2);
@@ -5885,23 +5902,211 @@ begin
 end;
 
 
-procedure TForm1.Button1Click(Sender: TObject);
-//var comment,dat:TStringList;
-//    name:string;
-//    T,V,I,n,Rs,Fb,I0,Ilim:double;
-//    Fbstr,Rsstr,nstr:TStringList;
-//    Rsmyk,nmyk,Fbmyk,G1,G2,stepG,Glim:double;
-//    Vax:PVector;
-//    Nf:integer;
-//    Fbstring,Rsstring,nstring:string;
-//    SR : TSearchRec;
-//    ip:integer;
-//    SigV,SigI,StepV,StepI,SigVMax,SigIMax:double;
-//    z,x,W,L0,z_max,x_Max,Fb0,Vn,Del,x0,Pot,Del2,x02,L02:double;
+Procedure IVcharFileCreate();
  var comment,dat:TStringList;
     name:string;
-    T,V,I:double;
+    T,V,I,tempV:double;
+begin
+  dat:=TStringList.Create;
+  comment:=TStringList.Create;
+  T:=300;
+     name:='T'+inttostr(round(T))+'I2.dat';
+     V:=0;
+     dat.Clear;
+     repeat
+         V:=V+0.01;
+         I:=Full_IV(IV_DiodDouble,V,
+//             [Kb*T,0.5,3e-11,2.8*Kb*T,5e-6],1e11,1.85e-4);
+             [Kb*T,2,3e-11,2.8*Kb*T,5e-6],1e3);
+//             [Kb*T,0,3e-11,2.8*Kb*T,5e-6]);
+         tempV:=V-2*I;
+         I:=Full_IV(IV_DiodDouble,tempV,
+             [Kb*T,0,3e-11,2.8*Kb*T,5e-6]);
+
+         if (abs(I)>=1e-10) then
+           begin
+//             dat.Add(FloatToStrF(V,ffExponent,4,0)+' '+
+             dat.Add(FloatToStrF(tempV,ffExponent,4,0)+' '+
+                  FloatToStrF(I,ffExponent,4,0));
+           end;
+         if I>2e-2 then Break;
+     until false;
+     dat.SaveToFile(CurDirectory+'\'+name);
+     comment.Add(name);
+     comment.Add('T='+FloatToStrF(T,ffgeneral,4,1));
+     comment.Add('');
+
+  comment.SaveToFile(CurDirectory+'\'+'comments');
+  comment.Free;
+  dat.Free;
+end;
+
+Function FileNameIsBad(FileName:string):boolean;
+{повертає True, якщо FileName містить
+щось з переліку BadName (масив констант)}
+ var i:byte;
+     UpperCaseName:string;
+begin
+  UpperCaseName:=AnsiUpperCase(FileName);
+  for I := 0 to High(BadName) do
+     if Pos(BadName[i],UpperCaseName)<>0 then
+        begin
+          Result:=True;
+          Exit;
+         end;
+  Result:=False;
+end;
+
+Function FileCount():integer;
+{повертає кількість .dat файлів у поточній
+директорії (окрім тих, які містять
+у назві "fit" та "dates")}
+ var
+  SR : TSearchRec;
+begin
+ Result:=0;
+// DecimalSeparator:='.';
+ if not(SetCurrentDir(CurDirectory)) then
+   begin
+   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
+   Exit;
+   end;
+
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+  begin
+    repeat
+     if FileNameIsBad(SR.name) then Continue;
+     inc(Result);
+//     Read_File(SR.name,Vax);
+//     ShotName:=copy(ShotName,1,length(ShotName)-4);
+     //в ShotName коротке ім'я файла - те що вводиться при вимірах :)
+    until FindNext(SR) <> 0;
+  end;
+ FindClose(SR);
+end;
+
+
+Procedure ReadFileToVectorArray(VectorArray:array of PVector);
+{з поточної директорії зчитуються всі .dat файли
+в масив VectorArray (окрім тих, які містять
+у назві "fit" та "dates")
+повертається кількість зчитаних файлів}
+ var
+  SR : TSearchRec;
+  i:integer;
+begin
+ DecimalSeparator:='.';
+ if not(SetCurrentDir(CurDirectory)) then Exit;
+ i:=-1;
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+  begin
+    repeat
+     if FileNameIsBad(SR.name) then Continue;
+     inc(i);
+     if i>High(VectorArray) then Break;
+     Read_File(SR.name,VectorArray[i]);
+//     ShotName:=copy(ShotName,1,length(ShotName)-4);
+    until FindNext(SR) <> 0;
+  end;
+ FindClose(SR);
+end;
+
+Procedure dB_dU_DataCreate(Vax:PVector;FitName:string);
+{на основі Vax створюється файл з
+диференційним коефіцієнтом нахилу;
+кінцеві дані враховують ідеалізовану залежність;
+при розрахунках використовуються різні
+значення, встановлені на формі
+}
+var
+    temp:Pvector;
+    Action:TFunCorrection;
+begin
+  Action:= FunCorrectionDefine();
+  new(temp);
+// A^.Copy(Alim^);;
+//
+
+// var j:integer;
+//     EP:TArrSingle;
+//     Alim:PVector;
+//     Rs,temp:double;
+
+//  Result:=False;
+//  new(Alim);
+  if not(FuncLimit(Vax,temp,FitName)) then
+     begin
+     Vax^.SetLenVector(0);
+     dispose(temp);
+     Exit;
+     end;
+
+  FunCreate(FitName,Fit);
+//  try
+//   Fit.Fitting(Alim,EvolParam);
+//   if EvolParam[0]=ErResult then
+//     begin
+//      Fit.Free;
+//      Exit;
+//     end;
+//   ParameterSimplify(EvolParam,EP,FitName);
+//
+//   Rs:=ParamDeterm(EvolParam,'Rs',FitName);
+//   for j:=0 to High(A^.X) do
+//     begin
+//     temp:=A^.X[j];
+//     A^.X[j]:=A^.X[j]-A^.Y[j]*Rs;
+//     A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(temp,EvolParam)
+//                     +Fit.FinalFunc(A^.X[j],EP);
+//     end;
+//   Result:=True;
+//  finally
+//   Fit.Free;
+//   dispose(Alim);
+//  end;
+
+
+
+// if not(Action(Alim,B,fun)) then
+//     begin
+//     dispose(Alim);
+//     Exit;
+//     end;
+  dispose(temp);
+end;
+
+Procedure dB_dU_FilesCreate();
+{для всіх файлів у поточній директорії
+створюються файли з диференційним коефіцієнтом нахилу
+і розміщуються в нову директорію dBdU}
+ var VectorArray:array of PVector;
+    i:byte;
+begin
+  if Form1.LabIsc.Caption='None' then
+   begin
+   MessageDlg('Function must be defined!', mtError,[mbOk],0);
+   Exit;
+   end;
+  SetLength(VectorArray,FileCount());
+  if High(VectorArray)<0 then Exit;
+  for i := 0 to High(VectorArray) do new(VectorArray[i]);
+  try
+   ReadFileToVectorArray(VectorArray);
+  finally
+
+  end;
+
+  for i := 0 to High(VectorArray) do
+        dB_dU_DataCreate(VectorArray[i],Form1.LabIsc.Caption);
+
+  for i := 0 to High(VectorArray) do dispose(VectorArray[i]);
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
  begin
+
+ dB_dU_FilesCreate();
+
 //------------------------------------------------------------
 // Patch();
 //------------------------------------------------------------
@@ -5935,33 +6140,9 @@ procedure TForm1.Button1Click(Sender: TObject);
 //Sample3();
 //Sample2();
 
+//IVcharFileCreate();
 
 
-  dat:=TStringList.Create;
-  comment:=TStringList.Create;
-  T:=300;
-     name:='T'+inttostr(round(T))+'l.dat';
-     V:=0;
-     dat.Clear;
-     repeat
-         V:=V+0.01;
-         I:=Full_IV(IV_DiodDouble,V,[Kb*T,0.5,3e-11,2.8*Kb*T,5e-6],1e11,1.85e-4);
-
-         if (abs(I)>=1e-10) then
-           begin
-             dat.Add(FloatToStrF(V,ffExponent,4,0)+' '+
-                  FloatToStrF(I,ffExponent,4,0));
-           end;
-         if I>2e-2 then Break;
-     until false;
-     dat.SaveToFile(CurDirectory+'\'+name);
-     comment.Add(name);
-     comment.Add('T='+FloatToStrF(T,ffgeneral,4,1));
-     comment.Add('');
-
-  comment.SaveToFile(CurDirectory+'\'+'comments');
-  comment.Free;
-  dat.Free;
 
 
 end;
@@ -6024,7 +6205,6 @@ if not(SetCurrentDir(CurDirectory)) then
    MessageDlg('Current directory is not exist', mtError,[mbOk],0);
    Exit;
    end;
-mask:='*.dat';
 //kkkkkkkkkkkkkkkkkkk
 
 {for ij:= 0 to High(Volt) do
@@ -6061,8 +6241,8 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      ShotName:=AnsiUpperCase(SR.name);
 //     if ShotName[length(ShotName)-4]<>'N' then Continue;
 //    if ShotName[length(ShotName)-4]<>'V' then Continue;
-    if Pos('DATES',ShotName)<>0 then Continue;
-    if Pos('FIT',ShotName)<>0 then Continue;
+    if FileNameIsBad(ShotName)then Continue;
+
 //        showmessage(SR.name);
      Read_File(SR.name,Vax);
 //     ShotName:=copy(ShotName,1,length(ShotName)-5);
@@ -6803,7 +6983,7 @@ if not(SetCurrentDir(CurDirectory)) then
    MessageDlg('Current directory is not exist', mtError,[mbOk],0);
    Exit;
    end;
-mask:='*.dat';
+//mask:='*.dat';
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
     new(Vax);
@@ -9613,6 +9793,25 @@ begin
  Ft.Free;
 end;
 
+Function ParamDeterm(Source:TArrSingle;ParamName,FitName:string):double;
+{вважаючи, що Source це набір визначених параметрів
+апроксимації функцією FitName,
+вибирається параметр з назвою ParamNameв}
+ var Ft:TFitFunction;
+     j:integer;
+begin
+ Result:=ErResult;
+ FunCreate(FitName,Ft);
+ for j := 0 to High(Ft.Xname) do
+  if Ft.Xname[j]=ParamName then
+    begin
+      Result:=Source[j];
+      Break;
+    end;
+ Ft.Free;
+end;
+
+
 Function RsRshIphModification(var A:Pvector;FitName:string):boolean;
 {дані в А модифікуються таким чином, щоб не лишилося
 впливів послідовного та шунтуючого опорів та
@@ -9620,6 +9819,7 @@ Function RsRshIphModification(var A:Pvector;FitName:string):boolean;
  var j:integer;
      EP:TArrSingle;
      Alim:PVector;
+     Rs,temp:double;
 begin
   Result:=False;
   new(Alim);
@@ -9639,9 +9839,14 @@ begin
      end;
    ParameterSimplify(EvolParam,EP,FitName);
 
+   Rs:=ParamDeterm(EvolParam,'Rs',FitName);
    for j:=0 to High(A^.X) do
-     A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(A^.X[j],EvolParam)
+     begin
+     temp:=A^.X[j];
+     A^.X[j]:=A^.X[j]-A^.Y[j]*Rs;
+     A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(temp,EvolParam)
                      +Fit.FinalFunc(A^.X[j],EP);
+     end;
    Result:=True;
   finally
    Fit.Free;
@@ -9767,7 +9972,7 @@ begin
 
   new(temp);
   Diferen (B,temp);
-  temp^.CopyLimitedX(B^,0.038,temp^.X[High(temp^.X)]-0.04);
+  temp^.CopyLimitedX(B^,temp^.X[0]+0.038,temp^.X[High(temp^.X)]-0.04);
 
   dispose(temp);
   Result:=True;
@@ -9869,7 +10074,7 @@ begin
      dispose(Alim);
      Exit;
      end;
- if Form1.CBBaseAuto.Checked then BaseAdd(B);
+// if Form1.CBBaseAuto.Checked then BaseAdd(B);
 
  //  if Rbool then Rs_Modification(Alim,B,Action);
   dispose(Alim);

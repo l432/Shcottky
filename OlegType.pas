@@ -159,8 +159,13 @@ type
   TArrSingle=array of double;
   PTArrSingle=^TArrSingle;
 
+//  TArrVector=array of PVector;
+//  PTArrVector=^TArrSingle;
+
   TArrArrSingle=array of TArrSingle;
   PClassroom=^TArrArrSingle;
+
+
 
   TArrStr=array of string;
 
