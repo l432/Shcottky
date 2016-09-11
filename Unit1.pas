@@ -1172,9 +1172,9 @@ Function DiapFunName(Sender: TObject; var bohlin: Boolean):TDiapazons;
 апроксимації;
 використовується разом з FormDiapazon}
 
-Function FuncLimit(A:Pvector; var B:Pvector;FitName:string):boolean;
+Function FuncLimit(A:Pvector; var B:Pvector):boolean;
 {розміщує в В обмежений набір точок з А відповідно до
-очікуваної згідно з FitName апроксимації;
+очікуваної згідно з Form1.LabIsc.Caption апроксимації;
 загалом допоміжна функція, використовується, зокрема,
 в dB_dV_Fun}
 
@@ -1193,16 +1193,26 @@ Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;
 в В - результат апроксимації при тих же абсцисах,
 при невдачі - результат False}
 
-Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle;FitName:string);
+Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle;FitName:string);overload;
 {вважаючи, що Source це набір визначених параметрів
 апроксимації функцією FitName,
 в Target записується спрощений варіант,
 в якому вважаються що Rs=0, Rsh=1e12, Iph=0}
 
-Function ParamDeterm(Source:TArrSingle;ParamName,FitName:string):double;
+Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle);overload;
+{те саме, що попереднє, тільки глобальний об'єкт Fit
+має вже існувати}
+
+
+Function ParamDeterm(Source:TArrSingle;ParamName,FitName:string):double;overload;
 {вважаючи, що Source це набір визначених параметрів
 апроксимації функцією FitName,
 вибирається параметр з назвою ParamNameв}
+
+Function ParamDeterm(Source:TArrSingle;ParamName:string):double;overload;
+{те саме, що попереднє, тільки глобальний об'єкт Fit
+має вже існувати}
+
 
 Function FunCorrectionDefine():TFunCorrection;
 {визначення, яка диференційна операція буде проводитися
@@ -1922,16 +1932,6 @@ begin
 
   for DP := Low(DP) to High(DP) do
    begin
-//   ConfigFile.WriteFloat('Diapaz',
-//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMin',D[Dp].XMin);
-//   ConfigFile.WriteFloat('Diapaz',
-//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' YMin',D[Dp].YMin);
-//   ConfigFile.WriteFloat('Diapaz',
-//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' XMax',D[Dp].XMax);
-//   ConfigFile.WriteFloat('Diapaz',
-//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Ymax',D[Dp].YMax);
-//   ConfigFile.WriteString('Diapaz',
-//    GetEnumName(TypeInfo(TDiapazons),ord(DP))+' Br',D[Dp].Br);
    D[Dp].WriteToIniFile(ConfigFile,'Diapaz',GetEnumName(TypeInfo(TDiapazons),ord(DP)));
    D[DP].Free;
    end;
@@ -6011,69 +6011,109 @@ begin
  FindClose(SR);
 end;
 
-Procedure dB_dU_DataCreate(Vax:PVector;FitName:string);
+
+Function VectorIsFitting(Vax:PVector):boolean;
+{апроксимує дані Vax відповідно до глобального
+об'єкту Fit (який вже має бути створений),
+обмеження, які застосовуються у даних в Vax такі самі,
+як для розгляду диференційного коефіцієнту
+нахилу (тобто найчастіше визначаються вмістом D[diDE]);
+Результат в глобальному масиві EvolParam}
+ var tempVax:PVector;
+begin
+ Result:=False;
+ new(tempVax);
+ try
+  if not(FuncLimit(Vax,tempVax)) then Raise Exception.Create('Fault!!!!');
+  Fit.Fitting(tempVax,EvolParam);
+  if EvolParam[0]=ErResult then Raise Exception.Create('Fault!!!!');
+  Result:=True;
+ finally
+  dispose(tempVax);
+ end;
+end;
+
+Procedure dB_dU_DataCreate(Vax:PVector);
 {на основі Vax створюється файл з
 диференційним коефіцієнтом нахилу;
 кінцеві дані враховують ідеалізовану залежність;
+глобальний об'єкт Fit вже має бути створений відповідно до
+апроксимуючої функції;
 при розрахунках використовуються різні
 значення, встановлені на формі
 }
 var
-    temp:Pvector;
+    temp,temp2:Pvector;
     Action:TFunCorrection;
+    EP:TArrSingle;
+    Rs:double;
+    j:integer;
 begin
   Action:= FunCorrectionDefine();
   new(temp);
-// A^.Copy(Alim^);;
-//
+  new(temp2);
 
-// var j:integer;
-//     EP:TArrSingle;
-//     Alim:PVector;
-//     Rs,temp:double;
+  try
+  if not(VectorIsFitting(Vax)) then Raise Exception.Create('Fault!!!!');
 
-//  Result:=False;
-//  new(Alim);
-  if not(FuncLimit(Vax,temp,FitName)) then
+   ParameterSimplify(EvolParam,EP);
+   Rs:=ParamDeterm(EvolParam,'Rs');
+  if Rs=ErResult then Raise Exception.Create('Fault!!!!');
+
+   Vax^.Copy(temp^);
+   for j:=0 to High(Vax^.X) do
      begin
-     Vax^.SetLenVector(0);
-     dispose(temp);
-     Exit;
+     Vax^.X[j]:=Vax^.X[j]-Vax^.Y[j]*Rs;
+     temp^.Y[j]:=Fit.FinalFunc(Vax^.X[j],EP);
+     Vax^.Y[j]:=Vax^.Y[j]-Fit.FinalFunc(temp^.X[j],EvolParam)
+                     +temp^.Y[j];
+     temp^.X[j]:=Vax^.X[j];
      end;
+  if (not(Action(temp,temp2,Form1.SpinEditDL.Value)))or
+     (not(Action(Vax,temp,Form1.SpinEditDL.Value))) then
+              Raise Exception.Create('Fault!!!!');
+  temp^.T:=Vax^.T;
+  temp^.name:=Vax^.name;
+  temp^.DeltaY(temp2^);
+//  temp^.Copy(Vax^);
+  Splain3Vec(temp,temp^.X[0],0.002,Vax);
 
-  FunCreate(FitName,Fit);
-//  try
-//   Fit.Fitting(Alim,EvolParam);
-//   if EvolParam[0]=ErResult then
-//     begin
-//      Fit.Free;
-//      Exit;
-//     end;
-//   ParameterSimplify(EvolParam,EP,FitName);
-//
-//   Rs:=ParamDeterm(EvolParam,'Rs',FitName);
-//   for j:=0 to High(A^.X) do
-//     begin
-//     temp:=A^.X[j];
-//     A^.X[j]:=A^.X[j]-A^.Y[j]*Rs;
-//     A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(temp,EvolParam)
-//                     +Fit.FinalFunc(A^.X[j],EP);
-//     end;
-//   Result:=True;
-//  finally
-//   Fit.Free;
-//   dispose(Alim);
-//  end;
-
-
-
-// if not(Action(Alim,B,fun)) then
-//     begin
-//     dispose(Alim);
-//     Exit;
-//     end;
-  dispose(temp);
+  finally
+   dispose(temp);
+   dispose(temp2);
+  end; //try
 end;
+
+Procedure  WriteToDirVectorArray(VectorArray:array of PVector;
+           DirName,FileEnd:string);
+{В поточній директорії створюється нова з іменем DirName і
+туди записуються .dat файли зі вмістом VectorArray;
+FileEnd  - те, що дописується до кінця назви файлу
+порівняно з назвами, які містятся в VectorArray[i]^.name}
+ var j:integer;
+     newFileName:string;
+     Comments:TStringList;
+begin
+  try
+   MkDir(DirName);
+  except
+  ;
+  end; //try
+  FileEnd:=FileEnd+'.dat';
+  DecimalSeparator:='.';
+  Comments:=TStringList.Create;
+  for j := 0 to High(VectorArray) do
+   begin
+    newFileName:=copy(VectorArray[j]^.name,1,length(VectorArray[j]^.name)-4)+
+     FileEnd;
+    Write_File(CurDirectory+'\'+DirName+'\'+newFileName,VectorArray[j]);
+    Comments.Add(newFileName);
+    Comments.Add('T='+FloatToStrF(VectorArray[j]^.T,ffGeneral,4,1));
+    Comments.Add('');
+   end;
+  Comments.SaveToFile(CurDirectory+'\'+DirName+'\comments');
+end;
+
 
 Procedure dB_dU_FilesCreate();
 {для всіх файлів у поточній директорії
@@ -6096,8 +6136,12 @@ begin
 
   end;
 
+  FunCreate(Form1.LabIsc.Caption,Fit);
   for i := 0 to High(VectorArray) do
-        dB_dU_DataCreate(VectorArray[i],Form1.LabIsc.Caption);
+        dB_dU_DataCreate(VectorArray[i]);
+  Fit.Free;
+
+  WriteToDirVectorArray(VectorArray,'dB_dU','sm2');
 
   for i := 0 to High(VectorArray) do dispose(VectorArray[i]);
 end;
@@ -9793,6 +9837,18 @@ begin
  Ft.Free;
 end;
 
+Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle);overload;
+ var j:integer;
+begin
+ SetLength(Target,High(Source)+1);
+   for j := 0 to High(Target) do
+       if Fit.Xname[j]='Rs' then Target[j]:=0
+         else if Fit.Xname[j]='Rsh' then Target[j]:=1e12
+           else if Fit.Xname[j]='Iph' then Target[j]:=0
+             else Target[j]:=Source[j];
+end;
+
+
 Function ParamDeterm(Source:TArrSingle;ParamName,FitName:string):double;
 {вважаючи, що Source це набір визначених параметрів
 апроксимації функцією FitName,
@@ -9811,6 +9867,17 @@ begin
  Ft.Free;
 end;
 
+Function ParamDeterm(Source:TArrSingle;ParamName:string):double;
+ var j:integer;
+begin
+ Result:=ErResult;
+ for j := 0 to High(Fit.Xname) do
+  if Fit.Xname[j]=ParamName then
+    begin
+      Result:=Source[j];
+      Break;
+    end;
+end;
 
 Function RsRshIphModification(var A:Pvector;FitName:string):boolean;
 {дані в А модифікуються таким чином, щоб не лишилося
@@ -9823,7 +9890,7 @@ Function RsRshIphModification(var A:Pvector;FitName:string):boolean;
 begin
   Result:=False;
   new(Alim);
-  if not(FuncLimit(A,Alim,FitName)) then
+  if not(FuncLimit(A,Alim)) then
      begin
      dispose(Alim);
      Exit;
@@ -9980,7 +10047,7 @@ end;
 
 
 
-Function FuncLimit(A:Pvector; var B:Pvector;FitName:string):boolean;
+Function FuncLimit(A:Pvector; var B:Pvector):boolean;
 var    Light:boolean;
        Diap:TDiapazon;
 begin
@@ -9988,19 +10055,19 @@ begin
   Light:=false;
   Diap:=D[diDE];
 
-  if (FitName= FuncName[10])or
-     (FitName= FuncName[12])or
-     (FitName= FuncName[14])or
-     (FitName= FuncName[20])
+  if (Form1.LabIsc.Caption= FuncName[10])or
+     (Form1.LabIsc.Caption= FuncName[12])or
+     (Form1.LabIsc.Caption= FuncName[14])or
+     (Form1.LabIsc.Caption= FuncName[20])
               then Light:=true;
 
 
-  if (FitName= FuncName[12])or
-     (FitName= FuncName[11])
+  if (Form1.LabIsc.Caption= FuncName[12])or
+     (Form1.LabIsc.Caption= FuncName[11])
               then Diap:=D[diExp];
 
-  if (FitName= FuncName[14])or
-     (FitName= FuncName[13])
+  if (Form1.LabIsc.Caption= FuncName[14])or
+     (Form1.LabIsc.Caption= FuncName[13])
               then Diap:=D[diLam];
 
  try
