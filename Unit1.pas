@@ -1674,8 +1674,8 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LabRA.Caption:='A = '+FloatToStrF(RA,ffGeneral,3,2);
   LabRB.Caption:='B = '+FloatToStrF(RB,ffExponent,3,2);
   LabRC.Caption:='C = '+FloatToStrF(RC,ffExponent,3,2);
-  LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName','Photo D-Diod');
-  LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName','Photo D-Diod');
+  LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName',FunctionPhotoDDiod);
+  LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName',FunctionPhotoDDiod);
   ButDateOption.Enabled:=not((LDateFun.Caption='None'));
   for DP := Low(DP) to High(DP) do
       DiapShowNew(DP);
@@ -2692,6 +2692,7 @@ begin
   FunCreate(SButFit.Caption,Fit);
 
   if (SButFit.Caption='Linear')or
+     (SButFit.Caption=FunctionOhmLaw)or
    (SButFit.Caption='Quadratic') then
        Fit.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
                                  else
@@ -3239,17 +3240,26 @@ end;
 procedure TForm1.ButLDFitSelectClick(Sender: TObject);
 begin
  if FormSF.ShowModal=mrOk then
-    if (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[10])or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[11])or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[12])or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[13])or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[14])or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[9])or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[19])or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[20])
-        then LabIsc.Caption:=FormSF.CB.Items[FormSF.CB.ItemIndex];
+//    if (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[10])or
+//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[11])or
+//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[12])or
+//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[13])or
+//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[14])or
+//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[9])or
+//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[19])or
+//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[20])
+    if (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiod)or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDiodLSM)or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiodLSM)or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDiodLambert)or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiodLambert)or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDiod)or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDDiod)or
+       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDDiod)
+       then LabIsc.Caption:=FormSF.CB.Items[FormSF.CB.ItemIndex];
  CBoxDLBuildClick(Sender);
 end;
+
 
 procedure TForm1.ButRAClick(Sender: TObject);
 var st,stHint:string;
@@ -6196,7 +6206,7 @@ end;
 procedure TForm1.ButtonCreateDateClick(Sender: TObject);
 var
   SR : TSearchRec;
-  mask,ShotName:string;
+  {mask,}ShotName:string;
   Vax,Vax2,Vax3,Vax4:Pvector;
   Rs,n,n2,I02:double;
   i,j,ij:integer;
@@ -6259,10 +6269,11 @@ str:='T'+' V'+floattostrf(abs(Volt[ij]),ffGeneral,2,1);
 Str1.Add(str);{}
 //kkkkkkkkkkkkkkkkkkkkkk
 
-
+//   showmessage('hi1');
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
     new(Vax);
+//  showmessage('hi12');
 
 
 //    str:='T';
@@ -6778,7 +6789,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       FunCreate(LDateFun.Caption,Fit);
       new(Vax2);
       Vax.Copy(Vax2^);
-      if (LDateFun.Caption='Photo D-Diod')
+      if (LDateFun.Caption=FunctionPhotoDDiod)
            then  A_B_Diapazon(Vax,Vax2,D[diDE],True)
            else  A_B_Diapazon(Vax,Vax2,D[diDE]);
 
@@ -7012,7 +7023,7 @@ end;
 procedure TForm1.ButtonCreateFileClick(Sender: TObject);
 var
   SR : TSearchRec;
-  mask,ShotName:string;
+  {mask,}ShotName:string;
   Vax, tempVax:Pvector;
   j:integer;
   T_bool:boolean;
@@ -9755,8 +9766,8 @@ boolDD:=true;
        if ((Sender as TButton).Parent.Components[i] is TCheckBox) then
         begin
           if ((Sender as TButton).Parent.Components[i] as TCheckBox).Checked
-           then FuncName:='PhotoDiod, LSM'
-           else FuncName:='Diod, LSM';
+           then FuncName:=FunctionPhotoDiodLSM
+           else FuncName:=FunctionDiodLSM;
         end;
     end;
 
@@ -9766,8 +9777,8 @@ boolDD:=true;
        if ((Sender as TButton).Parent.Components[i] is TCheckBox) then
         begin
           if ((Sender as TButton).Parent.Components[i] as TCheckBox).Checked
-           then FuncName:='PhotoDiod, Lambert'
-           else FuncName:='Diod, Lambert';
+           then FuncName:=FunctionPhotoDiodLambert
+           else FuncName:=FunctionDiodLambert;
         end;
     end;
 
@@ -9785,11 +9796,11 @@ boolDD:=true;
       end;
 
       if boolIph then
-             if boolDD then FuncName:='Photo D-Diod'
-                       else FuncName:='PhotoDiod'
+             if boolDD then FuncName:=FunctionPhotoDDiod
+                       else FuncName:=FunctionPhotoDiod
                 else
-             if boolDD then FuncName:='D-Diod'
-                         else FuncName:='Diod';
+             if boolDD then FuncName:=FunctionDDiod
+                         else FuncName:=FunctionDiod;
     end;
 
 
@@ -10055,19 +10066,19 @@ begin
   Light:=false;
   Diap:=D[diDE];
 
-  if (Form1.LabIsc.Caption= FuncName[10])or
-     (Form1.LabIsc.Caption= FuncName[12])or
-     (Form1.LabIsc.Caption= FuncName[14])or
-     (Form1.LabIsc.Caption= FuncName[20])
+  if (Form1.LabIsc.Caption= FunctionPhotoDiod)or
+     (Form1.LabIsc.Caption= FunctionPhotoDiodLSM)or
+     (Form1.LabIsc.Caption= FunctionPhotoDiodLambert)or
+     (Form1.LabIsc.Caption= FunctionPhotoDDiod)
               then Light:=true;
 
 
-  if (Form1.LabIsc.Caption= FuncName[12])or
-     (Form1.LabIsc.Caption= FuncName[11])
+  if (Form1.LabIsc.Caption= FunctionPhotoDiodLSM)or
+     (Form1.LabIsc.Caption= FunctionDiodLSM)
               then Diap:=D[diExp];
 
-  if (Form1.LabIsc.Caption= FuncName[14])or
-     (Form1.LabIsc.Caption= FuncName[13])
+  if (Form1.LabIsc.Caption= FunctionPhotoDiodLambert)or
+     (Form1.LabIsc.Caption= FunctionDiodLambert)
               then Diap:=D[diLam];
 
  try

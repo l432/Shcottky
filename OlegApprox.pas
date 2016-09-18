@@ -8,13 +8,23 @@ uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       OlegGraph,OlegMaterialSamples,OlegFunction;
 
 const
-  FuncName:array[0..45]of string=
-           ('None','Linear','Quadratic','Exponent','Smoothing',
+  FunctionDiod='Diod';
+  FunctionPhotoDiod='PhotoDiod';
+  FunctionDiodLSM='Diod, LSM';
+  FunctionPhotoDiodLSM='PhotoDiod, LSM';
+  FunctionDiodLambert='Diod, Lambert';
+  FunctionPhotoDiodLambert='PhotoDiod, Lambert';
+  FunctionDDiod='D-Diod';
+  FunctionPhotoDDiod='Photo D-Diod';
+  FunctionOhmLaw='Ohm law';
+  FuncName:array[0..46]of string=
+           ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
-           'Diod','PhotoDiod','Diod, LSM','PhotoDiod, LSM',
-           'Diod, Lambert','PhotoDiod, Lambert','Two Diod',
+           FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
+           FunctionDiodLambert,FunctionPhotoDiodLambert,'Two Diod',
            'Two Diod Full','D-Gaussian','Patch Barrier',
-           'D-Diod', 'Photo D-Diod','Tunneling','Two power','TE and SCLC on V',
+           FunctionDDiod, FunctionPhotoDDiod,'Tunneling',
+           'Two power','TE and SCLC on V',
            'TE and SCLC on V (II)','TE and SCLC on V (III)','TE reverse',
            'TE and SCLC on 1/kT','TE and SCLCexp on 1/kT',
            'TEstrict and SCLCexp on 1/kT','TE and TAHT on 1/kT',
@@ -241,6 +251,14 @@ private
 public
   Constructor Create;
 end; // TLinear=class (TFitFunction)
+
+TOhmLaw=class (TFitFunctionSimple)
+private
+  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
+  Function Func(Parameters:TArrSingle):double; override;
+public
+  Constructor Create;
+end; // TOhmLaw=class (TFitFunctionSimple)
 
 TQuadratic=class (TFitFunctionSimple)
 private
@@ -830,6 +848,7 @@ end; //TTauG=class (TFitFunctEvolution)
 TDoubleDiod=class (TFitFunctEvolution)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh}
 private
+ Procedure BeforeFitness(InputData:Pvector);override;
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
  Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
@@ -1195,6 +1214,11 @@ Procedure FunCreate(str:string; var F:TFitFunction);
 Function FitName(V: PVector; st:string='fit'):string;
 {повертає змінене значення V^.name,
 зміна полягає у дописуванні st перед першою крапкою}
+
+Function Parametr(V: PVector; FunName,ParName:string):double;
+{повертає параметр з іменем ParName,
+який знаходиться в результаті апроксимації даних в V
+за допомогою функції FunName}
 
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
@@ -1578,6 +1602,26 @@ Procedure TLinear.RealFitting (InputData:PVector; var OutputData:TArrSingle);
 begin
    LinAprox(InputData,OutputData[0],OutputData[1]);
 end;
+
+Constructor TOhmLaw.Create;
+begin
+ inherited Create('OhmLaw',
+                  'Fitting by Ohm law, least-squares method',
+                  1);
+ FXname[0]:='R';
+end;
+
+Function TOhmLaw.Func(Parameters:TArrSingle):double;
+begin
+ Result:=fX/Parameters[0];
+end;
+
+Procedure TOhmLaw.RealFitting (InputData:PVector; var OutputData:TArrSingle);
+begin
+   LinAproxAconst(InputData,0,OutputData[0]);
+   OutputData[0]:=1/OutputData[0];
+end;
+
 
 Constructor TQuadratic.Create;
 begin
@@ -4036,7 +4080,7 @@ end;
 //-------------------------------------------------------
 Constructor TDiod.Create;
 begin
- inherited Create('Diod','Diod function,  evolution fitting',
+ inherited Create(FunctionDiod,'Diod function,  evolution fitting',
                    4,1,1);
  FXname[0]:='n';
  FXname[1]:='Rs';
@@ -4153,7 +4197,7 @@ end;
 
 Constructor TPhotoDiod.Create;
 begin
- inherited Create('PhotoDiod','Function of lightened diod',
+ inherited Create(FunctionPhotoDiod,'Function of lightened diod',
                   5,1,4);
  FXname[0]:='n';
  FXname[1]:='Rs';
@@ -4498,6 +4542,16 @@ begin
                  DeterminedParameters[3],0);
 end;
 
+Procedure TDoubleDiod.BeforeFitness(InputData:Pvector);
+
+begin
+  inherited BeforeFitness(InputData);
+
+//  FXmode[3]:=cons;
+//  FXvalue[3]:=12997.8-134.66*InputData^.T+0.47076*InputData^.T*InputData^.T
+//              -5.38789E-4*InputData^.T*InputData^.T*InputData^.T;
+end;
+
 Constructor TDoubleDiodLight.Create;
 begin
  inherited Create('DoubleDiodLight','Double diod fitting of lightened solar cell I-V',
@@ -4640,7 +4694,7 @@ begin
  FXname[5]:='Io2';
  FXname[6]:='Io3';
  FXname[7]:='n3';
- fHasPicture:=False;
+// fHasPicture:=False;
  fSampleIsRequired:=False;
  CreateFooter();
 end;
@@ -4677,7 +4731,7 @@ begin
  FXname[6]:='Iph';
  FXname[7]:='Io3';
  FXname[8]:='n3';
- fHasPicture:=False;
+// fHasPicture:=False;
  fYminDontUsed:=True;
  CreateFooter();
 // ReadFromIniFile();
@@ -5689,6 +5743,7 @@ end;
 Procedure FunCreate(str:string; var F:TFitFunction);
 begin
   if str='Linear' then F:=TLinear.Create;
+  if str=FunctionOhmLaw then F:=TOhmLaw.Create;
   if str='Quadratic' then F:=TQuadratic.Create;
   if (str='Smoothing')or(str='Derivative')
         then F:=TFitWithoutParameteres.Create(str);
@@ -5696,18 +5751,18 @@ begin
   if str='Exponent' then F:=TExponent.Create;
   if str='Gromov / Lee' then F:=TGromov.Create;
   if str='Ivanov' then F:=TIvanov.Create;
-  if str='Diod' then F:=TDiod.Create;
-  if str='PhotoDiod' then F:=TPhotoDiod.Create;
-  if str='Diod, LSM' then F:=TDiodLSM.Create;
-  if str='PhotoDiod, LSM' then F:=TPhotoDiodLSM.Create;
-  if str='Diod, Lambert' then F:=TDiodLam.Create;
-  if str='PhotoDiod, Lambert' then F:=TPhotoDiodLam.Create;
+  if str=FunctionDiod then F:=TDiod.Create;
+  if str=FunctionPhotoDiod then F:=TPhotoDiod.Create;
+  if str=FunctionDiodLSM then F:=TDiodLSM.Create;
+  if str=FunctionPhotoDiodLSM then F:=TPhotoDiodLSM.Create;
+  if str=FunctionDiodLambert then F:=TDiodLam.Create;
+  if str=FunctionPhotoDiodLambert then F:=TPhotoDiodLam.Create;
   if str='Two Diod' then F:=TDiodTwo.Create;
   if str='Two Diod Full' then F:=TDiodTwoFull.Create;
   if str='D-Gaussian' then F:=TDGaus.Create;
   if str='Patch Barrier' then F:=TLinEg.Create;
-  if str='D-Diod' then F:=TDoubleDiod.Create;
-  if str='Photo D-Diod' then F:=TDoubleDiodLight.Create;
+  if str=FunctionDDiod then F:=TDoubleDiod.Create;
+  if str=FunctionPhotoDDiod then F:=TDoubleDiodLight.Create;
   if str='TE and SCLC on 1/kT' then F:=TTEandSCLC_kT1.Create;
   if str='TE and SCLCexp on 1/kT' then F:=TTEandSCLCexp_kT1.Create;
   if str='TE and TAHT on 1/kT' then F:=TTEandTAHT_kT1.Create;
@@ -5750,6 +5805,40 @@ begin
   end;
 end;
 
-
+Function Parametr(V: PVector; FunName,ParName:string):double;
+{повертає параметр з іменем ParName,
+який знаходиться в результаті апроксимації даних в V
+за допомогою функції FunName}
+ var i,par_number:integer;
+     error:boolean;
+     F:TFitFunction;
+     EP:TArrSingle;
+begin
+  Result:=ErResult;
+  error:=true;
+  for I := 1 to High(FuncName) do
+   if FunName=FuncName[i] then
+    begin
+      error:=False;
+      Break;
+    end;
+  if error then Exit;
+  FunCreate(FunName,F);
+  par_number:=-1;
+  for i := 0 to High(F.Xname) do
+   if F.Xname[i]=ParName then
+    begin
+      par_number:=i;
+      Break;
+    end;
+  if par_number<0 then
+    begin
+      F.Free;
+      Exit;
+    end;
+  F.Fitting(V,EP);
+  Result:=EP[par_number];
+  F.Free;
+end;
 
 end.
