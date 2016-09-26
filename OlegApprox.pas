@@ -865,6 +865,7 @@ private
 //******************
  Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
 //****************
+ Procedure BeforeFitness(InputData:Pvector);override;
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;override;
@@ -4548,8 +4549,9 @@ begin
   inherited BeforeFitness(InputData);
 
 //  FXmode[3]:=cons;
-//  FXvalue[3]:=12997.8-134.66*InputData^.T+0.47076*InputData^.T*InputData^.T
-//              -5.38789E-4*InputData^.T*InputData^.T*InputData^.T;
+//  FXvalue[3]:=1.17031E6-9426.31882*InputData^.T
+//              +25.49876*InputData^.T*InputData^.T
+//              -0.02317*InputData^.T*InputData^.T*InputData^.T;
 end;
 
 Constructor TDoubleDiodLight.Create;
@@ -4566,6 +4568,17 @@ begin
  fYminDontUsed:=True;
  CreateFooter();
 // ReadFromIniFile();
+end;
+
+Procedure TDoubleDiodLight.BeforeFitness(InputData:Pvector);
+
+begin
+  inherited BeforeFitness(InputData);
+
+//  FXmode[3]:=cons;
+//  FXvalue[3]:=1.17031E6-9426.31882*InputData^.T
+//              +25.49876*InputData^.T*InputData^.T
+//              -0.02317*InputData^.T*InputData^.T*InputData^.T;
 end;
 
 Procedure TDoubleDiodLight.CreateFooter;
