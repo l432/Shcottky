@@ -4549,9 +4549,10 @@ begin
   inherited BeforeFitness(InputData);
 
 //  FXmode[3]:=cons;
-//  FXvalue[3]:=42691.79073-426.40297*InputData^.T
-//              +1.42604*InputData^.T*InputData^.T
-//              -0.00157*InputData^.T*InputData^.T*InputData^.T;
+//  FXvalue[3]:=
+//  20576.26425-220.70787*InputData^.T
+//              +0.79268*InputData^.T*InputData^.T
+//              -9.26217E-4*InputData^.T*InputData^.T*InputData^.T;
 end;
 
 Constructor TDoubleDiodLight.Create;
@@ -4576,10 +4577,10 @@ begin
   inherited BeforeFitness(InputData);
 
 //  FXmode[3]:=cons;
-//  FXvalue[3]:=38237.67525-381.6672*InputData^.T
-//              +1.27644*InputData^.T*InputData^.T
-//              -0.0014*InputData^.T*InputData^.T*InputData^.T;
-
+//  FXvalue[3]:=
+//  20576.26425-220.70787*InputData^.T
+//              +0.79268*InputData^.T*InputData^.T
+//              -9.26217E-4*InputData^.T*InputData^.T*InputData^.T;
   end;
 
 Procedure TDoubleDiodLight.CreateFooter;
