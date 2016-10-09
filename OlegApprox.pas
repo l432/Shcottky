@@ -4550,9 +4550,9 @@ begin
 
 //  FXmode[3]:=cons;
 //  FXvalue[3]:=
-//  20576.26425-220.70787*InputData^.T
-//              +0.79268*InputData^.T*InputData^.T
-//              -9.26217E-4*InputData^.T*InputData^.T*InputData^.T;
+//  1.22474E7-105746.87906*InputData^.T
+//              +307.12012*InputData^.T*InputData^.T
+//              -0.29993*InputData^.T*InputData^.T*InputData^.T;
 end;
 
 Constructor TDoubleDiodLight.Create;
@@ -4578,9 +4578,9 @@ begin
 
 //  FXmode[3]:=cons;
 //  FXvalue[3]:=
-//  20576.26425-220.70787*InputData^.T
-//              +0.79268*InputData^.T*InputData^.T
-//              -9.26217E-4*InputData^.T*InputData^.T*InputData^.T;
+//  1.22474E7-105746.87906*InputData^.T
+//              +307.12012*InputData^.T*InputData^.T
+//              -0.29993*InputData^.T*InputData^.T*InputData^.T;
   end;
 
 Procedure TDoubleDiodLight.CreateFooter;
