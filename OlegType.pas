@@ -197,15 +197,19 @@ type
            fYMax:double;
            fBr:Char; //'F' коли діапазон для прямої гілки
                      //'R' коли діапазон для зворотньої гілки
-           function GetData(Index:integer):double;
+//           function GetData(Index:integer):double;
            procedure SetData(Index:integer; value:double);
            procedure SetDataBr(value:Char);
 
          public
-           property XMin:double Index 1 read GetData write SetData;
-           property YMin:double Index 2 read GetData write SetData;
-           property XMax:double Index 3 read GetData write SetData;
-           property YMax:double Index 4 read GetData write SetData;
+           property XMin:double Index 1 read fXMin write SetData;
+           property YMin:double Index 2 read fYMin write SetData;
+           property XMax:double Index 3 read fXMax write SetData;
+           property YMax:double Index 4 read fYMax write SetData;
+//           property XMin:double Index 1 read GetData write SetData;
+//           property YMin:double Index 2 read GetData write SetData;
+//           property XMax:double Index 3 read GetData write SetData;
+//           property YMax:double Index 4 read GetData write SetData;
            property Br:Char read fBr write SetDataBr;
            procedure Copy (Souсe:TDiapazon);
            procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
@@ -302,16 +306,16 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 implementation
 uses OlegMath,OlegGraph, Classes, Dialogs, Controls;
 
-function TDiapazon.GetData(Index:integer):double;
-begin
-case Index of
- 1:Result:=fXMin;
- 2:Result:=fYMin;
- 3:Result:=fXMax;
- 4:Result:=fYMax;
- else Result:=0;
- end;
-end;
+//function TDiapazon.GetData(Index:integer):double;
+//begin
+//case Index of
+// 1:Result:=fXMin;
+// 2:Result:=fYMin;
+// 3:Result:=fXMax;
+// 4:Result:=fYMax;
+// else Result:=0;
+// end;
+//end;
 
 procedure TDiapazon.SetData(Index:integer; value:double);
 begin

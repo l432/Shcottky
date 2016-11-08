@@ -1253,13 +1253,6 @@ var
   RA, RB, RC:double;
   {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
       Rs=A+B*T+C*T^2}
-//  Isc,Voc,Iph,Rsh,Pm,FF:double;
-  {Isc - струм короткого замикання
-  Voc - напруга холостого ходу
-  Iph - фотострум
-  Rsh - шунтуючий опір
-  Pm - максимальна вихідна потужність фотоелементв
-  FF - коефіцієнт форми ВАХ фотоелементу}
   Iph_Exp,Iph_Lam,Iph_DE,DDiod_DE:boolean;
   {визначають, чи потрібно підбирати фотострум
   (при True) у формулі
@@ -1287,6 +1280,7 @@ var
   FirstLayer,pLayer,nLayer:TMaterialShow;
   Diod_SchottkyShow:TDiod_SchottkyShow;
   Diod_PNShow:TDiod_PNShow;
+
 
 
 implementation
@@ -1623,7 +1617,9 @@ begin
  Diod_PNShow:=TDiod_PNShow.Create(DiodPN,CBtypeN,CBtypeP,STConcN,STConcFLP,
                                  STAreaPN,LNdN,LNdP,LAreaPN);
 
-
+ GraphParameters:=TGraphParameters.Create;
+// GraphParameters.Diod:=Diod;
+// GraphParameters.DiodPN:=DiodPN;
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
 GrLim.MinValue[0]:=ConfigFile.ReadFloat('Limit','MinV0',ErResult);
@@ -1985,6 +1981,8 @@ end; // with Form1 do
   ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
   ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 
+  GraphParameters.Free;
+
   Diod_PNShow.Free;
   DiodPN.WriteToIniFile(ConfigFile);
   DiodPN.Free;
@@ -2124,35 +2122,6 @@ begin
  CBoxRCons.Checked:= not CBoxRCons.Checked;
  CBoxDLBuildClick(LabRCons);
 end;
-
-//procedure TForm1.LaVarBClick(Sender: TObject);
-// var Value:double;
-//     st:string;
-//begin
-//  if (Sender as TLabel).Name='LaVarB' then Value:=Semi.VarshB;
-//  if (Sender as TLabel).Name='LaVarA' then Value:=Semi.VarshA;
-//  if (Sender as TLabel).Name='LaMeff' then Value:=Semi.Meff;
-//  if (Sender as TLabel).Name='LaEg' then Value:=Semi.Eg0;
-//  if (Sender as TLabel).Name='LaPerm' then Value:=Semi.Eps;
-//  if (Sender as TLabel).Name='LaRich' then Value:=Semi.ARich;
-//
-//  st:=FloatToStrF(Value,ffGeneral,4,3);
-//  if st='ErResult' then st:='';
-//
-//  st:=InputBox('Input value',
-//               'the material parameter value is expected',
-//               st);
-//
-//  StrToNumber(st, ErResult, Value);
-//  if (Sender as TLabel).Name='LaVarB' then Semi.VarshB:=Value;
-//  if (Sender as TLabel).Name='LaVarA' then Semi.VarshA:=Value;
-//  if (Sender as TLabel).Name='LaMeff' then Semi.Meff:=Value;
-//  if (Sender as TLabel).Name='LaEg' then Semi.Eg0:=Value;
-//  if (Sender as TLabel).Name='LaPerm' then Semi.Eps:=Value;
-//  if (Sender as TLabel).Name='LaRich' then Semi.ARich:=Value;
-//
-//  MaterialOnForm;
-//end;
 
 procedure TForm1.LDLBuildClick(Sender: TObject);
 begin

@@ -44,8 +44,36 @@ type
           Ditf,//Deep level density (Ivanov method)
           Lef  //Lee function
           );
-{допоміжний тип, кожне можливе значення відповідає
-графіку, який можна побудувати}
+
+
+{тип, для збереження різних параметрів, які використовуються
+ в розрахунках}
+ TGraphParameters=class
+  private
+    FRs: double;
+    Fn: double;
+    FFb: double;
+    FGamma: double;
+    FGamma1: double;
+    FGamma2: double;
+    FVa: double;
+    FForForwardBranch: boolean;
+    FNssType:boolean;
+    procedure SetData(Index:integer; Value:double);
+  public
+   Diapazon:TDiapazon;
+//   Diod:TDiod_Schottky;
+//   DiodPN:TDiod_PN;
+   property Rs:double Index 1 read FRs write SetData;
+   property n:double  Index 2 read Fn  write SetData;
+   property Fb:double Index 3 read FFb write SetData;
+   property Gamma:double Index 4 read FGamma write SetData;
+   property Gamma1:double Index 5 read FGamma1 write SetData;
+   property Gamma2:double Index 6 read FGamma2 write SetData;
+   property Va:double Index 7 read FVa write SetData;
+   property ForForwardBranch:boolean read FForForwardBranch write FForForwardBranch;
+   property NssType:boolean read FNssType write FNssType;
+ end;
 
 const
   cnbb=' can not be built';
@@ -127,6 +155,9 @@ const
      'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)'//Lef
  );
 
+var
+  GraphParameters:TGraphParameters;
+
 Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
 
 Function GraphErrorMessage(tg:TGraph):string;
@@ -136,7 +167,7 @@ Procedure Read_File (sfile:string; var a:PVector);
 змінну a, з файлу comments в тій самій директорії
 зчитується значення температури в a.T}
 
- Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
+Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
 {записує у файл з іменем sfile дані з масиву А;
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
@@ -735,6 +766,8 @@ I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
 }
 
 Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
+
+Procedure GraphCalculation(InVector:Pvector; var OutVector:Pvector;tg:TGraph);
 
 implementation
 
@@ -3951,5 +3984,61 @@ Str.SaveToFile(fname);
 Str.Free;
 end;
 
+
+{ TGrapParameters }
+
+procedure TGraphParameters.SetData(Index: integer; Value: double);
+begin
+ case Index of
+  1: if Value>=0 then FRs := Value
+                 else FRs :=ErResult;
+  2: if Value>0  then Fn  := Value
+                 else Fn  :=ErResult;
+  3: if Value>=0 then FFb := Value
+                 else FFb :=ErResult;
+  4: if Value>1  then FGamma:= Value
+                 else FGamma:=ErResult;
+  5: if Value>1  then FGamma1:= Value
+                 else FGamma1:=ErResult;
+  6: if Value>1  then FGamma2:= Value
+                 else FGamma2:=ErResult;
+  7: if Value>=0.01  then FVa:= Value
+                     else FVa:=ErResult;
+  end;
+end;
+
+Procedure GraphCalculation(InVector:Pvector; var OutVector:Pvector;tg:TGraph);
+begin
+ case tg of
+  Non: ;
+  IP,FN,FNm,Ab,Abm,FP,FPm:
+      M_V_Fun(InVector,OutVector,GraphParameters.ForForwardBranch,tg);
+  Rev: ReverseIV(InVector,OutVector);
+  Fo:  ForwardIV(InVector,OutVector);
+  Ka1: Kam1_Fun(InVector,OutVector,GraphParameters.Diapazon);
+  Ka2: Kam2_Fun(InVector,OutVector,GraphParameters.Diapazon);
+  Gr1: Gr1_Fun(InVector,OutVector);
+  Gr2: Gr2_Fun(InVector,OutVector, Diod);
+  Chu: ChungFun(InVector,OutVector);
+  Ci:  CibilsFun(InVector,GraphParameters.Diapazon,OutVector);
+  Wer: WernerFun(InVector,OutVector);
+  FoRs:ForwardIVwithRs(InVector,OutVector,GraphParameters.Rs);
+  Ide: N_V_Fun(InVector,OutVector,GraphParameters.Rs);
+  E2F: Forward2Exp(InVector,OutVector,GraphParameters.Rs);
+  E2R: Reverse2Exp(InVector,OutVector,GraphParameters.Rs);
+  Hf:  HFun(InVector,OutVector, Diod, GraphParameters.n);
+  Nor: NordeFun(InVector,OutVector, Diod, GraphParameters.Gamma);
+  FV:  CibilsFunDod(InVector,OutVector,GraphParameters.Va);
+  FI:  LeeFunDod(InVector,OutVector,GraphParameters.Va);
+  MAl: MikhAlpha_Fun(InVector,OutVector);
+  MBe: MikhBetta_Fun(InVector,OutVector);
+  MId: MikhN_Fun(InVector,OutVector);
+  MRs: MikhRs_Fun(InVector,OutVector);
+  Nssf:Nss_Fun(InVector, OutVector,GraphParameters.Fb,GraphParameters.Rs,
+               Diod,GraphParameters.Diapazon,GraphParameters.NssType);
+  Ditf:Dit_Fun(InVector, OutVector,GraphParameters.Rs,Diod,GraphParameters.Diapazon);
+  Lef: LeeFun(InVector,GraphParameters.Diapazon,OutVector);
+end;
+end;
 
 end.
