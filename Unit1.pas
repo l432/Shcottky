@@ -60,15 +60,10 @@ type
 елемент з масиву ColName (тобто в назву має
 входити, наприклад, Rs_Ch...}
   TColNames= set of TColName;
-  TDiapazons=(diChung, diMikh, diExp, diEx, diNord, diNss,
-              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
-              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
+//  TDiapazons=(diChung, diMikh, diExp, diEx, diNord, diNss,
+//              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
+//              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
 
-  TGraph=(Non,IP,FN,FNm,Ab,Abm,FP,FPm,Rev,Fo,Ka1,Ka2,Gr1,Gr2,Chu,
-          Ci,Wer,FoRs,Ide,E2F,E2R,Hf,Nor,FV,FI,MAl,MBe,MId,MRs,
-          Nssf,Ditf,Lef);
-{допоміжний тип, кожне можливе значення відповідає
-графіку, який можна побудувати}
 
   TForm1 = class(TForm)
     PageControl1: TPageControl;
@@ -1090,13 +1085,6 @@ Procedure DiapToLimToTForm1(D:TDiapazon; F:TForm1);
 з обмеженим відображенням графіку (і в змінну GrLim,
 і на саму форму, у відповідні написи}
 
-//Procedure MaterialOnForm;
-//{виведення на форму параметрів матеріалу, які
-//беруться зі змінної Semi}
-
-//Procedure DiodOnForm;
-//{виведення на форму параметрів діоду, які
-//беруться зі змінної Diod}
 
 Procedure ChooseDirect(F:TForm1);
 {виведення на форму написів, пов'язаних
@@ -2278,12 +2266,12 @@ begin
 end;
 
 procedure TForm1.RadioButtonM_VClick(Sender: TObject);
-const
-  cnbb=' can not be built';
-  cnbd=' can not be determined';
-  tIVc='The I-V-characteristic has not point';
-  bfcia=#10'because forward current is absent';
-  rsi=#10'because range is selected improperly or'#10'forward characteristic has a repetitive element';
+//const
+//  cnbb=' can not be built';
+//  cnbd=' can not be determined';
+//  tIVc='The I-V-characteristic has not point';
+//  bfcia=#10'because forward current is absent';
+//  rsi=#10'because range is selected improperly or'#10'forward characteristic has a repetitive element';
 var str:string;
     tg:TGraph;
 begin
@@ -2326,238 +2314,51 @@ if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
 
   end; //if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
 
+str:=GraphNames[tg];
+
 case tg of
   Non: ;
   IP,FN,FNm,Ab,Abm,FP,FPm:
-     begin
-      M_V_Fun(VaxFile,VaxGraph,CheckBoxM_V.Checked,ord(tg));
-      case tg of
-        IP: str:='The power index function';
-        FN: str:='The Fowler-Nordheim function';
-        FNm:str:='The Fowler-Nordheim function (max electric field)';
-        Ab: str:='The Abeles function';
-        Abm:str:='The Abeles function (max electric field)' ;
-        FP: str:='The Frenkel-Pool function';
-        FPm:str:='The Frenkel-Pool function (max electric field)' ;
-       end;
-      if CheckBoxM_V.Checked then str:=str+' for forward branch'
-                             else str:=str+' for reverse branch';
-     end ;
-  Rev:
-    begin
-     ReverseIV(VaxFile,VaxGraph);
-     str:='Reverse I-V-characteristic';
-    end;
-  Fo:
-    begin
-    ForwardIV(VaxFile,VaxGraph);
-    str:='Forward I-V-characteristic';
-    end;
-  Ka1:
-    begin
-    Kam1_Fun(VaxFile,VaxGraph,D[diKam1]);
-    str:='Kaminski function I';
-    end;
-  Ka2:
-    begin
-    Kam2_Fun(VaxFile,VaxGraph,D[diKam2]);
-    str:='Kaminski function II';
-    end;
-  Gr1:
-    begin
-    Gr1_Fun(VaxFile,VaxGraph);
-    str:='Gromov function I';
-    end;
-  Gr2:
-    begin
-    Gr2_Fun(VaxFile,VaxGraph, Diod);
-    str:='Gromov function II';
-    end;
-  Chu:
-    begin
-    ChungFun(VaxFile,VaxGraph);
-    str:='Cheung function';
-    end;
-  Ci:
-    begin
-    CibilsFun(VaxFile,D[diCib],VaxGraph);
-    str:='Cibils function';
-    end;
-  Wer:
-    begin
-    WernerFun(VaxFile,VaxGraph);
-    str:='Werner function';
-    end;
-  FoRs:
-    begin
-    ForwardIVwithRs(VaxFile,VaxGraph,Rss);
-    str:='Forward I-V-characteristic with Rs';
-    end;
-  Ide:
-    begin
-    N_V_Fun(VaxFile,VaxGraph,Rss);
-    str:='Ideality factor vs voltage';
-    end;
-  E2F:
-    begin
-    Forward2Exp(VaxFile,VaxGraph,Rss);
-    str:='Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs';
-    end;
-  E2R:
-    begin
-    Reverse2Exp(VaxFile,VaxGraph,Rss);
-    str:='Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs';
-    end;
-  Hf:
-    begin
-    HFun(VaxFile,VaxGraph, Diod, nn);
-    str:='H - function';
-    end;
-  Nor:
-    begin
-    NordeFun(VaxFile,VaxGraph, Diod, Gamma);
-    str:='Norde"s function';
-    end;
-  FV:
-    begin
-    CibilsFunDod(VaxFile,VaxGraph,Va);
-    str:='F(V) = V - Va * ln( I )';
-    end;
-  FI:
-    begin
-    LeeFunDod(VaxFile,VaxGraph,Va);
-    str:='F(I) = V - Va * ln( I )';
-    end;
-  MAl:
-    begin
-    MikhAlpha_Fun(VaxFile,VaxGraph);
-    str:='Alpha function (Mikhelashvili"s method)';
-    end;
-  MBe:
-    begin
-    MikhBetta_Fun(VaxFile,VaxGraph);
-    str:='Betta function (Mikhelashvili"s method)';
-    end;
-  MId:
-    begin
-    MikhN_Fun(VaxFile,VaxGraph);
-    str:='Ideality factor vs voltage (Mikhelashvili"s method)';
-    end;
-  MRs:
-    begin
-    MikhRs_Fun(VaxFile,VaxGraph);
-    str:='Series resistant vs voltage (Mikhelashvili"s method)';
-    end;
-  Nssf:
-    begin
-    Nss_Fun(VaxFile, VaxGraph,Fbb,Rss,Diod,D[diNss],RadioButtonNssNvD.Checked);
-    str:='Deep level density';
-    end;
-  Ditf:
-    begin
-    Dit_Fun(VaxFile, VaxGraph,Rss,Diod,D[diIvan]);
-    str:='Deep level density';
-    end;
-  Lef:
-    begin
-     LeeFun(VaxFile,D[diLee],VaxGraph);
-     str:='Lee function';
-    end;
+      M_V_Fun(VaxFile,VaxGraph,CheckBoxM_V.Checked,tg);
+  Rev: ReverseIV(VaxFile,VaxGraph);
+  Fo:  ForwardIV(VaxFile,VaxGraph);
+  Ka1: Kam1_Fun(VaxFile,VaxGraph,D[diKam1]);
+  Ka2: Kam2_Fun(VaxFile,VaxGraph,D[diKam2]);
+  Gr1: Gr1_Fun(VaxFile,VaxGraph);
+  Gr2: Gr2_Fun(VaxFile,VaxGraph, Diod);
+  Chu: ChungFun(VaxFile,VaxGraph);
+  Ci:  CibilsFun(VaxFile,D[diCib],VaxGraph);
+  Wer: WernerFun(VaxFile,VaxGraph);
+  FoRs:ForwardIVwithRs(VaxFile,VaxGraph,Rss);
+  Ide: N_V_Fun(VaxFile,VaxGraph,Rss);
+  E2F: Forward2Exp(VaxFile,VaxGraph,Rss);
+  E2R: Reverse2Exp(VaxFile,VaxGraph,Rss);
+  Hf:  HFun(VaxFile,VaxGraph, Diod, nn);
+  Nor: NordeFun(VaxFile,VaxGraph, Diod, Gamma);
+  FV:  CibilsFunDod(VaxFile,VaxGraph,Va);
+  FI:  LeeFunDod(VaxFile,VaxGraph,Va);
+  MAl: MikhAlpha_Fun(VaxFile,VaxGraph);
+  MBe: MikhBetta_Fun(VaxFile,VaxGraph);
+  MId: MikhN_Fun(VaxFile,VaxGraph);
+  MRs: MikhRs_Fun(VaxFile,VaxGraph);
+  Nssf:Nss_Fun(VaxFile, VaxGraph,Fbb,Rss,Diod,D[diNss],RadioButtonNssNvD.Checked);
+  Ditf:Dit_Fun(VaxFile, VaxGraph,Rss,Diod,D[diIvan]);
+  Lef: LeeFun(VaxFile,D[diLee],VaxGraph);
 end;
 until true;
 
 
 if VaxGraph^.n=0 then
-    begin
-    case tg of
-      Non: ;
-      IP,FN,FNm,Ab,Abm,FP,FPm:
-           str:=str+cnbb;
-      Rev,E2R:
-           str:=tIVc+#10'with negative voltage';
-      Fo:  str:=tIVc+#10'with positive voltage';
-      Ka1: str:=str+cnbb+rsi;
-      Ka2: str:=str+cnbb+rsi+#10'or negative current';
-      Gr1: str:=str+cnbb+#10'because I-V-characteristic has not point'#10'with positive voltage';
-      Gr2,Chu,Wer,Hf,Nor:
-           str:=str+cnbb+bfcia;
-      Ci,Lef:
-           str:=str+cnbb+bfcia+#10'or range is selected improperly';
-      FoRs,E2F:
-           str:=tIVc+#10'with positive current';
-      Ide: str:=str+cnbb+bfcia+#10'or forward characteristic has a negative current';
-      FV,FI:
-           str:='The function'+cnbb+bfcia;
-      MAl: str:=str+#10+cnbb+bfcia+#10'or there is no maximum on the curve';
-      MBe,MId,MRs:
-           str:=str+cnbb+#10'because impossible to build Alpha function';
-      Nssf:str:='The Nss function'+cnbb;
-      Ditf:str:='The Dit function'+cnbb;
-     end;   //case
-    MessageDlg(str, mtError, [mbOK], 0);
-    end
-            else
-     case tg of
-       Gr1: DiapToLimToTForm1(D[diGr1],Form1);
-       Gr2: DiapToLimToTForm1(D[diGr2],Form1);
-       Chu: DiapToLimToTForm1(D[diChung],Form1);
-       Wer: DiapToLimToTForm1(D[diWer],Form1);
-       FoRs:DiapToLimToTForm1(D[diEx],Form1);
-       E2F: DiapToLimToTForm1(D[diE2F],Form1);
-       E2R: DiapToLimToTForm1(D[diE2R],Form1);
-       Hf:  DiapToLimToTForm1(D[diHfunc],Form1);
-       Nor: DiapToLimToTForm1(D[diNord],Form1);
-       FV:  DiapToLimToTForm1(D[diCib],Form1);
-       FI:  DiapToLimToTForm1(D[diLee],Form1);
-       MAl,MBe,MId,MRs:
-            DiapToLimToTForm1(D[diMikh],Form1);
-       Nssf:DiapToLimToTForm1(D[diNss],Form1);
-       Ditf:DiapToLimToTForm1(D[diIvan],Form1);
-     end;  //case
-
+    MessageDlg(str+GraphErrorMessage(tg), mtError, [mbOK], 0)
+                 else
+    DiapToLimToTForm1(D[ConvertTGraphToTDiapazons(tg)],Form1);
 
 ShowGraph(Form1,str);
 end;
 
 procedure TForm1.RadioButtonM_VDblClick(Sender: TObject);
-var st:string;
-    tg:TGraph;
 begin
-tg:=GraphType(Sender);
-case tg of
-  IP:   st:='Y = d (ln I)/d (ln V)'#10'X = V';
-  FN:   st:='Y = ln (I/V^2)'#10'X = 1/V';
-  FNm:  st:='Y = ln (I/V)'#10'X = 1/V^0.5';
-  Ab:   st:='Y = ln (I/V)'#10'X = 1/V';
-  Abm:  st:='Y = ln (I/V^0.5)'#10'X = 1/V^0.5';
-  FP:   st:='Y = ln (I/V)'#10'X = V^0.5';
-  FPm:  st:='Y = ln (I/V^0.5)'#10'X = V^0.25';
-  Lef:  st:='X - arbitrary voltage Va'#10+
-            'Y = -C/B, where C and B are the coefficienfs of'#10+
-            'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)';
-  Ka1:  st:='Y = ( I - I0 )^(-1)  int (I dV)'#10'X = ( I + I0 ) / 2';
-  Ka2:  st:='Y = ln( I / I0 ) / ( I - I0 )'#10'X = ( V - V0 ) / ( I - I0 )';
-  Gr1:  st:='Y = V'#10'X = I';
-  Gr2:  st:='Y = (V/2) - (kT/e) ln [I/(S Ar T^2)]'#10'X = I ';
-  Chu:  st:='C ( I )  =  d V / d ( ln I )';
-  Ci:   st:='X - arbitrary voltage Va'#10'Y = I0, minimum of function (V-Va*ln(I))';
-  Wer:  st:='Y = (dI/dV) / I'#10'X = dI/dV';
-  FoRs: st:='V replaced by (V - I Rs)';
-  Ide:  st:='n = d ( V ) / d ( ln I ) (k T)^(-1)';
-  E2F,E2R: st:='Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)';
-  Hf:   st:='H(I) = V-n (kT/e) ln[I/(S Ar T^2)] = I Rs + n Фb';
-  Nor:  st:='F(V) = (V/gamma) - (kT/e) ln [I/(S Ar T^2)]';
-  FV:   st:='F(V) = V - Va * ln( I )';
-  FI:   st:='F(I) = V - Va * ln( I )';
-  MAl:  st:='Y = d(lnI)/d(lnV)'#10'X = V';
-  MId:  st:='Y = q V (Alpha - 1) [1 + Betta / (Alpha - 1)] / k T Alpha^2'#10'X = V';
-  MRs:  st:='Y = V (1- Betta) / I Alpha^2'#10'X = V';
-  MBe:  st:='Y = d(ln Alpha)/d(ln V)'#10'X = V';
-  Nssf: st:='Nss = ep ep0 ( n - 1 ) / ( d e )';
-  Ditf: st:='Dit=ep ep0 /d * (q^-2) * d(Vcal-Vexp)/dVs';
-  else  st:='some error';
-end;
-MessageDlg(st, mtInformation,[mbOk],0);
+ MessageDlg(GraphHint[GraphType(Sender)], mtInformation,[mbOk],0);
 end;
 
 procedure TForm1.RBAveSelectClick(Sender: TObject);
@@ -7145,25 +6946,25 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         Reverse2Exp(Vax,tempVax,RsDefineCB(Vax,ComBExp2RRs,ComBExp2RRs_n));
 {---------------------------------------------}
        M_V:
-         M_V_Fun(Vax,tempVax,CBM_Vdod.Checked,1);
+         M_V_Fun(Vax,tempVax,CBM_Vdod.Checked,IP);
 {---------------------------------------------}
        Fow_Nor:
-         M_V_Fun(Vax,tempVax,CBFow_Nordod.Checked,2);
+         M_V_Fun(Vax,tempVax,CBFow_Nordod.Checked,FN);
 {---------------------------------------------}
        Fow_NorE:
-         M_V_Fun(Vax,tempVax,CBFow_NorEdod.Checked,3);
+         M_V_Fun(Vax,tempVax,CBFow_NorEdod.Checked,FNm);
 {---------------------------------------------}
        Abeles:
-         M_V_Fun(Vax,tempVax,CBAbelesdod.Checked,4);
+         M_V_Fun(Vax,tempVax,CBAbelesdod.Checked,Ab);
 {---------------------------------------------}
        AbelesE:
-         M_V_Fun(Vax,tempVax,CBAbelesEdod.Checked,5);
+         M_V_Fun(Vax,tempVax,CBAbelesEdod.Checked,Abm);
 {---------------------------------------------}
        Fr_Pool:
-         M_V_Fun(Vax,tempVax,CBFr_Pooldod.Checked,6);
+         M_V_Fun(Vax,tempVax,CBFr_Pooldod.Checked,FP);
 {---------------------------------------------}
        Fr_PoolE:
-         M_V_Fun(Vax,tempVax,CBFr_PoolEdod.Checked,7);
+         M_V_Fun(Vax,tempVax,CBFr_PoolEdod.Checked,FPm);
      end; //case
        Write_File(CurDirectory+'\'+
          GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+ShotName+

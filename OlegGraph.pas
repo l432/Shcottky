@@ -3,6 +3,133 @@ interface
 uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
      Forms,Controls,WinProcs,OlegMaterialSamples;
 
+type
+
+  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
+              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
+              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
+
+
+{типи функцій, які можна можна побудувати}
+  TGraph=(Non,
+          IP, //залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
+          FN, //ф-я Фаулера-Нордгейма для прикладеної напруги   ln(I/V^2)=f(1/V);
+          FNm,//ф-я Фаулера-Нордгейма для максимальної напруженості  ln(I/V)=f(1/V^0.5);
+          Ab, //ф-я Абелеса для прикладеної напруги   ln(I/V)=f(1/V);
+          Abm,//ф-я Абелеса для максимальної напруженості ln(I/V^0.5)=f(1/V^0.5);
+          FP, //ф-я Френкеля-Пула для прикладеної напруги ln(I/V)=f(V^0.5);
+          FPm,//ф-я Френкеля-Пула для максимальної напруженості ln(I/V^0.5)=f(1/V^0.25);
+          Rev,//reverse IV characteristic
+          Fo, //Forward I-V-characteristic
+          Ka1,//'Kaminski function I
+          Ka2, //Kaminski function II
+          Gr1, //Gromov function I
+          Gr2, //Gromov function II
+          Chu, //Cheung function
+          Ci,  //Cibils function
+          Wer, //Werner function
+          FoRs, //Forward I-V-characteristic with Rs
+          Ide, //Ideality factor vs voltage
+          E2F, //Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs
+          E2R, //Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs
+          Hf,  //H - function
+          Nor, //Norde"s function
+          FV,  //F(V) = V - Va * ln( I )
+          FI,  //F(I) = V - Va * ln( I )
+          MAl, //Alpha function (Mikhelashvili"s method)
+          MBe, //Betta function (Mikhelashvili"s method)
+          MId, //Ideality factor vs voltage (Mikhelashvili"s method)
+          MRs, //Series resistant vs voltage (Mikhelashvili"s method)
+          Nssf,//Deep level density
+          Ditf,//Deep level density (Ivanov method)
+          Lef  //Lee function
+          );
+{допоміжний тип, кожне можливе значення відповідає
+графіку, який можна побудувати}
+
+const
+  cnbb=' can not be built';
+  cnbd=' can not be determined';
+  tIVc='The I-V-characteristic has not point';
+  bfcia=#10'because forward current is absent';
+  rsi=#10'because range is selected improperly or'#10'forward characteristic has a repetitive element';
+
+
+ GraphNames:array [TGraph] of string=
+ ('Empty function',
+ 'The power index function',
+ 'The Fowler-Nordheim function',
+ 'The Fowler-Nordheim function (max electric field)',
+ 'The Abeles function',
+ 'The Abeles function (max electric field)',
+ 'The Frenkel-Pool function',
+ 'The Frenkel-Pool function (max electric field)',
+ 'reverse IV characteristic',
+ 'Forward I-V-characteristic',
+ 'Kaminski function I',
+ 'Kaminski function II',
+ 'Gromov function I',
+ 'Gromov function II',
+ 'Cheung function',
+ 'Cibils function',
+ 'Werner function',
+ 'Forward I-V-characteristic with Rs',
+ 'Ideality factor vs voltage',
+ 'Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs',
+ 'Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs',
+ 'H - function',
+ 'Norde"s function',
+ 'F(V) = V - Va * ln( I )',
+ 'F(I) = V - Va * ln( I )',
+ 'Alpha function (Mikhelashvili"s method)',
+ 'Betta function (Mikhelashvili"s method)',
+ 'Ideality factor vs voltage (Mikhelashvili"s method)',
+ 'Series resistant vs voltage (Mikhelashvili"s method)',
+ 'Deep level density',
+ 'Deep level density (Ivanov method)',
+ 'Lee function'
+ );
+
+ GraphHint:array [TGraph] of string=
+ ('Some error',
+  'Y = d (ln I)/d (ln V)'#10'X = V',//IP
+  'Y = ln (I/V^2)'#10'X = 1/V',//FN
+  'Y = ln (I/V)'#10'X = 1/V^0.5',//FNm
+  'Y = ln (I/V)'#10'X = 1/V',//Ab
+  'Y = ln (I/V^0.5)'#10'X = 1/V^0.5',//Abm
+  'Y = ln (I/V)'#10'X = V^0.5',//FP
+  'Y = ln (I/V^0.5)'#10'X = V^0.25',//FPm
+  'if X<0 then X=abs(X), Y=abs(Y)',//Rev
+  'X>0 only',//Fo
+  'Y = ( I - I0 )^(-1)  int (I dV)'#10'X = ( I + I0 ) / 2',//Ka1
+  'Y = ln( I / I0 ) / ( I - I0 )'#10'X = ( V - V0 ) / ( I - I0 )',//Ka2
+  'Y = V'#10'X = I',//Gr1
+  'Y = (V/2) - (kT/e) ln [I/(S Ar T^2)]'#10'X = I ',//Gr2
+  'C ( I )  =  d V / d ( ln I )',//Chu
+  'X - arbitrary voltage Va'#10'Y = I0, minimum of function (V-Va*ln(I))',//Ci
+  'Y = (dI/dV) / I'#10'X = dI/dV',//Wer
+  'V replaced by (V - I Rs)',//FoRs
+  'n = d ( V ) / d ( ln I ) (k T)^(-1)',//Ide
+  'Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)',//E2F
+  'Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)',//E2R
+  'H(I) = V-n (kT/e) ln[I/(S Ar T^2)] = I Rs + n Фb',//Hf
+  'F(V) = (V/gamma) - (kT/e) ln [I/(S Ar T^2)]',//Nor
+  'F(V) = V - Va * ln( I )',//FV
+  'F(I) = V - Va * ln( I )',//FI
+  'Y = d(lnI)/d(lnV)'#10'X = V',//MAl
+  'Y = d(ln Alpha)/d(ln V)'#10'X = V',//MBe
+  'Y = q V (Alpha - 1) [1 + Betta / (Alpha - 1)] / k T Alpha^2'#10'X = V',//MId
+  'Y = V (1- Betta) / I Alpha^2'#10'X = V',//MRs
+  'Nss = ep ep0 ( n - 1 ) / ( d e )',//Nssf
+  'Dit=ep ep0 /d * (q^-2) * d(Vcal-Vexp)/dVs',//Ditf
+  'X - arbitrary voltage Va'#10+
+     'Y = -C/B, where C and B are the coefficienfs of'#10+
+     'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)'//Lef
+ );
+
+Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
+
+Function GraphErrorMessage(tg:TGraph):string;
 
 Procedure Read_File (sfile:string; var a:PVector);
 {читає дані з файлу з коротким ім'ям sfile в
@@ -142,7 +269,7 @@ Procedure N_V_Fun(A:Pvector; var B:Pvector; Rs:double);
 залежність I=I(V), яка знаходиться в А, спочатку
 модифікується з врахуванням величини послідовного опору Rs}
 
-Procedure M_V_Fun(A:Pvector; var B:Pvector; Bool:boolean; fun:word);
+Procedure M_V_Fun(A:Pvector; var B:Pvector; ForForwardBranch:boolean; tg:TGraph);
 {по даним у векторі А будує функцію залежно від значення fun:
 fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
 (для випадку коли  I=const*V^m);
@@ -613,6 +740,55 @@ implementation
 
 uses
   Math;
+
+
+Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
+begin
+ case tg of
+   Gr1: Result:=diGr1;
+   Gr2: Result:=diGr2;
+   Chu: Result:=diChung;
+   Wer: Result:=diWer;
+   FoRs: Result:=diEx;
+   E2F: Result:=diE2F;
+   E2R: Result:=diE2R;
+   Hf: Result:=diHfunc;
+   Nor: Result:=diNord;
+   FV: Result:=diCib;
+   FI: Result:=diLee;
+   MAl,MBe,MId,MRs: Result:=diMikh;
+   Nssf: Result:=diNss;
+   Ditf: Result:=diIvan;
+   else Result:=diNon;
+ end;
+end;
+
+Function GraphErrorMessage(tg:TGraph):string;
+begin
+ Result:='';
+ if tg=Non then Exit
+           else Result:=GraphNames[tg]+cnbb;
+ case tg of
+     Rev,E2R:
+           Result:=tIVc+#10'with negative voltage';
+      Fo:  Result:=tIVc+#10'with positive voltage';
+      Ka1: Result:=Result+rsi;
+      Ka2: Result:=Result+rsi+#10'or negative current';
+      Gr1: Result:=Result+#10'because I-V-characteristic has not point'#10'with positive voltage';
+      Gr2,Chu,Wer,Hf,Nor:
+           Result:=Result+bfcia;
+      Ci,Lef:
+           Result:=Result+bfcia+#10'or range is selected improperly';
+      FoRs,E2F:
+           Result:=tIVc+#10'with positive current';
+      Ide: Result:=Result+bfcia+#10'or forward characteristic has a negative current';
+      FV,FI:
+           Result:='The function'+cnbb+bfcia;
+      MAl: Result:=Result+bfcia+#10'or there is no maximum on the curve';
+      MBe,MId,MRs:
+           Result:=Result+#10'because impossible to build Alpha function';
+     end;
+end;
 
 Procedure Read_File (sfile:string; var a:Pvector);
 var F:TextFile;
@@ -1495,7 +1671,7 @@ Median (temp,B);
 dispose(temp);
 end;
 
-Procedure M_V_Fun(A:Pvector; var B:Pvector; Bool:boolean; fun:word);
+Procedure M_V_Fun(A:Pvector; var B:Pvector; ForForwardBranch:boolean; tg:TGraph);
 {по даним у векторі А будує функцію залежно від значення fun:
 fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
 (для випадку коли  I=const*V^m);
@@ -1518,44 +1694,44 @@ var temp:Pvector;
 begin
 B^.n:=0;
 new(temp);
-if Bool then ForwardIV(A,temp)
-        else ReverseIV(A,temp);
+if ForForwardBranch then ForwardIV(A,temp)
+                    else ReverseIV(A,temp);
 if temp^.n=0 then Exit;
 i:=0;
 repeat
    try
-    case fun of
-     1:  //  m=d(ln I)/d(ln V) = f (V)
+    case tg of
+     IP:  //  m=d(ln I)/d(ln V) = f (V)
       begin
        temp^.X[i]:=ln(temp^.X[i]);
        temp^.Y[i]:=ln(temp^.Y[i]);
       end;
-     2:  // ln(I/V^2)=f(1/V)
+     FN:  // ln(I/V^2)=f(1/V)
       begin
        temp^.Y[i]:=ln(temp^.Y[i]/sqr(temp^.X[i]));
        temp^.X[i]:=1/temp^.X[i];
       end;
-     3: // ln(I/V)=f(1/V^0.5)
+     FNm: // ln(I/V)=f(1/V^0.5)
       begin
        temp^.Y[i]:=ln(temp^.Y[i]/temp^.X[i]);
        temp^.X[i]:=1/sqrt(temp^.X[i]);
       end;
-     4: // ln(I/V)=f(1/V)
+     Ab: // ln(I/V)=f(1/V)
       begin
        temp^.Y[i]:=ln(temp^.Y[i]/temp^.X[i]);
        temp^.X[i]:=1/temp^.X[i];
       end;
-     5: // ln(I/V^0.5)=f(1/V^0.5)
+     Abm: // ln(I/V^0.5)=f(1/V^0.5)
       begin
        temp^.X[i]:=1/sqrt(temp^.X[i]);
        temp^.Y[i]:=ln(temp^.Y[i]*temp^.X[i]);
       end;
-     6: // ln(I/V)=f(V^0.5)
+     FP: // ln(I/V)=f(V^0.5)
       begin
        temp^.Y[i]:=ln(temp^.Y[i]/temp^.X[i]);
        temp^.X[i]:=sqrt(temp^.X[i]);
       end;
-     7: // ln(I/V^0.5)=f(V^0.25)
+     FPm: // ln(I/V^0.5)=f(V^0.25)
       begin
        temp^.Y[i]:=ln(temp^.Y[i]/sqrt(temp^.X[i]));
        temp^.X[i]:=sqrt(sqrt(temp^.X[i]));
@@ -1577,27 +1753,20 @@ until (i>High(temp^.X));
 
 if temp^.n=0 then Exit;
 
-case fun of
-  1:
+case tg of
+  IP:
     begin
      Diferen (temp,B);
      for i:=0 to High(B^.X) do
         B^.X[i]:=exp(B^.X[i]);
     end;
-  2..7:
-    begin
-     B^.n:=temp^.n;
-     B^.X:=Copy(temp^.X);
-     B^.Y:=Copy(temp^.Y);
-
-{     SetLength(B^.X,B^.n);
-     SetLength(B^.Y,B^.n);
-     for i:=0 to High(B^.X) do
-        begin
-        B^.X[i]:=temp^.X[i];
-        B^.Y[i]:=temp^.Y[i];
-        end;}
-    end;
+  Fn..Fpm: temp^.Copy(B^);
+//    begin
+//     B^.n:=temp^.n;
+//     B^.X:=Copy(temp^.X);
+//     B^.Y:=Copy(temp^.Y);
+//
+//    end;
  end; // case
 end;
 
