@@ -1400,13 +1400,13 @@ begin
  Directory0:= GetCurrentDir;
  DecimalSeparator:='.';
 
-  CBKalk.Sorted:=False;
+  {*}CBKalk.Sorted:=False;
   CBKalk.Items.Add('Method');
   CBKalk.Items.Add(GraphLabel[fnCheung]);
   CBKalk.Items.Add(GraphLabel[fnH]);
   CBKalk.Items.Add(GraphLabel[fnNorde]);
   CBKalk.Items.Add(GraphLabel[fnDiodLSM]);
-  CBKalk.Items.Add(GraphLabel[fnDiodSimple]);
+  CBKalk.Items.Add(GraphLabel[fnDiodVerySimple]);
   CBKalk.Items.Add(GraphLabel[fnRectification]);
   CBKalk.Items.Add(GraphLabel[fnKaminskii1]);
   CBKalk.Items.Add(GraphLabel[fnKaminskii2]);
@@ -1422,30 +1422,9 @@ begin
   CBKalk.Items.Add(GraphLabel[fnExpReverseRs]);
   CBKalk.Items.Add(GraphLabel[fnDiodLambert]);
   CBKalk.Items.Add(GraphLabel[fnDiodEvolution]);
-
-//  CBKalk.Items.Add('Cheung');
-//  CBKalk.Items.Add('H-function');
-//  CBKalk.Items.Add('Norde');
-//  CBKalk.Items.Add('I=I0[exp(Vef/E)-1]+Vef/Rsh-Iph');
-//  CBKalk.Items.Add('I=I0exp(qV/nkT)');
-//  CBKalk.Items.Add('Rect.Koef');
-//  CBKalk.Items.Add('Kaminskii I');
-//  CBKalk.Items.Add('Kaminskii II');
-//  CBKalk.Items.Add('Gromov I');
-//  CBKalk.Items.Add('Gromov II');
-//  CBKalk.Items.Add('Bohlin');
-//  CBKalk.Items.Add('Cibils');
-//  CBKalk.Items.Add('Lee');
-//  CBKalk.Items.Add('Werner');
-//  CBKalk.Items.Add('Mikhelashvili');
-//  CBKalk.Items.Add('Ivanov');
-//  CBKalk.Items.Add('If/[1-exp(-qVf/kT)]');
-//  CBKalk.Items.Add('Ir/[1-exp(-qVr/kT)]');
-//  CBKalk.Items.Add('Lambert function');
-//  CBKalk.Items.Add('Evolution Algorithm');
   CBKalk.ItemIndex:=0;
 
-  ComboBoxRs.Sorted:=False;
+  {*}ComboBoxRs.Sorted:=False;
   ComboBoxRs.Items.Add(GraphLabel[fnReq0]);
   ComboBoxRs.Items.Add(GraphLabel[fnCheung]);
   ComboBoxRs.Items.Add(GraphLabel[fnKaminskii1]);
@@ -1463,23 +1442,6 @@ begin
   ComboBoxRs.Items.Add(GraphLabel[fnDiodLSM]);
   ComboBoxRs.Items.Add(GraphLabel[fnDiodLambert]);
   ComboBoxRs.Items.Add(GraphLabel[fnDiodEvolution]);
-//  ComboBoxRs.Items.Add('R=0');
-//  ComboBoxRs.Items.Add('Cheung');
-//  ComboBoxRs.Items.Add('I Kaminskii');
-//  ComboBoxRs.Items.Add('II Kaminskii');
-//  ComboBoxRs.Items.Add('H-functin');
-//  ComboBoxRs.Items.Add('Norde');
-//  ComboBoxRs.Items.Add('A+B*T+C*T^2');
-//  ComboBoxRs.Items.Add('I Gromov');
-//  ComboBoxRs.Items.Add('II Gromov');
-//  ComboBoxRs.Items.Add('Bohlin');
-//  ComboBoxRs.Items.Add('Cibils');
-//  ComboBoxRs.Items.Add('Lee');
-//  ComboBoxRs.Items.Add('Werner');
-//  ComboBoxRs.Items.Add('Mikhelashvili');
-//  ComboBoxRs.Items.Add('Full Exp');
-//  ComboBoxRs.Items.Add('Lambert');
-//  ComboBoxRs.Items.Add('Dif Evol');
 
   ComboBoxNssRs.Sorted:=False;
   ComboBoxNssRs.Items:=ComboBoxRs.Items;
@@ -1504,21 +1466,21 @@ begin
   ComBDateEx2RRs.Sorted:=False;
   ComBDateEx2RRs.Items:=ComboBoxRs.Items;
 
-  ComboBoxRS_n.Sorted:=False;
-  ComboBoxRS_n.Items.Add('n=1');
-  ComboBoxRS_n.Items.Add('Cheung');
-  ComboBoxRS_n.Items.Add('I Kaminskii');
-  ComboBoxRS_n.Items.Add('II Kaminskii');
-  ComboBoxRS_n.Items.Add('I Gromov');
-  ComboBoxRS_n.Items.Add('II Gromov');
-  ComboBoxRS_n.Items.Add('Bohlin');
-  ComboBoxRS_n.Items.Add('Cibils');
-  ComboBoxRS_n.Items.Add('Lee');
-  ComboBoxRS_n.Items.Add('Werner');
-  ComboBoxRS_n.Items.Add('Mikhelashvili');
-  ComboBoxRS_n.Items.Add('Full Exp');
-  ComboBoxRS_n.Items.Add('Lambert');
-  ComboBoxRS_n.Items.Add('Dif Evol');
+  {*}ComboBoxRS_n.Sorted:=False;
+  ComboBoxRS_n.Items.Add(GraphLabel[fnNeq1]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnCheung]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnKaminskii1]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnKaminskii2]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnGromov1]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnGromov2]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnBohlin]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnCibils]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnLee]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnWerner]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnMikhelashvili]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnDiodLSM]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnDiodLambert]);
+  ComboBoxRS_n.Items.Add(GraphLabel[fnDiodEvolution]);
 
   ComboBoxNssRs_N.Sorted:=False;
   ComboBoxNssRs_N.Items:=ComboBoxRS_n.Items;
@@ -1545,24 +1507,24 @@ begin
   ComBDateExRs_n.Items:=ComboBoxRS_n.Items;
 
   ComboBoxN.Sorted:=False;
-  ComboBoxN.Items.Add('n=1');
-  ComboBoxN.Items.Add('Cheung');
-  ComboBoxN.Items.Add('I Kaminskii');
-  ComboBoxN.Items.Add('II Kaminskii');
-  ComboBoxN.Items.Add('I0(exp(qV/nkT)-1)');
-  ComboBoxN.Items.Add('I0exp(qV/nkT)');
-  ComboBoxN.Items.Add('I Gromov');
-  ComboBoxN.Items.Add('II Gromov');
-  ComboBoxN.Items.Add('Bohlin');
-  ComboBoxN.Items.Add('Cibils');
-  ComboBoxN.Items.Add('Lee');
-  ComboBoxN.Items.Add('Werner');
-  ComboBoxN.Items.Add('Mikhelashvili');
-  ComboBoxN.Items.Add('If/[1-exp(qVf/kT)]');
-  ComboBoxN.Items.Add('Ir/[1-exp(qVr/kT)]');
-  ComboBoxN.Items.Add('Full Exp');
-  ComboBoxN.Items.Add('Lambert');
-  ComboBoxN.Items.Add('Dif Evol');
+  ComboBoxN.Items.Add(GraphLabel[fnNeq1]);
+  ComboBoxN.Items.Add(GraphLabel[fnCheung]);
+  ComboBoxN.Items.Add(GraphLabel[fnKaminskii1]);
+  ComboBoxN.Items.Add(GraphLabel[fnKaminskii2]);
+  ComboBoxN.Items.Add(GraphLabel[fnDiodSimple]);
+  ComboBoxN.Items.Add(GraphLabel[fnDiodVerySimple]);
+  ComboBoxN.Items.Add(GraphLabel[fnGromov1]);
+  ComboBoxN.Items.Add(GraphLabel[fnGromov2]);
+  ComboBoxN.Items.Add(GraphLabel[fnBohlin]);
+  ComboBoxN.Items.Add(GraphLabel[fnCibils]);
+  ComboBoxN.Items.Add(GraphLabel[fnLee]);
+  ComboBoxN.Items.Add(GraphLabel[fnWerner]);
+  ComboBoxN.Items.Add(GraphLabel[fnMikhelashvili]);
+  ComboBoxN.Items.Add(GraphLabel[fnExpForwardRs]);
+  ComboBoxN.Items.Add(GraphLabel[fnExpReverseRs]);
+  ComboBoxN.Items.Add(GraphLabel[fnDiodLSM]);
+  ComboBoxN.Items.Add(GraphLabel[fnDiodLambert]);
+  ComboBoxN.Items.Add(GraphLabel[fnDiodEvolution]);
 
   ComBHfuncN.Sorted:=False;
   ComBHfuncN.Items:=ComboBoxN.Items;
@@ -1574,21 +1536,21 @@ begin
   ComBDateHfunN.Items:=ComboBoxN.Items;
 
   ComboBoxN_Rs.Sorted:=False;
-  ComboBoxN_Rs.Items.Add('R=0');
-  ComboBoxN_Rs.Items.Add('Cheung');
-  ComboBoxN_Rs.Items.Add('I Kaminskii');
-  ComboBoxN_Rs.Items.Add('II Kaminskii');
-  ComboBoxN_Rs.Items.Add('A+B*T+C*T^2');
-  ComboBoxN_Rs.Items.Add('I Gromov');
-  ComboBoxN_Rs.Items.Add('II Gromov');
-  ComboBoxN_Rs.Items.Add('Bohlin');
-  ComboBoxN_Rs.Items.Add('Cibils');
-  ComboBoxN_Rs.Items.Add('Lee');
-  ComboBoxN_Rs.Items.Add('Werner');
-  ComboBoxN_Rs.Items.Add('Mikhelashvili');
-  ComboBoxN_Rs.Items.Add('Full Exp');
-  ComboBoxN_Rs.Items.Add('Lambert');
-  ComboBoxN_Rs.Items.Add('Dif Evol');
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnReq0]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnCheung]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnKaminskii1]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnKaminskii2]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnRvsTpower2]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnGromov1]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnGromov2]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnBohlin]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnCibils]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnLee]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnWerner]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnMikhelashvili]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnDiodLSM]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnDiodLambert]);
+  ComboBoxN_Rs.Items.Add(GraphLabel[fnDiodEvolution]);
 
   ComBDateHfunN_Rs.Sorted:=False;
   ComBDateHfunN_Rs.Items:=ComboBoxN_Rs.Items;
@@ -1600,19 +1562,19 @@ begin
   ComBNordN_Rs.Items:=ComboBoxN_Rs.Items;
 
   ComboBoxNssFb.Sorted:=False;
-  ComboBoxNssFb.Items.Add('Norde');
-  ComboBoxNssFb.Items.Add('I0(exp(qV/nkT)-1)');
-  ComboBoxNssFb.Items.Add('I0exp(qV/nkT)');
-  ComboBoxNssFb.Items.Add('I Gromov');
-  ComboBoxNssFb.Items.Add('II Gromov');
-  ComboBoxNssFb.Items.Add('Bohlin');
-  ComboBoxNssFb.Items.Add('Lee');
-  ComboBoxNssFb.Items.Add('Mikhelashvili');
-  ComboBoxNssFb.Items.Add('If/[1-exp(qVf/kT)]');
-  ComboBoxNssFb.Items.Add('Ir/[1-exp(qVr/kT)]');
-  ComboBoxNssFb.Items.Add('Full Exp');
-  ComboBoxNssFb.Items.Add('Lambert');
-  ComboBoxNssFb.Items.Add('Dif Evol');
+  ComboBoxNssFb.Items.Add(GraphLabel[fnNorde]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnDiodSimple]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnDiodVerySimple]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnGromov1]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnGromov2]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnBohlin]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnLee]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnMikhelashvili]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnExpForwardRs]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnExpReverseRs]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnDiodLSM]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnDiodLambert]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnDiodEvolution]);
 
   ComboBNssFb.Sorted:=False;
   ComboBNssFb.Items:=ComboBoxNssFb.Items;
@@ -1657,8 +1619,8 @@ begin
                                  STAreaPN,LNdN,LNdP,LAreaPN);
 
  GraphParameters:=TGraphParameters.Create;
-// GraphParameters.Diod:=Diod;
-// GraphParameters.DiodPN:=DiodPN;
+ GraphParameters.Clear();
+
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
 GrLim.MinValue[0]:=ConfigFile.ReadFloat('Limit','MinV0',ErResult);
@@ -1858,7 +1820,7 @@ CBDateFun.Checked:=ConfigFile.ReadBool('Column',
 RadioButtonNssNvM.Checked:=ConfigFile.ReadBool('Graph','Nss_N(V)',False);
 RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   SButFit.Caption:='None';
-  CBKalk.ItemIndex:=0;
+//  CBKalk.ItemIndex:=0;
   MemoAppr.Clear;
 
   new(VaxFile);
@@ -7023,54 +6985,6 @@ ChooseDirect(Form1);
 Directory:=CurDirectory;
 end;
 
-//procedure TForm1.ButtonDelClick(Sender: TObject);
-//var st:string;
-//    temp:double;
-//
-//begin
-//if (Sender as TButton).Name='ButtonDel' then
-// begin
-//  temp:=Diod.Thick_i;
-//  st:=InputBox('Layer thickness',
-//               'Thickness of the interfacial insulator layer, [ ] = m',
-//               FloatToStrF(temp,ffExponent,3,2));
-//  StrToNumber(st, temp, temp);
-//  Diod.Thick_i:=temp;
-// end;
-//
-//if (Sender as TButton).Name='ButEps_i' then
-// begin
-//  temp:=Diod.Eps_i;
-//  st:=InputBox('Layer permittivity',
-//               'Permittivity of the interfacial insulator layer',
-//               FloatToStrF(temp,ffExponent,3,2));
-//  StrToNumber(st, temp, temp);
-//  Diod.Eps_i:=temp;
-// end;
-//
-//if (Sender as TButton).Name='ButNd' then
-// begin
-//  temp:=Diod.Semiconductor.Nd;
-//  st:=InputBox('Carrier concentration',
-//               'Input carrier concentration, [ ] = m^(-3)',
-//                FloatToStrF(temp,ffExponent,3,2));
-//  StrToNumber(st, temp, temp);
-//  Diod.Semiconductor.Nd:=temp;
-// end;
-//
-//if (Sender as TButton).Name='ButArea' then
-// begin
-//  temp:=Diod.Area;
-//  st:=InputBox('Diode area',
-//               'Input contact area, [ ] = m^2',
-//               FloatToStrF(temp,ffExponent,3,2));
-//  StrToNumber(st, temp, temp);
-//  Diod.Area:=temp;
-// end;
-//
-//DiodOnForm;
-//
-//end;
 
 procedure TForm1.ButtonKalkClick(Sender: TObject);
 begin
@@ -7108,6 +7022,7 @@ case CBKalk.ItemIndex of
 end;
 
 //QueryPerformanceCounter(StartValue);
+
 
 case CBKalk.ItemIndex of
   0: ; //не вибрано спосіб апроксамації

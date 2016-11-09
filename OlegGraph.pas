@@ -1,7 +1,7 @@
 ﻿unit OlegGraph;
 interface
 uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
-     Forms,Controls,WinProcs,OlegMaterialSamples;
+     Forms,Controls,WinProcs,OlegMaterialSamples, StdCtrls;
 
 type
 
@@ -51,7 +51,8 @@ type
           fnDiodEvolution, //evolution methods
           fnReq0,  //Rs=0
           fnRvsTpower2, //'A+B*T+C*T^2'
-          fnDiodSimple, //I=I0exp(qV/nkT)
+          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
+          fnDiodVerySimple, //I=I0exp(qV/nkT)
           fnRectification //розрахунок коефіцієнта випрямлення
           );
 
@@ -60,38 +61,75 @@ type
  в розрахунках}
  TGraphParameters=class
   private
-    FRs: double;
-    Fn: double;
-    FFb: double;
-    FI0: double;
-    FGamma: double;
-    {параметр у функції Норда}
-    FGamma1: double;
-    FGamma2: double;
-    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
-                  у методі Бохліна}
-    FVa: double;
-    {напруга, яка використовується для побудови
-     допоміжних функцій у методах Сібілса та Лі}
-    FForForwardBranch: boolean;
-    {used in M_V_Fun()}
-    FNssType:boolean;
-    {used in Nss_Fun()}
-    procedure SetData(Index:integer; Value:double);
+//    FRs: double;
+//    Fn: double;
+//    FFb: double;
+//    FI0: double;
+//    FGamma: double;
+//    {параметр у функції Норда}
+//    FGamma1: double;
+//    FGamma2: double;
+//    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
+//                  у методі Бохліна}
+//    FVa: double;
+//    {напруга, яка використовується для побудови
+//     допоміжних функцій у методах Сібілса та Лі}
+//    FForForwardBranch: boolean;
+//    {used in M_V_Fun()}
+//    FNssType:boolean;
+//    procedure SetData(Index:integer; Value:double);
   public
    Diapazon:TDiapazon;
-//   Diod:TDiod_Schottky;
-//   DiodPN:TDiod_PN;
-   property Rs:double Index 1 read FRs write SetData;
-   property n:double  Index 2 read Fn  write SetData;
-   property Fb:double Index 3 read FFb write SetData;
-   property Gamma:double Index 4 read FGamma write SetData;
-   property Gamma1:double Index 5 read FGamma1 write SetData;
-   property Gamma2:double Index 6 read FGamma2 write SetData;
-   property Va:double Index 7 read FVa write SetData;
-   property I0:double Index 8 read FI0 write SetData;
-   property ForForwardBranch:boolean read FForForwardBranch write FForForwardBranch;
-   property NssType:boolean read FNssType write FNssType;
+   Rs:double;
+   n:double;
+   Fb:double;
+   Gamma:double;
+    {параметр у функції Норда}
+   Gamma1:double;
+   Gamma2:double;
+    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
+                  у методі Бохліна}
+   Va:double;
+    {напруга, яка використовується для побудови
+     допоміжних функцій у методах Сібілса та Лі}
+   I0:double;
+   Iph:double;
+   Rsh:double;
+   Krec:double;
+   {коефіцієнт випрямлення}
+   Vrect:double;
+  {напруга, при якій відбувається визначення
+   коефіцієнта випрямлення}
+   RA:double;
+   RB:double;
+   RC:double;
+  {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
+      Rs=A+B*T+C*T^2}
+   ForForwardBranch:boolean;
+    {used in M_V_Fun()}
+   NssType:boolean;
+    {used in Nss_Fun()}
+   Iph_Exp:boolean;
+   Iph_Lam:boolean;
+   Iph_DE:boolean;
+  {визначають, чи потрібно підбирати фотострум
+   у формулі I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+  тобто чи освітлена ВАХ апроксимується;
+  Iph_Exp - пряма апроксимація за МНК (fnDiodLSM)
+  Iph_Lam - апроксимація за МНК функції Ламберта (fnDiodLambert)
+  Iph_DE - еволюційний метод(fnDiodEvolution)}
+   Procedure Clear();
+
+//   property Rs:double Index 1 read FRs write SetData;
+//   property n:double  Index 2 read Fn  write SetData;
+//   property Fb:double Index 3 read FFb write SetData;
+//   property Gamma:double Index 4 read FGamma write SetData;
+//   property Gamma1:double Index 5 read FGamma1 write SetData;
+//   property Gamma2:double Index 6 read FGamma2 write SetData;
+//   property Va:double Index 7 read FVa write SetData;
+//   property I0:double Index 8 read FI0 write SetData;
+//   property ForForwardBranch:boolean read FForForwardBranch write FForForwardBranch;
+//   property NssType:boolean read FNssType write FNssType;
  end;
 
 const
@@ -143,6 +181,7 @@ const
  'Evolution Diod',
  'R=0',
  'A+B*T+C*T^2',
+ 'I0(exp(qV/nkT)-1)',
  'I=I0exp(qV/nkT)',
  'Rect.Koef'
  );
@@ -160,7 +199,9 @@ var
 
 Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
 
-Function ConvertStringToTGraph(str:string):TGraph;
+Function ConvertStringToTGraph(str:string):TGraph;overload;
+
+Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;overload;
 
 Function GraphName(tg:TGraph):string;
 
@@ -775,10 +816,15 @@ Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
 
 Procedure GraphCalculation(InVector:Pvector; var OutVector:Pvector;tg:TGraph);
 
+Procedure GraphParameterCalculation(InVector:Pvector; tg:TGraph);
+
+Procedure GraphParCalcFitting(InVector:Pvector; tg:TGraph);
+
+
 implementation
 
 uses
-  Math;
+  Math, OlegApprox;
 
 
 Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
@@ -834,6 +880,11 @@ begin
      Result:=tg;
      Exit;
     end;
+end;
+
+Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;
+begin
+  Result:=ConvertStringToTGraph(ComboBox.Items[ComboBox.ItemIndex]);
 end;
 
 Function GraphName(tg:TGraph):string;
@@ -4122,27 +4173,27 @@ end;
 
 { TGrapParameters }
 
-procedure TGraphParameters.SetData(Index: integer; Value: double);
-begin
- case Index of
-  1: if Value>=0 then FRs := Value
-                 else FRs :=ErResult;
-  2: if Value>0  then Fn  := Value
-                 else Fn  :=ErResult;
-  3: if Value>=0 then FFb := Value
-                 else FFb :=ErResult;
-  4: if Value>1  then FGamma:= Value
-                 else FGamma:=ErResult;
-  5: if Value>1  then FGamma1:= Value
-                 else FGamma1:=ErResult;
-  6: if Value>1  then FGamma2:= Value
-                 else FGamma2:=ErResult;
-  7: if Value>=0.01  then FVa:= Value
-                     else FVa:=ErResult;
-  8: if Value>0  then FI0:= Value
-                 else FI0:=ErResult;
-  end;
-end;
+//procedure TGraphParameters.SetData(Index: integer; Value: double);
+//begin
+// case Index of
+//  1: if Value>=0 then FRs := Value
+//                 else FRs :=ErResult;
+//  2: if Value>0  then Fn  := Value
+//                 else Fn  :=ErResult;
+//  3: if Value>=0 then FFb := Value
+//                 else FFb :=ErResult;
+//  4: if Value>1  then FGamma:= Value
+//                 else FGamma:=ErResult;
+//  5: if Value>1  then FGamma1:= Value
+//                 else FGamma1:=ErResult;
+//  6: if Value>1  then FGamma2:= Value
+//                 else FGamma2:=ErResult;
+//  7: if Value>=0.01  then FVa:= Value
+//                     else FVa:=ErResult;
+//  8: if Value>0  then FI0:= Value
+//                 else FI0:=ErResult;
+//  end;
+//end;
 
 Procedure GraphCalculation(InVector:Pvector; var OutVector:Pvector;tg:TGraph);
 begin
@@ -4178,6 +4229,186 @@ begin
   fnLee: LeeFun(InVector,GraphParameters.Diapazon,OutVector);
   else ;
 end;
+end;
+
+Procedure GraphParameterCalculation(InVector:Pvector; tg:TGraph);
+begin
+  case tg of
+    fnEmpty: ;
+    fnPowerIndex: ;
+    fnFowlerNordheim: ;
+    fnFowlerNordheimEm: ;
+    fnAbeles: ;
+    fnAbelesEm: ;
+    fnFrenkelPool: ;
+    fnFrenkelPoolEm: ;
+    fnReverse: ;
+    fnForward: ;
+    fnKaminskii1:
+     Kam1Kalk (InVector,GraphParameters.Diapazon,
+               GraphParameters.Rs,
+               GraphParameters.n);
+    fnKaminskii2:
+     Kam2Kalk (InVector,GraphParameters.Diapazon,
+               GraphParameters.Rs,
+               GraphParameters.n);
+    fnGromov1:
+      Gr1Kalk (InVector,GraphParameters.Diapazon,Diod,
+               GraphParameters.Rs,
+               GraphParameters.n,
+               GraphParameters.Fb,
+               GraphParameters.I0);
+    fnGromov2:
+      Gr2Kalk (InVector,GraphParameters.Diapazon,Diod,
+               GraphParameters.Rs,
+               GraphParameters.n,
+               GraphParameters.Fb,
+               GraphParameters.I0);
+    fnCheung:
+      ChungKalk(InVector,GraphParameters.Diapazon,
+                GraphParameters.Rs,
+                GraphParameters.n);
+    fnCibils:
+      CibilsKalk(InVector,GraphParameters.Diapazon,
+                GraphParameters.Rs,
+                GraphParameters.n);
+    fnWerner:
+      WernerKalk(InVector,GraphParameters.Diapazon,
+                GraphParameters.Rs,
+                GraphParameters.n);
+    fnForwardRs: ;
+    fnIdeality: ;
+    fnExpForwardRs:
+      ExKalk(2,InVector,GraphParameters.Diapazon,
+            GraphParameters.Rs,Diod,
+            GraphParameters.n,
+            GraphParameters.I0,
+            GraphParameters.Fb);
+    fnExpReverseRs:
+      ExKalk(3,InVector,GraphParameters.Diapazon,
+            GraphParameters.Rs,Diod,
+            GraphParameters.n,
+            GraphParameters.I0,
+            GraphParameters.Fb);
+    fnH:
+      HFunKalk(InVector,GraphParameters.Diapazon,Diod,
+               GraphParameters.n,
+               GraphParameters.Rs,
+               GraphParameters.Fb);
+    fnNorde:
+      NordKalk(InVector,GraphParameters.Diapazon,Diod,
+               GraphParameters.Gamma,
+               GraphParameters.n,
+               GraphParameters.Rs,
+               GraphParameters.Fb);
+    fnFvsV: ;
+    fnFvsI: ;
+    fnMikhelA: ;
+    fnMikhelB: ;
+    fnMikhelIdeality: ;
+    fnMikhelRs: ;
+    fnDLdensity: ;
+    fnDLdensityIvanov:
+      IvanovKalk(InVector,GraphParameters.Diapazon,
+                 GraphParameters.Rs,Diod,
+                 GraphParameters.Krec,
+                 GraphParameters.Fb);
+    fnLee:
+      LeeKalk (InVector,GraphParameters.Diapazon,Diod,
+               GraphParameters.Rs,
+               GraphParameters.n,
+               GraphParameters.Fb,
+               GraphParameters.I0);
+    fnBohlin:
+      BohlinKalk(InVector,GraphParameters.Diapazon,Diod,
+                 GraphParameters.Gamma1,GraphParameters.Gamma2,
+                 GraphParameters.Rs,
+                 GraphParameters.n,
+                 GraphParameters.Fb,
+                 GraphParameters.I0);
+    fnNeq1:
+      GraphParameters.n:=1;
+    fnMikhelashvili:
+      MikhKalk (InVector,GraphParameters.Diapazon,Diod,
+                 GraphParameters.Rs,
+                 GraphParameters.n,
+                 GraphParameters.I0,
+                 GraphParameters.Fb);
+    fnDiodLSM,fnDiodLambert,fnDiodEvolution:
+      GraphParCalcFitting(InVector,tg);
+    fnReq0:
+      GraphParameters.Rs:=0;
+    fnRvsTpower2:
+      GraphParameters.Rs:=GraphParameters.RA+
+                          GraphParameters.RB*InVector^.T+
+                          GraphParameters.RC*sqr(InVector^.T);
+    fnDiodSimple: ;
+    fnDiodVerySimple:
+     ExKalk(1,InVector,GraphParameters.Diapazon,
+            GraphParameters.Rs,Diod,
+            GraphParameters.n,
+            GraphParameters.I0,
+            GraphParameters.Fb);
+    fnRectification:
+     GraphParameters.Krec:=Krect(InVector,GraphParameters.Vrect);
+  end;
+end;
+
+Procedure GraphParCalcFitting(InVector:Pvector; tg:TGraph);
+ var IphNeeded:boolean;
+begin
+ case tg of
+   fnDiodLSM:
+     begin
+      IphNeeded:=GraphParameters.Iph_Exp;
+      if IphNeeded then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+     end;
+   fnDiodLambert:
+     begin
+      IphNeeded:=GraphParameters.Iph_Lam;
+      if IphNeeded then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+     end;
+   fnDiodEvolution:
+     begin
+      IphNeeded:=GraphParameters.Iph_DE;
+      if IphNeeded then FitFunction:=TPhotoDiod.Create
+                   else FitFunction:=TDiod.Create;
+     end;
+  else Exit;
+ end;
+  FitFunction.FittingDiapazon(InVector,EvolParam,
+                              GraphParameters.Diapazon);
+  FitFunction.Free;
+  if EvolParam[0]=ErResult then
+   begin
+    GraphParameters.Clear();
+    Exit;
+   end;
+  GraphParameters.n:=EvolParam[0];
+  GraphParameters.Rs:=EvolParam[1];
+  GraphParameters.I0:=EvolParam[2];
+  GraphParameters.Rsh:=EvolParam[3];
+  if IphNeeded then
+                begin
+                GraphParameters.Iph:=EvolParam[4];
+                GraphParameters.Fb:=ErResult;
+                end
+               else GraphParameters.Fb:=EvolParam[4];
+end;
+
+{ TGraphParameters }
+
+procedure TGraphParameters.Clear;
+begin
+   Rs:=ErResult;
+   n:=ErResult;
+   Fb:=ErResult;
+   I0:=ErResult;
+   Iph:=ErResult;
+   Rsh:=ErResult;
+   Krec:=ErResult;
 end;
 
 end.
