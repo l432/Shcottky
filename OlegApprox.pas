@@ -1202,6 +1202,11 @@ end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
 // Constructor Create;
 //end; // TPhonAsTunAndTE=class (TPhonAsTun)
 
+var
+ FitFunction:TFitFunction;
+ EvolParam:TArrSingle;
+{масив з double, використовується в еволюційних процедурах}
+
 //-------------------------------------------------
 procedure PictLoadScale(Img: TImage; ResName:String);
 {в Img завантажується bmp-картинка з ресурсу з назвою

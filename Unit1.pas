@@ -1220,7 +1220,7 @@ const
 
 var
   Form1: TForm1;
-  Fit:TFitFunction;
+//  FitFunction:TFitFunction;
   BohlinMethod: Boolean;
   {використовується при показі віконечок для введення параметрів методів}
   Directory, Directory0, CurDirectory:string;
@@ -1274,8 +1274,8 @@ var
   SelectedRow:Integer;
   {номер рядка у DataSheet, де знаходиться
   виділене значення; використовується при видаленні точок}
-  EvolParam:TArrSingle;
-  {масив з double, використовується в еволюційних процедурах}
+//  EvolParam:TArrSingle;
+//  {масив з double, використовується в еволюційних процедурах}
   ConfigFile:TIniFile;
   FirstLayer,pLayer,nLayer:TMaterialShow;
   Diod_SchottkyShow:TDiod_SchottkyShow;
@@ -1390,6 +1390,7 @@ procedure TForm1.FormCreate(Sender: TObject);
     DP: TDiapazons;
     DR:TDirName;
     CL:TColName;
+
 begin
  Form1.Scaled:=false;
  GroupBox20.ParentBackground:=False;
@@ -1401,46 +1402,84 @@ begin
 
   CBKalk.Sorted:=False;
   CBKalk.Items.Add('Method');
-  CBKalk.Items.Add('Cheung');
-  CBKalk.Items.Add('H-function');
-  CBKalk.Items.Add('Norde');
-  CBKalk.Items.Add('I=I0[exp(Vef/E)-1]+Vef/Rsh-Iph');
-  CBKalk.Items.Add('I=I0exp(qV/nkT)');
-  CBKalk.Items.Add('Rect.Koef');
-  CBKalk.Items.Add('Kaminskii I');
-  CBKalk.Items.Add('Kaminskii II');
-  CBKalk.Items.Add('Gromov I');
-  CBKalk.Items.Add('Gromov II');
-  CBKalk.Items.Add('Bohlin');
-  CBKalk.Items.Add('Cibils');
-  CBKalk.Items.Add('Lee');
-  CBKalk.Items.Add('Werner');
-  CBKalk.Items.Add('Mikhelashvili');
-  CBKalk.Items.Add('Ivanov');
-  CBKalk.Items.Add('If/[1-exp(-qVf/kT)]');
-  CBKalk.Items.Add('Ir/[1-exp(-qVr/kT)]');
-  CBKalk.Items.Add('Lambert function');
-  CBKalk.Items.Add('Evolution Algorithm');
+  CBKalk.Items.Add(GraphLabel[fnCheung]);
+  CBKalk.Items.Add(GraphLabel[fnH]);
+  CBKalk.Items.Add(GraphLabel[fnNorde]);
+  CBKalk.Items.Add(GraphLabel[fnDiodLSM]);
+  CBKalk.Items.Add(GraphLabel[fnDiodSimple]);
+  CBKalk.Items.Add(GraphLabel[fnRectification]);
+  CBKalk.Items.Add(GraphLabel[fnKaminskii1]);
+  CBKalk.Items.Add(GraphLabel[fnKaminskii2]);
+  CBKalk.Items.Add(GraphLabel[fnGromov1]);
+  CBKalk.Items.Add(GraphLabel[fnGromov2]);
+  CBKalk.Items.Add(GraphLabel[fnBohlin]);
+  CBKalk.Items.Add(GraphLabel[fnCibils]);
+  CBKalk.Items.Add(GraphLabel[fnLee]);
+  CBKalk.Items.Add(GraphLabel[fnWerner]);
+  CBKalk.Items.Add(GraphLabel[fnMikhelashvili]);
+  CBKalk.Items.Add(GraphLabel[fnDLdensityIvanov]);
+  CBKalk.Items.Add(GraphLabel[fnExpForwardRs]);
+  CBKalk.Items.Add(GraphLabel[fnExpReverseRs]);
+  CBKalk.Items.Add(GraphLabel[fnDiodLambert]);
+  CBKalk.Items.Add(GraphLabel[fnDiodEvolution]);
+
+//  CBKalk.Items.Add('Cheung');
+//  CBKalk.Items.Add('H-function');
+//  CBKalk.Items.Add('Norde');
+//  CBKalk.Items.Add('I=I0[exp(Vef/E)-1]+Vef/Rsh-Iph');
+//  CBKalk.Items.Add('I=I0exp(qV/nkT)');
+//  CBKalk.Items.Add('Rect.Koef');
+//  CBKalk.Items.Add('Kaminskii I');
+//  CBKalk.Items.Add('Kaminskii II');
+//  CBKalk.Items.Add('Gromov I');
+//  CBKalk.Items.Add('Gromov II');
+//  CBKalk.Items.Add('Bohlin');
+//  CBKalk.Items.Add('Cibils');
+//  CBKalk.Items.Add('Lee');
+//  CBKalk.Items.Add('Werner');
+//  CBKalk.Items.Add('Mikhelashvili');
+//  CBKalk.Items.Add('Ivanov');
+//  CBKalk.Items.Add('If/[1-exp(-qVf/kT)]');
+//  CBKalk.Items.Add('Ir/[1-exp(-qVr/kT)]');
+//  CBKalk.Items.Add('Lambert function');
+//  CBKalk.Items.Add('Evolution Algorithm');
   CBKalk.ItemIndex:=0;
 
   ComboBoxRs.Sorted:=False;
-  ComboBoxRs.Items.Add('R=0');
-  ComboBoxRs.Items.Add('Cheung');
-  ComboBoxRs.Items.Add('I Kaminskii');
-  ComboBoxRs.Items.Add('II Kaminskii');
-  ComboBoxRs.Items.Add('H-functin');
-  ComboBoxRs.Items.Add('Norde');
-  ComboBoxRs.Items.Add('A+B*T+C*T^2');
-  ComboBoxRs.Items.Add('I Gromov');
-  ComboBoxRs.Items.Add('II Gromov');
-  ComboBoxRs.Items.Add('Bohlin');
-  ComboBoxRs.Items.Add('Cibils');
-  ComboBoxRs.Items.Add('Lee');
-  ComboBoxRs.Items.Add('Werner');
-  ComboBoxRs.Items.Add('Mikhelashvili');
-  ComboBoxRs.Items.Add('Full Exp');
-  ComboBoxRs.Items.Add('Lambert');
-  ComboBoxRs.Items.Add('Dif Evol');
+  ComboBoxRs.Items.Add(GraphLabel[fnReq0]);
+  ComboBoxRs.Items.Add(GraphLabel[fnCheung]);
+  ComboBoxRs.Items.Add(GraphLabel[fnKaminskii1]);
+  ComboBoxRs.Items.Add(GraphLabel[fnKaminskii2]);
+  ComboBoxRs.Items.Add(GraphLabel[fnH]);
+  ComboBoxRs.Items.Add(GraphLabel[fnNorde]);
+  ComboBoxRs.Items.Add(GraphLabel[fnRvsTpower2]);
+  ComboBoxRs.Items.Add(GraphLabel[fnGromov1]);
+  ComboBoxRs.Items.Add(GraphLabel[fnGromov2]);
+  ComboBoxRs.Items.Add(GraphLabel[fnBohlin]);
+  ComboBoxRs.Items.Add(GraphLabel[fnCibils]);
+  ComboBoxRs.Items.Add(GraphLabel[fnLee]);
+  ComboBoxRs.Items.Add(GraphLabel[fnWerner]);
+  ComboBoxRs.Items.Add(GraphLabel[fnMikhelashvili]);
+  ComboBoxRs.Items.Add(GraphLabel[fnDiodLSM]);
+  ComboBoxRs.Items.Add(GraphLabel[fnDiodLambert]);
+  ComboBoxRs.Items.Add(GraphLabel[fnDiodEvolution]);
+//  ComboBoxRs.Items.Add('R=0');
+//  ComboBoxRs.Items.Add('Cheung');
+//  ComboBoxRs.Items.Add('I Kaminskii');
+//  ComboBoxRs.Items.Add('II Kaminskii');
+//  ComboBoxRs.Items.Add('H-functin');
+//  ComboBoxRs.Items.Add('Norde');
+//  ComboBoxRs.Items.Add('A+B*T+C*T^2');
+//  ComboBoxRs.Items.Add('I Gromov');
+//  ComboBoxRs.Items.Add('II Gromov');
+//  ComboBoxRs.Items.Add('Bohlin');
+//  ComboBoxRs.Items.Add('Cibils');
+//  ComboBoxRs.Items.Add('Lee');
+//  ComboBoxRs.Items.Add('Werner');
+//  ComboBoxRs.Items.Add('Mikhelashvili');
+//  ComboBoxRs.Items.Add('Full Exp');
+//  ComboBoxRs.Items.Add('Lambert');
+//  ComboBoxRs.Items.Add('Dif Evol');
 
   ComboBoxNssRs.Sorted:=False;
   ComboBoxNssRs.Items:=ComboBoxRs.Items;
@@ -2046,65 +2085,65 @@ function TForm1.GraphType(Sender: TObject): TGraph;
    {повертає значення, яке зв'язане з типом графіку, який
    будується залежно від назви об'єкта Sender}
 begin
-  Result:=Non;
+  Result:=fnEmpty;
   if (TComponent(Sender).Name='RadioButtonM_V') or
-     (TComponent(Sender).Name='ButM_V') then Result:=IP;
+     (TComponent(Sender).Name='ButM_V') then Result:=fnPowerIndex;
   if (TComponent(Sender).Name='RadioButtonFN') or
-     (TComponent(Sender).Name='ButFow_Nor') then Result:=FN;
+     (TComponent(Sender).Name='ButFow_Nor') then Result:=fnFowlerNordheim;
   if (TComponent(Sender).Name='RadioButtonFNEm') or
-     (TComponent(Sender).Name='ButFow_NorE') then Result:=FNm;
+     (TComponent(Sender).Name='ButFow_NorE') then Result:=fnFowlerNordheimEm;
   if (TComponent(Sender).Name='RadioButtonAb') or
-     (TComponent(Sender).Name='ButAbeles') then Result:=Ab;
+     (TComponent(Sender).Name='ButAbeles') then Result:=fnAbeles;
   if (TComponent(Sender).Name='RadioButtonAbEm') or
-     (TComponent(Sender).Name='ButAbelesE') then Result:=Abm;
+     (TComponent(Sender).Name='ButAbelesE') then Result:=fnAbelesEm;
   if (TComponent(Sender).Name='RadioButtonFP') or
-     (TComponent(Sender).Name='ButFr_Pool') then Result:=FP;
+     (TComponent(Sender).Name='ButFr_Pool') then Result:=fnFrenkelPool;
   if (TComponent(Sender).Name='RadioButtonFPEm') or
-     (TComponent(Sender).Name='ButFr_PoolE') then Result:=FPm;
+     (TComponent(Sender).Name='ButFr_PoolE') then Result:=fnFrenkelPoolEm;
   if (TComponent(Sender).Name='RadioButtonLee') or
-     (TComponent(Sender).Name='ButLee')  then Result:=Lef;
+     (TComponent(Sender).Name='ButLee')  then Result:=fnLee;
   if (TComponent(Sender).Name='RadioButtonKam1') or
-     (TComponent(Sender).Name='ButKam1') then Result:=Ka1;
+     (TComponent(Sender).Name='ButKam1') then Result:=fnKaminskii1;
   if (TComponent(Sender).Name='RadioButtonKam2') or
-     (TComponent(Sender).Name='ButKam2') then Result:=Ka2;
+     (TComponent(Sender).Name='ButKam2') then Result:=fnKaminskii2;
   if (TComponent(Sender).Name='RadioButtonGr1') or
-     (TComponent(Sender).Name='ButGr1')  then Result:=Gr1;
+     (TComponent(Sender).Name='ButGr1')  then Result:=fnGromov1;
   if (TComponent(Sender).Name='RadioButtonGr2') or
-     (TComponent(Sender).Name='ButGr2')  then Result:=Gr2;
+     (TComponent(Sender).Name='ButGr2')  then Result:=fnGromov2;
   if (TComponent(Sender).Name='Chung') or
-     (TComponent(Sender).Name='ButChung')then Result:=Chu;
+     (TComponent(Sender).Name='ButChung')then Result:=fnCheung;
   if (TComponent(Sender).Name='RadioButtonCib') or
-     (TComponent(Sender).Name='ButCib')  then Result:=Ci;
+     (TComponent(Sender).Name='ButCib')  then Result:=fnCibils;
   if (TComponent(Sender).Name='RadioButtonWer') or
-     (TComponent(Sender).Name='ButWer')  then Result:=Wer;
+     (TComponent(Sender).Name='ButWer')  then Result:=fnWerner;
   if (TComponent(Sender).Name='RadioButtonForwRs') or
-     (TComponent(Sender).Name='ButForwRs')then Result:=FoRs;
+     (TComponent(Sender).Name='ButForwRs')then Result:=fnForwardRs;
   if (TComponent(Sender).Name='RadioButtonN') or
-     (TComponent(Sender).Name='ButtonN')  then Result:=Ide;
+     (TComponent(Sender).Name='ButtonN')  then Result:=fnIdeality;
   if (TComponent(Sender).Name='RadioButtonEx2F') or
-     (TComponent(Sender).Name='ButExp2F') then Result:=E2F;
+     (TComponent(Sender).Name='ButExp2F') then Result:=fnExpForwardRs;
   if (TComponent(Sender).Name='RadioButtonEx2R') or
-     (TComponent(Sender).Name='ButExp2R') then Result:=E2R;
+     (TComponent(Sender).Name='ButExp2R') then Result:=fnExpReverseRs;
   if (TComponent(Sender).Name='Hfunc') or
-     (TComponent(Sender).Name='ButHfunc') then Result:=Hf;
+     (TComponent(Sender).Name='ButHfunc') then Result:=fnH;
   if (TComponent(Sender).Name='Nord') or
-     (TComponent(Sender).Name='ButNord')  then Result:=Nor;
-  if (TComponent(Sender).Name='RadioButtonF_V') then Result:=FV;
-  if (TComponent(Sender).Name='RadioButtonF_I') then Result:=FI;
+     (TComponent(Sender).Name='ButNord')  then Result:=fnNorde;
+  if (TComponent(Sender).Name='RadioButtonF_V') then Result:=fnFvsV;
+  if (TComponent(Sender).Name='RadioButtonF_I') then Result:=fnFvsI;
   if (TComponent(Sender).Name='RadioButtonMikhAlpha') or
-     (TComponent(Sender).Name='ButMAlpha')then Result:=MAl;
+     (TComponent(Sender).Name='ButMAlpha')then Result:=fnMikhelA;
   if (TComponent(Sender).Name='RadioButtonMikhN') or
-     (TComponent(Sender).Name='ButMN')    then Result:=MId;
+     (TComponent(Sender).Name='ButMN')    then Result:=fnMikhelIdeality;
   if (TComponent(Sender).Name='RadioButtonMikhRs') or
-     (TComponent(Sender).Name='ButMRs')   then Result:=MRs;
+     (TComponent(Sender).Name='ButMRs')   then Result:=fnMikhelRs;
   if (TComponent(Sender).Name='RadioButtonMikhBetta') or
-     (TComponent(Sender).Name='ButMBetta')then Result:=MBe;
+     (TComponent(Sender).Name='ButMBetta')then Result:=fnMikhelB;
   if (TComponent(Sender).Name='RadioButtonNss') or
-     (TComponent(Sender).Name='ButNss')   then Result:=Nssf;
+     (TComponent(Sender).Name='ButNss')   then Result:=fnDLdensity;
   if (TComponent(Sender).Name='RadioButtonDit') or
-     (TComponent(Sender).Name='ButDit')   then Result:=Ditf;
-  if TComponent(Sender).Name='ForIV' then Result:=Fo;
-  if TComponent(Sender).Name='RevIV' then Result:=Rev;
+     (TComponent(Sender).Name='ButDit')   then Result:=fnDLdensityIvanov;
+  if TComponent(Sender).Name='ForIV' then Result:=fnForward;
+  if TComponent(Sender).Name='RevIV' then Result:=fnReverse;
 end;
 
 procedure TForm1.LabelXLogClick(Sender: TObject);
@@ -2251,69 +2290,74 @@ Rss:=ErResult;
 nn:=ErResult;
 
 repeat
-if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
+if tg in [fnForwardRs,fnIdeality,fnExpForwardRs,fnExpReverseRs,fnDLdensity,fnDLdensityIvanov,fnH] then
   begin
   case tg of
-    FoRs,Ide,E2F,E2R:
+    fnForwardRs,fnIdeality,fnExpForwardRs,fnExpReverseRs:
        Rss:=RsDefineCB(VaxFile,Form1.ComboBoxRs,Form1.ComboBoxRs_n);
-    Hf:
+    fnH:
        nn:=nDefineCB(VaxFile,Form1.ComboBoxN,Form1.ComboBoxN_Rs);
-    Nssf,Ditf:
+    fnDLdensity,fnDLdensityIvanov:
        Rss:=RsDefineCB(VaxFile,ComboBoxNssRs,ComboBoxNssRs_n);
     end; //case
-  if (Rss=ErResult)and(tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf]) then
+  if (Rss=ErResult)and(tg in [fnForwardRs,fnIdeality,fnExpForwardRs,fnExpReverseRs,fnDLdensity,fnDLdensityIvanov]) then
               str:='Curve'+cnbb+#10'because Rs'+cnbd;
-  if (nn=ErResult)and(tg=Hf) then
+  if (nn=ErResult)and(tg=fnH) then
               str:='H-function'+cnbb+#10'because n'+cnbd;
   if (Rss=ErResult)and(nn=ErResult) then
               begin
-              tg:=Non;
+              tg:=fnEmpty;
               Break;
               end;
-  if tg=Nssf then
+  if tg=fnDLdensity then
               begin
               Fbb:=FbDefineCB(VaxFile,ComboBoxNssFb,Rss);
               if Fbb=ErResult then
                         begin
                         str:='Curve'+cnbb+#10'because Fb'+cnbd;
-                        tg:=Non;
+                        tg:=fnEmpty;
                         Break;
                         end
               end;
 
   end; //if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
 
-str:=GraphNames[tg];
+ GraphParameters.ForForwardBranch:=CheckBoxM_V.Checked;
+ GraphParameters.NssType:=RadioButtonNssNvD.Checked;
+ GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
 
-case tg of
-  Non: ;
-  IP,FN,FNm,Ab,Abm,FP,FPm:
-      M_V_Fun(VaxFile,VaxGraph,CheckBoxM_V.Checked,tg);
-  Rev: ReverseIV(VaxFile,VaxGraph);
-  Fo:  ForwardIV(VaxFile,VaxGraph);
-  Ka1: Kam1_Fun(VaxFile,VaxGraph,D[diKam1]);
-  Ka2: Kam2_Fun(VaxFile,VaxGraph,D[diKam2]);
-  Gr1: Gr1_Fun(VaxFile,VaxGraph);
-  Gr2: Gr2_Fun(VaxFile,VaxGraph, Diod);
-  Chu: ChungFun(VaxFile,VaxGraph);
-  Ci:  CibilsFun(VaxFile,D[diCib],VaxGraph);
-  Wer: WernerFun(VaxFile,VaxGraph);
-  FoRs:ForwardIVwithRs(VaxFile,VaxGraph,Rss);
-  Ide: N_V_Fun(VaxFile,VaxGraph,Rss);
-  E2F: Forward2Exp(VaxFile,VaxGraph,Rss);
-  E2R: Reverse2Exp(VaxFile,VaxGraph,Rss);
-  Hf:  HFun(VaxFile,VaxGraph, Diod, nn);
-  Nor: NordeFun(VaxFile,VaxGraph, Diod, Gamma);
-  FV:  CibilsFunDod(VaxFile,VaxGraph,Va);
-  FI:  LeeFunDod(VaxFile,VaxGraph,Va);
-  MAl: MikhAlpha_Fun(VaxFile,VaxGraph);
-  MBe: MikhBetta_Fun(VaxFile,VaxGraph);
-  MId: MikhN_Fun(VaxFile,VaxGraph);
-  MRs: MikhRs_Fun(VaxFile,VaxGraph);
-  Nssf:Nss_Fun(VaxFile, VaxGraph,Fbb,Rss,Diod,D[diNss],RadioButtonNssNvD.Checked);
-  Ditf:Dit_Fun(VaxFile, VaxGraph,Rss,Diod,D[diIvan]);
-  Lef: LeeFun(VaxFile,D[diLee],VaxGraph);
-end;
+ str:=GraphName(tg);
+ GraphCalculation(VaxFile,VaxGraph,tg);
+//
+// case tg of
+//  fnEmpty: ;
+//  fnPowerIndex,fnFowlerNordheim,fnFowlerNordheimEm,fnAbeles,fnAbelesEm,fnFrenkelPool,fnFrenkelPoolEm:
+//      M_V_Fun(VaxFile,VaxGraph,CheckBoxM_V.Checked,tg);
+//  fnReverse: ReverseIV(VaxFile,VaxGraph);
+//  fnForward:  ForwardIV(VaxFile,VaxGraph);
+//  fnKaminskii1: Kam1_Fun(VaxFile,VaxGraph,D[diKam1]);
+//  fnKaminskii2: Kam2_Fun(VaxFile,VaxGraph,D[diKam2]);
+//  fnGromov1: Gr1_Fun(VaxFile,VaxGraph);
+//  fnGromov2: Gr2_Fun(VaxFile,VaxGraph, Diod);
+//  fnCheung: ChungFun(VaxFile,VaxGraph);
+//  fnCibils:  CibilsFun(VaxFile,D[diCib],VaxGraph);
+//  fnWerner: WernerFun(VaxFile,VaxGraph);
+//  fnForwardRs:ForwardIVwithRs(VaxFile,VaxGraph,Rss);
+//  fnIdeality: N_V_Fun(VaxFile,VaxGraph,Rss);
+//  fnExpForwardRs: Forward2Exp(VaxFile,VaxGraph,Rss);
+//  fnExpReverseRs: Reverse2Exp(VaxFile,VaxGraph,Rss);
+//  fnH:  HFun(VaxFile,VaxGraph, Diod, nn);
+//  fnNorde: NordeFun(VaxFile,VaxGraph, Diod, Gamma);
+//  fnFvsV:  CibilsFunDod(VaxFile,VaxGraph,Va);
+//  fnFvsI:  LeeFunDod(VaxFile,VaxGraph,Va);
+//  fnMikhelA: MikhAlpha_Fun(VaxFile,VaxGraph);
+//  fnMikhelB: MikhBetta_Fun(VaxFile,VaxGraph);
+//  fnMikhelIdeality: MikhN_Fun(VaxFile,VaxGraph);
+//  fnMikhelRs: MikhRs_Fun(VaxFile,VaxGraph);
+//  fnDLdensity:Nss_Fun(VaxFile, VaxGraph,Fbb,Rss,Diod,D[diNss],RadioButtonNssNvD.Checked);
+//  fnDLdensityIvanov:Dit_Fun(VaxFile, VaxGraph,Rss,Diod,D[diIvan]);
+//  fnLee: LeeFun(VaxFile,D[diLee],VaxGraph);
+//end;
 until true;
 
 
@@ -2327,7 +2371,7 @@ end;
 
 procedure TForm1.RadioButtonM_VDblClick(Sender: TObject);
 begin
- MessageDlg(GraphHint[GraphType(Sender)], mtInformation,[mbOk],0);
+ MessageDlg(GraphHint(GraphType(Sender)), mtInformation,[mbOk],0);
 end;
 
 procedure TForm1.RBAveSelectClick(Sender: TObject);
@@ -2459,14 +2503,14 @@ begin
   begin
 
   if   SButFit.Caption='None' then Exit;
-  FunCreate(SButFit.Caption,Fit);
+  FunCreate(SButFit.Caption,FitFunction);
 
   if (SButFit.Caption='Linear')or
      (SButFit.Caption=FunctionOhmLaw)or
    (SButFit.Caption='Quadratic') then
-       Fit.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
+       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
                                  else
-       Fit.FittingGraphFile(VaxGraph,EvolParam,Series4);
+       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4);
 
    if EvolParam[0]=ErResult then Exit;
    Series4.Active:=True;
@@ -2481,8 +2525,8 @@ begin
          MemoAppr.Lines.Add(SButFit.Caption);
         end;
 
-   Fit.DataToStrings(EvolParam,MemoAppr.Lines);
-  Fit.Free;
+   FitFunction.DataToStrings(EvolParam,MemoAppr.Lines);
+  FitFunction.Free;
   end  //if SButFit.Down then
    else Series4.Active:=False;
 end;
@@ -2776,11 +2820,11 @@ if (Sender is TButton)and((Sender as TButton).Name='ButLDFitOption')
 if (Sender is TButton)and((Sender as TButton).Name='ButDateOption')
      then  str:=LDateFun.Caption;
 
-FunCreate(str,Fit);
-if  not(Assigned(Fit)) then Exit;
+FunCreate(str,FitFunction);
+if  not(Assigned(FitFunction)) then Exit;
 
-Fit.SetValueGR;
-Fit.Free;
+FitFunction.SetValueGR;
+FitFunction.Free;
 end;
 
 procedure TForm1.ButFitSelectClick(Sender: TObject);
@@ -2905,8 +2949,8 @@ begin
   Exit;
  end;
 
- Fit:=TNGausian.Create(SEGauss.MaxValue);
- Fit.Fitting(tempVector,EvolParam);
+ FitFunction:=TNGausian.Create(SEGauss.MaxValue);
+ FitFunction.Fitting(tempVector,EvolParam);
 
  for I := 1 to SEGauss.MaxValue do
   begin
@@ -2915,7 +2959,7 @@ begin
    GausLinesCur[i].C:=EvolParam[3*i-1];
   end;
 
- Fit.Free;
+ FitFunction.Free;
  dispose(tempVector);
  ButGLResClick(Sender);
  SEGaussChange(Sender);
@@ -3107,17 +3151,17 @@ if aprr^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.File
 if CBoxRCons.Checked then
   begin
   if EvolParam[0]=ErResult then Goto fin;
-  FunCreate(LabIsc.Caption,Fit);
-  (Fit as TFitTemperatureIsUsed).T:=VaxFile^.T;
+  FunCreate(LabIsc.Caption,FitFunction);
+  (FitFunction as TFitTemperatureIsUsed).T:=VaxFile^.T;
   ParameterSimplify(EvolParam,EP,LabIsc.Caption);
   VaxFile^.Copy(aprr^);
   for j:=0 to High(aprr^.X) do
      begin
      aprr^.X[j]:=VaxFile^.X[j]-
          ParamDeterm(EvolParam,'Rs',LabIsc.Caption)*VaxFile^.Y[j];
-     aprr^.Y[j]:=Fit.FinalFunc(aprr^.X[j],EP);
+     aprr^.Y[j]:=FitFunction.FinalFunc(aprr^.X[j],EP);
      end;
-  Fit.Free;
+  FitFunction.Free;
   Action:= FunCorrectionDefine();
   new(aprr2);
   if not(Action(aprr,aprr2,SpinEditDL.Value)) then
@@ -3928,9 +3972,9 @@ Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln
 //          Fit:=TDiodLSM.Create;
 //          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
 
-          Fit:=TDiodLam.Create;
-          Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
-          Fit.Free;
+          FitFunction:=TDiodLam.Create;
+          FitFunction.FittingDiapazon(Vax,EvolParam,D[diLam]);
+          FitFunction.Free;
 
 //     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
 //     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
@@ -5805,7 +5849,7 @@ begin
  new(tempVax);
  try
   if not(FuncLimit(Vax,tempVax)) then Raise Exception.Create('Fault!!!!');
-  Fit.Fitting(tempVax,EvolParam);
+  FitFunction.Fitting(tempVax,EvolParam);
   if EvolParam[0]=ErResult then Raise Exception.Create('Fault!!!!');
   Result:=True;
  finally
@@ -5844,8 +5888,8 @@ begin
    for j:=0 to High(Vax^.X) do
      begin
      Vax^.X[j]:=Vax^.X[j]-Vax^.Y[j]*Rs;
-     temp^.Y[j]:=Fit.FinalFunc(Vax^.X[j],EP);
-     Vax^.Y[j]:=Vax^.Y[j]-Fit.FinalFunc(temp^.X[j],EvolParam)
+     temp^.Y[j]:=FitFunction.FinalFunc(Vax^.X[j],EP);
+     Vax^.Y[j]:=Vax^.Y[j]-FitFunction.FinalFunc(temp^.X[j],EvolParam)
                      +temp^.Y[j];
      temp^.X[j]:=Vax^.X[j];
      end;
@@ -5916,10 +5960,10 @@ begin
 
   end;
 
-  FunCreate(Form1.LabIsc.Caption,Fit);
+  FunCreate(Form1.LabIsc.Caption,FitFunction);
   for i := 0 to High(VectorArray) do
         dB_dU_DataCreate(VectorArray[i]);
-  Fit.Free;
+  FitFunction.Free;
 
   WriteToDirVectorArray(VectorArray,'dB_dU','sm2');
 
@@ -6000,11 +6044,11 @@ DecimalSeparator:='.';
 SetLength(dat,ord(High(TColName))+1);
 if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
-  FunCreate(LDateFun.Caption,Fit);
+  FunCreate(LDateFun.Caption,FitFunction);
 
-  SetLength(dat,High(dat)+1+High(Fit.Xname)+1{+High(Fit.DodXname)+1});
+  SetLength(dat,High(dat)+1+High(FitFunction.Xname)+1{+High(Fit.DodXname)+1});
 
-  Fit.Free;
+  FitFunction.Free;
  end;
 //showmessage(inttostr(High(dat)));
  //ColParam(StrGridData);
@@ -6348,10 +6392,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_ExN in ColNames) or (FF_ExN in ColNames)
          then
       begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
-        Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
-        Fit.Free;
+        if Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+        FitFunction.FittingDiapazon(Vax,EvolParam,D[diExp]);
+        FitFunction.Free;
         dat[ord(Rs_ExN)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_ExN)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is_ExN)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6391,10 +6435,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_Lam in ColNames) or (FF_Lam in ColNames)
          then
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(Vax,EvolParam,D[diLam]);
+        FitFunction.Free;
         dat[ord(Rs_Lam)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_Lam)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is_Lam)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6479,10 +6523,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_DE in ColNames) or (FF_DE in ColNames)
          then
       begin
-        if Iph_DE then Fit:=TPhotoDiod.Create
-                   else Fit:=TDiod.Create;
-        Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TPhotoDiod.Create
+                   else FitFunction:=TDiod.Create;
+        FitFunction.FittingDiapazon(Vax,EvolParam,D[diDE]);
+        FitFunction.Free;
         dat[ord(Rs_DE)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n_DE)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is_DE)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6524,10 +6568,10 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Pm_EA in ColNames) or (FF_EA in ColNames)
          then
       begin
-        if Iph_DE then Fit:=TDoubleDiodLight.Create
-                   else Fit:=TDoubleDiod.Create;
-        Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TDoubleDiodLight.Create
+                   else FitFunction:=TDoubleDiod.Create;
+        FitFunction.FittingDiapazon(Vax,EvolParam,D[diDE]);
+        FitFunction.Free;
         dat[ord(Rs_EA)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
         dat[ord(n1_EA)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
         dat[ord(Is1_EA)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
@@ -6556,18 +6600,18 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     //обчислення за допомогою обраної функції
     if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
      begin
-      FunCreate(LDateFun.Caption,Fit);
+      FunCreate(LDateFun.Caption,FitFunction);
       new(Vax2);
       Vax.Copy(Vax2^);
       if (LDateFun.Caption=FunctionPhotoDDiod)
            then  A_B_Diapazon(Vax,Vax2,D[diDE],True)
            else  A_B_Diapazon(Vax,Vax2,D[diDE]);
 
-      Fit.Fitting(Vax2,EvolParam);
+      FitFunction.Fitting(Vax2,EvolParam);
 
 //      Fit.Fitting(Vax,EvolParam);
       dispose(Vax2);
-      for i:=0 to High(Fit.Xname) do
+      for i:=0 to High(FitFunction.Xname) do
         dat[ord(High(TColName))+1+i]:=
            FloatToStrF(EvolParam[i],ffExponent,4,3);
 
@@ -6592,7 +6636,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //   fff.Free;
 
 
-      Fit.Free;
+      FitFunction.Free;
      end;
 
 // if Rsmy=ErResult then Continue;
@@ -6656,15 +6700,15 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     StrGridData.Cells[StrGridData.ColCount-1,StrGridData.RowCount-1]:=IntToStr(SR.Time);
     if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
      begin
-      FunCreate(LDateFun.Caption,Fit);
+      FunCreate(LDateFun.Caption,FitFunction);
 
 //      for i:=0 to High(Fit.DodXname) do
 //        StrGridData.Cells[StrGridData.ColCount-2-i,StrGridData.RowCount-1]:=
 //           dat[High(dat)-i];
-      for i:=0 to High(Fit.Xname) do
+      for i:=0 to High(FitFunction.Xname) do
         StrGridData.Cells[StrGridData.ColCount-2{-High(Fit.DodXname)-1}-i,StrGridData.RowCount-1]:=
            dat[High(dat){-High(Fit.DodXname)-1}-i];
-      Fit.Free;
+      FitFunction.Free;
      end;
 
     StrGridData.RowCount:=StrGridData.RowCount+1;
@@ -6915,25 +6959,25 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         Reverse2Exp(Vax,tempVax,RsDefineCB(Vax,ComBExp2RRs,ComBExp2RRs_n));
 {---------------------------------------------}
        M_V:
-         M_V_Fun(Vax,tempVax,CBM_Vdod.Checked,IP);
+         M_V_Fun(Vax,tempVax,CBM_Vdod.Checked,fnPowerIndex);
 {---------------------------------------------}
        Fow_Nor:
-         M_V_Fun(Vax,tempVax,CBFow_Nordod.Checked,FN);
+         M_V_Fun(Vax,tempVax,CBFow_Nordod.Checked,fnFowlerNordheim);
 {---------------------------------------------}
        Fow_NorE:
-         M_V_Fun(Vax,tempVax,CBFow_NorEdod.Checked,FNm);
+         M_V_Fun(Vax,tempVax,CBFow_NorEdod.Checked,fnFowlerNordheimEm);
 {---------------------------------------------}
        Abeles:
-         M_V_Fun(Vax,tempVax,CBAbelesdod.Checked,Ab);
+         M_V_Fun(Vax,tempVax,CBAbelesdod.Checked,fnAbeles);
 {---------------------------------------------}
        AbelesE:
-         M_V_Fun(Vax,tempVax,CBAbelesEdod.Checked,Abm);
+         M_V_Fun(Vax,tempVax,CBAbelesEdod.Checked,fnAbelesEm);
 {---------------------------------------------}
        Fr_Pool:
-         M_V_Fun(Vax,tempVax,CBFr_Pooldod.Checked,FP);
+         M_V_Fun(Vax,tempVax,CBFr_Pooldod.Checked,fnFrenkelPool);
 {---------------------------------------------}
        Fr_PoolE:
-         M_V_Fun(Vax,tempVax,CBFr_PoolEdod.Checked,FPm);
+         M_V_Fun(Vax,tempVax,CBFr_PoolEdod.Checked,fnFrenkelPoolEm);
      end; //case
        Write_File(CurDirectory+'\'+
          GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+ShotName+
@@ -7079,10 +7123,10 @@ case CBKalk.ItemIndex of
 //---------------------------------------------------------------
    4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
-        Fit.FittingDiapazon(VaxFile,EvolParam,D[diExp]);
-        Fit.Free;
+        if Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+        FitFunction.FittingDiapazon(VaxFile,EvolParam,D[diExp]);
+        FitFunction.Free;
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
         if Iph_Exp then Fbb:=ErResult
@@ -7136,10 +7180,10 @@ case CBKalk.ItemIndex of
      ExKalk(3,VaxFile,D[diE2R],Rss,Diod,nn,I00,Fbb);
    19:  //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(VaxFile,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(VaxFile,EvolParam,D[diLam]);
+        FitFunction.Free;
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
         if Iph_Lam then Fbb:=ErResult
@@ -7147,10 +7191,10 @@ case CBKalk.ItemIndex of
       end;
    20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
       begin
-        if Iph_DE then Fit:=TPhotoDiod.Create
-                   else Fit:=TDiod.Create;
-        Fit.FittingDiapazon(VaxFile,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TPhotoDiod.Create
+                   else FitFunction:=TDiod.Create;
+        FitFunction.FittingDiapazon(VaxFile,EvolParam,D[diDE]);
+        FitFunction.Free;
         Rss:=EvolParam[1];
         nn:=EvolParam[0];
         if Iph_DE then Fbb:=ErResult
@@ -7169,7 +7213,7 @@ case CBKalk.ItemIndex of
 
 case CBKalk.ItemIndex of
  2,3:         nn:=ErResult;
- {4,}5,17,18:   Rss:=ErResult;
+ 5,17,18:   Rss:=ErResult;
  16:begin
     nn:=ErResult;
     Rss:=ErResult;
@@ -7579,16 +7623,16 @@ ColParam(Form1.StrGridData);
 if LDateFun.Caption='None' then Exit;
 if CBDateFun.Checked then
        begin
-        FunCreate(LDateFun.Caption,Fit);
-        if  not(Assigned(Fit)) then Exit;
+        FunCreate(LDateFun.Caption,FitFunction);
+        if  not(Assigned(FitFunction)) then Exit;
 
-        for i:=0 to High(Fit.Xname) do
+        for i:=0 to High(FitFunction.Xname) do
           begin
           StrGridData.ColCount:=StrGridData.ColCount+1;
-          StrGridData.Cells[StrGridData.ColCount-1, 0]:=Fit.Xname[i];
+          StrGridData.Cells[StrGridData.ColCount-1, 0]:=FitFunction.Xname[i];
           StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
           end;
-        Fit.Free;
+        FitFunction.Free;
        end
 end;
 
@@ -8239,30 +8283,30 @@ begin
     14: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Fit.Free;
+        if Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
+        FitFunction.Free;
         Result:=EvolParam[1];
      end;
     15: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+        FitFunction.Free;
         Result:=EvolParam[1];
       end;
     16: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
       begin
-        if Iph_DE then Fit:=TPhotoDiod.Create
-                   else Fit:=TDiod.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TPhotoDiod.Create
+                   else FitFunction:=TDiod.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+        FitFunction.Free;
         Result:=EvolParam[1];
       end;
     else;
@@ -8306,30 +8350,30 @@ begin
     12: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Fit.Free;
+        if Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
+        FitFunction.Free;
         Result:=EvolParam[1];
      end;
     13: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+        FitFunction.Free;
         Result:=EvolParam[1];
       end;
     14: //Rs рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
       begin
-        if Iph_DE then Fit:=TPhotoDiod.Create
-                  else Fit:=TDiod.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TPhotoDiod.Create
+                  else FitFunction:=TDiod.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+        FitFunction.Free;
         Result:=EvolParam[1];
       end;
     else;
@@ -8395,30 +8439,30 @@ case CB.ItemIndex of
     15: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Fit.Free;
+        if Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
+        FitFunction.Free;
         Result:=EvolParam[0];
      end;
     16: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+        FitFunction.Free;
         Result:=EvolParam[0];
       end;
     17: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
       begin
-        if Iph_DE then Fit:=TPhotoDiod.Create
-                  else Fit:=TDiod.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TPhotoDiod.Create
+                  else FitFunction:=TDiod.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+        FitFunction.Free;
         Result:=EvolParam[0];
       end;
     else;
@@ -8460,30 +8504,30 @@ case CB.ItemIndex of
     11: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
      begin
-        if Iph_Exp then Fit:=TPhotoDiodLSM.Create
-                   else Fit:=TDiodLSM.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diExp]);
-        Fit.Free;
+        if Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
+        FitFunction.Free;
         Result:=EvolParam[0];
      end;
     12: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+        FitFunction.Free;
         Result:=EvolParam[0];
       end;
     13: //n рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
       begin
-        if Iph_DE then Fit:=TPhotoDiod.Create
-                  else Fit:=TDiod.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TPhotoDiod.Create
+                  else FitFunction:=TDiod.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+        FitFunction.Free;
         Result:=EvolParam[0];
       end;
     else;
@@ -8526,10 +8570,10 @@ case CB.ItemIndex of
     10: //Fb рахується шляхом апроксимації
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
       begin
-        if Iph_Exp then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Exp then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+        FitFunction.Free;
         if Iph_Exp then Result:=ErResult
                    else Result:=EvolParam[4];
       end;
@@ -8537,10 +8581,10 @@ case CB.ItemIndex of
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //функцією Ламберта
       begin
-        if Iph_Lam then Fit:=TPhotoDiodLam.Create
-                   else Fit:=TDiodLam.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diLam]);
-        Fit.Free;
+        if Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+        FitFunction.Free;
         if Iph_Lam then Result:=ErResult
                    else Result:=EvolParam[4];
       end;
@@ -8548,10 +8592,10 @@ case CB.ItemIndex of
       //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
       //метод differential evolution
       begin
-        if Iph_DE then Fit:=TPhotoDiod.Create
-                  else Fit:=TDiod.Create;
-        Fit.FittingDiapazon(A,EvolParam,D[diDE]);
-        Fit.Free;
+        if Iph_DE then FitFunction:=TPhotoDiod.Create
+                  else FitFunction:=TDiod.Create;
+        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+        FitFunction.Free;
         if Iph_DE then Result:=ErResult
                   else Result:=EvolParam[4];
       end;
@@ -9587,19 +9631,19 @@ Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;
  var j:integer;
 begin
   Result:=False;
-  FunCreate(FitName,Fit);
+  FunCreate(FitName,FitFunction);
   try
-   Fit.Fitting(A,EvolParam);
+   FitFunction.Fitting(A,EvolParam);
    if EvolParam[0]=ErResult then
      begin
-      Fit.Free;
+      FitFunction.Free;
       Exit;
      end;
    IVchar(A,B);
    for j:=0 to High(A^.X) do
-     B^.Y[j]:=Fit.FinalFunc(A^.X[j],EvolParam);
+     B^.Y[j]:=FitFunction.FinalFunc(A^.X[j],EvolParam);
   finally
-   Fit.Free;
+   FitFunction.Free;
   end;
   Result:=True;
 end;
@@ -9623,9 +9667,9 @@ Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle);overload;
 begin
  SetLength(Target,High(Source)+1);
    for j := 0 to High(Target) do
-       if Fit.Xname[j]='Rs' then Target[j]:=0
-         else if Fit.Xname[j]='Rsh' then Target[j]:=1e12
-           else if Fit.Xname[j]='Iph' then Target[j]:=0
+       if FitFunction.Xname[j]='Rs' then Target[j]:=0
+         else if FitFunction.Xname[j]='Rsh' then Target[j]:=1e12
+           else if FitFunction.Xname[j]='Iph' then Target[j]:=0
              else Target[j]:=Source[j];
 end;
 
@@ -9652,8 +9696,8 @@ Function ParamDeterm(Source:TArrSingle;ParamName:string):double;
  var j:integer;
 begin
  Result:=ErResult;
- for j := 0 to High(Fit.Xname) do
-  if Fit.Xname[j]=ParamName then
+ for j := 0 to High(FitFunction.Xname) do
+  if FitFunction.Xname[j]=ParamName then
     begin
       Result:=Source[j];
       Break;
@@ -9677,12 +9721,12 @@ begin
      Exit;
      end;
 
-  FunCreate(FitName,Fit);
+  FunCreate(FitName,FitFunction);
   try
-   Fit.Fitting(Alim,EvolParam);
+   FitFunction.Fitting(Alim,EvolParam);
    if EvolParam[0]=ErResult then
      begin
-      Fit.Free;
+      FitFunction.Free;
       Exit;
      end;
    ParameterSimplify(EvolParam,EP,FitName);
@@ -9692,12 +9736,12 @@ begin
      begin
      temp:=A^.X[j];
      A^.X[j]:=A^.X[j]-A^.Y[j]*Rs;
-     A^.Y[j]:=A^.Y[j]-Fit.FinalFunc(temp,EvolParam)
-                     +Fit.FinalFunc(A^.X[j],EP);
+     A^.Y[j]:=A^.Y[j]-FitFunction.FinalFunc(temp,EvolParam)
+                     +FitFunction.FinalFunc(A^.X[j],EP);
      end;
    Result:=True;
   finally
-   Fit.Free;
+   FitFunction.Free;
    dispose(Alim);
   end;
 end;
