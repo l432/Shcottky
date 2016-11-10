@@ -51,7 +51,7 @@ type
           fnDiodEvolution, //evolution methods
           fnReq0,  //Rs=0
           fnRvsTpower2, //'A+B*T+C*T^2'
-          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
+//          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
           fnDiodVerySimple, //I=I0exp(qV/nkT)
           fnRectification //розрахунок коефіцієнта випрямлення
           );
@@ -181,7 +181,7 @@ const
  'Evolution Diod',
  'R=0',
  'A+B*T+C*T^2',
- 'I0(exp(qV/nkT)-1)',
+// 'I0(exp(qV/nkT)-1)',
  'I=I0exp(qV/nkT)',
  'Rect.Koef'
  );
@@ -196,6 +196,7 @@ const
 
 var
   GraphParameters:TGraphParameters;
+//  tg:TGraph;
 
 Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
 
@@ -817,6 +818,7 @@ Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
 Procedure GraphCalculation(InVector:Pvector; var OutVector:Pvector;tg:TGraph);
 
 Procedure GraphParameterCalculation(InVector:Pvector; tg:TGraph);
+
 
 Procedure GraphParCalcFitting(InVector:Pvector; tg:TGraph);
 
@@ -4234,16 +4236,6 @@ end;
 Procedure GraphParameterCalculation(InVector:Pvector; tg:TGraph);
 begin
   case tg of
-    fnEmpty: ;
-    fnPowerIndex: ;
-    fnFowlerNordheim: ;
-    fnFowlerNordheimEm: ;
-    fnAbeles: ;
-    fnAbelesEm: ;
-    fnFrenkelPool: ;
-    fnFrenkelPoolEm: ;
-    fnReverse: ;
-    fnForward: ;
     fnKaminskii1:
      Kam1Kalk (InVector,GraphParameters.Diapazon,
                GraphParameters.Rs,
@@ -4276,8 +4268,6 @@ begin
       WernerKalk(InVector,GraphParameters.Diapazon,
                 GraphParameters.Rs,
                 GraphParameters.n);
-    fnForwardRs: ;
-    fnIdeality: ;
     fnExpForwardRs:
       ExKalk(2,InVector,GraphParameters.Diapazon,
             GraphParameters.Rs,Diod,
@@ -4301,13 +4291,6 @@ begin
                GraphParameters.n,
                GraphParameters.Rs,
                GraphParameters.Fb);
-    fnFvsV: ;
-    fnFvsI: ;
-    fnMikhelA: ;
-    fnMikhelB: ;
-    fnMikhelIdeality: ;
-    fnMikhelRs: ;
-    fnDLdensity: ;
     fnDLdensityIvanov:
       IvanovKalk(InVector,GraphParameters.Diapazon,
                  GraphParameters.Rs,Diod,
@@ -4342,7 +4325,6 @@ begin
       GraphParameters.Rs:=GraphParameters.RA+
                           GraphParameters.RB*InVector^.T+
                           GraphParameters.RC*sqr(InVector^.T);
-    fnDiodSimple: ;
     fnDiodVerySimple:
      ExKalk(1,InVector,GraphParameters.Diapazon,
             GraphParameters.Rs,Diod,
