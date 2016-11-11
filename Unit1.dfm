@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -1660,11 +1660,12 @@ object Form1: TForm1
         Top = 6
         Width = 230
         Height = 390
+        VertScrollBar.Position = 386
         ParentBackground = True
         TabOrder = 4
         object GroupBoxParam0: TGroupBox
           Left = 0
-          Top = 0
+          Top = -386
           Width = 208
           Height = 1550
           Caption = 'PARAMETERS OF CALCULATION'

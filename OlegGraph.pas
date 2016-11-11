@@ -1,7 +1,7 @@
 ﻿unit OlegGraph;
 interface
 uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
-     Forms,Controls,WinProcs,OlegMaterialSamples, StdCtrls;
+     Forms,Controls,WinProcs,OlegMaterialSamples, StdCtrls, IniFiles;
 
 type
 
@@ -61,23 +61,6 @@ type
  в розрахунках}
  TGraphParameters=class
   private
-//    FRs: double;
-//    Fn: double;
-//    FFb: double;
-//    FI0: double;
-//    FGamma: double;
-//    {параметр у функції Норда}
-//    FGamma1: double;
-//    FGamma2: double;
-//    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
-//                  у методі Бохліна}
-//    FVa: double;
-//    {напруга, яка використовується для побудови
-//     допоміжних функцій у методах Сібілса та Лі}
-//    FForForwardBranch: boolean;
-//    {used in M_V_Fun()}
-//    FNssType:boolean;
-//    procedure SetData(Index:integer; Value:double);
   public
    Diapazon:TDiapazon;
    Rs:double;
@@ -119,17 +102,8 @@ type
   Iph_Lam - апроксимація за МНК функції Ламберта (fnDiodLambert)
   Iph_DE - еволюційний метод(fnDiodEvolution)}
    Procedure Clear();
-
-//   property Rs:double Index 1 read FRs write SetData;
-//   property n:double  Index 2 read Fn  write SetData;
-//   property Fb:double Index 3 read FFb write SetData;
-//   property Gamma:double Index 4 read FGamma write SetData;
-//   property Gamma1:double Index 5 read FGamma1 write SetData;
-//   property Gamma2:double Index 6 read FGamma2 write SetData;
-//   property Va:double Index 7 read FVa write SetData;
-//   property I0:double Index 8 read FI0 write SetData;
-//   property ForForwardBranch:boolean read FForForwardBranch write FForForwardBranch;
-//   property NssType:boolean read FNssType write FNssType;
+   procedure WriteToIniFile(ConfigFile:TIniFile);
+   procedure ReadFromIniFile(ConfigFile:TIniFile);
  end;
 
 const
@@ -481,19 +455,22 @@ Function PoinValide(Dp:TDiapazon;
 при YminDontUsed=True не розглядається умова для Ymin -
 потрібно для аналізу ВАХ освітлених елементів}
 
-Procedure ChungKalk(A:PVector; D:TDiapazon; var Rs:double; var n:double);
+Procedure ChungKalk(A:PVector);overload;
+Procedure ChungKalk(A:PVector; D:TDiapazon; var Rs:double; var n:double);overload;
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Чюнга (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);
+Procedure WernerKalk(A:PVector);overload;
+Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);overload;
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Вернера (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure MikhKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; var Rs: Double; var n: Double; var I0: Double; var Fb: Double);
+Procedure MikhKalk(A: PVector);overload;
+Procedure MikhKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; var Rs: Double; var n: Double; var I0: Double; var Fb: Double);overload;
 {на основі даних з вектора А за допомогою
 методу Міхелешвілі визначаються величини
 послідовного опору Rs, коефіцієнта неідеальності n,
@@ -505,7 +482,8 @@ Procedure MikhKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; var Rs: Double;
 AA - стала Річардсона,
 Szr - площа контакту}
 
-Procedure HFunKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; N: Double; var Rs: Double; var Fb: Double);
+Procedure HFunKalk(A: PVector);overload;
+Procedure HFunKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; N: Double; var Rs: Double; var Fb: Double);overload;
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації H-функції (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -513,7 +491,10 @@ Procedure HFunKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; N: Double; var 
 для побудови Н-функції потрібні
 N - фактор неідеальності}
 
-Procedure ExKalk(Index: Integer; A: PVector; D: TDiapazon; Rs: Double; DD: TDiod_Schottky; var n: Double; var I0: Double; var Fb: Double);overload;
+Procedure ExKalk(Index: Integer; A: PVector);overload;
+Procedure ExKalk(Index: Integer; A: PVector; D: TDiapazon;
+                Rs: Double; DD: TDiod_Schottky;
+                var n: Double; var I0: Double; var Fb: Double);overload;
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
 масштабі (з врахуванням
@@ -529,6 +510,20 @@ Index вказує що саме апроксимується:
 для побудови ВАХ потрібний
 Rs - послідовний опір,
 для визначення Fb
+AA - стала Річардсона,
+Szr - площа контакту}
+
+Procedure ExKalk(A:Pvector; DD:TDiod_Schottky;
+                 var n:double; var I0:double; var Fb:double;
+                 OutsideTemperature:double=ErResult);overload;
+{на основі даних з вектора А шляхом
+лінійної апроксимації ВАХ в напівлогарифмічному
+масштабі, визначає величину
+коефіцієнту неідеальності n,
+струму насичення І0
+висоту бар'єру Fb;
+Фактично, це апроксимація за формулою I=I0exp(V/nkT)
+для визначення Fb потрібні
 AA - стала Річардсона,
 Szr - площа контакту}
 
@@ -553,21 +548,11 @@ AA - стала Річардсона,
 Szr - площа контакту}
 
 
-Procedure ExKalk(A:Pvector; DD:TDiod_Schottky;
-                 var n:double; var I0:double; var Fb:double;
-                 OutsideTemperature:double=ErResult);overload;
-{на основі даних з вектора А шляхом
-лінійної апроксимації ВАХ в напівлогарифмічному
-масштабі, визначає величину
-коефіцієнту неідеальності n,
-струму насичення І0
-висоту бар'єру Fb;
-Фактично, це апроксимація за формулою I=I0exp(V/nkT)
-для визначення Fb потрібні
-AA - стала Річардсона,
-Szr - площа контакту}
 
-Procedure ExpKalk(A: PVector; D: TDiapazon; Rs: Double; DD: TDiod_Schottky; Xp: IRE; var n: Double; var I0: Double; var Fb: Double);
+Procedure ExpKalk(A: PVector; D: TDiapazon;
+                  Rs: Double; DD: TDiod_Schottky;
+                  Xp: IRE; var n: Double; var I0:
+                  Double; var Fb: Double);
 {на основі даних з вектора А шляхом
 апроксимації ВАХ за формулою I=I0(exp(V/nkT)-1)+V/R
 (з врахуванням обмежень, вказаних в D), визначає величину
@@ -588,7 +573,8 @@ Procedure NordDodat(A: PVector; D: TDiapazon; DD: TDiod_Schottky; Gamma: Double;
 значення самої фуекції F0 та значення струму І0,
 яке відповідає V0 у вихідних даних}
 
-Procedure NordKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; Gamma, n: Double; var Rs: Double; var Fb: Double);
+Procedure NordKalk(A: PVector);overload;
+Procedure NordKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; Gamma, n: Double; var Rs: Double; var Fb: Double);overload;
 {на основі даних з вектора А шляхом побудови
 функції Норда (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -600,14 +586,16 @@ Gamma - параметр гамма (див формулу)
 для обчислення Rs
 n - показник ідеальності}
 
+Procedure CibilsKalk(const A:Pvector);overload;
 Procedure CibilsKalk(const A:Pvector; const D:TDiapazon;
-                     out Rs:double; out n:double);
+                     out Rs:double; out n:double);overload;
 {на основі даних з вектора А шляхом побудови
 функції Сібілса, визначає величину
 послідовного опору Rs та
 показника ідеальності n}
 
-Procedure IvanovKalk(A: PVector; D: TDiapazon; Rs: Double; DD: TDiod_Schottky; var del: Double; var Fb: Double);
+Procedure IvanovKalk(A: PVector);overload;
+Procedure IvanovKalk(A: PVector; D: TDiapazon; Rs: Double; DD: TDiod_Schottky; var del: Double; var Fb: Double);overload;
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за методом Іванова
 визначає величину товщини діелектричного шару del
@@ -622,22 +610,24 @@ Rs - послідовний опір, апроксимацію потрібно 
 для ВАХ, побудованої з врахуванням Rs
 }
 
-
-Procedure Kam1Kalk (A:Pvector; D:TDiapazon; var Rs:double; var n:double);
+Procedure Kam1Kalk (A:Pvector);overload;
+Procedure Kam1Kalk (A:Pvector; D:TDiapazon; var Rs:double; var n:double);overload;
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
-Procedure Kam2Kalk (const A:Pvector; const D:TDiapazon; out Rs:double; out n:double);
+Procedure Kam2Kalk (A:Pvector);overload;
+Procedure Kam2Kalk (const A:Pvector; const D:TDiapazon; out Rs:double; out n:double);overload;
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
 послідовного опору Rs та коефіцієнта неідеальності n}
 
+Procedure Gr1Kalk (A:Pvector);overload;
 Procedure Gr1Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
-                   var Fb:double; var I0:double);
+                   var Fb:double; var I0:double);overload;
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D) методом Громова
 першого роду визначаються величини
@@ -648,9 +638,10 @@ Procedure Gr1Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
 якщо неможливо побудувати функцію Громова,
 то і Rs=ErResult}
 
+Procedure Gr2Kalk (A:Pvector);overload;
 Procedure Gr2Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
-                   var Fb:double; var I0:double);
+                   var Fb:double; var I0:double);overload;
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D) методом Громова
 другого роду визначаються величини
@@ -661,9 +652,10 @@ Procedure Gr2Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
 якщо неможливо побудувати функцію Громова,
 то і Rs=ErResult}
 
+Procedure BohlinKalk(A:Pvector);overload;
 Procedure BohlinKalk(A:Pvector; D:TDiapazon; DD:TDiod_Schottky; Gamma1,Gamma2:double;
                    var Rs:double; var n:double;
-                   var Fb:double; var I0:double);
+                   var Fb:double; var I0:double);overload;
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за допомогою
 методу Бохліна визначаються величини
@@ -677,9 +669,10 @@ Gamma - параметр гамма,
 друге значення гамма просте береться
 на дві десятих більше ніж Gamma}
 
+Procedure LeeKalk (A:Pvector);overload;
 Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
-                   var Fb:double; var I0:double);
+                   var Fb:double; var I0:double);overload;
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D) методом побудови
 функції Лі визначаються величини
@@ -2528,6 +2521,13 @@ if A^.T<=0 then n:=ErResult
 dispose(temp1);dispose(temp2);
 end;
 
+Procedure ChungKalk(A:PVector);
+begin
+  ChungKalk(A,GraphParameters.Diapazon,
+            GraphParameters.Rs,GraphParameters.n);
+end;
+
+
 Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Вернера (з врахуванням
@@ -2628,6 +2628,13 @@ Rs:=-bb/aa;
 dispose(temp1);dispose(temp2);
 end;
 
+Procedure WernerKalk(A:PVector);
+begin
+  WernerKalk(A,GraphParameters.Diapazon,
+             GraphParameters.Rs,GraphParameters.n);
+end;
+
+
 Procedure MikhKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; var Rs: Double; var n: Double; var I0: Double; var Fb: Double);
 {на основі даних з вектора А (тих, які задовольняють
 умову D) за допомогою
@@ -2715,6 +2722,13 @@ dispose(temp2);
 
 end;
 
+Procedure MikhKalk(A: PVector);
+begin
+  MikhKalk(A,GraphParameters.Diapazon,Diod,
+           GraphParameters.Rs,GraphParameters.n,
+           GraphParameters.I0,GraphParameters.Fb)
+end;
+
 Procedure HFunKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; N: Double; var Rs: Double; var Fb: Double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації H-функції (з врахуванням
@@ -2746,6 +2760,13 @@ if temp2^.n<2 then
 LinAprox(temp2,Fb,Rs);
 Fb:=Fb/N;
 dispose(temp1);dispose(temp2);
+end;
+
+Procedure HFunKalk(A: PVector);
+begin
+HFunKalk(A,GraphParameters.Diapazon,Diod,
+         GraphParameters.n,GraphParameters.Rs,
+         GraphParameters.Fb);
 end;
 
 Procedure ExKalk(Index: Integer; A: PVector; D: TDiapazon; Rs: Double;
@@ -2808,6 +2829,12 @@ Fb:=DD.Fb(A^.T,I0);
 dispose(temp1);
 end;
 
+Procedure ExKalk(Index: Integer; A: PVector);overload;
+begin
+  ExKalk(Index,A,GraphParameters.Diapazon,
+         GraphParameters.Rs,Diod,GraphParameters.n,
+         GraphParameters.I0,GraphParameters.Fb)
+end;
 
 Procedure ExKalk_nconst(Index: Integer; A: PVector; D: TDiapazon;
           DD: TDiod_Schottky; Rs, n: Double; var I0: Double; var Fb: Double);overload;
@@ -3052,6 +3079,14 @@ if n<>ErResult then
      end;
 end;
 
+Procedure NordKalk(A: PVector);
+begin
+  NordKalk(A,GraphParameters.Diapazon,Diod,
+           GraphParameters.Gamma,GraphParameters.n,
+           GraphParameters.Rs,GraphParameters.Fb)
+end;
+
+
 Procedure CibilsKalk(const A:Pvector; const D:TDiapazon;
                      out Rs:double; out n:double);
 {на основі даних з вектора А шляхом побудови
@@ -3075,6 +3110,13 @@ Rs:=1/b0;
 if A^.T>0 then n:=-a0/b0/Kb/A^.T;
 dispose(temp1);
 end;
+
+Procedure CibilsKalk(const A:Pvector);
+begin
+  CibilsKalk(A,GraphParameters.Diapazon,
+             GraphParameters.Rs,GraphParameters.n);
+end;
+
 
 Procedure IvanovKalk(A: PVector; D: TDiapazon; Rs: Double;
                      DD: TDiod_Schottky; var del: Double; var Fb: Double);
@@ -3116,6 +3158,14 @@ dispose(temp2);
 dispose(temp);
 end;
 
+Procedure IvanovKalk(A: PVector);
+begin
+  IvanovKalk(A,GraphParameters.Diapazon,
+             GraphParameters.Rs,Diod,
+             GraphParameters.Krec,GraphParameters.Fb)
+end;
+
+
 Procedure Kam1Kalk (A:Pvector; D:TDiapazon; var Rs:double; var n:double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
@@ -3139,6 +3189,13 @@ if A^.T<=0 then n:=ErResult
 dispose(temp1);
 end;
 
+Procedure Kam1Kalk (A:Pvector);
+begin
+ Kam1Kalk (A,GraphParameters.Diapazon,
+           GraphParameters.Rs,GraphParameters.n)
+end;
+
+
 Procedure Kam2Kalk (const A:Pvector; const D:TDiapazon; out Rs:double; out n:double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
@@ -3161,6 +3218,12 @@ Rs:=-Rs/n;
 if A^.T>0 then n:=1/n/Kb/A^.T
           else n:=ErResult;
 dispose(temp1);
+end;
+
+Procedure Kam2Kalk (A:Pvector);overload;
+begin
+  Kam2Kalk(A,GraphParameters.Diapazon,
+           GraphParameters.Rs,GraphParameters.n)
 end;
 
 Procedure Gr1Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
@@ -3295,6 +3358,14 @@ dispose(DDD);
 //dispose(temp2);
 end;
 
+Procedure Gr1Kalk (A:Pvector);
+begin
+  Gr1Kalk (A,GraphParameters.Diapazon,Diod,
+           GraphParameters.Rs,GraphParameters.n,
+           GraphParameters.Fb,GraphParameters.I0)
+end;
+
+
 Procedure Gr2Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);
@@ -3413,11 +3484,17 @@ GromovAprox(temp2,C0,C1,C2);
 Rs:=2*C1;
 n:=2*C2/Kb/A^.T+2;
 Fb:=2*C0/n-DD.kTln(A^.T)/n*(2-n);
-//Fb:=2*C0/n-Kb*A^.T/n*(2-n)*ln(DD.Area*DD.Material.Arich*sqr(A^.T));
 I0:=DD.I0(A^.T,Fb);
-//DD.Area*DD.Material.Arich*sqr(A^.T)*exp(-Fb/Kb/A^.T);
 dispose(temp2);
 end;
+
+Procedure Gr2Kalk (A:Pvector);
+begin
+  Gr2Kalk(A,GraphParameters.Diapazon,Diod,
+          GraphParameters.Rs,GraphParameters.n,
+          GraphParameters.Fb,GraphParameters.I0);
+end;
+
 
 
 Procedure BohlinKalk(A:Pvector; D:TDiapazon; DD:TDiod_Schottky; Gamma1,Gamma2:double;
@@ -3461,6 +3538,15 @@ Fb:=(Fb+temp)/2;
 I0:=DD.I0(A^.T,Fb);
 //Area*DD.Material.Arich*sqr(A^.T)*exp(-Fb/Kb/A^.T);
 end;
+
+Procedure BohlinKalk(A:Pvector);
+begin
+  BohlinKalk(A,GraphParameters.Diapazon,Diod,
+             GraphParameters.Gamma1,GraphParameters.Gamma2,
+             GraphParameters.Rs,GraphParameters.n,
+             GraphParameters.Fb,GraphParameters.I0);
+end;
+
 
 Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
@@ -3568,6 +3654,14 @@ if A^.T>0 then
             end;
 dispose(temp1);
 end;
+
+Procedure LeeKalk (A:Pvector);
+begin
+  LeeKalk(A,GraphParameters.Diapazon,Diod,
+          GraphParameters.Rs,GraphParameters.n,
+          GraphParameters.Fb,GraphParameters.I0);
+end;
+
 
 Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;
 {знаходить ординату точки з абсцисою Х3,
@@ -4236,103 +4330,30 @@ end;
 Procedure GraphParameterCalculation(InVector:Pvector; tg:TGraph);
 begin
   case tg of
-    fnKaminskii1:
-     Kam1Kalk (InVector,GraphParameters.Diapazon,
-               GraphParameters.Rs,
-               GraphParameters.n);
-    fnKaminskii2:
-     Kam2Kalk (InVector,GraphParameters.Diapazon,
-               GraphParameters.Rs,
-               GraphParameters.n);
-    fnGromov1:
-      Gr1Kalk (InVector,GraphParameters.Diapazon,Diod,
-               GraphParameters.Rs,
-               GraphParameters.n,
-               GraphParameters.Fb,
-               GraphParameters.I0);
-    fnGromov2:
-      Gr2Kalk (InVector,GraphParameters.Diapazon,Diod,
-               GraphParameters.Rs,
-               GraphParameters.n,
-               GraphParameters.Fb,
-               GraphParameters.I0);
-    fnCheung:
-      ChungKalk(InVector,GraphParameters.Diapazon,
-                GraphParameters.Rs,
-                GraphParameters.n);
-    fnCibils:
-      CibilsKalk(InVector,GraphParameters.Diapazon,
-                GraphParameters.Rs,
-                GraphParameters.n);
-    fnWerner:
-      WernerKalk(InVector,GraphParameters.Diapazon,
-                GraphParameters.Rs,
-                GraphParameters.n);
-    fnExpForwardRs:
-      ExKalk(2,InVector,GraphParameters.Diapazon,
-            GraphParameters.Rs,Diod,
-            GraphParameters.n,
-            GraphParameters.I0,
-            GraphParameters.Fb);
-    fnExpReverseRs:
-      ExKalk(3,InVector,GraphParameters.Diapazon,
-            GraphParameters.Rs,Diod,
-            GraphParameters.n,
-            GraphParameters.I0,
-            GraphParameters.Fb);
-    fnH:
-      HFunKalk(InVector,GraphParameters.Diapazon,Diod,
-               GraphParameters.n,
-               GraphParameters.Rs,
-               GraphParameters.Fb);
-    fnNorde:
-      NordKalk(InVector,GraphParameters.Diapazon,Diod,
-               GraphParameters.Gamma,
-               GraphParameters.n,
-               GraphParameters.Rs,
-               GraphParameters.Fb);
-    fnDLdensityIvanov:
-      IvanovKalk(InVector,GraphParameters.Diapazon,
-                 GraphParameters.Rs,Diod,
-                 GraphParameters.Krec,
-                 GraphParameters.Fb);
-    fnLee:
-      LeeKalk (InVector,GraphParameters.Diapazon,Diod,
-               GraphParameters.Rs,
-               GraphParameters.n,
-               GraphParameters.Fb,
-               GraphParameters.I0);
-    fnBohlin:
-      BohlinKalk(InVector,GraphParameters.Diapazon,Diod,
-                 GraphParameters.Gamma1,GraphParameters.Gamma2,
-                 GraphParameters.Rs,
-                 GraphParameters.n,
-                 GraphParameters.Fb,
-                 GraphParameters.I0);
-    fnNeq1:
-      GraphParameters.n:=1;
-    fnMikhelashvili:
-      MikhKalk (InVector,GraphParameters.Diapazon,Diod,
-                 GraphParameters.Rs,
-                 GraphParameters.n,
-                 GraphParameters.I0,
-                 GraphParameters.Fb);
+    fnKaminskii1: Kam1Kalk (InVector);
+    fnKaminskii2: Kam2Kalk (InVector);
+    fnGromov1:    Gr1Kalk (InVector);
+    fnGromov2:    Gr2Kalk (InVector);
+    fnCheung:     ChungKalk(InVector);
+    fnCibils:     CibilsKalk(InVector);
+    fnWerner:     WernerKalk(InVector);
+    fnExpForwardRs: ExKalk(2,InVector);
+    fnExpReverseRs: ExKalk(3,InVector);
+    fnH:          HFunKalk(InVector);
+    fnNorde:      NordKalk(InVector);
+    fnDLdensityIvanov: IvanovKalk(InVector);
+    fnLee:        LeeKalk (InVector);
+    fnBohlin:     BohlinKalk(InVector);
+    fnNeq1:       GraphParameters.n:=1;
+    fnMikhelashvili: MikhKalk (InVector);
     fnDiodLSM,fnDiodLambert,fnDiodEvolution:
-      GraphParCalcFitting(InVector,tg);
-    fnReq0:
-      GraphParameters.Rs:=0;
-    fnRvsTpower2:
-      GraphParameters.Rs:=GraphParameters.RA+
+                  GraphParCalcFitting(InVector,tg);
+    fnReq0:       GraphParameters.Rs:=0;
+    fnRvsTpower2: GraphParameters.Rs:=GraphParameters.RA+
                           GraphParameters.RB*InVector^.T+
                           GraphParameters.RC*sqr(InVector^.T);
-    fnDiodVerySimple:
-     ExKalk(1,InVector,GraphParameters.Diapazon,
-            GraphParameters.Rs,Diod,
-            GraphParameters.n,
-            GraphParameters.I0,
-            GraphParameters.Fb);
-    fnRectification:
-     GraphParameters.Krec:=Krect(InVector,GraphParameters.Vrect);
+    fnDiodVerySimple: ExKalk(1,InVector);
+    fnRectification:  GraphParameters.Krec:=Krect(InVector,GraphParameters.Vrect);
   end;
 end;
 
@@ -4391,6 +4412,37 @@ begin
    Iph:=ErResult;
    Rsh:=ErResult;
    Krec:=ErResult;
+end;
+
+procedure TGraphParameters.ReadFromIniFile(ConfigFile: TIniFile);
+begin
+ Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
+ Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
+ Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
+ Gamma:=ConfigFile.ReadFloat('Diapaz','Gamma',2);
+ Gamma1:=ConfigFile.ReadFloat('Diapaz','Gamma1',2);
+ Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
+ Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
+ Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
+ RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
+ RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
+ RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
+end;
+
+procedure TGraphParameters.WriteToIniFile(ConfigFile: TIniFile);
+begin
+ ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
+ ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
+ ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
+ ConfigFile.WriteFloat('Diapaz','Gamma',Gamma);
+ ConfigFile.WriteFloat('Diapaz','Gamma1',Gamma1);
+ ConfigFile.WriteFloat('Diapaz','Gamma2',Gamma2);
+ ConfigFile.WriteFloat('Diapaz','Va',Va);
+ ConfigFile.WriteFloat('Diapaz','Vrect',Vrect);
+ ConfigFile.WriteFloat('Resistivity','RA',RA);
+ ConfigFile.WriteFloat('Resistivity','RB',RB);
+ ConfigFile.WriteFloat('Resistivity','RC',RC);
+
 end;
 
 end.

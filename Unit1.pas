@@ -865,7 +865,6 @@ type
     procedure ButtonKalkClick(Sender: TObject);
     procedure ButtonKalkParClick(Sender: TObject);
     procedure CBKalkChange(Sender: TObject);
-//    procedure ButtonDelClick(Sender: TObject);
     procedure ButtonCurDirClick(Sender: TObject);
     procedure CBForwRsClick(Sender: TObject);
     procedure ButtonCreateFileClick(Sender: TObject);
@@ -935,10 +934,6 @@ type
     procedure ButGLAutoClick(Sender: TObject);
     procedure CBDateFunClick(Sender: TObject);
     procedure CBDLFunctionClick(Sender: TObject);
-//    procedure CBMaterialChange(Sender: TObject);
-//    procedure LaVarBClick(Sender: TObject);
-    {чіпляється до Button деяких дочірніх форм,
-    викликає вікно з параметрами апроксимації}
   private
     { Private declarations }
     function GraphType (Sender: TObject):TGraph;
@@ -1019,14 +1014,6 @@ procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:TDiapazon);
 текстових віконечках, виконується при використанні
 вікон зміни діапазону}
 procedure FormFrToDiap(FrDp:TFrDp; var D:TDiapazon);
-
-//procedure StrToNumber(St:TCaption; Def:double; var Num:double);
-//{процедура переведення тестового рядка St в чисельне
-//значення Num;
-//якщо формат рядка поганий - змінна не зміниться,
-//буде показано віконечко з відповідним написом;
-//якщо рядок порожній - Num  буде присвоєне
-//значення Def}
 
 Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 {в залежності від вибраного значення
@@ -1212,7 +1199,8 @@ Function FileNameIsBad(FileName:string):boolean;
 
 Procedure GraphParCalculComBox(InVector:Pvector;ComboBox:TCombobox);
 
-
+procedure InputValueToLabel(Name,Hint:string; Format:TFloatFormat;
+                   var Lab:Tlabel;var Value:double);
 const
  DLFunction:array[0..4]of string=
            ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
@@ -1222,7 +1210,6 @@ const
 
 var
   Form1: TForm1;
-//  FitFunction:TFitFunction;
   BohlinMethod: Boolean;
   {використовується при показі віконечок для введення параметрів методів}
   Directory, Directory0, CurDirectory:string;
@@ -1239,32 +1226,8 @@ var
   лінію відліку в методі визначення глибоких рівнів}
   ApprExp:IRE;{початкові значення для аппроксимації експонентою}
   D:array[diChung..diHfunc] of TDiapazon;
-//  Gamma:double;
-//  {Gamma - величина параметра гамма у функції Норда}
-//  Vrect:double;{напруга, при якій відбувається вимірювання
-//             коефіцієнта випрямлення}
-//  Rss,nn,Fbb,I00,Krec,Gamma1,Gamma2,Va:double;
-  {змінні, в які заносяться результати
-  обчислень параметрів різними методами
-  Krec - коефіцієнт випрямлення
-  Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
-                  у методі Бохліна
-  Va - напруга, яка використовується для побудови
-       допоміжних функцій у методах Сібілса та Лі
-  }
-//  RA, RB, RC:double;
-//  {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
-//      Rs=A+B*T+C*T^2}
-//  Iph_Exp,Iph_Lam,Iph_DE,
   DDiod_DE:boolean;
-  {визначають, чи потрібно підбирати фотострум
-  (при True) у формулі
-  I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-  тобто чи освітлена ВАХ апроксимується;
-  Iph_Exp - пряма апроксимація за МНК
-  Iph_Lam - апроксимація за МНК функції Ламберта
-  Iph_DE - метод диференційної еволюції,
-  DDiod_DE - чи використовується вираз для
+{  DDiod_DE - чи використовується вираз для
   подвійного діода при еволюційних методах}
   DirNames:TDirNames;{множина для зберігання
   вибраних для створення директорій з допоміжними файлами}
@@ -1277,8 +1240,6 @@ var
   SelectedRow:Integer;
   {номер рядка у DataSheet, де знаходиться
   виділене значення; використовується при видаленні точок}
-//  EvolParam:TArrSingle;
-//  {масив з double, використовується в еволюційних процедурах}
   ConfigFile:TIniFile;
   FirstLayer,pLayer,nLayer:TMaterialShow;
   Diod_SchottkyShow:TDiod_SchottkyShow;
@@ -1388,7 +1349,6 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
  var
     i,j:integer;
-//    ConfigFile:TIniFile;
     st:string;
     DP: TDiapazons;
     DR:TDirName;
@@ -1403,7 +1363,7 @@ begin
  Directory0:= GetCurrentDir;
  DecimalSeparator:='.';
 
-  {*}CBKalk.Sorted:=False;
+  CBKalk.Sorted:=False;
   CBKalk.Items.Add('Method');
   CBKalk.Items.Add(GraphLabel[fnCheung]);
   CBKalk.Items.Add(GraphLabel[fnH]);
@@ -1427,7 +1387,7 @@ begin
   CBKalk.Items.Add(GraphLabel[fnDiodEvolution]);
   CBKalk.ItemIndex:=0;
 
-  {*}ComboBoxRs.Sorted:=False;
+  ComboBoxRs.Sorted:=False;
   ComboBoxRs.Items.Add(GraphLabel[fnReq0]);
   ComboBoxRs.Items.Add(GraphLabel[fnCheung]);
   ComboBoxRs.Items.Add(GraphLabel[fnKaminskii1]);
@@ -1469,7 +1429,7 @@ begin
   ComBDateEx2RRs.Sorted:=False;
   ComBDateEx2RRs.Items:=ComboBoxRs.Items;
 
-  {*}ComboBoxRS_n.Sorted:=False;
+  ComboBoxRS_n.Sorted:=False;
   ComboBoxRS_n.Items.Add(GraphLabel[fnNeq1]);
   ComboBoxRS_n.Items.Add(GraphLabel[fnCheung]);
   ComboBoxRS_n.Items.Add(GraphLabel[fnKaminskii1]);
@@ -1509,13 +1469,11 @@ begin
   ComBDateExRs_n.Sorted:=False;
   ComBDateExRs_n.Items:=ComboBoxRS_n.Items;
 
-  {*}ComboBoxN.Sorted:=False;
+  ComboBoxN.Sorted:=False;
   ComboBoxN.Items.Add(GraphLabel[fnNeq1]);
   ComboBoxN.Items.Add(GraphLabel[fnCheung]);
   ComboBoxN.Items.Add(GraphLabel[fnKaminskii1]);
   ComboBoxN.Items.Add(GraphLabel[fnKaminskii2]);
-  ComboBoxN.Items.Add('I0(exp(qV/nkT)-1)');
-//  ComboBoxN.Items.Add(GraphLabel[fnDiodSimple]);
   ComboBoxN.Items.Add(GraphLabel[fnDiodVerySimple]);
   ComboBoxN.Items.Add(GraphLabel[fnGromov1]);
   ComboBoxN.Items.Add(GraphLabel[fnGromov2]);
@@ -1539,7 +1497,7 @@ begin
   ComBDateHfunN.Sorted:=False;
   ComBDateHfunN.Items:=ComboBoxN.Items;
 
-  {*}ComboBoxN_Rs.Sorted:=False;
+  ComboBoxN_Rs.Sorted:=False;
   ComboBoxN_Rs.Items.Add(GraphLabel[fnReq0]);
   ComboBoxN_Rs.Items.Add(GraphLabel[fnCheung]);
   ComboBoxN_Rs.Items.Add(GraphLabel[fnKaminskii1]);
@@ -1565,10 +1523,8 @@ begin
   ComBNordN_Rs.Sorted:=False;
   ComBNordN_Rs.Items:=ComboBoxN_Rs.Items;
 
-  {*}ComboBoxNssFb.Sorted:=False;
+  ComboBoxNssFb.Sorted:=False;
   ComboBoxNssFb.Items.Add(GraphLabel[fnNorde]);
-  ComboBoxN.Items.Add('I0(exp(qV/nkT)-1)');
-//  ComboBoxNssFb.Items.Add(GraphLabel[fnDiodSimple]);
   ComboBoxNssFb.Items.Add(GraphLabel[fnDiodVerySimple]);
   ComboBoxNssFb.Items.Add(GraphLabel[fnGromov1]);
   ComboBoxNssFb.Items.Add(GraphLabel[fnGromov2]);
@@ -1625,6 +1581,7 @@ begin
 
  GraphParameters:=TGraphParameters.Create;
  GraphParameters.Clear();
+ GraphParameters.ReadFromIniFile(ConfigFile);
 
 GrLim.MinXY:=ConfigFile.ReadInteger('Limit','MinXY',0);
 GrLim.MaxXY:=ConfigFile.ReadInteger('Limit','MaxXY',0);
@@ -1634,9 +1591,6 @@ GrLim.MaxValue[0]:=ConfigFile.ReadFloat('Limit','MaxV0',ErResult);
 GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
 
- GraphParameters.Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
- GraphParameters.Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
- GraphParameters.Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
  DDiod_DE:=ConfigFile.ReadBool('Approx','DDiod_DE',True);
 
   for DP := Low(DP) to High(DP) do
@@ -1649,17 +1603,8 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   if D[diLee].XMin<0.05 then D[diLee].XMin:=0.05;
   D[diE2R].Br:='R';
 
-  GraphParameters.Gamma:=ConfigFile.ReadFloat('Diapaz','Gamma',2);
-  GraphParameters.Gamma1:=ConfigFile.ReadFloat('Diapaz','Gamma1',2);
-  GraphParameters.Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
-  GraphParameters.Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
-  GraphParameters.Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
   LabelVa.Caption:='Va = '+FloatToStrF(GraphParameters.Va,ffGeneral,3,2)+' V';
   LabelRect.Caption:=FloatToStrF(GraphParameters.Vrect,ffGeneral,3,2)+' V';
-
-  GraphParameters.RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
-  GraphParameters.RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
-  GraphParameters.RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
 
   LabRA.Caption:='A = '+FloatToStrF(GraphParameters.RA,ffGeneral,3,2);
   LabRB.Caption:='B = '+FloatToStrF(GraphParameters.RB,ffExponent,3,2);
@@ -1825,14 +1770,12 @@ CBDateFun.Checked:=ConfigFile.ReadBool('Column',
 RadioButtonNssNvM.Checked:=ConfigFile.ReadBool('Graph','Nss_N(V)',False);
 RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   SButFit.Caption:='None';
-//  CBKalk.ItemIndex:=0;
   MemoAppr.Clear;
 
   new(VaxFile);
   new(VaxGraph);
   new(VaxTemp);
   new(VaxTempLim);
-//  new(my_temp);
 
   MarkerHide(Form1);
   VaxFile^.n:=0;
@@ -1853,10 +1796,6 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   SGMarker.Cells[3,0]:='Current';
 
 
-//  RBGausSelect.Checked:=ConfigFile.ReadBool('Approx','SelectGaus',True);
-//  RBAveSelect.Checked:=not(RBGausSelect.Checked);
-
-
   Graph.LeftAxis.Automatic:=true;
   Graph.BottomAxis.Automatic:=true;
   Series1.Active:=True;
@@ -1869,9 +1808,6 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   DirName.Caption:='';
   ButVoltDel.Enabled:=False;
 
-//    RBGausSelect.Checked:=ConfigFile.ReadBool('Approx','SelectGaus',True);
-//  RBAveSelect.Checked:=not(RBGausSelect.Checked);
-
   {щоб на вкладку DeepLevel, якщо вона відкривається, перекинути елементи}
   if PageControl1.ActivePageIndex=3 then PageControl1Change(Sender);
 
@@ -1879,19 +1815,15 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   RBAveSelect.Checked:=not(RBGausSelect.Checked);
 
   DLParamPassive;
-//  ConfigFile.Free;
-
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 var
-//    ConfigFile:TIniFile;
     i:integer;
     DP:TDiapazons;
     DR:TDirName;
     CL:TColName;
 begin
-// ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
  DecimalSeparator:='.';
  ChDir(Directory0);
 
@@ -1912,9 +1844,6 @@ begin
  ConfigFile.WriteFloat('Limit','MaxV0',GrLim.MaxValue[0]);
  ConfigFile.WriteFloat('Limit','MaxV1',GrLim.MaxValue[1]);
 
- ConfigFile.WriteBool('Approx','Iph_Exp',GraphParameters.Iph_Exp);
- ConfigFile.WriteBool('Approx','Iph_Lam',GraphParameters.Iph_Lam);
- ConfigFile.WriteBool('Approx','Iph_DE',GraphParameters.Iph_DE);
  ConfigFile.WriteBool('Approx','DDiod_DE',DDiod_DE);
  ConfigFile.WriteBool('Approx','SelectGaus',RBGausSelect.Checked);
 
@@ -1926,15 +1855,6 @@ begin
    D[DP].Free;
    end;
 
-  ConfigFile.WriteFloat('Diapaz','Gamma',GraphParameters.Gamma);
-  ConfigFile.WriteFloat('Diapaz','Gamma1',GraphParameters.Gamma1);
-  ConfigFile.WriteFloat('Diapaz','Gamma2',GraphParameters.Gamma2);
-  ConfigFile.WriteFloat('Diapaz','Va',GraphParameters.Va);
-  ConfigFile.WriteFloat('Diapaz','Vrect',GraphParameters.Vrect);
-
-  ConfigFile.WriteFloat('Resistivity','RA',GraphParameters.RA);
-  ConfigFile.WriteFloat('Resistivity','RB',GraphParameters.RB);
-  ConfigFile.WriteFloat('Resistivity','RC',GraphParameters.RC);
   ConfigFile.WriteString('Parameters','DLFunctionName',LabIsc.Caption);
   ConfigFile.WriteString('Parameters','DateFunctionName',LDateFun.Caption);
 
@@ -1987,6 +1907,7 @@ end; // with Form1 do
   ConfigFile.WriteBool('Graph','Nss_N(V)',RadioButtonNssNvM.Checked);
   ConfigFile.WriteBool('Dir','NssN(V)',RadButNssNvM.Checked);
 
+  GraphParameters.WriteToIniFile(ConfigFile);
   GraphParameters.Free;
 
   Diod_PNShow.Free;
@@ -1999,10 +1920,6 @@ end; // with Form1 do
   nLayer.Free;
   pLayer.Free;
   FirstLayer.Free;
-//  ConfigFile.WriteInteger('Parameters','Material',CBMaterial.ItemIndex);
-//  if Semi.Name=Materials[High(TMaterialName)].Name
-//      then  Semi.WriteToIniFile(ConfigFile);
-//  Semi.Free;
 
   ConfigFile.WriteInteger('DLFunction','Name',CBDLFunction.ItemIndex);
   ConfigFile.WriteInteger('DLFunction','SmoothNumber',SpinEditDL.Value);
@@ -2016,7 +1933,6 @@ end; // with Form1 do
  dispose(VaxGraph);
  dispose(VaxTemp);
  dispose(VaxTempLim);
-// dispose(my_temp);
  ConfigFile.Free;
  end;
 
@@ -2208,8 +2124,6 @@ begin
  1,3:begin
    Graph.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
    Close1.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
- {  if PageControl1.ActivePageIndex=1 then  Close1.Left:=Form1.ClientWidth-120
-                                     else Close1.Left:=Form1.ClientWidth-95;}
    OpenFile.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
    DirLabel.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
    DirName.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
@@ -2241,95 +2155,57 @@ begin
 end;
 
 procedure TForm1.RadioButtonM_VClick(Sender: TObject);
-//const
-//  cnbb=' can not be built';
-//  cnbd=' can not be determined';
-//  tIVc='The I-V-characteristic has not point';
-//  bfcia=#10'because forward current is absent';
-//  rsi=#10'because range is selected improperly or'#10'forward characteristic has a repetitive element';
 var str:string;
     tg:TGraph;
 begin
 tg:=GraphType(Sender);
 ClearGraph(Form1);
-VaxGraph^.n:=0;
+VaxGraph^.Clear;
 GraphParameters.Rs:=ErResult;
 GraphParameters.n:=ErResult;
+ if tg in [fnForwardRs,fnIdeality,fnExpForwardRs,fnExpReverseRs]
+ then
+   if RsDefineCB(VaxFile,Form1.ComboBoxRs,Form1.ComboBoxRs_n)=ErResult
+    then
+        begin
+         str:='Curve'+cnbb+#10'because Rs'+cnbd;
+         tg:=fnEmpty;
+        end;
 
-repeat
-if tg in [fnForwardRs,fnIdeality,fnExpForwardRs,fnExpReverseRs,fnDLdensity,fnDLdensityIvanov,fnH] then
-  begin
-  case tg of
-    fnForwardRs,fnIdeality,fnExpForwardRs,fnExpReverseRs:
-       GraphParameters.Rs:=RsDefineCB(VaxFile,Form1.ComboBoxRs,Form1.ComboBoxRs_n);
-    fnH:
-       GraphParameters.n:=nDefineCB(VaxFile,Form1.ComboBoxN,Form1.ComboBoxN_Rs);
-    fnDLdensity,fnDLdensityIvanov:
-       GraphParameters.Rs:=RsDefineCB(VaxFile,ComboBoxNssRs,ComboBoxNssRs_n);
-    end; //case
-  if (GraphParameters.Rs=ErResult)and(tg in [fnForwardRs,fnIdeality,fnExpForwardRs,fnExpReverseRs,fnDLdensity,fnDLdensityIvanov]) then
-              str:='Curve'+cnbb+#10'because Rs'+cnbd;
-  if (GraphParameters.n=ErResult)and(tg=fnH) then
-              str:='H-function'+cnbb+#10'because n'+cnbd;
-  if (GraphParameters.Rs=ErResult)and(GraphParameters.n=ErResult) then
-              begin
-              tg:=fnEmpty;
-              Break;
-              end;
-  if tg=fnDLdensity then
-              begin
-              GraphParameters.Fb:=FbDefineCB(VaxFile,ComboBoxNssFb,GraphParameters.Rs);
-              if GraphParameters.Fb=ErResult then
-                        begin
-                        str:='Curve'+cnbb+#10'because Fb'+cnbd;
-                        tg:=fnEmpty;
-                        Break;
-                        end
-              end;
+ if tg in [fnDLdensity,fnDLdensityIvanov]
+ then
+   if RsDefineCB(VaxFile,ComboBoxNssRs,ComboBoxNssRs_n)=ErResult
+     then
+        begin
+         str:='Curve'+cnbb+#10'because Rs'+cnbd;
+         tg:=fnEmpty;
+        end;
 
-  end; //if tg in [FoRs,Ide,E2F,E2R,Nssf,Ditf,Hf] then
+ if tg=fnH then
+   if nDefineCB(VaxFile,Form1.ComboBoxN,Form1.ComboBoxN_Rs)=ErResult
+     then
+        begin
+         'H-function'+cnbb+#10'because n'+cnbd;
+         tg:=fnEmpty;
+        end;
+
+ if tg=fnDLdensity then
+   if FbDefineCB(VaxFile,ComboBoxNssFb,GraphParameters.Rs)=ErResult
+     then
+        begin
+        str:='Curve'+cnbb+#10'because Fb'+cnbd;
+        tg:=fnEmpty;
+        end;
 
  GraphParameters.ForForwardBranch:=CheckBoxM_V.Checked;
  GraphParameters.NssType:=RadioButtonNssNvD.Checked;
  GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
 
- str:=GraphName(tg);
+ if tg<>fnEmpty then str:=GraphName(tg);
  GraphCalculation(VaxFile,VaxGraph,tg);
 
-// case tg of
-//  fnEmpty: ;
-//  fnPowerIndex,fnFowlerNordheim,fnFowlerNordheimEm,fnAbeles,fnAbelesEm,fnFrenkelPool,fnFrenkelPoolEm:
-//      M_V_Fun(VaxFile,VaxGraph,CheckBoxM_V.Checked,tg);
-//  fnReverse: ReverseIV(VaxFile,VaxGraph);
-//  fnForward:  ForwardIV(VaxFile,VaxGraph);
-//  fnKaminskii1: Kam1_Fun(VaxFile,VaxGraph,D[diKam1]);
-//  fnKaminskii2: Kam2_Fun(VaxFile,VaxGraph,D[diKam2]);
-//  fnGromov1: Gr1_Fun(VaxFile,VaxGraph);
-//  fnGromov2: Gr2_Fun(VaxFile,VaxGraph, Diod);
-//  fnCheung: ChungFun(VaxFile,VaxGraph);
-//  fnCibils:  CibilsFun(VaxFile,D[diCib],VaxGraph);
-//  fnWerner: WernerFun(VaxFile,VaxGraph);
-//  fnForwardRs:ForwardIVwithRs(VaxFile,VaxGraph,GraphParameters.Rs);
-//  fnIdeality: N_V_Fun(VaxFile,VaxGraph,GraphParameters.Rs);
-//  fnExpForwardRs: Forward2Exp(VaxFile,VaxGraph,GraphParameters.Rs);
-//  fnExpReverseRs: Reverse2Exp(VaxFile,VaxGraph,GraphParameters.Rs);
-//  fnH:  HFun(VaxFile,VaxGraph, Diod, GraphParameters.n);
-//  fnNorde: NordeFun(VaxFile,VaxGraph, Diod, GraphParameters.Gamma);
-//  fnFvsV:  CibilsFunDod(VaxFile,VaxGraph,GraphParameters.Va);
-//  fnFvsI:  LeeFunDod(VaxFile,VaxGraph,GraphParameters.Va);
-//  fnMikhelA: MikhAlpha_Fun(VaxFile,VaxGraph);
-//  fnMikhelB: MikhBetta_Fun(VaxFile,VaxGraph);
-//  fnMikhelIdeality: MikhN_Fun(VaxFile,VaxGraph);
-//  fnMikhelRs: MikhRs_Fun(VaxFile,VaxGraph);
-//  fnDLdensity:Nss_Fun(VaxFile, VaxGraph,GraphParameters.Fb,GraphParameters.Rs,Diod,D[diNss],RadioButtonNssNvD.Checked);
-//  fnDLdensityIvanov:Dit_Fun(VaxFile, VaxGraph,GraphParameters.Rs,Diod,D[diIvan]);
-//  fnLee: LeeFun(VaxFile,D[diLee],VaxGraph);
-//end;
-until true;
-
-
 if VaxGraph^.n=0 then
-    MessageDlg(str+GraphErrorMessage(tg), mtError, [mbOK], 0)
+    MessageDlg(GraphErrorMessage(tg), mtError, [mbOK], 0)
                  else
     DiapToLimToTForm1(D[ConvertTGraphToTDiapazons(tg)],Form1);
 
@@ -2349,7 +2225,6 @@ if RBAveSelect.Checked then
  begin
    ButGLLoad.Visible:=False;
    ButGLRes.Visible:=False;
-//   CBoxGLShow.Visible:=False;
 
    CBoxGLShow.Caption:='Minus';
 
@@ -2387,7 +2262,6 @@ if RBAveSelect.Checked then
    CBoxGLShow.Checked:=False;
    CBoxGLShow.OnClick:=CBoxGLShowClickGaus;
    CBoxGLShow.Tag:=56;
-//   CBoxGLShow.Visible:=True;
 
    SGridGaussian.ColCount:=6;
    SGridGaussian.RowCount:=4;
@@ -2776,7 +2650,7 @@ begin
 end;
 
 procedure TForm1.ButFitOptionClick(Sender: TObject);
-var //F:TFitFunction;
+var 
     str:string;
 begin
 str:='None';
@@ -3021,14 +2895,6 @@ end;
 procedure TForm1.ButLDFitSelectClick(Sender: TObject);
 begin
  if FormSF.ShowModal=mrOk then
-//    if (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[10])or
-//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[11])or
-//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[12])or
-//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[13])or
-//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[14])or
-//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[9])or
-//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[19])or
-//       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FuncName[20])
     if (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiod)or
        (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDiodLSM)or
        (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiodLSM)or
@@ -3043,55 +2909,39 @@ end;
 
 
 procedure TForm1.ButRAClick(Sender: TObject);
-var st,stHint:string;
-    temp:double;
 begin
-temp:=GraphParameters.RA;
-st:=FloatToStrF(GraphParameters.RA,ffGeneral,3,2);
-stHint:='Input parameter A for Rs=A+B*T+C*T^2';
-st:=InputBox('Rs parameters',stHint,st);
-StrToNumber(st, temp, GraphParameters.RA);
-LabRA.Caption:=FloatToStrF(GraphParameters.RA,ffGeneral,3,2);
+ InputValueToLabel('Rs parameters',
+                   'Input parameter A for Rs=A+B*T+C*T^2',
+                   ffGeneral,
+                   LabRA,GraphParameters.RA);
 end;
 
 procedure TForm1.ButRBClick(Sender: TObject);
-var st,stHint:string;
-    temp:double;
 begin
-temp:=GraphParameters.RB;
-st:=FloatToStrF(GraphParameters.RB,ffExponent,3,2);
-stHint:='Input parameter B for Rs=A+B*T+C*T^2';
-st:=InputBox('Rs parameters',stHint,st);
-StrToNumber(st, temp, GraphParameters.RB);
-LabRB.Caption:=FloatToStrF(GraphParameters.RB,ffExponent,3,2);
+ InputValueToLabel('Rs parameters',
+                   'Input parameter B for Rs=A+B*T+C*T^2',
+                   ffExponent,
+                   LabRB,GraphParameters.RB);
 end;
 
 procedure TForm1.ButRCClick(Sender: TObject);
-var st,stHint:string;
-    temp:double;
 begin
-temp:=GraphParameters.RC;
-st:=FloatToStrF(GraphParameters.RC,ffExponent,3,2);
-stHint:='Input parameter C for Rs=A+B*T+C*T^2';
-st:=InputBox('Rs parameters',stHint,st);
-StrToNumber(st, temp, GraphParameters.RC);
-LabRC.Caption:=FloatToStrF(GraphParameters.RC,ffExponent,3,2);
+ InputValueToLabel('Rs parameters',
+                   'Input parameter C for Rs=A+B*T+C*T^2',
+                   ffExponent,
+                   LabRC,GraphParameters.RC);
 end;
 
 procedure TForm1.ButtonVaClick(Sender: TObject);
-var st, stHint:string;
 begin
-st:=FloatToStrF(GraphParameters.Va,ffGeneral,3,2);
-
-stHint:='Enter voltage Va '+Chr(13)+
-       'for function F(V) and F(I) building' +Chr(13);
-
-st:=InputBox('Input Va voltage',stHint,st);
-StrToNumber(st, 0.05, GraphParameters.Va);
-LabelVa.Caption:='Va = '+FloatToStrF(GraphParameters.Va,ffGeneral,3,2)+' V';
-if RadioButtonF_V.Checked then
+ InputValueToLabel('Input Va voltage',
+                   'Enter voltage Va '+Chr(13)+
+                   'for function F(V) and F(I) building' +Chr(13),
+                   ffGeneral,
+                   LabelVa,GraphParameters.Va);
+ if RadioButtonF_V.Checked then
                  RadioButtonM_VClick(RadioButtonF_V);
-if RadioButtonF_I.Checked then
+ if RadioButtonF_I.Checked then
                  RadioButtonM_VClick(RadioButtonF_I);
 end;
 
@@ -3280,12 +3130,8 @@ begin
      I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
      repeat
          V:=V+0.01;
-//         I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
          I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
 
-//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
-//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
-//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
          if (I>=1e-10) then
            begin
              dat.Add(FloatToStrF(RandG(V,sigV),ffExponent,4,0)+' '+
@@ -3305,2393 +3151,6 @@ begin
 end;
 
 
-Procedure AccurSet(SigImax,SigVmax,stepI,stepV,Ilim:double);
-var
-    Fbstr,Rsstr,nstr:TStringList;
-    RsmykLee,nmykLee,FbmykLee,
-    RsmykGr,nmykGr,FbmykGr,
-    RsmykLeeN,nmykLeeN,FbmykLeeN,
-    RsmykGrN,nmykGrN,FbmykGrN
-//    ,RsmykMABC,nmykMABC,FbmykMABC,
-//    RsmykLSM,nmykLSM,FbmykLSM,
-//    RsmykLam,nmykLam,FbmykLam
-         :double;
-    Vax:PVector;
-    Nf,ip,k,Nsprob:integer;
-    SigV,SigI:double;
-    name:string;
-    T,V,I,n,Rs,Fb,I0:double;
-    bool:boolean;
-
-begin
-if not(SetCurrentDir(CurDirectory)) then
-   begin
-   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
-   Exit;
-   end;
-
-Fbstr:=TStringList.Create;
-Rsstr:=TStringList.Create;
-nstr:=TStringList.Create;
-Fbstr.Add('SigV SigI logFbGr logFbLee FbGr FbLee');
-Rsstr.Add('SigV SigI logRsGr logRsLee RsGr RsLee');
-nstr.Add('SigV SigI lognGr lognLee nGr nLee');
-
-//Fbstr.Add('SigV SigI logFbLee logFbGr logFbMABC logFbLSM logFbLam FbLee FbGr FbMABC FbLSM FbLam');
-//Rsstr.Add('SigV SigI logRsLee logRsGr logRsMABC logRsLSM logRsLam RsLee RsGr RsMABC RsLSM RsLam');
-//nstr.Add('SigV SigI lognLee lognGr lognMABC lognLSM lognLam nLee nGr nMABC nLSM nLam');
-
-
-bool:=true;
-Nsprob:=500;
-
-SigV:=0;
-
-repeat
- SigI:=0;
- repeat
-    DecimalSeparator:='.';
-
-//         RsmykLee:=0;
-//         nmykLee:=0;
-//         FbmykLee:=0;
-//
-//         RsmykGr:=0;
-//         nmykGr:=0;
-//         FbmykGr:=0;
-
-         RsmykLeeN:=0;
-         nmykLeeN:=0;
-         FbmykLeeN:=0;
-
-         RsmykGrN:=0;
-         nmykGrN:=0;
-         FbmykGrN:=0;
-
-//         RsmykMABC:=0;
-//         nmykMABC:=0;
-//         FbmykMABC:=0;
-//
-//         RsmykLSM:=0;
-//         nmykLSM:=0;
-//         FbmykLSM:=0;
-//
-//         RsmykLam:=0;
-//         nmykLam:=0;
-//         FbmykLam:=0;
-
-
-
-     if bool then
-      begin
-        SigV:=0.003;
-        SigI:=0.035;
-        bool:=false;
-      end;
-
-
-         Nf:=0;
-
-        T:=130;
-        while T<335 do
-         begin
-           n:=n_T(T);
-           Rs:=Rs_T(T);
-           Fb:=Fb_T(T);
-           I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
-
-           RsmykLee:=0;
-           nmykLee:=0;
-           FbmykLee:=0;
-
-           RsmykGr:=0;
-           nmykGr:=0;
-           FbmykGr:=0;
-
-         k:=1;
-         repeat
-
-
-          Randomize;
-           new(Vax);
-           Vax^.T:=T;
-           ip:=0;
-           Vax^.name:=FloatToStrF(SigV,ffgeneral,3,2)+' '+
-                      FloatToStrF(SigI,ffgeneral,3,2)+' '+
-                      inttostr(round(T));
-//           Form1.Button1.Caption:=Vax^.name;
-           Vax^.N_begin:=0;
-
-           V:=0;
-           repeat
-               V:=V+0.01;
-//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
-               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
-               if (I>=1e-10) then
-                 begin
-                   inc(ip);
-                   SetLenVector(Vax,ip);
-                   name:=FloatToStrF(RandG(V,SigV),ffExponent,4,0);
-                   Vax^.X[High(Vax^.X)]:=strtofloat(name);
-                   name:=FloatToStrF(RandG(I,SigI*I),ffExponent,4,0);
-                   Vax^.Y[High(Vax^.X)]:=strtofloat(name);
-                 end;
-                if I>Ilim then Break;
-           until false;
-
-     LeeKalk (Vax,D[diLee],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-         if (GraphParameters.Rs=ErResult)or(GraphParameters.Fb=ErResult) then
-            showmessage('SigV='+floattostr(SigV)+#10+#13+
-                        'SigI='+floattostr(SigI))
-                    else
-                    begin
-           RsmykLee:=RsmykLee+abs((GraphParameters.Rs-Rs)/Rs);
-           nmykLee:=nmykLee+abs((GraphParameters.n-n)/n);
-           FbmykLee:=FbmykLee+abs((GraphParameters.Fb-Fb)/Fb);
-
-//         RsmykLee:=RsmykLee+ln(abs((Rss-Rs)/Rs));
-//         FbmykLee:=FbmykLee+ln(abs((Fbb-Fb)/Fb));
-//         nmykLee:=nmykLee+ln(abs((nn-n)/n));
-//         inc(Nf);
-                    end;
-
-
-     Gr1Kalk (Vax,D[diGr1],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-         if (GraphParameters.Rs=ErResult)or(GraphParameters.Fb=ErResult) then
-            showmessage('SigV='+floattostr(SigV)+#10+#13+
-                        'SigI='+floattostr(SigI))
-                    else
-                    begin
-           RsmykGr:=RsmykGr+abs((GraphParameters.Rs-Rs)/Rs);
-           nmykGr:=nmykGr+abs((GraphParameters.n-n)/n);
-           FbmykGr:=FbmykGr+abs((GraphParameters.Fb-Fb)/Fb);
-
-//         RsmykGr:=RsmykGr+ln(abs((Rss-Rs)/Rs));
-//         FbmykGr:=FbmykGr+ln(abs((Fbb-Fb)/Fb));
-//         nmykGr:=nmykGr+ln(abs((nn-n)/n));
-                    end;
-
-//       Fit:=TDiod.Create;
-//       Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-//         if EvolParam[1]=ErResult then
-//            showmessage('SigV='+floattostr(SigV)+#10+#13+
-//                        'SigI='+floattostr(SigI))
-//                    else
-//                    begin
-//         RsmykMABC:=RsmykMABC+ln(abs((EvolParam[1]-Rs)/Rs));
-//         nmykMABC:=nmykMABC+ln(abs((EvolParam[0]-n)/n));
-//         FbmykMABC:=FbmykMABC+ln(abs((Fit.DodX[0]-Fb)/Fb));
-//                    end;
-//          Fit.Free;
-//
-//          Fit:=TDiodLSM.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
-//         if EvolParam[1]=ErResult then
-//            showmessage('SigV='+floattostr(SigV)+#10+#13+
-//                        'SigI='+floattostr(SigI))
-//                    else
-//                    begin
-//         RsmykLSM:=RsmykLSM+ln(abs((EvolParam[1]-Rs)/Rs));
-//         nmykLSM:=nmykLSM+ln(abs((EvolParam[0]-n)/n));
-//         FbmykLSM:=FbmykLSM+ln(abs((Fit.DodX[0]-Fb)/Fb));
-//                    end;
-//          Fit.Free;
-//
-//
-//          Fit:=TDiodLam.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
-//         if EvolParam[1]=ErResult then
-//            showmessage('SigV='+floattostr(SigV)+#10+#13+
-//                        'SigI='+floattostr(SigI))
-//                    else
-//                    begin
-//         RsmykLam:=RsmykLam+ln(abs((EvolParam[1]-Rs)/Rs));
-//         nmykLam:=nmykLam+ln(abs((EvolParam[0]-n)/n));
-//         FbmykLam:=FbmykLam+ln(abs((Fit.DodX[0]-Fb)/Fb));
-//                    end;
-//          Fit.Free;
-            dispose(Vax);
-            inc(k);
-           until(k>Nsprob);
-
-           RsmykLee:=RsmykLee/Nsprob;
-           nmykLee:=nmykLee/Nsprob;
-           FbmykLee:=FbmykLee/Nsprob;
-           RsmykGr:=RsmykGr/Nsprob;
-           nmykGr:=nmykGr/Nsprob;
-           FbmykGr:=FbmykGr/Nsprob;
-
-         RsmykLeeN:=RsmykLeeN+ln(RsmykLee);
-         nmykLeeN:=nmykLeeN+ln(nmykLee);
-         FbmykLeeN:=FbmykLeeN+ln(FbmykLee);
-
-         RsmykGrN:=RsmykGrN+ln(RsmykGr);
-         nmykGrN:=nmykGrN+ln(nmykGr);
-         FbmykGrN:=FbmykGrN+ln(FbmykGr);
-
-          inc(Nf);
-          T:=T+10;
-//          Rsstr.SaveToFile('temp.dat');
-         end;
-
-         RsmykLeeN:=exp(RsmykLeeN/Nf);
-         nmykLeeN:=exp(nmykLeeN/Nf);
-         FbmykLeeN:=exp(FbmykLeeN/Nf);
-
-         RsmykGrN:=exp(RsmykGrN/Nf);
-         nmykGrN:=exp(nmykGrN/Nf);
-         FbmykGrN:=exp(FbmykGrN/Nf);
-
-
-            Fbstr.Add(FloatToStrF(SigV,ffExponent,4,3)
-                      +' '+FloatToStrF(SigI,ffExponent,4,3)
-                      +' '+FloatToStrF(log10(FbmykGrN),ffExponent,4,3)
-                      +' '+FloatToStrF(log10(FbmykLeeN),ffExponent,4,3)
-                      +' '+FloatToStrF(FbmykGrN,ffExponent,5,4)
-                      +' '+FloatToStrF(FbmykLeeN,ffExponent,5,4)
-                      );
-
-            Rsstr.Add(FloatToStrF(SigV,ffExponent,4,3)
-                      +' '+FloatToStrF(SigI,ffExponent,4,3)
-                      +' '+FloatToStrF(log10(RsmykGrN),ffExponent,4,3)
-                      +' '+FloatToStrF(log10(RsmykLeeN),ffExponent,4,3)
-                      +' '+FloatToStrF(RsmykGrN,ffExponent,5,4)
-                      +' '+FloatToStrF(RsmykLeeN,ffExponent,5,4)
-                      );
-
-            nstr.Add(FloatToStrF(SigV,ffExponent,4,3)
-                      +' '+FloatToStrF(SigI,ffExponent,4,3)
-                      +' '+FloatToStrF(log10(nmykGrN),ffExponent,4,3)
-                      +' '+FloatToStrF(log10(nmykLeeN),ffExponent,4,3)
-                      +' '+FloatToStrF(nmykGrN,ffExponent,5,4)
-                      +' '+FloatToStrF(nmykLeeN,ffExponent,5,4)
-                      );
-
-
-  Rsstr.SaveToFile('tempRs.dat');
-  Fbstr.SaveToFile('tempFb.dat');
-  nstr.SaveToFile('tempnd.dat');
-
- SigI:=SigI+StepI;
- until(SigI>SigIMax);
-
-
- SigV:=SigV+StepV;
-until(SigV>SigVMax);
-
-Fbstr.SaveToFile('ErrFbsh.dat');
-Rsstr.SaveToFile('ErrRssh.dat');
-nstr.SaveToFile('Errndsh.dat');
-Fbstr.Free;
-Rsstr.Free;
-nstr.Free;
-showmessage('УРЯЯ!');
-end;
-
-
-Procedure TemperAve(Ilim,sigV,sigI:double);
-var
-    Rsstr:TStringList;
-    Rsmyk,nmyk,Fbmyk{,{nmyEk,FbmyEk,FbbE,nnE}:double;
-    Vax:PVector;
-    Nf,ip,k,Nsprob:integer;
-    name,nnn:string;
-    T:integer;
-    V,I,n,Rs,Fb,I0:double;
-    RsAv,delRsAv,FbAv,delFbAv,nAv,delnAv{,{FbEAv,delFbEAv,nEAv,delnEAv}:double;
-
-begin
-if not(SetCurrentDir(CurDirectory)) then
-   begin
-   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
-   Exit;
-   end;
-
-nnn:='Bohl';
-Nsprob:=1000;
-Rsstr:=TStringList.Create;
-
-
-
-Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ');
-//Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 Fb'+nnn+
-//            'Exp delFbE delFb2E n n'+nnn+' deln deln2 n'+nnn+'Exp delnE deln2E');
-
-
-
-
-
-         Rsmyk:=0;
-         nmyk:=0;
-         Fbmyk:=0;
-//         nmyEk:=0;
-//         FbmyEk:=0;
-         Nf:=0;
-
-
-        T:=130;
-        while T<335 do
-         begin
-
-         n:=n_T(T);
-         Rs:=Rs_T(T);
-         Fb:=Fb_T(T);
-         I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
-
-         RsAv:=0;
-         delRsAv:=0;
-         FbAv:=0;
-         delFbAv:=0;
-         nAv:=0;
-         delnAv:=0;
-//         FbEAv:=0;
-//         delFbEAv:=0;
-//         nEAv:=0;
-//         delnEAv:=0;
-
-         k:=1;
-         repeat
-           Randomize;
-
-           new(Vax);
-           Vax^.T:=T;
-           ip:=0;
-           Vax^.name:=inttostr(k)+' '+
-                      inttostr(T);
-//           Form1.Button1.Caption:=Vax^.name;
-           Vax^.N_begin:=0;
-           V:=0;
-
-           repeat
-               V:=V+0.01;
-//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
-               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
-               if (I>=1e-10) then
-                 begin
-                   inc(ip);
-                   SetLenVector(Vax,ip);
-                   name:=FloatToStrF(RandG(V,SigV),ffExponent,4,0);
-                   Vax^.X[High(Vax^.X)]:=strtofloat(name);
-                   name:=FloatToStrF(RandG(I,SigI*I),ffExponent,4,0);
-                   Vax^.Y[High(Vax^.X)]:=strtofloat(name);
-                 end;
-                if I>Ilim then Break;
-           until false;
-//          Fit:=TDiod.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-
-//          Fit:=TDiodLSM.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
-
-//          Fit:=TDiodLam.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
-      try
-
-
-//     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
-//     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
-//     MikhKalk (Vax,D[diMikh],AA,Sk,Rss,nn,I00,Fbb);
-
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-//     HFunKalk(Vax,D[diHfunc],AA,Sk,nn,Rss,Fbb);
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-
-//     Kam1Kalk(Vax,D[diKam1],Rss,nn);
-//     Kam2Kalk(Vax,D[diKam2],Rss,nn);
-//     CibilsKalk(Vax,D[diCib],Rss,nn);
-//     WernerKalk(Vax,D[diWer],Rss,nn);
-//
-//     ExKalk_nconst(1,Vax,D[diEx],Rss,AA,Sk,nn,I00,Fbb);
-//     ExKalk(1,Vax,D[diEx],Rss,AA,Sk,nnE,I00,FbbE);
-
-       BohlinKalk(Vax,D[diNord],Diod,1.6,3.5,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-//      NordKalk(Vax,D[diNord],AA,Sk,1.8,n_T(Vax^.T),Rss,Fbb);
-//       nn:=1;
-        except
-        Continue;
-      end;
-
-{}
-         if (abs((GraphParameters.Rs-Rs)/Rs)>10)or
-             (GraphParameters.Rs=ErResult)or(GraphParameters.Fb=ErResult)or(GraphParameters.n=ErResult)or
-             (abs((GraphParameters.n-n)/n)>10)or
-             (abs((GraphParameters.Fb-Fb)/Fb)>10)or
-             (GraphParameters.Rs<0)or
-             (GraphParameters.n<0)or
-             (GraphParameters.Fb<0)
-                      then  Continue;
-
-             RsAv:=RsAv+GraphParameters.Rs;
-             delRsAv:=delRsAv+abs((GraphParameters.Rs-Rs)/Rs);
-             FbAv:=FbAv+GraphParameters.Fb;
-             delFbAv:=delFbAv+abs((GraphParameters.Fb-Fb)/Fb);
-             nAv:=nAv+GraphParameters.n;
-             delnAv:=delnAv+abs((GraphParameters.n-n)/n);
-
-//             FbEAv:=FbEAv+FbbE;
-//             delFbEAv:=delFbEAv+abs((FbbE-Fb)/Fb);
-//             nEAv:=nEAv+nnE;
-//             delnEAv:=delnEAv+abs((nnE-n)/n);
-
-
-{}
-{
-         if (abs((EvolParam[1]-Rs)/Rs)>10)or
-             (EvolParam[1]=ErResult)or(Fit.DodX[0]=ErResult)or(EvolParam[0]=ErResult)or
-             (abs((EvolParam[0]-n)/n)>10)or
-             (abs((Fit.DodX[0]-Fb)/Fb)>10)or
-             (EvolParam[1]<0)or
-             (EvolParam[0]<0)or
-             (Fit.DodX[0]<0)
-                      then  Continue;
-
-             RsAv:=RsAv+EvolParam[1];
-             delRsAv:=delRsAv+abs((EvolParam[1]-Rs)/Rs);
-             FbAv:=FbAv+Fit.DodX[0];
-             delFbAv:=delFbAv+abs((Fit.DodX[0]-Fb)/Fb);
-             nAv:=nAv+EvolParam[0];
-             delnAv:=delnAv+abs((EvolParam[0]-n)/n);
-             Fit.Free;
- {}
-            dispose(Vax);
-            inc(k);
-           until(k>Nsprob);
-             RsAv:=RsAv/Nsprob;
-             delRsAv:=delRsAv/Nsprob;
-             FbAv:=FbAv/Nsprob;
-             delFbAv:=delFbAv/Nsprob;
-             nAv:=nAv/Nsprob;
-             delnAv:=delnAv/Nsprob;
-
-//             FbEAv:=FbEAv/Nsprob;
-//             delFbEAv:=delFbEAv/Nsprob;
-//             nEAv:=nEAv/Nsprob;
-//             delnEAv:=delnEAv/Nsprob;
-
-
- Rsstr.Add(inttostr(T)+' '+
-             FloatToStrF(Rs_T(T),ffExponent,5,4)+' '+
-             FloatToStrF(RsAv,ffExponent,5,4)+' '+
-             FloatToStrF(delRsAv,ffExponent,5,4)+' '+
-             FloatToStrF(sqr(delRsAv),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(T),ffExponent,5,4)+' '+
-             FloatToStrF(FbAv,ffExponent,5,4)+' '+
-             FloatToStrF(delFbAv,ffExponent,5,4)+' '+
-             FloatToStrF(sqr(delFbAv),ffExponent,5,4)+' '+
-
-//             FloatToStrF(FbEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(delFbEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(sqr(delFbEAv),ffExponent,5,4)+' '+
-
-             FloatToStrF(n_T(T),ffExponent,5,4)+' '+
-             FloatToStrF(nAv,ffExponent,5,4)+' '+
-             FloatToStrF(delnAv,ffExponent,5,4)+' '+
-             FloatToStrF(sqr(delnAv),ffExponent,5,4)
-//             +' '+FloatToStrF(nEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(delnEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(sqr(delnEAv),ffExponent,5,4)
-             );
-
-         Rsmyk:=Rsmyk+ln(delRsAv);
-         Fbmyk:=Fbmyk+ln(delFbAv);
-         nmyk:=nmyk+ln(delnAv);
-
-//         FbmyEk:=FbmyEk+ln(delFbEAv);
-//         nmyEk:=nmyEk+ln(abs(delnEAv));
-
-         inc(Nf);
-
-
-          T:=T+10;
-          Rsstr.SaveToFile('temp.dat');
-         end;
-
-  Rsstr.SaveToFile(nnn+'_I'+
-                   inttostr(round(sigI*1000))+
-                   'V'+inttostr(round(sigV*10000))+
-                  '.dat');
-
-  Rsstr.Clear;
-
-//{
-  Rsstr.Add('Rs'+nnn+'   Fb'+nnn+' n'+nnn);
-  Rsstr.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      );
-{ }
-{  Rsstr.Add('Rs'+nnn+'   Fb'+nnn+'   FbE'+nnn+' n'+nnn+' nE'+nnn);
-  Rsstr.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4)
-      );
- }
- Rsstr.SaveToFile(nnn+'_E_I'+
-                   inttostr(round(sigI*1000))+
-                   'V'+inttostr(round(sigV*10000))+
-                  '.dat');
-Rsstr.Free;
-//showmessage('УРЯЯ!');
-end;
-
-Procedure TemperIdAve(Ilim:double; Md:char);
-var
-    Rsstr:TStringList;
-    Rsmyk,nmyk,Fbmyk{,nmyEk,FbmyEk,FbbE,nnE}:double;
-    Vax:PVector;
-    Nf,ip,k,Nsprob:integer;
-    name,nnn:string;
-    T:integer;
-    V,I,n,Rs,Fb,I0:double;
-    RsAv,delRsAv,FbAv,delFbAv,nAv,delnAv{,FbEAv,delFbEAv,nEAv,delnEAv}:double;
-//    Fit:TFitFunctionAAA;
-begin
-if not(SetCurrentDir(CurDirectory)) then
-   begin
-   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
-   Exit;
-   end;
-
-nnn:='Lam';
-Nsprob:=20;
-Rsstr:=TStringList.Create;
-
-
-
-Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ');
-//Rsstr.Add('T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 Fb'+nnn+
-//            'Exp delFbE delFb2E n n'+nnn+' deln deln2 n'+nnn+'Exp delnE deln2E');
-
-
-         Rsmyk:=0;
-         nmyk:=0;
-         Fbmyk:=0;
-//         nmyEk:=0;
-//         FbmyEk:=0;
-         Nf:=0;
-
-
-        T:=130;
-        while T<335 do
-         begin
-
-         RsAv:=0;
-         delRsAv:=0;
-         FbAv:=0;
-         delFbAv:=0;
-         nAv:=0;
-         delnAv:=0;
-//         FbEAv:=0;
-//         delFbEAv:=0;
-//         nEAv:=0;
-//         delnEAv:=0;
-         k:=1;
-         repeat
-         Randomize;
-
-         n:=RandG(n_T(T),0.002*n_T(T));
-         Rs:=RandG(Rs_T(T),0.002*Rs_T(T));
-         Fb:=RandG(Fb_T(T),0.002*Fb_T(T));
-         I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
-         case Md of
-            'n':n:=n*1.2;
-            'R':Rs:=Rs*3;
-            'F':begin
-                Fb:=Fb-0.1;
-                I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
-               end;
-            'I':begin
-                I0:=I0*10;
-                Fb:=Kb*T*ln(3.14e-6*1.12e6*T*T/I0);
-                end;
-         end;
-
-           new(Vax);
-           Vax^.T:=T;
-           ip:=0;
-           Vax^.name:=inttostr(k)+' '+
-                      inttostr(T);
-           Form1.Button1.Caption:=Vax^.name;
-           Vax^.N_begin:=0;
-           V:=0;
-
-           repeat
-               V:=V+0.01;
-//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
-               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
-               if (I>=1e-10) then
-                 begin
-                   inc(ip);
-                   SetLenVector(Vax,ip);
-                   name:=FloatToStrF(RandG(V,0),ffExponent,4,0);
-                   Vax^.X[High(Vax^.X)]:=strtofloat(name);
-                   name:=FloatToStrF(RandG(I,0),ffExponent,4,0);
-                   Vax^.Y[High(Vax^.X)]:=strtofloat(name);
-                 end;
-                if I>Ilim then Break;
-           until false;
-
-//          Fit:=TDiod.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-
-//          Fit:=TDiodLSM.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
-
-          FitFunction:=TDiodLam.Create;
-          FitFunction.FittingDiapazon(Vax,EvolParam,D[diLam]);
-          FitFunction.Free;
-
-//     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
-//     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
-//     MikhKalk (Vax,D[diMikh],AA,Sk,Rss,nn,I00,Fbb);
-
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-//     HFunKalk(Vax,D[diHfunc],AA,Sk,nn,Rss,Fbb);
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-
-//     Kam1Kalk(Vax,D[diKam1],Rss,nn);
-//     Kam2Kalk(Vax,D[diKam2],Rss,nn);
-//     CibilsKalk(Vax,D[diCib],Rss,nn);
-//     WernerKalk(Vax,D[diWer],Rss,nn);
-
-//     ExKalk_nconst(1,Vax,D[diEx],Rss,AA,Sk,nn,I00,Fbb);
-//     ExKalk(1,Vax,D[diEx],Rss,AA,Sk,nnE,I00,FbbE);
-
-//       BohlinKalk(Vax,D[diNord],AA,Sk,1.6,3.5,Rss,nn,Fbb,I00);
-//      NordKalk(Vax,D[diNord],AA,Sk,1.8,n,Rss,Fbb);
-//       nn:=1;
-
-{
-         if (abs((Rss-Rs)/Rs)>10)or
-             (Rss=ErResult)or(Fbb=ErResult)or(nn=ErResult)or
-             (abs((nn-n)/n)>10)or
-             (abs((Fbb-Fb)/Fb)>10)or
-             (Rss<0)or
-             (nn<0)or
-             (Fbb<0)
-                      then  Continue;
-
-             RsAv:=RsAv+Rss;
-             delRsAv:=delRsAv+abs((Rss-Rs)/Rs);
-             FbAv:=FbAv+Fbb;
-             delFbAv:=delFbAv+abs((Fbb-Fb)/Fb);
-             nAv:=nAv+nn;
-             delnAv:=delnAv+abs((nn-n)/n);
-
-//             FbEAv:=FbEAv+FbbE;
-//             delFbEAv:=delFbEAv+abs((FbbE-Fb)/Fb);
-//             nEAv:=nEAv+nnE;
-//             delnEAv:=delnEAv+abs((nnE-n)/n);
-
-
-//}
-{}
-          if (abs((EvolParam[1]-Rs)/Rs)>10)or
-             (EvolParam[1]=ErResult)or(EvolParam[4]=ErResult)or(EvolParam[0]=ErResult)or
-             (abs((EvolParam[0]-n)/n)>10)or
-             (abs((EvolParam[4]-Fb)/Fb)>10)or
-             (EvolParam[1]<0)or
-             (EvolParam[0]<0)or
-             (EvolParam[4]<0)
-                      then  Continue;
-
-             RsAv:=RsAv+EvolParam[1];
-             delRsAv:=delRsAv+abs((EvolParam[1]-Rs)/Rs);
-             FbAv:=FbAv+EvolParam[4];
-             delFbAv:=delFbAv+abs((EvolParam[4]-Fb)/Fb);
-             nAv:=nAv+EvolParam[0];
-             delnAv:=delnAv+abs((EvolParam[0]-n)/n);
-
- {}
-            dispose(Vax);
-            inc(k);
-
-           until(k>Nsprob);
-
-             RsAv:=RsAv/Nsprob;
-             delRsAv:=delRsAv/Nsprob;
-             FbAv:=FbAv/Nsprob;
-             delFbAv:=delFbAv/Nsprob;
-             nAv:=nAv/Nsprob;
-             delnAv:=delnAv/Nsprob;
-
-//             FbEAv:=FbEAv/Nsprob;
-//             delFbEAv:=delFbEAv/Nsprob;
-//             nEAv:=nEAv/Nsprob;
-//             delnEAv:=delnEAv/Nsprob;
-
-
- Rsstr.Add(inttostr(T)+' '+
-             FloatToStrF(Rs_T(T),ffExponent,5,4)+' '+
-             FloatToStrF(RsAv,ffExponent,5,4)+' '+
-             FloatToStrF(delRsAv,ffExponent,5,4)+' '+
-             FloatToStrF(sqr(delRsAv),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(T),ffExponent,5,4)+' '+
-             FloatToStrF(FbAv,ffExponent,5,4)+' '+
-             FloatToStrF(delFbAv,ffExponent,5,4)+' '+
-             FloatToStrF(sqr(delFbAv),ffExponent,5,4)+' '+
-
-//             FloatToStrF(FbEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(delFbEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(sqr(delFbEAv),ffExponent,5,4)+' '+
-
-             FloatToStrF(n_T(T),ffExponent,5,4)+' '+
-             FloatToStrF(nAv,ffExponent,5,4)+' '+
-             FloatToStrF(delnAv,ffExponent,5,4)+' '+
-             FloatToStrF(sqr(delnAv),ffExponent,5,4)
-
-//             +' '+FloatToStrF(nEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(delnEAv,ffExponent,5,4)+' '+
-//             FloatToStrF(sqr(delnEAv),ffExponent,5,4)
-
-             );
-
-         Rsmyk:=Rsmyk+ln(delRsAv);
-         Fbmyk:=Fbmyk+ln(delFbAv);
-         nmyk:=nmyk+ln(abs(delnAv));
-
-//         FbmyEk:=FbmyEk+ln(delFbEAv);
-//         nmyEk:=nmyEk+ln(abs(delnEAv));
-
-         inc(Nf);
-
-         Rsstr.SaveToFile('temp.dat');
-          T:=T+10;
-         end;
-
-  Rsstr.SaveToFile(nnn+Md+'.dat');
-
-  Rsstr.Clear;
-
-{ }
-  Rsstr.Add('Rs'+nnn+'   Fb'+nnn+' n'+nnn);
-  Rsstr.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      );
- {}
- {
-  Rsstr.Add('Rs'+nnn+'   Fb'+nnn+'   FbE'+nnn+' n'+nnn+' nE'+nnn);
-  Rsstr.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4)
-      );
- {}
- Rsstr.SaveToFile(nnn+'_E_'+Md+'.dat');
- Rsstr.Free;
-// showmessage('УРЯЯ!');
-end;
-
-
-
-Procedure IdealRs(Ilim:double);
-var
-    Rsstr:TStringList;
-    Rsmyk,nmyk,Fbmyk,nmyEk,FbmyEk,FbbE,nnE:double;
-    Vax:PVector;
-    Nf,ip,k,Nsprob,Nfall:integer;
-    name,nnn:string;
-    T,V,I,n,Rs,Fb,I0,nT,I0T,RsT,FbT:double;
-    bool:boolean;
-    delRsAv,delFbAv,delnAv,delFbEAv,delnEAv:double;
-begin
-if not(SetCurrentDir(CurDirectory)) then
-   begin
-   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
-   Exit;
-   end;
-
-Rsstr:=TStringList.Create;
-
-
-//Rsstr.Add('Rs logI0 logdelFb logdeln logdelRs I0 delFb deln delRs');
-Rsstr.Add('Rs logI0 logdelFb logdeln logdelFbE logdelnE logdelRs I0 delFb deln delFbE delnE delRs');
-
-nnn:='CibLong';
-Nsprob:=50;
-bool:=False;
-
-Rs:=1;
-repeat
- I0:=1e-10;
- repeat
-         Randomize;
-         Rsmyk:=0;
-         nmyk:=0;
-         Fbmyk:=0;
-         nmyEk:=0;
-         FbmyEk:=0;
-         Nf:=0;
-
-     if bool then
-      begin
-        Rs:=29;
-        I0:=1e-10;//*Power(10,1.0/2.0);
-        bool:=false;
-      end;
-
-        T:=130;
-        while T<335 do
-         begin
-
-
-         delRsAv:=0;
-         delFbAv:=0;
-         delnAv:=0;
-         delFbEAv:=0;
-         delnEAv:=0;
-         Nfall:=0;
-
-         k:=1;
-         repeat
-           Randomize;
-
-         nT:=RandG(n_T(T),0.002*n_T(T));
-         RsT:=RandG(Rs,0.002*Rs);
-         I0T:=RandG(I0,0.002*I0);
-         FbT:=Kb*T*ln(3.14e-6*1.12e6*T*T/I0T);
-
-           new(Vax);
-           Vax^.T:=T;
-           ip:=0;
-           Vax^.name:=FloatToStrF(Rs,ffgeneral,3,2)+' '+
-                      FloatToStrF(log10(I0),ffgeneral,3,2)+' '+
-                      inttostr(round(T));
-//           Form1.Button1.Caption:=Vax^.name;
-           Vax^.N_begin:=0;
-           V:=0;
-           repeat
-               V:=V+0.01;
-//               I:=Full_IV(V,nT*Kb*T,RsT,I0T,1e13,0);
-               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,RsT]);
-               if (I>=1e-10) then
-                 begin
-                   inc(ip);
-                   SetLenVector(Vax,ip);
-                   name:=FloatToStrF(RandG(V,0),ffExponent,4,0);
-                   Vax^.X[High(Vax^.X)]:=strtofloat(name);
-                   name:=FloatToStrF(RandG(I,0),ffExponent,4,0);
-                   Vax^.Y[High(Vax^.X)]:=strtofloat(name);
-                 end;
-                if I>Ilim then Break;
-           until false;
-//          Fit:=TDiod.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-
-//          Fit:=TDiodLSM.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
-
-//          Fit:=TDiodLam.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
-
-//     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
-//     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
-//     MikhKalk (Vax,D[diMikh],AA,Sk,Rss,nn,I00,Fbb);
-
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-//     HFunKalk(Vax,D[diHfunc],AA,Sk,nn,Rss,Fbb);
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-
-//     Kam1Kalk(Vax,D[diKam1],Rss,nn);
-//     Kam2Kalk(Vax,D[diKam2],Rss,nn);
-     CibilsKalk(Vax,D[diCib],GraphParameters.Rs,GraphParameters.n);
-//     WernerKalk(Vax,D[diWer],Rss,nn);
-
-     ExKalk_nconst(1,Vax,D[diEx],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-     ExKalk(1,Vax,D[diEx],GraphParameters.Rs,Diod,nnE,GraphParameters.I0,FbbE);
-
-//       BohlinKalk(Vax,D[diNord],AA,Sk,1.6,3.5,Rss,nn,Fbb,I00);
-//      NordKalk(Vax,D[diNord],AA,Sk,1.8,n_T(Vax^.T),Rss,Fbb);
-//       nn:=1;
-
-
-
-         if (GraphParameters.Rs=ErResult)or(GraphParameters.Fb=ErResult) then
-//         if EvolParam[1]=ErResult then
-            inc(Nfall)
-//            showmessage('Rs='+floattostr(Rs)+#10+#13+
-//                        'I0='+floattostr(I0))
-                    else
-                    begin
-             delRsAv:=delRsAv+abs((GraphParameters.Rs-RsT)/RsT);
-             delFbAv:=delFbAv+abs((GraphParameters.Fb-FbT)/FbT);
-             delnAv:=delnAv+abs((GraphParameters.n-nT)/nT);
-             delFbEAv:=delFbEAv+abs((FbbE-FbT)/FbT);
-             delnEAv:=delnEAv+abs((nnE-nT)/nT);
-
-//             delRsAv:=delRsAv+abs((EvolParam[1]-RsT)/RsT);
-//             delFbAv:=delFbAv+abs((Fit.DodX[0]-FbT)/FbT);
-//             delnAv:=delnAv+abs((EvolParam[0]-nT)/nT);
-
-
-                    end;
-//          Fit.Free;
-
-            dispose(Vax);
-            inc(k);
-           until(k>Nsprob);
-
-         if Nsprob>Nfall then
-         begin
-
-         Rsmyk:=Rsmyk+ln(delRsAv/(Nsprob-Nfall));
-         Fbmyk:=Fbmyk+ln(delFbAv/(Nsprob-Nfall));
-         nmyk:=nmyk+ln(delnAv/(Nsprob-Nfall));
-         FbmyEk:=FbmyEk+ln(delFbEAv/(Nsprob-Nfall));
-         nmyEk:=nmyEk+ln(delnEAv/(Nsprob-Nfall));
-         inc(Nf);
-         end;
-
-          T:=T+10;
-         end;
-
-            Rsstr.Add(FloatToStrF(Rs,ffExponent,4,3)+' '+
-                      FloatToStrF(log10(I0),ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(Fbmyk/Nf)),ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(nmyk/Nf)),ffExponent,4,3)+' '+
-
-                      FloatToStrF(log10(exp(FbmyEk/Nf)),ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(nmyEk/Nf)),ffExponent,4,3)+' '+
-
-                      FloatToStrF(log10(exp(Rsmyk/Nf)),ffExponent,4,3)+' '+
-                      FloatToStrF(I0,ffExponent,4,3)+' '+
-                      FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)+' '+
-                      FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)+' '+
-
-                      FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)+' '+
-                      FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4)+' '+
-
-                      FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4));
-
-
- Rsstr.SaveToFile('temp.dat');
- I0:=I0*Power(10,1.0/2.0);
- until(I0>1.1e-4);
-
-  Rs:=Rs+2;
-until(Rs>52);
-Rsstr.SaveToFile(nnn+'_Rs_I0_AV.dat');
-Rsstr.Free;
-end;
-
-
-Procedure Ideal_n_I0(Ilim:double);
-var
-    Rsstr:TStringList;
-    Rsmyk,nmyk,Fbmyk,nmyEk,FbmyEk,FbbE,nnE:double;
-    Vax:PVector;
-    Nf,ip,k,Nsprob:integer;
-    name:string;
-    T,V,I,n,Rs,Fb,I0,nT,I0T,RsT,FbT:double;
-    bool:boolean;
-    nnn:string;
-    delRsAv,delFbAv,delnAv,delFbEAv,delnEAv:double;
-  Nfall: Integer;
-begin
-if not(SetCurrentDir(CurDirectory)) then
-   begin
-   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
-   Exit;
-   end;
-
-Rsstr:=TStringList.Create;
-
-//Rsstr.Add('Rs logI0 logdelFb logdeln logdelRs I0 delFb deln delRs');
-Rsstr.Add('Rs logI0 logdelFb logdeln logdelFbE logdelnE logdelRs I0 delFb deln delFbE delnE delRs');
-
-nnn:='CibLong';
-Nsprob:=50;
-bool:=false;
-n:=1;
-repeat
- I0:=1e-10;
- repeat
-         Randomize;
-         Rsmyk:=0;
-         nmyk:=0;
-         Fbmyk:=0;
-         nmyEk:=0;
-         FbmyEk:=0;
-         Nf:=0;
-
-     if bool then
-      begin
-        n:=1.04;
-        I0:=1e-8*Power(10,1.0/2.0);
-        bool:=false;
-      end;
-
-
-        T:=130;
-        while T<335 do
-         begin
-
-         delRsAv:=0;
-         delFbAv:=0;
-         delnAv:=0;
-         delFbEAv:=0;
-         delnEAv:=0;
-         Nfall:=0;
-
-         k:=1;
-         repeat
-           Randomize;
-
-         nT:=RandG(n,0.002*n);
-         RsT:=RandG(Rs_T(T),0.002*Rs_T(T));
-         I0T:=RandG(I0,0.002*I0);
-         FbT:=Kb*T*ln(3.14e-6*1.12e6*T*T/I0T);
-
-           new(Vax);
-           Vax^.T:=T;
-           ip:=0;
-           Vax^.name:=FloatToStrF(n,ffgeneral,3,2)+' '+
-                      FloatToStrF(log10(I0),ffgeneral,3,2)+' '+
-                      inttostr(round(T));
-//Form1.Button1.Caption:=Vax^.name;
-           Vax^.N_begin:=0;
-           V:=0;
-
-           repeat
-               V:=V+0.01;
-//               I:=Full_IV(V,nT*Kb*T,RsT,I0T,1e13,0);
-               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,RsT]);
-               if (I>=1e-10) then
-                 begin
-                   inc(ip);
-                   SetLenVector(Vax,ip);
-                   name:=FloatToStrF(RandG(V,0),ffExponent,4,0);
-                   Vax^.X[High(Vax^.X)]:=strtofloat(name);
-                   name:=FloatToStrF(RandG(I,0),ffExponent,4,0);
-                   Vax^.Y[High(Vax^.X)]:=strtofloat(name);
-                 end;
-                if I>Ilim then Break;
-           until false;
-//          Fit:=TDiod.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-
-//          Fit:=TDiodLSM.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diExp]);
-
-//          Fit:=TDiodLam.Create;
-//          Fit.FittingDiapazon(Vax,EvolParam,D[diLam]);
-
-
-//     Gr1Kalk (Vax,D[diGr1],AA,Sk,Rss,nn,Fbb,I00);
-//     LeeKalk (Vax,D[diLee],AA,Sk,Rss,nn,Fbb,I00);
-//     MikhKalk (Vax,D[diMikh],AA,Sk,Rss,nn,I00,Fbb);
-
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-//     HFunKalk(Vax,D[diHfunc],AA,Sk,nn,Rss,Fbb);
-//     ChungKalk(Vax,D[diChung],Rss,nn);
-
-//     Kam1Kalk(Vax,D[diKam1],Rss,nn);
-//     Kam2Kalk(Vax,D[diKam2],Rss,nn);
-     CibilsKalk(Vax,D[diCib],GraphParameters.Rs,GraphParameters.n);
-//     WernerKalk(Vax,D[diWer],Rss,nn);
-
-     ExKalk_nconst(1,Vax,D[diEx],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-     ExKalk(1,Vax,D[diEx],GraphParameters.Rs,Diod,nnE,GraphParameters.I0,FbbE);
-
-//       BohlinKalk(Vax,D[diNord],AA,Sk,1.6,3.5,Rss,nn,Fbb,I00);
-//      NordKalk(Vax,D[diNord],AA,Sk,1.8,n,Rss,Fbb);
-//       nn:=0.5;
-
-
-         if (GraphParameters.Rs=ErResult)or(GraphParameters.Fb=ErResult) then
-//         if EvolParam[1]=ErResult then
-            inc(Nfall)
-//            showmessage('Rs='+floattostr(Rs)+#10+#13+
-//                        'I0='+floattostr(I0))
-                    else
-                    begin
-             delRsAv:=delRsAv+abs((GraphParameters.Rs-RsT)/RsT);
-             delFbAv:=delFbAv+abs((GraphParameters.Fb-FbT)/FbT);
-             delnAv:=delnAv+abs((GraphParameters.n-nT)/nT);
-             delFbEAv:=delFbEAv+abs((FbbE-FbT)/FbT);
-             delnEAv:=delnEAv+abs((nnE-nT)/nT);
-
-//             delRsAv:=delRsAv+abs((EvolParam[1]-RsT)/RsT);
-//             delFbAv:=delFbAv+abs((Fit.DodX[0]-FbT)/FbT);
-//             delnAv:=delnAv+abs((EvolParam[0]-nT)/nT);
-
-                    end;
-//          Fit.Free;
-          dispose(Vax);
-
-           inc(k);
-           until(k>Nsprob);
-
-         if Nsprob>Nfall then
-         begin
-
-         Rsmyk:=Rsmyk+ln(delRsAv/(Nsprob-Nfall));
-         Fbmyk:=Fbmyk+ln(delFbAv/(Nsprob-Nfall));
-         nmyk:=nmyk+ln(delnAv/(Nsprob-Nfall));
-         FbmyEk:=FbmyEk+ln(delFbEAv/(Nsprob-Nfall));
-         nmyEk:=nmyEk+ln(delnEAv/(Nsprob-Nfall));
-         inc(Nf);
-         end;
-          T:=T+10;
-         end;
-
-            Rsstr.Add(FloatToStrF(n,ffExponent,4,3)+' '+
-                      FloatToStrF(log10(I0),ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(Fbmyk/Nf)),ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(nmyk/Nf)),ffExponent,4,3)+' '+
-
-                      FloatToStrF(log10(exp(FbmyEk/Nf)),ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(nmyEk/Nf)),ffExponent,4,3)+' '+
-
-                      FloatToStrF(log10(exp(Rsmyk/Nf)),ffExponent,4,3)+' '+
-                      FloatToStrF(I0,ffExponent,4,3)+' '+
-                      FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)+' '+
-                      FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)+' '+
-
-                      FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)+' '+
-                      FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4)+' '+
-
-                      FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4));
-
-
- Rsstr.SaveToFile('temp.dat');
- I0:=I0*Power(10,1.0/2.0);
- until(I0>1.1e-4);
-
- n:=n+0.04;
-
-until(n>1.8);
-Rsstr.SaveToFile(nnn+'_n_I_AV.dat');
-Rsstr.Free;
-end;
-
-
-
-Procedure AdditData(method:string);
-var
-    Fbstr,Rsstr,nstr:TStringList;
-    Rsmyk,nmyk,Fbmyk,G1,G2,stepG,Glim,Vtemp:double;
-    Vax:PVector;
-    Nf,ip:integer;
-    SR : TSearchRec;
-  T,k, Nsprob: Integer;
-  RsAv,delRsAv,FbAv,delFbAv,nAv,delnAv,Fb,n,Rs,V,I,Ilim,SigV,SigI,I0: Double;
-  name:string;
-
-begin
-if not(SetCurrentDir(CurDirectory)) then
-   begin
-   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
-   Exit;
-   end;
-Nsprob:=50;
-Ilim:=0.1;
-
-
-Fbstr:=TStringList.Create;
-Rsstr:=TStringList.Create;
-nstr:=TStringList.Create;
-
-        StepG:=0.01;
-        Glim:=0.15;
-        G1:=4.1;
-        Vtemp:=D[diGr1].Xmin;
-
-if method='Gromov' then
-        begin
-        StepG:=0.01;
-        Glim:=0.15;
-        G1:=4.1;
-        Vtemp:=D[diGr1].Xmin;
-        end;
-
-if method='Nord' then
-        begin
-        StepG:=0.02;
-        Glim:=4.0001;
-        G1:=4.1;
-        end;
-
-if method='Bohlin' then
-        begin
-        StepG:=0.05;
-        Glim:=4.0001;
-        G1:=1.5;
-        end;
-
-
-repeat
-
- G2:=1.5;
- if method='Gromov' then G2:=0.069;
- if (method='Nord')or(method='Bohlin') then G2:=1.5;
-
- repeat
- if method='Gromov' then D[diGr1].Xmin:=G2;
-
-
-  if (method='Bohlin')and(abs(G2-G1)<0.005) then
-   begin
-      Fbstr.Add(FloatToStrF(G1,ffExponent,4,3)+' '+
-                FloatToStrF(G2,ffExponent,4,3)+' '+
-                '-');
-      Rsstr.Add(FloatToStrF(G1,ffExponent,4,3)+' '+
-                FloatToStrF(G2,ffExponent,4,3)+' '+
-                '-');
-      nstr.Add(FloatToStrF(G1,ffExponent,4,3)+' '+
-                FloatToStrF(G2,ffExponent,4,3)+' '+
-                '-');
-     G2:=G2+StepG;
-     Continue;
-   end;
-
-//   if method='Bohlin' then
-//    begin
-//       if G2>G1 then
-//         SetCurrentDir('D:\Samples\stat_rozrah\Norde\NordeS_ideal')
-//                else
-//         SetCurrentDir('D:\Samples\stat_rozrah\Norde\NordeS_G10');
-//    end;
-
-         Rsmyk:=0;
-         nmyk:=0;
-         Fbmyk:=0;
-         Nf:=0;
-
-
-//      if FindFirst('*.dat', faAnyFile, SR) = 0 then
-//        begin
-//
-//          new(Vax);
-//
-//          repeat
-//          if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-//
-//           Read_File(SR.name,Vax);
-        Form1.Button1.Caption:=FloatToStr(G1)+' '+FloatToStr(G2);
-        T:=130;
-        while T<335 do
-         begin
-
-
-
-//       if G2<G1 then
-//          begin
-         n:=n_T(T);
-         Rs:=Rs_T(T);
-         Fb:=Fb_T(T);
-         I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
-         sigV:=0.0003;
-         sigI:=0.01;
-//          end;
- {}
-         RsAv:=0;
-         delRsAv:=0;
-         FbAv:=0;
-         delFbAv:=0;
-         nAv:=0;
-         delnAv:=0;
-
-         k:=1;
-         repeat
-           Randomize;
-
-       if G2>G1 then
-          begin
-         n:=RandG(n,0.002*n);
-         Rs:=RandG(Rs,0.002*Rs);
-         Fb:=RandG(Fb,0.002*Fb);
-         I0:=3.14e-6*1.12e6*T*T*exp(-Fb/Kb/T);
-         sigV:=0;
-         sigI:=0;
-          end;
-
-           new(Vax);
-           Vax^.T:=T;
-           ip:=0;
-           Vax^.name:=inttostr(k)+' '+
-                      inttostr(T);
-           Vax^.N_begin:=0;
-           V:=0;
-
-           repeat
-               V:=V+0.01;
-//               I:=Full_IV(V,n*Kb*T,Rs,I0,1e13,0);
-               I:=Full_IV(IV_Diod,V,[n*Kb*T,I0,Rs]);
-               if (I>=1e-10) then
-                 begin
-                   inc(ip);
-                   SetLenVector(Vax,ip);
-                   name:=FloatToStrF(RandG(V,SigV),ffExponent,4,0);
-                   Vax^.X[High(Vax^.X)]:=strtofloat(name);
-                   name:=FloatToStrF(RandG(I,SigI*I),ffExponent,4,0);
-                   Vax^.Y[High(Vax^.X)]:=strtofloat(name);
-                 end;
-                if I>Ilim then Break;
-           until false;
-
-
-
-          if method='Nord' then
-           NordKalk(Vax,D[diNord],Diod,G2,n,GraphParameters.Rs,GraphParameters.Fb);
-
-          if method='Bohlin' then
-            BohlinKalk(Vax,D[diNord],Diod,G1,G2,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-
-          if method='Gromov' then
-           Gr2Kalk (Vax,D[diGr1],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-
-             RsAv:=RsAv+GraphParameters.Rs;
-             delRsAv:=delRsAv+abs((GraphParameters.Rs-Rs)/Rs);
-             FbAv:=FbAv+GraphParameters.Fb;
-             delFbAv:=delFbAv+abs((GraphParameters.Fb-Fb)/Fb);
-             nAv:=nAv+GraphParameters.n;
-             delnAv:=delnAv+abs((GraphParameters.n-n)/n);
-
-
-             dispose(Vax);
-
-            inc(k);
-           until(k>Nsprob);
-
-             delRsAv:=delRsAv/Nsprob;
-             delFbAv:=delFbAv/Nsprob;
-             delnAv:=delnAv/Nsprob;
-
-
-         Rsmyk:=Rsmyk+ln(delRsAv);
-         Fbmyk:=Fbmyk+ln(delFbAv);
-         nmyk:=nmyk+ln(abs(delnAv));
-
-
-         inc(Nf);
-
-          T:=T+10;
-          Fbstr.SaveToFile(method+'temp.dat');
-         end;
-
-//           Rsmyk:=Rsmyk+ln(abs((Rss-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-//           nmyk:=nmyk+ln(abs((nn-n_T(Vax^.T))/n_T(Vax^.T)));
-//           Fbmyk:=Fbmyk+ln(abs((Fbb-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-//           inc(Nf);
-
-
-//          until FindNext(SR) <> 0;
-
-//          dispose(Vax);
-//          FindClose(SR);
-
-          if method='Bohlin' then
-            begin
-            Fbstr.Add(
-                      FloatToStrF(G1,ffExponent,4,3)+' '+
-                      FloatToStrF(G2,ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(Fbmyk/Nf)),ffExponent,5,4));
-            Rsstr.Add(
-                      FloatToStrF(G1,ffExponent,4,3)+' '+
-                      FloatToStrF(G2,ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(Rsmyk/Nf)),ffExponent,5,4));
-            nstr.Add(
-                      FloatToStrF(G1,ffExponent,4,3)+' '+
-                      FloatToStrF(G2,ffExponent,4,3)+' '+
-                      FloatToStrF(log10(exp(nmyk/Nf)),ffExponent,5,4));
-
-            end;
-
-          if (method='Gromov')or(method='Nord') then
-            begin
-//            showmessage(floattostr(Rsmyk));
-            Fbstr.Add(
-                      FloatToStrF(G2,ffExponent,4,3)+' '+
-                      FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4));
-            Rsstr.Add(
-                      FloatToStrF(G2,ffExponent,4,3)+' '+
-                      FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4));
-            nstr.Add(
-                      FloatToStrF(G2,ffExponent,4,3)+' '+
-                      FloatToStrF(exp(nmyk/Nf),ffExponent,5,4));
-
-            end;
-
-
-//        end;
- G2:=G2+StepG;
- until(G2>Glim);
-
- G1:=G1+StepG;
-until(G1>Glim);
-
-if method='Gromov' then D[diGr1].Xmin:=Vtemp;
-
-Fbstr.SaveToFile(method+'Fb.dat');
-Rsstr.SaveToFile(method+'Rs.dat');
-nstr.SaveToFile(method+'nd.dat');
-Fbstr.Free;
-Rsstr.Free;
-nstr.Free;
-end;
-
-
-Procedure All_Method();
-var
-    Vax:PVector;
-    Nf:integer;
-    SR : TSearchRec;
-    Str1: TStringList;
-   Rsmy,nmy,Fbmy,nmyE,FbmyE:double;
-   Rsmyk,nmyk,Fbmyk,nmyEk,FbmyEk:double;
-   nnn:string;
-   Dtemp,Dtemp2:TDiapazon;
-
-begin
-
-if not(SetCurrentDir(CurDirectory)) then
-   begin
-   MessageDlg('Current directory is not exist', mtError,[mbOk],0);
-   Exit;
-   end;
-
-   Str1:=TStringList.Create;
-   new(Vax);
-   Dtemp:=TDiapazon.Create;
-   Dtemp2:=TDiapazon.Create;
-
-
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   Nf:=0;
-   nmyEk:=0;
-   FbmyEk:=0;
-
-    // обчислення за функцією Чюнга
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diChung]);
-   Dtemp2.Copy(D[diHfunc]);
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp.Ymax:=0.02
-    else Dtemp.Ymax:=0.1;
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp2.Ymax:=0.02
-    else Dtemp2.Ymax:=0.1;
-     nnn:='Ch';
-     Form1.Button1.Caption:=nnn;
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     try
-     ChungKalk(Vax,Dtemp,GraphParameters.Rs,GraphParameters.n);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     HFunKalk(Vax,Dtemp2,Diod,nmy,GraphParameters.Rs,GraphParameters.Fb);
-     Fbmy:=GraphParameters.Fb;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-     except
-
-     end;
-    until FindNext(SR) <> 0;
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за функцією Чюнга
-
-
-     // обчислення за функцією Камінські І-роду
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   nmyEk:=0;
-   FbmyEk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diKam1]);
-   Dtemp2.Copy(D[diEx]);
-//   if AnsiPos('F50',CurDirectory)=0
-//    then Dtemp.Ymax:=0.02
-//    else Dtemp.Ymax:=0.1;
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp2.Ymax:=0.02
-    else Dtemp2.Ymax:=0.1;
-     nnn:='Kam1';
-     Form1.Button1.Caption:=nnn;
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     Kam1Kalk(Vax,Dtemp,GraphParameters.Rs,GraphParameters.n);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,GraphParameters.I0,GraphParameters.Fb);
-     Fbmy:=GraphParameters.Fb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-     FbmyE:=GraphParameters.Fb;
-     nmyE:=GraphParameters.n;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(FbmyE,ffExponent,5,4)+' '+
-             FloatToStrF((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(nmyE,ffExponent,5,4)+' '+
-             FloatToStrF((nmyE-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmyE-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     nmyEk:=nmyEk+ln(abs((nmyE-n_T(Vax^.T))/n_T(Vax^.T)));
-     FbmyEk:=FbmyEk+ln(abs((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-    until FindNext(SR) <> 0;
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 Fb'+nnn+
-                'Exp delFbE delFb2E n n'+nnn+' deln deln2 n'+nnn+'2Exp delnE deln2E');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn+'   FbE'+nnn+'   nE'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за функцією Камінські І-роду
-
-     // обчислення за функцією Камінські ІI-роду
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   nmyEk:=0;
-   FbmyEk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diKam2]);
-   Dtemp2.Copy(D[diEx]);
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp.Ymax:=0.02
-    else Dtemp.Ymax:=0.1;
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp2.Ymax:=0.02
-    else Dtemp2.Ymax:=0.1;
-     nnn:='Kam2';
-     Form1.Button1.Caption:=nnn;
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     Kam2Kalk(Vax,Dtemp,GraphParameters.Rs,GraphParameters.n);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,GraphParameters.I0,GraphParameters.Fb);
-     Fbmy:=GraphParameters.Fb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-     FbmyE:=GraphParameters.Fb;
-     nmyE:=GraphParameters.n;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(FbmyE,ffExponent,5,4)+' '+
-             FloatToStrF((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(nmyE,ffExponent,5,4)+' '+
-             FloatToStrF((nmyE-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmyE-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     nmyEk:=nmyEk+ln(abs((nmyE-n_T(Vax^.T))/n_T(Vax^.T)));
-     FbmyEk:=FbmyEk+ln(abs((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-    until FindNext(SR) <> 0;
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 Fb'+nnn+
-                'Exp delFbE delFb2E n n'+nnn+' deln deln2 n'+nnn+'2Exp delnE deln2E');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn+'   FbE'+nnn+'   nE'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за функцією Камінські ІI-роду
-
-
-     // обчислення за методом Сібілса
-
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   nmyEk:=0;
-   FbmyEk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diCib]);
-   Dtemp2.Copy(D[diEx]);
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp.Ymax:=0.02
-    else Dtemp.Ymax:=0.1;
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp2.Ymax:=0.02
-    else Dtemp2.Ymax:=0.1;
-     nnn:='Cib';
-     Form1.Button1.Caption:=nnn;
-
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     try
-     CibilsKalk(Vax,Dtemp,GraphParameters.Rs,GraphParameters.n);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,GraphParameters.I0,GraphParameters.Fb);
-     Fbmy:=GraphParameters.Fb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-     FbmyE:=GraphParameters.Fb;
-     nmyE:=GraphParameters.n;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(FbmyE,ffExponent,5,4)+' '+
-             FloatToStrF((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(nmyE,ffExponent,5,4)+' '+
-             FloatToStrF((nmyE-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmyE-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     nmyEk:=nmyEk+ln(abs((nmyE-n_T(Vax^.T))/n_T(Vax^.T)));
-     FbmyEk:=FbmyEk+ln(abs((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-     except
-
-     end;
-    until FindNext(SR) <> 0;
-
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 Fb'+nnn+
-                'Exp delFbE delFb2E n n'+nnn+' deln deln2 n'+nnn+'2Exp delnE deln2E');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn+'   FbE'+nnn+'   nE'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за методом Сібілса
-
-
-     // обчислення за методом Вернера
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   nmyEk:=0;
-   FbmyEk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diWer]);
-   Dtemp2.Copy(D[diEx]);
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp.Ymax:=0.02
-    else Dtemp.Ymax:=0.1;
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp2.Ymax:=0.02
-    else Dtemp2.Ymax:=0.1;
-     nnn:='Wer';
-     Form1.Button1.Caption:=nnn;
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     WernerKalk(Vax,Dtemp,GraphParameters.Rs,GraphParameters.n);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     ExKalk_nconst(1,Vax,Dtemp2,Diod,Rsmy,nmy,GraphParameters.I0,GraphParameters.Fb);
-     Fbmy:=GraphParameters.Fb;
-     ExKalk(1,Vax,Dtemp2,Rsmy,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-     FbmyE:=GraphParameters.Fb;
-     nmyE:=GraphParameters.n;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(FbmyE,ffExponent,5,4)+' '+
-             FloatToStrF((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(nmyE,ffExponent,5,4)+' '+
-             FloatToStrF((nmyE-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmyE-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     nmyEk:=nmyEk+ln(abs((nmyE-n_T(Vax^.T))/n_T(Vax^.T)));
-     FbmyEk:=FbmyEk+ln(abs((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-    until FindNext(SR) <> 0;
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 Fb'+nnn+
-                'Exp delFbE delFb2E n n'+nnn+' deln deln2 n'+nnn+'2Exp delnE deln2E');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn+'   FbE'+nnn+'   nE'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за методом Вернера
-
-
-
-    // обчислення за функцією Громова І-роду
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diGr1]);
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp.Ymax:=0.02
-    else Dtemp.Ymax:=0.1;
-     nnn:='Gr1';
-     Form1.Button1.Caption:=nnn;
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     Gr1Kalk (Vax,Dtemp,Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     Fbmy:=GraphParameters.Fb;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-    until FindNext(SR) <> 0;
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за функцією Громова І-роду
-
-
-    // обчислення за функцією Лі
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diLee]);
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp.Ymax:=0.02
-    else Dtemp.Ymax:=0.1;
-     nnn:='Lee';
-     Form1.Button1.Caption:=nnn;
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     LeeKalk (Vax,Dtemp,Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-//     LeeKalk (Vax,D[diLee],Diod,Rss,nn,Fbb,I00);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     Fbmy:=GraphParameters.Fb;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-    until FindNext(SR) <> 0;
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за функцією Лі
-
-
-    // обчислення за функцією Міхелашвілі
-  Str1.Clear;
- if FindFirst('*.dat', faAnyFile, SR) = 0 then
-  begin
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   Nf:=0;
-   Dtemp.Copy(D[diMikh]);
-   if AnsiPos('F50',CurDirectory)=0
-    then Dtemp.Ymax:=0.02
-    else Dtemp.Ymax:=0.1;
-     nnn:='Mikh';
-     Form1.Button1.Caption:=nnn;
-
-    repeat
-    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-
-     Read_File(SR.name,Vax);
-     MikhKalk (Vax,Dtemp,Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-     Rsmy:=GraphParameters.Rs;
-     nmy:=GraphParameters.n;
-     Fbmy:=GraphParameters.Fb;
-
-     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-             );
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-    until FindNext(SR) <> 0;
-  end;
-    FindClose(SR);
-
-    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ');
-    Str1.SaveToFile(nnn+'_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                  '.dat');
-  Str1.Clear;
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4));
-  Str1.SaveToFile(nnn+'_E_'+
-                 copy(CurDirectory,
-                 LastDelimiter ('\',CurDirectory)+1,
-                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-                 '.dat');
-    // обчислення за функцією Міхелашвілі
-
-
-    // обчислення за еволюційні методи
-//  Str1.Clear;
-// if FindFirst('*.dat', faAnyFile, SR) = 0 then
-//  begin
-//   Rsmyk:=0;
-//   nmyk:=0;
-//   Fbmyk:=0;
-//   Nf:=0;
-//   Dtemp.Copy(D[diDE]);
-//   if AnsiPos('F50',CurDirectory)=0
-//    then Dtemp.Ymax:=0.02
-//    else Dtemp.Ymax:=0.1;
-//     nnn:='MABC';
-//     Form1.Button1.Caption:=nnn;
-//
-//    repeat
-//    if AnsiUpperCase(SR.name)[length(SR.name)-4]<>'N' then Continue;
-//
-//     Read_File(SR.name,Vax);
-//     Fit:=TDiod.Create;
-//     Fit.FittingDiapazon(Vax,EvolParam,Dtemp);
-//      Rsmy:=EvolParam[1];
-//      nmy:=EvolParam[0];
-//      Fbmy:=Fit.DodX[0];
-//
-//     Str1.Add(FloatToStrF(Vax^.T,ffGeneral,4,1)+' '+
-//             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-//             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-//             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-//             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-//             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-//             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-//             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-//             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4)+' '+
-//             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-//             FloatToStrF(nmy,ffExponent,5,4)+' '+
-//             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-//             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4)
-//             );
-//     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-//     nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-//     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-//     inc(Nf);
-//     Fit.Free;
-//    until FindNext(SR) <> 0;
-//  end;
-//    FindClose(SR);
-//
-//    Str1.Insert(0,'T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ');
-//    Str1.SaveToFile(nnn+'_'+
-//                 copy(CurDirectory,
-//                 LastDelimiter ('\',CurDirectory)+1,
-//                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-//                  '.dat');
-//  Str1.Clear;
-//  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn);
-//  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-//      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-//      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4));
-//  Str1.SaveToFile(nnn+'_E_'+
-//                 copy(CurDirectory,
-//                 LastDelimiter ('\',CurDirectory)+1,
-//                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-//                 '.dat');
-    // обчислення за еволюційні методи
-
-
-    dispose(Vax);
-    Str1.Free;
-    Dtemp.Free;
-    Dtemp2.Free;
-
-end;
-
-Procedure Sample3;
-var F:TextFile;
-    i,n,j,nn,j0:integer;
-    V,T,Cur,CurUS,eCur,smCur:TArrSingle;
-    a1,a2:double;
-    Vax,Vax2:PVector;
-//    FitWithoutParameteres:TFitWithoutParameteres;
-
-begin
-   AssignFile(f,'tm.dat');
-   Reset(f);
-   i:=0;
-   while not(eof(f)) do
-       begin
-        i:=i+1;
-        readln(f);
-       end;
-   CloseFile(f);
-
-   SetLength(V, i-1);
-   SetLength(T, i-1);
-   SetLength(Cur, i-1);
-   SetLength(CurUs, i-1);
-   SetLength(eCur, i-1);
-   SetLength(smCur, i-1);
-
-
-   Reset(f);
-   readln(f);
-   for i := 0 to High (V) do
-//      readln(f,V[i],T[i],a1,a2,a3,Cur[i]);
-      readln(f,V[i],T[i],Cur[i]);
-   CloseFile(f);
-
-   AssignFile(f,'us.dat');
-   Reset(f);
-   readln(f);
-   for i := 0 to High (V) do
-//      readln(f,a1,a2,a3,a1,a2,CurUS[i]);
-      readln(f,a1,a2,CurUS[i]);
-   CloseFile(f);       
-
-   for i := 0 to High (V) do
-         if Cur[i]=0 then eCur[i]:=Cur[i]
-                     else eCur[i]:=CurUS[i];
-         
-//          eCur[i]:=(CurUS[i]-Cur[i])*100;
-
-//      if (Cur[i]>1e-9)and(CurUs[i]>1e-9)and(Cur[i]<>ErResult)and(CurUs[i]<>ErResult) then
-//         eCur[i]:=100*(CurUS[i]-Cur[i])/Cur[i]
-//                      else
-//         eCur[i]:=0;
-   AssignFile(f,'eus.dat');
-     Rewrite(f);
-   for i := 0 to High (V) do
-     writeln(f,V[i],' ',T[i],' ',eCur[i]);
-   CloseFile(f);
-
-//-----------------------------------
-
-//   AssignFile(f,'eUS2.dat');
-//   Reset(f);
-//   i:=0;
-//   while not(eof(f)) do
-//       begin
-//        i:=i+1;
-//        readln(f);
-//       end;
-//   CloseFile(f);
-//
-//   SetLength(V, i-1);
-//   SetLength(T, i-1);
-//   SetLength(Cur, i-1);
-//   SetLength(CurUs, i-1);
-//   SetLength(eCur, i-1);
-//   SetLength(smCur, i-1);
-//
-//
-//   Reset(f);
-//   readln(f);
-//   for i := 0 to High (V) do
-//      readln(f,V[i],T[i],eCur[i]);
-//   CloseFile(f);
-
-//----------------------------------
-
-   new(Vax);
-   new(Vax2);
-   a1:=V[0];
-   n:=0;
-   i:=0;
-   nn:=0;
-   repeat
-//      showmessage('i='+inttostr(i)+
-//                 ' V='+floattostr(V[i]));
-
-    if V[i]=a1 then
-      begin
-        if eCur[i]<>0 then
-        begin
-        n:=n+1;
-        SetLenVector(Vax,n);
-        Vax^.X[High(Vax^.X)]:=T[i];
-        Vax^.Y[High(Vax^.X)]:=eCur[i];
-        end;
-//      showmessage('i='+inttostr(i)+
-//                 ' T='+floattostr(Vax^.X[High(Vax^.X)])+
-//                 ' eCur='+floattostr(Vax^.Y[High(Vax^.X)]));
-      i:=i+1;
-      if T[i-1]=330 then
-//      showmessage('i='+inttostr(i-1)+
-//                 ' imax='+inttostr(High(Vax^.X))+
-//                 ' Vax='+floattostr(Vax^.Y[High(Vax^.X)])+
-//                 ' V='+floattostr(V[i-1])+
-//                 ' T='+floattostr(T[i-1])
-//                 );
-
-      end;
-//             else
-
-    if (V[i]<>a1)or(i=High(V)) then
-      begin
-        Median(Vax,Vax2);
-
-        Smoothing(Vax2,Vax);
-
-//       showmessage('i='+inttostr(i-1)+
-//                 ' dd='+floattostr(smCur[i-1])+
-//                 ' Vax='+floattostr(Vax^.Y[High(Vax^.X)])+
-//                 ' Vax='+floattostr(Vax^.Y[i-1-nn])+
-//                 ' V='+floattostr(V[i-1])+
-//                 ' T='+floattostr(T[i-1])
-//                 );
-
-//        Smoothing(Vax,Vax2);
-//        IVchar(Vax2,Vax);
-
-        j0:=0;
-        for j := nn to i-1 do
-          if eCur[j]=0 then
-                       begin
-                        smCur[j]:=0;
-                        j0:=j0+1;
-                       end
-                       else smCur[j]:=Vax^.Y[j-nn-j0];
-
-//       showmessage('i='+inttostr(i-1)+
-//                 ' dd='+floattostr(smCur[i-1])+
-//                 ' Vax='+floattostr(Vax^.Y[i-1-nn-j0])+
-//                 ' V='+floattostr(V[i-1])+
-//                 ' T='+floattostr(T[i-1])
-//                 );
-
-        n:=0;
-        nn:=i;
-        a1:=V[i];
-
-         if (abs(V[i]-0.1)<1e-3) then
-       showmessage('i='+inttostr(i)+
-                 ' imax='+inttostr(High(V))+
-                 ' V='+floattostr(V[i])+
-                 ' a='+floattostr(a1)
-                 );
-
-      end;
-
-//        if {(V[i]=4.3)and}(T[i]=330) then
-//       showmessage('i='+inttostr(i)+
-//                 ' imax='+inttostr(High(V))+
-//                 ' V='+floattostr(V[i])+
-//                 ' a='+floattostr(a)
-//                 );
-
-   until (i>High(V));
-   dispose(Vax);
-   dispose(Vax2);
-
-   AssignFile(f,'smeus.dat');
-     Rewrite(f);
-   for i := 0 to High (V) do
-     writeln(f,V[i],' ',T[i],' ',smCur[i]);
-   CloseFile(f);
-
-end;
-
-Procedure Sample2;
-const Et0=0.7;
-      betta=13e-5;
-      Fb0=1.09;
-      alfa=7.3e-8;
-      r=0.95;
-      I0=1;
-      Nss=1;
-      a=6;
-      hw=0.016;
-var F:TextFile;
-    V,T,Ite,Ipat,Em,Emr:double;
-begin
-   AssignFile(f,'variate.dat');
-   Rewrite(f);
-//   writeln(f,'V T Ite Ipat eIteFb eIteA eIpatEt eIpatB');
-   writeln(f,'V T eIteFb eIteA eIpatEt eIpatB');
-   V:=4.5;
-   repeat
-    T:=125;
-    repeat
-      Em:=Diod.Em(T,Fb0,V/2);
-      Emr:=Diod.Em(T,r*Fb0,V/2);
-
-      Ite:=RevZrizFun(1/T/Kb,2,I0,Diod.Semiconductor.Material.Varshni(Fb0-alfa*Em,T))*
-     (1-exp(-V/2/T/Kb));
-     Ipat:=TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-betta*sqrt(Em),Nss);
-
-      writeln(f,V,' ',T,' ',{Ite,' ',Ipat,' ',}
-       (RevZrizFun(1/T/Kb,2,I0,Diod.Semiconductor.Material.Varshni(r*Fb0-alfa*Emr,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
-       (RevZrizFun(1/T/Kb,2,I0,Diod.Semiconductor.Material.Varshni(Fb0-r*alfa*Em,T))*(1-exp(-V/2/T/Kb)){-Ite})/Ite,' ',
-       (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,r*Et0-betta*sqrt(Em),Nss){-Ipat})/Ipat,' ',
-       (TPhonAsTun.PAT(Diod,V/2,1/T/Kb,Fb0,a,hw,Et0-r*betta*sqrt(Em),Nss){-Ipat})/Ipat
-      );
-      T:=T+5;
-    until (T>330);
-
-    V:=V-0.1;
-   until (V<0.05);
-
-   CloseFile(f);
-
-end;
-
 
 Procedure IVcharFileCreate();
  var comment,dat:TStringList;
@@ -5707,16 +3166,13 @@ begin
      repeat
          V:=V+0.01;
          I:=Full_IV(IV_DiodDouble,V,
-//             [Kb*T,0.5,3e-11,2.8*Kb*T,5e-6],1e11,1.85e-4);
              [Kb*T,2,3e-11,2.8*Kb*T,5e-6],1e3);
-//             [Kb*T,0,3e-11,2.8*Kb*T,5e-6]);
          tempV:=V-2*I;
          I:=Full_IV(IV_DiodDouble,tempV,
              [Kb*T,0,3e-11,2.8*Kb*T,5e-6]);
 
          if (abs(I)>=1e-10) then
            begin
-//             dat.Add(FloatToStrF(V,ffExponent,4,0)+' '+
              dat.Add(FloatToStrF(tempV,ffExponent,4,0)+' '+
                   FloatToStrF(I,ffExponent,4,0));
            end;
@@ -5765,7 +3221,6 @@ Function FileCount():integer;
   SR : TSearchRec;
 begin
  Result:=0;
-// DecimalSeparator:='.';
  if not(SetCurrentDir(CurDirectory)) then
    begin
    MessageDlg('Current directory is not exist', mtError,[mbOk],0);
@@ -5777,12 +3232,16 @@ begin
     repeat
      if FileNameIsBad(SR.name) then Continue;
      inc(Result);
-//     Read_File(SR.name,Vax);
-//     ShotName:=copy(ShotName,1,length(ShotName)-4);
-     //в ShotName коротке ім'я файла - те що вводиться при вимірах :)
     until FindNext(SR) <> 0;
   end;
  FindClose(SR);
+end;
+
+procedure InputValueToLabel(Name,Hint:string; Format:TFloatFormat;
+                   var Lab:Tlabel;var Value:double);
+begin
+ StrToNumber(InputBox(Name,Hint,FloatToStrF(Value,Format,3,2)), Value, Value);
+ Lab.Caption:=FloatToStrF(Value,Format,3,2);
 end;
 
 
@@ -5805,7 +3264,6 @@ begin
      inc(i);
      if i>High(VectorArray) then Break;
      Read_File(SR.name,VectorArray[i]);
-//     ShotName:=copy(ShotName,1,length(ShotName)-4);
     until FindNext(SR) <> 0;
   end;
  FindClose(SR);
@@ -5875,7 +3333,6 @@ begin
   temp^.T:=Vax^.T;
   temp^.name:=Vax^.name;
   temp^.DeltaY(temp2^);
-//  temp^.Copy(Vax^);
   Splain3Vec(temp,temp^.X[0],0.002,Vax);
 
   finally
@@ -5956,39 +3413,9 @@ procedure TForm1.Button1Click(Sender: TObject);
 //------------------------------------------------------------
 //GenerIVSet(0,0,0.02,'n.dat');
 //GenerIVSet(0.05,0.003,0.02,'G5030n.dat');
-//GenerIVSet(sigI,sigV,Ilim:double;f_end:string);
 //-------------------------------------------------------
-//AdditData('Bohlin');
-//-------------------------------------------------------
-//AccurSet(0.050001,0.00300001,0.002,0.0001,0.02);
-//AccurSet(0.050001,0.00300001,0.005,0.00025,0.02);
-//AccurSet(0.000050001,0.00000300001,0.005,0.0002,0.02);
-//--------------------------------------------------------
-//All_Method()
-//--------------------------------------------------------
-//IdealRs(0.02);
-//Ideal_n_I0(0.2);
-//--------------------------------------------------------
-//TemperAve(0.1,0.0003,0.01);
-//TemperAve(0.1,0.002,0.01);
-//TemperAve(0.1,0.0003,0.005);
-//TemperAve(Ilim,sigV,sigI:double);
-
-//TemperIdAve(0.02,'O');
-//TemperIdAve(0.02,'n');
-//TemperIdAve(0.02,'R');
-//TemperIdAve(0.02,'F');
-//TemperIdAve(0.02,'I');
-//TemperIdAve(Ilim:double);
-//-----------------------------------
-//Sample3();
-//Sample2();
 
 //IVcharFileCreate();
-
-
-
-
 end;
 
 
@@ -5996,24 +3423,14 @@ end;
 procedure TForm1.ButtonCreateDateClick(Sender: TObject);
 var
   SR : TSearchRec;
-  {mask,}ShotName:string;
-  Vax,Vax2,Vax3,Vax4:Pvector;
-  Rs,n,n2,I02:double;
-  i,j,ij:integer;
+  ShotName:string;
+  Vax,Vax2:Pvector;
+  Rs,n:double;
+  i,j:integer;
   T_bool:boolean;
-  dat:array {[0..ord(High(TColName)){Ndate}{]} of string;
+  dat:array  of string;
   F:TextFile;
   CL:TColName;
-  Str1: TStringList;
-  str:string;
-  a,b:double;
-//  Fit:TFitFunction;
-  Rsmy,nmy,Fbmy,nmyE,FbmyE:double;
-  Rsmyk,nmyk,Fbmyk,nmyEk,FbmyEk:double;
-  Nf:integer;
-  nnn,temp_str:string;
-  nameBool:boolean;
-//  FitA:TFitFunctionAAA;
 
 begin
 DecimalSeparator:='.';
@@ -6026,22 +3443,7 @@ if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
 
   FitFunction.Free;
  end;
-//showmessage(inttostr(High(dat)));
- //ColParam(StrGridData);
 
-//    new(Vax2);
-//    new(Vax3);
-//    new(Vax4);
-   Str1:=TStringList.Create;
-   Rsmyk:=0;
-   nmyk:=0;
-   Fbmyk:=0;
-   nmyEk:=0;
-   FbmyEk:=0;
-   Nf:=0;
-   Rsmy:=0;
-   nmy:=0;
-   nameBool:=false;
 
 T_bool:=False;
 if not(SetCurrentDir(CurDirectory)) then
@@ -6049,27 +3451,9 @@ if not(SetCurrentDir(CurDirectory)) then
    MessageDlg('Current directory is not exist', mtError,[mbOk],0);
    Exit;
    end;
-//kkkkkkkkkkkkkkkkkkk
-
-{for ij:= 0 to High(Volt) do
-begin
-SetLenVector(Vax3,0);
-{Str1.Clear;
-str:='T'+' V'+floattostrf(abs(Volt[ij]),ffGeneral,2,1);
-Str1.Add(str);{}
-//kkkkkkkkkkkkkkkkkkkkkk
-
-//   showmessage('hi1');
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
     new(Vax);
-//  showmessage('hi12');
-
-
-//    str:='T';
-//    for i:= 0 to High(Volt) do
-//     str:=str+' V'+floattostrf(abs(Volt[i]),ffGeneral,2,1);
-//    Str1.Add(str);
 
     StrGridData.RowCount:=2;
     StrGridData.ColCount:=StrGridData.ColCount+1;
@@ -6084,13 +3468,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
     repeat
      ShotName:=AnsiUpperCase(SR.name);
-//     if ShotName[length(ShotName)-4]<>'N' then Continue;
-//    if ShotName[length(ShotName)-4]<>'V' then Continue;
     if FileNameIsBad(ShotName)then Continue;
 
-//        showmessage(SR.name);
      Read_File(SR.name,Vax);
-//     ShotName:=copy(ShotName,1,length(ShotName)-5);
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'я файла - те що вводиться при вимірах :)
      if Vax^.T=0 then T_bool:=True;
@@ -6116,11 +3496,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       ChungKalk(Vax,D[diChung],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_Ch)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Ch)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
-//--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      nnn:='Ch';
-//---------------------------
       end;
 
      // обчислення за Н-функцією
@@ -6130,10 +3505,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       HFunKalk(Vax,D[diHfunc],Diod,n,GraphParameters.Rs,GraphParameters.Fb);
       dat[ord(Rs_H)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(Fb_H)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-//--------------------------
-      HFunKalk(Vax,D[diHfunc],Diod,nmy,GraphParameters.Rs,GraphParameters.Fb);
-      Fbmy:=GraphParameters.Fb;
-//---------------------------
       end; // (Rs_H in ColNames) or (Fb_H in ColNames) then
 
      // обчислення за функцією Норда
@@ -6143,19 +3514,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       NordKalk(Vax,D[diNord],Diod,GraphParameters.Gamma,n,GraphParameters.Rs,GraphParameters.Fb);
       dat[ord(Rs_N)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(Fb_N)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-////--------------------------
-      n:=n_T(Vax^.T);
-//    Fit:=TDiod.Create;
-//    Fit.FittingDiapazon(Vax,EvolParam,D[diDE]);
-//    Fit.Free;
-      NordKalk(Vax,D[diNord],Diod,1.8,n,GraphParameters.Rs,GraphParameters.Fb);
-      Rsmy:=GraphParameters.Rs;
-      Fbmy:=GraphParameters.Fb;
-      nnn:='Nord';
-
-////---------------------------
-
-
       end;//(Rs_N in ColNames) or (Fb_N in ColNames) then
 
      // обчислення шляхом апроксимації І=I0(exp(V/nkT)-1)
@@ -6204,11 +3562,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       Kam1Kalk(Vax,D[diKam1],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_K1)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_K1)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
-//--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      nnn:='Kam1';
-//---------------------------
       end;  //if (Rs_K1 in ColNames) or (n_K1 in ColNames) then
 
      // обчислення за функцією Камінські IІ-роду
@@ -6217,11 +3570,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       Kam2Kalk(Vax,D[diKam2],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_K2)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_K2)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
-//--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      nnn:='Kam2';
-//---------------------------
 
       end;  //Rs_K2 in ColNames) or (n_K2 in ColNames) then
 
@@ -6234,12 +3582,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       dat[ord(n_Gr1)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
       dat[ord(Is_Gr1)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
       dat[ord(Fb_Gr1)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-//--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      Fbmy:=GraphParameters.Fb;
-      nnn:='Gr1';
-//---------------------------
 
       end;
 
@@ -6252,13 +3594,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       dat[ord(n_Gr2)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
       dat[ord(Is_Gr2)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
       dat[ord(Fb_Gr2)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-//--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      Fbmy:=GraphParameters.Fb;
-      nnn:='Gr2';
-//---------------------------
-
       end;
 
      // обчислення за методом Вернера
@@ -6267,12 +3602,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       WernerKalk(Vax,D[diWer],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_Wer)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Wer)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
-////--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      nnn:='Wer';
-////---------------------------
-
       end;  //if (Rs_Wer in ColNames) or (n_Wer in ColNames) then
 
      // обчислення за методом Сібілса
@@ -6281,12 +3610,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       CibilsKalk(Vax,D[diCib],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_Cb)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Cb)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
-////--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      nnn:='Cib';
-////---------------------------
-
       end;  //if (Rs_Cb in ColNames) or (n_Cb in ColNames) then
 
 
@@ -6299,10 +3622,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         dat[ord(n_El)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
         dat[ord(Is_El)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
         dat[ord(Fb_El)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-//----------------------------------
-       ExKalk(1,Vax,D[diEx],Rsmy,Diod,nmyE,GraphParameters.I0,FbmyE);
-       ExKalk_nconst(1,Vax,D[diEx],Diod,Rsmy,nmy,GraphParameters.I0,Fbmy);
-//----------------------------------
       end;
 
      // обчислення за методом Бохліна
@@ -6315,14 +3634,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       dat[ord(n_Bh)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
       dat[ord(Is_Bh)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
       dat[ord(Fb_Bh)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-//--------------------------
-      BohlinKalk(Vax,D[diNord],Diod,1.6,1.9,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      Fbmy:=GraphParameters.Fb;
-      nnn:='Bohl';
-//---------------------------
-
       end;
 
      // обчислення за методом Лі
@@ -6334,13 +3645,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       dat[ord(n_Lee)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
       dat[ord(Is_Lee)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
       dat[ord(Fb_Lee)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-//--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      Fbmy:=GraphParameters.Fb;
-      nnn:='Lee';
-//---------------------------
-
       end;
 
      //Обчислення за методом Міхелашвілі
@@ -6352,13 +3656,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       dat[ord(n_Mk)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
       dat[ord(Is_Mk)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
       dat[ord(Fb_Mk)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
-//--------------------------
-      Rsmy:=GraphParameters.Rs;
-      nmy:=GraphParameters.n;
-      Fbmy:=GraphParameters.Fb;
-      nnn:='Mikh';
-//---------------------------
-
       end;
 
    //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
@@ -6395,11 +3692,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
             dat[ord(Voc_ExN)]:='0';
             dat[ord(FF_ExN)]:='0';
           end;
-
-          Rsmy:=EvolParam[1];
-          nmy:=EvolParam[0];
-          Fbmy:=EvolParam[4];
-          nnn:='LSM';
 
       end;
 
@@ -6438,55 +3730,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
             dat[ord(Voc_Lam)]:='0';
             dat[ord(FF_Lam)]:='0';
           end;
-
-          Rsmy:=EvolParam[1];
-          nmy:=EvolParam[0];
-          Fbmy:=EvolParam[4];
-          nnn:='Lam';
-
- //  Str1:=TStringList.Create;
-
-
-// str:=floattostrf(Vax^.T,ffGeneral,4,1);
-{ SetCurrentDir('D:\Oleg\SAMPLE\LH\LH1\Final\temper1\S\');
- Read_File(Inttostr(round(abs(10*Volt[ij])))+'s.dat',Vax2);
- a:=abs(ChisloY(Vax2,Vax^.T));
- b:=abs(ChisloY(Vax,abs(Volt[ij])));
-    if not((a=ErResult)or(b<1e-9)or(b>0.01)or(a=0))
-        then
-         begin
-         SetLenVector(Vax3,Vax3^.n+1);
-         Vax3^.X[Vax3^.n-1]:=Vax^.T;
-         Vax3^.Y[Vax3^.n-1]:=(b-a)/a;
-         end;
-{ for i:= 0 to High(Volt) do
-   begin
-   SetCurrentDir('D:\Oleg\SAMPLE\LH\LH1\Final\temper1\S\');
-   Read_File(Inttostr(round(abs(10*Volt[i])))+'s.dat',Vax2);
-
-   a:=abs(ChisloY(Vax2,Vax^.T));
-   b:=abs(ChisloY(Vax,abs(Volt[i])));
-   if (a=ErResult)or(b<1e-9)or(b>0.01)
-        then str:=str+' 0'
-        else str:=str+' '+FloatToStrF((b-a)/a,ffExponent,4,0);
-
-   end;
-  Str1.Add(str);}
-
-{  SetCurrentDir(CurDirectory);
-{   for i:=2 to 41 do
-     begin
-   Str1.Add(FloatToStrF(i*0.1,ffExponent,4,0)+' '+
-       FloatToStrF(RevZrizSCLC(1/(Vax^.T*Kb),-Tpow,II01[i],IA[i])+
-                   RevZrizFun(1/(Vax^.T*Kb),2,II02[i],IE[i]),
-                       ffExponent,4,0));
-
-     end;
-
-  Str1.SaveToFile(ShotName+'tt.dat');}
-//  Str1.SaveToFile('del_rev.dat');
-//  Str1.Free;
-
       end;
 
 
@@ -6526,12 +3769,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
             dat[ord(Voc_DE)]:='0';
             dat[ord(FF_DE)]:='0';
           end;
-
-          Rsmy:=EvolParam[1];
-          nmy:=EvolParam[0];
-          Fbmy:=EvolParam[4];
-          nnn:='MABC';
-
       end;
 
 
@@ -6586,86 +3823,17 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
       FitFunction.Fitting(Vax2,EvolParam);
 
-//      Fit.Fitting(Vax,EvolParam);
       dispose(Vax2);
       for i:=0 to High(FitFunction.Xname) do
         dat[ord(High(TColName))+1+i]:=
            FloatToStrF(EvolParam[i],ffExponent,4,3);
 
-//      showmessage(inttostr(ord(High(TColName))+1+High(Fit.Xname)+1));
-//      for i:=0 to High(Fit.DodXname) do
-//        dat[ord(High(TColName))+1+High(Fit.Xname)+1+i]:=
-//           FloatToStrF(Fit.DodX[i],ffExponent,4,3);
-
-//   fff:=TPhonAsTunAndTE2_kT1.Create;
-//    TT:=125;
-//    repeat
-//     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],EvolParam[3]);
-//     Ipat:=fff.PhonAsTun(0.5*Volt[i],1/Kb/TT,EvolParam);
-//     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-//           FloatToStrF(TT,ffExponent,4,0)+' '+
-//           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
-//           FloatToStrF(Ite,ffExponent,4,0)+' '+
-//           FloatToStrF(Ipat,ffExponent,4,0)+' '+
-//           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
-//     TT:=TT+5;
-//    until (TT>330);
-//   fff.Free;
-
-
       FitFunction.Free;
      end;
 
-// if Rsmy=ErResult then Continue;
-// if abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T))>100 then  Continue;
 
 
- temp_str:=dat[ord(Tem)]+' '+
-             FloatToStrF(Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Rsmy,ffExponent,5,4)+' '+
-             FloatToStrF((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)),ffExponent,5,4)+' '+
-             FloatToStrF(Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(Fbmy,ffExponent,5,4)+' '+
-             FloatToStrF((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4);
 
-     Rsmyk:=Rsmyk+ln(abs((Rsmy-Rs_T(Vax^.T))/Rs_T(Vax^.T)));
-     Fbmyk:=Fbmyk+ln(abs((Fbmy-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-     inc(Nf);
-
-
-     nameBool:=(nnn='Kam1')or(nnn='Kam2')or(nnn='Wer')or(nnn='Cib');
-
-     if nameBool then
-      temp_str:=temp_str+' '+
-             FloatToStrF(FbmyE,ffExponent,5,4)+' '+
-             FloatToStrF((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)),ffExponent,5,4);
-
-
-  if not(nnn='Nord') then
-           begin
-       temp_str:=temp_str+' '+
-             FloatToStrF(n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(nmy,ffExponent,5,4)+' '+
-             FloatToStrF((nmy-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmy-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4);
-       nmyk:=nmyk+ln(abs((nmy-n_T(Vax^.T))/n_T(Vax^.T)));
-           end;
-
-     if nameBool then
-       begin
-      temp_str:=temp_str+' '+
-             FloatToStrF(nmyE,ffExponent,5,4)+' '+
-             FloatToStrF((nmyE-n_T(Vax^.T))/n_T(Vax^.T),ffExponent,5,4)+' '+
-             FloatToStrF(sqr((nmyE-n_T(Vax^.T))/n_T(Vax^.T)),ffExponent,5,4);
-     nmyEk:=nmyEk+ln(abs((nmyE-n_T(Vax^.T))/n_T(Vax^.T)));
-     FbmyEk:=FbmyEk+ln(abs((FbmyE-Fb_T(Vax^.T))/Fb_T(Vax^.T)));
-
-
-       end;
-  Str1.Add(temp_str);
 
     i:=0;
     for CL:=Low(CL) to High(CL) do
@@ -6679,12 +3847,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      begin
       FunCreate(LDateFun.Caption,FitFunction);
 
-//      for i:=0 to High(Fit.DodXname) do
-//        StrGridData.Cells[StrGridData.ColCount-2-i,StrGridData.RowCount-1]:=
-//           dat[High(dat)-i];
       for i:=0 to High(FitFunction.Xname) do
-        StrGridData.Cells[StrGridData.ColCount-2{-High(Fit.DodXname)-1}-i,StrGridData.RowCount-1]:=
-           dat[High(dat){-High(Fit.DodXname)-1}-i];
+        StrGridData.Cells[StrGridData.ColCount-2-i,StrGridData.RowCount-1]:=
+           dat[High(dat)-i];
       FitFunction.Free;
      end;
 
@@ -6709,119 +3874,22 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     dispose(Vax);
 
     FindClose(SR);
-//    MessageDlg('File dates.dat was created sucsesfully', mtInformation,[mbOk],0);
     if T_bool then MessageDlg('Some data can be equal 555 because temperuture is undefined', mtInformation,[mbOk],0);
   end
                                      else
           MessageDlg('No *.dat file in current directory', mtError,[mbOk],0);
-//kkkkkkkkkkkkkkkkkkkkkkkk
-{  Sorting(Vax3);
-  Smoothing (Vax3,Vax4);
-  Smoothing (Vax4,Vax3);
-  Smoothing (Vax3,Vax4);
-  a:=Ceil(Vax4^.X[0]/5)*5;
-  SetLenVector(Vax3,0);
-  repeat
-    SetLenVector(Vax3,Vax3^.n+1);
-    Vax3^.x[Vax3^.n-1]:=a;
-    Vax3^.Y[Vax3^.n-1]:=ChisloY(Vax4,a);
-    a:=a+5;
-  until (a>Vax4^.x[High(Vax4^.x)]);
-//  IVchar(Vax4,Vax3);
-{  if ij=0 then
-    begin
-      str:='R';
-      for j:= High(Vax3^.X) downto 0 do
-        str:=str+' T'+IntToStr(round(Vax3^.X[j]));
-      Str1.Add(str);
-    end;
-
-  str:=floattostrf(abs(Volt[ij]),ffGeneral,2,1);
-  for j:= High(Vax3^.X) downto 0 do
-    begin
-    str:=str+' '+FloatToStrF(Vax3^.Y[j],ffExponent,4,0);
-//    if j=0 then showmessage(floattostr(Volt[ij]));
-    end;
-  Str1.Add(str);
-    {}
-{      for j:= 0 to High(Vax3^.X) do
-    Str1.Add(FloatToStrF(Vax3^.X[j],ffExponent,4,0)+' '+
-             FloatToStrF(Vax3^.Y[j],ffExponent,4,0));
-   Str1.SaveToFile('vv'+IntTostr(round(abs(10*Volt[ij])))+'.dat');
- {}
-
-{  end;}
-//kkkkkkkkkkkkkkkkkkkkkkk
-//  dispose(Vax2);
-//  dispose(Vax3);
-//  dispose(Vax4);
-
- if (nnn='Nord') then
-   temp_str:='T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2';
-
- if nameBool then
-   temp_str:='T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 Fb'+nnn+
-            'Exp delFbE delFb2E n n'+nnn+' deln deln2 n'+nnn+'Exp delnE deln2E';
-
- if (not(nameBool))and(not(nnn='Nord')) then
-   temp_str:='T Rs Rs'+nnn+' delRs delRs2 Fb Fb'+nnn+' delFb delFb2 n n'+nnn+' deln deln2 ';
-
-  Str1.Insert(0,temp_str);
-
-
-//  Str1.SaveToFile(nnn+'_'+
-//                 copy(CurDirectory,
-//                 LastDelimiter ('\',CurDirectory)+1,
-//                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-//                  '.dat');
-
-  Str1.Clear;
-
-  if (nnn='Nord') then
-    begin
-  Str1.Add('Rs'+nnn+'   Fb'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4));
-    end;
-
- if nameBool then
-   begin
-
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn+'   FbE'+nnn+'   nE'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(FbmyEk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyEk/Nf),ffExponent,5,4));
-   end;
-
- if (not(nameBool))and(not(nnn='Nord')) then
-  begin
-  Str1.Add('Rs'+nnn+'   Fb'+nnn+'   n'+nnn);
-  str1.Add(FloatToStrF(exp(Rsmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(Fbmyk/Nf),ffExponent,5,4)
-      +' '+FloatToStrF(exp(nmyk/Nf),ffExponent,5,4));
-  end;
-
-//  Str1.SaveToFile(nnn+'_E_'+
-//                 copy(CurDirectory,
-//                 LastDelimiter ('\',CurDirectory)+1,
-//                 length(CurDirectory)-LastDelimiter ('\',CurDirectory))+
-//                 '.dat');
-  Str1.Free;
 end;
 
 procedure TForm1.ButtonCreateFileClick(Sender: TObject);
 var
   SR : TSearchRec;
-  {mask,}ShotName:string;
+  ShotName:string;
   Vax, tempVax:Pvector;
   j:integer;
   T_bool:boolean;
   Inform:TStringList;
   F:TextFile;
   DR:TDirName;
-//  ttt:Pvector;
 begin
 T_bool:=False;
 if not(SetCurrentDir(CurDirectory)) then
@@ -6829,7 +3897,6 @@ if not(SetCurrentDir(CurDirectory)) then
    MessageDlg('Current directory is not exist', mtError,[mbOk],0);
    Exit;
    end;
-//mask:='*.dat';
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
     new(Vax);
@@ -6849,7 +3916,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
     repeat
      ShotName:=AnsiUpperCase(SR.name);
-//     if ShotName[length(ShotName)-4]<>'N' then Continue;
      Read_File(SR.name,Vax);
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
@@ -7002,145 +4068,49 @@ end;
 
 
 procedure TForm1.ButtonKalkClick(Sender: TObject);
+ var tg:TGraph;
 begin
 LabelKalk1.Visible:=False;
 LabelKalk2.Visible:=False;
 LabelKalk3.Visible:=False;
-GraphParameters.Rs:=ErResult;
-GraphParameters.n:=ErResult;
-GraphParameters.Fb:=ErResult;
-GraphParameters.Krec:=ErResult;
+GraphParameters.Clear;
+
+ tg:=ConvertStringToTGraph(CBKalk);
 
 if VaxFile^.T<=0 then
  begin
-  case CBKalk.ItemIndex of
-   0: ;
-   {не вибрано спосіб апроксимції}
-   1,7,8,9,12,13,15: MessageDlg('Only Rs can be calculated by this method,'+#10+#13+
+  if tg in [fnCheung,fnKaminskii1,fnKaminskii2,
+            fnGromov1, fnCibils, fnLee, fnMikhelashvili] then
+     MessageDlg('Only Rs can be calculated by this method,'+#10+#13+
                 'because T is undefined',mtError, [mbOK], 0);
    {вибрано або метод Чюнга, або Камінського І та ІІ роду,
     або Громова І роду, або Сібілса, або Лі, або Міхелашвілі}
-   2,3,4,5,10,11,14,16,17,18,19,20:
-   {вибрано інший метод, де без температури нічого порахувати не можна}
+   if tg in [fnH, fnNorde,fnDiodVerySimple,
+             fnDiodLSM,fnGromov2,fnBohlin,
+             fnDLdensityIvanov,fnWerner,
+             fnDiodLambert,fnDiodEvolution,
+             fnExpForwardRs,fnExpReverseRs] then
       begin
        MessageDlg('Anything can not be calculated by this method,'+#10+#13+
                 'because T is undefined',mtError, [mbOK], 0);
        Exit;
       end;
-  end; //case
  end;  // if VaxFile^.T<=0 then
 
-case CBKalk.ItemIndex of
- 2,3:      GraphParameters.n:=nDefineCB(VaxFile,Form1.ComboBoxN,Form1.ComboBoxN_Rs);
- {4,}5,17,18:GraphParameters.Rs:=RsDefineCB(VaxFile,Form1.ComboBoxRs,Form1.ComboBoxRs_n);
- 16:       GraphParameters.Rs:=RsDefineCB(VaxFile,ComboBoxNssRs,ComboBoxNssRs_n);
-end;
+
+ if tg=fnDLdensityIvanov then
+   RsDefineCB(VaxFile,ComboBoxNssRs,ComboBoxNssRs_n);
+ if tg in [fnH,fnNorde] then
+   nDefineCB(VaxFile,Form1.ComboBoxN,Form1.ComboBoxN_Rs);
+ if tg in [fnDiodVerySimple,fnExpForwardRs,fnExpReverseRs] then
+     RsDefineCB(VaxFile,Form1.ComboBoxRs,Form1.ComboBoxRs_n);
 
 //QueryPerformanceCounter(StartValue);
 
+ GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
+ GraphParameterCalculation(VaxFile,tg);
 
-case CBKalk.ItemIndex of
-  0: ; //не вибрано спосіб апроксамації
- //-------------------------------------------
-  1: // обчислення за функцією Чюнга
-    ChungKalk(VaxFile,D[diChung],GraphParameters.Rs,GraphParameters.n);
- //-------------------------------------------------------------
-   2:  // обчислення за Н-функцією
-      HFunKalk(VaxFile,D[diHfunc],Diod,GraphParameters.n,GraphParameters.Rs,GraphParameters.Fb);
- //--------------------------------------------------------------
-   3:   // обчислення за функцією Норда
-    NordKalk(VaxFile,D[diNord],Diod,GraphParameters.Gamma,GraphParameters.n,
-      GraphParameters.Rs,GraphParameters.Fb);
-//---------------------------------------------------------------
-   4: //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-     begin
-        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
-                   else FitFunction:=TDiodLSM.Create;
-        FitFunction.FittingDiapazon(VaxFile,EvolParam,D[diExp]);
-        FitFunction.Free;
-        GraphParameters.Rs:=EvolParam[1];
-        GraphParameters.n:=EvolParam[0];
-        if GraphParameters.Iph_Exp then GraphParameters.Fb:=ErResult
-                   else GraphParameters.Fb:=EvolParam[4];
-     end;
 
-//    ExpKalkNew(VaxFile,D[diExp],Mode_Exp,Iph_Exp,0,AA,Sk,nn,I00,Fbb,Rss,Rsh,Iph,Voc,Isc,Pm,FF);
-{   I=I0(exp(V/nkT)-1)
-     ExpKalk(VaxFile,D[diExp],Rss,AA,Sk,ApprExp,nn,I00,Fbb);}
-//------------------------------------------------------------
-   5: //обчислення шляхом апроксимації І=I0exp(V/nkT)
-     ExKalk(1,VaxFile,D[diEx],GraphParameters.Rs,Diod,
-        GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-//------------------------------------------------------------
-  6: //Обчислення коефіцієнту випрямлення
-     GraphParameters.Krec:=Krect(VaxFile,GraphParameters.Vrect);
-//----------------------------------------------------------
-  7: //Обчислення за функцією Камінськи І-роду
-   Kam1Kalk(VaxFile,D[diKam1],GraphParameters.Rs,GraphParameters.n);
- //--------------------------------------------------------
-  8: //Обчислення за функцією Камінськи ІІ-роду
-   Kam2Kalk(VaxFile,D[diKam2],GraphParameters.Rs,GraphParameters.n);
- //--------------------------------------------------------
-  9: //Обчислення за методом Громова І-роду
-   Gr1Kalk (VaxFile,D[diGr1],Diod,GraphParameters.Rs,GraphParameters.n,
-     GraphParameters.Fb,GraphParameters.I0);
- //--------------------------------------------------------
-  10: //Обчислення за методом Громова ІI-роду
-   Gr2Kalk (VaxFile,D[diGr2],Diod,GraphParameters.Rs,GraphParameters.n,
-   GraphParameters.Fb,GraphParameters.I0);
- //--------------------------------------------------------
-  11: //Обчислення за методом Бохліна
-   BohlinKalk(VaxFile,D[diNord],Diod,GraphParameters.Gamma1,
-   GraphParameters.Gamma2,GraphParameters.Rs,GraphParameters.n,
-   GraphParameters.Fb,GraphParameters.I0);
- //--------------------------------------------------------
-  12: //Обчислення за методом Сібілса
-   CibilsKalk(VaxFile,D[diCib],GraphParameters.Rs,GraphParameters.n);
- //--------------------------------------------------------
-  13: //Обчислення за методом Лі
-   LeeKalk (VaxFile,D[diLee],Diod,GraphParameters.Rs,GraphParameters.n,
-   GraphParameters.Fb,GraphParameters.I0);
- //--------------------------------------------------------
-  14: //Обчислення за методом Вернера
-   WernerKalk(VaxFile,D[diWer],GraphParameters.Rs,GraphParameters.n);
-//--------------------------------------------------------
-  15: //Обчислення за методом Міхелашвілі
-   MikhKalk (VaxFile,D[diMikh],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-//--------------------------------------------------------
-  16: //Обчислення за методом Іванова
-     IvanovKalk(VaxFile,D[diIvan],GraphParameters.Rs,Diod,GraphParameters.Krec,GraphParameters.Fb);
-//----------------------------------------------------
-   17: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка
-     ExKalk(2,VaxFile,D[diE2F],GraphParameters.Rs,Diod,GraphParameters.n,
-     GraphParameters.I0,GraphParameters.Fb);
-//----------------------------------------------------
-   18: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка
-     ExKalk(3,VaxFile,D[diE2R],GraphParameters.Rs,Diod,
-     GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
-   19:  //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
-      begin
-        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
-        FitFunction.FittingDiapazon(VaxFile,EvolParam,D[diLam]);
-        FitFunction.Free;
-        GraphParameters.Rs:=EvolParam[1];
-        GraphParameters.n:=EvolParam[0];
-        if GraphParameters.Iph_Lam then GraphParameters.Fb:=ErResult
-                   else GraphParameters.Fb:=EvolParam[4];
-      end;
-   20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
-      begin
-        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
-                   else FitFunction:=TDiod.Create;
-        FitFunction.FittingDiapazon(VaxFile,EvolParam,D[diDE]);
-        FitFunction.Free;
-        GraphParameters.Rs:=EvolParam[1];
-        GraphParameters.n:=EvolParam[0];
-        if GraphParameters.Iph_DE then GraphParameters.Fb:=ErResult
-                   else GraphParameters.Fb:=EvolParam[4];
-
-      end;
- end; //case;
 
 //QueryPerformanceCounter(EndValue);
 //QueryPerformanceFrequency(Freq);
@@ -7149,16 +4119,14 @@ case CBKalk.ItemIndex of
 //             +' s'+#10+#13+
 //                'freq+'+inttostr(Freq));
 
-
-case CBKalk.ItemIndex of
- 2,3:         GraphParameters.n:=ErResult;
- 5,17,18:   GraphParameters.Rs:=ErResult;
- 16:begin
+ if tg in [fnH,fnNorde] then GraphParameters.n:=ErResult;
+ if tg in [fnDiodVerySimple,fnExpForwardRs,fnExpReverseRs] then
+      GraphParameters.Rs:=ErResult;
+ if tg=fnDLdensityIvanov then
+    begin
     GraphParameters.n:=ErResult;
     GraphParameters.Rs:=ErResult;
     end;
-end;
-
 
 LabelKalk1.Visible:=(GraphParameters.Rs<>ErResult);
 if LabelKalk1.Visible then
@@ -7173,18 +4141,21 @@ if not(LabelKalk2.Visible) then
  begin
   LabelKalk2.Visible:=(GraphParameters.Krec<>ErResult);
   if LabelKalk2.Visible then
-    case CBKalk.ItemIndex of
-    6:LabelKalk2.Caption:='Krect='+FloatToStrF(GraphParameters.Krec,ffGeneral,3,2);
-    16:LabelKalk2.Caption:='del='+ FloatToStrF(GraphParameters.Krec,ffExponent,2,1)+' m';
+    case tg of
+    fnRectification:LabelKalk2.Caption:='Krect='+FloatToStrF(GraphParameters.Krec,ffGeneral,3,2);
+    fnDLdensityIvanov:LabelKalk2.Caption:='del='+ FloatToStrF(GraphParameters.Krec,ffExponent,2,1)+' m';
     end;
  end;
 end;
 
 procedure TForm1.ButtonKalkParClick(Sender: TObject);
+ var tg:TGraph;
 begin
-case CBKalk.ItemIndex of
-  0: ;//не вибрано спосіб апроксамації
-  6: //Обчислення коефіцієнту випрямлення
+
+tg:=ConvertStringToTGraph(CBKalk);
+
+case tg of
+  fnRectification: //Обчислення коефіцієнту випрямлення
      ButtonParamRectClick(ButtonKalkPar);
   else
    begin
@@ -7242,17 +4213,14 @@ end;
 
 
 procedure TForm1.ButtonParamRectClick(Sender: TObject);
-var st, stHint:string;
 begin
-st:=FloatToStrF(GraphParameters.Vrect,ffGeneral,3,2);
-
-stHint:='Enter rectification voltage Vrec;'+Chr(13)+Chr(13)+
-       'The rectification coeficient' +Chr(13)+
-       'Kr = Iforward(Vrec) / Ireverse(Vrec)'+Chr(13);
-
-st:=InputBox('Input rectification voltage',stHint,st);
-StrToNumber(st, 0.12, GraphParameters.Vrect);
-LabelRect.Caption:=FloatToStrF(GraphParameters.Vrect,ffGeneral,3,2)+' V';
+ InputValueToLabel('Input rectification voltage',
+                   'Enter rectification voltage Vrec;'
+                    +Chr(13)+Chr(13)+
+                   'The rectification coeficient' +Chr(13)+
+                  'Kr = Iforward(Vrec) / Ireverse(Vrec)'+Chr(13),
+                   ffGeneral,
+                   LabelRect,GraphParameters.Vrect);
 end;
 
 
@@ -7269,14 +4237,7 @@ var
   i,j,k:integer;
   F:TextFile;
   Grid:TStringGrid;
-  Cur,Rs:double;
-//  StrRez,StrAppr:TStringList;
-//   Str:TStringList;
-//   TT:double;
-//
-//   fff:TPhonAsTunAndTE2_kT1;
-//  Ite: Double;
-//  Ipat: Double;
+  Cur:double;
 
 
 begin
@@ -7291,8 +4252,6 @@ mask:='*.dat';
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
     new(Vax);
-//    Str:=TStringList.Create;
-//    Str.Add('V T I logI');
       try
       MkDir('Zriz');
       except
@@ -7304,8 +4263,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     k:=1;
     if CheckBoxLnIT2.Checked then k:=k+1;
     if CheckBoxnLnIT2.Checked then k:=k+1;
-//    if CBVoc.Checked then
-
 
     Grid.ColCount:=k*ListBoxVolt.Items.Count+5;
     //************
@@ -7329,7 +4286,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
     repeat
      ShotName:=AnsiUpperCase(SR.name);
-//     if ShotName[length(ShotName)-4]<>'N' then Continue;
      Read_File(SR.name,Vax);
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
@@ -7353,8 +4309,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
                                   FloatToStrF(ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
                          else Grid.Cells[k*i+1+4,Grid.RowCount-1]:='555';
 
-       Rs:=RsDefineCB(Vax,ComBDateExRs,ComBDateExRs_n);
-       ExKalk(1,Vax,D[diEx],Rs,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
+       RsDefineCB(Vax,ComBDateExRs,ComBDateExRs_n);
+       GraphParameters.Diapazon:=D[diEx];
+       ExKalk(1,Vax);
 
        if (CheckBoxnLnIT2.Checked)and(not(CheckBoxLnIT2.Checked)) then
            if ((Vax^.T)>0)and(Cur<>ErResult)and(GraphParameters.n<>ErResult)
@@ -7379,12 +4336,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
    Grid.RowCount:=Grid.RowCount-1;
    SortGrid(Grid,0);
-//   Grid.ColCount:=Grid.ColCount-1;
-
-//   StrRez:=TStringList.Create;
-//   StrAppr:=TStringList.Create;
-//
-//   StrRez.Add('V T I Ite Ipat eIpat');
 
    for I := 0 to High(Volt) do
     begin
@@ -7431,80 +4382,12 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     //************
 
 
-//    if Grid.RowCount<2 then Continue;
-//    SetLenVector(Vax,Grid.RowCount-1);
-//    for j := 1 to Grid.RowCount-1 do
-//      begin
-//       Vax^.X[j-1]:=StrToFloat(Grid.Cells[3,j]);
-//       Vax^.Y[j-1]:=StrToFloat(Grid.Cells[k*i+4,j]);
-//      end;
-//    Sorting (Vax);
-//    for j:= 0 to High(Vax^.X) do
-//      if (Vax^.Y[j]<9e-10)
-//          or(Vax^.X[j]>82.82)
-//              then Break;
-//    if j<Vax^.n-1 then SetLenVector(Vax,j);
-//
-//  Write_File(CurDirectory+'\Zriz\'+
-//       Inttostr(round(abs(10*Volt[i])))+'.dat',Vax);
-//
-//  fff:=TPhonAsTunAndTE2_kT1.Create;
-//  Vax^.name:=Inttostr(round(abs(10*Volt[i])))+'.dat';
-//
-//  fff.Fitting(Vax,EvolParam);
-//
-//    TT:=125;
-//    repeat
-//
-//     Ite:=RevZrizFun(1/Kb/TT,2,EvolParam[2],
-//     Diod.Material.Varshni(EvolParam[3],TT))*
-//     (1-exp(0.5*Volt[i]/Kb/TT));
-//
-//     Ipat:=fff.PhonAsTun(abs(0.5*Volt[i]),1/Kb/TT,EvolParam);
-//     StrRez.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-//           FloatToStrF(TT,ffExponent,4,0)+' '+
-//           FloatToStrF(Ite+Ipat,ffExponent,4,0)+' '+
-//           FloatToStrF(Ite,ffExponent,4,0)+' '+
-//           FloatToStrF(Ipat,ffExponent,4,0)+' '+
-//           FloatToStrF(Ipat/(Ite+Ipat),ffExponent,4,0));
-//     TT:=TT+5;
-//    until (TT>330);
-//   fff.Free;
-//
-//    SetLenVector(Vax,Grid.RowCount-1);
-//    for j := 1 to Grid.RowCount-1 do
-//      begin
-//       Vax^.X[j-1]:=StrToFloat(Grid.Cells[2,j]);
-//       Vax^.Y[j-1]:=StrToFloat(Grid.Cells[k*i+4,j]);
-//      end;
-//    Sorting (Vax,False);
-//    for j:= 0 to High(Vax^.X) do
-//      if Vax^.Y[j]<6e-10 then Break;
-//    if j<Vax^.n-1 then SetLenVector(Vax,j);
-//
-//    SetLenVector(Vax,Vax^.n+1);
-//    Vax^.X[High(Vax^.X)]:=100;
-//    Vax^.Y[High(Vax^.X)]:=1e-15;
-//    Sorting (Vax);
-//    TT:=125;
-//    repeat
-//     Str.Add(FloatToStrF(abs(Volt[i]),ffExponent,4,0)+' '+
-//           FloatToStrF(TT,ffExponent,4,0)+' '+
-//           FloatToStrF(ChisloY(Vax,TT),ffExponent,4,0)+' '+
-//           FloatToStrF(log10(ChisloY(Vax,TT)),ffExponent,4,0));
-//     TT:=TT+5;
-//    until (TT>330);
 
     end;
     dispose(Vax);
     FindClose(SR);
     Grid.Free;
 
-//    StrRez.SaveToFile(CurDirectory+'\Zriz\'+'delta.dat');
-//    StrRez.Free;
-//    StrAppr.Free;
-//    Str.SaveToFile(CurDirectory+'\Zriz\'+'sqr.dat');
-//    Str.Free;
     MessageDlg('Files with current value were created sucsesfully', mtInformation,[mbOk],0);
   end
                                      else
@@ -7630,34 +4513,34 @@ case CBKalk.ItemIndex of
      DiapToLimToTForm1(D[diHfunc],Form1);
   3:   // обчислення за функцією Норда
      DiapToLimToTForm1(D[diNord],Form1);
-  4: //обчислення шляхом апроксимації І=I0(exp(V/nkT)-1)
-     DiapToLimToTForm1(D[diExp],Form1);
-  5: //обчислення шляхом апроксимації І=I0exp(V/nkT)
+//  4: //обчислення шляхом апроксимації І=I0(exp(V/nkT)-1)
+  //   DiapToLimToTForm1(D[diExp],Form1);
+  4: //обчислення шляхом апроксимації І=I0exp(V/nkT)
      DiapToLimToTForm1(D[diEx],Form1);
-  6:; //Обчислення коефіцієнту випрямлення
-  7:; //обчислення за функцією Камінськи І-роду
-  8:; //обчислення за функцією Камінськи ІІ-роду
-  9: //обчислення за методом Громова І-роду
+  5:; //Обчислення коефіцієнту випрямлення
+  6:; //обчислення за функцією Камінськи І-роду
+  7:; //обчислення за функцією Камінськи ІІ-роду
+  8: //обчислення за методом Громова І-роду
      DiapToLimToTForm1(D[diGr1],Form1);
-  10: //обчислення за методом Громова ІI-роду
+  9: //обчислення за методом Громова ІI-роду
      DiapToLimToTForm1(D[diGr2],Form1);
-  12: //обчислення за методом Сібілса
+  11: //обчислення за методом Сібілса
      DiapToLimToTForm1(D[diCib],Form1);
-  13: //обчислення за методом Лі
+  12: //обчислення за методом Лі
      DiapToLimToTForm1(D[diLee],Form1);
-  14: //обчислення за методом Вернера
+  13: //обчислення за методом Вернера
      DiapToLimToTForm1(D[diWer],Form1);
-  15: //обчислення за методом Міхелешвілі
+  14: //обчислення за методом Міхелешвілі
      DiapToLimToTForm1(D[diMikh],Form1);
-  16: //обчислення за методом Іванова
+  15: //обчислення за методом Іванова
      DiapToLimToTForm1(D[diIvan],Form1);
-  17: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка
+  16: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка
      DiapToLimToTForm1(D[diE2F],Form1);
-  18: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка
+  17: //обчислення шляхом апроксимації І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка
      DiapToLimToTForm1(D[diE2R],Form1);
-  19: //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
+  18: //апроксимація І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph функцією Ламберта
      DiapToLimToTForm1(D[diLam],Form1);
-  20: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
+  19: //функція І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, метод differential evolution
      DiapToLimToTForm1(D[diDE],Form1);
   end; //case;
 end;
@@ -7696,29 +4579,6 @@ if CBMarker.Checked then
   end;
 end;
 
-//procedure TForm1.CBMaterialChange(Sender: TObject);
-//var ConfigFile:TIniFile;
-//begin
-//if (Semi.Name=Materials[High(TMaterialName)].Name)
-////MaterialName[High(MaterialName)])
-//     and(Semi.Name<>CBMaterial.Text) then
-//      begin
-//       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
-//       Semi.WriteToIniFile(ConfigFile);
-//       ConfigFile.Free;
-//      end;
-//if (CBMaterial.Text=Materials[High(TMaterialName)].Name)
-//     and(Semi.Name<>CBMaterial.Text) then
-//      begin
-//       Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
-//       ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
-//       Semi.ReadFromIniFile(ConfigFile);
-//       ConfigFile.Free;
-////       Exit;
-//      end;
-//if Semi.Name<>CBMaterial.Text then Semi.ChangeMaterial(TMaterialName(CBMaterial.ItemIndex));
-//MaterialOnForm;
-//end;
 
 
 procedure TForm1.CBoxBaseLineUseClick(Sender: TObject);
@@ -8180,78 +5040,92 @@ Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 якщо у відповідному методі необхідне
 значення n, то воно обчислюється залежно від того,
 що вибрано в CBdod}
-var n_tmp:double;
+var //n_tmp:double;
+    tg:TGraph;
 begin
  Result:=ErResult;
- n_tmp:=ErResult;
- if (CB.ItemIndex>3)and(CB.ItemIndex<6)
-        then
-        begin
-        n_tmp:=nDefineCB_Shot(A,CBdod);
-        if n_tmp=ErResult then Exit;
-        end;
- case CB.ItemIndex of
-    0: //Rs не розраховується
-     Result:=0;
-    1:  //Rs рахується за допомогою функції Чюнга
-     ChungKalk(A,D[diChung],Result,GraphParameters.n);
-    4:  {Rs рахується за допомогою H-функції}
-       HFunKalk(A,D[diHfunc],Diod,n_tmp,Result,GraphParameters.Fb);
-    5: {Rs рахується за допомогою функції Норда}
-       NordKalk(A,D[diNord],Diod,GraphParameters.Gamma,n_tmp,Result,GraphParameters.Fb);
-    2: {Rs рахується за допомогою функції Камінські І-роду}
-       Kam1Kalk (A,D[diKam1],Result,GraphParameters.n);
-    3: {Rs рахується за допомогою функції Камінські IІ-роду}
-       Kam2Kalk (A,D[diKam2],Result,GraphParameters.n);
-    6: {Rs рахується за допомогою виразу Rs=A+B*T}
-       Result:=GraphParameters.RA+GraphParameters.RB*A^.T+GraphParameters.RC*sqr(A^.T);
-    7:{Rs рахується за допомогою методу Громова І-роду}
-       Gr1Kalk (A,D[diGr1],Diod,Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-    8:{Rs рахується за допомогою методу Громова ІI-роду}
-       Gr2Kalk (A,D[diGr2],Diod,Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-    9:{Rs рахується за допомогою методу Бохліна}
-       BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,GraphParameters.Gamma2,
-       Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-    10:{Rs рахується за допомогою методу Сібілса}
-       CibilsKalk(A,D[diCib],Result,GraphParameters.n);
-    11:{Rs рахується за допомогою методу Лі}
-       LeeKalk (A,D[diLee],Diod,Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
-    12:{Rs рахується за допомогою методу Вернера}
-       WernerKalk(A,D[diWer],Result,GraphParameters.n);
-    13:{Rs рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],Diod,Result,GraphParameters.n,GraphParameters.I0,
-       GraphParameters.Fb);
-    14: //Rs рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
+// Rs_tmp:=ErResult;
+
+ tg:=ConvertStringToTGraph(CB);
+ if tg in [fnH,fnNorde] then
      begin
-        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
-                   else FitFunction:=TDiodLSM.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
-        FitFunction.Free;
-        Result:=EvolParam[1];
+      GraphParCalculComBox(A,CBdod);
+      if GraphParameters.n=ErResult then Exit;
      end;
-    15: //Rs рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //функцією Ламберта
-      begin
-        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
-        FitFunction.Free;
-        Result:=EvolParam[1];
-      end;
-    16: //Rs рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //метод differential evolution
-      begin
-        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
-                   else FitFunction:=TDiod.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
-        FitFunction.Free;
-        Result:=EvolParam[1];
-      end;
-    else;
- end; //case
+
+ GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
+ GraphParameterCalculation(A,tg);
+ Result:=GraphParameters.Rs;
+
+// n_tmp:=ErResult;
+// if (CB.ItemIndex>3)and(CB.ItemIndex<6)
+//        then
+//        begin
+//        n_tmp:=nDefineCB_Shot(A,CBdod);
+//        if n_tmp=ErResult then Exit;
+//        end;
+// case CB.ItemIndex of
+//    0: //Rs не розраховується
+//     Result:=0;
+//    1:  //Rs рахується за допомогою функції Чюнга
+//     ChungKalk(A,D[diChung],Result,GraphParameters.n);
+//    4:  {Rs рахується за допомогою H-функції}
+//       HFunKalk(A,D[diHfunc],Diod,n_tmp,Result,GraphParameters.Fb);
+//    5: {Rs рахується за допомогою функції Норда}
+//       NordKalk(A,D[diNord],Diod,GraphParameters.Gamma,n_tmp,Result,GraphParameters.Fb);
+//    2: {Rs рахується за допомогою функції Камінські І-роду}
+//       Kam1Kalk (A,D[diKam1],Result,GraphParameters.n);
+//    3: {Rs рахується за допомогою функції Камінські IІ-роду}
+//       Kam2Kalk (A,D[diKam2],Result,GraphParameters.n);
+//    6: {Rs рахується за допомогою виразу Rs=A+B*T}
+//       Result:=GraphParameters.RA+GraphParameters.RB*A^.T+GraphParameters.RC*sqr(A^.T);
+//    7:{Rs рахується за допомогою методу Громова І-роду}
+//       Gr1Kalk (A,D[diGr1],Diod,Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
+//    8:{Rs рахується за допомогою методу Громова ІI-роду}
+//       Gr2Kalk (A,D[diGr2],Diod,Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
+//    9:{Rs рахується за допомогою методу Бохліна}
+//       BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,GraphParameters.Gamma2,
+//       Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
+//    10:{Rs рахується за допомогою методу Сібілса}
+//       CibilsKalk(A,D[diCib],Result,GraphParameters.n);
+//    11:{Rs рахується за допомогою методу Лі}
+//       LeeKalk (A,D[diLee],Diod,Result,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
+//    12:{Rs рахується за допомогою методу Вернера}
+//       WernerKalk(A,D[diWer],Result,GraphParameters.n);
+//    13:{Rs рахується за допомогою методу Міхелешвілі}
+//       MikhKalk (A,D[diMikh],Diod,Result,GraphParameters.n,GraphParameters.I0,
+//       GraphParameters.Fb);
+//    14: //Rs рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
+//     begin
+//        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+//                   else FitFunction:=TDiodLSM.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
+//        FitFunction.Free;
+//        Result:=EvolParam[1];
+//     end;
+//    15: //Rs рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //функцією Ламберта
+//      begin
+//        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+//                   else FitFunction:=TDiodLam.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+//        FitFunction.Free;
+//        Result:=EvolParam[1];
+//      end;
+//    16: //Rs рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //метод differential evolution
+//      begin
+//        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
+//                   else FitFunction:=TDiod.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+//        FitFunction.Free;
+//        Result:=EvolParam[1];
+//      end;
+//    else;
+// end; //case
 end;
 
 Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;
@@ -8262,69 +5136,71 @@ Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;
 які дозволяють визначити Rs спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
 begin
- Result:=ErResult;
- case CB.ItemIndex of
-    0: //Rs не розраховується
-     Result:=0;
-    1:  //Rs рахується за допомогою функції Чюнга
-     ChungKalk(A,D[diChung],Result,GraphParameters.n);
-    2: {Rs рахується за допомогою функції Камінські І-роду}
-       Kam1Kalk (A,D[diKam1],Result,GraphParameters.n);
-    3: {Rs рахується за допомогою функції Камінські IІ-роду}
-       Kam2Kalk (A,D[diKam2],Result,GraphParameters.n);
-    4: {Rs рахується за допомогою виразу Rs=A+B*T}
-       Result:=GraphParameters.RA+GraphParameters.RB*A^.T+GraphParameters.RC*sqr(A^.T);
-    5:{Rs рахується за допомогою методу Громова І-роду}
-       Gr1Kalk (A,D[diGr1],Diod,Result,GraphParameters.n,GraphParameters.Fb,
-       GraphParameters.I0);
-    6:{Rs рахується за допомогою методу Громова ІI-роду}
-       Gr2Kalk (A,D[diGr2],Diod,Result,GraphParameters.n,
-       GraphParameters.Fb,GraphParameters.I0);
-    7:{Rs рахується за допомогою методу Бохліна}
-       BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,
-       GraphParameters.Gamma2,Result,GraphParameters.n,
-       GraphParameters.Fb,GraphParameters.I0);
-    8:{Rs рахується за допомогою методу Сібілса}
-       CibilsKalk(A,D[diCib],Result,GraphParameters.n);
-    9:{Rs рахується за допомогою методу Лі}
-       LeeKalk (A,D[diLee],Diod,Result,GraphParameters.n,
-       GraphParameters.Fb,GraphParameters.I0);
-    10:{Rs рахується за допомогою методу Вернера}
-       WernerKalk(A,D[diWer],Result,GraphParameters.n);
-    11:{Rs рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],Diod,Result,GraphParameters.n,
-       GraphParameters.I0,GraphParameters.Fb);
-    12: //Rs рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-     begin
-        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
-                   else FitFunction:=TDiodLSM.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
-        FitFunction.Free;
-        Result:=EvolParam[1];
-     end;
-    13: //Rs рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //функцією Ламберта
-      begin
-        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
-        FitFunction.Free;
-        Result:=EvolParam[1];
-      end;
-    14: //Rs рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //метод differential evolution
-      begin
-        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
-                  else FitFunction:=TDiod.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
-        FitFunction.Free;
-        Result:=EvolParam[1];
-      end;
-    else;
- end; //case
+// Result:=ErResult;
+ GraphParCalculComBox(A,CB);
+ Result:=GraphParameters.Rs;
+// case CB.ItemIndex of
+//    0: //Rs не розраховується
+//     Result:=0;
+//    1:  //Rs рахується за допомогою функції Чюнга
+//     ChungKalk(A,D[diChung],Result,GraphParameters.n);
+//    2: {Rs рахується за допомогою функції Камінські І-роду}
+//       Kam1Kalk (A,D[diKam1],Result,GraphParameters.n);
+//    3: {Rs рахується за допомогою функції Камінські IІ-роду}
+//       Kam2Kalk (A,D[diKam2],Result,GraphParameters.n);
+//    4: {Rs рахується за допомогою виразу Rs=A+B*T}
+//       Result:=GraphParameters.RA+GraphParameters.RB*A^.T+GraphParameters.RC*sqr(A^.T);
+//    5:{Rs рахується за допомогою методу Громова І-роду}
+//       Gr1Kalk (A,D[diGr1],Diod,Result,GraphParameters.n,GraphParameters.Fb,
+//       GraphParameters.I0);
+//    6:{Rs рахується за допомогою методу Громова ІI-роду}
+//       Gr2Kalk (A,D[diGr2],Diod,Result,GraphParameters.n,
+//       GraphParameters.Fb,GraphParameters.I0);
+//    7:{Rs рахується за допомогою методу Бохліна}
+//       BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,
+//       GraphParameters.Gamma2,Result,GraphParameters.n,
+//       GraphParameters.Fb,GraphParameters.I0);
+//    8:{Rs рахується за допомогою методу Сібілса}
+//       CibilsKalk(A,D[diCib],Result,GraphParameters.n);
+//    9:{Rs рахується за допомогою методу Лі}
+//       LeeKalk (A,D[diLee],Diod,Result,GraphParameters.n,
+//       GraphParameters.Fb,GraphParameters.I0);
+//    10:{Rs рахується за допомогою методу Вернера}
+//       WernerKalk(A,D[diWer],Result,GraphParameters.n);
+//    11:{Rs рахується за допомогою методу Міхелешвілі}
+//       MikhKalk (A,D[diMikh],Diod,Result,GraphParameters.n,
+//       GraphParameters.I0,GraphParameters.Fb);
+//    12: //Rs рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
+//     begin
+//        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+//                   else FitFunction:=TDiodLSM.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
+//        FitFunction.Free;
+//        Result:=EvolParam[1];
+//     end;
+//    13: //Rs рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //функцією Ламберта
+//      begin
+//        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+//                   else FitFunction:=TDiodLam.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+//        FitFunction.Free;
+//        Result:=EvolParam[1];
+//      end;
+//    14: //Rs рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //метод differential evolution
+//      begin
+//        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
+//                  else FitFunction:=TDiod.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+//        FitFunction.Free;
+//        Result:=EvolParam[1];
+//      end;
+//    else;
+// end; //case
 end;
 
 Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;
@@ -8334,88 +5210,103 @@ Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;
 якщо у відповідному методі необхідне
 значення Rs, то воно обчислюється залежно від того,
 що вибрано в CBdod}
-var Rs_tmp:double;
+var //Rs_tmp:double;
+    tg:TGraph;
 begin
-Result:=ErResult;
-Rs_tmp:=ErResult;
-if CB.ItemIndex in [4,5,13,14] then
+ Result:=ErResult;
+// Rs_tmp:=ErResult;
+
+ tg:=ConvertStringToTGraph(CB);
+
+// if CB.ItemIndex in [4,5,13,14] then
+//     begin
+//     Rs_tmp:=RsDefineCB_Shot(A,CBdod);
+//     if Rs_tmp=ErResult then Exit;
+//     end;
+ if tg in [fnDiodVerySimple,fnExpForwardRs,fnExpReverseRs] then
      begin
-     Rs_tmp:=RsDefineCB_Shot(A,CBdod);
-     if Rs_tmp=ErResult then Exit;
+      GraphParCalculComBox(A,CBdod);
+      if GraphParameters.Rs=ErResult then Exit;
      end;
-case CB.ItemIndex of
-    0: // структура вважається ідеальною
-     Result:=1;
-    1:  //n рахується за допомогою функції Чюнга
-     ChungKalk(A,D[diChung],GraphParameters.Rs,Result);
-    4:  //n рахується за допомогою апроксимації I=I0(exp(V/nkT)-1)
-     ExpKalk(A,D[diExp],Rs_tmp,Diod,ApprExp,Result,GraphParameters.I0,
-     GraphParameters.Fb);
-    5:   //n рахується за допомогою апроксимації I=I0exp(V/nkT)
-     ExKalk(1,A,D[diEx],Rs_tmp,Diod,Result,GraphParameters.I0,GraphParameters.Fb);
-    2: //n рахується за допомогою функції Камінські І-роду
-     Kam1Kalk (A,D[diKam1],GraphParameters.Rs,Result);
-    3: //n рахується за допомогою функції Камінські ІI-роду
-     Kam2Kalk (A,D[diKam2],GraphParameters.Rs,Result);
-    6:{n рахується за допомогою методу Громова І-роду}
-       Gr1Kalk (A,D[diGr1],Diod,GraphParameters.Rs,
-       Result,GraphParameters.Fb,GraphParameters.I0);
-    7:{n рахується за допомогою методу Громова ІI-роду}
-       Gr2Kalk (A,D[diGr2],Diod,GraphParameters.Rs,Result,
-       GraphParameters.Fb,GraphParameters.I0);
-    8:{n рахується за допомогою методу Бохліна}
-       BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,
-       GraphParameters.Gamma2,GraphParameters.Rs,
-       Result,GraphParameters.Fb,GraphParameters.I0);
-    9:{n рахується за допомогою методу Сібілса}
-       CibilsKalk(A,D[diCib],GraphParameters.Rs,Result);
-    10:{n рахується за допомогою методу Лі}
-       LeeKalk (A,D[diLee],Diod,GraphParameters.Rs,Result,
-       GraphParameters.Fb,GraphParameters.I0);
-    11:{n рахується за допомогою методу Вернера}
-       WernerKalk(A,D[diWer],GraphParameters.Rs,Result);
-    12:{n рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],Diod,GraphParameters.Rs,
-       Result,GraphParameters.I0,GraphParameters.Fb);
-    13: {n рахується за допомогою апроксимації
-        І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка}
-       ExKalk(2,A,D[diE2F],Rs_tmp,Diod,Result,GraphParameters.I0,
-       GraphParameters.Fb);
-    14: {n рахується за допомогою апроксимації
-        І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка}
-       ExKalk(3,A,D[diE2R],Rs_tmp,Diod,Result,GraphParameters.I0,
-       GraphParameters.Fb);
-    15: //n рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-     begin
-        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
-                   else FitFunction:=TDiodLSM.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
-        FitFunction.Free;
-        Result:=EvolParam[0];
-     end;
-    16: //n рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //функцією Ламберта
-      begin
-        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
-        FitFunction.Free;
-        Result:=EvolParam[0];
-      end;
-    17: //n рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //метод differential evolution
-      begin
-        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
-                  else FitFunction:=TDiod.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
-        FitFunction.Free;
-        Result:=EvolParam[0];
-      end;
-    else;
- end; //case
+
+ GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
+ GraphParameterCalculation(A,tg);
+ Result:=GraphParameters.n;
+
+//
+//case CB.ItemIndex of
+//    0: // структура вважається ідеальною
+//     Result:=1;
+//    1:  //n рахується за допомогою функції Чюнга
+//     ChungKalk(A,D[diChung],GraphParameters.Rs,Result);
+//    4:  //n рахується за допомогою апроксимації I=I0(exp(V/nkT)-1)
+//     ExpKalk(A,D[diExp],Rs_tmp,Diod,ApprExp,Result,GraphParameters.I0,
+//     GraphParameters.Fb);
+//    5:   //n рахується за допомогою апроксимації I=I0exp(V/nkT)
+//     ExKalk(1,A,D[diEx],Rs_tmp,Diod,Result,GraphParameters.I0,GraphParameters.Fb);
+//    2: //n рахується за допомогою функції Камінські І-роду
+//     Kam1Kalk (A,D[diKam1],GraphParameters.Rs,Result);
+//    3: //n рахується за допомогою функції Камінські ІI-роду
+//     Kam2Kalk (A,D[diKam2],GraphParameters.Rs,Result);
+//    6:{n рахується за допомогою методу Громова І-роду}
+//       Gr1Kalk (A,D[diGr1],Diod,GraphParameters.Rs,
+//       Result,GraphParameters.Fb,GraphParameters.I0);
+//    7:{n рахується за допомогою методу Громова ІI-роду}
+//       Gr2Kalk (A,D[diGr2],Diod,GraphParameters.Rs,Result,
+//       GraphParameters.Fb,GraphParameters.I0);
+//    8:{n рахується за допомогою методу Бохліна}
+//       BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,
+//       GraphParameters.Gamma2,GraphParameters.Rs,
+//       Result,GraphParameters.Fb,GraphParameters.I0);
+//    9:{n рахується за допомогою методу Сібілса}
+//       CibilsKalk(A,D[diCib],GraphParameters.Rs,Result);
+//    10:{n рахується за допомогою методу Лі}
+//       LeeKalk (A,D[diLee],Diod,GraphParameters.Rs,Result,
+//       GraphParameters.Fb,GraphParameters.I0);
+//    11:{n рахується за допомогою методу Вернера}
+//       WernerKalk(A,D[diWer],GraphParameters.Rs,Result);
+//    12:{n рахується за допомогою методу Міхелешвілі}
+//       MikhKalk (A,D[diMikh],Diod,GraphParameters.Rs,
+//       Result,GraphParameters.I0,GraphParameters.Fb);
+//    13: {n рахується за допомогою апроксимації
+//        І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка}
+//       ExKalk(2,A,D[diE2F],Rs_tmp,Diod,Result,GraphParameters.I0,
+//       GraphParameters.Fb);
+//    14: {n рахується за допомогою апроксимації
+//        І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка}
+//       ExKalk(3,A,D[diE2R],Rs_tmp,Diod,Result,GraphParameters.I0,
+//       GraphParameters.Fb);
+//    15: //n рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
+//     begin
+//        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
+//                   else FitFunction:=TDiodLSM.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
+//        FitFunction.Free;
+//        Result:=EvolParam[0];
+//     end;
+//    16: //n рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //функцією Ламберта
+//      begin
+//        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+//                   else FitFunction:=TDiodLam.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+//        FitFunction.Free;
+//        Result:=EvolParam[0];
+//      end;
+//    17: //n рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //метод differential evolution
+//      begin
+//        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
+//                  else FitFunction:=TDiod.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+//        FitFunction.Free;
+//        Result:=EvolParam[0];
+//      end;
+//    else;
+// end; //case
 end;
 
 Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;
@@ -8426,11 +5317,8 @@ Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;
 які дозволяють визначити n спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
 begin
-Result:=ErResult;
+//Result:=ErResult;
 GraphParCalculComBox(A,CB);
-//tg:=ConvertStringToTGraph(CB);
-//GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
-//GraphParameterCalculation(A,tg);
 Result:=GraphParameters.n;
 
 //case CB.ItemIndex of
@@ -8503,73 +5391,77 @@ Function FbDefineCB(A:PVector; CB:TComboBox; Rs:double):double;
 яке використовується як параметр}
 begin
 Result:=ErResult;
-if (Rs=ErResult) and (CB.ItemIndex in [1,2]) then Exit;
+//if (Rs=ErResult) and (CB.ItemIndex in [1,2]) then Exit;
+if (GraphParameters.Rs=ErResult)
+  and (CB.Items[CB.ItemIndex]=GraphLabel[fnDiodVerySimple]) then Exit;
+ GraphParCalculComBox(A,CB);
+ Result:=GraphParameters.Fb;
 
-case CB.ItemIndex of
-    0: {Fb рахується за допомогою функції Норда}
-     NordKalk(A,D[diNord],Diod,GraphParameters.Gamma,GraphParameters.n,
-     GraphParameters.Rs,Result);
-    1: //Fb рахується за допомогою апроксимації I=I0(exp(V/nkT)-1)
-     ExpKalk(A,D[diExp],Rs,Diod,ApprExp,GraphParameters.n,
-     GraphParameters.I0,Result);
-    2: //Fb рахується за допомогою апроксимації I=I0exp(V/nkT)
-     ExKalk(1,A,D[diEx],Rs,Diod,GraphParameters.n,GraphParameters.I0,Result);
-    3:{Fb рахується за допомогою методу Громова І-роду}
-      Gr1Kalk (A,D[diGr1],Diod,GraphParameters.Rs,GraphParameters.n,
-      Result,GraphParameters.I0);
-    4:{Fb рахується за допомогою методу Громова ІI-роду}
-      Gr2Kalk (A,D[diGr2],Diod,GraphParameters.Rs,GraphParameters.n,
-      Result,GraphParameters.I0);
-    5:{Fb рахується за допомогою методу Бохліна}
-      BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,
-      GraphParameters.Gamma2,GraphParameters.Rs,GraphParameters.n,
-      Result,GraphParameters.I0);
-    6:{Fb рахується за допомогою методу Лі}
-      LeeKalk (A,D[diLee],Diod,GraphParameters.Rs,GraphParameters.n,
-      Result,GraphParameters.I0);
-    7:{Fb рахується за допомогою методу Міхелешвілі}
-       MikhKalk (A,D[diMikh],Diod,GraphParameters.Rs,GraphParameters.n,
-       GraphParameters.I0,Result);
-    8: {Fb рахується за допомогою апроксимації
-        І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка}
-      ExKalk(2,A,D[diE2F],Rs,Diod,GraphParameters.n,GraphParameters.I0,Result);
-    9: {Fb n рахується за допомогою апроксимації
-        І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка}
-      ExKalk(3,A,D[diE2R],Rs,Diod,GraphParameters.n,GraphParameters.I0,Result);
-    10: //Fb рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-      begin
-        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
-        FitFunction.Free;
-        if GraphParameters.Iph_Exp then Result:=ErResult
-                   else Result:=EvolParam[4];
-      end;
-    11: //Fb рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //функцією Ламберта
-      begin
-        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
-        FitFunction.Free;
-        if GraphParameters.Iph_Lam then Result:=ErResult
-                   else Result:=EvolParam[4];
-      end;
-    12: //Fb рахується шляхом апроксимації
-      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-      //метод differential evolution
-      begin
-        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
-                  else FitFunction:=TDiod.Create;
-        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
-        FitFunction.Free;
-        if GraphParameters.Iph_DE then Result:=ErResult
-                  else Result:=EvolParam[4];
-      end;
-    else;
- end; //case
+//case CB.ItemIndex of
+//    0: {Fb рахується за допомогою функції Норда}
+//     NordKalk(A,D[diNord],Diod,GraphParameters.Gamma,GraphParameters.n,
+//     GraphParameters.Rs,Result);
+//    1: //Fb рахується за допомогою апроксимації I=I0(exp(V/nkT)-1)
+//     ExpKalk(A,D[diExp],Rs,Diod,ApprExp,GraphParameters.n,
+//     GraphParameters.I0,Result);
+//    2: //Fb рахується за допомогою апроксимації I=I0exp(V/nkT)
+//     ExKalk(1,A,D[diEx],Rs,Diod,GraphParameters.n,GraphParameters.I0,Result);
+//    3:{Fb рахується за допомогою методу Громова І-роду}
+//      Gr1Kalk (A,D[diGr1],Diod,GraphParameters.Rs,GraphParameters.n,
+//      Result,GraphParameters.I0);
+//    4:{Fb рахується за допомогою методу Громова ІI-роду}
+//      Gr2Kalk (A,D[diGr2],Diod,GraphParameters.Rs,GraphParameters.n,
+//      Result,GraphParameters.I0);
+//    5:{Fb рахується за допомогою методу Бохліна}
+//      BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,
+//      GraphParameters.Gamma2,GraphParameters.Rs,GraphParameters.n,
+//      Result,GraphParameters.I0);
+//    6:{Fb рахується за допомогою методу Лі}
+//      LeeKalk (A,D[diLee],Diod,GraphParameters.Rs,GraphParameters.n,
+//      Result,GraphParameters.I0);
+//    7:{Fb рахується за допомогою методу Міхелешвілі}
+//       MikhKalk (A,D[diMikh],Diod,GraphParameters.Rs,GraphParameters.n,
+//       GraphParameters.I0,Result);
+//    8: {Fb рахується за допомогою апроксимації
+//        І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка}
+//      ExKalk(2,A,D[diE2F],Rs,Diod,GraphParameters.n,GraphParameters.I0,Result);
+//    9: {Fb n рахується за допомогою апроксимації
+//        І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка}
+//      ExKalk(3,A,D[diE2R],Rs,Diod,GraphParameters.n,GraphParameters.I0,Result);
+//    10: //Fb рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
+//      begin
+//        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLam.Create
+//                   else FitFunction:=TDiodLam.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+//        FitFunction.Free;
+//        if GraphParameters.Iph_Exp then Result:=ErResult
+//                   else Result:=EvolParam[4];
+//      end;
+//    11: //Fb рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //функцією Ламберта
+//      begin
+//        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
+//                   else FitFunction:=TDiodLam.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
+//        FitFunction.Free;
+//        if GraphParameters.Iph_Lam then Result:=ErResult
+//                   else Result:=EvolParam[4];
+//      end;
+//    12: //Fb рахується шляхом апроксимації
+//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//      //метод differential evolution
+//      begin
+//        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
+//                  else FitFunction:=TDiod.Create;
+//        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
+//        FitFunction.Free;
+//        if GraphParameters.Iph_DE then Result:=ErResult
+//                  else Result:=EvolParam[4];
+//      end;
+//    else;
+// end; //case
 end;
 
 
@@ -9441,30 +6333,11 @@ if ((Sender as TButton).Name='ButtonParamDE') then Result:=diDE;
 
 if ((Sender as TButton).Name='ButtonKalkPar') then
   begin
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Cibils' then Result:=diCib;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Cheung' then Result:=diChung;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='If/[1-exp(-qVf/kT)]' then Result:=diE2F;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Ir/[1-exp(-qVr/kT)]' then Result:=diE2R;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Ivanov' then Result:=diIvan;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Werner' then Result:=diWer;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='H-function' then Result:=diHfunc;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Mikhelashvili' then Result:=diMikh;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Lee' then Result:=diLee;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Gromov I' then Result:=diGr1;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Gromov II' then Result:=diGr2;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Kaminskii I' then Result:=diKam1;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Kaminskii II' then Result:=diKam2;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='I=I0exp(eV/nkT)' then Result:=diEx;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Norde' then Result:=diNord;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Bohlin' then
-                                          begin
-                                            Result:=diNord;
-                                            bohlin:=true;
-                                          end;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='I=I0[exp(Vef/E)-1]+Vef/Rsh-Iph' then Result:=diExp;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Lambert function' then Result:=diLam;
-   if Form1.CBKalk.Items[Form1.CBKalk.ItemIndex]='Evolution Algorithm' then Result:=diDE;
+   Result:=ConvertTGraphToTDiapazons(ConvertStringToTGraph(Form1.CBKalk));
+   if Result=diNord then bohlin:=true;
   end;
+
+
 end;
 
 procedure TForm1.FormDpKeyPress(Sender: TObject; var Key: Char);
