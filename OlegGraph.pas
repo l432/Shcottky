@@ -160,17 +160,8 @@ const
  'Rect.Koef'
  );
 
-//  CBKalk.Items.Add('I=I0[exp(Vef/E)-1]+Vef/Rsh-Iph')= 'Full Diod';
-//  CBKalk.Items.Add('Lambert function')=;'Lambert Diod'
-//  CBKalk.Items.Add('Evolution Algorithm')='Evolution Diod';
-
-//  ComboBoxRS_n.Items.Add();
-//  ComboBoxRS_n.Items.Add('Lambert');
-//  ComboBoxRS_n.Items.Add('Dif Evol');
-
 var
   GraphParameters:TGraphParameters;
-//  tg:TGraph;
 
 Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
 

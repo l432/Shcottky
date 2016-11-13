@@ -18,14 +18,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 120
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -5149,7 +5149,7 @@ object Form1: TForm1
         OnClick = YLogCheckClick
       end
       object GrType: TPanel
-        Left = 621
+        Left = 610
         Top = 313
         Width = 77
         Height = 66
@@ -5460,12 +5460,12 @@ object Form1: TForm1
         Top = -1
         Width = 486
         Height = 107
-        HorzScrollBar.Position = 83
+        HorzScrollBar.Position = 1005
         Color = clInfoBk
         ParentColor = False
         TabOrder = 11
         object GroupBox1: TGroupBox
-          Left = -84
+          Left = -1006
           Top = -1
           Width = 1530
           Height = 88
@@ -6149,6 +6149,15 @@ object Form1: TForm1
         TabOrder = 13
         WordWrap = True
         OnClick = ButInputTClick
+      end
+      object ButSave: TButton
+        Left = 693
+        Top = 332
+        Width = 60
+        Height = 25
+        Caption = 'Save'
+        TabOrder = 14
+        OnClick = ButSaveClick
       end
     end
     object TabSheet3: TTabSheet

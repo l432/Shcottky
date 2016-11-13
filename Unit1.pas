@@ -839,6 +839,7 @@ type
     CBDLFunction: TComboBox;
     STDLFunction: TStaticText;
     CBBaseAuto: TCheckBox;
+    ButSave: TButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -934,6 +935,7 @@ type
     procedure ButGLAutoClick(Sender: TObject);
     procedure CBDateFunClick(Sender: TObject);
     procedure CBDLFunctionClick(Sender: TObject);
+    procedure ButSaveClick(Sender: TObject);
   private
     { Private declarations }
     function GraphType (Sender: TObject):TGraph;
@@ -1204,8 +1206,8 @@ procedure InputValueToLabel(Name,Hint:string; Format:TFloatFormat;
 const
  DLFunction:array[0..4]of string=
            ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
- BadName:array[0..1]of string=
-           ('FIT','DATES');
+ BadName:array[0..2]of string=
+           ('FIT','DATES','SHOW');
  mask='*.dat';
 
 var
@@ -1301,7 +1303,11 @@ end;
 procedure TForm1.ComboBoxRSChange(Sender: TObject);
 begin
  if VaxFile.T<=0 then
-  if not (ComboBoxRS.ItemIndex in [0,1,2,3,6,7,10,11,13,14,15,16]) then
+  if not (ConvertStringToTGraph(ComboBoxRS) in
+         [fnReq0,fnCheung,fnKaminskii1,fnKaminskii2,
+         fnRvsTpower2,fnGromov1,fnCibils,fnLee,
+         fnMikhelashvili,fnDiodLSM,fnDiodLambert,fnDiodEvolution]) then
+//  if not (ComboBoxRS.ItemIndex in [0,1,2,3,6,7,10,11,13,14,15,16]) then
    begin
    MessageDlg('Rs can not be calculated by this method,'+#10+#13+
               'because T is undefined',mtError, [mbOK], 0);
@@ -1474,6 +1480,7 @@ begin
   ComboBoxN.Items.Add(GraphLabel[fnCheung]);
   ComboBoxN.Items.Add(GraphLabel[fnKaminskii1]);
   ComboBoxN.Items.Add(GraphLabel[fnKaminskii2]);
+  ComboBoxN.Items.Add(GraphLabel[fnDiodLSM]);
   ComboBoxN.Items.Add(GraphLabel[fnDiodVerySimple]);
   ComboBoxN.Items.Add(GraphLabel[fnGromov1]);
   ComboBoxN.Items.Add(GraphLabel[fnGromov2]);
@@ -1525,6 +1532,7 @@ begin
 
   ComboBoxNssFb.Sorted:=False;
   ComboBoxNssFb.Items.Add(GraphLabel[fnNorde]);
+  ComboBoxNssFb.Items.Add(GraphLabel[fnDiodLSM]);
   ComboBoxNssFb.Items.Add(GraphLabel[fnDiodVerySimple]);
   ComboBoxNssFb.Items.Add(GraphLabel[fnGromov1]);
   ComboBoxNssFb.Items.Add(GraphLabel[fnGromov2]);
@@ -2945,6 +2953,11 @@ begin
                  RadioButtonM_VClick(RadioButtonF_I);
 end;
 
+
+procedure TForm1.ButSaveClick(Sender: TObject);
+begin
+ Write_File(FitName(VaxFile,'show'),VaxGraph);
+end;
 
 procedure TForm1.ButSaveDLClick(Sender: TObject);
 Label fin;
@@ -5524,62 +5537,6 @@ with F do
  end;
 end;
 
-//Procedure MaterialOnForm;
-//{виведення на форму параметрів матеріалу, які
-//беруться зі змінної Semi}
-//begin
-//with Form1 do
-// begin
-//  if Semi.Eg0<>ErResult
-//     then LabelEg.Caption:=FloatToStrF(Semi.Eg0,ffFixed,3,2)
-//     else LabelEg.Caption:='?';
-//  LabelPerm.Caption:=FloatToStrF(Semi.Eps,ffFixed,3,2);
-//  LabelMeff.Caption:=FloatToStrF(Semi.Meff,ffFixed,3,2);
-//  if Semi.ARich<>ErResult
-//     then LabelRich.Caption:=FloatToStrF(Semi.ARich,ffExponent,3,2)
-//     else LabelRich.Caption:='?';
-//  if Semi.VarshA<>ErResult
-//     then LabelVarA.Caption:=FloatToStrF(Semi.VarshA,ffgeneral,5,1)
-//     else LabelVarA.Caption:='?';
-//  if Semi.VarshB<>ErResult
-//     then LabelVarB.Caption:=FloatToStrF(Semi.VarshB,ffExponent,3,2)
-//     else LabelVarB.Caption:='?';
-//  if Semi.Name=Materials[High(TMaterialName)].Name then
-//      begin
-//       LaVarB.Visible:=True;
-//       LaVarA.Visible:=True;
-//       LaMeff.Visible:=True;
-//       LaPerm.Visible:=True;
-//       LaEg.Visible:=True;
-//       LaRich.Visible:=True;
-//      end
-//                                                 else
-//      begin
-//       LaVarB.Visible:=False;
-//       LaVarA.Visible:=False;
-//       LaMeff.Visible:=False;
-//       LaPerm.Visible:=False;
-//       LaEg.Visible:=False;
-//       LaRich.Visible:=False;
-//      end
-//
-// end;//with Form1 do
-//end;
-
-//Procedure DiodOnForm;
-//{виведення на форму параметрів діоду, які
-//беруться зі змінної Diod}
-//begin
-//with Form1 do
-// begin
-//  LabelArea.Caption:=FloatToStrF(Diod.Area,ffExponent,3,2);
-//  LabelConcentr.Caption:=FloatToStrF(Diod.Semiconductor.Nd,ffExponent,3,2);
-//  LabelDel.Caption:=FloatToStrF(Diod.Thick_i,ffExponent,3,2);
-//  LabelEp.Caption:=FloatToStrF(Diod.Eps_i,ffFixed,3,2);
-// end;//with Form1 do
-//end;
-
-
 
 Procedure ChooseDirect(F:TForm1);
 {виведення на форму написів, пов'язаних
@@ -5878,12 +5835,6 @@ end;
 
 Procedure GaussLinesToGrid;
 {виведення параметрів гаусіан у таблицю}
-// Function Eg(T:double):double;
-//  {обчислення ширина забороненої зони кремнію
-//  при температурі Т}
-//  begin
-//    Result:=1.169-7.021e-4*T*T/(T+1108);
-//  end;
 var i:integer;
     sq:double;
 begin
