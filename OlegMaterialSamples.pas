@@ -256,6 +256,13 @@ type
        function n_i(T:double):double;
        {концентрація власних носіїв
        у шару з більшим опором}
+       function TauRec(Igen, T: Double):double;
+       {час рекомбінації по величині дифузійного струму;
+       вважається що рекомбінація відбувається в області
+       з меншою прповідністю;
+       саме погане - рухливість як для електронів
+       у кремнії, тобто для інших структур треба удосконалити
+       функцію}
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -1035,6 +1042,14 @@ begin
  Result:=I/(Wd*Area*FLayerP.Material.n_i(T)*(exp(V/2/Kb/T)-1))*
           (Vd-V)/2/Kb/T/Qelem;
 
+end;
+
+function TDiod_PN.TauRec(Igen, T: Double): double;
+ var mu:double;
+begin
+  mu:=0.1448*Power((300/T),2.33);
+    Result:=Power(Qelem*Area,2)*Power(n_i(T),4)*mu*Kb*T/
+          sqr(Nd*Igen);
 end;
 
 function TDiod_PN.Vdif(T, V: double): double;

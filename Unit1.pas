@@ -840,6 +840,8 @@ type
     STDLFunction: TStaticText;
     CBBaseAuto: TCheckBox;
     ButSave: TButton;
+    Bevel32: TBevel;
+    RB_TauR: TRadioButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -2035,6 +2037,7 @@ begin
      (TComponent(Sender).Name='ButDit')   then Result:=fnDLdensityIvanov;
   if TComponent(Sender).Name='ForIV' then Result:=fnForward;
   if TComponent(Sender).Name='RevIV' then Result:=fnReverse;
+  if TComponent(Sender).Name='RB_TauR' then Result:=fnTauR;
 end;
 
 procedure TForm1.LabelXLogClick(Sender: TObject);

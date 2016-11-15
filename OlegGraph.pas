@@ -53,7 +53,8 @@ type
           fnRvsTpower2, //'A+B*T+C*T^2'
 //          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
           fnDiodVerySimple, //I=I0exp(qV/nkT)
-          fnRectification //розрахунок коефіцієнта випрямлення
+          fnRectification, //розрахунок коефіцієнта випрямлення
+          fnTauR   //рекомбінаційний час по величині струму
           );
 
 
@@ -157,7 +158,8 @@ const
  'A+B*T+C*T^2',
 // 'I0(exp(qV/nkT)-1)',
  'I=I0exp(qV/nkT)',
- 'Rect.Koef'
+ 'Rect.Koef',
+ 'Recombination time'
  );
 
 var
@@ -290,6 +292,13 @@ Procedure LeeFun(A:Pvector; D:TDiapazon; var B:Pvector);
 він однаковий незалежно від величини Va і
 використовується в функції LeeKalk для
 розрахунку висоти бар'єру; ось такий контрабандний прийом :)}
+
+Procedure TauRFun(InVector:Pvector;var OutVector:Pvector);
+{по температурній залежності рекомбінаційного
+струму будується залежність часу рекомбінації;
+струм може залежати і від (кТ)^-1;
+використовуються параметри DiodPN}
+
 
 Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
 {записує в В пряму ділянку ВАХ з А з
@@ -963,6 +972,8 @@ begin
      Result:='X - arbitrary voltage Va'#10+
      'Y = -C/B, where C and B are the coefficienfs of'#10+
      'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)';
+   fnTauR:
+     Result:='S^2 ni^4 mu k T / Na I0^2';  
  else
      Result:='Some error';
  end;
@@ -1745,6 +1756,30 @@ if B^.n<2 then B^.n:=0;
 dispose(temp2);
 dispose(temp);
 end;
+
+Procedure TauRFun(InVector:Pvector;var OutVector:Pvector);
+{по температурній залежності рекомбінаційного
+струму будується залежність часу рекомбінації;
+струм може залежати і від (кТ)^-1;
+використовуються параметри DiodPN}
+ var XisT:boolean;
+  i: integer;
+begin
+ XisT:=(InVector^.X[0]>100)and (InVector^.X[High(InVector^.X)]>100);
+ try
+   OutVector.SetLenVector(InVector^.n);
+   for i := 0 to High(OutVector^.X) do
+    begin
+      if XisT then OutVector^.X[i]:=InVector^.X[i]
+              else OutVector^.X[i]:=1/(Kb*InVector^.X[i]);
+      OutVector^.Y[i]:=DiodPN.TauRec(InVector^.Y[i],OutVector^.X[i]);
+    end;
+ except
+ OutVector^.Clear();
+ end;
+
+end;
+
 
 
 Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
@@ -4314,6 +4349,7 @@ begin
                Diod,GraphParameters.Diapazon,GraphParameters.NssType);
   fnDLdensityIvanov:Dit_Fun(InVector, OutVector,GraphParameters.Rs,Diod,GraphParameters.Diapazon);
   fnLee: LeeFun(InVector,GraphParameters.Diapazon,OutVector);
+  fnTauR: TauRFun(InVector,OutVector);
   else ;
 end;
 end;

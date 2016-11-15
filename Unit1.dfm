@@ -2916,11 +2916,12 @@ object Form1: TForm1
         Top = 6
         Width = 319
         Height = 390
+        VertScrollBar.Position = 1394
         ParentBackground = True
         TabOrder = 5
         object GroupBox12: TGroupBox
           Left = -1
-          Top = 0
+          Top = -1394
           Width = 297
           Height = 1759
           Caption = 'CREATE FILES AND DIRECTORIES'
@@ -5460,14 +5461,14 @@ object Form1: TForm1
         Top = -1
         Width = 486
         Height = 107
-        HorzScrollBar.Position = 1005
+        HorzScrollBar.Position = 1148
         Color = clInfoBk
         ParentColor = False
         TabOrder = 11
         object GroupBox1: TGroupBox
-          Left = -1006
+          Left = -1149
           Top = -1
-          Width = 1530
+          Width = 1610
           Height = 88
           TabOrder = 0
           object Bevel1: TBevel
@@ -5535,6 +5536,14 @@ object Form1: TForm1
           object Bevel25: TBevel
             Left = 1250
             Top = 0
+            Width = 6
+            Height = 90
+            Shape = bsFrame
+            Style = bsRaised
+          end
+          object Bevel32: TBevel
+            Left = 1493
+            Top = -5
             Width = 6
             Height = 90
             Shape = bsFrame
@@ -6123,6 +6132,18 @@ object Form1: TForm1
             Height = 25
             Caption = 'Frenkel-Poole, Em'
             TabOrder = 39
+            WordWrap = True
+            OnClick = RadioButtonM_VClick
+            OnDblClick = RadioButtonM_VDblClick
+          end
+          object RB_TauR: TRadioButton
+            Tag = 55
+            Left = 1504
+            Top = -1
+            Width = 103
+            Height = 24
+            Caption = 'Recombination time'
+            TabOrder = 40
             WordWrap = True
             OnClick = RadioButtonM_VClick
             OnDblClick = RadioButtonM_VDblClick
