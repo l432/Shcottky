@@ -741,6 +741,17 @@ Procedure GraphFill(Series:TLineSeries;Func:TFunDouble;
 {заповнює Series значеннями Func(х,y0) в діапазоні
 від х1 до х2 з загальною кількістю точок Npoint+1}
 
+Procedure FunctionToFile(sfile:string;Func:TFunDouble;
+                    x1,x2:double;Npoint:word;y0:double);
+{у файл з назвою sfile заносить значення Func(х,y0) в діапазоні
+від х1 до х2 з загальною кількістю точок Npoint+1}
+
+//Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
+//{записує у файл з іменем sfile дані з Series;
+//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
+
+
+
 Procedure VectorToGraph(A:PVector;Series:TLineSeries);
 {заносить дані з А в Series}
 
@@ -3843,6 +3854,20 @@ for I := 0 to Npoint do
   end;
 
 end;
+
+
+Procedure FunctionToFile(sfile:string;Func:TFunDouble;
+                    x1,x2:double;Npoint:word;y0:double);
+{у файл з назвою sfile заносить значення Func(х,y0) в діапазоні
+від х1 до х2 з загальною кількістю точок Npoint+1}
+ var Series:TLineSeries;
+begin
+ Series:=TLineSeries.Create(nil);
+ GraphFill(Series,Func,x1,x2,Npoint,y0);
+ Write_File_Series(sfile,Series);
+ Series.Free;
+end;
+
 
 Procedure VectorToGraph(A:PVector;Series:TLineSeries);
 {заносить дані з А в Series}

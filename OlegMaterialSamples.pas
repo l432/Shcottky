@@ -1,19 +1,8 @@
 unit OlegMaterialSamples;
 
 interface
-uses IniFiles, TypInfo, OlegType,SysUtils,Dialogs, StdCtrls,OlegFunction;
+uses IniFiles, TypInfo, OlegType,SysUtils,Dialogs, StdCtrls,OlegFunction,OlegMath;
 type
-//    TMaterialName=(nSi,pSi,nGaAs,pGaAs,nInP,pInP,H4SiC,nGaN,pGaN,
-//                   nCdTe,pCdTe,nCdS,nCdSe,CuInSe2,pGaTe,pGaSe,nGe,pGe,Other);
-//    TMaterialParametersName=(
-//            nEg0,   //ширина забороненої зони при T=0, []=eV
-//            nEps,   //діелектрична проникність
-//            nARich, //стала Річардсона, []=A/(m^2 A^2)
-//            nMeff,  //відношення ефективної маси до маси спокою електрона
-//                //рівняння Варшні Eg(T)=Eg(0)-B*T^2/(T+A)
-//            nVarshA, //параметр А з рівняння Варшні
-//            nVarshB //параметр В з рівняння Варшні
-//             );
     TMaterialName=(Si,GaAs,InP,H4SiC,GaN,CdTe,CdS,CdSe,CuInSe2,GaTe,GaSe,Ge,Other);
     TMaterialParametersName=(
             nEg0,   //ширина забороненої зони при T=0, []=eV
@@ -31,33 +20,17 @@ type
           Parameters:array[TMaterialParametersName]of double;
           end;
 const
+  VarshB_Si=7.021e-4;
+  VarshA_Si=1108;
+  Eg0_Si=1.169;
+
 
   Materials:array [TMaterialName] of TMaterialParameters=
-////                                Eg0,     Eps,  ARich,    Meff, VarshA,   VarshB
-//   ((Name:'n-Si';   Parameters: (1.169,    11.7, 1.12e6,   1.08, 1108,     7.021e-4)),
-//    (Name:'p-Si';   Parameters: (1.169,    11.7, 0.32e6,   0.58, 1108,     7.021e-4)),
-//    (Name:'n-GaAs'; Parameters: (1.519,    12.9, 8.16e4,   0.06, 204,      5.405e-4)),
-//    (Name:'p-GaAs'; Parameters: (1.519,    12.9, ErResult, 0.50, 204,      5.405e-4)),
-//    (Name:'n-InP';  Parameters: (1.39,     12.5, 0.6e6,    0.08, 0,        4.6e-4)),
-//    (Name:'p-InP';  Parameters: (1.39,     12.5, ErResult, 0.60, 0,        4.6e-4)),
-//    (Name:'4H-SiC'; Parameters: (3.26,     9.7,  0.75e6,   1,    1300,     6.5e-4)),
-//    (Name:'n-GaN';  Parameters: (3.47,     8.9,  2.64e5,   0.22, 600,      7.7e-4)),
-//    (Name:'p-GaN';  Parameters: (3.47,     8.9,  7.50e5,   0.60, 600,      7.7e-4)),
-//    (Name:'n-CdTe'; Parameters: (1.57,     12,   0.12e6,   1.08, 0,        4e-4)),
-//    (Name:'p-CdTe'; Parameters: (1.57,     12,   ErResult, 0.60, 0,        4e-4)),
-//    (Name:'n-CdS';  Parameters: (2.557,    1,    2.34e5,   0.17, 450,      8.21e-4)),
-//    (Name:'n-CdSe'; Parameters: (1.9,      10.2, 1.56e5,   0.13, 0,        2.8e-4)),
-//    (Name:'CuInSe2';Parameters: (ErResult, 1,    8.53e5,   1,    ErResult, ErResult)),
-//    (Name:'p-GaTe'; Parameters: (ErResult, 1,    1.19e6,   1,    ErResult, ErResult)),
-//    (Name:'p-GaSe'; Parameters: (ErResult, 1,    2.47e6,   1,    ErResult, ErResult)),
-//    (Name:'n-Ge';   Parameters: (0.7437,   16,   ErResult, 0.55, 235,      4.774e-4)),
-//    (Name:'p-Ge';   Parameters: (0.7437,   16,   ErResult, 0.36, 235,      4.774e-4)),
-//    (Name:'Other';  Parameters: (ErResult, 1,    ErResult, 1,    ErResult, ErResult))
-//    );
+
 //                                Eg0,     Eps,  ARich_n,  ARich_p,  Me,   Mh,   VarshA,   VarshB
-   ((Name:'Si';     Parameters: (1.169,    11.7, 1.12e6,   0.32e6,   1.08, 0.58, 1108,     7.021e-4)),
+   ((Name:'Si';     Parameters: (Eg0_Si,   11.7, 1.12e6,   0.32e6,   1.08, 0.58, VarshA_Si,VarshB_Si)),
     (Name:'GaAs';   Parameters: (1.519,    12.9, 8.16e4,   ErResult, 0.06, 0.50, 204,      5.405e-4)),
-    (Name:'InP';    Parameters: (1.39,     12.5, 0.6e6,    ErResult, 0.08, 0.60, 0,        4.6e-4)),
+    (Name:'InP';    Parameters: (1.42,     12.5, 0.6e6,    ErResult, 0.08, 0.60, 327,      4.906e-4)),
     (Name:'4H-SiC'; Parameters: (3.26,     9.7,  0.75e6,   ErResult, 1,    1,    1300,     6.5e-4)),
     (Name:'GaN';    Parameters: (3.47,     8.9,  2.64e5,   7.50e5,   0.22, 0.60, 600,      7.7e-4)),
     (Name:'CdTe';   Parameters: (1.57,     12,   0.12e6,   ErResult, 1.08, 0.60, 0,        4e-4)),
@@ -107,6 +80,10 @@ type
      function Nv(T:double):double;
 //    ефективна густина станів в зоні провідності та валентній
      function n_i(T:double):double;
+     class function VarshniFull(F0,T:double;
+                                Alpha:double=VarshA_Si;
+                                Betta:double=VarshB_Si):double;
+     class function CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha:double):double;
      end; // TMaterial=class
 
 //     TMatParNameLab=array[TMaterialParametersName]of TLabel;
@@ -130,6 +107,28 @@ type
                            );
         Procedure Free;
      end;   //TMaterialShow=class
+
+    Silicon=class
+      private
+      public
+      class function Eg(T:double=300):double;
+      class function A(A0,T,n:double):double;
+      {функція A=A0*(T/300)^n}
+      class function mu_n(T: Double=300; Ndoping: Double=1e21):double;
+      class function mu_p(T: Double=300; Ndoping: Double=1e21):double;
+      {рухливості електронів та дірок за формулами з книги
+      Schroder, p.503,
+      Ndoping - концентрація легуючої домішки,
+      []=м^-3
+      [Result]=м^2/(В с}
+      class function D_n(T: Double=300; Ndoping: Double=1e21):double;
+      class function D_p(T: Double=300; Ndoping: Double=1e21):double;
+      {коефіцієнт дифузії, []= м^2/с}
+      class function Absorption(Lambda:double;T:double=300):double;
+      {коефіцієнт поглинання світла,
+      [Lambda]=нм, [Result]=1/м}
+
+    end;
 
     TMaterialLayer=class
       private
@@ -253,16 +252,18 @@ type
        function Rnp(T,V,I:double):double;
        {приведена швидкість рекомбінації, []=c^-1
        I - струм через діод}
-       function n_i(T:double):double;
+       function n_i(T:double=300):double;
        {концентрація власних носіїв
-       у шару з більшим опором}
+       у шарі з більшим опором}
+       function mu(T:double=300):double;
+       {рухливість неосновних носіїв
+       у шарі з більшим опором;
+       правда використовується рухливість
+       у кремнії}
        function TauRec(Igen, T: Double):double;
        {час рекомбінації по величині дифузійного струму;
        вважається що рекомбінація відбувається в області
-       з меншою прповідністю;
-       саме погане - рухливість як для електронів
-       у кремнії, тобто для інших структур треба удосконалити
-       функцію}
+       з меншою провідністю;}
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -316,13 +317,27 @@ end;
 
 function TMaterial.Varshni(F0,T:double):double;
 begin
-  Result:=F0-sqr(T)*VarshB/(T+VarshA);
+  Result:=VarshniFull(F0,T,VarshA,VarshB);
+//  Result:=F0-sqr(T)*VarshB/(T+VarshA);
+end;
+
+class function TMaterial.VarshniFull(F0,T:double;
+                                Alpha:double=VarshA_Si;
+                                Betta:double=VarshB_Si):double;
+begin
+ Result:=F0-sqr(T)*Betta/(T+Alpha);
 end;
 
 Constructor TMaterial.Create(MaterialName:TMaterialName);
 begin
   inherited Create;
   ChangeMaterial(MaterialName);
+end;
+
+class function TMaterial.CaugheyThomas(mu_min, mu_0, Nref, Ndoping,
+  Alpha:double): double;
+begin
+ Result:=mu_min+mu_0/(1+Power(Ndoping/Nref,Alpha));
 end;
 
 procedure TMaterial.ChangeMaterial(value:TMaterialName);
@@ -1014,7 +1029,15 @@ begin
    Result:=FLayerN.Nd;
 end;
 
-function TDiod_PN.n_i(T: double): double;
+function TDiod_PN.mu(T: double=300): double;
+begin
+ if FLayerN.Nd>FLayerP.Nd then
+    Result:=Silicon.mu_n(T,Nd)
+                          else
+    Result:=Silicon.mu_p(T,Nd);
+end;
+
+function TDiod_PN.n_i(T: double=300): double;
 begin
   if FLayerN.Nd>FLayerP.Nd then
     Result:=FLayerP.Material.n_i(T)
@@ -1045,11 +1068,10 @@ begin
 end;
 
 function TDiod_PN.TauRec(Igen, T: Double): double;
- var mu:double;
+// var mu:double;
 begin
-  mu:=0.1448*Power((300/T),2.33);
-    Result:=Power(Qelem*Area,2)*Power(n_i(T),4)*mu*Kb*T/
-          sqr(Nd*Igen);
+//  mu:=0.1448*Power((300/T),2.33);
+    Result:=Power(Qelem*Area,2)*Power(n_i(T),4)*mu(T)*Kb*T/sqr(Nd*Igen);
 end;
 
 function TDiod_PN.Vdif(T, V: double): double;
@@ -1130,6 +1152,248 @@ begin
  LayerPShow.Free;
  LayerNShow.Free;
  inherited Free;
+end;
+
+{ Silicon }
+
+class function Silicon.A(A0, T, n: double): double;
+begin
+ Result:=A0*Power(T/300.0,n);
+end;
+
+class function Silicon.Absorption(Lambda:double;T:double=300): double;
+ const Eg0:array[0..2]of double=(Eg0_Si,2.5,3.2); {[]=eB}
+       Ep:array[0..1]of double=(1.827e-2,5.773e-2);  {[]=eB}
+       C:array[0..1]of double=(5.5,4.0);  {[]=1}
+       A:array[0..2]of double=(3.231e2,7.237e3,1.052e6);  {[]=1/(cm eB^2)}
+       Si_absorption:array [0..241]of double=(
+                      250,	1.84E+06,
+                      260,	1.97E+06,
+                      270,	2.18E+06,
+                      280,	2.36E+06,
+                      290,	2.24E+06,
+                      300,	1.73E+06,
+                      310,	1.44E+06,
+                      320,	1.28E+06,
+                      330,	1.17E+06,
+                      340,	1.09E+06,
+                      350,	1.04E+06,
+                      360,	1.02E+06,
+                      370,	6.97E+05,
+                      380,	2.93E+05,
+                      390,	1.50E+05,
+                      400,	9.52E+04,
+                      410,	6.74E+04,
+                      420,	5.00E+04,
+                      430,	3.92E+04,
+                      440,	3.11E+04,
+                      450,	2.55E+04,
+                      460,	2.10E+04,
+                      470,	1.72E+04,
+                      480,	1.48E+04,
+                      490,	1.27E+04,
+                      500,	1.11E+04,
+                      510,	9.70E+03,
+                      520,	8.80E+03,
+                      530,	7.85E+03,
+                      540,	7.05E+03,
+                      550,	6.39E+03,
+                      560,	5.78E+03,
+                      570,	5.32E+03,
+                      580,	4.88E+03,
+                      590,	4.49E+03,
+                      600,	4.14E+03,
+                      610,	3.81E+03,
+                      620,	3.52E+03,
+                      630,	3.27E+03,
+                      640,  3.04E+03,
+                      650,	2.81E+03,
+                      660,	2.58E+03,
+                      670,	2.38E+03,
+                      680,	2.21E+03,
+                      690,	2.05E+03,
+                      700,	1.90E+03,
+                      710,	1.77E+03,
+                      720,	1.66E+03,
+                      730,	1.54E+03,
+                      740,	1.42E+03,
+                      750,	1.30E+03,
+                      760,	1.19E+03,
+                      770,	1.10E+03,
+                      780,	1.01E+03,
+                      790,	9.28E+02,
+                      800,	8.50E+02,
+                      810,	7.75E+02,
+                      820,	7.07E+02,
+                      830,	6.47E+02,
+                      840,	5.91E+02,
+                      850,	5.35E+02,
+                      860,	4.80E+02,
+                      870,	4.32E+02,
+                      880,	3.83E+02,
+                      890,	3.43E+02,
+                      900,	3.06E+02,
+                      910,	2.72E+02,
+                      920,	2.40E+02,
+                      930,	2.10E+02,
+                      940,	1.83E+02,
+                      950,	1.57E+02,
+                      960,	1.34E+02,
+                      970,	1.14E+02,
+                      980,	9.59E+01,
+                      990,	7.92E+01,
+                      1000,	6.40E+01,
+                      1010,	5.11E+01,
+                      1020,	3.99E+01,
+                      1030,	3.02E+01,
+                      1040,	2.26E+01,
+                      1050,	1.63E+01,
+                      1060,	1.11E+01,
+                      1070,	8.00E+00,
+                      1080,	6.20E+00,
+                      1090,	4.70E+00,
+                      1100,	3.50E+00,
+                      1110,	2.70E+00,
+                      1120,	2.00E+00,
+                      1130,	1.50E+00,
+                      1140,	1.00E+00,
+                      1150,	6.80E-01,
+                      1160,	4.20E-01,
+                      1170,	2.20E-01,
+                      1180,	6.50E-02,
+                      1190,	3.60E-02,
+                      1200,	2.20E-02,
+                      1210,	1.30E-02,
+                      1220,	8.20E-03,
+                      1230,	4.70E-03,
+                      1240,	2.40E-03,
+                      1250,	1.00E-03,
+                      1260,	3.60E-04,
+                      1270,	2.00E-04,
+                      1280,	1.20E-04,
+                      1290,	7.10E-05,
+                      1300,	4.50E-05,
+                      1310,	2.70E-05,
+                      1320,	1.60E-05,
+                      1330,	8.00E-06,
+                      1340,	3.50E-06,
+                      1350,	1.70E-06,
+                      1360,	1.00E-06,
+                      1370,	6.70E-07,
+                      1380,	4.50E-07,
+                      1390,	2.50E-07,
+                      1400,	2.00E-07,
+                      1410,	1.50E-07,
+                      1420,	8.50E-08,
+                      1430,	7.70E-08,
+                      1440,	4.20E-08,
+                      1450,	3.20E-08);
+
+ var EgT:array[0..2]of double;
+     i,j:byte;
+     Ephoton,kT,S1ij,S2ij,GreenAbs,Result300:double;
+     Vect:PVector;
+
+begin
+  Result:=ErResult;
+  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
+  new(Vect);
+  Vect^.SetLenVector(trunc(High(Si_absorption)/2));
+  for I := 0 to High(Vect^.X) do
+    begin
+     Vect^.X[i]:=Si_absorption[2*i];
+     Vect^.Y[i]:=Si_absorption[2*i+1];
+    end;
+  GreenAbs:=Splain3(Vect,Lambda);
+  dispose(Vect);
+  if T=300 then
+   begin
+     Result:=GreenAbs*100;
+     Exit;
+   end;
+  Ephoton:=Hpl*2*Pi*3e8/(Lambda*1e-9*Qelem);//[]=eV
+
+  kT:=Kb*T;
+  Result:=0;
+  for I := 0 to High(Eg0) do
+       EgT[i]:=TMaterial.VarshniFull(Eg0[i],T);
+
+  for I := 0 to 1 do
+    for j := 0 to 1 do
+      begin
+        S1ij:=(Ephoton-EgT[j]+Ep[i]);
+        if S1ij<0 then S1ij:=0;
+        S2ij:=(Ephoton-EgT[j]-Ep[i]);
+        if S2ij<0 then S2ij:=0;
+        Result:=Result+C[i]*A[j]*
+                (sqr(S1ij)/(exp(Ep[i]/kT)-1)+
+                sqr(S2ij)/(1-exp(-Ep[i]/kT)));
+      end;
+  if Ephoton>EgT[2] then
+    Result:=Result+A[2]*sqrt(Ephoton-EgT[2]);
+
+  if Result=0 then Exit;
+
+  kT:=Kb*300;
+  Result300:=0;
+  for I := 0 to High(Eg0) do
+       EgT[i]:=TMaterial.VarshniFull(Eg0[i],300);
+
+  for I := 0 to 1 do
+    for j := 0 to 1 do
+      begin
+        S1ij:=(Ephoton-EgT[j]+Ep[i]);
+        if S1ij<0 then S1ij:=0;
+        S2ij:=(Ephoton-EgT[j]-Ep[i]);
+        if S2ij<0 then S2ij:=0;
+        Result300:=Result300+C[i]*A[j]*
+                (sqr(S1ij)/(exp(Ep[i]/kT)-1)+
+                sqr(S2ij)/(1-exp(-Ep[i]/kT)));
+      end;
+  if Ephoton>EgT[2] then
+    Result300:=Result300+A[2]*sqrt(Ephoton-EgT[2]);
+  if Result300=0 then
+   begin
+     Result:=ErResult;
+     Exit;
+   end;
+
+  Result:=Result/Result300*GreenAbs*100;
+end;
+
+class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
+begin
+ Result:=mu_n(T,Ndoping)*Kb*T;
+end;
+
+class function Silicon.D_p(T: Double=300; Ndoping: Double=1e21): double;
+begin
+ Result:=mu_p(T,Ndoping)*Kb*T;
+end;
+
+class function Silicon.Eg(T: double=300): double;
+begin
+ Result:=TMaterial.VarshniFull(Eg0_Si,T)
+end;
+
+class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;
+ var  mu_min,mu_0,Nref,Alpha:double;
+begin
+ mu_min:=A(92e-4,T,-0.57);
+ mu_0:=A(0.1268,T,-2.33);
+ Nref:=A(1.3e23,T,2.4);
+ Alpha:=A(0.91,T,-0.146);
+ Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
+end;
+
+class function Silicon.mu_p(T: Double=300; Ndoping: Double=1e21): double;
+ var  mu_min,mu_0,Nref,Alpha:double;
+begin
+ mu_min:=A(54.3e-4,T,-0.57);
+ mu_0:=A(0.04069,T,-2.23);
+ Nref:=A(2.35e23,T,2.4);
+ Alpha:=A(0.88,T,-0.146);
+ Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
 end;
 
 end.
