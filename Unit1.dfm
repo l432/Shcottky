@@ -18,14 +18,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -2916,12 +2916,12 @@ object Form1: TForm1
         Top = 6
         Width = 319
         Height = 390
-        VertScrollBar.Position = 1394
+        VertScrollBar.Position = 1373
         ParentBackground = True
         TabOrder = 5
         object GroupBox12: TGroupBox
           Left = -1
-          Top = -1394
+          Top = -1373
           Width = 297
           Height = 1759
           Caption = 'CREATE FILES AND DIRECTORIES'
@@ -5461,12 +5461,12 @@ object Form1: TForm1
         Top = -1
         Width = 486
         Height = 107
-        HorzScrollBar.Position = 1148
+        HorzScrollBar.Position = 1127
         Color = clInfoBk
         ParentColor = False
         TabOrder = 11
         object GroupBox1: TGroupBox
-          Left = -1149
+          Left = -1128
           Top = -1
           Width = 1610
           Height = 88

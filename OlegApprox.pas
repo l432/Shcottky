@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..46]of string=
+  FuncName:array[0..47]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -34,7 +34,7 @@ const
            'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
            'Tunneling diod forward','Illuminated tunneling diod',
            'Tunneling diod rewers', 'Barrier height',
-           'T-Diod','Photo T-Diod');
+           'T-Diod','Photo T-Diod','Shot-circuit Current');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -1010,7 +1010,17 @@ public
  Constructor Create;
 end; // TBarierHeigh=class (TFitFunctEvolution)
 
+//-----------------------------------------------------
+TCurrentSC=class (TFitFunctEvolution)
+{Isc(T)=Nph*Abs*Lo*T^m/(1+Abs*Lo*T^m)}
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);override;//abstract;
 
+public
+ Constructor Create;
+end; // TCurrentSC=class (TFitFunctEvolution)
 
 //--------------------------------------------------------
 TFitFunctEvolutionEm=class (TFitFunctEvolution)
@@ -5809,6 +5819,8 @@ begin
   if str='Barrier height' then F:=TBarierHeigh.Create;
   if str='Photo T-Diod' then F:=TTripleDiodLight.Create;
   if str='T-Diod' then F:=TTripleDiod.Create;
+  if str='Shot-circuit Current' then F:=TCurrentSC.Create;
+
 //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
@@ -5860,6 +5872,43 @@ begin
   F.Fitting(V,EP);
   Result:=EP[par_number];
   F.Free;
+end;
+
+{ TCurrentSC }
+
+constructor TCurrentSC.Create;
+begin
+ inherited Create('Isc','Isc on temperature for monochromatic light',
+                 3,1,0);
+ FXname[0]:='Nph';
+ FXname[1]:='Lo';
+ FXname[2]:='m';
+ FVarManualDefinedOnly[0]:=True;
+ FVarName[0]:='L_nm';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ CreateFooter();
+end;
+
+function TCurrentSC.Func(Parameters: TArrSingle): double;
+ var AlL:double;
+begin
+ AlL:=Silicon.Absorption(FVariab[0],fx)*
+          Parameters[1]*Power(fx,Parameters[2]);
+ Result:=Parameters[0]*AlL/(1+AlL);
+end;
+
+procedure TCurrentSC.RealToFile(InputData: PVector; var OutputData: TArrSingle;
+  Xlog, Ylog: boolean; suf: string);
+var Str1:TStringList;
+    i:integer;
+begin
+  Str1:=TStringList.Create;
+  for I := 0 to High(InputData^.X) do
+    Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
+             FloatToStrF(OutputData[1]*Power(InputData^.X[i],OutputData[2]),ffExponent,4,0));
+  Str1.SaveToFile(FitName(InputData,suf));
+  Str1.Free;
 end;
 
 end.

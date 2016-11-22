@@ -110,6 +110,13 @@ type
 
     Silicon=class
       private
+       class function Rajkanan(Ephoton:double;T:double=300):double;
+       {розраховується коефіцієнт поглинання за складною
+       формулою, []=1/m}
+       class function Green(Lambda:double):double;
+       {визначається коефіцієнт поглинання
+       pа даними роботи Green & Keevers при 300 К
+       [Lambda]=нм, [Result]=1/м}
       public
       class function Eg(T:double=300):double;
       class function A(A0,T,n:double):double;
@@ -264,6 +271,10 @@ type
        {час рекомбінації по величині дифузійного струму;
        вважається що рекомбінація відбувається в області
        з меншою провідністю;}
+       function L(tau,T:double):double;
+       {довжина дифузії для неосновних
+       носіїв в області з меншою провідністю
+       tau - час життя цих носіїв}
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -1029,6 +1040,11 @@ begin
    Result:=FLayerN.Nd;
 end;
 
+function TDiod_PN.L(tau, T: double): double;
+begin
+ Result:=sqrt(tau*mu(T)*Kb*T);
+end;
+
 function TDiod_PN.mu(T: double=300): double;
 begin
  if FLayerN.Nd>FLayerP.Nd then
@@ -1162,11 +1178,45 @@ begin
 end;
 
 class function Silicon.Absorption(Lambda:double;T:double=300): double;
- const Eg0:array[0..2]of double=(Eg0_Si,2.5,3.2); {[]=eB}
-       Ep:array[0..1]of double=(1.827e-2,5.773e-2);  {[]=eB}
-       C:array[0..1]of double=(5.5,4.0);  {[]=1}
-       A:array[0..2]of double=(3.231e2,7.237e3,1.052e6);  {[]=1/(cm eB^2)}
-       Si_absorption:array [0..241]of double=(
+ var
+     Ephoton,GreenAbs,Result300:double;
+begin
+  Result:=ErResult;
+  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
+  GreenAbs:=Green(Lambda);
+  if T=300 then
+   begin
+     Result:=GreenAbs;
+     Exit;
+   end;
+  Ephoton:=Hpl*2*Pi*3e8/(Lambda*1e-9*Qelem);//[]=eV
+
+  Result300:=Rajkanan(Ephoton);
+  if Result300=0 then Exit;
+
+  Result:=Rajkanan(Ephoton,T);
+  if Result=0 then Exit;
+
+  Result:=Result/Result300*GreenAbs;
+end;
+
+class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
+begin
+ Result:=mu_n(T,Ndoping)*Kb*T;
+end;
+
+class function Silicon.D_p(T: Double=300; Ndoping: Double=1e21): double;
+begin
+ Result:=mu_p(T,Ndoping)*Kb*T;
+end;
+
+class function Silicon.Eg(T: double=300): double;
+begin
+ Result:=TMaterial.VarshniFull(Eg0_Si,T)
+end;
+
+class function Silicon.Green(Lambda: double): double;
+  const  Si_absorption:array [0..241]of double=(
                       250,	1.84E+06,
                       260,	1.97E+06,
                       270,	2.18E+06,
@@ -1288,15 +1338,15 @@ class function Silicon.Absorption(Lambda:double;T:double=300): double;
                       1430,	7.70E-08,
                       1440,	4.20E-08,
                       1450,	3.20E-08);
-
- var EgT:array[0..2]of double;
-     i,j:byte;
-     Ephoton,kT,S1ij,S2ij,GreenAbs,Result300:double;
-     Vect:PVector;
-
+ var Vect:PVector;
+     i:integer;
 begin
-  Result:=ErResult;
-  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
+  if Lambda=900 then
+   begin
+     Result:=30600;
+     Exit;
+   end;
+  
   new(Vect);
   Vect^.SetLenVector(trunc(High(Si_absorption)/2));
   for I := 0 to High(Vect^.X) do
@@ -1304,76 +1354,8 @@ begin
      Vect^.X[i]:=Si_absorption[2*i];
      Vect^.Y[i]:=Si_absorption[2*i+1];
     end;
-  GreenAbs:=Splain3(Vect,Lambda);
+  Result:=Splain3(Vect,Lambda)*100;
   dispose(Vect);
-  if T=300 then
-   begin
-     Result:=GreenAbs*100;
-     Exit;
-   end;
-  Ephoton:=Hpl*2*Pi*3e8/(Lambda*1e-9*Qelem);//[]=eV
-
-  kT:=Kb*T;
-  Result:=0;
-  for I := 0 to High(Eg0) do
-       EgT[i]:=TMaterial.VarshniFull(Eg0[i],T);
-
-  for I := 0 to 1 do
-    for j := 0 to 1 do
-      begin
-        S1ij:=(Ephoton-EgT[j]+Ep[i]);
-        if S1ij<0 then S1ij:=0;
-        S2ij:=(Ephoton-EgT[j]-Ep[i]);
-        if S2ij<0 then S2ij:=0;
-        Result:=Result+C[i]*A[j]*
-                (sqr(S1ij)/(exp(Ep[i]/kT)-1)+
-                sqr(S2ij)/(1-exp(-Ep[i]/kT)));
-      end;
-  if Ephoton>EgT[2] then
-    Result:=Result+A[2]*sqrt(Ephoton-EgT[2]);
-
-  if Result=0 then Exit;
-
-  kT:=Kb*300;
-  Result300:=0;
-  for I := 0 to High(Eg0) do
-       EgT[i]:=TMaterial.VarshniFull(Eg0[i],300);
-
-  for I := 0 to 1 do
-    for j := 0 to 1 do
-      begin
-        S1ij:=(Ephoton-EgT[j]+Ep[i]);
-        if S1ij<0 then S1ij:=0;
-        S2ij:=(Ephoton-EgT[j]-Ep[i]);
-        if S2ij<0 then S2ij:=0;
-        Result300:=Result300+C[i]*A[j]*
-                (sqr(S1ij)/(exp(Ep[i]/kT)-1)+
-                sqr(S2ij)/(1-exp(-Ep[i]/kT)));
-      end;
-  if Ephoton>EgT[2] then
-    Result300:=Result300+A[2]*sqrt(Ephoton-EgT[2]);
-  if Result300=0 then
-   begin
-     Result:=ErResult;
-     Exit;
-   end;
-
-  Result:=Result/Result300*GreenAbs*100;
-end;
-
-class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
-begin
- Result:=mu_n(T,Ndoping)*Kb*T;
-end;
-
-class function Silicon.D_p(T: Double=300; Ndoping: Double=1e21): double;
-begin
- Result:=mu_p(T,Ndoping)*Kb*T;
-end;
-
-class function Silicon.Eg(T: double=300): double;
-begin
- Result:=TMaterial.VarshniFull(Eg0_Si,T)
 end;
 
 class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;
@@ -1394,6 +1376,36 @@ begin
  Nref:=A(2.35e23,T,2.4);
  Alpha:=A(0.88,T,-0.146);
  Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
+end;
+
+class function Silicon.Rajkanan(Ephoton, T: double): double;
+ const Eg0:array[0..2]of double=(Eg0_Si,2.5,3.2); {[]=eB}
+       Ep:array[0..1]of double=(1.827e-2,5.773e-2);  {[]=eB}
+       C:array[0..1]of double=(5.5,4.0);  {[]=1}
+       A:array[0..2]of double=(3.231e2,7.237e3,1.052e6);  {[]=1/(cm eB^2)}
+ var kT,S1ij,S2ij:double;
+     EgT:array[0..2]of double;
+     i,j:byte;
+begin
+  Result:=0;
+  kT:=Kb*T;
+  for I := 0 to High(Eg0) do
+       EgT[i]:=TMaterial.VarshniFull(Eg0[i],T);
+
+  for I := 0 to 1 do
+    for j := 0 to 1 do
+      begin
+        S1ij:=(Ephoton-EgT[j]+Ep[i]);
+        if S1ij<0 then S1ij:=0;
+        S2ij:=(Ephoton-EgT[j]-Ep[i]);
+        if S2ij<0 then S2ij:=0;
+        Result:=Result+C[i]*A[j]*
+                (sqr(S1ij)/(exp(Ep[i]/kT)-1)+
+                sqr(S2ij)/(1-exp(-Ep[i]/kT)));
+      end;
+  if Ephoton>EgT[2] then
+    Result:=Result+A[2]*sqrt(Ephoton-EgT[2]);
+  Result:=Result*100;
 end;
 
 end.

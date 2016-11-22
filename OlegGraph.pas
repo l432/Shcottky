@@ -1781,6 +1781,8 @@ begin
    OutVector.SetLenVector(InVector^.n);
    for i := 0 to High(OutVector^.X) do
     begin
+//     OutVector^.X[i]:=InVector^.X[High(OutVector^.X)-i];
+//     OutVector^.Y[i]:=DiodPN.L(InVector^.Y[High(OutVector^.X)-i],InVector^.X[High(OutVector^.X)-i]);
       if XisT then OutVector^.X[i]:=InVector^.X[i]
               else OutVector^.X[i]:=1/(Kb*InVector^.X[i]);
       OutVector^.Y[i]:=DiodPN.TauRec(InVector^.Y[i],OutVector^.X[i]);
