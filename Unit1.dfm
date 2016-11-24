@@ -5461,14 +5461,14 @@ object Form1: TForm1
         Top = -1
         Width = 486
         Height = 107
-        HorzScrollBar.Position = 1127
+        HorzScrollBar.Position = 1216
         Color = clInfoBk
         ParentColor = False
         TabOrder = 11
         object GroupBox1: TGroupBox
-          Left = -1128
-          Top = -1
-          Width = 1610
+          Left = -1218
+          Top = -2
+          Width = 1700
           Height = 88
           TabOrder = 0
           object Bevel1: TBevel
@@ -5542,7 +5542,7 @@ object Form1: TForm1
             Style = bsRaised
           end
           object Bevel32: TBevel
-            Left = 1493
+            Left = 1500
             Top = -5
             Width = 6
             Height = 90
@@ -6081,7 +6081,7 @@ object Form1: TForm1
             Tag = 55
             Left = 1365
             Top = 23
-            Width = 137
+            Width = 133
             Height = 24
             Caption = 'Fowler-Nordheim, Em'
             TabOrder = 35
@@ -6138,12 +6138,24 @@ object Form1: TForm1
           end
           object RB_TauR: TRadioButton
             Tag = 55
-            Left = 1504
-            Top = -1
-            Width = 103
+            Left = 1510
+            Top = 3
+            Width = 75
             Height = 24
-            Caption = 'Recombination time'
+            Caption = 'Igen -> Tau'
             TabOrder = 40
+            WordWrap = True
+            OnClick = RadioButtonM_VClick
+            OnDblClick = RadioButtonM_VDblClick
+          end
+          object RB_Igen: TRadioButton
+            Tag = 55
+            Left = 1602
+            Top = 3
+            Width = 75
+            Height = 24
+            Caption = 'Tau -> Igen'
+            TabOrder = 41
             WordWrap = True
             OnClick = RadioButtonM_VClick
             OnDblClick = RadioButtonM_VDblClick
@@ -6172,8 +6184,8 @@ object Form1: TForm1
         OnClick = ButInputTClick
       end
       object ButSave: TButton
-        Left = 693
-        Top = 332
+        Left = 694
+        Top = 325
         Width = 60
         Height = 25
         Caption = 'Save'

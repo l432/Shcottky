@@ -842,6 +842,7 @@ type
     ButSave: TButton;
     Bevel32: TBevel;
     RB_TauR: TRadioButton;
+    RB_Igen: TRadioButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -2038,6 +2039,7 @@ begin
   if TComponent(Sender).Name='ForIV' then Result:=fnForward;
   if TComponent(Sender).Name='RevIV' then Result:=fnReverse;
   if TComponent(Sender).Name='RB_TauR' then Result:=fnTauR;
+  if TComponent(Sender).Name='RB_Igen' then Result:=fnIgen;
 end;
 
 procedure TForm1.LabelXLogClick(Sender: TObject);
@@ -2959,7 +2961,10 @@ end;
 
 procedure TForm1.ButSaveClick(Sender: TObject);
 begin
- Write_File(FitName(VaxFile,'show'),VaxGraph);
+ if RB_TauR.Checked
+     then Write_File3Column(FitName(VaxFile,'show'),VaxGraph,
+                            DiodPN.L)
+     else Write_File(FitName(VaxFile,'show'),VaxGraph);
 end;
 
 procedure TForm1.ButSaveDLClick(Sender: TObject);
@@ -3424,7 +3429,8 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory); 
 showmessage(floattostr(Silicon.Absorption(900)));
-FunctionToFile('abs320.dat',Silicon.Absorption,250,1450,120,320);
+//FunctionToFile('abs320.dat',Silicon.Absorption,250,1450,120,320);
+FunctionToFile('abs320.dat',Silicon.mu_n,290,340,50,1.36e9);
  // dB_dU_FilesCreate();
 
 //------------------------------------------------------------

@@ -54,7 +54,8 @@ type
 //          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
           fnDiodVerySimple, //I=I0exp(qV/nkT)
           fnRectification, //розрахунок коефіцієнта випрямлення
-          fnTauR   //рекомбінаційний час по величині струму
+          fnTauR,   //рекомбінаційний час по величині струму
+          fnIgen    //генераційний струм по величині рекомбінаційного часу
           );
 
 
@@ -159,7 +160,8 @@ const
 // 'I0(exp(qV/nkT)-1)',
  'I=I0exp(qV/nkT)',
  'Rect.Koef',
- 'Recombination time'
+ 'Recombination time',
+ 'Generation current'
  );
 
 var
@@ -186,6 +188,14 @@ Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
 {записує у файл з іменем sfile дані з масиву А;
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
+
+Procedure Write_File3Column(sfile:string; A:PVector;
+                           Func:TFunDouble;NumberDigit:Byte=4);
+{записує у файл з іменем sfile дані з масиву А,
+третя колонка - результат Func(A^.Y[i],A^.X[i])
+якщо A^.n=0, то запис у файл не відбувається;
+NumberDigit - кількість значущих цифр}
+
 
 Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
 {записує у файл з іменем sfile дані з Series;
@@ -299,6 +309,12 @@ Procedure TauRFun(InVector:Pvector;var OutVector:Pvector);
 струм може залежати і від (кТ)^-1;
 використовуються параметри DiodPN}
 
+Procedure InVectorToOut(InVector:Pvector;var OutVector:Pvector;
+                        Func:TFunDouble;TtokT1:boolean=False);
+{при TtokT1=False OutVector^.X[i]=InVector^.X[i]
+ при TtokT1=True  OutVector^.X[i]=1/InVector^.X[i]/Kb
+
+OutVector^.Y[i]=Func(InVector^.Y[i],InVector^.X[i])}
 
 Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
 {записує в В пряму ділянку ВАХ з А з
@@ -984,7 +1000,9 @@ begin
      'Y = -C/B, where C and B are the coefficienfs of'#10+
      'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)';
    fnTauR:
-     Result:='S^2 ni^4 mu k T / Na I0^2';  
+     Result:='q^2 S^2 ni^4 mu k T / Na I0^2';
+   fnIgen:
+     Result:='S ni^2 / Na * (mu k T / tau)^0.5';
  else
      Result:='Some error';
  end;
@@ -1104,6 +1122,26 @@ for I := 0 to High(A^.x) do
 Str.SaveToFile(sfile);
 Str.Free;
 end;
+
+Procedure Write_File3Column(sfile:string; A:PVector;
+                           Func:TFunDouble;NumberDigit:Byte=4);
+{записує у файл з іменем sfile дані з масиву А,
+третя колонка - результат Func(A^.Y[i],A^.X[i])
+якщо A^.n=0, то запис у файл не відбувається;
+NumberDigit - кількість значущих цифр}
+var i:integer;
+    Str:TStringList;
+begin
+  if A^.n=0 then Exit;
+  Str:=TStringList.Create;
+  for I := 0 to High(A^.x) do
+     Str.Add(FloatToStrF(A^.X[i],ffExponent,NumberDigit,0)+' '+
+             FloatToStrF(A^.Y[i],ffExponent,NumberDigit,0)+' '+
+             FloatToStrF(Func(A^.Y[i],A^.X[i]),ffExponent,NumberDigit,0));
+  Str.SaveToFile(sfile);
+  Str.Free;
+end;
+
 
 Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
 {записує у файл з іменем sfile дані з Series;
@@ -1781,8 +1819,6 @@ begin
    OutVector.SetLenVector(InVector^.n);
    for i := 0 to High(OutVector^.X) do
     begin
-//     OutVector^.X[i]:=InVector^.X[High(OutVector^.X)-i];
-//     OutVector^.Y[i]:=DiodPN.L(InVector^.Y[High(OutVector^.X)-i],InVector^.X[High(OutVector^.X)-i]);
       if XisT then OutVector^.X[i]:=InVector^.X[i]
               else OutVector^.X[i]:=1/(Kb*InVector^.X[i]);
       OutVector^.Y[i]:=DiodPN.TauRec(InVector^.Y[i],OutVector^.X[i]);
@@ -1793,6 +1829,27 @@ begin
 
 end;
 
+
+Procedure InVectorToOut(InVector:Pvector;var OutVector:Pvector;
+                        Func:TFunDouble;TtokT1:boolean=False);
+{при TtokT1=False OutVector^.X[i]=InVector^.X[i]
+ при TtokT1=True  OutVector^.X[i]=1/InVector^.X[i]/Kb
+
+OutVector^.Y[i]=Func(InVector^.Y[i],InVector^.X[i])}
+ var i:integer;
+begin
+ try
+   OutVector.SetLenVector(InVector^.n);
+   for i := 0 to High(OutVector^.X) do
+    begin
+      if TtokT1 then OutVector^.X[i]:=1/(Kb*InVector^.X[i])
+                else OutVector^.X[i]:=InVector^.X[i];
+      OutVector^.Y[i]:=Func(InVector^.Y[i],InVector^.X[i]);
+    end;
+ except
+ OutVector^.Clear();
+ end;
+end;
 
 
 Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
@@ -4377,6 +4434,7 @@ begin
   fnDLdensityIvanov:Dit_Fun(InVector, OutVector,GraphParameters.Rs,Diod,GraphParameters.Diapazon);
   fnLee: LeeFun(InVector,GraphParameters.Diapazon,OutVector);
   fnTauR: TauRFun(InVector,OutVector);
+  fnIgen: InVectorToOut(InVector,OutVector,DiodPN.Igen,True);
   else ;
 end;
 end;

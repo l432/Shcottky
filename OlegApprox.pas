@@ -4565,9 +4565,12 @@ begin
 
 //  FXmode[3]:=cons;
 //  FXvalue[3]:=
-//  18927.42946-197.25815*InputData^.T
-//              +0.69134*InputData^.T*InputData^.T
-//              -7.87913E-4*InputData^.T*InputData^.T*InputData^.T;
+//  1.16853e6-9409.21*InputData^.T
+//              +25.4443*InputData^.T*InputData^.T
+//              -0.0231082*InputData^.T*InputData^.T*InputData^.T;
+//
+//  FXmode[2]:=cons;
+//  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
 
 end;
 
@@ -5894,7 +5897,7 @@ function TCurrentSC.Func(Parameters: TArrSingle): double;
  var AlL:double;
 begin
  AlL:=Silicon.Absorption(FVariab[0],fx)*
-          Parameters[1]*Power(fx,Parameters[2]);
+          Parameters[1]*Power(fx/300,Parameters[2]);
  Result:=Parameters[0]*AlL/(1+AlL);
 end;
 
@@ -5906,7 +5909,7 @@ begin
   Str1:=TStringList.Create;
   for I := 0 to High(InputData^.X) do
     Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
-             FloatToStrF(OutputData[1]*Power(InputData^.X[i],OutputData[2]),ffExponent,4,0));
+             FloatToStrF(OutputData[1]*Power(InputData^.X[i]/300,OutputData[2]),ffExponent,4,0));
   Str1.SaveToFile(FitName(InputData,suf));
   Str1.Free;
 end;

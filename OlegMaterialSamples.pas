@@ -271,6 +271,8 @@ type
        {час рекомбінації по величині дифузійного струму;
        вважається що рекомбінація відбувається в області
        з меншою провідністю;}
+       function Igen(TauRec, T: Double):double;
+       {функція, зворотня до попередньої}
        function L(tau,T:double):double;
        {довжина дифузії для неосновних
        носіїв в області з меншою провідністю
@@ -1038,6 +1040,11 @@ begin
     Result:=FLayerP.Nd
                            else
    Result:=FLayerN.Nd;
+end;
+
+function TDiod_PN.Igen(TauRec, T: Double): double;
+begin
+  Result:=Qelem*Area*Power(n_i(T),2)/Nd*sqrt(mu(T)*Kb*T/TauRec);
 end;
 
 function TDiod_PN.L(tau, T: double): double;
