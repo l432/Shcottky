@@ -1198,13 +1198,13 @@ begin
    end;
   Ephoton:=Hpl*2*Pi*3e8/(Lambda*1e-9*Qelem);//[]=eV
 
-  Result300:=Rajkanan(Ephoton);
-  if Result300=0 then Exit;
+//  Result300:=Rajkanan(Ephoton);
+//  if Result300=0 then Exit;
 
   Result:=Rajkanan(Ephoton,T);
-  if Result=0 then Exit;
-
-  Result:=Result/Result300*GreenAbs;
+//  if Result=0 then Exit;
+//
+//  Result:=Result/Result300*GreenAbs;
 end;
 
 class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
