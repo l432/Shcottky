@@ -848,6 +848,7 @@ end; //TTauG=class (TFitFunctEvolution)
 TDoubleDiod=class (TFitFunctEvolution)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh}
 private
+ fFunc:TFun_IV;
  Procedure BeforeFitness(InputData:Pvector);override;
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
@@ -859,15 +860,16 @@ public
 end; // TDoubleDiodo=class (TFitFunctEvolution)
 
 
-TDoubleDiodTau=class (TFitFunctEvolution)
+TDoubleDiodTau=class (TDoubleDiod)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh}
 private
- Procedure BeforeFitness(InputData:Pvector);override;
- Function Func(Parameters:TArrSingle):double; override;
- Function RealFunc(DeterminedParameters:TArrSingle):double; override;
- Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+// Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure CreateFooter;override;
+// Function Func(Parameters:TArrSingle):double; override;
+// Function RealFunc(DeterminedParameters:TArrSingle):double; override;
+// Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
 public
- Constructor Create;
+// Constructor Create;
 end; // TDoubleDiodTau=class (TFitFunctEvolution)
 
 
@@ -4122,8 +4124,11 @@ end;
 
 Function TDiod.Func(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
-      +(fX-fY*Parameters[1])/Parameters[3];
+
+ Result:=IV_Diod(fx,[Parameters[0],Parameters[1],Parameters[2],FVariab[0]],fy)
+         +(fX-fY*Parameters[1])/Parameters[3];
+// Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
+//      +(fX-fY*Parameters[1])/Parameters[3];
 end;
 
 Function TDiod.RealFunc(DeterminedParameters:TArrSingle):double;
@@ -4133,10 +4138,6 @@ begin
 
  Result:=Full_IV(IV_Diod,fX,[DeterminedParameters[0]*Kb*FVariab[0],
                  DeterminedParameters[1],DeterminedParameters[2]],DeterminedParameters[3]);
-//Function IV_Diod(V,E,I0:double;I:double=0;Rs:double=0):double;
-//Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
-//Function Full_IV(F:TFun_IV;V,E,I0:double;Rs:double=0;Rsh:double=1e12;Iph:double=0):double;
-
 end;
 
 Constructor TDiodTun.Create;
@@ -4241,8 +4242,11 @@ end;
 
 Function TPhotoDiod.Func(Parameters:TArrSingle):double;
 begin
-  Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
+  Result:=IV_Diod(fx,[Parameters[0],Parameters[1],Parameters[2],FVariab[0]],fy)
       +(fX-fY*Parameters[1])/Parameters[3]-Parameters[4];
+
+//  Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
+//      +(fX-fY*Parameters[1])/Parameters[3]-Parameters[4];
 end;
 
 
@@ -4505,6 +4509,7 @@ begin
  FXname[4]:='n2';
  FXname[5]:='Io2';
  fSampleIsRequired:=False;
+ fFunc:=IV_DiodDouble;
  CreateFooter();
 end;
 
@@ -4556,17 +4561,26 @@ end;
 
 Function TDoubleDiod.Func(Parameters:TArrSingle):double;
 begin
- Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
-       +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
-       +(fX-fY*Parameters[1])/Parameters[3];
+ Result:=fFunc(fx,[Parameters[0],Parameters[1],Parameters[2],
+                          Parameters[4],Parameters[5],FVariab[0]],fy)+
+          (fX-fY*Parameters[1])/Parameters[3];
+
+// Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
+//       +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
+//       +(fX-fY*Parameters[1])/Parameters[3];
 end;
 
 Function TDoubleDiod.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
- Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+// Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+//                 DeterminedParameters[1],DeterminedParameters[2],
+//                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5]],
+//                 DeterminedParameters[3],0);
+ Result:=Full_IV(fFunc,fX,[DeterminedParameters[0],
                  DeterminedParameters[1],DeterminedParameters[2],
-                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5]],
+                 DeterminedParameters[4],DeterminedParameters[5],FVariab[0]],
                  DeterminedParameters[3],0);
+
 end;
 
 Procedure TDoubleDiod.BeforeFitness(InputData:Pvector);
@@ -4588,69 +4602,85 @@ end;
 //_______________________________________________________
 
 
-Constructor TDoubleDiodTau.Create;
+//Constructor TDoubleDiodTau.Create;
+//begin
+//// inherited Create('DoubleDiodTau','Double diod fitting of solar cell I-V',
+////                  6,1,0);
+//// FXname[0]:='n1';
+//// FXname[1]:='Rs';
+//// FXname[2]:='ta_n';
+//// FXname[3]:='Rsh';
+//// FXname[4]:='n2';
+//// FXname[5]:='ta_g';
+//// fSampleIsRequired:=False;
+//// fHasPicture:=False;
+//// CreateFooter();
+//
+// inherited Create;
+// FName:='DoubleDiodTau';
+// FPictureName:=FName+'Fig';
+// FXname[2]:='ta_n';
+// FXname[5]:='ta_g';
+// fFunc:=IV_DiodDoubleTau;
+// fSampleIsRequired:=False;
+// fHasPicture:=False;
+//end;
+
+procedure TDoubleDiodTau.CreateFooter;
 begin
- inherited Create('DoubleDiodTau','Double diod fitting of solar cell I-V',
-                  6,1,0);
- FXname[0]:='n1';
- FXname[1]:='Rs';
- FXname[2]:='tau_n';
- FXname[3]:='Rsh';
- FXname[4]:='n2';
- FXname[5]:='tau_g';
+ FName:='DoubleDiodTau';
+ FPictureName:=FName+'Fig';
+ FXname[2]:='ta_n';
+ FXname[5]:='ta_g';
+ fFunc:=IV_DiodDoubleTau;
  fSampleIsRequired:=False;
  fHasPicture:=False;
- CreateFooter();
+ inherited CreateFooter;
 end;
 
-Function TDoubleDiodTau.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
- var i:integer;
-begin
-  Result:=0;
-    for I := 0 to High(InputData^.X) do
-     begin
-       fX:=InputData^.X[i];
-       fY:=InputData^.Y[i];
-       Result:=Result+abs(Summand(OutputData))/abs(fY);
-     end;
-end;
-
-Function TDoubleDiodTau.Func(Parameters:TArrSingle):double;
- var I01,I02,Vreal:double;
-begin
- Vreal:=fX-fY*Parameters[1];
- I01:=DiodPN.Igen(Parameters[2],FVariab[0]);
-// I02:=DiodPN.Iscr(Parameters[5],FVariab[0],Vreal);
- I02:=DiodPN.Iscr(Parameters[5],FVariab[0],0);
- Result:=I01*(exp(Vreal/(Parameters[0]*Kb*FVariab[0]))-1)
-       +I02*(exp(Vreal/(Parameters[4]*Kb*FVariab[0]))-1)
-       +Vreal/Parameters[3];
-end;
-
-Function TDoubleDiodTau.RealFunc(DeterminedParameters:TArrSingle):double;
-begin
- Result:=Full_IV(IV_DiodDoubleTau,fX,[DeterminedParameters[0],
-                 DeterminedParameters[1],DeterminedParameters[2],
-                 DeterminedParameters[4],DeterminedParameters[5],FVariab[0]],
-                 DeterminedParameters[3],0);
-
-end;
-
-Procedure TDoubleDiodTau.BeforeFitness(InputData:Pvector);
-
-begin
-  inherited BeforeFitness(InputData);
-
-//  FXmode[3]:=cons;
-//  FXvalue[3]:=
-//  1.16853e6-9409.21*InputData^.T
-//              +25.4443*InputData^.T*InputData^.T
-//              -0.0231082*InputData^.T*InputData^.T*InputData^.T;
+//Function TDoubleDiodTau.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
+// var i:integer;
+//begin
+//  Result:=0;
+//    for I := 0 to High(InputData^.X) do
+//     begin
+//       fX:=InputData^.X[i];
+//       fY:=InputData^.Y[i];
+//       Result:=Result+abs(Summand(OutputData))/abs(fY);
+//     end;
+//end;
 //
-//  FXmode[2]:=cons;
-//  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
-
-end;
+//Function TDoubleDiodTau.Func(Parameters:TArrSingle):double;
+//begin
+// Result:=IV_DiodDoubleTau(fx,[Parameters[0],Parameters[1],Parameters[2],
+//                          Parameters[4],Parameters[5],FVariab[0]],fy)+
+//          (fX-fY*Parameters[1])/Parameters[3];
+//end;
+//
+//Function TDoubleDiodTau.RealFunc(DeterminedParameters:TArrSingle):double;
+//begin
+// Result:=Full_IV(IV_DiodDoubleTau,fX,[DeterminedParameters[0],
+//                 DeterminedParameters[1],DeterminedParameters[2],
+//                 DeterminedParameters[4],DeterminedParameters[5],FVariab[0]],
+//                 DeterminedParameters[3],0);
+//
+//end;
+//
+//Procedure TDoubleDiodTau.BeforeFitness(InputData:Pvector);
+//
+//begin
+//  inherited BeforeFitness(InputData);
+//
+////  FXmode[3]:=cons;
+////  FXvalue[3]:=
+////  1.16853e6-9409.21*InputData^.T
+////              +25.4443*InputData^.T*InputData^.T
+////              -0.0231082*InputData^.T*InputData^.T*InputData^.T;
+////
+////  FXmode[2]:=cons;
+////  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
+//
+//end;
 
 //_______________________________________________________
 
@@ -4685,7 +4715,7 @@ begin
 
 Procedure TDoubleDiodLight.CreateFooter;
 begin
-  inherited;
+  inherited CreateFooter;
   FXname[7]:='Voc';
   FXname[8]:='Isc';
   FXname[9]:='Pm';
@@ -4703,9 +4733,6 @@ begin
        fX:=InputData^.X[i];
        fY:=InputData^.Y[i];
        Result:=Result+abs(Summand(OutputData)/(fY+OutputData[6]));
-//       Result:=Result+sqr(Summand(OutputData))/Weight(OutputData);//*weig[i];
-//       Result:=Result+sqr(Summand(OutputData)/
-//                      (fY*V721A_ErrorI_DC(fY)))
      end;
 
 end;
@@ -4718,9 +4745,12 @@ end;
 
 Function TDoubleDiodLight.Func(Parameters:TArrSingle):double;
 begin
-  Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
-        +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
-        +(fX-fY*Parameters[1])/Parameters[3]-Parameters[6];
+ Result:=IV_DiodDouble(fx,[Parameters[0],Parameters[1],Parameters[2],
+                          Parameters[4],Parameters[5],FVariab[0]],fy)+
+          (fX-fY*Parameters[1])/Parameters[3]-Parameters[6];
+//  Result:=Parameters[2]*(exp((fX-fY*Parameters[1])/(Parameters[0]*Kb*FVariab[0]))-1)
+//        +Parameters[5]*(exp((fX-fY*Parameters[1])/(Parameters[4]*Kb*FVariab[0]))-1)
+//        +(fX-fY*Parameters[1])/Parameters[3]-Parameters[6];
 end;
 
 
@@ -4728,14 +4758,15 @@ end;
 
 Function TDoubleDiodLight.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
-// Result:=Full_IV_2Exp(fX,DeterminedParameters[0]*Kb*FVariab[0],
-//          DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[1],
-//          DeterminedParameters[2],DeterminedParameters[5],
-//          DeterminedParameters[3],DeterminedParameters[6]);
- Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+ Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0],
                  DeterminedParameters[1],DeterminedParameters[2],
-                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5]],
+                 DeterminedParameters[4],DeterminedParameters[5],FVariab[0]],
                  DeterminedParameters[3],DeterminedParameters[6]);
+
+// Result:=Full_IV(IV_DiodDouble,fX,[DeterminedParameters[0]*Kb*FVariab[0],
+//                 DeterminedParameters[1],DeterminedParameters[2],
+//                 DeterminedParameters[4]*Kb*FVariab[0],DeterminedParameters[5]],
+//                 DeterminedParameters[3],DeterminedParameters[6]);
 end;
 
 
@@ -4751,16 +4782,10 @@ begin
   OutputData[FNx+5]:=ErResult;
   if (OutputData[6]>Isc_min) then
     begin
-//     OutputData[7]:=Voc_Isc_Pm_DoubleDiod(1,OutputData[0]*Kb*FVariab[0],
-//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
      OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodDouble,
                                      [OutputData[0]*Kb*FVariab[0],OutputData[1],
                                       OutputData[2],OutputData[4]*Kb*FVariab[0],
                                       OutputData[5]],OutputData[3],OutputData[6]);
-//     OutputData[8]:=Voc_Isc_Pm_DoubleDiod(2,OutputData[0]*Kb*FVariab[0],
-//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
      OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodDouble,
                                      [OutputData[0]*Kb*FVariab[0],OutputData[1],
                                       OutputData[2],OutputData[4]*Kb*FVariab[0],
@@ -4771,16 +4796,6 @@ begin
      (OutputData[FNx]<>ErResult)and
      (OutputData[FNx+1]<>ErResult) then
     begin
-//     OutputData[9]:=Voc_Isc_Pm_DoubleDiod(3,OutputData[0]*Kb*FVariab[0],
-//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
-//     OutputData[FNx+4]:=Voc_Isc_Pm_DoubleDiod(4,OutputData[0]*Kb*FVariab[0],
-//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
-//     OutputData[FNx+5]:=Voc_Isc_Pm_DoubleDiod(5,OutputData[0]*Kb*FVariab[0],
-//                        OutputData[4]*Kb*FVariab[0],OutputData[1],
-//                        OutputData[2],OutputData[5],OutputData[3],OutputData[6]);
-//     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
      OutputData[9]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodDouble,
                                      [OutputData[0]*Kb*FVariab[0],OutputData[1],
                                      OutputData[2],OutputData[4]*Kb*FVariab[0],

@@ -2391,15 +2391,19 @@ end;
 //}
 Function IV_Diod(V:double;Data:array of double;I:double=0):double;
 {I=I0*[exp(q(V-I Rs)/E)-1]
-Data[0] - Ε
+Data[0] - Ε  aбо n
 Data[1] - Rs
 Data[2] - Ι0
+Data[3] - T (якщо Data[0] - n)
 }
 begin
 //  Result:=I0*(exp((V-I*Rs)/E)-1);
-//  Result:=Data[2]*(exp((Data[0]-Data[3]*Data[4])/Data[1])-1);
- if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)
-        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1);
+ if High(Data)=2 then Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)
+    else if High(Data)=3 then Result:=Data[2]*(exp((V-I*Data[1])/(Data[0]*Kb*Data[3]))-1)
+         else Result:=ErResult;
+
+// if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)
+//        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1);
 end;
 
 Function IV_DiodTunnel(V:double;Data:array of double;I:double=0):double;
@@ -2409,8 +2413,9 @@ Data[1] - Rs
 Data[2] - Ι0
 }
 begin
- if I=0 then Result:=Data[2]*exp(V*Data[0])
-        else Result:=Data[2]*exp((V-I*Data[1])*Data[0]);
+// if I=0 then Result:=Data[2]*exp(V*Data[0])
+//        else
+        Result:=Data[2]*exp((V-I*Data[1])*Data[0]);
 end;
 
 Function IV_DiodTATrev(V:double;Data:array of double;I:double=0):double;
@@ -2427,8 +2432,9 @@ Data[6] - Eps
 }
   var F,Vreal:double;
 begin
-  if I=0 then Vreal:=V
-         else Vreal:=V-I*Data[1];
+//  if I=0 then Vreal:=V
+//         else
+         Vreal:=V-I*Data[1];
   F:=sqrt(Qelem*Data[5]*(Data[2]+Vreal)/2/Data[6]/Eps0);
   Result:=(Data[2]+Vreal)*Data[0]*exp(-4*sqrt(2*Data[4]*m0)*
                            Power(Qelem*Data[3],1.5)/
@@ -2437,16 +2443,23 @@ end;
 
 Function IV_DiodDouble(V:double;Data:array of double;I:double=0):double;
 {I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])
-Data[0] - Ε1
+Data[0] - Ε1 або n1
 Data[1] - Rs
 Data[2] - Ι01
-Data[3] - E2
+Data[3] - E2 або n2
 Data[4] - Ι02
+Data[5] - T (якщо Ei використовуються)
 }
 begin
- if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)+Data[4]*(exp(V/Data[3])-1)
-        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)+
-                     Data[4]*(exp((V-I*Data[1])/Data[3])-1);
+ if High(Data)=4 then Result:=IV_Diod(V,[Data[0],Data[1],Data[2]],I)+
+                              IV_Diod(V,[Data[3],Data[1],Data[4]],I)
+    else if High(Data)=5 then Result:=IV_Diod(V,[Data[0],Data[1],Data[2],Data[5]],I)+
+                              IV_Diod(V,[Data[3],Data[1],Data[4],Data[5]],I)
+         else Result:=ErResult;
+
+// if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)+Data[4]*(exp(V/Data[3])-1)
+//        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)+
+//                     Data[4]*(exp((V-I*Data[1])/Data[3])-1);
 end;
 
 Function IV_DiodDoubleTau(V:double;Data:array of double;I:double=0):double;
@@ -2458,34 +2471,46 @@ Data[3] - n2
 Data[4] - tau_g
 Data[5] - T
 }
- var I01,I02,Vreal:double;
+// var I01,I02,Vreal:double;
 begin
- Vreal:=V-I*Data[1];
- I01:=DiodPN.Igen(Data[2],Data[5]);
- I02:=DiodPN.Iscr(Data[4],Data[5],0);
+ Data[2]:=DiodPN.Igen(Data[2],Data[5]);
+ Data[4]:=DiodPN.Iscr(Data[4],Data[5],V-I*Data[1]);
+ Result:=IV_DiodDouble(V,Data,I);
+// Vreal:=V-I*Data[1];
+// I01:=DiodPN.Igen(Data[2],Data[5]);
 // I02:=DiodPN.Iscr(Data[4],Data[5],Vreal);
- Result:=I01*(exp(Vreal/Data[0]/Kb/Data[5])-1)+
-                I02*(exp(Vreal/Data[3]/Kb/Data[5])-1)
+//  Result:=IV_DiodDouble(V,[Data[0],Data[1],I01,Data[3],I02,Data[5]],I);
+
+
+// Result:=I01*(exp(Vreal/Data[0]/Kb/Data[5])-1)+
+//                I02*(exp(Vreal/Data[3]/Kb/Data[5])-1)
 end;
 
 
 Function IV_DiodTriple(V:double;Data:array of double;I:double=0):double;
 {I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])
-Data[0] - Ε1
+Data[0] - Ε1 або n1
 Data[1] - Rs
 Data[2] - Ι01
-Data[3] - E2
+Data[3] - E2  або n2
 Data[4] - Ι02
-Data[5] - E3
+Data[5] - E3  або n3
 Data[6] - Ι03
+Data[7] - T (якщо Ei використовуються)
 }
 begin
- if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)+
-                     Data[4]*(exp(V/Data[3])-1)+
-                     Data[6]*(exp(V/Data[5])-1)
-        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)+
-                     Data[4]*(exp((V-I*Data[1])/Data[3])-1)+
-                     Data[6]*(exp((V-I*Data[1])/Data[5])-1);
+ if High(Data)=6 then Result:=IV_Diod(V,[Data[0],Data[1],Data[2]],I)+
+                              IV_DiodDouble(V,[Data[3],Data[1],Data[4],Data[5],Data[6]],I)
+    else if High(Data)=7 then Result:=IV_Diod(V,[Data[0],Data[1],Data[2],Data[7]],I)+
+                              IV_DiodDouble(V,[Data[3],Data[1],Data[4],Data[5],Data[6],Data[7]],I)
+         else Result:=ErResult;
+
+// if I=0 then Result:=Data[2]*(exp(V/Data[0])-1)+
+//                     Data[4]*(exp(V/Data[3])-1)+
+//                     Data[6]*(exp(V/Data[5])-1)
+//        else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)+
+//                     Data[4]*(exp((V-I*Data[1])/Data[3])-1)+
+//                     Data[6]*(exp((V-I*Data[1])/Data[5])-1);
 end;
 
 //Function Full_IV(V,E,Rs,I0,Rsh:double;Iph:double=0):double;
