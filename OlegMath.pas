@@ -341,6 +341,9 @@ Data[3] - E2
 Data[4] - Ι02
 }
 
+Function IV_DiodDoubleTau(V:double;Data:array of double;I:double=0):double;
+
+
 Function IV_DiodTriple(V:double;Data:array of double;I:double=0):double;
 {I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1]
 +I03*[exp(q(V-I Rs)/E3)-1])
@@ -449,6 +452,9 @@ Function V721A_ErrorI_DC(I:double):Double;
 вольтметром В7-21А залежно від виміряної величини}
 
 implementation
+
+uses
+  OlegMaterialSamples;
 
 procedure Swap(var A:integer; var B:integer);  overload;
 {процедура обміну значеннями між цілими змінними А та В}
@@ -2442,6 +2448,26 @@ begin
         else Result:=Data[2]*(exp((V-I*Data[1])/Data[0])-1)+
                      Data[4]*(exp((V-I*Data[1])/Data[3])-1);
 end;
+
+Function IV_DiodDoubleTau(V:double;Data:array of double;I:double=0):double;
+{I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])
+Data[0] - n1
+Data[1] - Rs
+Data[2] - tau_n
+Data[3] - n2
+Data[4] - tau_g
+Data[5] - T
+}
+ var I01,I02,Vreal:double;
+begin
+ Vreal:=V-I*Data[1];
+ I01:=DiodPN.Igen(Data[2],Data[5]);
+ I02:=DiodPN.Iscr(Data[4],Data[5],0);
+// I02:=DiodPN.Iscr(Data[4],Data[5],Vreal);
+ Result:=I01*(exp(Vreal/Data[0]/Kb/Data[5])-1)+
+                I02*(exp(Vreal/Data[3]/Kb/Data[5])-1)
+end;
+
 
 Function IV_DiodTriple(V:double;Data:array of double;I:double=0):double;
 {I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1])

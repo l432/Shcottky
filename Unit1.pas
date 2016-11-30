@@ -843,6 +843,7 @@ type
     Bevel32: TBevel;
     RB_TauR: TRadioButton;
     RB_Igen: TRadioButton;
+    RB_TauG: TRadioButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -2040,6 +2041,7 @@ begin
   if TComponent(Sender).Name='RevIV' then Result:=fnReverse;
   if TComponent(Sender).Name='RB_TauR' then Result:=fnTauR;
   if TComponent(Sender).Name='RB_Igen' then Result:=fnIgen;
+  if TComponent(Sender).Name='RB_TauG' then Result:=fnTauG;
 end;
 
 procedure TForm1.LabelXLogClick(Sender: TObject);

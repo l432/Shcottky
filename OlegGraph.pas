@@ -55,7 +55,8 @@ type
           fnDiodVerySimple, //I=I0exp(qV/nkT)
           fnRectification, //розрахунок коефіцієнта випрямлення
           fnTauR,   //рекомбінаційний час по величині струму
-          fnIgen    //генераційний струм по величині рекомбінаційного часу
+          fnIgen,    //генераційний струм по величині рекомбінаційного часу
+          fnTauG   //генераційний час по величині струму
           );
 
 
@@ -161,7 +162,8 @@ const
  'I=I0exp(qV/nkT)',
  'Rect.Koef',
  'Recombination time',
- 'Generation current'
+ 'Generation current',
+ 'Generation time'
  );
 
 var
@@ -303,11 +305,18 @@ Procedure LeeFun(A:Pvector; D:TDiapazon; var B:Pvector);
 використовується в функції LeeKalk для
 розрахунку висоти бар'єру; ось такий контрабандний прийом :)}
 
-Procedure TauRFun(InVector:Pvector;var OutVector:Pvector);
-{по температурній залежності рекомбінаційного
-струму будується залежність часу рекомбінації;
-струм може залежати і від (кТ)^-1;
-використовуються параметри DiodPN}
+//Procedure TauRFun(InVector:Pvector;var OutVector:Pvector);
+//{по температурній залежності рекомбінаційного
+//струму будується залежність часу рекомбінації;
+//струм може залежати і від (кТ)^-1;
+//використовуються параметри DiodPN}
+//
+//Procedure TauGFun(InVector:Pvector;var OutVector:Pvector);
+//{по температурній залежності рекомбінаційного
+//струму в ОПЗ будується залежність часу рекомбінації;
+//струм може залежати і від (кТ)^-1;
+//використовуються параметри DiodPN}
+
 
 Procedure InVectorToOut(InVector:Pvector;var OutVector:Pvector;
                         Func:TFunDouble;TtokT1:boolean=False);
@@ -315,6 +324,14 @@ Procedure InVectorToOut(InVector:Pvector;var OutVector:Pvector;
  при TtokT1=True  OutVector^.X[i]=1/InVector^.X[i]/Kb
 
 OutVector^.Y[i]=Func(InVector^.Y[i],InVector^.X[i])}
+
+Procedure TauFun(InVector:Pvector;var OutVector:Pvector;
+                 Func:TFunDouble);
+{на відміну від попередньої, за значеннями
+в InVector намагається визначити від чого
+залежність (Т чи kT), а вже потім відбуваються перетворення,
+з врахуванням того, що в  OutVector завжди має
+бути залежність від температури}
 
 Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
 {записує в В пряму ділянку ВАХ з А з
@@ -1003,6 +1020,8 @@ begin
      Result:='q^2 S^2 ni^4 mu k T / Na I0^2';
    fnIgen:
      Result:='S ni^2 / Na * (mu k T / tau)^0.5';
+   fnTauG:
+     Result:='q S ni W / 2 I0';
  else
      Result:='Some error';
  end;
@@ -1806,28 +1825,65 @@ dispose(temp2);
 dispose(temp);
 end;
 
-Procedure TauRFun(InVector:Pvector;var OutVector:Pvector);
-{по температурній залежності рекомбінаційного
-струму будується залежність часу рекомбінації;
-струм може залежати і від (кТ)^-1;
-використовуються параметри DiodPN}
- var XisT:boolean;
-  i: integer;
-begin
- XisT:=(InVector^.X[0]>100)and (InVector^.X[High(InVector^.X)]>100);
- try
-   OutVector.SetLenVector(InVector^.n);
-   for i := 0 to High(OutVector^.X) do
-    begin
-      if XisT then OutVector^.X[i]:=InVector^.X[i]
-              else OutVector^.X[i]:=1/(Kb*InVector^.X[i]);
-      OutVector^.Y[i]:=DiodPN.TauRec(InVector^.Y[i],OutVector^.X[i]);
-    end;
- except
- OutVector^.Clear();
- end;
+//Procedure TauRFun(InVector:Pvector;var OutVector:Pvector);
+//{по температурній залежності рекомбінаційного
+//струму будується залежність часу рекомбінації;
+//струм може залежати і від (кТ)^-1;
+//використовуються параметри DiodPN}
+// var XisT:boolean;
+//  i: integer;
+//     tempV:PVector;
+//begin
+// XisT:=(InVector^.X[0]>100)and (InVector^.X[High(InVector^.X)]>100);
+// if XisT then  InVectorToOut(InVector,OutVector,DiodPN.TauRec)
+//         else
+//          begin
+//            new(tempV);
+//            InVector^.Copy(tempV^);
+//            for i := 0 to High(tempV^.X) do
+//                    tempV^.X[i]:=1/(Kb*InVector^.X[i]);
+//            InVectorToOut(tempV,OutVector,DiodPN.TauRec);
+//            dispose(tempV);
+//          end;
+//
+////
+////
+//// try
+////   OutVector.SetLenVector(InVector^.n);
+////   for i := 0 to High(OutVector^.X) do
+////    begin
+////      if XisT then OutVector^.X[i]:=InVector^.X[i]
+////              else OutVector^.X[i]:=1/(Kb*InVector^.X[i]);
+////      OutVector^.Y[i]:=DiodPN.TauRec(InVector^.Y[i],OutVector^.X[i]);
+////    end;
+//// except
+//// OutVector^.Clear();
+//// end;
+//end;
+//
+//Procedure TauGFun(InVector:Pvector;var OutVector:Pvector);
+//{по температурній залежності рекомбінаційного
+//струму будується залежність часу рекомбінації;
+//струм може залежати і від (кТ)^-1;
+//використовуються параметри DiodPN}
+// var XisT:boolean;
+//  i: integer;
+//begin
+// XisT:=(InVector^.X[0]>100)and (InVector^.X[High(InVector^.X)]>100);
+// try
+//   OutVector.SetLenVector(InVector^.n);
+//   for i := 0 to High(OutVector^.X) do
+//    begin
+//      if XisT then OutVector^.X[i]:=InVector^.X[i]
+//              else OutVector^.X[i]:=1/(Kb*InVector^.X[i]);
+//      OutVector^.Y[i]:=DiodPN.TauGen(InVector^.Y[i],OutVector^.X[i]);
+//    end;
+// except
+// OutVector^.Clear();
+// end;
+//
+//end;
 
-end;
 
 
 Procedure InVectorToOut(InVector:Pvector;var OutVector:Pvector;
@@ -1851,6 +1907,24 @@ begin
  end;
 end;
 
+Procedure TauFun(InVector:Pvector;var OutVector:Pvector;
+                 Func:TFunDouble);
+ var XisT:boolean;
+      i: integer;
+     tempV:PVector;
+begin
+ XisT:=(InVector^.X[0]>100)and (InVector^.X[High(InVector^.X)]>100);
+ if XisT then  InVectorToOut(InVector,OutVector,Func)
+         else
+          begin
+            new(tempV);
+            InVector^.Copy(tempV^);
+            for i := 0 to High(tempV^.X) do
+                    tempV^.X[i]:=1/(Kb*InVector^.X[i]);
+            InVectorToOut(tempV,OutVector,Func);
+            dispose(tempV);
+          end;
+end;
 
 Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
 {записує в В пряму ділянку ВАХ з А з
@@ -4433,8 +4507,10 @@ begin
                Diod,GraphParameters.Diapazon,GraphParameters.NssType);
   fnDLdensityIvanov:Dit_Fun(InVector, OutVector,GraphParameters.Rs,Diod,GraphParameters.Diapazon);
   fnLee: LeeFun(InVector,GraphParameters.Diapazon,OutVector);
-  fnTauR: TauRFun(InVector,OutVector);
+//  fnTauR: TauRFun(InVector,OutVector);
+  fnTauR: TauFun(InVector,OutVector,DiodPN.TauRec);
   fnIgen: InVectorToOut(InVector,OutVector,DiodPN.Igen,True);
+  fnTauG: TauFun(InVector,OutVector,DiodPN.TauGen);
   else ;
 end;
 end;

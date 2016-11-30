@@ -29,6 +29,7 @@ object Form1: TForm1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
+    ExplicitTop = -8
     object TabSheet1: TTabSheet
       Caption = 'Directory operation'
       object GroupBox13: TGroupBox
@@ -6156,6 +6157,18 @@ object Form1: TForm1
             Height = 24
             Caption = 'Tau -> Igen'
             TabOrder = 41
+            WordWrap = True
+            OnClick = RadioButtonM_VClick
+            OnDblClick = RadioButtonM_VDblClick
+          end
+          object RB_TauG: TRadioButton
+            Tag = 55
+            Left = 1510
+            Top = 23
+            Width = 75
+            Height = 24
+            Caption = 'Irec -> Tau'
+            TabOrder = 42
             WordWrap = True
             OnClick = RadioButtonM_VClick
             OnDblClick = RadioButtonM_VDblClick

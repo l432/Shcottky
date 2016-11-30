@@ -80,6 +80,8 @@ type
      function Nv(T:double):double;
 //    ефективна густина станів в зоні провідності та валентній
      function n_i(T:double):double;
+     function Ei(T:double):double;
+     {положення рівня Фермі у власному}
      class function VarshniFull(F0,T:double;
                                 Alpha:double=VarshA_Si;
                                 Betta:double=VarshB_Si):double;
@@ -277,6 +279,10 @@ type
        {довжина дифузії для неосновних
        носіїв в області з меншою провідністю
        tau - час життя цих носіїв}
+       function TauGen(Iscr, T: Double):double;
+       {час рекомбінації в ОПЗ по рекомбінаційного струму}
+       function Iscr(TauGen, T, Voltage: Double):double;
+       {функція, зворотня до попередньої}
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -363,6 +369,16 @@ function TMaterial.EgT(T: Double):Double;
 begin
  if Eg0=ErResult then Result:=ErResult
                  else Result:=Varshni(Eg0,T);
+end;
+
+function TMaterial.Ei(T: double): double;
+begin
+ if (Eg0=ErResult)or
+    (Me=ErResult)or
+    (Mh=ErResult)   then Result:=ErResult
+                    else
+                    Result:=0.5*(EgT(T)+Kb*T*ln(Nv(T)/Nc(T)));
+ 
 end;
 
 function TMaterial.Nc(T:double):double;
@@ -1047,6 +1063,11 @@ begin
   Result:=Qelem*Area*Power(n_i(T),2)/Nd*sqrt(mu(T)*Kb*T/TauRec);
 end;
 
+function TDiod_PN.Iscr(TauGen, T, Voltage: Double): double;
+begin
+ Result:=Qelem*Area*n_i(T)*W(T,Voltage)/2/TauGen;
+end;
+
 function TDiod_PN.L(tau, T: double): double;
 begin
  Result:=sqrt(tau*mu(T)*Kb*T);
@@ -1088,6 +1109,11 @@ begin
  Result:=I/(Wd*Area*FLayerP.Material.n_i(T)*(exp(V/2/Kb/T)-1))*
           (Vd-V)/2/Kb/T/Qelem;
 
+end;
+
+function TDiod_PN.TauGen(Iscr, T: Double): double;
+begin
+  Result:=Qelem*Area*n_i(T)*W(T)/2/Iscr;
 end;
 
 function TDiod_PN.TauRec(Igen, T: Double): double;

@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..47]of string=
+  FuncName:array[0..48]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -34,7 +34,7 @@ const
            'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
            'Tunneling diod forward','Illuminated tunneling diod',
            'Tunneling diod rewers', 'Barrier height',
-           'T-Diod','Photo T-Diod','Shot-circuit Current');
+           'T-Diod','Photo T-Diod','Shot-circuit Current','D-Diod-Tau');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -857,6 +857,19 @@ private
 public
  Constructor Create;
 end; // TDoubleDiodo=class (TFitFunctEvolution)
+
+
+TDoubleDiodTau=class (TFitFunctEvolution)
+{I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh}
+private
+ Procedure BeforeFitness(InputData:Pvector);override;
+ Function Func(Parameters:TArrSingle):double; override;
+ Function RealFunc(DeterminedParameters:TArrSingle):double; override;
+ Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+public
+ Constructor Create;
+end; // TDoubleDiodTau=class (TFitFunctEvolution)
+
 
 TDoubleDiodLight=class (TFitFunctEvolution)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]
@@ -4480,6 +4493,7 @@ end;
 // Result:=1;
 //end;
 
+//-----------------------------------------------------------
 Constructor TDoubleDiod.Create;
 begin
  inherited Create('DoubleDiod','Double diod fitting of solar cell I-V',
@@ -4504,10 +4518,7 @@ begin
      begin
        fX:=InputData^.X[i];
        fY:=InputData^.Y[i];
-//       Result:=Result+sqr(Summand(OutputData))/Weight(OutputData);
        Result:=Result+abs(Summand(OutputData))/abs(fY);
-//       Result:=Result+abs((Summand(OutputData))/
-//                      (fY*V721A_ErrorI_DC(fY)))
      end;
 
 {цільова функція базується на різниці площ під
@@ -4573,6 +4584,76 @@ begin
 //  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
 
 end;
+
+//_______________________________________________________
+
+
+Constructor TDoubleDiodTau.Create;
+begin
+ inherited Create('DoubleDiodTau','Double diod fitting of solar cell I-V',
+                  6,1,0);
+ FXname[0]:='n1';
+ FXname[1]:='Rs';
+ FXname[2]:='tau_n';
+ FXname[3]:='Rsh';
+ FXname[4]:='n2';
+ FXname[5]:='tau_g';
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ CreateFooter();
+end;
+
+Function TDoubleDiodTau.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
+ var i:integer;
+begin
+  Result:=0;
+    for I := 0 to High(InputData^.X) do
+     begin
+       fX:=InputData^.X[i];
+       fY:=InputData^.Y[i];
+       Result:=Result+abs(Summand(OutputData))/abs(fY);
+     end;
+end;
+
+Function TDoubleDiodTau.Func(Parameters:TArrSingle):double;
+ var I01,I02,Vreal:double;
+begin
+ Vreal:=fX-fY*Parameters[1];
+ I01:=DiodPN.Igen(Parameters[2],FVariab[0]);
+// I02:=DiodPN.Iscr(Parameters[5],FVariab[0],Vreal);
+ I02:=DiodPN.Iscr(Parameters[5],FVariab[0],0);
+ Result:=I01*(exp(Vreal/(Parameters[0]*Kb*FVariab[0]))-1)
+       +I02*(exp(Vreal/(Parameters[4]*Kb*FVariab[0]))-1)
+       +Vreal/Parameters[3];
+end;
+
+Function TDoubleDiodTau.RealFunc(DeterminedParameters:TArrSingle):double;
+begin
+ Result:=Full_IV(IV_DiodDoubleTau,fX,[DeterminedParameters[0],
+                 DeterminedParameters[1],DeterminedParameters[2],
+                 DeterminedParameters[4],DeterminedParameters[5],FVariab[0]],
+                 DeterminedParameters[3],0);
+
+end;
+
+Procedure TDoubleDiodTau.BeforeFitness(InputData:Pvector);
+
+begin
+  inherited BeforeFitness(InputData);
+
+//  FXmode[3]:=cons;
+//  FXvalue[3]:=
+//  1.16853e6-9409.21*InputData^.T
+//              +25.4443*InputData^.T*InputData^.T
+//              -0.0231082*InputData^.T*InputData^.T*InputData^.T;
+//
+//  FXmode[2]:=cons;
+//  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
+
+end;
+
+//_______________________________________________________
+
 
 Constructor TDoubleDiodLight.Create;
 begin
@@ -5823,7 +5904,7 @@ begin
   if str='Photo T-Diod' then F:=TTripleDiodLight.Create;
   if str='T-Diod' then F:=TTripleDiod.Create;
   if str='Shot-circuit Current' then F:=TCurrentSC.Create;
-
+  if str='D-Diod-Tau' then F:=TDoubleDiodTau.Create;
 //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
