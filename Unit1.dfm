@@ -18,7 +18,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 120
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
@@ -29,7 +29,6 @@ object Form1: TForm1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
-    ExplicitTop = -8
     object TabSheet1: TTabSheet
       Caption = 'Directory operation'
       object GroupBox13: TGroupBox
@@ -1661,12 +1660,11 @@ object Form1: TForm1
         Top = 6
         Width = 230
         Height = 390
-        VertScrollBar.Position = 386
         ParentBackground = True
         TabOrder = 4
         object GroupBoxParam0: TGroupBox
           Left = 0
-          Top = -386
+          Top = 0
           Width = 208
           Height = 1550
           Caption = 'PARAMETERS OF CALCULATION'
@@ -5462,12 +5460,12 @@ object Form1: TForm1
         Top = -1
         Width = 486
         Height = 107
-        HorzScrollBar.Position = 1216
+        HorzScrollBar.Position = 1237
         Color = clInfoBk
         ParentColor = False
         TabOrder = 11
         object GroupBox1: TGroupBox
-          Left = -1218
+          Left = -1239
           Top = -2
           Width = 1700
           Height = 88
@@ -6169,6 +6167,18 @@ object Form1: TForm1
             Height = 24
             Caption = 'Irec -> Tau'
             TabOrder = 42
+            WordWrap = True
+            OnClick = RadioButtonM_VClick
+            OnDblClick = RadioButtonM_VDblClick
+          end
+          object RB_Irec: TRadioButton
+            Tag = 55
+            Left = 1602
+            Top = 23
+            Width = 75
+            Height = 24
+            Caption = 'Tau -> Irec'
+            TabOrder = 43
             WordWrap = True
             OnClick = RadioButtonM_VClick
             OnDblClick = RadioButtonM_VDblClick

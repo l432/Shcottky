@@ -56,7 +56,8 @@ type
           fnRectification, //розрахунок коефіцієнта випрямлення
           fnTauR,   //рекомбінаційний час по величині струму
           fnIgen,    //генераційний струм по величині рекомбінаційного часу
-          fnTauG   //генераційний час по величині струму
+          fnTauG,   //генераційний час по величині струму
+          fnIrec    //рекомбінаційний струм по величині генераційного часу
           );
 
 
@@ -163,7 +164,8 @@ const
  'Rect.Koef',
  'Recombination time',
  'Generation current',
- 'Generation time'
+ 'Generation time',
+ 'Recombination current'
  );
 
 var
@@ -1022,6 +1024,8 @@ begin
      Result:='S ni^2 / Na * (mu k T / tau)^0.5';
    fnTauG:
      Result:='q S ni W / 2 I0';
+   fnIrec:
+     Result:='q S ni W / 2 tau';
  else
      Result:='Some error';
  end;
@@ -4511,6 +4515,7 @@ begin
   fnTauR: TauFun(InVector,OutVector,DiodPN.TauRec);
   fnIgen: InVectorToOut(InVector,OutVector,DiodPN.Igen,True);
   fnTauG: TauFun(InVector,OutVector,DiodPN.TauGen);
+  fnIrec: InVectorToOut(InVector,OutVector,DiodPN.TauGen,True);
   else ;
 end;
 end;
