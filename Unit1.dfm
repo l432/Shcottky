@@ -18,7 +18,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
@@ -5460,12 +5460,12 @@ object Form1: TForm1
         Top = -1
         Width = 486
         Height = 107
-        HorzScrollBar.Position = 1237
+        HorzScrollBar.Position = 1216
         Color = clInfoBk
         ParentColor = False
         TabOrder = 11
         object GroupBox1: TGroupBox
-          Left = -1239
+          Left = -1218
           Top = -2
           Width = 1700
           Height = 88

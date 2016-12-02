@@ -4614,10 +4614,9 @@ begin
   inherited BeforeFitness(InputData);
   FXmode[3]:=cons;
   FXvalue[3]:=
-  1.16853e6-9409.21*InputData^.T
-              +25.4443*InputData^.T*InputData^.T
-              -0.0231082*InputData^.T*InputData^.T*InputData^.T;
-
+  -293396+5854.34*InputData^.T
+              -26.7153*InputData^.T*InputData^.T
+             +0.0354778*InputData^.T*InputData^.T*InputData^.T;
 
 //
 //  FXmode[2]:=cons;
@@ -4681,15 +4680,6 @@ begin
      OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,fFunc,Data,OutputData[3],OutputData[6]);
      OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,fFunc,Data,OutputData[3],OutputData[6]);
 
-//     OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,fFunc,
-//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-//                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
-//                                      OutputData[5]],OutputData[3],OutputData[6]);
-//      showmessage('Hi');
-//     OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,fFunc,
-//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-//                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
-//                                      OutputData[5]],OutputData[3],OutputData[6]);
     end;
 
   if (OutputData[FNx]>Voc_min)and
@@ -4701,18 +4691,6 @@ begin
      OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,fFunc,Data,OutputData[3],OutputData[6]);
      OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,fFunc,Data,OutputData[3],OutputData[6]);
 
-//     OutputData[9]:=Voc_Isc_Pm_Vm_Im(3,fFunc,
-//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-//                                     OutputData[2],OutputData[4]*Kb*FVariab[0],
-//                                     OutputData[5]],OutputData[3],OutputData[6]);
-//     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,fFunc,
-//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-//                                     OutputData[2],OutputData[4]*Kb*FVariab[0],
-//                                     OutputData[5]],OutputData[3],OutputData[6]);
-//     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,fFunc,
-//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-//                                     OutputData[2],OutputData[4]*Kb*FVariab[0],
-//                                     OutputData[5]],OutputData[3],OutputData[6]);
      OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
     end;
 end;
