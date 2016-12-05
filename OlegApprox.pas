@@ -4614,9 +4614,42 @@ begin
   inherited BeforeFitness(InputData);
   FXmode[3]:=cons;
   FXvalue[3]:=
-  -45638.9+475.334*InputData^.T
-              -1.52424*InputData^.T*InputData^.T
-             +0.00156349*InputData^.T*InputData^.T*InputData^.T;
+  -10897.85016+93.22157*InputData^.T
+              -0.25296*InputData^.T*InputData^.T
+              +2.26949E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC12,udark
+
+
+//  10786.04599-109.07446*InputData^.T
+//              +0.37268*InputData^.T*InputData^.T
+//             -4.13941E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC12,dark
+
+
+//  -17097.35067+159.37431*InputData^.T
+//              -0.4887*InputData^.T*InputData^.T
+//             +5.07437E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC12,ud
+
+//  51514.7-494.388*InputData^.T
+//              +1.58592*InputData^.T*InputData^.T
+//             -0.00168533*InputData^.T*InputData^.T*InputData^.T;
+//SC12,d
+
+//  313955.48805-2878.35512*InputData^.T
+//              +8.88596*InputData^.T*InputData^.T
+//             -0.0092*InputData^.T*InputData^.T*InputData^.T;
+//SC4,Ru3
+
+
+//  -13022.75173+106.85001*InputData^.T
+//              -0.19438*InputData^.T*InputData^.T;
+//SC4,Ru2
+
+
+//  -45638.9+475.334*InputData^.T
+//              -1.52424*InputData^.T*InputData^.T
+//             +0.00156349*InputData^.T*InputData^.T*InputData^.T;
 //SC4,Rdark
 
 //  264319-2481.35*InputData^.T
