@@ -4614,9 +4614,9 @@ begin
   inherited BeforeFitness(InputData);
   FXmode[3]:=cons;
   FXvalue[3]:=
-  -10897.85016+93.22157*InputData^.T
-              -0.25296*InputData^.T*InputData^.T
-              +2.26949E-4*InputData^.T*InputData^.T*InputData^.T;
+//  -10897.85016+93.22157*InputData^.T
+//              -0.25296*InputData^.T*InputData^.T
+//              +2.26949E-4*InputData^.T*InputData^.T*InputData^.T;
 //SC12,udark
 
 
@@ -4631,9 +4631,9 @@ begin
 //             +5.07437E-4*InputData^.T*InputData^.T*InputData^.T;
 //SC12,ud
 
-//  51514.7-494.388*InputData^.T
-//              +1.58592*InputData^.T*InputData^.T
-//             -0.00168533*InputData^.T*InputData^.T*InputData^.T;
+  51514.7-494.388*InputData^.T
+              +1.58592*InputData^.T*InputData^.T
+             -0.00168533*InputData^.T*InputData^.T*InputData^.T;
 //SC12,d
 
 //  313955.48805-2878.35512*InputData^.T
