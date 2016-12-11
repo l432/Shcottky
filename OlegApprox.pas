@@ -4612,11 +4612,11 @@ Procedure TDoubleDiodAbstract.BeforeFitness(InputData:Pvector);
 
 begin
   inherited BeforeFitness(InputData);
-  FXmode[3]:=cons;
-  FXvalue[3]:=
-  18927.42946-197.25815*InputData^.T
-              +0.69134*InputData^.T*InputData^.T
-             -7.87913E-4*InputData^.T*InputData^.T*InputData^.T;
+//  FXmode[3]:=cons;
+//  FXvalue[3]:=
+//  18927.42946-197.25815*InputData^.T
+//              +0.69134*InputData^.T*InputData^.T
+//             -7.87913E-4*InputData^.T*InputData^.T*InputData^.T;
 //SC8,dark
 
 

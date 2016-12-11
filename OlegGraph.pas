@@ -2054,8 +2054,9 @@ for I := 0 to High(B^.X) do
   B^.Y[i]:=Poh(temp,i)/Kb/A^.T;
  end;
 {зглажування}
-Smoothing (B,temp);
-Median (temp,B);
+SmoothingA (B);
+//Smoothing (B,temp);
+//Median (temp,B);
 dispose(temp);
 end;
 
