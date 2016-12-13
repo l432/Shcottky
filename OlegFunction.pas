@@ -36,6 +36,14 @@ procedure StrToNumber(St:TCaption; Def:double; var Num:double);
 якщо рядок порожній - Num  буде присвоєне
 значення Def}
 
+procedure IVC(Func:TFunDouble;
+              T:double;
+              ResultFileName:string='';
+              Vmin:double=0.01;
+              Vmax:double=0.6;
+              delV:double=0.01);
+{розраховується ВАХ за законом I=Func(T,V)
+і записується у файл ResultFileName}
 
 
 implementation
@@ -152,6 +160,26 @@ if St='' then Num:=Def
            end;//try
            Num:=temp;
           end;//else
+end;
+
+procedure IVC(Func:TFunDouble;
+              T:double;
+              ResultFileName:string='';
+              Vmin:double=0.01;
+              Vmax:double=0.6;
+              delV:double=0.01);
+ Var V:double;
+     Vax:PVector;
+begin
+ new(Vax);
+ Vax^.Clear;
+ V:=Vmin;
+ repeat
+   Vax^.Add(V,Func(T,V));
+   V:=V+delV;
+ until (V>Vmax);
+ if ResultFileName<>'' then Vax^.Write_File(ResultFileName);
+ dispose(Vax);
 end;
 
 end.

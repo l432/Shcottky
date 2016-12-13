@@ -287,20 +287,24 @@ type
        {час рекомбінації в ОПЗ по рекомбінаційного струму}
        function Iscr(TauGen, T, Voltage: Double):double;
        {функція, зворотня до попередньої}
-       function fi(x,T:double):double;
+       function fi(x,T:double;V:double=0):double;
        {значення потенціалу в ОПЗ,
        якщо х<0 - то це точка в n-області,
        перевірки на те що х має знаходитися
        в інтервалі [-Wn, Wp] нема;
        вважається що 0 відповідає
        точці x=-Wn}
-       function n_SCR(x,T:double):double;
-       function p_SCR(x,T:double):double;
+       function n_SCR(x,T:double;V:double=0):double;
+       function p_SCR(x,T:double;V:double=0):double;
        {повертає значення концентрації електронів (дірок)
        в точці ОПЗ з координатою х
        якщо х<0 - то це точка в n-області,
        перевірки на те що х має знаходитися
        в інтервалі [-Wn, Wp] нема}
+       function R_Shockley(x,T:double;V:double=0):double;
+       {темп рекомбінації згідно механізма Шоклі-Ріда
+       в в точці ОПЗ з координатою х}
+       function I_Shockley(T,V:double):double;
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -327,7 +331,20 @@ var
 
 Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
 
-Procedure AllSCR;
+Procedure AllSCR(DiodPN:TDiod_PN;
+                 var Vec:PVector;Func:TFunTriple;
+                 T:double=300;V:double=0;
+                 FileName:string='';
+                 Npoint:integer=100);
+{в Vec розміщується щось, що розраховується
+в кожній точці ОПЗ діода DiodPN;
+Npoint - кількість відрізків, на які ділиться
+ОПЗ в n-області та ОПЗ в р-області,
+Vec^.Y[i]=Func(Vec^.X[i],T,V)
+Якщо FileName<>'', то отримана залежність
+записується у файл
+}
+
 
 implementation
 
@@ -392,11 +409,11 @@ end;
 
 function TMaterial.Ei(T: double): double;
 begin
- if Name='Si' then
-      begin
-       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
-       Exit;
-      end;
+// if Name='Si' then
+//      begin
+//       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
+//       Exit;
+//      end;
  if (Eg0=ErResult)or
     (Me=ErResult)or
     (Mh=ErResult)   then Result:=ErResult
@@ -420,11 +437,11 @@ end;
 
 function TMaterial.n_i(T: double): double;
 begin
- if Name='Si' then
-      begin
-       Result:=1.64e21*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
-       Exit;
-      end;
+// if Name='Si' then
+//      begin
+//       Result:=1.64e21*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
+//       Exit;
+//      end;
  Result:=ErResult;
  if Eg0=ErResult then Exit;
  if (Mh=ErResult)or(Me=ErResult) then Exit;
@@ -621,45 +638,54 @@ begin
 
 end;
 
-Procedure AllSCR;
- const Npoint=100;
+Procedure AllSCR(DiodPN:TDiod_PN;
+                 var Vec:PVector;Func:TFunTriple;
+                 T:double=300;V:double=0;
+                 FileName:string='';
+                 Npoint:integer=100);
+// const Npoint=100;
  var i:integer;
-     step,X,T:double;
-     Vec:PVector;
+     step,X{,T,V}:double;
+//     Vec:PVector;
 begin
- new(Vec);
- T:=300;
+// new(Vec);
+// T:=300;
+// V:=0.1;
  Vec.Clear;
- step:=DiodPN.Wn(T)/Npoint;
+ step:=DiodPN.Wn(T,V)/Npoint;
  for I := 0 to Npoint do
    begin
-    X:=-DiodPN.Wn(T)+step*i;
-    Vec.Add(X,DiodPN.n_SCR(X,T));
+    X:=-DiodPN.Wn(T,V)+step*i;
+    Vec.Add(X,Func(X,T,V));
    end;
- step:=DiodPN.Wp(T)/Npoint;
+ step:=DiodPN.Wp(T,V)/Npoint;
  for I := 1 to Npoint do
    begin
     X:=step*i;
-    Vec.Add(X,DiodPN.n_SCR(X,T));
+    Vec.Add(X,Func(X,T,V));
    end;
- Vec.Write_File('nSCR.dat');
+ if FileName<>'' then Vec.Write_File(FileName);
 
- Vec.Clear;
- step:=DiodPN.Wn(T)/Npoint;
- for I := 0 to Npoint do
-   begin
-    X:=-DiodPN.Wn(T)+step*i;
-    Vec.Add(X,DiodPN.p_SCR(X,T));
-   end;
- step:=DiodPN.Wp(T)/Npoint;
- for I := 1 to Npoint do
-   begin
-    X:=step*i;
-    Vec.Add(X,DiodPN.p_SCR(X,T));
-   end;
- Vec.Write_File('pSCR.dat');
-
- Dispose(Vec);
+// Vec.Clear;
+// step:=DiodPN.Wn(T,V)/Npoint;
+// for I := 0 to Npoint do
+//   begin
+//    X:=-DiodPN.Wn(T,V)+step*i;
+////    Vec.Add(X,sqrt(DiodPN.FLayerP.FMaterial.Nc(T)*DiodPN.FLayerP.FMaterial.Nv(T)*
+////                   exp(-DiodPN.FLayerP.FMaterial.EgT(T)/Kb/T)));
+//    Vec.Add(X,DiodPN.p_SCR(X,T,V));
+//   end;
+// step:=DiodPN.Wp(T,V)/Npoint;
+// for I := 1 to Npoint do
+//   begin
+//    X:=step*i;
+////    Vec.Add(X,sqrt(DiodPN.FLayerP.FMaterial.Nc(T)*DiodPN.FLayerP.FMaterial.Nv(T)*
+////                   exp(-DiodPN.FLayerP.FMaterial.EgT(T)/Kb/T)));
+//    Vec.Add(X,DiodPN.p_SCR(X,T,V));
+//   end;
+// Vec.Write_File('pSCR.dat');
+//
+// Dispose(Vec);
 end;
 
 { TMaterialShow }
@@ -1107,14 +1133,14 @@ begin
  FLayerP.IsNType:=False;
 end;
 
-function TDiod_PN.fi(x, T: double): double;
+function TDiod_PN.fi(x, T: double;V:double=0): double;
 begin
  if x<0 then
    Result:=Qelem*FLayerN.Nd/(2*FLayerP.Material.Eps*Eps0)*
-           sqr(Wn(T)+x)
+           sqr(Wn(T,V)+x)
         else
-   Result:=Vdif(T)-Qelem*FLayerP.Nd/(2*FLayerP.Material.Eps*Eps0)*
-           sqr(Wp(T)-x);
+   Result:=Vdif(T,V)-Qelem*FLayerP.Nd/(2*FLayerP.Material.Eps*Eps0)*
+           sqr(Wp(T,V)-x);
 end;
 
 procedure TDiod_PN.Free;
@@ -1142,6 +1168,17 @@ begin
  Result:=Qelem*Area*n_i(T)*W(T,Voltage)/2/TauGen;
 end;
 
+function TDiod_PN.I_Shockley(T, V: double): double;
+ var Vec:PVector;
+begin
+  new(Vec);
+  AllSCR(Self,Vec,R_Shockley,T,V);
+  Result:=Area*Qelem*Int_Trap(Vec);
+  dispose(Vec);
+end;
+
+
+
 function TDiod_PN.L(tau, T: double): double;
 begin
  Result:=sqrt(tau*mu(T)*Kb*T);
@@ -1163,15 +1200,16 @@ begin
    Result:=FLayerN.Material.n_i(T);
 end;
 
-function TDiod_PN.n_SCR(x, T: double): double;
+function TDiod_PN.n_SCR(x, T: double;V:double=0): double;
 begin
- Result:=FLayerN.Nd*exp(-fi(x,T)/Kb/T)
+ Result:=FLayerN.Nd*exp(-fi(x,T,V)/Kb/T)
 end;
 
-function TDiod_PN.p_SCR(x, T: double): double;
+function TDiod_PN.p_SCR(x, T: double;V:double=0): double;
 begin
- Result:=FLayerP.Material.Nv(T)*FLayerN.Material.Nc(T)/FLayerN.Nd*
-         exp(-(FLayerP.Material.EgT(T)-fi(x,T))/Kb/T);
+// Result:=FLayerP.Material.Nv(T)*FLayerN.Material.Nc(T)/FLayerN.Nd*
+//         exp(-(FLayerP.Material.EgT(T)-fi(x,T))/Kb/T);
+ Result:=FLayerP.Nd*exp(-(Vdif(T,V)-fi(x,T,V))/Kb/T);
 end;
 
 procedure TDiod_PN.ReadFromIniFile(ConfigFile: TIniFile);
@@ -1194,6 +1232,15 @@ begin
  Result:=I/(Wd*Area*FLayerP.Material.n_i(T)*(exp(V/2/Kb/T)-1))*
           (Vd-V)/2/Kb/T/Qelem;
 
+end;
+
+function TDiod_PN.R_Shockley(x, T, V: double): double;
+ var p,n,ni:double;
+begin
+ p:=p_SCR(x, T, V);
+ n:=n_SCR(x, T, V);
+ ni:=FLayerP.Material.n_i(T);
+ Result:=(n*p-sqr(ni))/(1e-6*(n+p+2*ni));
 end;
 
 function TDiod_PN.TauGen(Iscr, T: Double): double;

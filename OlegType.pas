@@ -153,8 +153,12 @@ type
   TFunDouble=Function(x,y:double):double of object;
   PTFunDouble=^TFunDouble;
 
+  TFunTriple=Function(x,y,z:double):double of object;
+
   TFunEvolution=Function(AP:Pvector; Variab:array of double):double;
   PFunEvolution=^TFunEvolution;
+
+  TFunS=Function(x:double):double;
 
   TArrSingle=array of double;
   PTArrSingle=^TArrSingle;

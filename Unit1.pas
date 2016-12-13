@@ -3428,11 +3428,22 @@ begin
   for i := 0 to High(VectorArray) do dispose(VectorArray[i]);
 end;
 
+Procedure ConcentrationCalculation;
+ var Vec:PVector;
+ begin
+  new(Vec);
+  AllSCR(DiodPN,Vec,DiodPN.n_SCR,300,0.2,'nSCR.dat');
+  AllSCR(DiodPN,Vec,DiodPN.p_SCR,300,0,'pSCR.dat');
+
+  dispose(Vec);
+ end;
+
 procedure TForm1.Button1Click(Sender: TObject);
  begin
 
-SetCurrentDir(CurDirectory); 
-AllSCR();
+SetCurrentDir(CurDirectory);
+IVC(DiodPN.I_Shockley,300,'IVdata.dat');
+//ConcentrationCalculation;
 
 //showmessage(floattostr(Silicon.Absorption(900)));
 //FunctionToFile('abs320.dat',Silicon.Absorption,250,1450,120,320);
