@@ -3432,9 +3432,11 @@ procedure TForm1.Button1Click(Sender: TObject);
  begin
 
 SetCurrentDir(CurDirectory); 
-showmessage(floattostr(Silicon.Absorption(900)));
+AllSCR();
+
+//showmessage(floattostr(Silicon.Absorption(900)));
 //FunctionToFile('abs320.dat',Silicon.Absorption,250,1450,120,320);
-FunctionToFile('abs320.dat',Silicon.mu_n,290,340,50,1.36e9);
+//FunctionToFile('abs320.dat',Silicon.mu_n,290,340,50,1.36e9);
  // dB_dU_FilesCreate();
 
 //------------------------------------------------------------

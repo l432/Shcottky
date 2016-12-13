@@ -258,6 +258,10 @@ type
        {дифузійний потенціал, пряма напруга V додатня, зворотня від'ємна, []=B}
        function W(T:double;V:double=0):double;
        {ширина ОПЗ, пряма напруга V додатня, зворотня від'ємна, []=м}
+       function Wp(T:double;V:double=0):double;
+       {ширина ОПЗ в р-області, пряма напруга V додатня, зворотня від'ємна, []=м}
+       function Wn(T:double;V:double=0):double;
+       {ширина ОПЗ в n-області, пряма напруга V додатня, зворотня від'ємна, []=м}
        function Rnp(T,V,I:double):double;
        {приведена швидкість рекомбінації, []=c^-1
        I - струм через діод}
@@ -283,6 +287,20 @@ type
        {час рекомбінації в ОПЗ по рекомбінаційного струму}
        function Iscr(TauGen, T, Voltage: Double):double;
        {функція, зворотня до попередньої}
+       function fi(x,T:double):double;
+       {значення потенціалу в ОПЗ,
+       якщо х<0 - то це точка в n-області,
+       перевірки на те що х має знаходитися
+       в інтервалі [-Wn, Wp] нема;
+       вважається що 0 відповідає
+       точці x=-Wn}
+       function n_SCR(x,T:double):double;
+       function p_SCR(x,T:double):double;
+       {повертає значення концентрації електронів (дірок)
+       в точці ОПЗ з координатою х
+       якщо х<0 - то це точка в n-області,
+       перевірки на те що х має знаходитися
+       в інтервалі [-Wn, Wp] нема}
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -309,6 +327,7 @@ var
 
 Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
 
+Procedure AllSCR;
 
 implementation
 
@@ -373,12 +392,17 @@ end;
 
 function TMaterial.Ei(T: double): double;
 begin
+ if Name='Si' then
+      begin
+       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
+       Exit;
+      end;
  if (Eg0=ErResult)or
     (Me=ErResult)or
     (Mh=ErResult)   then Result:=ErResult
                     else
                     Result:=0.5*(EgT(T)+Kb*T*ln(Nv(T)/Nc(T)));
- 
+
 end;
 
 function TMaterial.Nc(T:double):double;
@@ -396,13 +420,13 @@ end;
 
 function TMaterial.n_i(T: double): double;
 begin
- Result:=ErResult;
- if Eg0=ErResult then Exit;
  if Name='Si' then
       begin
        Result:=1.64e21*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
        Exit;
       end;
+ Result:=ErResult;
+ if Eg0=ErResult then Exit;
  if (Mh=ErResult)or(Me=ErResult) then Exit;
  Result:=sqrt(Nc(T)*Nv(T)*exp(-EgT(T)/T/Kb));
 end;
@@ -597,6 +621,46 @@ begin
 
 end;
 
+Procedure AllSCR;
+ const Npoint=100;
+ var i:integer;
+     step,X,T:double;
+     Vec:PVector;
+begin
+ new(Vec);
+ T:=300;
+ Vec.Clear;
+ step:=DiodPN.Wn(T)/Npoint;
+ for I := 0 to Npoint do
+   begin
+    X:=-DiodPN.Wn(T)+step*i;
+    Vec.Add(X,DiodPN.n_SCR(X,T));
+   end;
+ step:=DiodPN.Wp(T)/Npoint;
+ for I := 1 to Npoint do
+   begin
+    X:=step*i;
+    Vec.Add(X,DiodPN.n_SCR(X,T));
+   end;
+ Vec.Write_File('nSCR.dat');
+
+ Vec.Clear;
+ step:=DiodPN.Wn(T)/Npoint;
+ for I := 0 to Npoint do
+   begin
+    X:=-DiodPN.Wn(T)+step*i;
+    Vec.Add(X,DiodPN.p_SCR(X,T));
+   end;
+ step:=DiodPN.Wp(T)/Npoint;
+ for I := 1 to Npoint do
+   begin
+    X:=step*i;
+    Vec.Add(X,DiodPN.p_SCR(X,T));
+   end;
+ Vec.Write_File('pSCR.dat');
+
+ Dispose(Vec);
+end;
 
 { TMaterialShow }
 
@@ -1043,6 +1107,16 @@ begin
  FLayerP.IsNType:=False;
 end;
 
+function TDiod_PN.fi(x, T: double): double;
+begin
+ if x<0 then
+   Result:=Qelem*FLayerN.Nd/(2*FLayerP.Material.Eps*Eps0)*
+           sqr(Wn(T)+x)
+        else
+   Result:=Vdif(T)-Qelem*FLayerP.Nd/(2*FLayerP.Material.Eps*Eps0)*
+           sqr(Wp(T)-x);
+end;
+
 procedure TDiod_PN.Free;
 begin
  FLayerN.Free;
@@ -1087,6 +1161,17 @@ begin
     Result:=FLayerP.Material.n_i(T)
                            else
    Result:=FLayerN.Material.n_i(T);
+end;
+
+function TDiod_PN.n_SCR(x, T: double): double;
+begin
+ Result:=FLayerN.Nd*exp(-fi(x,T)/Kb/T)
+end;
+
+function TDiod_PN.p_SCR(x, T: double): double;
+begin
+ Result:=FLayerP.Material.Nv(T)*FLayerN.Material.Nc(T)/FLayerN.Nd*
+         exp(-(FLayerP.Material.EgT(T)-fi(x,T))/Kb/T);
 end;
 
 procedure TDiod_PN.ReadFromIniFile(ConfigFile: TIniFile);
@@ -1135,7 +1220,8 @@ begin
        Exit;
       end;
  Result:=FLayerP.Material.EgT(T)-
-         Kb*T*ln(FLayerP.Material.Nv(T)*FLayerN.Material.Nc(T)/FLayerP.Nd/FLayerN.Nd)-V;
+         Kb*T*ln(FLayerP.Material.Nv(T)*FLayerN.Material.Nc(T)/FLayerP.Nd/FLayerN.Nd)
+         -V;
 end;
 
 function TDiod_PN.W(T, V: double): double;
@@ -1149,6 +1235,26 @@ begin
   end;
  Result:=sqrt(2*FLayerP.Material.Eps*Eps0/Qelem*Vd*
              (FLayerN.Nd+FLayerP.Nd)/FLayerN.Nd/FLayerP.Nd);
+end;
+
+function TDiod_PN.Wn(T, V: double): double;
+ var Wtotal:double;
+begin
+ Wtotal:=W(T,V);
+ if Wtotal=ErResult then
+    Result:=ErResult
+                    else
+    Result:=Wtotal*FLayerP.Nd/(FLayerN.Nd+FLayerP.Nd)
+end;
+
+function TDiod_PN.Wp(T, V: double): double;
+ var Wtotal:double;
+begin
+ Wtotal:=W(T,V);
+ if Wtotal=ErResult then
+    Result:=ErResult
+                    else
+    Result:=Wtotal*FLayerN.Nd/(FLayerN.Nd+FLayerP.Nd)
 end;
 
 procedure TDiod_PN.WriteToIniFile(ConfigFile: TIniFile);
