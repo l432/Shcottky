@@ -82,6 +82,9 @@ type
      function n_i(T:double):double;
      function Ei(T:double):double;
      {положення рівня Фермі у власному}
+     function Vth_n(T:double):double;
+     function Vth_p(T:double):double;
+     {теплова швидкість електронів та дірок}
      class function VarshniFull(F0,T:double;
                                 Alpha:double=VarshA_Si;
                                 Betta:double=VarshB_Si):double;
@@ -304,6 +307,7 @@ type
        function R_Shockley(x,T:double;V:double=0):double;
        {темп рекомбінації згідно механізма Шоклі-Ріда
        в в точці ОПЗ з координатою х}
+       function R_DAP(x,T:double;V:double=0):double;
        function I_Shockley(T,V:double):double;
     end; // TDiod_PN=class(TDiodMaterial)
 
@@ -381,6 +385,18 @@ class function TMaterial.VarshniFull(F0,T:double;
                                 Betta:double=VarshB_Si):double;
 begin
  Result:=F0-sqr(T)*Betta/(T+Alpha);
+end;
+
+function TMaterial.Vth_n(T: double): double;
+begin
+ if Me=ErResult then Result:=ErResult
+                else Result:=sqrt(3*Qelem*Kb*T/m0/Me)
+end;
+
+function TMaterial.Vth_p(T: double): double;
+begin
+ if Mh=ErResult then Result:=ErResult
+                else Result:=sqrt(3*Qelem*Kb*T/m0/Mh)
 end;
 
 Constructor TMaterial.Create(MaterialName:TMaterialName);
@@ -1172,7 +1188,9 @@ function TDiod_PN.I_Shockley(T, V: double): double;
  var Vec:PVector;
 begin
   new(Vec);
-  AllSCR(Self,Vec,R_Shockley,T,V);
+//  AllSCR(Self,Vec,R_Shockley,T,V);
+//  AllSCR(Self,Vec,R_DAP,T,V,'',10);
+  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
   Result:=Area*Qelem*Int_Trap(Vec);
   dispose(Vec);
 end;
@@ -1232,6 +1250,68 @@ begin
  Result:=I/(Wd*Area*FLayerP.Material.n_i(T)*(exp(V/2/Kb/T)-1))*
           (Vd-V)/2/Kb/T/Qelem;
 
+end;
+
+function TDiod_PN.R_DAP(x, T, V: double): double;
+  const Eta=0;
+//        Etd=0.1;
+        Etd=-0.35;
+        Cad0=1.1e-13;
+        r0=5e-9;
+        a0=3.23e-9;
+        Nt=1e26;
+        A=0.215;
+  var p,n,ni,ee,p1,n1,p2,n2,
+      Sig_nA,Sig_pA,Sig_nD,Sig_pD,
+      tau_nA,tau_pA,tau_nD,tau_pD,
+      rrA,rrD,Ra,Rd,
+      Rad,r,R12,S12:double;
+  function L(r:double):double;
+   begin
+     Result:=(1+r/a0+sqr(r/a0)/3)*exp(-r/a0);
+   end;
+begin
+ p:=p_SCR(x, T, V);
+ n:=n_SCR(x, T, V);
+ ni:=FLayerP.Material.n_i(T);
+ ee:=exp(-(Etd-Eta)/Kb/T);
+ p1:=ni*exp(-Eta/Kb/T);
+ n1:=ni*exp(Eta/Kb/T);
+ p2:=ni*exp(-Etd/Kb/T);
+ n2:=ni*exp(Etd/Kb/T);
+ r:=r0;
+ Sig_nD:=A*sqr(r);
+ Sig_pA:=A*sqr(r);
+ Sig_pD:=Sig_nD/1e12;
+ Sig_nA:=Sig_pA/1e12;
+ tau_nA:=1/(Nt*Sig_nA*FLayerP.Material.Vth_n(T));
+ tau_pA:=1/(Nt*Sig_pA*FLayerP.Material.Vth_p(T));
+ tau_nD:=1/(Nt*Sig_nD*FLayerP.Material.Vth_n(T));
+ tau_pD:=1/(Nt*Sig_pD*FLayerP.Material.Vth_p(T));
+ Rad:=Cad0*L(r)*sqr(Nt);
+
+ ee:=exp((Etd-Eta)/Kb/T);
+ Rad:=1e35;
+ tau_nA:=1e-7;
+ tau_pA:=1e-8;
+ tau_nD:=100;
+ tau_pD:=1e-7;
+
+
+ rrA:=tau_nA*(p+p1)+tau_pA*(n+n1);
+ rrD:=tau_nD*(p+p2)+tau_pD*(n+n2);
+ Ra:=(n*p-sqr(ni))/rrA;
+ Rd:=(n*p-sqr(ni))/rrD;
+
+ S12:=(1-ee*tau_nA*tau_pD/tau_nD/tau_pA)/
+      (tau_nA*tau_pD*(1-ee))*(n*p-sqr(ni));
+ R12:=rrA*rrD/(2*Rad*tau_nA*tau_pD*tau_nD*tau_pA*(1-ee))+
+      (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee))+
+      ee*(tau_nD*(p+p2)+tau_pA*(n+n1))/(2*tau_nD*tau_pA*(1-ee));
+ Result:=Ra+Rd+(sqrt(sqr(R12)-S12)-R12)*
+         (tau_nA*tau_pD*(n+n2)*(p+p1)-tau_nD*tau_pA*(n+n1)*(p+p2))/
+         (rrA*rrD);
+// showmessage(floattostr(Result));
 end;
 
 function TDiod_PN.R_Shockley(x, T, V: double): double;

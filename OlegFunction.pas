@@ -177,6 +177,7 @@ begin
  repeat
    Vax^.Add(V,Func(T,V));
    V:=V+delV;
+//  showmessage(floattostr(V));
  until (V>Vmax);
  if ResultFileName<>'' then Vax^.Write_File(ResultFileName);
  dispose(Vax);
