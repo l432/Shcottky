@@ -2264,6 +2264,7 @@ Function Int_Trap(A:Pvector):double;
 var i:integer;
 begin
 Result:=0;
+//showmessage(inttostr(High(A^.X)));
 for I := 1 to High(A^.X) do
    Result:=Result+(A^.X[i]-A^.X[i-1])*(A^.Y[i]+A^.Y[i-1]);
 Result:=Result/2;

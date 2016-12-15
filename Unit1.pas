@@ -3443,7 +3443,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory);
 IVC(DiodPN.I_Shockley,300,'IVdata.dat');
-//IVC(DiodPN.I_Shockley,300,'IVdata.dat',0.3,0.6,0.4);
+//IVC(DiodPN.I_Shockley,300,'IVdata.dat',0.1,0.6,0.7);
 //ConcentrationCalculation;
 
 //showmessage(floattostr(Silicon.Absorption(900)));

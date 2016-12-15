@@ -1189,8 +1189,9 @@ function TDiod_PN.I_Shockley(T, V: double): double;
 begin
   new(Vec);
 //  AllSCR(Self,Vec,R_Shockley,T,V);
-//  AllSCR(Self,Vec,R_DAP,T,V,'',10);
-  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
+  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
+//  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
+//  AllSCR(Self,Vec,R_DAP,T,V);
   Result:=Area*Qelem*Int_Trap(Vec);
   dispose(Vec);
 end;
@@ -1305,13 +1306,31 @@ begin
 
  S12:=(1-ee*tau_nA*tau_pD/tau_nD/tau_pA)/
       (tau_nA*tau_pD*(1-ee))*(n*p-sqr(ni));
- R12:=rrA*rrD/(2*Rad*tau_nA*tau_pD*tau_nD*tau_pA*(1-ee))+
-      (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee))+
-      ee*(tau_nD*(p+p2)+tau_pA*(n+n1))/(2*tau_nD*tau_pA*(1-ee));
- Result:=Ra+Rd+(sqrt(sqr(R12)-S12)-R12)*
-         (tau_nA*tau_pD*(n+n2)*(p+p1)-tau_nD*tau_pA*(n+n1)*(p+p2))/
-         (rrA*rrD);
-// showmessage(floattostr(Result));
+// R12:=rrA*rrD/(2*Rad*tau_nA*tau_pD*tau_nD*tau_pA*(1-ee))+
+//      (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee))+
+//      ee*(tau_nD*(p+p2)+tau_pA*(n+n1))/(2*tau_nD*tau_pA*(1-ee));
+// Result:={Ra+Rd+}(sqrt(sqr(R12)-S12)-R12)*
+//         (tau_nA*tau_pD*(n+n2)*(p+p1)-tau_nD*tau_pA*(n+n1)*(p+p2))/
+//         (rrA*rrD);
+ R12:=(p+p2)*rrA/(2*Rad*tau_nA*tau_pD*tau_pA*(1-ee))+
+       (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee));
+ Result:=Ra+(R12-sqrt(sqr(R12)-
+                       (n*p-sqr(ni))/(tau_nA*tau_pD*(1-ee))))*
+          tau_pA*(n+n1)/rrA;
+// Result:=Rad*(n*p-sqr(ni))/(n+n1)/(p+p2);
+
+// showmessage('x='+ floattostr(x)+#13+
+//             '(np-ni^2)='+ floattostr((n*p-sqr(ni))/(tau_nA*tau_pD*(1-ee))/2/R12)+#13+
+//              floattostr(Result)+#13+
+//             'Ra='+ floattostr(Ra)+#13+
+//             'R12='+ floattostr(R12)+#13+
+//             'p1='+ floattostr(p1)+#13+
+//             'n1='+ floattostr(n1)+#13+
+//             'p2='+ floattostr(p2)+#13+
+//             'n2='+ floattostr(n2)+#13+
+//             'p='+ floattostr(p)+#13+
+//             'n='+ floattostr(n)+#13+
+//             'ee='+floattostr(ee));
 end;
 
 function TDiod_PN.R_Shockley(x, T, V: double): double;
