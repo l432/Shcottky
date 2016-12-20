@@ -451,6 +451,11 @@ Function V721A_ErrorI_DC(I:double):Double;
 {визначення відносної похибки вимірювання сили постійного струму
 вольтметром В7-21А залежно від виміряної величини}
 
+Function sinh(x:double):Double;
+Function cosh(x:double):Double;
+Function tanh(x:double):Double;
+Function arcTanh(x:double):Double;
+
 implementation
 
 uses
@@ -3054,5 +3059,24 @@ begin
   Result:=ErResult;
 end;
 
+Function sinh(x:double):Double;
+begin
+ Result:=(exp(x)-exp(-x))/2;
+end;
+
+Function cosh(x:double):Double;
+begin
+ Result:=(exp(x)+exp(-x))/2;
+end;
+
+Function tanh(x:double):Double;
+begin
+  Result:=(exp(x)-exp(-x))/(exp(x)+exp(-x));
+end;
+
+Function arcTanh(x:double):Double;
+begin
+  Result:=ln((1+x)/(1-x))/2;
+end;
 
 end.

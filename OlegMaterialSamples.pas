@@ -308,7 +308,21 @@ type
        {темп рекомбінації згідно механізма Шоклі-Ріда
        в в точці ОПЗ з координатою х}
        function R_DAP(x,T:double;V:double=0):double;
+       {темп рекомбінації згідно з механізмом
+       міждефектної рекомбінації
+        JApplPhys_78_3185.pdf}
        function I_Shockley(T,V:double):double;
+       {струм в ОПЗ, розрахований по темпу рекомбінації}
+       function Iscr_rec(T,V,tau_n,Kpn,Et:double):double;overload;
+       {рекомбінаційний струм в ОПЗ, розрахований
+       за теорією Шоклі в загальному вигляді
+       формули з Proc23IEEE_PVSC_1993_p321-326.pdf
+       tau_n - рекомбінаційний параметр для електронів
+               (=1/(sigma_n*Vth*Nt))
+       Kpn=tau_p/tau_n;
+       Et - положення рівня відносно Ev
+       }
+       function Iscr_rec(T,V:double):double;overload;
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -1184,12 +1198,49 @@ begin
  Result:=Qelem*Area*n_i(T)*W(T,Voltage)/2/TauGen;
 end;
 
+function TDiod_PN.Iscr_rec(T, V: double): double;
+ var tau_n, Kpn, Et: double;
+begin
+ Result:=0;
+// tau_n:=1e-6;
+// Kpn:=1e-3;
+// Et:=0.75;
+// Result:=Iscr_rec(T, V, tau_n, Kpn, Et){+Igen(1e-7,T)*exp(V/Kb/T)};
+ tau_n:=1e-9;
+ Kpn:=1e-2;
+ Et:=0.5;
+ Result:=Result+Iscr_rec(T, V, tau_n, Kpn, Et){+Igen(1e-7,T)*exp(V/Kb/T)};
+
+end;
+
+function TDiod_PN.Iscr_rec(T, V, tau_n, Kpn, Et: double): double;
+ var kT,Tetta,b,Er0,ff,Alpha,Betta:double;
+begin
+ kT:=Kb*T;
+ Tetta:=(Vdif(T,V)-V)/kT;
+ Er0:=FLayerP.Material.Ei(T)-kT/2*ln(Kpn);
+ b:=exp(-V/2/kT)*cosh((Et-Er0)/kT);
+ Alpha:=2*sinh(Tetta/2);
+ Betta:=sqrt(FLayerP.Nd/FLayerN.Nd/Kpn)+
+        sqrt(FLayerN.Nd/FLayerP.Nd*Kpn)+
+        2*b*cosh(Tetta/2);
+ if sqr(b)<1 then
+         ff:=ArcTan(Alpha/Betta*sqrt(1-sqr(b)))/sqrt(1-sqr(b))
+    else if sqr(b)>1 then
+         ff:=ArcTanh(Alpha/Betta*sqrt(sqr(b)-1))/sqrt(sqr(b)-1)
+      else
+         ff:=Alpha/Betta;
+
+ Result:=2*Area*Qelem*FLayerP.Material.n_i(T)*sinh(V/2/kT)/
+         (tau_n*sqrt(Kpn))*W(T,V)/Tetta*ff;
+end;
+
 function TDiod_PN.I_Shockley(T, V: double): double;
  var Vec:PVector;
 begin
   new(Vec);
-//  AllSCR(Self,Vec,R_Shockley,T,V);
-  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
+  AllSCR(Self,Vec,R_Shockley,T,V);
+//  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
 //  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
 //  AllSCR(Self,Vec,R_DAP,T,V);
   Result:=Area*Qelem*Int_Trap(Vec);
@@ -1255,8 +1306,9 @@ end;
 
 function TDiod_PN.R_DAP(x, T, V: double): double;
   const Eta=0;
-//        Etd=0.1;
-        Etd=-0.35;
+        Etd=0.1;
+//--------JApplPhys_78_3185.pdf
+//        Etd=-0.35;
         Cad0=1.1e-13;
         r0=5e-9;
         a0=3.23e-9;
@@ -1291,13 +1343,17 @@ begin
  tau_pD:=1/(Nt*Sig_pD*FLayerP.Material.Vth_p(T));
  Rad:=Cad0*L(r)*sqr(Nt);
 
- ee:=exp((Etd-Eta)/Kb/T);
- Rad:=1e35;
- tau_nA:=1e-7;
- tau_pA:=1e-8;
- tau_nD:=100;
- tau_pD:=1e-7;
 
+
+
+ //--------JApplPhys_78_3185.pdf
+//  ee:=exp((Etd-Eta)/Kb/T);
+// Rad:=1e35;
+// tau_nA:=1e-7;
+// tau_pA:=1e-8;
+// tau_nD:=100;
+// tau_pD:=1e-7;
+//-------------------------
 
  rrA:=tau_nA*(p+p1)+tau_pA*(n+n1);
  rrD:=tau_nD*(p+p2)+tau_pD*(n+n2);
@@ -1306,17 +1362,21 @@ begin
 
  S12:=(1-ee*tau_nA*tau_pD/tau_nD/tau_pA)/
       (tau_nA*tau_pD*(1-ee))*(n*p-sqr(ni));
-// R12:=rrA*rrD/(2*Rad*tau_nA*tau_pD*tau_nD*tau_pA*(1-ee))+
-//      (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee))+
-//      ee*(tau_nD*(p+p2)+tau_pA*(n+n1))/(2*tau_nD*tau_pA*(1-ee));
-// Result:={Ra+Rd+}(sqrt(sqr(R12)-S12)-R12)*
-//         (tau_nA*tau_pD*(n+n2)*(p+p1)-tau_nD*tau_pA*(n+n1)*(p+p2))/
-//         (rrA*rrD);
- R12:=(p+p2)*rrA/(2*Rad*tau_nA*tau_pD*tau_pA*(1-ee))+
-       (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee));
- Result:=Ra+(R12-sqrt(sqr(R12)-
-                       (n*p-sqr(ni))/(tau_nA*tau_pD*(1-ee))))*
-          tau_pA*(n+n1)/rrA;
+ R12:=rrA*rrD/(2*Rad*tau_nA*tau_pD*tau_nD*tau_pA*(1-ee))+
+      (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee))+
+      ee*(tau_nD*(p+p2)+tau_pA*(n+n1))/(2*tau_nD*tau_pA*(1-ee));
+ Result:=Ra+Rd+(sqrt(sqr(R12)-S12)-R12)*
+         (tau_nA*tau_pD*(n+n2)*(p+p1)-tau_nD*tau_pA*(n+n1)*(p+p2))/
+         (rrA*rrD);
+
+//--------JApplPhys_78_3185.pdf
+// R12:=(p+p2)*rrA/(2*Rad*tau_nA*tau_pD*tau_pA*(1-ee))+
+//       (tau_nA*(p+p1)+tau_pD*(n+n2))/(2*tau_nA*tau_pD*(1-ee));
+// Result:=Ra+(R12-sqrt(sqr(R12)-
+//                       (n*p-sqr(ni))/(tau_nA*tau_pD*(1-ee))))*
+//          tau_pA*(n+n1)/rrA;
+//--------------------------
+
 // Result:=Rad*(n*p-sqr(ni))/(n+n1)/(p+p2);
 
 // showmessage('x='+ floattostr(x)+#13+

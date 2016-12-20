@@ -3438,11 +3438,15 @@ Procedure ConcentrationCalculation;
   dispose(Vec);
  end;
 
+
+
 procedure TForm1.Button1Click(Sender: TObject);
  begin
 
 SetCurrentDir(CurDirectory);
-IVC(DiodPN.I_Shockley,300,'IVdata.dat');
+IVC(DiodPN.Iscr_rec,300,'IVdata.dat');
+
+//IVC(DiodPN.I_Shockley,300,'IVdata.dat');
 //IVC(DiodPN.I_Shockley,300,'IVdata.dat',0.1,0.6,0.7);
 //ConcentrationCalculation;
 
