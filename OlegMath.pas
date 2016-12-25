@@ -271,11 +271,22 @@ beg і з кроком step;
 якщо початок вибрано неправильно (не потрапляє в діапазон зміни
 абсциси V, то в результуючому векторі довжина нульова}
 
-Function Int_Trap(A:Pvector):double;
+Function Int_Trap(A:Pvector):double;overload;
 {повертає результат інтегрування за методом
 трапецій по даним з масиву А;
 вважається, що межі інтегралу простягаються на
 весь діапазон зміни А^.X}
+
+Function Int_Trap(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double):double;overload;
+{знаходиться інтеграл від функції Fun(X,Parameters)
+в межах від Xmin до Xmax,
+крок по Х при знаходженні суми deltaX}
+
+Function Int_Trap(Fun:TFun;Xmin,Xmax:double;Parameters:array of double;Npoint:integer):double;overload;
+{знаходиться інтеграл від функції Fun(X,Parameters)
+в межах від Xmin до Xmax,
+знаходженні суми використовуються Npoint точок}
+
 
 Function GoldenSection(fun:TFunSingle; a, b:double):double;
 {повертає координату мінімума функції fun
@@ -2273,6 +2284,24 @@ Result:=0;
 for I := 1 to High(A^.X) do
    Result:=Result+(A^.X[i]-A^.X[i-1])*(A^.Y[i]+A^.Y[i-1]);
 Result:=Result/2;
+end;
+
+Function Int_Trap(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double):double;
+var Vec:PVector;
+begin
+  new(Vec);
+  Vec^.Filling(Fun,Xmin,Xmax,deltaX,Parameters);
+  Result:=Int_Trap(Vec);
+  dispose(Vec);
+end;
+
+Function Int_Trap(Fun:TFun;Xmin,Xmax:double;Parameters:array of double;Npoint:integer):double;
+var Vec:PVector;
+begin
+  new(Vec);
+  Vec^.Filling(Fun,Xmin,Xmax,Parameters,Npoint);
+  Result:=Int_Trap(Vec);
+  dispose(Vec);
 end;
 
 Function GoldenSection(fun:TFunSingle; a, b:double):double;

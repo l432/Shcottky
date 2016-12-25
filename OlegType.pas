@@ -24,6 +24,25 @@ var   StartValue,EndValue,Freq:Int64;
 
 type
 
+  TFunS=Function(x:double):double;
+  TFun=Function(Argument:double;Parameters:array of double):double;
+
+  TFunSingle=Function(x:double):double of object;
+  TFunDouble=Function(x,y:double):double of object;
+  TFunTriple=Function(x,y,z:double):double of object;
+
+  TArrSingle=array of double;
+  PTArrSingle=^TArrSingle;
+  T2DArray=array of array of double;
+
+
+  TArrArrSingle=array of TArrSingle;
+  PClassroom=^TArrArrSingle;
+
+
+
+  TArrStr=array of string;
+
     Vector=record
          X:array of double;
          Y:array of double;
@@ -96,11 +115,20 @@ type
           якщо кількості точок різні - ніяких дій не відбувається}
          Procedure Clear();
          {просто зануляється кількість точок, інших операцій не проводиться}
+         Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);overload;
+         {Х заповнюється значеннями від Xmin до Xmax з кроком deltaX
+         Y[i]=Fun(X[i],Parameters)}
+         Procedure Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer=100);overload;
+         {як попередня, тільки використовується не крок, а загальна
+         кількість точок Nstep на заданому інтервалі}
+         Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
         end;
 
     PVector=^Vector;
 
-  T2DArray=array of array of double;
+  TFunEvolution=Function(AP:Pvector; Variab:array of double):double;
+  PFunEvolution=^TFunEvolution;
+
 
   SysEquation=record
       A:T2DArray;//array of array of double;
@@ -147,31 +175,7 @@ type
   при вдалій операцій функція повертає 0,
   при невдалій - додатне число, а в Rez всі значення ErResult}
 
-  TFunSingle=Function(x:double):double of object;
-  PTFunSingle=^TFunSingle;
 
-  TFunDouble=Function(x,y:double):double of object;
-  PTFunDouble=^TFunDouble;
-
-  TFunTriple=Function(x,y,z:double):double of object;
-
-  TFunEvolution=Function(AP:Pvector; Variab:array of double):double;
-  PFunEvolution=^TFunEvolution;
-
-  TFunS=Function(x:double):double;
-
-  TArrSingle=array of double;
-  PTArrSingle=^TArrSingle;
-
-//  TArrVector=array of PVector;
-//  PTArrVector=^TArrSingle;
-
-  TArrArrSingle=array of TArrSingle;
-  PClassroom=^TArrArrSingle;
-
-
-
-  TArrStr=array of string;
 
   IRE=array[1..3] of double;
   {масив використовується при апроксимації
@@ -776,6 +780,42 @@ begin
   SetLenVector(0);
 end;
 
+Procedure Vector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
+ const Nmax=10000;
+ var i:integer;
+     argument:double;
+begin
+ i:=0;
+ argument:=Xmin;
+ repeat
+   inc(i);
+   argument:=argument+deltaX;
+ until (argument>Xmax)or(i>Nmax);
+ if (i>Nmax) then
+   begin
+     Clear();
+     Exit;
+   end;
+ SetLenVector(i);
+ for I := 0 to n - 1 do
+  begin
+    X[i]:=Xmin+i*deltaX;
+    Y[i]:=Fun(X[i],Parameters);
+  end;
+end;
+
+
+Procedure Vector.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
+begin
+  if Nstep<1 then Clear()
+    else if Nstep=1 then Filling(Fun,Xmin,Xmax,Xmax-Xmin+1,Parameters)
+       else Filling(Fun,Xmin,Xmax,(Xmax-Xmin)/(Nstep-1),Parameters)
+end;
+
+Procedure Vector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
+begin
+ Filling(Fun,Xmin,Xmax,deltaX,[]);
+end;
 
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;

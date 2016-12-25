@@ -3444,7 +3444,10 @@ procedure TForm1.Button1Click(Sender: TObject);
  begin
 
 SetCurrentDir(CurDirectory);
-IVC(DiodPN.Iscr_rec,300,'IVdata.dat');
+DegreeDependence();
+//showmessage(floattostr(OverageValue(PointDistance2,[5e-9,6e-10,3e-10,0,0])));
+
+//IVC(DiodPN.Iscr_rec,300,'IVdata.dat');
 
 //IVC(DiodPN.I_Shockley,300,'IVdata.dat');
 //IVC(DiodPN.I_Shockley,300,'IVdata.dat',0.1,0.6,0.7);

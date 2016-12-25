@@ -3965,6 +3965,8 @@ Procedure GraphFill(Series:TLineSeries;Func:TFunSingle;
 var x,dx:double;
     i:word;
 begin
+Series.Clear;
+if Npoint=0 then Exit;
 if Npoint>65534 then Npoint:=65534;
 dx:=(x2-x1)/Npoint;
 for I := 0 to Npoint do
