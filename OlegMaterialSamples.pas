@@ -282,10 +282,12 @@ type
        з меншою провідністю;}
        function Igen(TauRec, T: Double):double;
        {функція, зворотня до попередньої}
-       function L(tau,T:double):double;
+       function TauToLdif(tau,T:double):double;
        {довжина дифузії для неосновних
        носіїв в області з меншою провідністю
        tau - час життя цих носіїв}
+       function LdifToTauRec(L,T:double):double;
+       {зворотня функція}
        function TauGen(Iscr, T: Double):double;
        {час рекомбінації в ОПЗ по рекомбінаційного струму}
        function Iscr(TauGen, T, Voltage: Double):double;
@@ -439,11 +441,11 @@ end;
 
 function TMaterial.Ei(T: double): double;
 begin
-// if Name='Si' then
-//      begin
-//       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
-//       Exit;
-//      end;
+ if Name='Si' then
+      begin
+       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
+       Exit;
+      end;
  if (Eg0=ErResult)or
     (Me=ErResult)or
     (Mh=ErResult)   then Result:=ErResult
@@ -467,11 +469,11 @@ end;
 
 function TMaterial.n_i(T: double): double;
 begin
-// if Name='Si' then
-//      begin
-//       Result:=1.64e21*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
-//       Exit;
-//      end;
+ if Name='Si' then
+      begin
+       Result:=1.64e21*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
+       Exit;
+      end;
  Result:=ErResult;
  if Eg0=ErResult then Exit;
  if (Mh=ErResult)or(Me=ErResult) then Exit;
@@ -1249,9 +1251,14 @@ end;
 
 
 
-function TDiod_PN.L(tau, T: double): double;
+function TDiod_PN.TauToLdif(tau, T: double): double;
 begin
  Result:=sqrt(tau*mu(T)*Kb*T);
+end;
+
+function TDiod_PN.LdifToTauRec(L,T:double):double;
+begin
+ Result:=sqr(L)/(mu(T)*Kb*T);
 end;
 
 function TDiod_PN.mu(T: double=300): double;

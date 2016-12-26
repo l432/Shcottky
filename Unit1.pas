@@ -2967,7 +2967,7 @@ procedure TForm1.ButSaveClick(Sender: TObject);
 begin
  if RB_TauR.Checked
      then Write_File3Column(FitName(VaxFile,'show'),VaxGraph,
-                            DiodPN.L)
+                            DiodPN.TauToLdif)
      else Write_File(FitName(VaxFile,'show'),VaxGraph);
 end;
 
@@ -3439,12 +3439,135 @@ Procedure ConcentrationCalculation;
  end;
 
 
+Procedure VocFF_Dependence();
+ const Npoint=51;
+ var Str:TStringList;
+     Tmin,Tmax,Tdel,T,
+     tauGmin,tauGmax,tauGdel,tauG,
+     tauRmin,tauRmax,tauRdel,tauR,
+     nmin,nmax,ndel,n,
+     Rsmin,Rsmax,Rsdel,Rs,
+     Rshmin,Rshmax,Rshdel,Rsh:double;
+     FitIV{,FitIph}:TFitFunction;
+     Iph:double;
+     OutputData:TArrSingle;
+begin
+ Tmin:=340;
+ Tmax:=340;
+ Tdel:=StepDetermination(Tmin,Tmax,Npoint,lin);
+
+ tauGmin:=log10(1e-9);
+// tauGmax:=log10(1e-6);
+ tauGmax:=log10(1.01e-5);
+ tauGdel:=StepDetermination(tauGmin,tauGmax,Npoint,lin);
+
+ tauRmin:=log10(1e-8);
+ tauRmax:=log10(1.01e-4);
+ tauRdel:=StepDetermination(tauRmin,tauRmax,Npoint,lin);
+
+ nmin:=2;
+ nmax:=2;
+ ndel:=StepDetermination(nmin,nmax,Npoint,lin);
+
+ Rsmin:=10;
+ Rsmax:=10;
+ Rsdel:=StepDetermination(Rsmin,Rsmax,Npoint,lin);
+
+ Rshmin:=log10(1e5);
+ Rshmax:=log10(1e5);
+ Rshdel:=StepDetermination(Rshmin,Rshmax,Npoint,lin);
+
+
+ Str:=TStringList.Create;
+ Str.Add('T Rs Rsh logRsh n tauG logTG tauR logTR Voc ff');
+
+ FitIV:=TDoubleDiodTauLight.Create;
+// FitIph:=TCurrentSC.Create;
+ SetLength(OutputData,13);
+
+ OutputData[0]:=1;
+ T:=Tmin;
+ repeat
+ (FitIV as TFitTemperatureIsUsed).T:=T;
+
+   Rs:=Rsmin;
+   repeat
+     OutputData[1]:=Rs;
+
+       Rsh:=Rshmin;
+       repeat
+         OutputData[3]:=Power(10,Rsh);
+
+          n:=nmin;
+          repeat
+            OutputData[4]:=n;
+
+             tauG:=tauGmin;
+             repeat
+               OutputData[5]:=Power(10,tauG);
+
+                 tauR:=tauRmin;
+                 repeat
+                   OutputData[2]:=Power(10,tauR);
+                   Iph:=2*0.72398*200e-6*
+                         Silicon.Absorption(900,T)*100e-6/
+                         (1+Silicon.Absorption(900,T)*100e-6);
+//                         Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T)/
+//                         (1+Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T));
+                    OutputData[6]:=Iph;
+                    Form1.Button1.Caption:=floattostrf(tauG,ffExponent,4,0)+' '+
+                    floattostrf(tauR,ffExponent,4,0);
+                    (FitIV as TDoubleDiodLight).AddParDetermination(nil,OutputData);
+
+
+                    Str.Add(FloatToStrF(T,ffFixed,3,0)+' '+
+                            FloatToStrF(Rs,ffExponent,4,0)+' '+
+                            FloatToStrF(OutputData[3],ffExponent,4,0)+' '+
+                            FloatToStrF(Rsh,ffExponent,4,0)+' '+
+                            FloatToStrF(n,ffExponent,4,0)+' '+
+                            FloatToStrF(OutputData[5],ffExponent,4,0)+' '+
+                            FloatToStrF(tauG,ffExponent,4,0)+' '+
+                            FloatToStrF(OutputData[2],ffExponent,4,0)+' '+
+                            FloatToStrF(tauR,ffExponent,4,0)+' '+
+                            FloatToStrF(OutputData[7],ffExponent,4,0)+' '+
+                            FloatToStrF(OutputData[10],ffExponent,4,0));
+//                    showmessage('T='+FloatToStrF(T,ffFixed,3,0)+' '+#10+
+//                            'Rs='+FloatToStrF(Rs,ffExponent,4,0)+' '+#10+
+//                            'Rsh='+FloatToStrF(OutputData[3],ffExponent,4,0)+' '+#10+
+//                            'n='+FloatToStrF(n,ffExponent,4,0)+' '+#10+
+//                            'tauG='+FloatToStrF(OutputData[5],ffExponent,4,0)+' '+#10+
+//                            'tauR='+FloatToStrF(OutputData[2],ffExponent,4,0)+' '+#10+
+//                            'Voc='+FloatToStrF(OutputData[7],ffExponent,4,0)+' '+#10+
+//                            'ff='+FloatToStrF(OutputData[10],ffExponent,4,0)+' '+#10+
+//                            'Iph='+FloatToStrF(Iph,ffExponent,4,0));
+                    Application.ProcessMessages;
+                   tauR:=tauR+tauRdel;
+                 until tauR>tauRmax;
+               tauG:=tauG+tauGdel;
+             until tauG>tauGmax;
+           n:=n+ndel;
+          until (n>nmax);
+         Rsh:=Rsh+Rshdel;
+       until Rsh>Rshmax;
+     Rs:=Rs+Rsdel;
+   until Rs>Rsmax;
+  T:=T+Tdel;
+//  showmessage(floattostr(T));
+ until (T>Tmax);
+
+// FitIph.Free;
+ FitIV.Free;
+ Str.SaveToFile('VocFF.dat');
+ Str.Free;
+end;
 
 procedure TForm1.Button1Click(Sender: TObject);
  begin
 
 SetCurrentDir(CurDirectory);
-DegreeDependence();
+VocFF_Dependence();
+//showmessage(floattostr(DiodPN.LdifToTauRec(10e-6,290)));
+//DegreeDependence();
 //showmessage(floattostr(OverageValue(PointDistance2,[5e-9,6e-10,3e-10,0,0])));
 
 //IVC(DiodPN.Iscr_rec,300,'IVdata.dat');
