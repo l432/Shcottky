@@ -74,6 +74,9 @@ a0=Parameters[5]}
 Function OverageValue(Fun:TFun;Parameters:array of double):double;
 
 Procedure DegreeDependence();
+//-----END---використовуються при моделюванні DAP-----------
+
+//Procedure VocFF_Dependence();
 
 
 implementation
@@ -89,7 +92,7 @@ Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 var i:integer;
 temp:double;
 begin
-if Num=0 then 
+if Num=0 then
    begin
      Spin.Value:=0;
      Track.Position:=0;
@@ -262,7 +265,7 @@ Procedure DegreeDependence();
   Str:=TStringList.Create;
   Str1:=TStringList.Create;
   Str.Add('delta fi R2');
-  Str1.Add('delta fi R2');
+  Str1.Add('delta fi L');
 
   delta:=0;
   repeat
@@ -288,5 +291,7 @@ Procedure DegreeDependence();
   Str1.Free;
 
  end;
+
+
 
 end.

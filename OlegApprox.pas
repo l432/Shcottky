@@ -880,10 +880,10 @@ TDoubleDiodLight=class (TDoubleDiodAbstract)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]
          +(V-IRs)/Rsh-Iph}
 private
- Procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); override;
 public
  Constructor Create;
+ Procedure AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle); override;
 end; // TDoubleDiodLight=class (TDoubleDiodAbstract)
 
 TDoubleDiodTauLight=class (TDoubleDiodLight)
@@ -1035,12 +1035,12 @@ end; // TBarierHeigh=class (TFitFunctEvolution)
 TCurrentSC=class (TFitFunctEvolution)
 {Isc(T)=Nph*Abs*Lo*T^m/(1+Abs*Lo*T^m)}
 private
- Function Func(Parameters:TArrSingle):double; override;
  Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;//abstract;
 
 public
  Constructor Create;
+ Function Func(Parameters:TArrSingle):double; override;
 end; // TCurrentSC=class (TFitFunctEvolution)
 
 //--------------------------------------------------------
@@ -1257,8 +1257,21 @@ Function Parametr(V: PVector; FunName,ParName:string):double;
 який знаходиться в результаті апроксимації даних в V
 за допомогою функції FunName}
 
+
+Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
+                   Var_Rand:TVar_Rand):double;
+{крок для зміни величини в інтервалі
+[Xmin, Xmax] з загальною кількістю
+вузлів Npoint;
+Var_Rand  задає масштаб зміни (лінійний чи логарифмічний)
+в останньомц випадку повертається
+десятковий логарифм кроку
+}
+
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
+
+
 implementation
 
 function TOIniFile.ReadRand(const Section, Ident: string): TVar_Rand;
@@ -4719,6 +4732,7 @@ procedure TDoubleDiodLight.AddParDetermination(InputData:PVector;
   var Data:array of double;
 begin
   inherited AddParDetermination(InputData,OutputData);
+//ТИМЧАСОВО!!!!
   OutputData[FNx+1]:=ErResult;
   OutputData[FNx+2]:=ErResult;
   OutputData[FNx+3]:=ErResult;
@@ -5964,7 +5978,18 @@ begin
   Str1.Free;
 end;
 
-
+Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
+                   Var_Rand:TVar_Rand):double;
+begin
+ if Npoint<1 then Result:=ErResult
+   else if (Npoint=1)or(Var_Rand=cons) then Result:=(Xmax-Xmin)+1
+        else if (Xmax=Xmin) then Result:=1
+         else    
+         case Var_Rand of
+          lin:Result:=(Xmax-Xmin)/(Npoint-1);
+          else Result:=(Log10(Xmax)-Log10(Xmin))/(Npoint-1);
+         end;
+end;
 
 
 
