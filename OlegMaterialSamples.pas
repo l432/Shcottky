@@ -1440,7 +1440,7 @@ end;
 function TDiod_PN.W(T, V: double): double;
  var Vd:double;
 begin
- Vd:=Vdif(T,V);
+ Vd:=Vdif(T,V)-2*Kb*T;
  if Vd=ErResult then
   begin
     Result:=ErResult;

@@ -33,7 +33,7 @@ const
            'PAT and TE on 1/kT','PAT and TE on V',
            'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
            'Tunneling diod forward','Illuminated tunneling diod',
-           'Tunneling diod rewers', 'Barrier height',
+           'Tunneling diod revers', 'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP');
   Voc_min=0.0002;
@@ -772,12 +772,8 @@ public
 end; // TDiodTun=class (TFitFunctEvolution)
 
 TTunRevers=class (TFitFunctEvolution)
-{I=I0*exp(A*(V-IRs)+(V-IRs)/Rsh}
 private
  Function Func(Parameters:TArrSingle):double; override;
-// Function RealFunc(DeterminedParameters:TArrSingle):double; override;
-// Function Weight(OutputData:TArrSingle):double;override;
-// Function RealFunc(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
 end; // TTunRevers=class (TFitFunctEvolution)
@@ -4201,56 +4197,29 @@ Constructor TTunRevers.Create;
 begin
 // inherited Create('TunRev','Trap-assisted tunneling, rewers diod',
 //                   5,0,0);
- inherited Create('TunRev','Trap-assisted tunneling, rewers diod',
+ inherited Create('TunRev','Trap-assisted tunneling, revers diod',
                    4,0,0);
  FXname[0]:='Io';
  FXname[1]:='Et';
  FXname[2]:='Ud';
-// FXname[3]:='Rs';
  FXname[3]:='Iph';
 
-// fIsDiod:=True;
- fHasPicture:=False;
+// fHasPicture:=False;
  fTemperatureIsRequired:=False;
  CreateFooter();
-// ReadFromIniFile();
 end;
-
-//Function TTunRevers.RealFunc(Parameters:TArrSingle):double;
-//begin
-// Result:=Full_IV(IV_DiodTATrev,fX,[Parameters[0],
-//                 Parameters[3],Parameters[2],Parameters[1],
-//                 FSample.Material.Meff,FSample.Nd,FSample.Material.Eps],
-//                 1e12,Parameters[4]);
-//
-//end;
 
 Function TTunRevers.Func(Parameters:TArrSingle):double;
  var F,V:double;
 begin
-// Result:=Full_IV(IV_DiodTATrev,fX,[Parameters[0],
-//                 Parameters[3],Parameters[2],Parameters[1],
-//                 FSample.Material.Meff,FSample.Nd,FSample.Material.Eps],
-//                 1e12,Parameters[4]);
-
- V:=fX;//-fY*Parameters[3];
+ V:=fX;
  F:=sqrt(Qelem*(FSample as TDiod_Schottky).Semiconductor.Nd*(Parameters[2]+V)/2/(FSample as TDiod_Schottky).Semiconductor.Material.Eps/Eps0);
-// Result:=F*V*Parameters[0]*exp(-4*sqrt(2*FSample.Material.Meff*m0)*
-//                           Power(Qelem*Parameters[1],1.5)/
-//                           (3*Qelem*Hpl*F))+Parameters[3];
 
  Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*(FSample as TDiod_Schottky).Semiconductor.Meff*m0)*
                            Power(Qelem*Parameters[1],1.5)/
                            (3*Qelem*Hpl*F))+Parameters[3];
 
-// Result:=Parameters[0]*exp(-Parameters[1]/sqrt(Parameters[2]+fX))+Parameters[3];
-// Result:=sqrt(Parameters[2]+fX)*Parameters[0]*exp(-Parameters[1]/sqrt(Parameters[2]+fX))+Parameters[3];
 end;
-
-//Function TTunRevers.Weight(OutputData:TArrSingle):double;
-//begin
-// Result:=sqr(fY-OutputData[3]);
-//end;
 
 
 Constructor TPhotoDiod.Create;
@@ -4509,7 +4478,7 @@ begin
  FXname[1]:='Et';
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 // ReadFromIniFile();
 end;
@@ -4517,7 +4486,7 @@ end;
 Function TTauG.Func(Parameters:TArrSingle):double;
 // var Fb,Vbb:double;
 begin
- Result:=Sqrt(Parameters[0])*(exp(Parameters[0]*fX)+exp(-Parameters[0]*fX));
+ Result:=Sqrt(Parameters[0])*(exp(Parameters[1]*fX)+exp(-Parameters[1]*fX));
 end;
 
 //Function TTauG.Weight(OutputData:TArrSingle):double;
@@ -4660,8 +4629,29 @@ Procedure TDoubleDiodAbstract.BeforeFitness(InputData:Pvector);
 
 begin
   inherited BeforeFitness(InputData);
-//  FXmode[3]:=cons;
-//  FXvalue[3]:=
+  FXmode[3]:=cons;
+  FXvalue[3]:=
+  660671.43474-3748.91622*InputData^.T
+              +5.3318*InputData^.T*InputData^.T;
+//SC11,d2-d5 new
+
+//  919141.44464-5356.56852*InputData^.T
+//              +7.83626*InputData^.T*InputData^.T;
+//SC11,d1,ud1 new
+
+
+//  472756.82001-2721.61113*InputData^.T
+//              +3.93081*InputData^.T*InputData^.T;
+//SC11,udark new
+
+
+//  410163.6713-2296.92381*InputData^.T
+//              +3.2296*InputData^.T*InputData^.T;
+//SC11,dark new
+
+
+
+
 //  18927.42946-197.25815*InputData^.T
 //              +0.69134*InputData^.T*InputData^.T
 //             -7.87913E-4*InputData^.T*InputData^.T*InputData^.T;
@@ -4748,7 +4738,7 @@ begin
  FXname[2]:='ta_n';
  FXname[5]:='ta_g';
  fFunc:=IV_DiodDoubleTau;
- fHasPicture:=False;
+// fHasPicture:=False;
 end;
 
 
@@ -4811,7 +4801,7 @@ begin
  FXname[2]:='ta_n';
  FXname[5]:='ta_g';
  fFunc:=IV_DiodDoubleTau;
- fHasPicture:=False;
+// fHasPicture:=False;
 end;
 
 Constructor TTripleDiod.Create;
@@ -5054,7 +5044,7 @@ begin
 // FVarManualDefinedOnly[0]:=True;
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 end;
 
@@ -5280,7 +5270,7 @@ begin
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
 // FPictureName:='BarierHeighFig';
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 end;
 
@@ -5289,10 +5279,6 @@ begin
  Result:=Parameters[0]-Parameters[1]*fx-Parameters[2]*sqrt(fx);
 end;
 
-//function TBarierHeigh.Weight(OutputData: TArrSingle): double;
-//begin
-// Result:=abs(fY);
-//end;
 
 //-----------------------------------------------------------------------
 
@@ -5872,63 +5858,6 @@ begin
 end;
 
 
-Procedure FunCreate(str:string; var F:TFitFunction);
-begin
-  if str='Linear' then F:=TLinear.Create;
-  if str=FunctionOhmLaw then F:=TOhmLaw.Create;
-  if str='Quadratic' then F:=TQuadratic.Create;
-  if (str='Smoothing')or(str='Derivative')
-        then F:=TFitWithoutParameteres.Create(str);
-  if str='Median filtr' then F:=TFitWithoutParameteres.Create('Median');
-  if str='Exponent' then F:=TExponent.Create;
-  if str='Gromov / Lee' then F:=TGromov.Create;
-  if str='Ivanov' then F:=TIvanov.Create;
-  if str=FunctionDiod then F:=TDiod.Create;
-  if str=FunctionPhotoDiod then F:=TPhotoDiod.Create;
-  if str=FunctionDiodLSM then F:=TDiodLSM.Create;
-  if str=FunctionPhotoDiodLSM then F:=TPhotoDiodLSM.Create;
-  if str=FunctionDiodLambert then F:=TDiodLam.Create;
-  if str=FunctionPhotoDiodLambert then F:=TPhotoDiodLam.Create;
-  if str='Two Diod' then F:=TDiodTwo.Create;
-  if str='Two Diod Full' then F:=TDiodTwoFull.Create;
-  if str='D-Gaussian' then F:=TDGaus.Create;
-  if str='Patch Barrier' then F:=TLinEg.Create;
-  if str=FunctionDDiod then F:=TDoubleDiod.Create;
-  if str=FunctionPhotoDDiod then F:=TDoubleDiodLight.Create;
-  if str='TE and SCLC on 1/kT' then F:=TTEandSCLC_kT1.Create;
-  if str='TE and SCLCexp on 1/kT' then F:=TTEandSCLCexp_kT1.Create;
-  if str='TE and TAHT on 1/kT' then F:=TTEandTAHT_kT1.Create;
-  if str='TE and SCLC on V' then F:=TTEandSCLCV.Create;
-  if str='TE and SCLC on V (II)' then F:=TRevShSCLC2.Create;
-  if str='TE and SCLC on V (III)' then F:=TRevShSCLC3.Create;
-  if str='Tunneling' then F:=TTunnel.Create;
-  if str='Two power' then F:=TPower2.Create;
-  if str='TE reverse' then F:=TRevSh.Create;
-  if str='Brailsford on T' then F:=TBrailsford.Create;
-  if str='Brailsford on w' then F:=TBrailsfordw.Create;
-  if str='Phonon Tunneling on 1/kT' then F:=TPhonAsTun_kT1.Create;
-  if str='Phonon Tunneling on V' then F:=TPhonAsTun_V.Create;
-  if str='PAT and TE on 1/kT' then F:=TPATandTE_kT1.Create;
-  if str='PAT and TE on V' then F:=TPATandTE_V.Create;
-  if str='TEstrict and SCLCexp on 1/kT' then F:=TTEstrAndSCLCexp_kT1.Create;
-  if str='PAT and TEsoft on 1/kT' then F:=TPhonAsTunAndTE2_kT1.Create;
-  if str='Tunneling trapezoidal' then F:=TTunnelFNmy.Create;
-  if str='Lifetime in SCR' then F:=TTauG.Create;
-  if str='Tunneling diod forward' then F:=TDiodTun.Create;
-  if str='Illuminated tunneling diod' then F:=TPhotoDiodTun.Create;
-  if str='Tunneling diod rewers' then F:=TTunRevers.Create;
-  if str='Barrier height' then F:=TBarierHeigh.Create;
-  if str='Photo T-Diod' then F:=TTripleDiodLight.Create;
-  if str='T-Diod' then F:=TTripleDiod.Create;
-  if str='Shot-circuit Current' then F:=TCurrentSC.Create;
-  if str='D-Diod-Tau' then F:=TDoubleDiodTau.Create;
-  if str='Photo D-Diod-Tau' then F:=TDoubleDiodTauLight.Create;
-  if str='Tau DAP' then F:=TTauDAP.Create;
-//  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
-
-//  if str='None' then F:=TDiod.Create;
-end;
-
 
 Function  FitName(V: PVector; st:string='fit'):string;
 begin
@@ -6027,6 +5956,61 @@ begin
          end;
 end;
 
+Procedure FunCreate(str:string; var F:TFitFunction);
+begin
+  if str='Linear' then F:=TLinear.Create;
+  if str=FunctionOhmLaw then F:=TOhmLaw.Create;
+  if str='Quadratic' then F:=TQuadratic.Create;
+  if (str='Smoothing')or(str='Derivative')
+        then F:=TFitWithoutParameteres.Create(str);
+  if str='Median filtr' then F:=TFitWithoutParameteres.Create('Median');
+  if str='Exponent' then F:=TExponent.Create;
+  if str='Gromov / Lee' then F:=TGromov.Create;
+  if str='Ivanov' then F:=TIvanov.Create;
+  if str=FunctionDiod then F:=TDiod.Create;
+  if str=FunctionPhotoDiod then F:=TPhotoDiod.Create;
+  if str=FunctionDiodLSM then F:=TDiodLSM.Create;
+  if str=FunctionPhotoDiodLSM then F:=TPhotoDiodLSM.Create;
+  if str=FunctionDiodLambert then F:=TDiodLam.Create;
+  if str=FunctionPhotoDiodLambert then F:=TPhotoDiodLam.Create;
+  if str='Two Diod' then F:=TDiodTwo.Create;
+  if str='Two Diod Full' then F:=TDiodTwoFull.Create;
+  if str='D-Gaussian' then F:=TDGaus.Create;
+  if str='Patch Barrier' then F:=TLinEg.Create;
+  if str=FunctionDDiod then F:=TDoubleDiod.Create;
+  if str=FunctionPhotoDDiod then F:=TDoubleDiodLight.Create;
+  if str='TE and SCLC on 1/kT' then F:=TTEandSCLC_kT1.Create;
+  if str='TE and SCLCexp on 1/kT' then F:=TTEandSCLCexp_kT1.Create;
+  if str='TE and TAHT on 1/kT' then F:=TTEandTAHT_kT1.Create;
+  if str='TE and SCLC on V' then F:=TTEandSCLCV.Create;
+  if str='TE and SCLC on V (II)' then F:=TRevShSCLC2.Create;
+  if str='TE and SCLC on V (III)' then F:=TRevShSCLC3.Create;
+  if str='Tunneling' then F:=TTunnel.Create;
+  if str='Two power' then F:=TPower2.Create;
+  if str='TE reverse' then F:=TRevSh.Create;
+  if str='Brailsford on T' then F:=TBrailsford.Create;
+  if str='Brailsford on w' then F:=TBrailsfordw.Create;
+  if str='Phonon Tunneling on 1/kT' then F:=TPhonAsTun_kT1.Create;
+  if str='Phonon Tunneling on V' then F:=TPhonAsTun_V.Create;
+  if str='PAT and TE on 1/kT' then F:=TPATandTE_kT1.Create;
+  if str='PAT and TE on V' then F:=TPATandTE_V.Create;
+  if str='TEstrict and SCLCexp on 1/kT' then F:=TTEstrAndSCLCexp_kT1.Create;
+  if str='PAT and TEsoft on 1/kT' then F:=TPhonAsTunAndTE2_kT1.Create;
+  if str='Tunneling trapezoidal' then F:=TTunnelFNmy.Create;
+  if str='Lifetime in SCR' then F:=TTauG.Create;
+  if str='Tunneling diod forward' then F:=TDiodTun.Create;
+  if str='Illuminated tunneling diod' then F:=TPhotoDiodTun.Create;
+  if str='Tunneling diod revers' then F:=TTunRevers.Create;
+  if str='Barrier height' then F:=TBarierHeigh.Create;
+  if str='Photo T-Diod' then F:=TTripleDiodLight.Create;
+  if str='T-Diod' then F:=TTripleDiod.Create;
+  if str='Shot-circuit Current' then F:=TCurrentSC.Create;
+  if str='D-Diod-Tau' then F:=TDoubleDiodTau.Create;
+  if str='Photo D-Diod-Tau' then F:=TDoubleDiodTauLight.Create;
+  if str='Tau DAP' then F:=TTauDAP.Create;
+//  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
+//  if str='None' then F:=TDiod.Create;
+end;
 
 end.
