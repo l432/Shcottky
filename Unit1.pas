@@ -3572,8 +3572,13 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory);
 
+showmessage(FloattostrF(DiodPN.LayerP.Material.Nv(295)
+//        *exp(-(DiodPN.LayerP.Material.EgT(292.5)-0.26)/Kb/292.5),
+ {      *exp(-0.394/Kb/295)},
+       ffExponent,4,0));
+
 //œŒÃ≤Õﬂ“» TDoubleDiodLight.AddParDetermination!!!
-VocFF_Dependence();
+//VocFF_Dependence();
 //showmessage(floattostr(DiodPN.LdifToTauRec(100e-6,340)));
 //DegreeDependence();
 //showmessage(floattostr(OverageValue(PointDistance2,[5e-9,6e-10,3e-10,0,0])));

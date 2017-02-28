@@ -405,12 +405,24 @@ end;
 
 function TMaterial.Vth_n(T: double): double;
 begin
+ if Name='Si' then
+      begin
+       Result:=sqrt(8*Qelem*Kb*T/m0/Pi/0.28);
+       Exit;
+      end;
+ {J.Appl.Phys., 67, p2944}
  if Me=ErResult then Result:=ErResult
                 else Result:=sqrt(3*Qelem*Kb*T/m0/Me)
 end;
 
 function TMaterial.Vth_p(T: double): double;
 begin
+ if Name='Si' then
+      begin
+       Result:=sqrt(8*Qelem*Kb*T/m0/Pi/0.41);
+       Exit;
+      end;
+ {J.Appl.Phys., 67, p2944}
  if Mh=ErResult then Result:=ErResult
                 else Result:=sqrt(3*Qelem*Kb*T/m0/Mh)
 end;
@@ -457,12 +469,24 @@ end;
 function TMaterial.Nc(T:double):double;
 //    ефективна густина станів
 begin
+ if Name='Si' then
+      begin
+       Result:=2.86e25*Power(T/300.0,1.58);
+       Exit;
+      end;
+ {J.Appl.Phys., 67, p2944}
  if Me=ErResult then Result:=ErResult
                 else Result:=2.5e25*Me*(T/300.0)*sqrt(Me*T/300.0);
 end;
 
 function TMaterial.Nv(T: double): double;
 begin
+ if Name='Si' then
+      begin
+       Result:=3.1e25*Power(T/300.0,1.85);
+       Exit;
+      end;
+ {J.Appl.Phys., 67, p2944}       
  if Mh=ErResult then Result:=ErResult
                 else Result:=2.5e25*Mh*(T/300.0)*sqrt(Mh*T/300.0);
 end;
