@@ -2,7 +2,7 @@ unit OlegFunction;
 
 interface
 
-uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType, Dialogs, OlegMath;
+uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType, Dialogs, OlegMath, StrUtils;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -44,6 +44,8 @@ procedure IVC(Func:TFunDouble;
               delV:double=0.01);
 {розраховується ВАХ за законом I=Func(T,V)
 і записується у файл ResultFileName}
+
+Function TwoSpaceToOne(str:string):string;
 
 //-----використовуються при моделюванні DAP-----------
 Function PointDistance(t:double;Parameters:array of double):double;
@@ -214,6 +216,14 @@ begin
  until (V>Vmax);
  if ResultFileName<>'' then Vax^.Write_File(ResultFileName);
  dispose(Vax);
+end;
+
+Function TwoSpaceToOne(str:string):string;
+begin
+  Result:=str;
+  Result:=AnsiReplaceStr(Result,#9,' ');
+  while AnsiContainsStr(Result,'  ') do
+     Result:=AnsiReplaceStr(Result,'  ',' ');
 end;
 
 Function PointDistance(t:double;Parameters:array of double):double;
