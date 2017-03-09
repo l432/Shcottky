@@ -157,6 +157,9 @@ type
       property Material:TMaterial read FMaterial write SetMaterial;
       property ARich:Double read GetARich;
       property Meff:Double read GetMeff;
+      function F(T:double=300):double;
+      {положення рівня Фермі відносно вершини валентної;
+      вважається, що напівпровідник невироджений}
     end; // TMaterialLayer=class
 
 
@@ -868,6 +871,14 @@ begin
 end;
 
 
+
+function TMaterialLayer.F(T: double): double;
+begin
+ if IsNType then
+      Result:=Material.EgT(T)-Kb*T*ln(Material.Nc(T)/Nd)
+            else
+      Result:=Kb*T*ln(Material.Nv(T)/Nd);
+end;
 
 function TMaterialLayer.GetARich: Double;
 begin

@@ -14,7 +14,8 @@ uses
   FrParam in 'FrParam.pas' {FrParamP: TFrame},
   FormSelectFit in 'FormSelectFit.pas' {FormSF},
   FrDiap in 'FrDiap.pas' {FrDp: TFrame},
-  OlegMaterialSamples in 'OlegMaterialSamples.pas';
+  OlegMaterialSamples in 'OlegMaterialSamples.pas',
+  OlegDefectsSi in 'OlegDefectsSi.pas';
 
 {$R *.res}
 

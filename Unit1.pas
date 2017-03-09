@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
-  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples;
+  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -3572,10 +3572,12 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory);
 
-showmessage(FloattostrF(DiodPN.LayerP.Material.Nv(295)
+showmessage(floattostr(Fe_i_eq(DiodPN.LayerP,1e12,295)));
+
+//showmessage(FloattostrF(DiodPN.LayerP.Material.Nv(295)
 //        *exp(-(DiodPN.LayerP.Material.EgT(292.5)-0.26)/Kb/292.5),
- {      *exp(-0.394/Kb/295)},
-       ffExponent,4,0));
+// {      *exp(-0.394/Kb/295)},
+//       ffExponent,4,0));
 
 //œŒÃ≤Õﬂ“» TDoubleDiodLight.AddParDetermination!!!
 //VocFF_Dependence();

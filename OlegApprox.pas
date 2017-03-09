@@ -5,7 +5,7 @@ interface
 uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
       OlegMath,ApprWindows,StdCtrls,FrParam,Series,Classes,
-      OlegGraph,OlegMaterialSamples,OlegFunction;
+      OlegGraph,OlegMaterialSamples,OlegFunction,OlegDefectsSi;
 
 const
   FunctionDiod='Diod';
@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..50]of string=
+  FuncName:array[0..51]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -35,7 +35,7 @@ const
            'Tunneling diod forward','Illuminated tunneling diod',
            'Tunneling diod revers', 'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
-           'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP');
+           'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -978,6 +978,8 @@ public
  Constructor Create;
 end; // TTEandSCLC_kT1=class (TFitFunctEvolution)
 
+
+
 TTEandSCLCexp_kT1=class (TFitFunctEvolution)
 { I(1/kT)=I01*T^2*exp(-E/kT)+I02*T^(m)*A^(-300/T)
 залежності від x=1/(kT)}
@@ -1237,6 +1239,26 @@ end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
 //public
 // Constructor Create;
 //end; // TPhonAsTunAndTE=class (TPhonAsTun)
+
+TTAU_Fei_FeB=class (TFitFunctEvolution)
+{часова залежність часу життя неосновних носіїв,
+якщо відбувається перехід міжвузольного
+заліза в комплекс FeB
+tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r)
+де tau_r - час життя, що задаєься іншими механізмами
+рекомбінації, окрім на рівнях, зв'язаними з Fei та FeB;
+параметри, які підбираються - сумарна концентрація
+атомів заліза (міжвузольних та в парах FeB) та tau_r}
+private
+ fFei:TDefect;
+ fFeB:TDefect;
+ Function Func(Parameters:TArrSingle):double; override;
+
+public
+ Constructor Create;
+ Procedure Free;
+end; //TTAU_Fei_FeB=class (TFitFunctEvolution)
+
 
 var
  FitFunction:TFitFunction;
@@ -5947,6 +5969,43 @@ begin
   Str1.Free;
 end;
 
+{ TTAU_Fei_FeB }
+
+constructor TTAU_Fei_FeB.Create;
+begin
+ inherited Create('TTAUFeiFeB','Time dependence of minority'+
+                'carrier life time',
+                 2,2,0);
+ FXname[0]:='Fe';
+ FXname[1]:='tau_r';
+ FVarName[0]:='T';
+ FVarName[1]:='delN';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ FVarManualDefinedOnly[0]:=True;
+ FVarManualDefinedOnly[1]:=True;
+ fFei:=TDefect.Create(Fei);
+ fFeB:=TDefect.Create(FeB);
+ fHasPicture:=False;
+ CreateFooter();
+end;
+
+procedure TTAU_Fei_FeB.Free;
+begin
+ fFei.Free;
+ fFeB.Free;
+ inherited;
+end;
+
+function TTAU_Fei_FeB.Func(Parameters: TArrSingle): double;
+begin
+ fFei.Nd:=Fe_i_t(fX,DiodPN.LayerP,Parameters[0],FVariab[0]);
+ fFeB.Nd:=Parameters[0]-fFei.Nd;
+ Result:=1/(1/Parameters[1]+
+            1/fFei.TAUsrh(DiodPN.LayerP.Nd,FVariab[1],FVariab[0])+
+            1/fFeB.TAUsrh(DiodPN.LayerP.Nd,FVariab[1],FVariab[0]));
+end;
+
 Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
                    Var_Rand:TVar_Rand):double;
 begin
@@ -6012,9 +6071,12 @@ begin
   if str='D-Diod-Tau' then F:=TDoubleDiodTau.Create;
   if str='Photo D-Diod-Tau' then F:=TDoubleDiodTauLight.Create;
   if str='Tau DAP' then F:=TTauDAP.Create;
-//  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
+  if str='Tau Fei-FeB' then F:=TTAU_Fei_FeB.Create;
+  //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
 
 //  if str='None' then F:=TDiod.Create;
 end;
+
+
 
 end.

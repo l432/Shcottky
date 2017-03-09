@@ -49,6 +49,7 @@
       <Form>FrParamP</Form>
     </DCCReference>
     <DCCReference Include="OlegApprox.pas" />
+    <DCCReference Include="OlegDefectsSi.pas" />
     <DCCReference Include="OlegFunction.pas" />
     <DCCReference Include="OlegGraph.pas" />
     <DCCReference Include="OlegMaterialSamples.pas" />
