@@ -2536,6 +2536,7 @@ begin
   begin
    new(temp);
    LogX(VaxGraph,temp);
+//   VaxGraph^.AbsX(temp^);
    if temp^.n=0 then
                 begin
                  XLogCheck.Checked:=False;
@@ -2565,7 +2566,8 @@ begin
  if YLogCheck.Checked then
   begin
    new(temp);
-   LogY(VaxGraph,temp);
+//   LogY(VaxGraph,temp);
+   VaxGraph^.AbsY(temp^);
    if temp^.n=0 then
                 begin
                  YLogCheck.Checked:=False;

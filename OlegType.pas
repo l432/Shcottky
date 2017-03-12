@@ -101,6 +101,14 @@ type
          Procedure PositiveY(var Target:Vector);
          {заносить в Target ті точки, для яких Y більше або рівне нулю;
          окрім X, Y та n ніякі інші поля Target не змінюються}
+         Procedure AbsX(var Target:Vector);
+         {заносить в Target точки, для яких X дорівнює модулю Х даного
+         вектора, а Y таке саме; якщо Х=0, то точка викидається;
+         окрім X, Y та n ніякі інші поля Target не змінюються}
+         Procedure AbsY(var Target:Vector);
+         {заносить в Target точки, для яких Y дорівнює модулю Y даного
+         вектора, а X таке саме; якщо Y=0, то точка викидається;
+         окрім X, Y та n ніякі інші поля Target не змінюються}
          Procedure NegativeX(var Target:Vector);
          {заносить в Target ті точки, для яких X менше нуля;
          окрім X, Y та n ніякі інші поля Target не змінюються}
@@ -734,6 +742,26 @@ begin
  for I := 0 to n - 1 do
    if Y[i]>=0 then
      Target.Add(X[i],Y[i]);
+end;
+
+Procedure Vector.AbsX(var Target:Vector);
+ var i:integer;
+begin
+ Copy(Target);
+ for I := 0 to n - 1 do
+     if Target.X[i]=0 then Target.Delete(i)
+                      else
+     Target.X[i]:=abs(Target.X[i]);
+end;
+
+Procedure Vector.AbsY(var Target:Vector);
+ var i:integer;
+begin
+ Copy(Target);
+ for I := 0 to n - 1 do
+     if Target.Y[i]=0 then Target.Delete(i)
+                      else
+     Target.Y[i]:=abs(Target.Y[i]);
 end;
 
 Procedure Vector.NegativeX(var Target:Vector);
