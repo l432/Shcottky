@@ -245,7 +245,7 @@ end;
 
 Function OverlapIntegral(x:double):double;
 begin
-  Result:=(1+x+sqr(x)/3)*exp(-x);
+  Result:=(1+x+sqr(x)/3.0)*exp(-x);
 end;
 
 Function OverlapIntegralVibrate(t:double;Parameters:array of double):double;
@@ -262,43 +262,224 @@ Function OverageValue(Fun:TFun;Parameters:array of double):double;
 
 Procedure DegreeDependence();
   var Param:array of double;
-      fi,delta:double;
+      fi,delta{,r2_over,L_over,L0}:double;
       Str,str1:TStringList;
+      strg,strg1:string;
+
+  Function L_string():string;
+    var L_over,L0:double;
+   begin
+    L_over:=OverageValue(OverlapIntegralVibrate,Param);
+    L0:=OverlapIntegral(Param[0]/Param[5]);
+    Result:=FloatToStrF((L_over-L0)/L0, ffExponent,4,0);
+   end;
+
+  Function r2_string():string;
+    var r2_over:double;
+   begin
+    r2_over:=OverageValue(PointDistance2,Param);
+    Result:=FloatToStrF((r2_over-sqr(Param[0]))/sqr(Param[0]), ffExponent,4,0);
+   end;
  begin
   SetLength(Param,6);
-  Param[0]:=30e-9;
-  Param[1]:=5e-10;
-  Param[2]:=1e-9;
+//  Param[0]:=10e-9;
+//  Param[1]:=5e-10;
+//  Param[2]:=5e-10;
+//  Param[5]:=3.23e-9;
+//
+//  Str:=TStringList.Create;
+//  Str1:=TStringList.Create;
+//  Str.Add('delta fi R2');
+//  Str1.Add('delta fi L');
+//
+//  delta:=0;
+//  repeat
+//   Param[4]:=delta;
+//  fi:=0;
+//  repeat
+//   Param[3]:=fi;
+//   r2_over:=OverageValue(PointDistance2,Param);
+//   L_over:=OverageValue(OverlapIntegralVibrate,Param);
+//   L0:=OverlapIntegral(Param[0]/Param[5]);
+//
+//   Str.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
+//           FloatToStrF(fi,ffFixed,3,0)+' '+
+//           FloatToStrF(
+//           (r2_over-sqr(Param[0]))/sqr(Param[0]),
+//            ffExponent,4,0));
+//   Str1.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
+//           FloatToStrF(fi,ffFixed,3,0)+' '+
+//           FloatToStrF((L_over-L0)/L0,
+//           ffExponent,4,0));
+//
+//   fi:=fi+2;
+//  until fi>180;
+//   delta:=delta+2;
+//  until delta>360;
+//
+//  Str.SaveToFile('r2.dat');
+//  Str.Free;
+//  Str1.SaveToFile('L_r.dat');
+//  Str1.Free;
+
+//------------------------------------------------------------------
+
+  Param[3]:=0;
+  Param[4]:=45;
   Param[5]:=3.23e-9;
 
-
-  Str:=TStringList.Create;
+//  Str:=TStringList.Create;
   Str1:=TStringList.Create;
-  Str.Add('delta fi R2');
-  Str1.Add('delta fi L');
+//  Str.Add('r0 A5A5 A5A10 A3A6 A5A15 A10A10 A5A20 A3A13');
+//  Str1.Add('r0 A5A5 A5A10 A3A6 A5A15 A10A10 A5A20 A3A13');
 
-  delta:=0;
+  Param[0]:=3e-9;
   repeat
-   Param[4]:=delta;
-  fi:=0;
-  repeat
-   Param[3]:=fi;
-   Str.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
-           FloatToStrF(fi,ffFixed,3,0)+' '+
-           FloatToStrF(OverageValue(PointDistance2,Param)/sqr(Param[0]),ffExponent,4,0));
-   Str1.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
-           FloatToStrF(fi,ffFixed,3,0)+' '+
-           FloatToStrF(OverageValue(OverlapIntegralVibrate,Param)/OverlapIntegral(Param[0]/Param[5]),ffExponent,4,0));
+   strg1:=FloatToStrF(Param[0],ffExponent,4,0);
 
-   fi:=fi+2;
-  until fi>180;
-   delta:=delta+2;
-  until delta>360;
+   Param[1]:=0;
+   repeat
+       Param[2]:=20E-10-Param[1];
+       strg1:=strg1+' '+r2_string();
+       Param[1]:=Param[1]+1e-10;
+   until (Param[1]>20e-10);
 
-  Str.SaveToFile('r2.dat');
-  Str.Free;
-  Str1.SaveToFile('L_r.dat');
+
+
+//   Param[1]:=5e-10;
+//   Param[2]:=5e-10;
+//   strg1:=strg1+' '+L_string();
+//
+//   Param[1]:=5e-10;
+//   Param[2]:=10e-10;
+//   strg1:=strg1+' '+L_string();
+//
+//   Param[1]:=3e-10;
+//   Param[2]:=6e-10;
+//   strg1:=strg1+' '+L_string();
+//
+//   Param[1]:=5e-10;
+//   Param[2]:=15e-10;
+//   strg1:=strg1+' '+L_string();
+//
+//   Param[1]:=10e-10;
+//   Param[2]:=10e-10;
+//   strg1:=strg1+' '+L_string();
+//
+//   Param[1]:=5e-10;
+//   Param[2]:=20e-10;
+//   strg1:=strg1+' '+L_string();
+//
+//   Param[1]:=3e-10;
+//   Param[2]:=13e-10;
+//   strg1:=strg1+' '+L_string();
+
+
+   Str1.Add(strg1);
+   Param[0]:=Param[0]+0.5e-9;
+  until (Param[0]>50e-9);
+
+//  Str.SaveToFile('r2fi0del180.dat');
+//  Str.Free;
+  Str1.SaveToFile('L.dat');
   Str1.Free;
+
+
+//  Param[3]:=90;
+//  Param[4]:=0;
+//  Param[5]:=3.23e-9;
+//
+//  Str:=TStringList.Create;
+//  Str1:=TStringList.Create;
+//  Str.Add('r0 A5A5 A5A10 A2A4 A2A10');
+//  Str1.Add('r0 A5A5 A5A10 A2A4 A2A10');
+//
+//  Param[0]:=3e-9;
+//  repeat
+//   Param[1]:=5e-10;
+//   Param[2]:=5e-10;
+//   r2_over:=OverageValue(PointDistance2,Param);
+//   L_over:=OverageValue(OverlapIntegralVibrate,Param);
+//   L0:=OverlapIntegral(Param[0]/Param[5]);
+//   strg:=FloatToStrF(Param[0],ffExponent,4,0)+' '+
+//        FloatToStrF((r2_over-sqr(Param[0]))/sqr(Param[0]), ffExponent,4,0);
+//   strg1:=FloatToStrF(Param[0],ffExponent,4,0)+' '+
+//        FloatToStrF((L_over-L0)/L0, ffExponent,4,0);
+//
+//   Param[1]:=5e-10;
+//   Param[2]:=10e-10;
+//   r2_over:=OverageValue(PointDistance2,Param);
+//   L_over:=OverageValue(OverlapIntegralVibrate,Param);
+//   L0:=OverlapIntegral(Param[0]/Param[5]);
+//   strg:=strg+' '+
+//        FloatToStrF((r2_over-sqr(Param[0]))/sqr(Param[0]), ffExponent,4,0);
+//   strg1:=strg1+' '+
+//        FloatToStrF((L_over-L0)/L0, ffExponent,4,0);
+//
+//   Param[1]:=2e-10;
+//   Param[2]:=4e-10;
+//   r2_over:=OverageValue(PointDistance2,Param);
+//   L_over:=OverageValue(OverlapIntegralVibrate,Param);
+//   L0:=OverlapIntegral(Param[0]/Param[5]);
+//   strg:=strg+' '+
+//        FloatToStrF((r2_over-sqr(Param[0]))/sqr(Param[0]), ffExponent,4,0);
+//   strg1:=strg1+' '+
+//        FloatToStrF((L_over-L0)/L0, ffExponent,4,0);
+//
+//   Param[1]:=2e-10;
+//   Param[2]:=10e-10;
+//   r2_over:=OverageValue(PointDistance2,Param);
+//   L_over:=OverageValue(OverlapIntegralVibrate,Param);
+//   L0:=OverlapIntegral(Param[0]/Param[5]);
+//   strg:=strg+' '+
+//        FloatToStrF((r2_over-sqr(Param[0]))/sqr(Param[0]), ffExponent,4,0);
+//   strg1:=strg1+' '+
+//        FloatToStrF((L_over-L0)/L0, ffExponent,4,0);
+//
+//   Str.Add(strg);
+//   Str1.Add(strg1);
+//   Param[0]:=Param[0]+1e-9;
+//  until (Param[0]>100e-9);
+//
+//  Str.SaveToFile('r2fi90del0.dat');
+//  Str.Free;
+//  Str1.SaveToFile('L_rfi90del0.dat');
+//  Str1.Free;
+
+
+//------------------------------------
+
+//  Param[0]:=10e-9;
+//  Param[3]:=0;
+//  Param[4]:=0;
+//  Param[5]:=3.23e-9;
+//
+//  Str:=TStringList.Create;
+//  Str.Add('A1 A2 R2');
+//
+//  delta:=1e-10;
+//  repeat
+//   Param[1]:=delta;
+//  fi:=1e-10;
+//  repeat
+//   Param[2]:=fi;
+//   r2_over:=OverageValue(PointDistance2,Param);
+//   L_over:=OverageValue(OverlapIntegralVibrate,Param);
+//   L0:=OverlapIntegral(Param[0]/Param[5]);
+//
+//   Str.Add(FloatToStrF(delta,ffExponent,4,0)+' '+
+//           FloatToStrF(fi,ffExponent,4,0)+' '+
+//           FloatToStrF(
+//           (r2_over-sqr(Param[0]))/sqr(Param[0]),
+//            ffExponent,4,0));
+//
+//   fi:=fi+5e-11;
+//  until fi>20e-10;
+//   delta:=delta+5e-11;
+//  until delta>20e-10;
+//
+//  Str.SaveToFile('r2del0.dat');
+//  Str.Free;
 
  end;
 
