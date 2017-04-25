@@ -283,7 +283,7 @@ Procedure DegreeDependence();
  begin
   SetLength(Param,6);
 
-  Param[0]:=15e-9;
+  Param[0]:=10e-9;
   Param[1]:=5e-10;
   Param[2]:=10e-10;
   Param[5]:=3.23e-9;
