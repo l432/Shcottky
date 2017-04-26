@@ -283,82 +283,82 @@ Procedure DegreeDependence();
  begin
   SetLength(Param,6);
 
-  Param[0]:=10e-9;
-  Param[1]:=5e-10;
-  Param[2]:=10e-10;
-  Param[5]:=3.23e-9;
-
-  Str:=TStringList.Create;
-  Str1:=TStringList.Create;
-  Str.Add('delta fi R2');
-  Str1.Add('delta fi L');
-
-  delta:=0;
-  repeat
-   Param[4]:=delta;
-  fi:=0;
-  repeat
-   Param[3]:=fi;
-   Str.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
-           FloatToStrF(fi,ffFixed,3,0)+' '+
-           r2_string());
-   Str1.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
-           FloatToStrF(fi,ffFixed,3,0)+' '+
-           L_string());
-
-   fi:=fi+2;
-  until fi>180;
-   delta:=delta+2;
-  until delta>360;
-
-  Str.SaveToFile('r2.dat');
-  Str.Free;
-  Str1.SaveToFile('L_r.dat');
-  Str1.Free;
+//  Param[0]:=10e-9;
+//  Param[1]:=5e-10;
+//  Param[2]:=10e-10;
+//  Param[5]:=3.23e-9;
+//
+//  Str:=TStringList.Create;
+//  Str1:=TStringList.Create;
+//  Str.Add('delta fi R2');
+//  Str1.Add('delta fi L');
+//
+//  delta:=0;
+//  repeat
+//   Param[4]:=delta;
+//  fi:=0;
+//  repeat
+//   Param[3]:=fi;
+//   Str.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
+//           FloatToStrF(fi,ffFixed,3,0)+' '+
+//           r2_string());
+//   Str1.Add(FloatToStrF(delta,ffFixed,3,0)+' '+
+//           FloatToStrF(fi,ffFixed,3,0)+' '+
+//           L_string());
+//
+//   fi:=fi+2;
+//  until fi>180;
+//   delta:=delta+2;
+//  until delta>360;
+//
+//  Str.SaveToFile('r2.dat');
+//  Str.Free;
+//  Str1.SaveToFile('L_r.dat');
+//  Str1.Free;
 
 //------------------------------------------------------------------
 
-//  Param[3]:=90;
-//  Param[4]:=180;
+  Param[3]:=90;
+  Param[4]:=180;
+  Param[5]:=3.23e-9;
 //  Param[5]:=3.23e-9;
-////  Param[5]:=3.23e-9;
-//
-////  Str:=TStringList.Create;
-//  Str1:=TStringList.Create;
-////  Str.Add('r0 A5A5 A5A10 A3A6 A5A15 A10A10 A5A20 A3A13');
-//  Str1.Add('r0 AplusA epsL');
-//
-//  Param[0]:=3e-9;
-////  Param[1]:=3e-10;
-//  Param[2]:=0e-10;
-//  repeat
-////    strg1:=FloatToStrF(Param[0],ffExponent,4,0);
-//
-//
-//   Param[1]:=3e-10;
-//   repeat
-////     Param[2]:=20e-10+Param[1];
-////     Param[2]:=20e-10-Param[1];
-//       strg1:=FloatToStrF(Param[0],ffExponent,4,0);
-//       strg1:=strg1+' '+FloatToStrF(Param[1]+Param[2],ffExponent,4,0);
-//       strg1:=strg1+' '+L_string();
-//       Param[1]:=Param[1]+0.5e-10;
-//       Str1.Add(strg1);
-//
-//   until ((Param[1]+Param[2])>40.1e-10);
-//
-//
-//
-////   Str1.Add(strg1);
-////   Param[2]:=Param[2]+0.05e-10;
-////  until (Param[2]>27e-10);
-//   Param[0]:=Param[0]+0.5e-9;
-//  until (Param[0]>50.1e-9);
-//
-////  Str.SaveToFile('r2fi0del180.dat');
-////  Str.Free;
-//  Str1.SaveToFile('L.dat');
-//  Str1.Free;
+
+//  Str:=TStringList.Create;
+  Str1:=TStringList.Create;
+//  Str.Add('r0 A5A5 A5A10 A3A6 A5A15 A10A10 A5A20 A3A13');
+  Str1.Add('r0 AplusA epsL');
+
+  Param[0]:=3e-9;
+//  Param[1]:=3e-10;
+  Param[2]:=0e-10;
+  repeat
+//    strg1:=FloatToStrF(Param[0],ffExponent,4,0);
+
+
+   Param[1]:=3e-10;
+   repeat
+//     Param[2]:=20e-10+Param[1];
+//     Param[2]:=20e-10-Param[1];
+       strg1:=FloatToStrF(Param[0],ffExponent,4,0);
+       strg1:=strg1+' '+FloatToStrF(Param[1]-Param[2],ffExponent,4,0);
+       strg1:=strg1+' '+L_string();
+       Param[1]:=Param[1]+0.5e-10;
+       Str1.Add(strg1);
+
+   until ((Param[1]-Param[2])>30.1e-10);
+
+
+
+//   Str1.Add(strg1);
+//   Param[2]:=Param[2]+0.05e-10;
+//  until (Param[2]>27e-10);
+   Param[0]:=Param[0]+0.5e-9;
+  until (Param[0]>30.1e-9);
+
+//  Str.SaveToFile('r2fi0del180.dat');
+//  Str.Free;
+  Str1.SaveToFile('L.dat');
+  Str1.Free;
 
 
 
