@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..51]of string=
+  FuncName:array[0..52]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -35,7 +35,8 @@ const
            'Tunneling diod forward','Illuminated tunneling diod',
            'Tunneling diod revers', 'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
-           'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB');
+           'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
+           'Rsh vs T');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -849,6 +850,15 @@ private
 public
  Constructor Create;
 end; //TTauDAP=class (TFitFunctEvolution)
+
+TRsh_T=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+// Function Weight(OutputData:TArrSingle):double;override;
+public
+ Constructor Create;
+end; //TTauDAP=class (TFitFunctEvolution)
+
 
 
 TDoubleDiodAbstract=class (TFitFunctEvolution)
@@ -6019,6 +6029,29 @@ begin
          end;
 end;
 
+
+{ TRsh_TP }
+
+constructor TRsh_T.Create;
+begin
+ inherited Create('RshT','Shunt resistance with T',
+                  4,0,0);
+ FXname[0]:='A';
+ FXname[1]:='Et';
+ FXname[2]:='U0';
+ FXname[3]:='qUs';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ CreateFooter();
+end;
+
+function TRsh_T.Func(Parameters: TArrSingle): double;
+begin
+  Result:=Parameters[0]*fx*(cosh(Parameters[1]/fx/Kb-Parameters[2])+
+                            cosh(Parameters[3]/fx/Kb-Parameters[2]));
+end;
+
 Procedure FunCreate(str:string; var F:TFitFunction);
 begin
   if str='Linear' then F:=TLinear.Create;
@@ -6072,10 +6105,11 @@ begin
   if str='Photo D-Diod-Tau' then F:=TDoubleDiodTauLight.Create;
   if str='Tau DAP' then F:=TTauDAP.Create;
   if str='Tau Fei-FeB' then F:=TTAU_Fei_FeB.Create;
-  //  if str='New' then F:=TPhonAsTunAndTE3_kT1.Create;
+  if str='Rsh vs T' then F:=TRsh_T.Create;
 
 //  if str='None' then F:=TDiod.Create;
 end;
+
 
 
 
