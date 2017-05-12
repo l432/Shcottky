@@ -5970,11 +5970,17 @@ procedure TCurrentSC.RealToFile(InputData: PVector; var OutputData: TArrSingle;
   Xlog, Ylog: boolean; suf: string);
 var Str1:TStringList;
     i:integer;
+    AlL:double;
 begin
   Str1:=TStringList.Create;
   for I := 0 to High(InputData^.X) do
+    begin
+    AlL:=Silicon.Absorption(FVariab[0],InputData^.X[i])*
+          OutputData[1]*Power(InputData^.X[i]/300,OutputData[2]);
     Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
+             FloatToStrF(OutputData[0]*AlL/(1+AlL),ffExponent,4,0)+' '+
              FloatToStrF(OutputData[1]*Power(InputData^.X[i]/300,OutputData[2]),ffExponent,4,0));
+    end;
   Str1.SaveToFile(FitName(InputData,suf));
   Str1.Free;
 end;

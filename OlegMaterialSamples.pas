@@ -1451,6 +1451,7 @@ end;
 
 function TDiod_PN.TauRec(Igen, T: Double): double;
 // var mu:double;
+
 begin
 //  mu:=0.1448*Power((300/T),2.33);
     Result:=Power(Qelem*Area,2)*Power(n_i(T),4)*mu(T)*Kb*T/sqr(Nd*Igen);
@@ -1582,9 +1583,9 @@ begin
   if Result300=0 then Exit;
 
   Result:=Rajkanan(Ephoton,T);
-  if Result=0 then Exit;
-
-  Result:=Result/Result300*GreenAbs;
+//  if Result=0 then Exit;
+//
+//  Result:=Result/Result300*GreenAbs;
 end;
 
 class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
