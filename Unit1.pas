@@ -3454,34 +3454,38 @@ Procedure VocFF_Dependence();
      Iph:double;
      OutputData:TArrSingle;
 begin
- Tmin:=290;
- Tmax:=340;
+ Tmin:=320;
+ Tmax:=320;
+// Tmin:=290;
+// Tmax:=340;
  Tdel:=StepDetermination(Tmin,Tmax,Npoint,lin);
 
- tauGmin:=log10(3e-8);
- tauGmax:=log10(3e-8);
-// tauGmin:=log10(1e-9);
-// tauGmax:=log10(1.01e-5);
+// tauGmin:=log10(5e-8);
+// tauGmax:=log10(5e-8);
+ tauGmin:=log10(1e-9);
+ tauGmax:=log10(1.01e-6);
  tauGdel:=StepDetermination(tauGmin,tauGmax,Npoint,lin);
 
- tauRmin:=log10(4e-6);
- tauRmax:=log10(4e-6);
-// tauRmin:=log10(1e-8);
-// tauRmax:=log10(1.01e-4);
+// tauRmin:=log10(3e-6);
+// tauRmax:=log10(3e-6);
+ tauRmin:=log10(1e-7);
+ tauRmax:=log10(1.01e-5);
  tauRdel:=StepDetermination(tauRmin,tauRmax,Npoint,lin);
 
- nmin:=2.6;
- nmax:=2.6;
-// nmin:=1.5;
+ nmin:=2.55;
+ nmax:=2.55;
+// nmin:=2;
 // nmax:=4;
  ndel:=StepDetermination(nmin,nmax,Npoint,lin);
 
- Rsmin:=0;
- Rsmax:=0;
+ Rsmin:=0.6;
+ Rsmax:=0.6;
  Rsdel:=StepDetermination(Rsmin,Rsmax,Npoint,lin);
 
- Rshmin:=log10(1e4);
- Rshmax:=log10(1e4);
+ Rshmin:=log10(5e3);
+ Rshmax:=log10(5e3);
+// Rshmin:=log10(1e3);
+// Rshmax:=log10(1e12);
  Rshdel:=StepDetermination(Rshmin,Rshmax,Npoint,lin);
 
 
@@ -3517,11 +3521,12 @@ begin
                  tauR:=tauRmin;
                  repeat
                    OutputData[2]:=Power(10,tauR);
-                   Iph:=2*0.72398*200e-6*
-                         Silicon.Absorption(900,T)*100e-6/
-                         (1+Silicon.Absorption(900,T)*100e-6);
-//                         Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T)/
-//                         (1+Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T));
+//                   Iph:=2*0.72398*200e-6*
+//                         Silicon.Absorption(900,T)*100e-6/
+//                         (1+Silicon.Absorption(900,T)*100e-6);
+                     Iph:=2.33*100e-6*
+                         Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T)/
+                         (1+Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T));
                     OutputData[6]:=Iph;
                     Form1.Button1.Caption:='tG='+floattostrf(tauG,ffExponent,4,0)+' tR='+
                     floattostrf(tauR,ffExponent,4,0);
@@ -3582,9 +3587,9 @@ SetCurrentDir(CurDirectory);
 //       ffExponent,4,0));
 
 //œŒÃ≤Õﬂ“» TDoubleDiodLight.AddParDetermination!!!
-//VocFF_Dependence();
+VocFF_Dependence();
 //showmessage(floattostr(DiodPN.LdifToTauRec(100e-6,340)));
-DegreeDependence();
+//DegreeDependence();
 //showmessage(floattostr(OverageValue(PointDistance2,[5e-9,6e-10,3e-10,0,0])));
 
 //IVC(DiodPN.Iscr_rec,300,'IVdata.dat');
