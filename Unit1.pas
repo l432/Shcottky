@@ -3455,37 +3455,38 @@ Procedure VocFF_Dependence();
      OutputData:TArrSingle;
 begin
  Tmin:=320;
- Tmax:=320;
+ Tmax:=Tmin;
 // Tmin:=290;
 // Tmax:=340;
  Tdel:=StepDetermination(Tmin,Tmax,Npoint,lin);
 
-// tauGmin:=log10(5e-8);
-// tauGmax:=log10(5e-8);
- tauGmin:=log10(1e-9);
- tauGmax:=log10(1.01e-6);
+ tauGmin:=log10(5e-8);
+ tauGmax:=tauGmin;
+// tauGmin:=log10(1e-9);
+// tauGmax:=log10(1.02e-6);
  tauGdel:=StepDetermination(tauGmin,tauGmax,Npoint,lin);
 
-// tauRmin:=log10(3e-6);
-// tauRmax:=log10(3e-6);
- tauRmin:=log10(1e-7);
- tauRmax:=log10(1.01e-5);
+ tauRmin:=log10(3e-6);
+ tauRmax:=tauRmin;
+// tauRmin:=log10(1e-7);
+// tauRmax:=log10(1.01e-5);
  tauRdel:=StepDetermination(tauRmin,tauRmax,Npoint,lin);
 
- nmin:=2.55;
- nmax:=2.55;
-// nmin:=2;
-// nmax:=4;
+// nmin:=2.55;
+// nmax:=nmin;
+ nmin:=2;
+ nmax:=4;
  ndel:=StepDetermination(nmin,nmax,Npoint,lin);
 
  Rsmin:=0.6;
- Rsmax:=0.6;
+ Rsmax:=Rsmin;
  Rsdel:=StepDetermination(Rsmin,Rsmax,Npoint,lin);
 
- Rshmin:=log10(5e3);
- Rshmax:=log10(5e3);
-// Rshmin:=log10(1e3);
-// Rshmax:=log10(1e12);
+// Rshmin:=log10(1e19);
+// Rshmin:=log10(5e3);
+// Rshmax:=Rshmin;
+ Rshmin:=log10(1e2);
+ Rshmax:=log10(1e8);
  Rshdel:=StepDetermination(Rshmin,Rshmax,Npoint,lin);
 
 
@@ -3528,8 +3529,10 @@ begin
                          Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T)/
                          (1+Silicon.Absorption(900,T)*DiodPN.TauToLdif(OutputData[2],T));
                     OutputData[6]:=Iph;
-                    Form1.Button1.Caption:='tG='+floattostrf(tauG,ffExponent,4,0)+' tR='+
-                    floattostrf(tauR,ffExponent,4,0);
+//                    Form1.Button1.Caption:='tG='+floattostrf(tauG,ffExponent,4,0)+' tR='+
+//                    floattostrf(tauR,ffExponent,4,0);
+                    Form1.Button1.Caption:='n='+floattostrf(n,ffExponent,4,0)+' Rsh='+
+                    floattostrf(Rsh,ffExponent,4,0);
                     (FitIV as TDoubleDiodLight).AddParDetermination(nil,OutputData);
 
 
@@ -3544,15 +3547,6 @@ begin
                             FloatToStrF(tauG,ffExponent,4,0)+' '+
                             FloatToStrF(OutputData[7],ffExponent,4,0)+' '+
                             FloatToStrF(OutputData[10],ffExponent,4,0));
-//                    showmessage('T='+FloatToStrF(T,ffFixed,3,0)+' '+#10+
-//                            'Rs='+FloatToStrF(Rs,ffExponent,4,0)+' '+#10+
-//                            'Rsh='+FloatToStrF(OutputData[3],ffExponent,4,0)+' '+#10+
-//                            'n='+FloatToStrF(n,ffExponent,4,0)+' '+#10+
-//                            'tauG='+FloatToStrF(OutputData[5],ffExponent,4,0)+' '+#10+
-//                            'tauR='+FloatToStrF(OutputData[2],ffExponent,4,0)+' '+#10+
-//                            'Voc='+FloatToStrF(OutputData[7],ffExponent,4,0)+' '+#10+
-//                            'ff='+FloatToStrF(OutputData[10],ffExponent,4,0)+' '+#10+
-//                            'Iph='+FloatToStrF(Iph,ffExponent,4,0));
                     Application.ProcessMessages;
                    tauR:=tauR+tauRdel;
                  until tauR>tauRmax;
