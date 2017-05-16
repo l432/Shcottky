@@ -4792,7 +4792,7 @@ procedure TDoubleDiodLight.AddParDetermination(InputData:PVector;
                                var OutputData:TArrSingle);
   var Data:array of double;
 begin
-//  inherited AddParDetermination(InputData,OutputData);
+  inherited AddParDetermination(InputData,OutputData);
 //ТИМЧАСОВО!!!!
 
   OutputData[FNx+1]:=ErResult;

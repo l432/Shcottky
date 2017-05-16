@@ -3475,7 +3475,7 @@ begin
 // nmin:=2.55;
 // nmax:=nmin;
  nmin:=2;
- nmax:=4;
+ nmax:=4.05;
  ndel:=StepDetermination(nmin,nmax,Npoint,lin);
 
  Rsmin:=0.6;
@@ -3486,7 +3486,7 @@ begin
 // Rshmin:=log10(5e3);
 // Rshmax:=Rshmin;
  Rshmin:=log10(1e2);
- Rshmax:=log10(1e8);
+ Rshmax:=log10(1.01e8);
  Rshdel:=StepDetermination(Rshmin,Rshmax,Npoint,lin);
 
 
@@ -3573,8 +3573,6 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory);
 
-//showmessage(floattostr(Fe_i_eq(DiodPN.LayerP,1e12,295)));
-
 //showmessage(FloattostrF(DiodPN.LayerP.Material.Nv(295)
 //        *exp(-(DiodPN.LayerP.Material.EgT(292.5)-0.26)/Kb/292.5),
 // {      *exp(-0.394/Kb/295)},
@@ -3582,7 +3580,8 @@ SetCurrentDir(CurDirectory);
 
 //œŒÃ≤Õﬂ“» TDoubleDiodLight.AddParDetermination!!!
 VocFF_Dependence();
-//showmessage(floattostr(DiodPN.LdifToTauRec(100e-6,340)));
+
+//showmessage(floattostr(DiodPN.LdifToTauRec(67e-6,320)));
 //DegreeDependence();
 //showmessage(floattostr(OverageValue(PointDistance2,[5e-9,6e-10,3e-10,0,0])));
 
