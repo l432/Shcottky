@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..52]of string=
+  FuncName:array[0..53]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -36,7 +36,7 @@ const
            'Tunneling diod revers', 'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
-           'Rsh vs T');
+           'Rsh vs T','Rsh,2 vs T');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -854,11 +854,18 @@ end; //TTauDAP=class (TFitFunctEvolution)
 TRsh_T=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
-// Function Weight(OutputData:TArrSingle):double;override;
 public
  Constructor Create;
-end; //TTauDAP=class (TFitFunctEvolution)
+ class Function Rsh_T(T,A,Et,qUs:double;U0:double=0):double;
+end; //TRsh_T=class (TFitFunctEvolution)
 
+
+TRsh2_T=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; //TRsh_T=class (TFitFunctEvolution)
 
 
 TDoubleDiodAbstract=class (TFitFunctEvolution)
@@ -6041,7 +6048,7 @@ end;
 
 constructor TRsh_T.Create;
 begin
- inherited Create('RshT','Shunt resistance with T',
+ inherited Create('RshT','Shunt resistance vs T',
                   4,0,0);
  FXname[0]:='A';
  FXname[1]:='Et';
@@ -6055,8 +6062,41 @@ end;
 
 function TRsh_T.Func(Parameters: TArrSingle): double;
 begin
-  Result:=Parameters[0]*fx*(cosh(Parameters[1]/fx/Kb-Parameters[2])+
-                            cosh(Parameters[3]/fx/Kb-Parameters[2]));
+//  Result:=Parameters[0]*fx*(cosh(Parameters[1]/fx/Kb-Parameters[2])+
+//                            cosh(Parameters[3]/fx/Kb-Parameters[2]));
+  Result:=Rsh_T(fx,Parameters[0],Parameters[1],Parameters[3],Parameters[2]);
+end;
+
+class function TRsh_T.Rsh_T(T, A, Et, qUs, U0: double): double;
+begin
+  Result:=A*T*(cosh(Et/T/Kb-U0)+cosh(qUs/T/Kb-U0));
+end;
+
+
+{ TRsh2_T }
+
+constructor TRsh2_T.Create;
+begin
+ inherited Create('RdislRmet','Shunt resistance with T',
+                  5,0,0);
+ FXname[0]:='A';
+ FXname[1]:='Et';
+// FXname[2]:='U0';
+ FXname[2]:='qUs';
+ FXname[3]:='R0';
+ FXname[4]:='alp';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ CreateFooter();
+end;
+
+function TRsh2_T.Func(Parameters: TArrSingle): double;
+ var Rdisl,Rmet:double;
+begin
+ Rdisl:=TRsh_T.Rsh_T(fx,Parameters[0],Parameters[1],Parameters[2]);
+ Rmet:=Parameters[3]+fx*Parameters[4];
+ Result:=Rdisl*Rmet/(Rdisl+Rmet);
 end;
 
 Procedure FunCreate(str:string; var F:TFitFunction);
@@ -6113,9 +6153,11 @@ begin
   if str='Tau DAP' then F:=TTauDAP.Create;
   if str='Tau Fei-FeB' then F:=TTAU_Fei_FeB.Create;
   if str='Rsh vs T' then F:=TRsh_T.Create;
-
+  if str='Rsh,2 vs T' then F:=TRsh2_T.Create;
 //  if str='None' then F:=TDiod.Create;
 end;
+
+
 
 
 
