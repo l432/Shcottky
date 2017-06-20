@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -6178,6 +6178,30 @@ object Form1: TForm1
             Height = 24
             Caption = 'Tau -> Iscr'
             TabOrder = 43
+            WordWrap = True
+            OnClick = RadioButtonM_VClick
+            OnDblClick = RadioButtonM_VDblClick
+          end
+          object RB_Ldif: TRadioButton
+            Tag = 55
+            Left = 1602
+            Top = 43
+            Width = 75
+            Height = 24
+            Caption = 'Tau ->Ldif'
+            TabOrder = 44
+            WordWrap = True
+            OnClick = RadioButtonM_VClick
+            OnDblClick = RadioButtonM_VDblClick
+          end
+          object RB_Tau: TRadioButton
+            Tag = 55
+            Left = 1510
+            Top = 43
+            Width = 75
+            Height = 24
+            Caption = 'Ldif -> Tau'
+            TabOrder = 45
             WordWrap = True
             OnClick = RadioButtonM_VClick
             OnDblClick = RadioButtonM_VDblClick

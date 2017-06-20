@@ -845,6 +845,8 @@ type
     RB_Igen: TRadioButton;
     RB_TauG: TRadioButton;
     RB_Irec: TRadioButton;
+    RB_Ldif: TRadioButton;
+    RB_Tau: TRadioButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -2044,6 +2046,8 @@ begin
   if TComponent(Sender).Name='RB_Igen' then Result:=fnIgen;
   if TComponent(Sender).Name='RB_TauG' then Result:=fnTauG;
   if TComponent(Sender).Name='RB_Irec' then Result:=fnIrec;
+  if TComponent(Sender).Name='RB_Tau' then Result:=fnTau;
+  if TComponent(Sender).Name='RB_Ldif' then Result:=fnLdif;
 end;
 
 procedure TForm1.LabelXLogClick(Sender: TObject);

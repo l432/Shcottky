@@ -57,7 +57,9 @@ type
           fnTauR,   //рекомбінаційний час по величині струму
           fnIgen,    //генераційний струм по величині рекомбінаційного часу
           fnTauG,   //генераційний час по величині струму
-          fnIrec    //рекомбінаційний струм по величині генераційного часу
+          fnIrec,    //рекомбінаційний струм по величині генераційного часу
+          fnLdif,    //довжина дифузії по часу релаксації
+          fnTau     //час релаксації по довжині дифузії
           );
 
 
@@ -165,7 +167,9 @@ const
  'Recombination time',
  'Generation current',
  'Generation time',
- 'Recombination current'
+ 'Recombination current',
+ 'Diffusion length',
+ 'Lifetime'
  );
 
 var
@@ -1026,6 +1030,10 @@ begin
      Result:='q S ni W / 2 I0';
    fnIrec:
      Result:='q S ni W / 2 tau';
+   fnTau:
+     Result:='L^2 / mu k T';
+   fnLdif:
+     Result:='(tau mu k T)^0.5';
  else
      Result:='Some error';
  end;
@@ -4519,6 +4527,8 @@ begin
   fnIgen: InVectorToOut(InVector,OutVector,DiodPN.Igen,True);
   fnTauG: TauFun(InVector,OutVector,DiodPN.TauGen);
   fnIrec: InVectorToOut(InVector,OutVector,DiodPN.TauGen,True);
+  fnLdif: InVectorToOut(InVector,OutVector,DiodPN.TauToLdif);
+  fnTau: InVectorToOut(InVector,OutVector,DiodPN.LdifToTauRec);
   else ;
 end;
 end;
