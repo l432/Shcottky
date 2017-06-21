@@ -4512,9 +4512,13 @@ end;
 Constructor TTauG.Create;
 begin
  inherited Create('TauG','Lifetime in SCR',
-                  2,0,0);
+                  2,2,0);
  FXname[0]:='SnSp';
  FXname[1]:='Et';
+ FVarManualDefinedOnly[0]:=True;
+ FVarManualDefinedOnly[1]:=True;
+ FVarName[0]:='Tr';
+ FVarName[0]:='m';
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
 // fHasPicture:=False;
@@ -4525,7 +4529,9 @@ end;
 Function TTauG.Func(Parameters:TArrSingle):double;
 // var Fb,Vbb:double;
 begin
- Result:=Sqrt(Parameters[0])*(exp(Parameters[1]*fX)+exp(-Parameters[1]*fX));
+ Result:=2*FVariab[0]*Power(1/fX/8.625e-5/300,FVariab[1])*
+ Sqrt(Parameters[0])*cosh(Parameters[1]*fX);
+// Result:=Sqrt(Parameters[0])*(exp(Parameters[1]*fX)+exp(-Parameters[1]*fX));
 end;
 
 //Function TTauG.Weight(OutputData:TArrSingle):double;
@@ -6095,7 +6101,7 @@ function TRsh2_T.Func(Parameters: TArrSingle): double;
  var Rdisl,Rmet:double;
 begin
  Rdisl:=TRsh_T.Rsh_T(fx,Parameters[0],Parameters[1],Parameters[2]);
- Rmet:=Parameters[3]*(1+(fx-273.16)*Parameters[4]);
+ Rmet:=Parameters[3]*(1+(fx-293)*Parameters[4]);
  Result:=Rdisl*Rmet/(Rdisl+Rmet);
 end;
 
