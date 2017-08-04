@@ -983,6 +983,7 @@ private
  Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
+ Procedure BeforeFitness(InputData: Pvector);override;
 end; //TPower2=class (TFitFunctEvolution)
 
 TTEandSCLC_kT1=class (TFitFunctEvolution)
@@ -5161,6 +5162,38 @@ begin
  fFileHeading:='X Y Yfit Y1 Y2';
  CreateFooter();
 // ReadFromIniFile();
+end;
+
+procedure TPower2.BeforeFitness(InputData: Pvector);
+begin
+  inherited BeforeFitness(InputData);;
+//  FXmode[0]:=cons;
+
+// init
+//  FXvalue[0]:=
+//  exp(1.4313948-0.4722452/InputData^.T/8.625e-5);
+
+
+  // UST3an
+//  FXvalue[0]:=
+//  exp(-1.0807311-0.4093689/InputData^.T/8.625e-5);
+
+
+  // UST1
+//  FXvalue[0]:=
+//  exp(3.7782636-0.5441406/InputData^.T/8.625e-5);
+//  exp(-1.4641207-0.394953/InputData^.T/8.625e-5);
+
+
+    // UST2
+//  FXvalue[0]:=
+//  exp(1.6712534-0.4740671/InputData^.T/8.625e-5);
+
+
+    // UST3
+//  FXvalue[0]:=
+//  exp(-4.9514571-0.283333/InputData^.T/8.625e-5);
+
 end;
 
 Function TPower2.Sum1(Parameters:TArrSingle):double;
