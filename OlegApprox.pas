@@ -777,6 +777,7 @@ private
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
+ Procedure BeforeFitness(InputData:Pvector);override;
 end; // TTunRevers=class (TFitFunctEvolution)
 
 TPhotoDiod=class (TFitFunctEvolution)
@@ -4230,6 +4231,35 @@ Function TDiodTun.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
  Result:=Full_IV(IV_DiodTunnel,fX,[DeterminedParameters[0],
                  DeterminedParameters[1],DeterminedParameters[2]],DeterminedParameters[3]);
+end;
+
+procedure TTunRevers.BeforeFitness(InputData: Pvector);
+begin
+  inherited BeforeFitness(InputData);;
+//  FXmode[0]:=cons;
+
+// init
+//  FXvalue[0]:=
+//  exp(-2.1991855-0.0137213*InputData^.T);
+
+  // UST3an
+//  FXvalue[0]:=
+//  exp(5.5610464-0.0354045*InputData^.T);
+//  exp(1.3006748-0.0226845*InputData^.T);
+
+
+  // UST1
+//  FXvalue[0]:=
+//  exp(-2.2835525-0.0154696*InputData^.T);
+
+    // UST2
+//  FXvalue[0]:=
+//  exp(-5.1670493-0.004438*InputData^.T);
+
+    // UST3
+//  FXvalue[0]:=
+//  exp(1.3989381-0.0186924*InputData^.T);
+
 end;
 
 Constructor TTunRevers.Create;
