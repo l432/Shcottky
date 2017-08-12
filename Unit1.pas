@@ -3577,13 +3577,15 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory);
 
-//showmessage(FloattostrF(DiodPN.LayerP.Material.Nv(295)
-//        *exp(-(DiodPN.LayerP.Material.EgT(292.5)-0.26)/Kb/292.5),
-// {      *exp(-0.394/Kb/295)},
-//       ffExponent,4,0));
+showmessage(FloattostrF(
+           DiodPN.LayerP.Material.EgT(330)
+//         DiodPN.LayerP.Material.Nv(295)
+//        *exp(-(DiodPN.LayerP.Material.EgT(292.5)-0.26)/Kb/292.5)
+// {      *exp(-0.394/Kb/295)}
+       ,ffExponent,4,0));
 
 //œŒÃ≤Õﬂ“» TDoubleDiodLight.AddParDetermination!!!
-VocFF_Dependence();
+//VocFF_Dependence();
 
 //showmessage(floattostr(DiodPN.LdifToTauRec(67e-6,320)));
 //DegreeDependence();
