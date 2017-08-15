@@ -6163,7 +6163,7 @@ end;
 function TRsh2_T.Func(Parameters: TArrSingle): double;
  var Rdisl,Rmet:double;
 begin
- Rdisl:=TRsh_T.Rsh_T(fx,Parameters[0],Parameters[1],Parameters[2]);
+ Rdisl:=TRsh_T.Rsh_T(fx,Parameters[0],Parameters[1],Parameters[2],0);
  Rmet:=Parameters[3]*(1+(fx-293)*Parameters[4]);
  Result:=Rdisl*Rmet/(Rdisl+Rmet);
 end;
