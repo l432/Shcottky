@@ -45,7 +45,11 @@ procedure IVC(Func:TFunDouble;
 {розраховується ВАХ за законом I=Func(T,V)
 і записується у файл ResultFileName}
 
-Function TwoSpaceToOne(str:string):string;
+Function SomeSpaceToOne(str:string):string;
+{замінює декілька пробілів на один}
+
+Function Acronym(str:string):string;
+{створюється аббревіатура рядка}
 
 //-----використовуються при моделюванні DAP-----------
 Function PointDistance(t:double;Parameters:array of double):double;
@@ -218,12 +222,27 @@ begin
  dispose(Vax);
 end;
 
-Function TwoSpaceToOne(str:string):string;
+Function SomeSpaceToOne(str:string):string;
 begin
   Result:=str;
   Result:=AnsiReplaceStr(Result,#9,' ');
   while AnsiContainsStr(Result,'  ') do
      Result:=AnsiReplaceStr(Result,'  ',' ');
+end;
+
+Function Acronym(str:string):string;
+begin
+  Result:='';
+  if AnsiEndsStr(' ',str) then Delete(str, Length(str), 1);
+  if AnsiStartsStr(' ',str) then Delete(str, 1, 1);
+  if Length(str)<1 then Exit;
+  Result:=str[1];
+  while AnsiContainsStr(str,' ') do
+    begin
+    str:=Copy(str, AnsiPos (' ',str)+1, Length(str)-AnsiPos (' ',str));
+    Result:=Result+str[1];
+    end;
+  Result:=AnsiUpperCase(Result);  
 end;
 
 Function PointDistance(t:double;Parameters:array of double):double;
