@@ -31,6 +31,8 @@ type
   TFunDouble=Function(x,y:double):double of object;
   TFunTriple=Function(x,y,z:double):double of object;
 
+//  TSimpleEvent = procedure() of object;
+
   TArrSingle=array of double;
   PTArrSingle=^TArrSingle;
   T2DArray=array of array of double;
@@ -38,6 +40,8 @@ type
 
   TArrArrSingle=array of TArrSingle;
   PClassroom=^TArrArrSingle;
+
+  TArrWord=array of word;
 
 
 
