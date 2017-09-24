@@ -11,6 +11,7 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Hpl=1.05457e-34; {постійна Планка перекреслена, []=Дж c}
       m0=9.11e-31; {маса електрону []=кг}
       ErResult=555;
+      DoubleConstantSection='DoubleConstant';
 var   StartValue,EndValue,Freq:Int64;
 
 //QueryPerformanceCounter(StartValue);
@@ -281,26 +282,30 @@ type
 //клік на значенні викликає появу віконця для його зміни
    private
     STData:TStaticText; //величина параметру
-//    BChange:TButton;//кнопка для зміни
     fWindowCaption:string; //назва віконця зміни параметра
     fWindowText:string;  //текст у цьому віконці
     fHook:TEvent;
+    FDefaulValue:double;
+    fDigitNumber:byte;
     procedure ButtonClick(Sender: TObject);
     function GetData:double;
     procedure SetData(value:double);
+    procedure SetDefaulValue(const Value: double);
+    function ValueToString(Value:double):string;
    public
     STCaption:TLabel;
+    property DefaulValue:double read FDefaulValue write SetDefaulValue;
     Constructor Create(STD:TStaticText;
                        STC:TLabel;
                        ParametrCaption:string;
-//                       BC:TButton;
-//                       ButtonCaption:string;
                        WC,WT:string;
-                       InitValue:double
+                       InitValue:double;
+                       DN:byte=3
     );
     property Data:double read GetData write SetData;
     property Hook:TEvent read fHook write fHook;
-
+    procedure ReadFromIniFile(ConfigFile:TIniFile);
+    procedure WriteToIniFile(ConfigFile:TIniFile);
   end;  //   TParameterShow=object
 
 
@@ -324,7 +329,7 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 {записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 implementation
-uses OlegMath,OlegGraph, Classes, Dialogs, Controls;
+uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 
 //function TDiapazon.GetData(Index:integer):double;
 //begin
@@ -881,25 +886,24 @@ end;
 Constructor TParameterShow.Create(STD:TStaticText;
                        STC:TLabel;
                        ParametrCaption:string;
-//                       BC:TButton;
-//                       ButtonCaption:string;
                        WC,WT:string;
-                       InitValue:double
+                       InitValue:double;
+                       DN:byte=3
                        );
 begin
   inherited Create;
+  fDigitNumber:=DN;
+
   STData:=STD;
-  STData.Caption:=FloatToStrF(InitValue,ffExponent,3,2);
+  STData.Caption:=ValueToString(InitValue);
   STData.OnClick:=ButtonClick;
   STData.Cursor:=crHandPoint;
   STCaption:=STC;
   STCaption.Caption:=ParametrCaption;
   STCaption.WordWrap:=True;
-//  BChange:=BC;
-//  BChange.Caption:=ButtonCaption;
-//  BChange.OnClick:=ButtonClick;
   fWindowCaption:=WC;
   fWindowText:=WT;
+  DefaulValue:=InitValue;
 end;
 
 procedure TParameterShow.ButtonClick(Sender: TObject);
@@ -909,7 +913,7 @@ begin
   st:=InputBox(fWindowCaption,fWindowText,STData.Caption);
   try
     temp:=StrToFloat(st);
-    STData.Caption:=FloatToStrF(temp,ffExponent,3,2);
+    STData.Caption:=ValueToString(temp);
     Hook();
   finally
 
@@ -924,10 +928,32 @@ end;
 procedure TParameterShow.SetData(value:double);
 begin
   try
-    STData.Caption:=FloatToStrF(value,ffExponent,3,2);
+    STData.Caption:=ValueToString(value);
   finally
 
   end;
+end;
+
+procedure TParameterShow.ReadFromIniFile(ConfigFile:TIniFile);
+begin
+ STData.Caption:=ValueToString(ConfigFile.ReadFloat(DoubleConstantSection,STCaption.Caption,DefaulValue));
+end;
+
+procedure TParameterShow.WriteToIniFile(ConfigFile:TIniFile);
+begin
+ WriteIniDef(ConfigFile, DoubleConstantSection, STCaption.Caption, StrToFloat(STData.Caption),DefaulValue)
+end;
+
+procedure TParameterShow.SetDefaulValue(const Value: double);
+begin
+  FDefaulValue := Value;
+end;
+
+function TParameterShow.ValueToString(Value:double):string;
+begin
+  if (Frac(Value)=0)and(Int(Value/Power(10,fDigitNumber+1))=0)
+    then Result:=FloatToStrF(Value,ffGeneral,fDigitNumber,fDigitNumber-1)
+    else Result:=FloatToStrF(Value,ffExponent,fDigitNumber,fDigitNumber-1);
 end;
 
 end.

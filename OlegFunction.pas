@@ -2,7 +2,8 @@ unit OlegFunction;
 
 interface
 
-uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType, Dialogs, OlegMath, StrUtils;
+uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
+ Dialogs, OlegMath, StrUtils;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -84,11 +85,15 @@ Procedure DegreeDependence();
 
 //Procedure VocFF_Dependence();
 
+Procedure  DelaySleep(mSec:Cardinal);
+
+Procedure  DelayQueryPerformance(mSec:Cardinal);
+
 
 implementation
 
 uses
-  SysUtils, Classes;
+  SysUtils, Classes, Windows;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -448,6 +453,33 @@ Procedure DegreeDependence();
 
  end;
 
+
+Procedure  DelaySleep(mSec:Cardinal);
+ Var TargetTime:Cardinal;
+Begin
+  TargetTime:=GetTickCount+mSec;
+  While TargetTime>GetTickCount Do
+    begin
+        Application.ProcessMessages;
+        Sleep(1);
+        If Application.Terminated then Exit;
+    end;
+End;
+
+
+Procedure  DelayQueryPerformance(mSec:Cardinal);
+ var StartValue,EndValue, Freq :Int64;
+begin
+ QueryPerformanceCounter(StartValue);
+ QueryPerformanceFrequency(Freq);
+ {кількість відліків лічильника в секунду}
+ repeat
+   QueryPerformanceCounter(EndValue);
+   if (EndValue-StartValue)/Freq>1e-3 then Application.ProcessMessages;
+   sin(48.5);
+   If Application.Terminated then Exit;
+ until ((EndValue-StartValue)/Freq<mSec*1e-3);
+end;
 
 
 end.
