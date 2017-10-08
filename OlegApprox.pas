@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..53]of string=
+  FuncName:array[0..54]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -36,7 +36,7 @@ const
            'Tunneling diod revers', 'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
-           'Rsh vs T','Rsh,2 vs T');
+           'Rsh vs T','Rsh,2 vs T','Variated Polinom');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -843,6 +843,13 @@ private
 public
  Constructor Create;
 end; //TTauG=class (TFitFunctEvolution)
+
+TTwoPower=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; //TTwoPower=class (TFitFunctEvolution)
 
 TTauDAP=class (TFitFunctEvolution)
 private
@@ -4549,7 +4556,7 @@ begin
  FVarManualDefinedOnly[0]:=True;
  FVarManualDefinedOnly[1]:=True;
  FVarName[0]:='Tr';
- FVarName[0]:='m';
+ FVarName[1]:='m';
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
 // fHasPicture:=False;
@@ -4581,7 +4588,7 @@ begin
 
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 // ReadFromIniFile();
 end;
@@ -6079,7 +6086,7 @@ begin
  FVarManualDefinedOnly[1]:=True;
  fFei:=TDefect.Create(Fei);
  fFeB:=TDefect.Create(FeB);
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 end;
 
@@ -6125,7 +6132,7 @@ begin
  FXname[3]:='qUs';
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 end;
 
@@ -6156,7 +6163,7 @@ begin
  FXname[4]:='alp';
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 end;
 
@@ -6166,6 +6173,32 @@ begin
  Rdisl:=TRsh_T.Rsh_T(fx,Parameters[0],Parameters[1],Parameters[2],0);
  Rmet:=Parameters[3]*(1+(fx-293)*Parameters[4]);
  Result:=Rdisl*Rmet/(Rdisl+Rmet);
+end;
+
+
+{ TTwoPower }
+
+constructor TTwoPower.Create;
+begin
+ inherited Create('TwoPower','Variated Polinom',
+                  3,2,0);
+ FXname[0]:='a0';
+ FXname[1]:='a1';
+ FXname[1]:='a2';
+ FVarManualDefinedOnly[0]:=True;
+ FVarManualDefinedOnly[1]:=True;
+ FVarName[0]:='m1';
+ FVarName[1]:='m2';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+// fHasPicture:=False;
+ CreateFooter();
+// ReadFromIniFile();
+end;
+
+function TTwoPower.Func(Parameters: TArrSingle): double;
+begin
+ Result:=Parameters[0]+Parameters[1]*Power(fx,FVariab[0])+Parameters[2]*Power(fx,FVariab[1]);
 end;
 
 Procedure FunCreate(str:string; var F:TFitFunction);
@@ -6223,8 +6256,11 @@ begin
   if str='Tau Fei-FeB' then F:=TTAU_Fei_FeB.Create;
   if str='Rsh vs T' then F:=TRsh_T.Create;
   if str='Rsh,2 vs T' then F:=TRsh2_T.Create;
+  if str='Variated Polinom' then F:=TTwoPower.Create;
 //  if str='None' then F:=TDiod.Create;
 end;
+
+
 
 
 

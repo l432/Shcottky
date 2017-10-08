@@ -405,15 +405,20 @@ where
   $E_{g,1}(0)=1.169$eV,
   $E_{g,2}(0)=2.5$eV,
   $E_{g,d}(0)=3.2$eV.
-  
-  
-  
+
+
+
 rr
 
 \begin{equation*}
     \tau_{g}\left(\frac{1}{kT}\right)=\sqrt{SnSp}\left[\exp\left(\frac{E_t}{kT}\right)+\exp\left(-\frac{E_t}{kT}\right)\right]
-\end{equation*} 
+\end{equation*}
 
+rr
+
+\begin{equation*}
+    \tau_{g}\left(\frac{1}{kT}\right)=2\,\tau_{r}\,T^m\sqrt{S_nS_p}\,\cosh\left(\frac{E_t}{kT}\right)
+\end{equation*}
 rr
 
 \begin{eqnarray*}
@@ -426,7 +431,7 @@ rr
 
 \begin{equation*}
    F_b(V)=F_{b,0}-a V-b\sqrt{V}
-\end{equation*} 
+\end{equation*}
 
 rr
 
@@ -443,5 +448,33 @@ rr
   &&\frac{Sqn_iW}{2\tau_g}\left\{\exp \left[\frac{q(V-IR_s)}{n_2kT}\right]-1\right\}+ \frac{V-IR_s}{R_{sh}}
 \end{eqnarray*}
 
+
+rr
+
+\begin{equation*}
+  \tau=\frac{A(T/300)^{m-0.5}}{(1+BT)^2}
+\end{equation*}
+
+see \emph{J. Appl. Phys.} \textbf{110}, 053713 (2011)
+
+
+
+\begin{equation*}
+  R_{SH}(T)=AT\left[\cosh\left(\frac{E_t}{kT}-U_0\right)+\cosh\left(\frac{qU_s}{kT}-U_0\right)\right]
+\end{equation*}
+
+rr
+
+\begin{eqnarray*}
+    R_{SH}(T)&=&\frac{R_{disl}R_{met}}{R_{disl}+R_{met}}\\
+    R_{disl}&=&AT\left[\cosh\left(\frac{E_t}{kT}\right)+\cosh\left(\frac{qU_s}{kT}\right)\right]\\
+    R_{met}&=&R_0\left[1+(T-293)\alpha\right]
+\end{eqnarray*}
+
+rr
+
+\begin{equation*}
+  y=a_0+a_1x^{m_1}+a_2x^{m_2}
+\end{equation*}
 
 \end{document}
