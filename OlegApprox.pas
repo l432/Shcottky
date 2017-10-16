@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..54]of string=
+  FuncName:array[0..55]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -36,7 +36,7 @@ const
            'Tunneling diod revers', 'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
-           'Rsh vs T','Rsh,2 vs T','Variated Polinom');
+           'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -850,6 +850,13 @@ private
 public
  Constructor Create;
 end; //TTwoPower=class (TFitFunctEvolution)
+
+TMobility=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+end; //TMobility=class (TFitFunctEvolution)
 
 TTauDAP=class (TFitFunctEvolution)
 private
@@ -6184,7 +6191,7 @@ begin
                   3,2,0);
  FXname[0]:='a0';
  FXname[1]:='a1';
- FXname[1]:='a2';
+ FXname[2]:='a2';
  FVarManualDefinedOnly[0]:=True;
  FVarManualDefinedOnly[1]:=True;
  FVarName[0]:='m1';
@@ -6199,6 +6206,30 @@ end;
 function TTwoPower.Func(Parameters: TArrSingle): double;
 begin
  Result:=Parameters[0]+Parameters[1]*Power(fx,FVariab[0])+Parameters[2]*Power(fx,FVariab[1]);
+end;
+
+
+{ TMobility }
+
+constructor TMobility.Create;
+begin
+ inherited Create('Mobility','Mobility vs temperature',
+                  4,0,0);
+ FXname[0]:='An';
+ FXname[1]:='Adisl';
+ FXname[2]:='Ai';
+ FXname[3]:='Aph';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+// fHasPicture:=False;
+ CreateFooter();
+end;
+
+function TMobility.Func(Parameters: TArrSingle): double;
+begin
+ Result:=1/(Parameters[0]+Parameters[1]*fx+
+            Parameters[2]*Power(fx,1.5)+Parameters[3]*Power(fx,-1.5));
+
 end;
 
 Procedure FunCreate(str:string; var F:TFitFunction);
@@ -6257,8 +6288,11 @@ begin
   if str='Rsh vs T' then F:=TRsh_T.Create;
   if str='Rsh,2 vs T' then F:=TRsh2_T.Create;
   if str='Variated Polinom' then F:=TTwoPower.Create;
+  if str='Mobility' then F:=TMobility.Create;
+
 //  if str='None' then F:=TDiod.Create;
 end;
+
 
 
 
