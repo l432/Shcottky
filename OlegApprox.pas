@@ -6227,8 +6227,15 @@ end;
 
 function TMobility.Func(Parameters: TArrSingle): double;
 begin
- Result:=1/(Parameters[0]+Parameters[1]*fx+
-            Parameters[2]*Power(fx,1.5)+Parameters[3]*Power(fx,-1.5));
+ Result:=0;
+ if Parameters[0]<>0 then Result:=Result+1/Parameters[0];
+ if Parameters[1]<>0 then Result:=Result+1/(Parameters[1]*fx);
+ if Parameters[2]<>0 then Result:=Result+1/(Parameters[2]*Power(fx,1.5));
+ if Parameters[3]<>0 then Result:=Result+1/(Parameters[3]*Power(fx,-1.5));
+ if Result<>0 then Result:=1/Result; 
+
+// Result:=1/(1/Parameters[0]+1/(Parameters[1]*fx)+
+//            1/(Parameters[2]*Power(fx,1.5))+1/(Parameters[3]*Power(fx,-1.5)));
 
 end;
 
