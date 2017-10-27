@@ -33,6 +33,7 @@ type
   TFunTriple=Function(x,y,z:double):double of object;
 
 //  TSimpleEvent = procedure() of object;
+  TSimpleEvent = procedure() of object;
 
   TArrSingle=array of double;
   PTArrSingle=^TArrSingle;
