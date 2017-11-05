@@ -192,10 +192,19 @@ Procedure Read_File (sfile:string; var a:PVector);
 змінну a, з файлу comments в тій самій директорії
 зчитується значення температури в a.T}
 
+Procedure ToFileFromArrays(NameFile:string;
+                             Data:array of TArrSingle;
+                             NumberDigit:Byte=4);
+
+Procedure ToFileFromXYArrays(NameFile:string;
+                             X,Y:array of double;
+                             NumberDigit:Byte=4);
+
 Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
 {записує у файл з іменем sfile дані з масиву А;
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
+
 
 Procedure Write_File3Column(sfile:string; A:PVector;
                            Func:TFunDouble;NumberDigit:Byte=4);
@@ -204,14 +213,34 @@ Procedure Write_File3Column(sfile:string; A:PVector;
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
 
+Procedure ToFileFromTwoVector(NameFile:string;
+                              Vector,Vector2:PVector;
+                              NumberDigit:Byte=4);
+{записує у файл з іменем NameFile дані з двох векторів
+у чотири колонки;
+якщо в обох масивах даних немає - запис не відбувається;
+якщо масиви мають різну розмірність -
+кількість рядків відповідатиме більшому файлу,
+замість даних, яких недостає, буде записано нуль;
+NumberDigit - кількість значущих цифр}
 
-Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
-{записує у файл з іменем sfile дані з Series;
-якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
+Procedure ToFileFromTwoSeries(NameFile:string;
+                              Series,Series2:TCustomSeries;
+                              NumberDigit:Byte=4);
 
-Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
+
+Procedure Write_File_Series(sfile:string; Series:TCustomSeries;NumberDigit:Byte=4);
 {записує у файл з іменем sfile дані з Series;
-якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
+якщо кількість точок нульова або Series не створена,то запис у файл не відбувається;
+NumberDigit - кількість значущих цифр}
+
+//Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
+//{записує у файл з іменем sfile дані з Series;
+//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
+//
+//Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
+//{записує у файл з іменем sfile дані з Series;
+//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
 
 Procedure Sorting (var A:PVector;Increase:boolean=True);
 {процедура сортування (методом бульбашки)
@@ -1138,20 +1167,79 @@ begin
  Sorting(A);
  end;
 
+
+Procedure ToFileFromArrays(NameFile:string;
+                           Data:array of TArrSingle;
+                           NumberDigit:Byte=4);
+var i,j,maxCount:integer;
+    Str:TStringList;
+    tempString:string;
+begin
+if High(Data)<0 then Exit;
+maxCount:=High(Data[0]);
+for I := 1 to High(Data) do
+ maxCount:=max(maxCount,High(Data[i]));
+if maxCount<0 then Exit;
+
+Str:=TStringList.Create;
+for I := 0 to maxCount do
+  begin
+   tempString:='';
+     for j := 0 to High(Data) do
+      if High(Data[j])>=i
+        then tempString:=tempString+FloatToStrF(Data[j][i],ffExponent,NumberDigit,0)+' '
+        else tempString:=tempString+'0 ';
+   Str.Add(Trim(tempString));
+  end;
+
+Str.SaveToFile(NameFile);
+Str.Free;
+end;
+
+Procedure ToFileFromXYArrays(NameFile:string;
+                             X,Y:array of double;
+                             NumberDigit:Byte=4);
+var i,maxCount:integer;
+    Str:TStringList;
+    tempString:string;
+begin
+  maxCount:=max(High(X),High(Y));
+  if maxCount<0 then Exit;
+
+  Str:=TStringList.Create;
+  for I := 0 to maxCount do
+    begin
+     tempString:='';
+       if High(X)>=i
+          then tempString:=tempString+FloatToStrF(X[i],ffExponent,NumberDigit,0)+' '
+          else tempString:=tempString+'0 ';
+       if High(Y)>=i
+          then tempString:=tempString+FloatToStrF(Y[i],ffExponent,NumberDigit,0)
+          else tempString:=tempString+'0';
+     Str.Add(tempString);
+    end;
+
+  Str.SaveToFile(NameFile);
+  Str.Free;
+end;
+
  Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
 {записує у файл з іменем sfile дані з масиву А;
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
-var i:integer;
-    Str:TStringList;
+//var i:integer;
+//    Str:TStringList;
 begin
 if A^.n=0 then Exit;
-Str:=TStringList.Create;
-for I := 0 to High(A^.x) do
-   Str.Add(FloatToStrF(A^.X[i],ffExponent,NumberDigit,0)+' '+
-           FloatToStrF(A^.Y[i],ffExponent,NumberDigit,0));
-Str.SaveToFile(sfile);
-Str.Free;
+
+ToFileFromXYArrays(sfile,A^.X,A^.Y,NumberDigit);
+
+//Str:=TStringList.Create;
+//for I := 0 to High(A^.x) do
+//   Str.Add(FloatToStrF(A^.X[i],ffExponent,NumberDigit,0)+' '+
+//           FloatToStrF(A^.Y[i],ffExponent,NumberDigit,0));
+//Str.SaveToFile(sfile);
+//Str.Free;
 end;
 
 Procedure Write_File3Column(sfile:string; A:PVector;
@@ -1173,36 +1261,121 @@ begin
   Str.Free;
 end;
 
+Procedure ToFileFromTwoVector(NameFile:string;
+                              Vector,Vector2:PVector;
+                              NumberDigit:Byte=4);
+var i,maxCount,minCount:integer;
+    Str:TStringList;
+    tempString:string;
+begin
+maxCount:=max(Vector^.n,Vector2^.n);
+if maxCount=0 then Exit;
+Str:=TStringList.Create;
+minCount:=min(Vector^.n,Vector2^.n);
+for I := 0 to minCount-1 do
+   Str.Add(FloatToStrF(Vector^.X[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(Vector^.Y[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(Vector2^.X[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(Vector2^.Y[i],ffExponent,NumberDigit,0));
 
-Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
-{записує у файл з іменем sfile дані з Series;
-якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
+for I := minCount to maxCount-1 do
+   begin
+    tempString:='';
+    if i>(Vector^.n-1) then
+      tempString:=tempString+'0 0 '
+                       else
+      tempString:=tempString+FloatToStrF(Vector^.X[i],ffExponent,NumberDigit,0)+' '+
+                             FloatToStrF(Vector^.Y[i],ffExponent,NumberDigit,0)+' ';
+    if i>(Vector2^.n-1) then
+      tempString:=tempString+'0 0'
+                       else
+      tempString:=tempString+FloatToStrF(Vector2^.X[i],ffExponent,NumberDigit,0)+' '+
+                             FloatToStrF(Vector2^.Y[i],ffExponent,NumberDigit,0);
+    Str.Add(tempString);
+   end;
+Str.SaveToFile(NameFile);
+Str.Free;
+end;
+
+Procedure ToFileFromTwoSeries(NameFile:string;
+                              Series,Series2:TCustomSeries;
+                              NumberDigit:Byte=4);
+var i,maxCount,minCount:integer;
+    Str:TStringList;
+    tempString:string;
+begin
+maxCount:=max(Series.Count,Series2.Count);
+if maxCount=0 then Exit;
+Str:=TStringList.Create;
+minCount:=min(Series.Count,Series2.Count);
+for I := 0 to minCount-1 do
+   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(Series.YValue[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(Series2.XValue[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(Series2.YValue[i],ffExponent,NumberDigit,0));
+
+for I := minCount to maxCount-1 do
+   begin
+    tempString:='';
+    if i>(Series.Count-1) then
+      tempString:=tempString+'0 0 '
+                       else
+      tempString:=tempString+FloatToStrF(Series.XValue[i],ffExponent,NumberDigit,0)+' '+
+                             FloatToStrF(Series.YValue[i],ffExponent,NumberDigit,0)+' ';
+    if i>(Series2.Count-1) then
+      tempString:=tempString+'0 0'
+                       else
+      tempString:=tempString+FloatToStrF(Series2.XValue[i],ffExponent,NumberDigit,0)+' '+
+                             FloatToStrF(Series2.YValue[i],ffExponent,NumberDigit,0);
+    Str.Add(tempString);
+   end;
+Str.SaveToFile(NameFile);
+Str.Free;
+end;
+
+Procedure Write_File_Series(sfile:string; Series:TCustomSeries;NumberDigit:Byte=4);
 var i:integer;
     Str:TStringList;
 begin
 if (not Assigned(Series)) or (Series.Count<1) then Exit;
+
 Str:=TStringList.Create;
 for I := 0 to Series.Count-1 do
-   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,4,0)+' '+
-           FloatToStrF(Series.YValue[i],ffExponent,4,0));
+   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,NumberDigit,0)+' '+
+           FloatToStrF(Series.YValue[i],ffExponent,NumberDigit,0));
 Str.SaveToFile(sfile);
 Str.Free;
 end;
 
-Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
-{записує у файл з іменем sfile дані з Series;
-якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
-var i:integer;
-    Str:TStringList;
-begin
-if (not Assigned(Series)) or (Series.Count<1) then Exit;
-Str:=TStringList.Create;
-for I := 0 to Series.Count-1 do
-   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,4,0)+' '+
-           FloatToStrF(Series.YValue[i],ffExponent,4,0));
-Str.SaveToFile(sfile);
-Str.Free;
-end;
+//Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
+//{записує у файл з іменем sfile дані з Series;
+//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
+//var i:integer;
+//    Str:TStringList;
+//begin
+//if (not Assigned(Series)) or (Series.Count<1) then Exit;
+//Str:=TStringList.Create;
+//for I := 0 to Series.Count-1 do
+//   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,4,0)+' '+
+//           FloatToStrF(Series.YValue[i],ffExponent,4,0));
+//Str.SaveToFile(sfile);
+//Str.Free;
+//end;
+//
+//Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
+//{записує у файл з іменем sfile дані з Series;
+//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
+//var i:integer;
+//    Str:TStringList;
+//begin
+//if (not Assigned(Series)) or (Series.Count<1) then Exit;
+//Str:=TStringList.Create;
+//for I := 0 to Series.Count-1 do
+//   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,4,0)+' '+
+//           FloatToStrF(Series.YValue[i],ffExponent,4,0));
+//Str.SaveToFile(sfile);
+//Str.Free;
+//end;
 
 Procedure Sorting (var A:PVector;Increase:boolean=True);
 {процедура сортування (методом бульбашки)

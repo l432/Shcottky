@@ -45,6 +45,8 @@ type
 
   TArrWord=array of word;
 
+//  TEvent = procedure() of object;
+
 
 
   TArrStr=array of string;
@@ -274,7 +276,7 @@ type
            {копіює значення полів з Souсe в даний}
          end;
 
-     TEvent = procedure() of object;
+
 
   TParameterShow=class
 //  для відображення на формі
@@ -285,7 +287,7 @@ type
     STData:TStaticText; //величина параметру
     fWindowCaption:string; //назва віконця зміни параметра
     fWindowText:string;  //текст у цьому віконці
-    fHook:TEvent;
+    fHook:TSimpleEvent;
     FDefaulValue:double;
     fDigitNumber:byte;
     procedure ButtonClick(Sender: TObject);
@@ -304,10 +306,15 @@ type
                        DN:byte=3
     );
     property Data:double read GetData write SetData;
-    property Hook:TEvent read fHook write fHook;
+    property Hook:TSimpleEvent read fHook write fHook;
     procedure ReadFromIniFile(ConfigFile:TIniFile);
     procedure WriteToIniFile(ConfigFile:TIniFile);
   end;  //   TParameterShow=object
+
+TSimpleClass=class
+   public
+    class procedure EmptyProcedure;
+  end;
 
 
 Procedure SetLenVector(A:Pvector;n:integer);
@@ -689,10 +696,8 @@ begin
 end;
 
 Function Vector.Yvalue(Xvalue:double):double;
-var i:integer;
-//    bool:boolean;
+ var i:integer;
 begin
-//  bool:=false;
   i:=1;
   Result:=ErResult;
   if High(X)<0 then Exit;
@@ -701,11 +706,9 @@ begin
      begin
      Result:=Y_X0(X[i],Y[i],X[i-1],Y[i-1],Xvalue);
      i:=High(X);
-//     bool:= true;
      end;
    i:=i+1;
   until (i>High(X));
-//  until ((bool) or (i>High(X)));
 end;
 
 
@@ -955,6 +958,11 @@ begin
   if (Frac(Value)=0)and(Int(Value/Power(10,fDigitNumber+1))=0)
     then Result:=FloatToStrF(Value,ffGeneral,fDigitNumber,fDigitNumber-1)
     else Result:=FloatToStrF(Value,ffExponent,fDigitNumber,fDigitNumber-1);
+end;
+
+class procedure TSimpleClass.EmptyProcedure;
+begin
+
 end;
 
 end.
