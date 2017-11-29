@@ -89,11 +89,16 @@ Procedure  DelaySleep(mSec:Cardinal);
 
 Procedure  DelayQueryPerformance(mSec:Cardinal);
 
+Function  ImpulseNoiseSmoothing(const Data:  array of Double): Double;
+{розраховується середнє значення на масиві даних з врахуванням
+можливих імпульсних шумів
+див Р.Лайонс "Цифровая обработка сигналов"б с.551}
+
 
 implementation
 
 uses
-  SysUtils, Classes, Windows;
+  SysUtils, Classes, Windows, Math;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -479,6 +484,69 @@ begin
    sin(48.5);
    If Application.Terminated then Exit;
  until ((EndValue-StartValue)/Freq<mSec*1e-3);
+end;
+
+
+Function  ImpulseNoiseSmoothing(const Data:  array of Double): Double;
+ var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
+     Value_min,Value_max,PositivDeviation,Value_Mean:double;
+     temp_Data:array of Double;
+begin
+  if High(Data)<0 then
+    begin
+      Result:=ErResult;
+      Exit;
+    end;
+  if High(Data)<4 then
+    begin
+      Result:=Mean(Data);
+      Exit;
+    end;
+
+  i_min:=0;
+  i_max:=0;
+  Value_min:=Data[0];
+  Value_max:=Data[0];
+  for i := 1 to High(Data) do
+    begin
+      if Data[i]>Value_max then
+        begin
+          Value_max:=Data[i];
+          i_max:=i;
+        end;
+      if Data[i]<Value_min then
+        begin
+          Value_min:=Data[i];
+          i_min:=i;
+        end;
+    end;
+
+  SetLength(temp_Data,High(Data)-1);
+  j:=0;
+  for i:=0 to High(Data) do
+     if (i<>i_min)and(i<>i_max) then
+      begin
+        temp_Data[j]:=Data[i];
+        inc(j);
+      end;
+
+ Value_Mean:=Mean(temp_Data);
+ PositivDeviationCount:=0;
+ NegativeDeviationCount:=0;
+ PositivDeviation:=0;
+ for j := 0 to High(temp_Data) do
+  begin
+   if temp_Data[j]>Value_Mean then
+    begin
+      inc(PositivDeviationCount);
+      PositivDeviation:=PositivDeviation+(temp_Data[j]-Value_Mean);
+    end;
+   if temp_Data[j]<Value_Mean then
+      inc(NegativeDeviationCount);
+  end;
+ Result:=Value_Mean+
+        (PositivDeviationCount-NegativeDeviationCount)
+        *PositivDeviation/sqr(High(temp_Data)+1);
 end;
 
 
