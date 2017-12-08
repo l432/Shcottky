@@ -92,7 +92,18 @@ Procedure  DelayQueryPerformance(mSec:Cardinal);
 Function  ImpulseNoiseSmoothing(const Data:  array of Double): Double;
 {розраховується середнє значення на масиві даних з врахуванням
 можливих імпульсних шумів
-див Р.Лайонс "Цифровая обработка сигналов"б с.551}
+див Р.Лайонс "Цифровая обработка сигналов", с.551}
+
+Procedure ImNoiseSmoothedArray(Source:array of Double;
+                               var Target:TArrSingle;
+                               Npoint:Word=0);overload;
+{в Target записується результата
+зглажування (див ImpulseNoiseSmoothing) Source
+по Npoint точкам}
+
+Procedure ImNoiseSmoothedArray(Source:Pvector;
+                           var Target:Pvector;
+                               Npoint:Word=0);overload;
 
 
 implementation
@@ -549,5 +560,62 @@ begin
         *PositivDeviation/sqr(High(temp_Data)+1);
 end;
 
+Procedure ImNoiseSmoothedArray(Source:array of Double;
+                               var Target:TArrSingle;
+                               Npoint:Word=0);
+ var TG:array of Double;
+     CountTargetElement,i:LongWord;
+     j:Word;
+begin
+ SetLength(Target, 0);
+ if High(Source)<0 then Exit;
+
+ if Npoint=0 then Npoint:=Trunc(sqrt(High(Source)+1));
+
+ if Npoint=0 then Exit;
+
+ CountTargetElement:=(High(Source)+1) div Npoint;
+ if CountTargetElement=0
+ then
+  begin
+   SetLength(Target, 1);
+   Target[0]:=ImpulseNoiseSmoothing(Source);
+   Exit;
+  end;
+
+  SetLength(Target,CountTargetElement);
+
+  SetLength(TG,Npoint);
+  for I := 0 to CountTargetElement - 2 do
+   begin
+     for j := 0 to Npoint - 1
+     do TG[j]:=Source[I*Npoint+j];
+     Target[I]:=ImpulseNoiseSmoothing(TG);
+   end;
+
+  I:=(High(Source)+1) mod Npoint;
+  SetLength(TG,I);
+  for j := 0 to Npoint+I-1
+  do TG[j]:=Source[(CountTargetElement - 1)*Npoint+j];
+
+  Target[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG);
+
+end;
+
+Procedure ImNoiseSmoothedArray(Source:Pvector;
+                           var Target:Pvector;
+                               Npoint:Word=0);overload;
+var tempX, tempY:TArrSingle;
+begin
+  Target^.T:=Source^.T;
+  Target^.name:=Source^.name;
+  Target^.time:=Source^.time;
+  Target^.N_begin:=Source^.N_begin;
+  Target^.N_end:=Source^.N_end;
+
+  ImNoiseSmoothedArray(Source^.X,tempX,Npoint);
+  ImNoiseSmoothedArray(Source^.X,tempY,Npoint);
+  Target^.CopyFromXYArrays(tempX, tempY);
+end;
 
 end.

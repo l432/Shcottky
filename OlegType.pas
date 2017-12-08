@@ -99,6 +99,12 @@ type
          {повертаються суми елементів масивів X та Y відповідно}
          Procedure Copy (var Target:Vector);
          {копіюються поля з даного вектора в Target}
+         Procedure CopyXtoArray(var TargetArray:TArrSingle);
+         {копіюються дані з Х в массив TargetArray}
+         Procedure CopyYtoArray(var TargetArray:TArrSingle);
+         {копіюються дані з Y в массив TargetArray}
+         Procedure CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
+         {заповнюються Х та Y значеннями з масивів}
          Procedure CopyLimitedX (var Target:Vector;Xmin,Xmax:double);
          {копіюються з даного вектора в Target
          - точки, для яких ордината в діапазоні від Xmin до Xmax включно
@@ -727,6 +733,31 @@ begin
   Target.N_begin:=N_begin;
   Target.N_end:=N_end;
 end;
+
+Procedure Vector.CopyXtoArray(var TargetArray:TArrSingle);
+ var i:integer;
+begin
+ SetLength(TargetArray,n);
+  for I := 0 to n-1 do
+     TargetArray[i]:=X[i];
+end;
+
+Procedure Vector.CopyYtoArray(var TargetArray:TArrSingle);
+ var i:integer;
+begin
+ SetLength(TargetArray,n);
+  for I := 0 to n-1 do
+     TargetArray[i]:=Y[i];
+end;
+
+Procedure Vector.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
+ var i:integer;
+begin
+ Clear();
+ for I := 0 to min(High(SourceXArray),High(SourceYArray)) do
+   Add(SourceXArray[i],SourceYArray[i]);
+end;
+
 
 Procedure Vector.CopyLimitedX (var Target:Vector;Xmin,Xmax:double);
  var i:integer;

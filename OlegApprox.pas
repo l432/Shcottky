@@ -17,9 +17,9 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..55]of string=
+  FuncName:array[0..56]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
-           'Median filtr','Derivative','Gromov / Lee','Ivanov',
+           'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
            FunctionDiodLambert,FunctionPhotoDiodLambert,'Two Diod',
            'Two Diod Full','D-Gaussian','Patch Barrier',
@@ -362,6 +362,21 @@ public
  procedure SetValueGR;override;
  {показ форми для керування параметрами апроксимації}
 end;   // TFitVariabSet=class(TFitFunctionSimple)
+//---------------------------------------------
+TNoiseSmoothing=class(TFitVariabSet)
+ Function Func(Parameters:TArrSingle):double; override;
+ Procedure RealFitting (InputData:PVector;
+         var OutputData:TArrSingle); override;
+  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word);override;
+public
+Constructor Create;
+//Function FinalFunc(var X:double;DeterminedParameters:TArrSingle):double; override;
+
+end;
+
+
 
 //------------------------------------
 TFitTemperatureIsUsed=class(TFitVariabSet)
@@ -6233,11 +6248,57 @@ begin
  if Parameters[1]<>0 then Result:=Result+1/(Parameters[1]*fx);
  if Parameters[2]<>0 then Result:=Result+1/(Parameters[2]*Power(fx,1.5));
  if Parameters[3]<>0 then Result:=Result+1/(Parameters[3]*Power(fx,-1.5));
- if Result<>0 then Result:=1/Result; 
+ if Result<>0 then Result:=1/Result;
 
 // Result:=1/(1/Parameters[0]+1/(Parameters[1]*fx)+
 //            1/(Parameters[2]*Power(fx,1.5))+1/(Parameters[3]*Power(fx,-1.5)));
 
+end;
+
+
+{ TNoiseSmoothing }
+
+constructor TNoiseSmoothing.Create;
+begin
+ inherited Create('NoiseSmoothing','Noise Smoothing on Np point',
+                  1,1);
+ FVarName[0]:='Np';
+ FVarManualDefinedOnly[0]:=True;
+ fHasPicture:=False;
+end;
+
+//function TNoiseSmoothing.FinalFunc(var X: double;
+//  DeterminedParameters: TArrSingle): double;
+//begin
+//
+//end;
+
+function TNoiseSmoothing.Func(Parameters: TArrSingle): double;
+begin
+ Result:=1;
+end;
+
+procedure TNoiseSmoothing.RealFitting(InputData: PVector;
+  var OutputData: TArrSingle);
+begin
+
+end;
+
+procedure TNoiseSmoothing.RealToGraph(InputData: PVector;
+  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+  Np: Word);
+ var temp:PVector;
+     i:integer;
+begin
+//  showmessage(floattostr(FVariab[0]));
+  Series.Clear;
+  new(temp);
+  ImNoiseSmoothedArray(InputData,temp,Round(FVariab[0]));
+  for I := 0 to High(temp^.X) do
+    begin
+    Series.AddXY(temp^.X[i], temp^.Y[i]);
+    end;
+  dispose(temp);
 end;
 
 Procedure FunCreate(str:string; var F:TFitFunction);
@@ -6248,6 +6309,7 @@ begin
   if (str='Smoothing')or(str='Derivative')
         then F:=TFitWithoutParameteres.Create(str);
   if str='Median filtr' then F:=TFitWithoutParameteres.Create('Median');
+  if str='Noise Smoothing' then F:=TNoiseSmoothing.Create;
   if str='Exponent' then F:=TExponent.Create;
   if str='Gromov / Lee' then F:=TGromov.Create;
   if str='Ivanov' then F:=TIvanov.Create;
@@ -6300,13 +6362,6 @@ begin
 
 //  if str='None' then F:=TDiod.Create;
 end;
-
-
-
-
-
-
-
 
 
 end.
