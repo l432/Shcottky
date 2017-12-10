@@ -105,6 +105,13 @@ Procedure ImNoiseSmoothedArray(Source:Pvector;
                            var Target:Pvector;
                                Npoint:Word=0);overload;
 
+Function ImpulseNoiseSmoothingByNpoint(Data:  array of Double;
+                                       Npoint:Word=0): Double;
+{розраховується середнє значення на масиві даних з врахуванням
+можливих імпульсних шумів,
+на відміну від ImpulseNoiseSmoothing дані розбиваються на порції
+по Npoint штук на наборі яких розраховується середнє,
+потім середні розбиваються на порції ....}
 
 implementation
 
@@ -503,6 +510,7 @@ Function  ImpulseNoiseSmoothing(const Data:  array of Double): Double;
      Value_min,Value_max,PositivDeviation,Value_Mean:double;
      temp_Data:array of Double;
 begin
+
   if High(Data)<0 then
     begin
       Result:=ErResult;
@@ -515,10 +523,10 @@ begin
     end;
 
   i_min:=0;
-  i_max:=0;
+  i_max:=High(Data);
   Value_min:=Data[0];
-  Value_max:=Data[0];
-  for i := 1 to High(Data) do
+  Value_max:=Data[High(Data)];
+  for i := 0 to High(Data) do
     begin
       if Data[i]>Value_max then
         begin
@@ -564,7 +572,7 @@ Procedure ImNoiseSmoothedArray(Source:array of Double;
                                var Target:TArrSingle;
                                Npoint:Word=0);
  var TG:array of Double;
-     CountTargetElement,i:LongWord;
+     CountTargetElement,i:integer;
      j:Word;
 begin
  SetLength(Target, 0);
@@ -583,6 +591,7 @@ begin
    Exit;
   end;
 
+
   SetLength(Target,CountTargetElement);
 
   SetLength(TG,Npoint);
@@ -594,7 +603,7 @@ begin
    end;
 
   I:=(High(Source)+1) mod Npoint;
-  SetLength(TG,I);
+  SetLength(TG,I+Npoint);
   for j := 0 to Npoint+I-1
   do TG[j]:=Source[(CountTargetElement - 1)*Npoint+j];
 
@@ -614,8 +623,24 @@ begin
   Target^.N_end:=Source^.N_end;
 
   ImNoiseSmoothedArray(Source^.X,tempX,Npoint);
-  ImNoiseSmoothedArray(Source^.X,tempY,Npoint);
+  ImNoiseSmoothedArray(Source^.Y,tempY,Npoint);
   Target^.CopyFromXYArrays(tempX, tempY);
+end;
+
+Function ImpulseNoiseSmoothingByNpoint(Data:  array of Double;
+                                       Npoint:Word=0): Double;
+ var temp:TArrSingle;
+begin
+ Result:=ErResult;
+ if High(Data)<0 then Exit;
+
+ if Npoint=0 then Npoint:=Trunc(sqrt(High(Data)+1));
+
+ if Npoint=0 then Exit;
+
+ ImNoiseSmoothedArray(Data, temp, Npoint);
+ if High(temp)=0 then Result:=temp[0]
+                 else Result:=ImpulseNoiseSmoothingByNpoint(temp,Npoint);
 end;
 
 end.

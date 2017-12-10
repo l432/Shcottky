@@ -2379,7 +2379,8 @@ begin
    if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
    if ((SButFit.Caption<>'Smoothing')and
        (SButFit.Caption<>'Median filtr')and
-       (SButFit.Caption<>'Derivative'))
+       (SButFit.Caption<>'Derivative')and
+       (SButFit.Caption<>'Noise Smoothing'))
        then
         begin
          MemoAppr.Lines.Add('');

@@ -364,14 +364,21 @@ public
 end;   // TFitVariabSet=class(TFitFunctionSimple)
 //---------------------------------------------
 TNoiseSmoothing=class(TFitVariabSet)
+ FtempVector:PVector;
  Function Func(Parameters:TArrSingle):double; override;
  Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
+ Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
   Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word);override;
+ Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);override;
+
 public
 Constructor Create;
+Procedure Free;
 //Function FinalFunc(var X:double;DeterminedParameters:TArrSingle):double; override;
 
 end;
@@ -1828,6 +1835,7 @@ begin
    ReadIniDefFit('Var'+IntToStr(i)+'Bool',FVarbool[i]);
    ReadIniDefFit('Var'+IntToStr(i)+'Val',FVarValue[i]);
    if FVarManualDefinedOnly[i] then FVarBool[i]:=True;
+//   showmessage(floattostr(FVarValue[i]));
   end;
 end;
 
@@ -1849,6 +1857,8 @@ begin
   begin
    WriteIniDefFit('Var'+IntToStr(i)+'Bool',FVarbool[i]);
    WriteIniDefFit('Var'+IntToStr(i)+'Val',FVarValue[i]);
+//   showmessage(floattostr(FVarValue[i]));
+
   end;
 end;
 
@@ -1942,6 +1952,7 @@ var
 begin
  Result:=10;
  try
+//     showmessage(floattostr(Form.ComponentCount));
   for i := Form.ComponentCount - 1 downto 0 do
     if Form.Components[i].Name = FXname[0] then
       Result := 10 + (Form.Components[i] as TFrApprP).Panel1.Width;
@@ -2012,6 +2023,7 @@ begin
             FVarbool[i]:=(Component as TFrParamP).CBIntr.Checked;
             if FVarbool[i] then
              FVarValue[i]:=StrToFloat555((Component as TFrParamP).EParam.Text);
+//           showmessage(floattostr(FVarValue[i]));
           end;
 end;
 
@@ -6261,10 +6273,12 @@ end;
 constructor TNoiseSmoothing.Create;
 begin
  inherited Create('NoiseSmoothing','Noise Smoothing on Np point',
-                  1,1);
+                  0,1);
  FVarName[0]:='Np';
  FVarManualDefinedOnly[0]:=True;
  fHasPicture:=False;
+ ReadFromIniFile();
+ new(FtempVector);
 end;
 
 //function TNoiseSmoothing.FinalFunc(var X: double;
@@ -6272,6 +6286,30 @@ end;
 //begin
 //
 //end;
+
+procedure TNoiseSmoothing.Fitting(InputData: PVector;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean);
+begin
+  FIsNotReadyDetermination;
+  if FIsNotReady then SetValueGR;
+  if FIsNotReady then
+     begin
+     MessageDlg('Approximation is imposible.'+#10+#13+
+                  'Parameters of function are undefined', mtError,[mbOk],0);
+     SetLength(OutputData,FNx);
+     OutputData[0]:=ErResult;
+     Exit;
+     end;
+  BeforeFitness(InputData);
+  SetLength(OutputData,1);
+  OutputData[0]:=1;
+end;
+
+procedure TNoiseSmoothing.Free;
+begin
+ dispose(FtempVector);
+ inherited;
+end;
 
 function TNoiseSmoothing.Func(Parameters: TArrSingle): double;
 begin
@@ -6284,21 +6322,23 @@ begin
 
 end;
 
+procedure TNoiseSmoothing.RealToFile(InputData: PVector;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
+begin
+  FtempVector.Write_File(FitName(InputData));
+end;
+
 procedure TNoiseSmoothing.RealToGraph(InputData: PVector;
   var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
   Np: Word);
- var temp:PVector;
+ var
      i:integer;
 begin
-//  showmessage(floattostr(FVariab[0]));
   Series.Clear;
-  new(temp);
-  ImNoiseSmoothedArray(InputData,temp,Round(FVariab[0]));
-  for I := 0 to High(temp^.X) do
-    begin
-    Series.AddXY(temp^.X[i], temp^.Y[i]);
-    end;
-  dispose(temp);
+  ImNoiseSmoothedArray(InputData,FtempVector,abs(Round(FVariab[0])));
+  for I := 0 to High(FtempVector^.X) do
+    Series.AddXY(FtempVector^.X[i], FtempVector^.Y[i]);
+//  showmessage(floattostr(ImpulseNoiseSmoothingByNpoint(InputData^.Y)));
 end;
 
 Procedure FunCreate(str:string; var F:TFitFunction);
