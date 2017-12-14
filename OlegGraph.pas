@@ -4024,7 +4024,11 @@ Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;
 яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
 лінійна інтерполяція по двом точкам}
 begin
+ try
  Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
+ except
+ Result:=ErResult;
+ end;
 end;
 
 Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
@@ -4032,7 +4036,11 @@ Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
 яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
 лінійна інтерполяція по двом точкам}
 begin
+ try
  Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
+ except
+ Result:=ErResult;
+ end;
 end;
 
 function ChisloY (A:Pvector; X:double):double;

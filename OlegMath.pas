@@ -30,6 +30,16 @@ Procedure LinAprox (V:PVector; var a,b:double);
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x}
 
+Function LinAproxYvalue(V:PVector;XValue:double):double;
+{повертає ординату точки, яка має абсцису XValue
+для лінійної залежності, побудованої по даним
+вектора V}
+
+Function LinAproxXvalue(V:PVector;YValue:double):double;
+{повертає  абсцису точки, яка має  ординату YValue
+для лінійної залежності, побудованої по даним
+вектора V}
+
 Procedure LinAproxBconst (V:PVector; var a:double; b:double);
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x;
@@ -775,8 +785,42 @@ for i:=0 to High(V^.X) do
    Sxy:=Sxy+V^.x[i]*V^.y[i];
    Sx2:=Sx2+V^.x[i]*V^.x[i];
    end;
+try
 a:=(Sx2*Sy-Sxy*Sx)/(V^.n*Sx2-Sx*Sx);
 b:=(V^.n*Sxy-Sy*Sx)/(V^.n*Sx2-Sx*Sx);
+except
+a:=ErResult;
+b:=ErResult;
+end;
+end;
+
+Function LinAproxYvalue(V:PVector;XValue:double):double;
+ var a,b:double;
+begin
+  Result:=ErResult;
+  if XValue=ErResult then Exit;
+
+  LinAprox (V,a,b);
+  if a<>ErResult
+   then Result:=a+b*XValue
+//   else Result:=ErResult;
+end;
+
+Function LinAproxXvalue(V:PVector;YValue:double):double;
+ var a,b:double;
+begin
+  Result:=ErResult;
+  if YValue=ErResult then Exit;
+
+  LinAprox (V,a,b);
+  if a<>ErResult
+   then
+    try
+     Result:=(YValue-a)/b;
+    except
+//     Result:=ErResult;
+    end
+//   else Result:=ErResult;
 end;
 
 Procedure LinAproxBconst (V:PVector; var a:double; b:double);
