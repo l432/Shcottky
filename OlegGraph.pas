@@ -234,13 +234,6 @@ Procedure Write_File_Series(sfile:string; Series:TCustomSeries;NumberDigit:Byte=
 якщо кількість точок нульова або Series не створена,то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
 
-//Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
-//{записує у файл з іменем sfile дані з Series;
-//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
-//
-//Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
-//{записує у файл з іменем sfile дані з Series;
-//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
 
 Procedure Sorting (var A:PVector;Increase:boolean=True);
 {процедура сортування (методом бульбашки)
@@ -799,12 +792,12 @@ Function Extrem (A:PVector):double;
 якщо екстремум не чіткий - значить будуть
 проблеми :-)}
 
-Procedure GraphFill(Series:TLineSeries;Func:TFunSingle;
+Procedure GraphFill(Series:TCustomSeries;Func:TFunSingle;
                     x1,x2:double;Npoint:word);overload;
 {заповнює Series значеннями Func(х) в діапазоні
 від х1 до х2 з загальною кількістю точок Npoint+1}
 
-Procedure GraphFill(Series:TLineSeries;Func:TFunDouble;
+Procedure GraphFill(Series:TCustomSeries;Func:TFunDouble;
                     x1,x2:double;Npoint:word;y0:double);overload;
 {заповнює Series значеннями Func(х,y0) в діапазоні
 від х1 до х2 з загальною кількістю точок Npoint+1}
@@ -820,10 +813,10 @@ Procedure FunctionToFile(sfile:string;Func:TFunDouble;
 
 
 
-Procedure VectorToGraph(A:PVector;Series:TLineSeries);
+Procedure VectorToGraph(A:PVector;Series:TCustomSeries);
 {заносить дані з А в Series}
 
-Procedure GraphToVector(Series:TLineSeries;A:PVector);
+Procedure GraphToVector(Series:TCustomSeries;A:PVector);
 {заносить дані з Series в A, заповнюються лише масиви Х та Y координат}
 
 Procedure GraphAverage (Lines: array of TLineSeries; Minus:boolean=False;delX:double=0.002;
@@ -1347,35 +1340,6 @@ Str.SaveToFile(sfile);
 Str.Free;
 end;
 
-//Procedure Write_File_Series(sfile:string; Series:TLineSeries);overload;
-//{записує у файл з іменем sfile дані з Series;
-//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
-//var i:integer;
-//    Str:TStringList;
-//begin
-//if (not Assigned(Series)) or (Series.Count<1) then Exit;
-//Str:=TStringList.Create;
-//for I := 0 to Series.Count-1 do
-//   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,4,0)+' '+
-//           FloatToStrF(Series.YValue[i],ffExponent,4,0));
-//Str.SaveToFile(sfile);
-//Str.Free;
-//end;
-//
-//Procedure Write_File_Series(sfile:string; Series:TPointSeries);overload;
-//{записує у файл з іменем sfile дані з Series;
-//якщо кількість точок нульова або Series не створена,то запис у файл не відбувається}
-//var i:integer;
-//    Str:TStringList;
-//begin
-//if (not Assigned(Series)) or (Series.Count<1) then Exit;
-//Str:=TStringList.Create;
-//for I := 0 to Series.Count-1 do
-//   Str.Add(FloatToStrF(Series.XValue[i],ffExponent,4,0)+' '+
-//           FloatToStrF(Series.YValue[i],ffExponent,4,0));
-//Str.SaveToFile(sfile);
-//Str.Free;
-//end;
 
 Procedure Sorting (var A:PVector;Increase:boolean=True);
 {процедура сортування (методом бульбашки)
@@ -4147,7 +4111,7 @@ Result:=ChisloX(temp,0);
 dispose(temp);
 end;
 
-Procedure GraphFill(Series:TLineSeries;Func:TFunSingle;
+Procedure GraphFill(Series:TCustomSeries;Func:TFunSingle;
                     x1,x2:double;Npoint:word);
 {заповнює Series значеннями Func(х) в діапазоні
 від х1 до х2 з загальною кількістю точок Npoint+1}
@@ -4166,7 +4130,7 @@ for I := 0 to Npoint do
 
 end;
 
-Procedure GraphFill(Series:TLineSeries;Func:TFunDouble;
+Procedure GraphFill(Series:TCustomSeries;Func:TFunDouble;
                     x1,x2:double;Npoint:word;y0:double);overload;
 {заповнює Series значеннями Func(х,y0) в діапазоні
 від х1 до х2 з загальною кількістю точок Npoint+1}
@@ -4189,16 +4153,16 @@ Procedure FunctionToFile(sfile:string;Func:TFunDouble;
                     x1,x2:double;Npoint:word;y0:double);
 {у файл з назвою sfile заносить значення Func(х,y0) в діапазоні
 від х1 до х2 з загальною кількістю точок Npoint+1}
- var Series:TLineSeries;
+ var Series:TCustomSeries;
 begin
- Series:=TLineSeries.Create(nil);
+ Series:=TCustomSeries.Create(nil);
  GraphFill(Series,Func,x1,x2,Npoint,y0);
  Write_File_Series(sfile,Series);
  Series.Free;
 end;
 
 
-Procedure VectorToGraph(A:PVector;Series:TLineSeries);
+Procedure VectorToGraph(A:PVector;Series:TCustomSeries);
 {заносить дані з А в Series}
 var i:integer;
 begin
@@ -4208,7 +4172,7 @@ for I := 0 to High(A^.X) do
 end;
 
 
-Procedure GraphToVector(Series:TLineSeries;A:PVector);
+Procedure GraphToVector(Series:TCustomSeries;A:PVector);
 {заносить дані з Series в A, заповнюються лише масиви Х та Y координат}
 var i:integer;
 begin
