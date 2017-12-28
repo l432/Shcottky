@@ -103,7 +103,13 @@ type
          {копіюються дані з Х в массив TargetArray}
          Procedure CopyYtoArray(var TargetArray:TArrSingle);
          {копіюються дані з Y в массив TargetArray}
+         Procedure CopyXtoPArray(var TargetArray:PTArrSingle);
+         {копіюються дані з Х в массив TargetArray}
+         Procedure CopyYtoPArray(var TargetArray:PTArrSingle);
+         {копіюються дані з Y в массив TargetArray}
          Procedure CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
+         {заповнюються Х та Y значеннями з масивів}
+         Procedure CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
          {заповнюються Х та Y значеннями з масивів}
          Procedure CopyLimitedX (var Target:Vector;Xmin,Xmax:double);
          {копіюються з даного вектора в Target
@@ -750,12 +756,37 @@ begin
      TargetArray[i]:=Y[i];
 end;
 
+Procedure Vector.CopyXtoPArray(var TargetArray:PTArrSingle);
+ var i:integer;
+begin
+ SetLength(TargetArray^,n);
+  for I := 0 to n-1 do
+     TargetArray^[i]:=X[i];
+end;
+
+Procedure Vector.CopyYtoPArray(var TargetArray:PTArrSingle);
+ var i:integer;
+begin
+ SetLength(TargetArray^,n);
+  for I := 0 to n-1 do
+     TargetArray^[i]:=Y[i];
+end;
+
+
 Procedure Vector.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
  var i:integer;
 begin
  Clear();
  for I := 0 to min(High(SourceXArray),High(SourceYArray)) do
    Add(SourceXArray[i],SourceYArray[i]);
+end;
+
+Procedure Vector.CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
+ var i:integer;
+begin
+ Clear();
+ for I := 0 to min(High(SourceXArray^),High(SourceYArray^)) do
+   Add(SourceXArray^[i],SourceYArray^[i]);
 end;
 
 
