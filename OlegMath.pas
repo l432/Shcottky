@@ -391,11 +391,17 @@ I=F(V,E,I0,I,Rs)+(V-I Rs)/Rsh-Iph)}
 I=I01*[exp(q(V-I Rs)/E1)-1]+I02*[exp(q(V-I Rs)/E2)-1]+(V-I Rs)/Rsh-Iph)}
 
 
-Function MaxElemNumber(a:array of double):integer;
+Function MaxElemNumber(const a:array of double):integer;
 {повертає номер найбільшого елементу масиву}
 
-Function MinElemNumber(a:array of double):integer;
+Function MinElemNumber(const a:array of double):integer;
 {повертає номер наменшого елементу масиву}
+
+Procedure ExtremumElementNumbers(const PointerArray:PTArrSingle;
+                                 var MaxElementNumber:integer;
+                                 var MinElementNumber:integer);
+{повертаються номери найбільшого та найменшого
+елементів масиву, на який вказує PointerArray}
 
 Function RevZrizFun(x,m,I0,E:double):double;
 {функція I=I0*T^m*exp(-E/kT);
@@ -2836,7 +2842,7 @@ end;//case
 end;
 
 
-Function MaxElemNumber(a:array of double):integer;
+Function MaxElemNumber(const a:array of double):integer;
 {повертає номер найбільшого елементу масиву}
 var i:integer;
     temp:double;
@@ -2852,7 +2858,7 @@ begin
      end;
 end;
 
-Function MinElemNumber(a:array of double):integer;
+Function MinElemNumber(const a:array of double):integer;
 {повертає номер наменшого елементу масиву}
 var i:integer;
     temp:double;
@@ -2866,6 +2872,33 @@ begin
        Result:=i;
        temp:=a[i];
      end;
+end;
+
+Procedure ExtremumElementNumbers(const PointerArray:PTArrSingle;
+                                 var MaxElementNumber:integer;
+                                 var MinElementNumber:integer);
+ var i:integer;
+     tempMax,tempMin:double;
+begin
+ if High(PointerArray^)<0 then Exit;
+ MaxElementNumber:=0;
+ MinElementNumber:=0;
+ tempMax:=PointerArray^[0];
+ tempMin:=PointerArray^[0];
+
+ for I := 0 to High(PointerArray^) do
+  begin
+   if tempMin>PointerArray^[i] then
+     begin
+       MinElementNumber:=i;
+       tempMin:=PointerArray^[i];
+     end;
+   if tempMax<PointerArray^[i] then
+     begin
+       MaxElementNumber:=i;
+       tempMax:=PointerArray^[i];
+     end;
+  end;
 end;
 
 

@@ -106,6 +106,7 @@ Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False)
 //Procedure ImNoiseSmoothedArray(Source:array of Double;
 //                               var Target:TArrSingle;
 //                               Npoint:Word=0);overload;
+
 Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
                                Target:PTArrSingle;
                                Npoint:Word=0);overload;
@@ -591,10 +592,74 @@ end;
 //        *PositivDeviation/sqr(High(temp_Data)+1);
 //end;
 
+//Function  ImpulseNoiseSmoothing(const Data:  PTArrSingle): Double;
+// var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
+//     Value_min,Value_max,PositivDeviation,Value_Mean:double;
+//     temp_Data:PTArrSingle;
+//begin
+//
+//  if High(Data^)<0 then
+//    begin
+//      Result:=ErResult;
+//      Exit;
+//    end;
+//  if High(Data^)<4 then
+//    begin
+//      Result:=Mean(Data^);
+//      Exit;
+//    end;
+//
+//  new(temp_Data);
+//  i_min:=0;
+//  i_max:=High(Data^);
+//  Value_min:=Data^[0];
+//  Value_max:=Data^[High(Data^)];
+//  for i := 0 to High(Data^) do
+//    begin
+//      if Data^[i]>Value_max then
+//        begin
+//          Value_max:=Data^[i];
+//          i_max:=i;
+//        end;
+//      if Data^[i]<Value_min then
+//        begin
+//          Value_min:=Data^[i];
+//          i_min:=i;
+//        end;
+//    end;
+//
+//  SetLength(temp_Data^,High(Data^)-1);
+//  j:=0;
+//  for i:=0 to High(Data^) do
+//     if (i<>i_min)and(i<>i_max) then
+//      begin
+//        temp_Data^[j]:=Data^[i];
+//        inc(j);
+//      end;
+//
+// Value_Mean:=Mean(temp_Data^);
+// PositivDeviationCount:=0;
+// NegativeDeviationCount:=0;
+// PositivDeviation:=0;
+// for j := 0 to High(temp_Data^) do
+//  begin
+//   if temp_Data^[j]>Value_Mean then
+//    begin
+//      inc(PositivDeviationCount);
+//      PositivDeviation:=PositivDeviation+(temp_Data^[j]-Value_Mean);
+//    end;
+//   if temp_Data^[j]<Value_Mean then
+//      inc(NegativeDeviationCount);
+//  end;
+// Result:=Value_Mean+
+//        (PositivDeviationCount-NegativeDeviationCount)
+//        *PositivDeviation/sqr(High(temp_Data^)+1);
+// dispose(temp_Data);
+//end;
+
 Function  ImpulseNoiseSmoothing(const Data:  PTArrSingle): Double;
- var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
+ var i,i_min,i_max,PositivDeviationCount,NegativeDeviationCount:integer;
      Value_min,Value_max,PositivDeviation,Value_Mean:double;
-     temp_Data:PTArrSingle;
 begin
 
   if High(Data^)<0 then
@@ -602,13 +667,13 @@ begin
       Result:=ErResult;
       Exit;
     end;
+
   if High(Data^)<4 then
     begin
       Result:=Mean(Data^);
       Exit;
     end;
 
-  new(temp_Data);
   i_min:=0;
   i_max:=High(Data^);
   Value_min:=Data^[0];
@@ -627,33 +692,27 @@ begin
         end;
     end;
 
-  SetLength(temp_Data^,High(Data^)-1);
-  j:=0;
-  for i:=0 to High(Data^) do
-     if (i<>i_min)and(i<>i_max) then
-      begin
-        temp_Data^[j]:=Data^[i];
-        inc(j);
-      end;
+  Value_Mean:=(Sum(Data^)-Data^[i_min]+Data^[i_max])/(High(Data^)+1);
 
- Value_Mean:=Mean(temp_Data^);
+
  PositivDeviationCount:=0;
  NegativeDeviationCount:=0;
  PositivDeviation:=0;
- for j := 0 to High(temp_Data^) do
-  begin
-   if temp_Data^[j]>Value_Mean then
-    begin
-      inc(PositivDeviationCount);
-      PositivDeviation:=PositivDeviation+(temp_Data^[j]-Value_Mean);
-    end;
-   if temp_Data^[j]<Value_Mean then
-      inc(NegativeDeviationCount);
-  end;
+ for i := 0 to High(Data^) do
+   if (i<>i_min)and(i<>i_max)
+     then
+      begin
+         if Data^[i]>Value_Mean then
+          begin
+            inc(PositivDeviationCount);
+            PositivDeviation:=PositivDeviation+(Data^[i]-Value_Mean);
+          end;
+         if Data^[i]<Value_Mean then
+            inc(NegativeDeviationCount);
+      end;
  Result:=Value_Mean+
         (PositivDeviationCount-NegativeDeviationCount)
-        *PositivDeviation/sqr(High(temp_Data^)+1);
- dispose(temp_Data);
+        *PositivDeviation/sqr(High(Data^)-1);
 end;
 
 
