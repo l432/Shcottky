@@ -29,13 +29,13 @@ const
 
 //                                Eg0,     Eps,  ARich_n,  ARich_p,  Me,   Mh,   VarshA,   VarshB
    ((Name:'Si';     Parameters: (Eg0_Si,   11.7, 1.12e6,   0.32e6,   1.08, 0.58, VarshA_Si,VarshB_Si)),
-    (Name:'GaAs';   Parameters: (1.519,    12.9, 8.16e4,   ErResult, 0.06, 0.50, 204,      5.405e-4)),
-    (Name:'InP';    Parameters: (1.42,     12.5, 0.6e6,    ErResult, 0.08, 0.60, 327,      4.906e-4)),
-    (Name:'4H-SiC'; Parameters: (3.26,     9.7,  0.75e6,   ErResult, 1,    1,    1300,     6.5e-4)),
+    (Name:'GaAs';   Parameters: (1.519,    12.9, 8.16e4,   ErResult, 0.063,0.52, 204,      5.405e-4)),
+    (Name:'InP';    Parameters: (1.42,     12.5, 0.6e6,    ErResult, 0.079,0.60, 327,      4.906e-4)),
+    (Name:'4H-SiC'; Parameters: (3.26,     9.7,  0.75e6,   ErResult, 0.42, 1,    1300,     6.5e-4)),
     (Name:'GaN';    Parameters: (3.47,     8.9,  2.64e5,   7.50e5,   0.22, 0.60, 600,      7.7e-4)),
-    (Name:'CdTe';   Parameters: (1.57,     12,   0.12e6,   ErResult, 1.08, 0.60, 0,        4e-4)),
-    (Name:'CdS';    Parameters: (2.557,    1,    2.34e5,   ErResult, 0.17, 1,    450,      8.21e-4)),
-    (Name:'CdSe';   Parameters: (1.9,      10.2, 1.56e5,   ErResult, 0.13, 1,    0,        2.8e-4)),
+    (Name:'CdTe';   Parameters: (1.57,     10.2, 0.12e6,   ErResult, 0.11, 0.37, 0,        4e-4)),
+    (Name:'CdS';    Parameters: (2.557,    5.4,  2.34e5,   ErResult, 0.21, 0.8,  450,      8.21e-4)),
+    (Name:'CdSe';   Parameters: (1.9,      10.2, 1.56e5,   ErResult, 0.13, 0.45, 0,        2.8e-4)),
     (Name:'CuInSe2';Parameters: (ErResult, 1,    8.53e5,   ErResult, 1,    1,    ErResult, ErResult)),
     (Name:'GaTe';   Parameters: (ErResult, 1,    1.19e6,   ErResult, 1,    1,    ErResult, ErResult)),
     (Name:'GaSe';   Parameters: (ErResult, 1,    2.47e6,   ErResult, 1,    1,    ErResult, ErResult)),
@@ -89,6 +89,11 @@ type
                                 Alpha:double=VarshA_Si;
                                 Betta:double=VarshB_Si):double;
      class function CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha:double):double;
+     class function FermiDiracDonor(const Ed:double;
+                                    const Ef:double;
+                                    const T:double=300):double;
+     {значення функції Фермі-Дірака для донорного рівня
+     Ed та Ef відраховуються від дна зони провідності}
      end; // TMaterial=class
 
 //     TMatParNameLab=array[TMaterialParametersName]of TLabel;
@@ -368,6 +373,49 @@ Vec^.Y[i]=Func(Vec^.X[i],T,V)
 записується у файл
 }
 
+Function ElectronConcentration(const T:double;
+                               const Parameters:array of double):double;
+{розрахунок концентрації електронів для випадку наявності
+декількох донорів
+Parameters[0] - сталий від'ємний доданок до кількості носіїв
+(фізично - концентрація акцепторів)
+Parameters[1], Parameters[3]... - концентрація
+донорів і-го типу
+Parameters[2], Parameters[4]... - енергетичне положення
+рівня донорів і-го типу (додатна величина,
+відраховується від дна зони провідності)
+}
+
+Function FermiLevelEquation(Ef:double;
+                            Parameters:array of double):double;
+{рівняння для визначення рівня Фермі в електронному напівпровіднику,
+цю функцію треба підставити в Bisection для
+безпосереднього визначення Ef;
+вміст Parameters  - див. попередню функцію,
+проте в Parameters[High(Parameters)] має бути
+температура
+}
+
+
+Function ElectronConcentration2(const T:double;
+                               const Parameters:array of double):double;
+{розрахунок концентрації електронів для випадку наявності
+декількох донорів
+Parameters[0] - сталий від'ємний доданок до кількості носіїв
+(фізично - концентрація акцепторів)
+Parameters[1] - концентрація донорів
+Parameters[2] - енергетичне положення рівня донорів і-го типу (додатна величина,
+відраховується від дна зони провідності)
+Parameters[3], Parameters[5]... - концентрація
+пасток і-го типу
+Parameters[4], Parameters[6]... - енергетичне положення
+рівня пасток і-го типу (додатна величина,
+відраховується від дна зони провідності)
+}
+
+Function FermiLevelEquation2(Ef:double;
+                            Parameters:array of double):double;
+
 
 implementation
 
@@ -469,6 +517,12 @@ begin
 
 end;
 
+class function TMaterial.FermiDiracDonor(const Ed, Ef, T: double): double;
+begin
+ if T=0 then  Result:=ErResult
+        else  Result:=1/(1+0.5*exp((Ef-Ed)/T/Kb));
+end;
+
 function TMaterial.Nc(T:double):double;
 //    ефективна густина станів
 begin
@@ -489,7 +543,7 @@ begin
        Result:=3.1e25*Power(T/300.0,1.85);
        Exit;
       end;
- {J.Appl.Phys., 67, p2944}       
+ {J.Appl.Phys., 67, p2944}
  if Mh=ErResult then Result:=ErResult
                 else Result:=2.5e25*Mh*(T/300.0)*sqrt(Mh*T/300.0);
 end;
@@ -774,7 +828,7 @@ begin
   if High(LSD)<ord(High(TMaterialParametersName))
     then
     showmessage('Label array is deficient for material parameters');
-  
+
 
   for I := ord(Low(TMaterialParametersName)) to ord(High(TMaterialParametersName)) do
 //   begin
@@ -1570,19 +1624,22 @@ class function Silicon.Absorption(Lambda:double;T:double=300): double;
      Ephoton,GreenAbs,Result300:double;
 begin
   Result:=ErResult;
-  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
-  GreenAbs:=Green(Lambda);
-  if T=300 then
-   begin
-     Result:=GreenAbs;
-     Exit;
-   end;
+//  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
+//  GreenAbs:=Green(Lambda);
+
+//  if T=300 then
+//   begin
+//     Result:=GreenAbs;
+//     Exit;
+//   end;
+
   Ephoton:=Hpl*2*Pi*3e8/(Lambda*1e-9*Qelem);//[]=eV
 
-  Result300:=Rajkanan(Ephoton);
-  if Result300=0 then Exit;
+//  Result300:=Rajkanan(Ephoton);
+//  if Result300=0 then Exit;
 
   Result:=Rajkanan(Ephoton,T);
+
 //  if Result=0 then Exit;
 //
 //  Result:=Result/Result300*GreenAbs;
@@ -1604,137 +1661,138 @@ begin
 end;
 
 class function Silicon.Green(Lambda: double): double;
+//M.A. Green / Solar Energy Materials & Solar Cells 92 (2008) 1305–1310 1306
   const  Si_absorption:array [0..241]of double=(
-                      250,	1.84E+06,
-                      260,	1.97E+06,
-                      270,	2.18E+06,
-                      280,	2.36E+06,
-                      290,	2.24E+06,
-                      300,	1.73E+06,
-                      310,	1.44E+06,
-                      320,	1.28E+06,
-                      330,	1.17E+06,
-                      340,	1.09E+06,
-                      350,	1.04E+06,
-                      360,	1.02E+06,
-                      370,	6.97E+05,
-                      380,	2.93E+05,
-                      390,	1.50E+05,
-                      400,	9.52E+04,
-                      410,	6.74E+04,
-                      420,	5.00E+04,
-                      430,	3.92E+04,
-                      440,	3.11E+04,
-                      450,	2.55E+04,
-                      460,	2.10E+04,
-                      470,	1.72E+04,
-                      480,	1.48E+04,
-                      490,	1.27E+04,
-                      500,	1.11E+04,
-                      510,	9.70E+03,
-                      520,	8.80E+03,
-                      530,	7.85E+03,
-                      540,	7.05E+03,
-                      550,	6.39E+03,
-                      560,	5.78E+03,
-                      570,	5.32E+03,
-                      580,	4.88E+03,
-                      590,	4.49E+03,
-                      600,	4.14E+03,
-                      610,	3.81E+03,
-                      620,	3.52E+03,
-                      630,	3.27E+03,
-                      640,  3.04E+03,
-                      650,	2.81E+03,
-                      660,	2.58E+03,
-                      670,	2.38E+03,
-                      680,	2.21E+03,
-                      690,	2.05E+03,
-                      700,	1.90E+03,
-                      710,	1.77E+03,
-                      720,	1.66E+03,
-                      730,	1.54E+03,
-                      740,	1.42E+03,
-                      750,	1.30E+03,
-                      760,	1.19E+03,
-                      770,	1.10E+03,
-                      780,	1.01E+03,
-                      790,	9.28E+02,
-                      800,	8.50E+02,
-                      810,	7.75E+02,
-                      820,	7.07E+02,
-                      830,	6.47E+02,
-                      840,	5.91E+02,
-                      850,	5.35E+02,
-                      860,	4.80E+02,
-                      870,	4.32E+02,
-                      880,	3.83E+02,
-                      890,	3.43E+02,
-                      900,	3.06E+02,
-                      910,	2.72E+02,
-                      920,	2.40E+02,
-                      930,	2.10E+02,
-                      940,	1.83E+02,
-                      950,	1.57E+02,
-                      960,	1.34E+02,
-                      970,	1.14E+02,
-                      980,	9.59E+01,
-                      990,	7.92E+01,
-                      1000,	6.40E+01,
-                      1010,	5.11E+01,
-                      1020,	3.99E+01,
-                      1030,	3.02E+01,
-                      1040,	2.26E+01,
-                      1050,	1.63E+01,
-                      1060,	1.11E+01,
-                      1070,	8.00E+00,
-                      1080,	6.20E+00,
-                      1090,	4.70E+00,
-                      1100,	3.50E+00,
-                      1110,	2.70E+00,
-                      1120,	2.00E+00,
-                      1130,	1.50E+00,
-                      1140,	1.00E+00,
-                      1150,	6.80E-01,
-                      1160,	4.20E-01,
-                      1170,	2.20E-01,
-                      1180,	6.50E-02,
-                      1190,	3.60E-02,
-                      1200,	2.20E-02,
-                      1210,	1.30E-02,
-                      1220,	8.20E-03,
-                      1230,	4.70E-03,
-                      1240,	2.40E-03,
-                      1250,	1.00E-03,
-                      1260,	3.60E-04,
-                      1270,	2.00E-04,
-                      1280,	1.20E-04,
-                      1290,	7.10E-05,
-                      1300,	4.50E-05,
-                      1310,	2.70E-05,
-                      1320,	1.60E-05,
-                      1330,	8.00E-06,
-                      1340,	3.50E-06,
-                      1350,	1.70E-06,
-                      1360,	1.00E-06,
-                      1370,	6.70E-07,
-                      1380,	4.50E-07,
-                      1390,	2.50E-07,
-                      1400,	2.00E-07,
-                      1410,	1.50E-07,
-                      1420,	8.50E-08,
-                      1430,	7.70E-08,
-                      1440,	4.20E-08,
-                      1450,	3.20E-08);
+                    250,	1.84E6,
+                    260,	1.97E6,
+                    270,	2.18E6,
+                    280,	2.37E6,
+                    290,	2.29E6,
+                    300,	1.77E6,
+                    310,	1.46E6,
+                    320,	1.3E6,
+                    330,	1.18E6,
+                    340,	1.1E6,
+                    350,	1.06E6,
+                    360,	1.04E6,
+                    370,	737000,
+                    380,	313000,
+                    390,	143000,
+                    400,	93000,
+                    410,	69500,
+                    420,	52700,
+                    430,	40200,
+                    440,	30700,
+                    450,	24100,
+                    460,	19500,
+                    470,	16600,
+                    480,	14400,
+                    490,	12600,
+                    500,	11100,
+                    510,	9700,
+                    520,	8800,
+                    530,	7850,
+                    540,	7050,
+                    550,	6390,
+                    560,	5780,
+                    570,	5320,
+                    580,	4880,
+                    590,	4490,
+                    600,	4175,
+                    610,	3800,
+                    620,	3520,
+                    630,	3280,
+                    640,	3030,
+                    650,	2790,
+                    660,	2570,
+                    670,	2390,
+                    680,	2200,
+                    690,	2040,
+                    700,	1890,
+                    710,	1780,
+                    720,	1680,
+                    730,	1540,
+                    740,	1420,
+                    750,	1310,
+                    760,	1190,
+                    770,	1100,
+                    780,	1030,
+                    790,	928,
+                    800,	850,
+                    810,	775,
+                    820,	707,
+                    830,	647,
+                    840,	590,
+                    850,	534,
+                    860,	479,
+                    870,	431,
+                    880,	383,
+                    890,	343,
+                    900,	303,
+                    910,	271,
+                    920,	240,
+                    930,	209,
+                    940,	183,
+                    950,	156,
+                    960,	134,
+                    970,	113,
+                    980,	96,
+                    990,	79,
+                    1000,	64,
+                    1010,	51.1,
+                    1020,	39.9,
+                    1030,	30.2,
+                    1040,	22.6,
+                    1050,	16.3,
+                    1060,	11.1,
+                    1070,	8,
+                    1080,	6.2,
+                    1090,	4.7,
+                    1100,	3.5,
+                    1110,	2.7,
+                    1120,	2,
+                    1130,	1.5,
+                    1140,	1,
+                    1150,	0.68,
+                    1160,	0.42,
+                    1170,	0.22,
+                    1180,	0.065,
+                    1190,	0.036,
+                    1200,	0.022,
+                    1210,	0.013,
+                    1220,	0.0082,
+                    1230,	0.0047,
+                    1240,	0.0024,
+                    1250,	1E-3,
+                    1260,	3.6E-4,
+                    1270,	2E-4,
+                    1280,	1.2E-4,
+                    1290,	7.1E-5,
+                    1300,	4.5E-5,
+                    1310,	2.7E-5,
+                    1320,	1.6E-5,
+                    1330,	8E-6,
+                    1340,	3.5E-6,
+                    1350,	1.7E-6,
+                    1360,	9.5E-7,
+                    1370,	6E-7,
+                    1380,	3.8E-7,
+                    1390,	2.3E-7,
+                    1400,	1.4E-7,
+                    1410,	8.5E-8,
+                    1420,	5E-8,
+                    1430,	2.5E-8,
+                    1440,	1.8E-8,
+                    1450,	1.2E-8);
  var Vect:PVector;
      i:integer;
 begin
   if Lambda=900 then
    begin
-     Result:=30600;
+     Result:=30300;
      Exit;
    end;
-  
+
   new(Vect);
   Vect^.SetLenVector(trunc(High(Si_absorption)/2));
   for I := 0 to High(Vect^.X) do
@@ -1794,6 +1852,127 @@ begin
   if Ephoton>EgT[2] then
     Result:=Result+A[2]*sqrt(Ephoton-EgT[2]);
   Result:=Result*100;
+end;
+
+
+
+Function ElectronConcentration(const T:double;
+                               const Parameters:array of double):double;
+ var Ef:double;
+     tempParameters:array of double;
+     i:byte;
+begin
+  Result:=ErResult;
+  if T<=0 then Exit;
+
+  Result:=Diod.FSemiconductor.FMaterial.n_i(T);
+
+  if High(Parameters)<0 then Exit;
+  Result:=Result-Parameters[0];
+
+  if High(Parameters)<2 then Exit;
+
+  SetLength(tempParameters,High(Parameters)+2);
+  for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
+  tempParameters[High(tempParameters)]:=T;
+  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-4);
+
+  i:=2;
+  while(i<=High(Parameters)) do
+   begin
+   Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T));
+   i:=i+2;
+   end;
+
+end;
+
+
+Function FermiLevelEquation(Ef:double;
+                            Parameters:array of double):double;
+ var T:double;
+     i:byte;
+begin
+ Result:=ErResult;
+ if High(Parameters)<0 then Exit;
+ T:=Parameters[High(Parameters)];
+ if T<=0 then Exit;
+
+
+ Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
+         Diod.FSemiconductor.FMaterial.Nc(T)*exp(-Ef/T/Kb);
+
+ if High(Parameters)<1 then Exit;
+
+ Result:=Result-Parameters[0];
+
+ i:=2;
+ while(i<High(Parameters)) do
+  begin
+   Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T));
+   i:=i+2;
+  end;
+
+end;
+
+
+Function ElectronConcentration2(const T:double;
+                               const Parameters:array of double):double;
+ var Ef:double;
+     tempParameters:array of double;
+     i:byte;
+begin
+  Result:=ErResult;
+  if T<=0 then Exit;
+
+  Result:=Diod.FSemiconductor.FMaterial.n_i(T);
+
+  if High(Parameters)<0 then Exit;
+  Result:=Result-Parameters[0];
+
+  if High(Parameters)<2 then Exit;
+
+  SetLength(tempParameters,High(Parameters)+2);
+  for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
+  tempParameters[High(tempParameters)]:=T;
+  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-4);
+
+  i:=2;
+  while(i<=High(Parameters)) do
+   begin
+   if i=2
+     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))
+     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
+   i:=i+2;
+   end;
+end;
+
+
+Function FermiLevelEquation2(Ef:double;
+                            Parameters:array of double):double;
+ var T:double;
+     i:byte;
+begin
+ Result:=ErResult;
+ if High(Parameters)<0 then Exit;
+ T:=Parameters[High(Parameters)];
+ if T<=0 then Exit;
+
+
+ Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
+         Diod.FSemiconductor.FMaterial.Nc(T)*exp(-Ef/T/Kb);
+
+ if High(Parameters)<1 then Exit;
+
+ Result:=Result-Parameters[0];
+
+  i:=2;
+  while(i<=High(Parameters)) do
+   begin
+   if i=2
+     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))
+     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
+   i:=i+2;
+   end;
 end;
 
 end.

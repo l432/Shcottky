@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..56]of string=
+  FuncName:array[0..58]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -36,7 +36,8 @@ const
            'Tunneling diod revers', 'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
-           'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility');
+           'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
+           'n vs T (donors only)','n vs T (donor and traps)');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -879,6 +880,24 @@ private
 public
  Constructor Create;
 end; //TMobility=class (TFitFunctEvolution)
+
+TElectronConcentration=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function Weight(OutputData:TArrSingle):double;Override;
+public
+ Constructor Create;
+end; //TElectronConcentration=class (TFitFunctEvolution)
+
+
+TElectronConcentration2=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function Weight(OutputData:TArrSingle):double;Override;
+public
+ Constructor Create;
+end; //TElectronConcentration2=class (TFitFunctEvolution)
+
 
 TTauDAP=class (TFitFunctEvolution)
 private
@@ -6077,15 +6096,17 @@ begin
 end;
 
 function TCurrentSC.Func(Parameters: TArrSingle): double;
+ const T0=300;
  var AlL:double;
 begin
  AlL:=Silicon.Absorption(FVariab[0],fx)*
-          Parameters[1]*Power(fx/300,Parameters[2]);
+          Parameters[1]*Power(fx/T0,Parameters[2]);
  Result:=Parameters[0]*AlL/(1+AlL);
 end;
 
 procedure TCurrentSC.RealToFile(InputData: PVector; var OutputData: TArrSingle;
   Xlog, Ylog: boolean; suf: string);
+ const T0=300;
 var Str1:TStringList;
     i:integer;
     AlL:double;
@@ -6094,10 +6115,10 @@ begin
   for I := 0 to High(InputData^.X) do
     begin
     AlL:=Silicon.Absorption(FVariab[0],InputData^.X[i])*
-          OutputData[1]*Power(InputData^.X[i]/300,OutputData[2]);
+          OutputData[1]*Power(InputData^.X[i]/T0,OutputData[2]);
     Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
              FloatToStrF(OutputData[0]*AlL/(1+AlL),ffExponent,4,0)+' '+
-             FloatToStrF(OutputData[1]*Power(InputData^.X[i]/300,OutputData[2]),ffExponent,4,0));
+             FloatToStrF(OutputData[1]*Power(InputData^.X[i]/T0,OutputData[2]),ffExponent,4,0));
     end;
   Str1.SaveToFile(FitName(InputData,suf));
   Str1.Free;
@@ -6269,6 +6290,65 @@ begin
 
 end;
 
+{ TElectronConcentration }
+
+constructor TElectronConcentration.Create;
+begin
+ inherited Create('n_vs_T','Electron concentration in n-type semiconductors vs temperature',
+                  7,0,0);
+ FXname[0]:='Na';
+ FXname[1]:='Nd1';
+ FXname[2]:='Ed1';
+ FXname[3]:='Nd2';
+ FXname[4]:='Ed2';
+ FXname[5]:='Nd3';
+ FXname[6]:='Ed3';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+// fHasPicture:=False;
+ CreateFooter();
+end;
+
+function TElectronConcentration.Func(Parameters: TArrSingle): double;
+begin
+ Result:=ElectronConcentration(fx,Parameters);
+end;
+
+
+function TElectronConcentration.Weight(OutputData: TArrSingle): double;
+begin
+ Result:=1;
+end;
+
+
+{ TElectronConcentration2 }
+
+constructor TElectronConcentration2.Create;
+begin
+ inherited Create('n_vs_Ttrap','Electron concentration in n-type semiconductors with traps',
+                  7,0,0);
+ FXname[0]:='Na';
+ FXname[1]:='Nd';
+ FXname[2]:='Ed';
+ FXname[3]:='Nt1';
+ FXname[4]:='Et1';
+ FXname[5]:='Nt2';
+ FXname[6]:='Et2';
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+// fHasPicture:=False;
+ CreateFooter();
+end;
+
+function TElectronConcentration2.Func(Parameters: TArrSingle): double;
+begin
+ Result:=ElectronConcentration2(fx,Parameters);
+end;
+
+function TElectronConcentration2.Weight(OutputData: TArrSingle): double;
+begin
+ Result:=1;
+end;
 
 { TNoiseSmoothing }
 
@@ -6401,9 +6481,16 @@ begin
   if str='Rsh,2 vs T' then F:=TRsh2_T.Create;
   if str='Variated Polinom' then F:=TTwoPower.Create;
   if str='Mobility' then F:=TMobility.Create;
+  if str='n vs T (donors only)' then F:=TElectronConcentration.Create;
+  if str='n vs T (donor and traps)' then F:=TElectronConcentration2.Create;
+
 
 //  if str='None' then F:=TDiod.Create;
 end;
+
+
+
+
 
 
 end.

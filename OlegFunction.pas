@@ -136,6 +136,15 @@ Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean
                                        Npoint:Word=0): Double;overload;
 
 
+Function Bisection(const F:TFun; const Parameters:array of double;
+                   const Xmax:double=5; const Xmin:double=0;
+                   const eps:double=1e-6):double;
+{метод ділення навпіл для функції F на інтервалі [Xmin,Xmax]
+eps - відносна точність розв'язку
+(ширина кінцевого інтервалу по відношенню до величини його границь)}
+
+
+
 implementation
 
 uses
@@ -1135,6 +1144,41 @@ begin
   else Result:=ImpulseNoiseSmoothingByNpoint(temp,ItIsXVector,Npoint);
  dispose(temp);
 end;
+
+
+Function Bisection(const F:TFun; const Parameters:array of double;
+                   const Xmax:double=5; const Xmin:double=0;
+                   const eps:double=1e-6):double;
+ const Nit_Max=1e6;
+ var a,b,c :double;
+     i:integer;
+begin
+  Result:=ErResult;
+  a:=F(Xmin,Parameters);
+  b:=F(Xmax,Parameters);
+  if a=0 then Result:=Xmin;
+  if b=0 then Result:=Xmax;
+
+  if a*b>=0 then Exit;
+
+  a:=Xmin;
+  b:=Xmax;
+
+  i:=0;
+  try
+    repeat
+     inc(i);
+      c:=(a+b)/2;
+      if (F(c,Parameters)*F(a,Parameters)<=0)
+         then b:=c
+         else a:=c;
+    until ((i>Nit_Max)or IsEqual(a,b,eps));
+    if (i<=Nit_Max) then Result:=c;
+  except
+
+  end;
+end;
+
 
 
 end.
