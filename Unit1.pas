@@ -3582,7 +3582,7 @@ begin
  StrEf:=TStringList.Create;
  StrN:=TStringList.Create;
 
- T:=100;
+ T:=15;
  Nd0:=10;
  Nd1:=5e16;
  Ed1:=0.08;
@@ -3593,18 +3593,19 @@ begin
  param[3]:=5e19;
  param[4]:=0.45;
 
- while(T<300) do
+ while(T<600) do
  begin
-//  Ef:=Bisection(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
+  Ef:=Bisection(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
+//  Ef:=Hord(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
 
-//   StrEf.Add(FloatToStrF(T,ffFixed,3,0)+' '+
-//                            FloatToStrF(Ef,ffExponent,4,0));
-
-//   StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
-//                            FloatToStrF(ElectronConcentration(T,[Nd0,Nd1,Ed1]),ffExponent,4,0));
+   StrEf.Add(FloatToStrF(T,ffFixed,3,0)+' '+
+                            FloatToStrF(Ef,ffExponent,4,0));
 
    StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
-                            FloatToStrF(ElectronConcentration(T,param),ffExponent,4,0));
+                            FloatToStrF(ElectronConcentration(T,[Nd0,Nd1,Ed1]),ffExponent,4,0));
+
+//   StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
+//                            FloatToStrF(ElectronConcentration(T,param),ffExponent,4,0));
    T:=T+2;
  end;
 
@@ -3619,6 +3620,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory);
 
+//showmessage(floattostr(TMaterial.FDIntegral_05(-3)));
 ElectronConcentrationCalcul();
 
 

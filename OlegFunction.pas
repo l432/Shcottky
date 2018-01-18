@@ -143,6 +143,12 @@ Function Bisection(const F:TFun; const Parameters:array of double;
 eps - відносна точність розв'язку
 (ширина кінцевого інтервалу по відношенню до величини його границь)}
 
+Function Hord(const F:TFun; const Parameters:array of double;
+                   const Xmax:double=5; const Xmin:double=0;
+                   const eps:double=1e-6):double;
+{метод хорд для функції F на інтервалі [Xmin,Xmax]
+eps - відносна точність розв'язку
+(зміна наступного наближення по відношенню до його величини)}
 
 
 implementation
@@ -1150,7 +1156,7 @@ Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;
                    const eps:double=1e-6):double;
  const Nit_Max=1e6;
- var a,b,c :double;
+ var a,b,c,Fa,Fc :double;
      i:integer;
 begin
   Result:=ErResult;
@@ -1161,6 +1167,7 @@ begin
 
   if a*b>=0 then Exit;
 
+  Fa:=a;
   a:=Xmin;
   b:=Xmax;
 
@@ -1169,16 +1176,65 @@ begin
     repeat
      inc(i);
       c:=(a+b)/2;
-      if (F(c,Parameters)*F(a,Parameters)<=0)
+      Fc:=F(c,Parameters);
+//      if (F(c,Parameters)*F(a,Parameters)<=0)
+//         then b:=c
+//         else a:=c;
+      if (Fc*Fa<=0)
          then b:=c
-         else a:=c;
-    until ((i>Nit_Max)or IsEqual(a,b,eps));
+         else begin
+              a:=c;
+              Fa:=Fc;
+              end;
+    until (IsEqual(a,b,eps) or (i>Nit_Max));
     if (i<=Nit_Max) then Result:=c;
   except
 
   end;
 end;
 
+Function Hord(const F:TFun; const Parameters:array of double;
+                   const Xmax:double=5; const Xmin:double=0;
+                   const eps:double=1e-6):double;
+ const Nit_Max=1e6;
+ var a,b,c,c_old,Fa,Fb,Fc :double;
+     i:integer;
+begin
+  Result:=ErResult;
+  Fa:=F(Xmin,Parameters);
+  Fb:=F(Xmax,Parameters);
+  if Fa=0 then Result:=Xmin;
+  if Fb=0 then Result:=Xmax;
+
+  if Fa*Fb>=0 then Exit;
+
+  a:=Xmin;
+  b:=Xmax;
+
+  i:=0;
+  c:=a;
+  try
+    repeat
+     inc(i);
+     c_old:=c;
+     c:=(a*Fb-b*Fa)/(Fb-Fa);
+//     showmessage(floattostr(c));
+     Fc:=F(c,Parameters);
+      if (Fc*Fa<=0)
+         then begin
+              b:=c;
+              Fb:=Fc;
+              end
+         else begin
+              a:=c;
+              Fa:=Fc;
+              end;
+    until (IsEqual(c,c_old,eps) or (i>Nit_Max));
+    if (i<=Nit_Max) then Result:=c;
+  except
+
+  end;
+end;
 
 
 end.

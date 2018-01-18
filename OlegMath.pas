@@ -3014,18 +3014,23 @@ end;
 
 Function IsEqual(a,b,eps:double):boolean;
 {True, якщо відносна різниця a та b менше eps}
-  var max, min:double;
+//  var maxV, minV:double;
 begin
- min:=abs(a);
- max:=abs(b);
- if ((min=0)and(max=0)) then
+// minV:=abs(a);
+// maxV:=abs(b);
+// if ((minV=0)and(maxV=0)) then
+ if ((a=0)and(b=0)) then
   begin
     Result:=True;
     Exit;
   end;
- if min>max then Swap(min,max);
- if min=0 then Result:=(abs((b-a)/max)<eps)
-          else Result:=(abs((b-a)/min)<eps);
+// minV:=Min(abs(a),abs(b));
+// if minV>maxV then Swap(minV,maxV);
+// if minV=0 then Result:=(abs((b-a)/maxV)<eps)
+//          else Result:=(abs((b-a)/minV)<eps);
+// if minV=0 then Result:=(abs((b-a)/Max(abs(a),abs(b)))<eps)
+//           else Result:=(abs((b-a)/minV)<eps);
+ Result:=(abs(b-a)/Max(abs(a),abs(b))<eps)
 end;
 
 

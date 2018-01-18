@@ -94,6 +94,9 @@ type
                                     const T:double=300):double;
      {значення функції Фермі-Дірака для донорного рівня
      Ed та Ef відраховуються від дна зони провідності}
+     class function FDIntegral_05(const eta:double):double;
+     {значення інтегралу Фермі-Дірака ступеня 1/2,
+     апроксимація згідно з Phys.Lett., vol.64A, p409}
      end; // TMaterial=class
 
 //     TMatParNameLab=array[TMaterialParametersName]of TLabel;
@@ -515,6 +518,13 @@ begin
                     else
                     Result:=0.5*(EgT(T)+Kb*T*ln(Nv(T)/Nc(T)));
 
+end;
+
+class function TMaterial.FDIntegral_05(const eta: double): double;
+ var a:double;
+begin
+ a:=Power(eta,4)+50+33.6*eta*(1-0.68*exp(-0.17*sqr(eta+1)));
+ Result:=1/(0.75*sqrt(Pi)*Power(a,-3.0/8.0)+exp(-eta));
 end;
 
 class function TMaterial.FermiDiracDonor(const Ed, Ef, T: double): double;
@@ -1623,7 +1633,7 @@ class function Silicon.Absorption(Lambda:double;T:double=300): double;
  var
      Ephoton,GreenAbs,Result300:double;
 begin
-  Result:=ErResult;
+//  Result:=ErResult;
 //  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
 //  GreenAbs:=Green(Lambda);
 
@@ -1875,7 +1885,7 @@ begin
   SetLength(tempParameters,High(Parameters)+2);
   for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
   tempParameters[High(tempParameters)]:=T;
-  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-4);
+  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-3);
 
   i:=2;
   while(i<=High(Parameters)) do
@@ -1899,7 +1909,8 @@ begin
 
 
  Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
-         Diod.FSemiconductor.FMaterial.Nc(T)*exp(-Ef/T/Kb);
+//         Diod.FSemiconductor.FMaterial.Nc(T)*exp(-Ef/T/Kb);
+         Diod.FSemiconductor.FMaterial.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
 
  if High(Parameters)<1 then Exit;
 
@@ -1934,7 +1945,7 @@ begin
   SetLength(tempParameters,High(Parameters)+2);
   for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
   tempParameters[High(tempParameters)]:=T;
-  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-4);
+  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-3);
 
   i:=2;
   while(i<=High(Parameters)) do
