@@ -3586,12 +3586,12 @@ begin
  Nd0:=10;
  Nd1:=5e16;
  Ed1:=0.08;
- SetLength(param,5);
- param[0]:=5e16;
- param[1]:=0;
- param[2]:=Ed1;
- param[3]:=5e19;
- param[4]:=0.45;
+// SetLength(param,5);
+// param[0]:=5e16;
+// param[1]:=0;
+// param[2]:=Ed1;
+// param[3]:=5e19;
+// param[4]:=0.45;
 
  while(T<600) do
  begin
@@ -3620,7 +3620,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 SetCurrentDir(CurDirectory);
 
-//showmessage(floattostr(TMaterial.FDIntegral_05(-3)));
+//showmessage(floattostr(TMaterial.FDIntegral_05(0)));
 ElectronConcentrationCalcul();
 
 

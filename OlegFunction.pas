@@ -1177,9 +1177,11 @@ begin
      inc(i);
       c:=(a+b)/2;
       Fc:=F(c,Parameters);
-//      if (F(c,Parameters)*F(a,Parameters)<=0)
-//         then b:=c
-//         else a:=c;
+//     showmessage(floattostr(c)+#10+
+//                 'Fc='+floattostr(Fc)+#10+
+//                 'a='+floattostr(a)+#10+
+//                 'Fa='+floattostr(Fa)+#10+
+//                 'b='+floattostr(b));
       if (Fc*Fa<=0)
          then b:=c
          else begin
@@ -1218,8 +1220,13 @@ begin
      inc(i);
      c_old:=c;
      c:=(a*Fb-b*Fa)/(Fb-Fa);
-//     showmessage(floattostr(c));
      Fc:=F(c,Parameters);
+//     showmessage(floattostr(c)+#10+
+//                 'Fc='+floattostr(Fc)+#10+
+//                 'a='+floattostr(a)+#10+
+//                 'Fa='+floattostr(Fa)+#10+
+//                 'b='+floattostr(b)+#10+
+//                 'Fb='+floattostr(Fb));
       if (Fc*Fa<=0)
          then begin
               b:=c;

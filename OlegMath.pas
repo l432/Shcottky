@@ -2621,8 +2621,7 @@ const eps=1e-6;
       Nit_Max=1e6;
 var {mode,md:byte;}
     i:integer;
-    a,b,c{,min}:double;
-//    bool:boolean;
+    a,b,c,Ia,Ic:double;
 begin
  try
   if Rsh>1e12 then Rsh:=1e12;
@@ -2667,26 +2666,19 @@ begin
           end;
          end;//else
      i:=0;
-//     md:=0;
+     Ia:=I_V(a);
      repeat
        inc(i);
        c:=(a+b)/2;
-       if (I_V(c)*I_V(a)<=0)
-//       if (I_V({mode,}c,V,I0,Rs,E,Rsh,Iph)*I_V({mode,}a,V,I0,Rs,E,Rsh,Iph)<=0)
+       Ic:=I_V(c);
+//       if (I_V(c)*I_V(a)<=0)
+       if (Ic*Ia<=0)
            then b:=c
-           else a:=c;
-      {
-       if abs(a)<abs(b) then min:=abs(a)
-                        else min:=abs(b);
-       if a=0 then md:=1;
-       if b=0 then md:=2;
-       if (a=0) and (b=0) then md:=3;
-       case md of
-         1:bool:=abs((b-a)/b)<eps;
-         2:bool:=abs((b-a)/a)<eps;
-         3:bool:=true;
-        else bool:=abs((b-a)/min)<eps;
-       end;//case}
+           else begin
+                a:=c;
+                Ia:=Ic;
+                end;
+
      until ((i>Nit_Max)or IsEqual(a,b,eps));
      if (i>Nit_Max) then
         begin
