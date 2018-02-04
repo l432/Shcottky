@@ -39,7 +39,7 @@ const
     (Name:'CuInSe2';Parameters: (ErResult, 1,    8.53e5,   ErResult, 1,    1,    ErResult, ErResult)),
     (Name:'GaTe';   Parameters: (ErResult, 1,    1.19e6,   ErResult, 1,    1,    ErResult, ErResult)),
     (Name:'GaSe';   Parameters: (ErResult, 1,    2.47e6,   ErResult, 1,    1,    ErResult, ErResult)),
-    (Name:'Ge';     Parameters: (0.7437,   16,   ErResult, ErResult, 0.55, 0.36, 235,      4.774e-4)),
+    (Name:'Ge';     Parameters: (0.7437,   16,   1.4e6,    ErResult, 0.55, 0.36, 235,      4.774e-4)),
     (Name:'Other';  Parameters: (ErResult, 1,    ErResult, ErResult, 1,    1,    ErResult, ErResult))
     );
 
