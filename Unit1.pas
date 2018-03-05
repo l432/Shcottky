@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
-  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi;
+  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -3616,13 +3616,11 @@ begin
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
- begin
-
-SetCurrentDir(CurDirectory);
-
-//showmessage(floattostr(TMaterial.FDIntegral_05(0)));
-ElectronConcentrationCalcul();
-
+// begin
+var  time: TTimeCaps;
+begin
+  timeGetDevCaps(Addr(time), SizeOf(time));
+  showmessage(inttostr(time.wPeriodMin));
 
 //showmessage(FloattostrF(
 //           DiodPN.LayerP.Material.EgT(330)
