@@ -4419,7 +4419,7 @@ end;
 
 Procedure TPhotoDiodTun.CreateFooter;
 begin
-  inherited;
+  inherited CreateFooter;
   FXname[5]:='Voc';
   FXname[6]:='Isc';
   FXname[7]:='Pm';
@@ -4428,11 +4428,11 @@ end;
 
 Function TPhotoDiodTun.Func(Parameters:TArrSingle):double;
 begin
-  Result:=Parameters[2]*exp((fX-fY*Parameters[1])*Parameters[0])
-      +(fX-fY*Parameters[1])/Parameters[3]-Parameters[4];
-// Result:=Full_IV(IV_DiodTunnel,fX,[Parameters[0],
-//                 Parameters[1],Parameters[2]],
-//                 Parameters[3],Parameters[4]);
+//  Result:=Parameters[2]*exp((fX-fY*Parameters[1])*Parameters[0])
+//      +(fX-fY*Parameters[1])/Parameters[3]-Parameters[4];
+ Result:=Full_IV(IV_DiodTunnel,fX,[Parameters[0],
+                 Parameters[1],Parameters[2]],
+                 Parameters[3],Parameters[4]);
 end;
 
 
