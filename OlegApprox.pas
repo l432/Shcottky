@@ -4430,22 +4430,27 @@ Function TPhotoDiodTun.Func(Parameters:TArrSingle):double;
 begin
 //  Result:=Parameters[2]*exp((fX-fY*Parameters[1])*Parameters[0])
 //      +(fX-fY*Parameters[1])/Parameters[3]-Parameters[4];
- Result:=Full_IV(IV_DiodTunnel,fX,[Parameters[0],
-                 Parameters[1],Parameters[2]],
-                 Parameters[3],Parameters[4]);
+// Result:=Full_IV(IV_DiodTunnel,fX,[Parameters[0],
+//                 Parameters[1],Parameters[2]],
+//                 Parameters[3],Parameters[4]);
+Result:=Full_IV(IV_DiodTunnelLight,fX,[Parameters[0],
+                 Parameters[1],Parameters[2],Parameters[4]],
+                 Parameters[3]);
 end;
 
 
 Function TPhotoDiodTun.RealFunc(DeterminedParameters:TArrSingle):double;
 begin
- Result:=Full_IV(IV_DiodTunnel,fX,[DeterminedParameters[0],
-                 DeterminedParameters[1],DeterminedParameters[2]],
-                 DeterminedParameters[3],DeterminedParameters[4]);
+ Result:=Full_IV(IV_DiodTunnelLight,fX,[DeterminedParameters[0],
+                 DeterminedParameters[1],DeterminedParameters[2],
+                 DeterminedParameters[4]],
+                 DeterminedParameters[3]);
 end;
 
 Function TPhotoDiodTun.Weight(OutputData:TArrSingle):double;
 begin
- Result:=sqr(fY+OutputData[4]);
+// Result:=sqr(fY+OutputData[4]);
+ Result:=sqr(fY);
 end;
 
 procedure TPhotoDiodTun.AddParDetermination(InputData:PVector;
@@ -4459,21 +4464,30 @@ begin
   OutputData[FNx+5]:=ErResult;
   if (OutputData[4]>Isc_min) then
     begin
-     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnel,
+//     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnel,
+//                                     [OutputData[0],OutputData[1],
+//                                      OutputData[2]],OutputData[3],OutputData[4]);
+//     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnel,
+//                                     [OutputData[0],OutputData[1],
+//                                      OutputData[2]],OutputData[3],OutputData[4]);
+     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnelLight,
                                      [OutputData[0],OutputData[1],
-                                      OutputData[2]],OutputData[3],OutputData[4]);
-     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnel,
+                                      OutputData[2],OutputData[4]],OutputData[3]);
+     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnelLight,
                                      [OutputData[0],OutputData[1],
-                                      OutputData[2]],OutputData[3],OutputData[4]);
+                                      OutputData[2],OutputData[4]],OutputData[3]);
     end;
   if (OutputData[FNx]>Voc_min)and
      (OutputData[FNx+1]>Isc_min)and
      (OutputData[FNx]<>ErResult)and
      (OutputData[FNx+1]<>ErResult) then
     begin
-     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnel,
+//     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnel,
+//                                     [OutputData[0],OutputData[1],
+//                                      OutputData[2]],OutputData[3],OutputData[4]);
+     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnelLight,
                                      [OutputData[0],OutputData[1],
-                                      OutputData[2]],OutputData[3],OutputData[4]);
+                                      OutputData[2],OutputData[4]],OutputData[3]);
      OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
     end;
 end;
