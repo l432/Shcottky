@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..58]of string=
+  FuncName:array[0..59]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -33,7 +33,8 @@ const
            'PAT and TE on 1/kT','PAT and TE on V',
            'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
            'Tunneling diod forward','Illuminated tunneling diod',
-           'Tunneling diod revers', 'Barrier height',
+           'Tunneling diod revers','Tunneling diod revers with Rs',
+           'Barrier height',
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
            'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
@@ -802,6 +803,15 @@ public
  Constructor Create;
  Procedure BeforeFitness(InputData:Pvector);override;
 end; // TTunRevers=class (TFitFunctEvolution)
+
+TTunReversRs=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+public
+ Constructor Create;
+// Procedure BeforeFitness(InputData:Pvector);override;
+end; // TTunRevers=class (TFitFunctEvolution)
+
 
 TPhotoDiod=class (TFitFunctEvolution)
 private
@@ -4344,6 +4354,7 @@ Function TTunRevers.Func(Parameters:TArrSingle):double;
 begin
  V:=fX;
  F:=sqrt(Qelem*(FSample as TDiod_Schottky).Semiconductor.Nd*(Parameters[2]+V)/2/(FSample as TDiod_Schottky).Semiconductor.Material.Eps/Eps0);
+//F:=fX/1e-9;
 
  Result:=(Parameters[2]+V)*Parameters[0]*exp(-4*sqrt(2*(FSample as TDiod_Schottky).Semiconductor.Meff*m0)*
                            Power(Qelem*Parameters[1],1.5)/
@@ -6437,6 +6448,40 @@ begin
 //  showmessage(floattostr(ImpulseNoiseSmoothingByNpoint(InputData^.Y)));
 end;
 
+
+{ TTunReversRs }
+
+constructor TTunReversRs.Create;
+begin
+ inherited Create('TunRevRs','Trap-assisted tunneling with series resistance, revers diod',
+                   4,0,0);
+ FXname[0]:='Io';
+ FXname[1]:='Et';
+ FXname[2]:='Ud';
+ FXname[3]:='Rs';
+
+ fHasPicture:=False;
+ fTemperatureIsRequired:=False;
+ CreateFooter();
+end;
+
+function TTunReversRs.Func(Parameters: TArrSingle): double;
+begin
+ Result:=Full_IV(IV_DiodTAT,fX,[Parameters[0],
+                 Parameters[3],Parameters[2],Parameters[1]]);
+
+// Result:=Parameters[0]*(Parameters[2]+fx-fy*Parameters[3])*exp(-4*sqrt(2*Diod.Semiconductor.Meff*m0)*
+//                  Power(Qelem*Parameters[1],1.5)/(3*Qelem*Hpl*(Parameters[2]+fx-fy*Parameters[3])
+//                  ));
+
+// Result:=Parameters[0]*(Parameters[2]+fx-fy*Parameters[1])*exp(-4*sqrt(2*Diod.Semiconductor.Meff*m0)*
+//                  Power(Qelem*Parameters[3],1.5)/(3*Qelem*Hpl*
+//                  sqrt(Qelem*Diod.Semiconductor.Nd*(Parameters[2]+fx-fy*Parameters[1])/
+//                  (2*Diod.Semiconductor.Material.Eps*Eps0))));
+
+end;
+
+
 Procedure FunCreate(str:string; var F:TFitFunction);
 begin
   if str='Linear' then F:=TLinear.Create;
@@ -6483,6 +6528,7 @@ begin
   if str='Tunneling diod forward' then F:=TDiodTun.Create;
   if str='Illuminated tunneling diod' then F:=TPhotoDiodTun.Create;
   if str='Tunneling diod revers' then F:=TTunRevers.Create;
+  if str='Tunneling diod revers with Rs' then F:=TTunReversRs.Create;
   if str='Barrier height' then F:=TBarierHeigh.Create;
   if str='Photo T-Diod' then F:=TTripleDiodLight.Create;
   if str='T-Diod' then F:=TTripleDiod.Create;
@@ -6501,6 +6547,8 @@ begin
 
 //  if str='None' then F:=TDiod.Create;
 end;
+
+
 
 
 

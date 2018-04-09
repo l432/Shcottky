@@ -340,12 +340,21 @@ Data[1] - Rs
 Data[2] - Ι0
 }
 
+
 Function IV_DiodTunnelLight(V:double;Data:array of double;I:double=0):double;
 {I=I0*exp[A(V-I Rs)-Iph]
 Data[0] - A
 Data[1] - Rs
 Data[2] - Ι0
 Data[3] - Iph
+}
+
+Function IV_DiodTAT(V:double;Data:array of double;I:double=0):double;
+{I=I0(Vd+V-I Rs)*exp[-4 (2m*)^0.5 Et^1.5/ 3 q h Fm]
+Data[0] - I0
+Data[1] - Rs
+Data[2] - Vd
+Data[3] - Et
 }
 
 
@@ -2522,6 +2531,24 @@ Data[3] - Iph
 }
 begin
         Result:=Data[2]*exp((V-I*Data[1])*Data[0])-Data[3];
+end;
+
+Function IV_DiodTAT(V:double;Data:array of double;I:double=0):double;
+{I=I0(Vd+V-I Rs)*exp[-4 (2m*)^0.5 Et^1.5/ 3 q h Fm]
+Data[0] - I0
+Data[1] - Rs
+Data[2] - Vd
+Data[3] - Et
+}
+ var F:double;
+begin
+ F:=sqrt(Qelem*Diod.Semiconductor.Nd*(Data[2]+V-I*Data[1])/
+                  (2*Diod.Semiconductor.Material.Eps*Eps0));
+
+//F:=(Data[2]+V-I*Data[1])/1e-9;
+
+ Result:=Data[0]*(Data[2]+V-I*Data[1])*exp(-4*sqrt(2*Diod.Semiconductor.Meff*m0)*
+                  Power(Qelem*Data[3],1.5)/(3*Qelem*Hpl*F));
 end;
 
 
