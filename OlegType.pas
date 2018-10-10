@@ -51,6 +51,8 @@ type
 
   TArrStr=array of string;
 
+  TArrObj=array of TObject;
+
     Vector=record
          X:array of double;
          Y:array of double;
@@ -328,6 +330,14 @@ TSimpleClass=class
     class procedure EmptyProcedure;
   end;
 
+TObjectArray=class
+    private
+    public
+     ObjectArray:array of TObject;
+     Constructor Create();overload;
+     Constructor Create(InitArray:array of TObject);overload;
+     procedure Add(AddedArray:array of TObject);
+  end;
 
 Procedure SetLenVector(A:Pvector;n:integer);
 {встановлюється кількість точок у векторі А}
@@ -1025,6 +1035,26 @@ end;
 class procedure TSimpleClass.EmptyProcedure;
 begin
 
+end;
+
+Constructor TObjectArray.Create();
+begin
+ inherited;
+ SetLength(ObjectArray,0);
+end;
+
+Constructor TObjectArray.Create(InitArray:array of TObject);
+begin
+  Create();
+  Add(InitArray);
+end;
+
+procedure TObjectArray.Add(AddedArray:array of TObject);
+ var i:integer;
+begin
+  SetLength(ObjectArray,High(ObjectArray)+High(AddedArray)+2);
+  for I := 0 to High(AddedArray) do
+   ObjectArray[High(ObjectArray)-High(AddedArray)+i]:=AddedArray[i];
 end;
 
 end.

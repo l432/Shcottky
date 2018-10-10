@@ -22,6 +22,9 @@ procedure Swap(var A:real; var B:real); overload;
 procedure Swap(var A:Pvector; var B:Pvector); overload;
 {процедура обміну значеннями між векторами, на які вказують А та В}
 
+procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
+{додаються всі елементи з AddedArray в кінець InitArray}
+
 Function Poh(A:PVector; k:integer):double;
 {знаходження похідної від функції, яка записана
 в масиві А в точці з індексом k}
@@ -575,6 +578,16 @@ begin
     B^.Y[i]:=C^.Y[i];
     end;
   dispose(C);
+end;
+
+
+procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
+{додаються всі елементи з AddedArray в кінець InitArray}
+ var i:integer;
+begin
+  SetLength(InitArray,High(InitArray)+High(AddedArray)+2);
+  for I := 0 to High(AddedArray) do
+   InitArray[High(InitArray)-High(AddedArray)+i]:=AddedArray[i];
 end;
 
 Function Poh (A:PVector; k:integer):double;
