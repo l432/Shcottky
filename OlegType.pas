@@ -44,6 +44,7 @@ type
   PClassroom=^TArrArrSingle;
 
   TArrWord=array of word;
+  PArrWord=^TArrWord;
 
 //  TEvent = procedure() of object;
 
