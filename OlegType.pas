@@ -34,6 +34,7 @@ type
 
 //  TSimpleEvent = procedure() of object;
   TSimpleEvent = procedure() of object;
+  TByteEvent = procedure(B: byte) of object;  
 
   TArrSingle=array of double;
   PTArrSingle=^TArrSingle;
