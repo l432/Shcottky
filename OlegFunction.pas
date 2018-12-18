@@ -3,7 +3,7 @@ unit OlegFunction;
 interface
 
 uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
- Dialogs, OlegMath, StrUtils;
+ Dialogs, OlegMath, StrUtils, Classes, Windows;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -150,11 +150,18 @@ Function Hord(const F:TFun; const Parameters:array of double;
 eps - відносна точність розв'язку
 (зміна наступного наближення по відношенню до його величини)}
 
+Function SelectFromVariants(Variants:TStringList;
+                            Index:ShortInt;
+                            WindowsCaption:string='Select'):ShortInt;
+{показує модальне вікно, де вибір радіо-кнопок,
+підписаних відповідно до вмісту Variants;
+при натиснутій "Ok" повертає
+індекс вибраного вваріанту, інакше -1}
 
 implementation
 
 uses
-  SysUtils, Classes, Windows, Math;
+  SysUtils, Math, ExtCtrls, Graphics;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -1242,6 +1249,74 @@ begin
 
   end;
 end;
+
+
+
+Function SelectFromVariants(Variants:TStringList;
+                            Index:ShortInt;
+                            WindowsCaption:string='Select'):ShortInt;
+{показує модальне вікно, де вибір радіо-кнопок,
+підписаних відповідно до вмісту Variants;
+при натиснутій "Ok" повертає
+індекс вибраного вваріанту, інакше -1}
+
+var Form:TForm;
+    ButOk,ButCancel: TButton;
+    RG:TRadioGroup;
+    i:integer;
+begin
+ Result:=-1;
+
+ Form:=TForm.Create(Application);
+ Form.Position:=poMainFormCenter;
+ Form.AutoScroll:=True;
+ Form.BorderIcons:=[biSystemMenu];
+ Form.ParentFont:=True;
+ Form.Font.Style:=[fsBold];
+ Form.Font.Height:=-16;
+ Form.Caption:=WindowsCaption;
+ Form.Color:=clMoneyGreen;
+ RG:=TRadioGroup.Create(Form);
+ RG.Parent:=Form;
+ RG.Items:=Variants;
+ if (Index>=0)and(Index<Variants.Count) then
+   RG.ItemIndex:=Index;
+
+ if RG.Items.Count>8 then  RG.Columns:=3
+                     else  RG.Columns:=2;
+ RG.Width:=RG.Columns*200+20;
+ RG.Height:=Ceil(RG.Items.Count/RG.Columns)*50+20;
+ Form.Width:=RG.Width;
+ Form.Height:=RG.Height+100;
+  RG.Align:=alTop;
+
+ ButOk:=TButton.Create(Form);
+ ButOk.Parent:=Form;
+ ButOk.ParentFont:=True;
+ ButOk.Height:=30;
+ ButOk.Width:=79;
+ ButOk.Caption:='Ok';
+ ButOk.ModalResult:=mrOk;
+ ButOk.Top:=RG.Height+10;
+ ButOk.Left:=round((Form.Width-2*ButOk.Width)/3.0);
+
+ ButCancel:=TButton.Create(Form);
+ ButCancel.Parent:=Form;
+ ButCancel.ParentFont:=True;
+ ButCancel.Height:=30;
+ ButCancel.Width:=79;
+ ButCancel.Caption:='Cancel';
+ ButCancel.ModalResult:=mrCancel;
+ ButCancel.Top:=RG.Height+10;
+ ButCancel.Left:=2*ButOk.Left+ButOk.Width;
+
+  if Form.ShowModal=mrOk then Result:=RG.ItemIndex;
+ for I := Form.ComponentCount-1 downto 0 do
+     Form.Components[i].Free;
+ Form.Hide;
+ Form.Release;
+end;
+
 
 
 end.
