@@ -158,6 +158,10 @@ Function SelectFromVariants(Variants:TStringList;
 при натиснутій "Ok" повертає
 індекс вибраного вваріанту, інакше -1}
 
+Procedure AccurateCheckBoxCheckedChange(CB:TCheckBox;Value:boolean);
+//зміна значення  CheckBox.Checked без виклику процедури onClick
+
+
 implementation
 
 uses
@@ -1317,6 +1321,13 @@ begin
  Form.Release;
 end;
 
-
+Procedure AccurateCheckBoxCheckedChange(CB:TCheckBox;Value:boolean);
+ var Temp:TNotifyEvent;
+begin
+ temp:=CB.OnClick;
+ CB.OnClick:=nil;
+ CB.Checked:=Value;
+ CB.OnClick:=temp;
+end;
 
 end.
