@@ -3615,12 +3615,26 @@ begin
  StrN.Free;
 end;
 
+
+ function My(T:double;d:array of double):double;
+  begin
+   Result:=Diod.Semiconductor.F(T);
+//   Result:=Diod.Semiconductor.Material.EgT(T);
+  end;
+
 procedure TForm1.Button1Click(Sender: TObject);
-// begin
-var  time: TTimeCaps;
+ var x:PVector;
+     d:array of double;
+
 begin
-  timeGetDevCaps(Addr(time), SizeOf(time));
-  showmessage(inttostr(time.wPeriodMin));
+ new(x);
+ SetLength(d,1);
+ x.Filling(My,290,350,1,d);
+ x.Write_File('n234567.dat',6);
+ dispose(x);
+
+
+
 
 //showmessage(FloattostrF(
 //           DiodPN.LayerP.Material.EgT(330)
