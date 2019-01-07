@@ -3618,8 +3618,9 @@ end;
 
  function My(T:double;d:array of double):double;
   begin
-   Result:=Diod.Semiconductor.F(T);
-//   Result:=Diod.Semiconductor.Material.EgT(T);
+//   Result:=Silicon.Eg(T);
+//   Result:=Diod.Semiconductor.F(T);
+   Result:=Diod.Semiconductor.Material.n_i(T);
   end;
 
 procedure TForm1.Button1Click(Sender: TObject);
