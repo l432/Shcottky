@@ -54,7 +54,9 @@
     <DCCReference Include="OlegGraph.pas" />
     <DCCReference Include="OlegMaterialSamples.pas" />
     <DCCReference Include="OlegMath.pas" />
+    <DCCReference Include="OlegShowTypes.pas" />
     <DCCReference Include="OlegType.pas" />
+    <DCCReference Include="OlegTypePart2.pas" />
     <DCCReference Include="Unit1.pas">
       <Form>Form1</Form>
     </DCCReference>

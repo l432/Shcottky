@@ -15,7 +15,9 @@ uses
   FormSelectFit in 'FormSelectFit.pas' {FormSF},
   FrDiap in 'FrDiap.pas' {FrDp: TFrame},
   OlegMaterialSamples in 'OlegMaterialSamples.pas',
-  OlegDefectsSi in 'OlegDefectsSi.pas';
+  OlegDefectsSi in 'OlegDefectsSi.pas',
+  OlegShowTypes in 'OlegShowTypes.pas',
+  OlegTypePart2 in 'OlegTypePart2.pas';
 
 {$R *.res}
 
