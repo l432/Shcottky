@@ -52,6 +52,16 @@ Function SomeSpaceToOne(str:string):string;
 Function Acronym(str:string):string;
 {створюється аббревіатура рядка}
 
+Function StringDataFromRow(str:string;Number:word):string;
+{вважається, що частини рядка відділені один від одного пробілами;
+повертається частина з номером Number (нумерація починається з 1)}
+
+Function FloatDataFromRow(str:string;Number:word):double;
+{вважається, що частини рядка відділені один від одного пробілами;
+повертається число, рохташоване в частині з номером Number
+(нумерація починається з 1);
+якщо там не число - то повертається ErResult}
+
 //-----використовуються при моделюванні DAP-----------
 Function PointDistance(t:double;Parameters:array of double):double;
 {відстань, між двома точками, які коливаються з однаковою частотою
@@ -319,8 +329,38 @@ begin
     str:=Copy(str, AnsiPos (' ',str)+1, Length(str)-AnsiPos (' ',str));
     Result:=Result+str[1];
     end;
-  Result:=AnsiUpperCase(Result);  
+  Result:=AnsiUpperCase(Result);
 end;
+
+Function StringDataFromRow(str:string;Number:word):string;
+{вважається, що частини рядка відділені один від одного пробілами;
+повертається частина з номером Number (нумерація починається з 1)}
+ var i:word;
+begin
+  Result:='';
+  if Number<1 then Exit;
+
+  Result:=SomeSpaceToOne(str);
+  if AnsiStartsStr(' ',Result) then Delete(Result, 1, 1);
+  for I := 1 to Number-1 do
+   Delete(Result, 1, AnsiPos (' ', Result));
+  if AnsiPos (' ', Result)>0 then
+   Result:=Copy(Result, 1, AnsiPos (' ', Result)-1);
+end;
+
+Function FloatDataFromRow(str:string;Number:word):double;
+{вважається, що частини рядка відділені один від одного пробілами;
+повертається число, рохташоване в частині з номером Number
+(нумерація починається з 1);
+якщо там не число - то повертається ErResult}
+begin
+  try
+   Result:=StrToFloat(StringDataFromRow(str,Number));
+  except
+   Result:=ErResult;
+  end;
+end;
+
 
 Function PointDistance(t:double;Parameters:array of double):double;
  var fi,omega,delta:double;
