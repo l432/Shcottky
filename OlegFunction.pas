@@ -171,6 +171,7 @@ Function SelectFromVariants(Variants:TStringList;
 Procedure AccurateCheckBoxCheckedChange(CB:TCheckBox;Value:boolean);
 //зміна значення  CheckBox.Checked без виклику процедури onClick
 
+Procedure HelpForMe(str:string);
 
 implementation
 
@@ -1368,6 +1369,15 @@ begin
  CB.OnClick:=nil;
  CB.Checked:=Value;
  CB.OnClick:=temp;
+end;
+
+Procedure HelpForMe(str:string);
+ var ST:TStringList;
+begin
+ ST:=TStringList.Create;
+ ST.Add(str);
+ ST.SaveToFile(str+'.dat');
+ ST.Free;
 end;
 
 end.

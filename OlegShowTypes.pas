@@ -52,9 +52,9 @@ type
     Constructor Create(STD:TStaticText;
                        ParametrCaption:string;
                        WT:string);overload;
-    procedure ReadFromIniFile(ConfigFile:TIniFile);
-    procedure WriteToIniFile(ConfigFile:TIniFile);
-    procedure Free;
+    procedure ReadFromIniFile(ConfigFile:TIniFile);override;
+    procedure WriteToIniFile(ConfigFile:TIniFile);override;
+//    procedure Free;overload;
     procedure ColorToActive(Value:boolean);
     procedure SetName(Name:string);
     procedure ForUseInShowObject(NamedObject:IName;
@@ -639,10 +639,10 @@ begin
  ColorToActive(ActiveColor);
 end;
 
-procedure TParameterShowNew.Free;
-begin
-
-end;
+//procedure TParameterShowNew.Free;
+//begin
+//
+//end;
 
 
 procedure TParameterShowNew.ParameterClick(Sender: TObject);
