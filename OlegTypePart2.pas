@@ -30,13 +30,27 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
    property Name:string read GetName;
   end;
 
+//  TObjectArray=class
+//    private
+//    public
+//     ObjectArray:array of TObject;
+//     Constructor Create();overload;
+//     Constructor Create(InitArray:array of TObject);overload;
+//     procedure Add(AddedArray:array of TObject);overload;
+//     procedure Add(AddedObject:TObject);overload;
+//  end;
+
   TObjectArray=class
     private
     public
-     ObjectArray:array of TObject;
+     ObjectArray:array of TSimpleFreeAndAiniObject;
      Constructor Create();overload;
-     Constructor Create(InitArray:array of TObject);overload;
-     procedure Add(AddedArray:array of TObject);
+     Constructor Create(InitArray:array of TSimpleFreeAndAiniObject);overload;
+     procedure Add(AddedArray:array of TSimpleFreeAndAiniObject);overload;
+     procedure Add(AddedObject:TSimpleFreeAndAiniObject);overload;
+     procedure ReadFromIniFile(ConfigFile:TIniFile);
+     procedure WriteToIniFileAndFree(ConfigFile:TIniFile);
+     procedure ObjectFree;
   end;
 
 implementation
@@ -72,13 +86,42 @@ begin
  SetLength(ObjectArray,0);
 end;
 
-Constructor TObjectArray.Create(InitArray:array of TObject);
+procedure TObjectArray.Add(AddedObject: TSimpleFreeAndAiniObject);
+begin
+ Add([AddedObject]);
+end;
+
+Constructor TObjectArray.Create(InitArray:array of TSimpleFreeAndAiniObject);
 begin
   Create();
   Add(InitArray);
 end;
 
-procedure TObjectArray.Add(AddedArray:array of TObject);
+procedure TObjectArray.ObjectFree;
+ var i:integer;
+begin
+ for i:=0 to High(ObjectArray) do
+   ObjectArray[i].Free
+end;
+
+procedure TObjectArray.ReadFromIniFile(ConfigFile:TIniFile);
+ var i:integer;
+begin
+ for i:=0 to High(ObjectArray) do
+   ObjectArray[i].ReadFromIniFile(ConfigFile);
+end;
+
+procedure TObjectArray.WriteToIniFileAndFree(ConfigFile: TIniFile);
+ var i:integer;
+begin
+ for i:=0 to High(ObjectArray) do
+   begin
+   ObjectArray[i].WriteToIniFile(ConfigFile);
+   ObjectArray[i].Free
+   end;
+end;
+
+procedure TObjectArray.Add(AddedArray:array of TSimpleFreeAndAiniObject);
  var i:integer;
 begin
   SetLength(ObjectArray,High(ObjectArray)+High(AddedArray)+2);

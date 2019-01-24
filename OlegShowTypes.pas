@@ -11,7 +11,7 @@ uses
 //
 const DoubleConstantSection='DoubleConstant';
       NoFile='no file';
-      RangeSection='Range';
+//      RangeSection='Range';
       WindowCaptionFooter=' input';
       WindowTextFooter=' value is expected';
 
