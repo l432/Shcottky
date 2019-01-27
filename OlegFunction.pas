@@ -344,7 +344,13 @@ begin
   Result:=SomeSpaceToOne(str);
   if AnsiStartsStr(' ',Result) then Delete(Result, 1, 1);
   for I := 1 to Number-1 do
-   Delete(Result, 1, AnsiPos (' ', Result));
+   if AnsiPos (' ', Result)>0 then
+       Delete(Result, 1, AnsiPos (' ', Result))
+                              else
+       begin
+         Result:='';
+         Exit;
+       end;                       
   if AnsiPos (' ', Result)>0 then
    Result:=Copy(Result, 1, AnsiPos (' ', Result)-1);
 end;
