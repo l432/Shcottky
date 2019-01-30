@@ -1945,7 +1945,7 @@ begin
   SetLength(tempParameters,High(Parameters)+2);
   for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
   tempParameters[High(tempParameters)]:=T;
-  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-3);
+  Ef:=Bisection(FermiLevelEquation2,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-3);
 
   i:=2;
   while(i<=High(Parameters)) do
