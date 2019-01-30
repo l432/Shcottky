@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..59]of string=
+  FuncName:array[0..60]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -38,7 +38,7 @@ const
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
            'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
-           'n vs T (donors only)','n vs T (donor and traps)');
+           'n vs T (donors only)','n vs T (donor and traps)','n vs T (donors and traps)');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -908,6 +908,14 @@ public
  Constructor Create;
 end; //TElectronConcentration2=class (TFitFunctEvolution)
 
+
+TElectronConcentrationNew=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function Weight(OutputData:TArrSingle):double;Override;
+public
+ Constructor Create;
+end; //TElectronConcentration2=class (TFitFunctEvolution)
 
 TTauDAP=class (TFitFunctEvolution)
 private
@@ -6375,6 +6383,39 @@ begin
  Result:=1;
 end;
 
+
+{ TElectronConcentrationNew }
+
+constructor TElectronConcentrationNew.Create;
+ var i:byte;
+begin
+ inherited Create('n_vs_Ttrap1','Electron concentration in n-type semiconductors with donors and traps',
+                  13,0,0);
+ FXname[0]:='Na';
+ for I := 0 to 2 do
+  begin
+   FXname[2*i+1]:='Nd'+inttostr(i+1);
+   FXname[2*i+2]:='Ed'+inttostr(i+1);
+   FXname[2*i+7]:='Nt'+inttostr(i+1);
+   FXname[2*i+8]:='Et'+inttostr(i+1);
+  end;
+
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ CreateFooter();
+end;
+
+function TElectronConcentrationNew.Func(Parameters: TArrSingle): double;
+begin
+  Result:=ElectronConcentrationNew(fx,Parameters,3,3);
+end;
+
+function TElectronConcentrationNew.Weight(OutputData: TArrSingle): double;
+begin
+ Result:=1;
+end;
+
 { TNoiseSmoothing }
 
 constructor TNoiseSmoothing.Create;
@@ -6543,15 +6584,10 @@ begin
   if str='Mobility' then F:=TMobility.Create;
   if str='n vs T (donors only)' then F:=TElectronConcentration.Create;
   if str='n vs T (donor and traps)' then F:=TElectronConcentration2.Create;
-
+  if str='n vs T (donors and traps)' then F:=TElectronConcentrationNew.Create;
 
 //  if str='None' then F:=TDiod.Create;
 end;
-
-
-
-
-
 
 
 
