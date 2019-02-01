@@ -2012,7 +2012,7 @@ Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетичні положен
 begin
   Result:=ErResult;
   if T<=0 then Exit;
-  if High(Parameters)<>2*(Nd+Nt) then Exit;
+  if High(Parameters)<2*(Nd+Nt) then Exit;
 
   Result:=Diod.FSemiconductor.FMaterial.n_i(T);
 

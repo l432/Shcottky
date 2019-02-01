@@ -3628,11 +3628,18 @@ procedure TForm1.Button1Click(Sender: TObject);
      d:array of double;
 
 begin
- new(x);
- SetLength(d,1);
- x.Filling(My,290,350,1,d);
- x.Write_File('n234567.dat',6);
- dispose(x);
+//showmessage(floattostr(ElectronConcentration(150,[1.385e14,1.22e23,5.527e-6,3.622e23,7.134e-2,4.028e23,7.185e-2])));
+//showmessage(floattostr(ElectronConcentration(230,[1.385e14,1.22e23,5.527e-6,3.622e23,7.134e-2,4.028e23,7.185e-2])));
+//showmessage(floattostr(ElectronConcentration2(230,[1.013e15,4.134e23,1.001e-4,1.012e10,5.907e-2,1.823e23,5.367e-2])));
+//showmessage(floattostr(ElectronConcentrationNew(230,[1.385e14,1.22e23,5.527e-6,3.622e23,7.134e-2,4.028e23,7.185e-2,0,1,0,1,0,1],3,3)));
+//showmessage(floattostr(ElectronConcentration2(230,[1.013e15,4.134e23,1.001e-4,0,1,0,1,1.012e10,5.907e-2,1.823e23,5.367e-2,0,1])));
+showmessage(floattostr(ElectronConcentrationNew(230,[4.152e18,1.227e23,3.481e-8,2.035e19,8.56e-1,7.638e23,7.187e-2,0,1,0,1,0,1],3,3)));
+
+// new(x);
+// SetLength(d,1);
+// x.Filling(My,290,350,1,d);
+// x.Write_File('n234567.dat',6);
+// dispose(x);
 
 
 
