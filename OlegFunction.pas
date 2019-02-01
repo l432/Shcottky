@@ -173,6 +173,10 @@ Procedure AccurateCheckBoxCheckedChange(CB:TCheckBox;Value:boolean);
 
 Procedure HelpForMe(str:string);
 
+Procedure DecimationArray(var Data:  TArrSingle; const N:word);
+{у масиві залишається лише 0-й, ?-й, 2N-й.... елементи,
+при N=0 масив не міняється}
+
 implementation
 
 uses
@@ -1384,6 +1388,22 @@ begin
  ST.Add(str);
  ST.SaveToFile(str+'.dat');
  ST.Free;
+end;
+
+
+Procedure DecimationArray(var Data:  TArrSingle; const N:word);
+{у масиві залишається лише 0-й, ?-й, 2N-й.... елементи,
+при N=0 масив не міняється}
+ var i:integer;
+begin
+  if (N<=1)or(High(Data)<0) then Exit;
+  i:=1;
+  while(i*N)<=High(Data) do
+   begin
+    Data[i]:=Data[i*N];
+    inc(i);
+   end;
+  SetLength(Data,i);
 end;
 
 end.

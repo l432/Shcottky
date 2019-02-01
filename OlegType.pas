@@ -71,6 +71,8 @@ type
          procedure Add(newX,newY:double);
          procedure Delete(Ndel:integer);
          {видання з масиву точки з номером Ndel}
+         procedure DeleteNfirst(Nfirst:integer);
+         {видаляє з масиву Nfirst перших точок}
          Procedure Sorting (Increase:boolean=True);
          {процедура сортування (методом бульбашки)
           точок по зростанню (при Increase=True) компоненти Х}
@@ -119,6 +121,8 @@ type
          {копіюються з даного вектора в Target
          - точки, для яких ордината в діапазоні від Xmin до Xmax включно
          - поля Т та name}
+         Procedure MultiplyY(const A:double);
+         {Y всіх точок множиться на A}
          Procedure PositiveX(var Target:Vector);
          {заносить в Target ті точки, для яких X більше або рівне нулю;
          окрім X, Y та n ніякі інші поля Target не змінюються}
@@ -142,6 +146,10 @@ type
          Procedure Write_File(sfile:string; NumberDigit:Byte=4);
         {записує у файл з іменем sfile дані з масивів X та Y;
         якщо n=0, то запис не відбувається; NumberDigit - кількість значущих цифр}
+         Procedure Load_File(sfile:string);
+         {завантажуються дані з файлу sfile;
+         якщо у файлі не два стовпчика чисел,
+         то в результаті буде порожній вектор}
          Procedure DeltaY(deltaVector:Vector);
          {від значень Y віднімаються значення deltaVector.Y;
           якщо кількості точок різні - ніяких дій не відбувається}
@@ -154,6 +162,79 @@ type
          {як попередня, тільки використовується не крок, а загальна
          кількість точок Nstep на заданому інтервалі}
          Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
+         Procedure Decimation(Np:word);
+         {залишається лише 0-й, ?-й, 2N-й.... елементи,
+          при вектор масив не міняється}
+         Procedure DigitalFiltr(a,b:TArrSingle;NtoDelete:word=0);
+         {змінюються масив Y на Ynew:
+         Ynew[k]=a[0]*Y[k]+a[1]*Y[k-1]+...b[0]*Ynew[k-1]+b[1]*Ynew[k-2]...
+         NtoDelete - кількість точок, які видаляються
+         з початку масиву; ця кількість відповідає
+         тривалості перехідної характеристики фільтра}
+         procedure Chebyshev;
+         procedure Chebyshev045p2;
+         {застосовується фільтр низьких частот Чебишева
+         з частотою зрізу 0.45 від частоти дискретизації, 2-порядку
+         (кількість полюсів дорівнює 2), коефіцієнти
+         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
+         тривалість перехідної характеристики - близько 45 відліків}
+         procedure Chebyshev045p6;
+         {застосовується фільтр низьких частот Чебишева
+         з частотою зрізу 0.45 від частоти дискретизації, 6-порядку
+         (кількість полюсів дорівнює 6), коефіцієнти
+         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
+         тривалість перехідної характеристики - близько 300 відліків:
+         нормовані коефіцієнти не дуже гарно, при подачі постійного
+         одиничного сигналу в усталеному режимі 0.99994}
+         procedure Chebyshev001p2;
+         {застосовується фільтр низьких частот Чебишева
+         з частотою зрізу 0.01 від частоти дискретизації, 2-порядку
+         (кількість полюсів дорівнює 2), коефіцієнти
+         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
+         тривалість перехідної характеристики - близько 270 відліків
+         нормовані коефіцієнти не дуже гарно, при подачі постійного
+         одиничного сигналу в усталеному режимі 1.00002}
+         procedure Chebyshev0025p2;
+         {застосовується фільтр низьких частот Чебишева
+         з частотою зрізу 0.025 від частоти дискретизації, 2-порядку
+         (кількість полюсів дорівнює 2), коефіцієнти
+         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
+         тривалість перехідної характеристики - близько 110 відліків
+         нормовані коефіцієнти не дуже гарно, при подачі постійного
+         одиничного сигналу в усталеному режимі 1.00001}
+         procedure Chebyshev0025p4;
+         {застосовується фільтр низьких частот Чебишева
+         з частотою зрізу 0.025 від частоти дискретизації, 4-порядку
+         (кількість полюсів дорівнює 4), коефіцієнти
+         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
+         тривалість перехідної характеристики - близько 320 відліків
+         нормовані коефіцієнти не дуже гарно, при подачі постійного
+         одиничного сигналу в усталеному режимі 0.99934}
+         procedure Chebyshev0075p4;
+         {застосовується фільтр низьких частот Чебишева
+         з частотою зрізу 0.075 від частоти дискретизації, 4-порядку
+         (кількість полюсів дорівнює 4), коефіцієнти
+         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
+         тривалість перехідної характеристики - близько 105 відліків:
+         нормовані коефіцієнти не дуже гарно, при подачі постійного
+         одиничного сигналу в усталеному режимі 1.00002}
+         procedure Chebyshev0075p6;
+         {застосовується фільтр низьких частот Чебишева
+         з частотою зрізу 0.075 від частоти дискретизації, 6-порядку
+         (кількість полюсів дорівнює 6), коефіцієнти
+         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
+         тривалість перехідної характеристики - близько 200 відліків:
+         нормовані коефіцієнти не дуже гарно, при подачі постійного
+         одиничного сигналу в усталеному режимі 1.00124}
+         Procedure LowPassFIRfiltr(NotOdd_N:byte;FrequencyFactor:double);
+         {застосовується фільтр нижніх частот зі скінченною імпульсною
+         характеристикою;
+         NotOdd_N - порядок фільтра, має бути парним числом;
+         FrequencyFactor - частота зрізу як частка від частоти Найквіста,
+         має бути (0..1]}
+         Procedure HighPassFIRfiltr(NotOdd_N:byte;FrequencyFactor:double);
+         {застосовується фільтр верхіх частот зі скінченною імпульсною
+         характеристикою; параметри. див. вище}
         end;
 
     PVector=^Vector;
@@ -574,6 +655,24 @@ begin
  Self.SetLenVector(n-1);
 end;
 
+procedure Vector.DeleteNfirst(Nfirst:integer);
+var
+  I: Integer;
+begin
+  if Nfirst<=0 then Exit;
+  if Nfirst>=n then
+    begin
+      Self.Clear;
+      Exit;
+    end;
+  for I := 0 to n-Nfirst-1 do
+   begin
+    X[i]:=X[i+Nfirst];
+    Y[i]:=Y[i+Nfirst];
+   end;
+  Self.SetLenVector(n-Nfirst);
+end;
+
 Procedure Vector.Sorting (Increase:boolean=True);
 var i,j:integer;
     ChangeNeed:boolean;
@@ -806,6 +905,13 @@ begin
        Target.Add(X[i],Y[i])
 end;
 
+Procedure Vector.MultiplyY(const A:double);
+ var i:integer;
+begin
+ for I := 0 to n - 1 do
+  Y[i]:=Y[i]*A;
+end;
+
 Procedure Vector.PositiveX(var Target:Vector);
  var i:integer;
 begin
@@ -875,6 +981,31 @@ begin
   Str.Free;
 end;
 
+Procedure Vector.Load_File(sfile:string);
+  var F:TextFile;
+    Xt,Yt:double;
+begin
+ Clear();
+ if FileExists(sfile) then
+  begin
+   AssignFile(f,sfile);
+   Reset(f);
+   try
+   while not(eof(f)) do
+       begin
+        readln(f,Xt,Yt);
+        Add(Xt,Yt);
+       end;
+   except
+    Clear();
+   end;
+   name:=sfile;
+   CloseFile(f);
+   N_begin:=0;
+   N_end:=n;
+  end;
+end;
+
 Procedure Vector.DeltaY(deltaVector:Vector);
  var i:integer;
 begin
@@ -925,6 +1056,277 @@ begin
  Filling(Fun,Xmin,Xmax,deltaX,[]);
 end;
 
+Procedure Vector.Decimation(Np:word);
+ {залишається лише 0-й, ?-й, 2N-й.... елементи,
+          при вектор масив не міняється}
+ var i:integer;
+begin
+  if (Np<=1)or(n<1) then Exit;
+  i:=1;
+  while(i*Np)<n do
+   begin
+    X[i]:=X[i*Np];
+    Y[i]:=Y[i*Np];
+    inc(i);
+   end;
+  SetLenVector(i);
+end;
+
+Procedure Vector.DigitalFiltr(a,b:TArrSingle;NtoDelete:word=0);
+{змінюються масив Y на Ynew:
+ Ynew[k]=a[0]*Y[k]+a[1]*Y[k-1]+...b[0]*Ynew[k-1]+b[1]*Ynew[k-2]...}
+ var Yold:PTArrSingle;
+     i:integer;
+  j: Integer;
+begin
+ if (High(a)<0) then Exit;
+ if NtoDelete>=Self.n then
+   begin
+     Self.Clear;
+     Exit;
+   end;
+ 
+
+ new(Yold);
+ CopyYtoPArray(Yold);
+ for I := 0 to n - 1 do
+  begin
+   Y[i]:=0;
+   for j := 0 to High(a) do
+      if (i-j>=0) then Y[i]:=Y[i]+a[j]*Yold^[i-j]
+                  else Break;
+   for j := 0 to High(b) do
+      if (i-j>0) then Y[i]:=Y[i]+b[j]*Y[i-j-1]
+                  else Break;
+  end;
+ dispose(Yold);
+
+ Self.DeleteNfirst(NtoDelete);
+end;
+
+
+procedure Vector.Chebyshev045p2;
+ var a,b:TArrSingle;
+begin
+ SetLength(a,3);
+ a[0]:=0.8001101;
+ a[1]:=1.600220;
+ a[2]:=0.8001101;
+
+ SetLength(b,2);
+ b[0]:=-1.556269;
+ b[1]:=-0.6441713;
+
+ DigitalFiltr(a,b);
+end;
+
+
+procedure Vector.Chebyshev001p2;
+ var a,b:TArrSingle;
+begin
+ SetLength(a,3);
+ a[0]:=8.663387e-4;
+ a[1]:=1.732678e-3;
+ a[2]:=8.663387e-4;
+
+ SetLength(b,2);
+ b[0]:=1.919129;
+ b[1]:=-0.9225943;
+
+ DigitalFiltr(a,b);
+end;
+
+
+procedure Vector.Chebyshev0025p2;
+ var a,b:TArrSingle;
+begin
+ SetLength(a,3);
+ a[0]:=5.112374e-3;
+ a[1]:=1.022475e-2;
+ a[2]:=5.112374e-3;
+
+ SetLength(b,2);
+ b[0]:=1.797154;
+ b[1]:=-0.8176033;
+
+ DigitalFiltr(a,b);
+end;
+
+
+procedure Vector.Chebyshev045p6;
+ var a,b:TArrSingle;
+begin
+ SetLength(a,7);
+ a[0]:=0.4760635;
+ a[1]:=2.856381;
+ a[2]:=7.1400952;
+ a[3]:=9.521270;
+ a[6]:=0.4760635;
+ a[5]:=2.856381;
+ a[4]:=7.1400952;
+
+ SetLength(b,6);
+ b[0]:=-4.522403;
+ b[1]:=-8.676844;
+ b[2]:=-9.007512;
+ b[3]:=-5.328429;
+ b[4]:=-1.702543;
+ b[5]:=-0.2303303;
+
+ DigitalFiltr(a,b);
+end;
+
+
+procedure Vector.Chebyshev0075p6;
+ var a,b:TArrSingle;
+begin
+ SetLength(a,7);
+ a[0]:=1.797538e-5;
+ a[1]:=1.078523e-4;
+ a[2]:=2.696307e-4;
+ a[3]:=3.595076e-4;
+ a[6]:=1.797538e-5;
+ a[5]:=1.078523e-4;
+ a[4]:=2.696307e-4;
+
+ SetLength(b,6);
+ b[0]:=4.921746;
+ b[1]:=-10.35734;
+ b[2]:=11.89764;
+ b[3]:=-7.854533;
+ b[4]:=2.822109;
+ b[5]:=-0.4307710;
+ DigitalFiltr(a,b);
+end;
+
+
+procedure Vector.Chebyshev0025p4;
+ var a,b:TArrSingle;
+begin
+ SetLength(a,5);
+ a[0]:=1.504626e-5;
+ a[1]:=6.018503e-5;
+ a[2]:=9.027754e-5;
+ a[4]:=1.504626e-5;
+ a[3]:=6.018503e-5;
+
+
+ SetLength(b,4);
+ b[0]:=3.725385;
+ b[1]:=-5.226004;
+ b[2]:=3.270902;
+ b[3]:=-0.7705239;
+ DigitalFiltr(a,b);
+end;
+
+procedure  Vector.Chebyshev0075p4;
+ var a,b:TArrSingle;
+begin
+ SetLength(a,5);
+ a[0]:=9.726342e-4;
+ a[1]:=3.890537e-3;
+ a[2]:=5.835806e-3;
+ a[4]:=9.726342e-4;
+ a[3]:=3.890537e-3;
+
+ SetLength(b,4);
+ b[0]:=3.103944;
+ b[1]:=-3.774453;
+ b[2]:=2.111238;
+ b[3]:=-0.4562908;
+
+ DigitalFiltr(a,b);
+end;
+
+Procedure Vector.LowPassFIRfiltr(NotOdd_N:byte;FrequencyFactor:double);
+ var a,b:TArrSingle;
+     i:byte;
+     vec:PVector;
+begin
+ if odd(NotOdd_N) then NotOdd_N:=NotOdd_N+1;
+ if NotOdd_N=1 then Exit;
+ FrequencyFactor:=Frac(Abs(FrequencyFactor));
+ if (FrequencyFactor=0) then Exit;
+
+ new(vec);
+ SetLength(a,NotOdd_N);
+ for I := 0 to NotOdd_N-1 do
+   a[i]:=sin(Pi*FrequencyFactor*(i-(NotOdd_N-1)/2.0))/(Pi*(i-(NotOdd_N-1)/2.0));
+  SetLength(b,0);
+ Vec^.SetLenVector(NotOdd_N);
+  for I := 0 to Vec^.n - 1 do
+    begin
+    Vec^.X[i]:=i;
+    Vec^.Y[i]:=1;
+    end;
+ vec.DigitalFiltr(a,b);
+ DigitalFiltr(a,b);
+// DigitalFiltr(a,b,NotOdd_N-1);
+ MultiplyY(1/Vec^.Y[NotOdd_N-1]);
+ dispose(vec);
+end;
+
+Procedure Vector.HighPassFIRfiltr(NotOdd_N:byte;FrequencyFactor:double);
+ var a,b:TArrSingle;
+     i:byte;
+     vec:PVector;
+begin
+ if odd(NotOdd_N) then NotOdd_N:=NotOdd_N+1;
+ if NotOdd_N=1 then Exit;
+ FrequencyFactor:=Frac(Abs(FrequencyFactor));
+ if (FrequencyFactor=0) then Exit;
+
+ new(vec);
+ SetLength(a,NotOdd_N);
+ for I := 0 to NotOdd_N-1 do
+   a[i]:=cos(Pi*FrequencyFactor*(i-(NotOdd_N-1)/2.0))/(Pi*(i-(NotOdd_N-1)/2.0));
+  SetLength(b,0);
+ Vec^.SetLenVector(NotOdd_N);
+  for I := 0 to Vec^.n - 1 do
+    begin
+    Vec^.X[i]:=i;
+    Vec^.Y[i]:=1;
+    end;
+ vec.DigitalFiltr(a,b);
+ DigitalFiltr(a,b);
+// DigitalFiltr(a,b,NotOdd_N-1);
+ MultiplyY(1/Vec^.Y[NotOdd_N-1]);
+ dispose(vec);
+end;
+
+
+
+procedure Vector.Chebyshev;
+ var a,b:TArrSingle;
+     Np:byte;
+     i:byte;
+     koef:double;
+     vec:PVector;
+begin
+ new(vec);
+ Np:=10;
+ koef:=0.1;
+
+  SetLength(a,Np);
+ for I := 0 to Np-1 do
+//   a[i]:=sin(Pi*koef*(i-(Np-1)/2.0))/(Pi*(i-(Np-1)/2.0));
+   a[i]:=cos(Pi*koef*(i-(Np-1)/2.0))/(Pi*(i-(Np-1)/2.0));
+
+
+ SetLength(b,0);
+     Vec^.SetLenVector(Np);
+    for I := 0 to Vec^.n - 1 do
+      begin
+      Vec^.X[i]:=i;
+      Vec^.Y[i]:=1;
+      end;
+ vec.DigitalFiltr(a,b);
+
+ DigitalFiltr(a,b);
+// MultiplyY(1/Vec^.Y[Np-1]);
+
+ dispose(vec);
+end;
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
                       Value:double; Default:double=ErResult);
