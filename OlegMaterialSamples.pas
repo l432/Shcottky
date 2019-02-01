@@ -2021,8 +2021,8 @@ begin
 
 //  if High(Parameters)<2 then Exit;
 
-  SetLength(tempParameters,High(Parameters)+4);
-  for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
+  SetLength(tempParameters,2*(Nd+Nt)+4);
+  for I := 0 to 2*(Nd+Nt) do tempParameters[i]:=Parameters[i];
   tempParameters[High(tempParameters)]:=T;
   tempParameters[High(tempParameters)-1]:=Nt;
   tempParameters[High(tempParameters)-2]:=Nd;
@@ -2030,7 +2030,7 @@ begin
                  Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4);
 
   i:=2;
-  while(i<=High(Parameters)) do
+  while(i<=2*(Nd+Nt)) do
    begin
    if i<(2*Nd+1)
      then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))

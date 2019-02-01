@@ -2470,6 +2470,8 @@ begin
     Labels[i+FNx].Parent:=fIterWindow;
     Labels[i].Left:=24;
     Labels[i+FNx].Left:=90;
+    if FXmode[i]=cons then Labels[i+FNx].Font.Color:=clGreen;
+
     Labels[i].Top:=round(3.5*fIterWindow.LNmax.Height)+i*round(1.5*Labels[i].Height);
     Labels[i+FNx].Top:=Labels[i].Top;
     Labels[i].Caption:=FXname[i]+' =';
@@ -2503,7 +2505,21 @@ Procedure TFitIteration.IterWindowDataShow(CurrentIterNumber:integer; InterimRes
  var i:byte;
 begin
   for I := 0 to FNx - 1 do
-   Labels[i+FNx].Caption:=floattostrf(InterimResult[i],ffExponent,4,3);
+   begin
+   if FXmode[i]<>cons then
+    begin
+     try
+     if IsEqual(InterimResult[i],strtofloat(Labels[i+FNx].Caption),3e-4)
+       then Labels[i+FNx].Font.Color:=clBlack
+       else Labels[i+FNx].Font.Color:=clRed;
+     except
+
+     end;
+    end;
+   Labels[i+FNx].Caption:=floattostrf(InterimResult[i],ffExponent,4,2);
+   end;
+
+   
   fIterWindow.LNitN.Caption:=Inttostr(CurrentIterNumber);
 end;
 
