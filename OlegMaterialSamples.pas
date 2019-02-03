@@ -33,7 +33,7 @@ const
     (Name:'InP';    Parameters: (1.42,     12.5, 0.6e6,    ErResult, 0.079,0.60, 327,      4.906e-4)),
     (Name:'4H-SiC'; Parameters: (3.26,     9.7,  0.75e6,   ErResult, 0.42, 1,    1300,     6.5e-4)),
     (Name:'GaN';    Parameters: (3.47,     8.9,  2.64e5,   7.50e5,   0.22, 0.60, 600,      7.7e-4)),
-    (Name:'CdTe';   Parameters: (1.57,     10.2, 0.12e6,   ErResult, 0.11, 0.37, 0,        4e-4)),
+    (Name:'CdTe';   Parameters: (1.65,     10.2, 0.12e6,   ErResult, 0.11, 0.8,  0,        5.35e-4)),
     (Name:'CdS';    Parameters: (2.557,    5.4,  2.34e5,   ErResult, 0.21, 0.8,  450,      8.21e-4)),
     (Name:'CdSe';   Parameters: (1.9,      10.2, 1.56e5,   ErResult, 0.13, 0.45, 0,        2.8e-4)),
     (Name:'CuInSe2';Parameters: (ErResult, 1,    8.53e5,   ErResult, 1,    1,    ErResult, ErResult)),

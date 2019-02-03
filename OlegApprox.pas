@@ -6406,15 +6406,18 @@ constructor TElectronConcentrationNew.Create;
  var i:byte;
 begin
  inherited Create('n_vs_Ttrap1','Electron concentration in n-type semiconductors with donors and traps',
-                  13,0,0);
+                  15,0,0);
  FXname[0]:='Na';
  for I := 0 to 2 do
   begin
    FXname[2*i+1]:='Nd'+inttostr(i+1);
    FXname[2*i+2]:='Ed'+inttostr(i+1);
-   FXname[2*i+7]:='Nt'+inttostr(i+1);
-   FXname[2*i+8]:='Et'+inttostr(i+1);
+   FXname[2*i+9]:='Nt'+inttostr(i+1);
+   FXname[2*i+10]:='Et'+inttostr(i+1);
   end;
+  FXname[7]:='Nd4';
+  FXname[8]:='Ed4';
+
 
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
@@ -6424,7 +6427,7 @@ end;
 
 function TElectronConcentrationNew.Func(Parameters: TArrSingle): double;
 begin
-  Result:=ElectronConcentrationNew(fx,Parameters,3,3);
+  Result:=ElectronConcentrationNew(fx,Parameters,4,3);
 end;
 
 function TElectronConcentrationNew.Weight(OutputData: TArrSingle): double;
