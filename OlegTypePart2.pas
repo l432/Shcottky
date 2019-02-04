@@ -53,7 +53,7 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
      procedure ObjectFree;
   end;
 
-  TFunWidowFiltr=Function(i:word;koef:double):double of object;
+  TFunWidowFiltr=Function(i:word):double of object;
   {функція розрахунку i-го коефіцієнта
   віконного фільтра}
 
@@ -70,6 +70,8 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
      частота зрізу як частка від частоти Найквіста}
      fNorm:double;
      {нормувальний коефіцієнт для фільтра}
+     fAlphaCheb:double;
+     {змінна, потрібна у вікні Чебишева}
      Procedure DigitalFiltr(a,b:TArrSingle;NtoDelete:word=0);overload;
      {змінюються масив Y на Ynew:
      Ynew[k]=a[0]*Y[k]+a[1]*Y[k-1]+...b[0]*Ynew[k-1]+b[1]*Ynew[k-2]...
@@ -86,8 +88,7 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
      Procedure FIR_WindowFiltr(Func:TFunWidowFiltr;
                                NotOdd_N:byte;
                                FrequencyFactor:double;
-                               ToDeleteTrancient:boolean=false;
-                               koef:double=60);
+                               ToDeleteTrancient:boolean=false);
    {віконний фільтр зі скінченною імпульсною
     характеристикою (FIR - finite impulse responce);
    Func - фуекція, яка розраховує коефіцієнти;
@@ -99,10 +100,10 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
    перехідній характеристиці;
    koef - додатковий параметр, який потрібний при дефких типах
    вікон}
-    function LP_Simple(i:word;koef:double):double;
-    function HP_Simple(i:word;koef:double):double;
-    function Blackman(i:word;koef:double):double;
-    function ChebyshevWindow(i:word;Atten:double):double;
+    function LP_Simple(i:word):double;
+    function HP_Simple(i:word):double;
+    function Blackman(i:word):double;
+    function ChebyshevWindow(i:word):double;
     procedure LP_IIR_Chebyshev(A,B:array of double;
                                NormKoef:double;
                                TrancientNumber:word;
@@ -111,6 +112,7 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
     DataVector:PVector;
     Constructor Create(ExternVector:PVector);
     procedure Free;
+    procedure CopyData(ExternVector:PVector);
     Procedure Decimation(Np:word);
    {залишається лише 0-й, Νp-й, 2Np-й.... елементи,
     при Np=0 вектор масив не міняється}
@@ -183,7 +185,6 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
    Np - кількість точок для усереднення}
 
    procedure LP_UniformIIRfilter(const FrequencyFactor:double=0.5;
-//                                const Nk:byte=1;
                                 ToDeleteTrancient:boolean=false);
    {однорідний рекурсивний фільтр (експоненційне усереднення),
     FrequencyFactor - частота зрізу як частка від частоти Найквіста,
@@ -274,7 +275,7 @@ end;
 
 { TDigitalManipulation }
 
-function TDigitalManipulation.Blackman(i: word; koef: double): double;
+function TDigitalManipulation.Blackman(i: word): double;
 begin
  Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0))*
         (0.42-0.5*cos(2*Pi*i/(fNotOdd_N-1))+0.08*cos(4*Pi*i/(fNotOdd_N-1)));
@@ -312,16 +313,26 @@ begin
  dispose(vec);
 end;
 
-function TDigitalManipulation.ChebyshevWindow(i: word; Atten: double): double;
- var gamma,alpha:double;
+function TDigitalManipulation.ChebyshevWindow(i: word): double;
+ var temp:double;
 begin
- gamma:=abs(Atten/20);
- showmessage(floattostr(gamma));
- alpha:=cosh(arcCosh(Power(10,gamma))/(fNotOdd_N));
- showmessage(floattostr(alpha));
- Result:=cos(fNotOdd_N*ArcCos(alpha*cos(Pi*i*fNotOdd_N)))/
-            cosh(fNotOdd_N*ArcCosh(alpha))*
-         sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
+//  showmessage(floattostr(fAlphaCheb));
+  temp:=fAlphaCheb*cos(Pi*i/fNotOdd_N);
+  showmessage(floattostr(temp));
+
+  if abs(Temp)>1 then   
+   Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0))*
+          cosh(fNotOdd_N*ArcCosh(fAlphaCheb*cos(Pi*i/fNotOdd_N)))/
+            cosh(fNotOdd_N*ArcCosh(fAlphaCheb))
+            else
+ Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0))*
+          cos(fNotOdd_N*ArcCos(fAlphaCheb*cos(Pi*i/fNotOdd_N)))/
+            cosh(fNotOdd_N*ArcCosh(fAlphaCheb));
+end;
+
+procedure TDigitalManipulation.CopyData(ExternVector: PVector);
+begin
+ ExternVector^.Copy(DataVector^);
 end;
 
 constructor TDigitalManipulation.Create(ExternVector:PVector);
@@ -335,6 +346,7 @@ begin
  fNotOdd_N:=0;
  fFreqFact:=1;
  fNorm:=1;
+ fAlphaCheb:=60;
 end;
 
 procedure TDigitalManipulation.Decimation(Np: word);
@@ -398,19 +410,18 @@ end;
 procedure TDigitalManipulation.FIR_WindowFiltr(Func: TFunWidowFiltr;
                            NotOdd_N: byte;
                            FrequencyFactor: double;
-                           ToDeleteTrancient: boolean;
-                           koef: double);
+                           ToDeleteTrancient: boolean);
  var i:word;
 begin
  SetNotOdd_N(NotOdd_N);
  if (fNotOdd_N)=0 then Exit;
- 
+
  SetFreqFact(FrequencyFactor);
  if (fFreqFact=0) then Exit;
 
 
  SetLength(fA,fNotOdd_N);
- for I := 0 to fNotOdd_N-1 do fA[i]:=Func(i,koef);
+ for I := 0 to fNotOdd_N-1 do fA[i]:=Func(i);
  SetLength(fB,0);
 
  fNorm:=1;
@@ -450,7 +461,7 @@ begin
 // DigitalFiltr();
 end;
 
-function TDigitalManipulation.HP_Simple(i: word; koef: double): double;
+function TDigitalManipulation.HP_Simple(i: word): double;
 begin
  Result:=cos(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
 end;
@@ -481,6 +492,12 @@ end;
 procedure TDigitalManipulation.LP_FIR_Chebyshev(NotOdd_N: byte;
   FrequencyFactor: double; ToDeleteTrancient: boolean; Atten: double);
 begin
+   SetNotOdd_N(NotOdd_N);
+ if (fNotOdd_N)=0 then Exit;
+//  showmessage(floattostr(fNotOdd_N));
+//  showmessage(floattostr(Power(10,abs(Atten/20.0))));
+
+  fAlphaCheb:=cosh(arcCosh(Power(10,abs(Atten/20.0)))/fNotOdd_N);
   FIR_WindowFiltr(ChebyshevWindow,NotOdd_N,FrequencyFactor,ToDeleteTrancient);
 end;
 
@@ -592,7 +609,7 @@ begin
                   50,ToDeleteTrancient);
 end;
 
-function TDigitalManipulation.LP_Simple(i: word; koef: double): double;
+function TDigitalManipulation.LP_Simple(i: word): double;
 begin
  Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
 end;
