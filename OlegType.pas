@@ -90,6 +90,10 @@ type
           {повертається найменше значення з масиву Х}
          Function MinY:double;
           {повертається найменше значення з масиву Y}
+         Function MeanY:double;
+         {повертає середнє арифметичне значень в масиві Y}
+         Function MeanX:double;
+         {повертає середнє арифметичне значень в масиві X}
          Function Xvalue(Yvalue:double):double;
          {повертає визначає приблизну абсцису точки з
           ординатою Yvalue;
@@ -171,82 +175,6 @@ type
          NtoDelete - кількість точок, які видаляються
          з початку масиву; ця кількість відповідає
          тривалості перехідної характеристики фільтра}
-//         procedure Chebyshev;
-//         procedure LP_IIR_Chebyshev045p2;
-//         {застосовується фільтр низьких частот (LP - low pass)
-//         з нескінченною імпульсною характеристикою (IIR - infinite
-//         impulse responce) Чебишева I роду з рівнем нерівномірності АЧХ 0,5%
-//         в області пропускання та частотою зрізу 0.45 від частоти Найквіста,
-//         кількість полюсів дорівнює 2, коефіцієнти
-//         взяті з С.Смит "Цифровая обработка сигналов", 2012р, с.380-382;
-//         тривалість перехідної характеристики - близько 45 відліків}
-//         procedure LP_IIR_Chebyshev045p6;
-//         {застосовується фільтр низьких частот Чебишева
-//         з частотою зрізу 0.45 від частоти дискретизації, 6-порядку
-//         (кількість полюсів дорівнює 6), коефіцієнти
-//         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
-//         тривалість перехідної характеристики - близько 300 відліків:
-//         нормовані коефіцієнти не дуже гарно, при подачі постійного
-//         одиничного сигналу в усталеному режимі 0.99994}
-//         procedure LP_IIR_Chebyshev001p2;
-//         {застосовується фільтр низьких частот Чебишева
-//         з частотою зрізу 0.01 від частоти дискретизації, 2-порядку
-//         (кількість полюсів дорівнює 2), коефіцієнти
-//         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
-//         тривалість перехідної характеристики - близько 270 відліків
-//         нормовані коефіцієнти не дуже гарно, при подачі постійного
-//         одиничного сигналу в усталеному режимі 1.00002}
-//         procedure LP_IIR_Chebyshev0025p2;
-//         {застосовується фільтр низьких частот Чебишева
-//         з частотою зрізу 0.025 від частоти дискретизації, 2-порядку
-//         (кількість полюсів дорівнює 2), коефіцієнти
-//         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
-//         тривалість перехідної характеристики - близько 110 відліків
-//         нормовані коефіцієнти не дуже гарно, при подачі постійного
-//         одиничного сигналу в усталеному режимі 1.00001}
-//         procedure LP_IIR_Chebyshev0025p4;
-//         {застосовується фільтр низьких частот Чебишева
-//         з частотою зрізу 0.025 від частоти дискретизації, 4-порядку
-//         (кількість полюсів дорівнює 4), коефіцієнти
-//         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
-//         тривалість перехідної характеристики - близько 320 відліків
-//         нормовані коефіцієнти не дуже гарно, при подачі постійного
-//         одиничного сигналу в усталеному режимі 0.99934}
-//         procedure LP_IIR_Chebyshev0075p4;
-//         {застосовується фільтр низьких частот Чебишева
-//         з частотою зрізу 0.075 від частоти дискретизації, 4-порядку
-//         (кількість полюсів дорівнює 4), коефіцієнти
-//         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
-//         тривалість перехідної характеристики - близько 105 відліків:
-//         нормовані коефіцієнти не дуже гарно, при подачі постійного
-//         одиничного сигналу в усталеному режимі 1.00002}
-//         procedure LP_IIR_Chebyshev0075p6;
-//         {застосовується фільтр низьких частот Чебишева
-//         з частотою зрізу 0.075 від частоти дискретизації, 6-порядку
-//         (кількість полюсів дорівнює 6), коефіцієнти
-//         взяті з С.Смит "Цифровая обработка сигналов", 2012р;
-//         тривалість перехідної характеристики - близько 200 відліків:
-//         нормовані коефіцієнти не дуже гарно, при подачі постійного
-//         одиничного сигналу в усталеному режимі 1.00124}
-//         Procedure LP_FIR_SimpleWindow(NotOdd_N:byte;
-//                                FrequencyFactor:double;
-//                                ToDeleteTrancient:boolean=false);
-//         {віконний фільтр нижніх частот зі скінченною імпульсною
-//          характеристикою (FIR - finite impulse responce);
-//          використовується прямокутне вікно;
-//         NotOdd_N - порядок фільтра, має бути парним числом;
-//         FrequencyFactor - частота зрізу як частка від частоти Найквіста,
-//         має бути (0..1];
-//         при ToDeleteTrancient = True з початку вектора
-//         видаляється кількість точок, яка відповідає
-//         перехідній характеристиці}
-//         Procedure LP_FIR_Blackman(NotOdd_N:byte;
-//                                FrequencyFactor:double;
-//                                ToDeleteTrancient:boolean=false);
-//         {вікно Блекмена}
-//         Procedure HighPassFIRfiltr(NotOdd_N:byte;FrequencyFactor:double);
-//         {застосовується фільтр верхіх частот зі скінченною імпульсною
-//         характеристикою; параметри. див. вище}
         end;
 
   PVector=^Vector;
@@ -330,7 +258,6 @@ type
            fYMax:double;
            fBr:Char; //'F' коли діапазон для прямої гілки
                      //'R' коли діапазон для зворотньої гілки
-//           function GetData(Index:integer):double;
            procedure SetData(Index:integer; value:double);
            procedure SetDataBr(value:Char);
 
@@ -339,10 +266,6 @@ type
            property YMin:double Index 2 read fYMin write SetData;
            property XMax:double Index 3 read fXMax write SetData;
            property YMax:double Index 4 read fYMax write SetData;
-//           property XMin:double Index 1 read GetData write SetData;
-//           property YMin:double Index 2 read GetData write SetData;
-//           property XMax:double Index 3 read GetData write SetData;
-//           property YMax:double Index 4 read GetData write SetData;
            property Br:Char read fBr write SetDataBr;
            procedure Copy (Souсe:TDiapazon);
            procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
@@ -449,16 +372,6 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 implementation
 uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 
-//function TDiapazon.GetData(Index:integer):double;
-//begin
-//case Index of
-// 1:Result:=fXMin;
-// 2:Result:=fYMin;
-// 3:Result:=fXMax;
-// 4:Result:=fYMax;
-// else Result:=0;
-// end;
-//end;
 
 procedure TDiapazon.SetData(Index:integer; value:double);
 begin
@@ -506,7 +419,6 @@ begin
  WriteIniDef(ConfigFile,Section,Ident+'XMax',Xmax);
  WriteIniDef(ConfigFile,Section,Ident+'Ymax',Ymax);
  ConfigFile.WriteString(Section,Ident+'Br',Br);
-// WriteIniDef(ConfigFile,Section,Ident+'Br',Br,'F');
 end;
 
 
@@ -715,10 +627,7 @@ begin
   PointToDelete:=-1;
  Start:
   if PointToDelete<>-1 then
-//    begin
      Self.Delete(PointToDelete);
-//     PointToDelete:=-1;
-//    end;
   for I := Point to High(X)-1 do
     begin
       for j := i+1 to High(X) do
@@ -760,7 +669,8 @@ begin
   if n<1 then
     Result:=ErResult
          else
-    Result:=X[MaxElemNumber(X)];
+//    Result:=X[MaxElemNumber(X)];
+    Result:=MaxValue(X);
 end;
 
 Function Vector.MaxY:double;
@@ -787,6 +697,23 @@ begin
     Result:=Y[MinElemNumber(Y)];
 end;
 
+Function Vector.MeanY:double;
+begin
+  if n<1 then
+    Result:=ErResult
+         else
+    Result:=Mean(Y);
+end;
+
+Function Vector.MeanX:double;
+begin
+  if n<1 then
+    Result:=ErResult
+         else
+    Result:=Mean(X);
+end;
+
+
 Function Vector.SumX:double;
  var i:integer;
 begin
@@ -805,9 +732,7 @@ end;
 
 Function Vector.Xvalue(Yvalue:double):double;
 var i:integer;
-//    bool:boolean;
 begin
-//  bool:=false;
   i:=1;
   Result:=ErResult;
   if High(X)<0 then Exit;
@@ -816,10 +741,8 @@ begin
      begin
      Result:=X_Y0(X[i],Y[i],X[i-1],Y[i-1],Yvalue);
      i:=High(X);
-//     bool:= true;
      end;
    i:=i+1;
-//  until ((bool) or (i>High(X)));
   until (i>High(X));
 end;
 
@@ -1116,268 +1039,6 @@ begin
  Self.DeleteNfirst(NtoDelete);
 end;
 
-//
-//procedure Vector.LP_IIR_Chebyshev045p2;
-// var a,b:TArrSingle;
-//begin
-// SetLength(a,3);
-// a[0]:=0.8001101;
-// a[1]:=1.600220;
-// a[2]:=0.8001101;
-//
-// SetLength(b,2);
-// b[0]:=-1.556269;
-// b[1]:=-0.6441713;
-//
-// DigitalFiltr(a,b);
-//end;
-//
-//
-//procedure Vector.LP_IIR_Chebyshev001p2;
-// var a,b:TArrSingle;
-//begin
-// SetLength(a,3);
-// a[0]:=8.663387e-4;
-// a[1]:=1.732678e-3;
-// a[2]:=8.663387e-4;
-//
-// SetLength(b,2);
-// b[0]:=1.919129;
-// b[1]:=-0.9225943;
-//
-// DigitalFiltr(a,b);
-//end;
-//
-//
-//procedure Vector.LP_IIR_Chebyshev0025p2;
-// var a,b:TArrSingle;
-//begin
-// SetLength(a,3);
-// a[0]:=5.112374e-3;
-// a[1]:=1.022475e-2;
-// a[2]:=5.112374e-3;
-//
-// SetLength(b,2);
-// b[0]:=1.797154;
-// b[1]:=-0.8176033;
-//
-// DigitalFiltr(a,b);
-//end;
-//
-//
-//procedure Vector.LP_IIR_Chebyshev045p6;
-// var a,b:TArrSingle;
-//begin
-// SetLength(a,7);
-// a[0]:=0.4760635;
-// a[1]:=2.856381;
-// a[2]:=7.1400952;
-// a[3]:=9.521270;
-// a[6]:=0.4760635;
-// a[5]:=2.856381;
-// a[4]:=7.1400952;
-//
-// SetLength(b,6);
-// b[0]:=-4.522403;
-// b[1]:=-8.676844;
-// b[2]:=-9.007512;
-// b[3]:=-5.328429;
-// b[4]:=-1.702543;
-// b[5]:=-0.2303303;
-//
-// DigitalFiltr(a,b);
-//end;
-//
-//
-//procedure Vector.LP_IIR_Chebyshev0075p6;
-// var a,b:TArrSingle;
-//begin
-// SetLength(a,7);
-// a[0]:=1.797538e-5;
-// a[1]:=1.078523e-4;
-// a[2]:=2.696307e-4;
-// a[3]:=3.595076e-4;
-// a[6]:=1.797538e-5;
-// a[5]:=1.078523e-4;
-// a[4]:=2.696307e-4;
-//
-// SetLength(b,6);
-// b[0]:=4.921746;
-// b[1]:=-10.35734;
-// b[2]:=11.89764;
-// b[3]:=-7.854533;
-// b[4]:=2.822109;
-// b[5]:=-0.4307710;
-// DigitalFiltr(a,b);
-//end;
-//
-//
-//procedure Vector.LP_IIR_Chebyshev0025p4;
-// var a,b:TArrSingle;
-//begin
-// SetLength(a,5);
-// a[0]:=1.504626e-5;
-// a[1]:=6.018503e-5;
-// a[2]:=9.027754e-5;
-// a[4]:=1.504626e-5;
-// a[3]:=6.018503e-5;
-//
-//
-// SetLength(b,4);
-// b[0]:=3.725385;
-// b[1]:=-5.226004;
-// b[2]:=3.270902;
-// b[3]:=-0.7705239;
-// DigitalFiltr(a,b);
-//end;
-//
-//procedure  Vector.LP_IIR_Chebyshev0075p4;
-// var a,b:TArrSingle;
-//begin
-// SetLength(a,5);
-// a[0]:=9.726342e-4;
-// a[1]:=3.890537e-3;
-// a[2]:=5.835806e-3;
-// a[4]:=9.726342e-4;
-// a[3]:=3.890537e-3;
-//
-// SetLength(b,4);
-// b[0]:=3.103944;
-// b[1]:=-3.774453;
-// b[2]:=2.111238;
-// b[3]:=-0.4562908;
-//
-// DigitalFiltr(a,b);
-//end;
-//
-//Procedure Vector.LP_FIR_SimpleWindow(NotOdd_N:byte;
-//                      FrequencyFactor:double;
-//                      ToDeleteTrancient:boolean=false);
-// var a,b:TArrSingle;
-//     i:byte;
-//     vec:PVector;
-//begin
-// if odd(NotOdd_N) then NotOdd_N:=NotOdd_N+1;
-// if NotOdd_N=1 then Exit;
-// FrequencyFactor:=Abs(FrequencyFactor);
-// if FrequencyFactor<>1 then
-//      FrequencyFactor:=Frac(FrequencyFactor);
-// if (FrequencyFactor=0) then Exit;
-//
-// new(vec);
-// SetLength(a,NotOdd_N);
-// for I := 0 to NotOdd_N-1 do
-//   a[i]:=sin(Pi*FrequencyFactor*(i-(NotOdd_N-1)/2.0))/(Pi*(i-(NotOdd_N-1)/2.0));
-//  SetLength(b,0);
-// Vec^.SetLenVector(NotOdd_N);
-//  for I := 0 to Vec^.n - 1 do
-//    begin
-//    Vec^.X[i]:=i;
-//    Vec^.Y[i]:=1;
-//    end;
-// vec.DigitalFiltr(a,b);
-// if ToDeleteTrancient then  DigitalFiltr(a,b,NotOdd_N-1)
-//                      else  DigitalFiltr(a,b);
-// MultiplyY(1/Vec^.Y[NotOdd_N-1]);
-// dispose(vec);
-//end;
-//
-//
-//Procedure Vector.LP_FIR_Blackman(NotOdd_N:byte;
-//                          FrequencyFactor:double;
-//                          ToDeleteTrancient:boolean=false);
-//         {вікно Блекмена}
-// var a,b:TArrSingle;
-//     i:byte;
-//     vec:PVector;
-//begin
-// if odd(NotOdd_N) then NotOdd_N:=NotOdd_N+1;
-// if NotOdd_N=1 then Exit;
-// FrequencyFactor:=Abs(FrequencyFactor);
-// if FrequencyFactor<>1 then
-//      FrequencyFactor:=Frac(FrequencyFactor);
-// if (FrequencyFactor=0) then Exit;
-//
-// new(vec);
-// SetLength(a,NotOdd_N);
-// for I := 0 to NotOdd_N-1 do
-//   a[i]:=sin(Pi*FrequencyFactor*(i-(NotOdd_N-1)/2.0))/(Pi*(i-(NotOdd_N-1)/2.0));
-//  SetLength(b,0);
-// Vec^.SetLenVector(NotOdd_N);
-//  for I := 0 to Vec^.n - 1 do
-//    begin
-//    Vec^.X[i]:=i;
-//    Vec^.Y[i]:=1;
-//    end;
-// vec.DigitalFiltr(a,b);
-// if ToDeleteTrancient then  DigitalFiltr(a,b,NotOdd_N-1)
-//                      else  DigitalFiltr(a,b);
-// MultiplyY(1/Vec^.Y[NotOdd_N-1]);
-// dispose(vec);
-//end;
-//
-//
-//Procedure Vector.HighPassFIRfiltr(NotOdd_N:byte;FrequencyFactor:double);
-// var a,b:TArrSingle;
-//     i:byte;
-//     vec:PVector;
-//begin
-// if odd(NotOdd_N) then NotOdd_N:=NotOdd_N+1;
-// if NotOdd_N=1 then Exit;
-// FrequencyFactor:=Frac(Abs(FrequencyFactor));
-// if (FrequencyFactor=0) then Exit;
-//
-// new(vec);
-// SetLength(a,NotOdd_N);
-// for I := 0 to NotOdd_N-1 do
-//   a[i]:=cos(Pi*FrequencyFactor*(i-(NotOdd_N-1)/2.0))/(Pi*(i-(NotOdd_N-1)/2.0));
-//  SetLength(b,0);
-// Vec^.SetLenVector(NotOdd_N);
-//  for I := 0 to Vec^.n - 1 do
-//    begin
-//    Vec^.X[i]:=i;
-//    Vec^.Y[i]:=1;
-//    end;
-// vec.DigitalFiltr(a,b);
-// DigitalFiltr(a,b);
-//// DigitalFiltr(a,b,NotOdd_N-1);
-// MultiplyY(1/Vec^.Y[NotOdd_N-1]);
-// dispose(vec);
-//end;
-//
-//
-//
-//procedure Vector.Chebyshev;
-// var a,b:TArrSingle;
-//     Np:byte;
-//     i:byte;
-//     koef:double;
-//     vec:PVector;
-//begin
-// new(vec);
-// Np:=10;
-// koef:=0.1;
-//
-//  SetLength(a,Np);
-// for I := 0 to Np-1 do
-////   a[i]:=sin(Pi*koef*(i-(Np-1)/2.0))/(Pi*(i-(Np-1)/2.0));
-//   a[i]:=cos(Pi*koef*(i-(Np-1)/2.0))/(Pi*(i-(Np-1)/2.0));
-//
-//
-// SetLength(b,0);
-//     Vec^.SetLenVector(Np);
-//    for I := 0 to Vec^.n - 1 do
-//      begin
-//      Vec^.X[i]:=i;
-//      Vec^.Y[i]:=1;
-//      end;
-// vec.DigitalFiltr(a,b);
-//
-// DigitalFiltr(a,b);
-//// MultiplyY(1/Vec^.Y[Np-1]);
-//
-// dispose(vec);
-//end;
 
 Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
                       Value:double; Default:double=ErResult);

@@ -504,6 +504,10 @@ Function cosh(x:double):Double;
 Function tanh(x:double):Double;
 Function arcTanh(x:double):Double;
 
+Function MilliSecond:integer;
+{повертає поточне значення мілісекунд з
+врахуванням хвилин та секунд}
+
 implementation
 
 uses
@@ -3243,5 +3247,13 @@ Function arcTanh(x:double):Double;
 begin
   Result:=ln((1+x)/(1-x))/2;
 end;
+
+
+Function MilliSecond:integer;
+ var Hour,Min,Sec,MSec:word;
+begin
+ DecodeTime(Time,Hour,Min,Sec,MSec);
+ Result:=MSec+1000*Sec+60*1000*Min;
+end; 
 
 end.

@@ -116,7 +116,6 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject)
     Procedure Decimation(Np:word);
    {залишається лише 0-й, Νp-й, 2Np-й.... елементи,
     при Np=0 вектор масив не міняється}
-    procedure Chebyshev;
     procedure LP_IIR_Chebyshev045p2(ToDeleteTrancient:boolean=false);
    {застосовується фільтр низьких частот (LP - low pass)
    з нескінченною імпульсною характеристикою (IIR - infinite
@@ -277,56 +276,23 @@ end;
 
 function TDigitalManipulation.Blackman(i: word): double;
 begin
- Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0))*
+ Result:=LP_Simple(i)*
         (0.42-0.5*cos(2*Pi*i/(fNotOdd_N-1))+0.08*cos(4*Pi*i/(fNotOdd_N-1)));
 end;
 
-procedure TDigitalManipulation.Chebyshev;
- var a,b:TArrSingle;
-     Np:byte;
-     i:byte;
-     koef:double;
-     vec:PVector;
-begin
- new(vec);
- Np:=10;
- koef:=0.1;
-
-  SetLength(a,Np);
- for I := 0 to Np-1 do
-//   a[i]:=sin(Pi*koef*(i-(Np-1)/2.0))/(Pi*(i-(Np-1)/2.0));
-   a[i]:=cos(Pi*koef*(i-(Np-1)/2.0))/(Pi*(i-(Np-1)/2.0));
-
-
- SetLength(b,0);
-     Vec^.SetLenVector(Np);
-    for I := 0 to Vec^.n - 1 do
-      begin
-      Vec^.X[i]:=i;
-      Vec^.Y[i]:=1;
-      end;
- vec.DigitalFiltr(a,b);
-
- DigitalFiltr(a,b);
-// MultiplyY(1/Vec^.Y[Np-1]);
-
- dispose(vec);
-end;
 
 function TDigitalManipulation.ChebyshevWindow(i: word): double;
  var temp:double;
 begin
-//  showmessage(floattostr(fAlphaCheb));
   temp:=fAlphaCheb*cos(Pi*i/fNotOdd_N);
-  showmessage(floattostr(temp));
 
-  if abs(Temp)>1 then   
-   Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0))*
-          cosh(fNotOdd_N*ArcCosh(fAlphaCheb*cos(Pi*i/fNotOdd_N)))/
+  if abs(Temp)>1 then
+     Result:=LP_Simple(i)*
+          cosh(fNotOdd_N*ArcCosh(abs(Temp)))/
             cosh(fNotOdd_N*ArcCosh(fAlphaCheb))
             else
- Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0))*
-          cos(fNotOdd_N*ArcCos(fAlphaCheb*cos(Pi*i/fNotOdd_N)))/
+     Result:=LP_Simple(i)*
+          cos(fNotOdd_N*ArcCos(Temp))/
             cosh(fNotOdd_N*ArcCosh(fAlphaCheb));
 end;
 
@@ -350,19 +316,8 @@ begin
 end;
 
 procedure TDigitalManipulation.Decimation(Np: word);
-// var i:integer;
 begin
   DataVector.Decimation(Np);
-
-//  if (Np<=1)or(DataVector^.n<1) then Exit;
-//  i:=1;
-//  while(i*Np)<DataVector^.n do
-//   begin
-//    DataVector^.X[i]:=DataVector^.X[i*Np];
-//    DataVector^.Y[i]:=DataVector^.Y[i*Np];
-//    inc(i);
-//   end;
-//  SetLenVector(DataVector,i);
 end;
 
 procedure TDigitalManipulation.DigitalFiltr;
@@ -380,31 +335,8 @@ end;
 
 procedure TDigitalManipulation.DigitalFiltr(a, b: TArrSingle;
                                             NtoDelete: word);
-// var Yold:PTArrSingle;
-//     i,j:integer;
 begin
  DataVector^.DigitalFiltr(a, b, NtoDelete);
-// if (High(a)<0) then Exit;
-// if NtoDelete>=DataVector^.n then
-//   begin
-//     DataVector^.Clear;
-//     Exit;
-//   end;
-// new(Yold);
-// DataVector^.CopyYtoPArray(Yold);
-// for I := 0 to DataVector^.n - 1 do
-//  begin
-//   DataVector^.Y[i]:=0;
-//   for j := 0 to High(a) do
-//      if (i-j>=0) then DataVector^.Y[i]:=DataVector^.Y[i]+a[j]*Yold^[i-j]
-//                  else Break;
-//   for j := 0 to High(b) do
-//      if (i-j>0) then DataVector^.Y[i]:=DataVector^.Y[i]+b[j]*DataVector^.Y[i-j-1]
-//                  else Break;
-//  end;
-// dispose(Yold);
-//
-// DataVector^.DeleteNfirst(NtoDelete);
 end;
 
 procedure TDigitalManipulation.FIR_WindowFiltr(Func: TFunWidowFiltr;
@@ -424,8 +356,7 @@ begin
  for I := 0 to fNotOdd_N-1 do fA[i]:=Func(i);
  SetLength(fB,0);
 
- fNorm:=1;
-// fNorm:=NormForFIR();
+ fNorm:=NormForFIR();
 
  SetDeleteTrancientNumber(ToDeleteTrancient,fNotOdd_N);
  DigitalFiltr();
@@ -439,26 +370,9 @@ end;
 
 procedure TDigitalManipulation.HP_FIR_SimpleWindow(NotOdd_N: byte;
   FrequencyFactor: double; ToDeleteTrancient: boolean);
-// var i:byte;
 begin
-  FIR_WindowFiltr(HP_Simple,NotOdd_N,FrequencyFactor,ToDeleteTrancient);
-//
-//
-// SetNotOdd_N(NotOdd_N);
-// SetFreqFact(FrequencyFactor);
-// if (fFreqFact=0) then Exit;
-//
-//
-// SetLength(fA,fNotOdd_N);
-// for I := 0 to fNotOdd_N-1 do
-//   fA[i]:=cos(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
-// SetLength(fB,0);
-//
-// fNorm:=1;
-//// fNorm:=NormForFIR();
-//
-// SetDeleteTrancientNumber(ToDeleteTrancient,fNotOdd_N-1);
-// DigitalFiltr();
+  FIR_WindowFiltr(HP_Simple,NotOdd_N,
+       FrequencyFactor,ToDeleteTrancient);
 end;
 
 function TDigitalManipulation.HP_Simple(i: word): double;
@@ -468,25 +382,9 @@ end;
 
 procedure TDigitalManipulation.LP_FIR_Blackman(NotOdd_N: byte;
   FrequencyFactor: double; ToDeleteTrancient: boolean);
-// var i:byte;
 begin
-  FIR_WindowFiltr(Blackman,NotOdd_N,FrequencyFactor,ToDeleteTrancient);
-// SetNotOdd_N(NotOdd_N);
-// SetFreqFact(FrequencyFactor);
-// if (fFreqFact=0) then Exit;
-//
-//
-// SetLength(fA,fNotOdd_N);
-// for I := 0 to fNotOdd_N-1 do
-//   fA[i]:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
-// SetLength(fB,0);
-//
-// fNorm:=1;
-//// fNorm:=NormForFIR();
-//
-// SetDeleteTrancientNumber(ToDeleteTrancient,fNotOdd_N-1);
-// DigitalFiltr();
-//
+  FIR_WindowFiltr(Blackman,NotOdd_N,
+      FrequencyFactor,ToDeleteTrancient);
 end;
 
 procedure TDigitalManipulation.LP_FIR_Chebyshev(NotOdd_N: byte;
@@ -494,8 +392,6 @@ procedure TDigitalManipulation.LP_FIR_Chebyshev(NotOdd_N: byte;
 begin
    SetNotOdd_N(NotOdd_N);
  if (fNotOdd_N)=0 then Exit;
-//  showmessage(floattostr(fNotOdd_N));
-//  showmessage(floattostr(Power(10,abs(Atten/20.0))));
 
   fAlphaCheb:=cosh(arcCosh(Power(10,abs(Atten/20.0)))/fNotOdd_N);
   FIR_WindowFiltr(ChebyshevWindow,NotOdd_N,FrequencyFactor,ToDeleteTrancient);
@@ -505,26 +401,8 @@ procedure TDigitalManipulation.LP_FIR_SimpleWindow(NotOdd_N: byte;
                       FrequencyFactor: double;
                       ToDeleteTrancient: boolean);
 begin
-  FIR_WindowFiltr(LP_Simple,NotOdd_N,FrequencyFactor,ToDeleteTrancient);
-
-  //
-// var i:byte;
-//begin
-// SetNotOdd_N(NotOdd_N);
-// SetFreqFact(FrequencyFactor);
-// if (fFreqFact=0) then Exit;
-//
-//
-// SetLength(fA,fNotOdd_N);
-// for I := 0 to fNotOdd_N-1 do
-//   fA[i]:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
-// SetLength(fB,0);
-//
-// fNorm:=1;
-//// fNorm:=NormForFIR();
-//
-// SetDeleteTrancientNumber(ToDeleteTrancient,fNotOdd_N-1);
-// DigitalFiltr();
+  FIR_WindowFiltr(LP_Simple,NotOdd_N,
+      FrequencyFactor,ToDeleteTrancient);
 end;
 
 procedure TDigitalManipulation.LP_IIR_Chebyshev(A, B: array of double;
@@ -616,7 +494,6 @@ end;
 
 procedure TDigitalManipulation.LP_UniformIIRfilter(
                     const FrequencyFactor: double;
-//                    const Nk: byte;
                     ToDeleteTrancient: boolean);
  var x:double;
 begin
@@ -626,7 +503,6 @@ begin
  x:=exp(-2*Pi*fFreqFact);
  SetLength(fA,1);
  SetLength(fB,1);
-// fA[0]:=Power((1-x),Nk);
  fA[0]:=1-x;
  fB[0]:=x;
 
