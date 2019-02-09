@@ -376,53 +376,13 @@ Vec^.Y[i]=Func(Vec^.X[i],T,V)
 записується у файл
 }
 
+
 Function ElectronConcentration(const T:double;
-                               const Parameters:array of double):double;
-{розрахунок концентрації електронів для випадку наявності
-декількох донорів
-Parameters[0] - сталий від'ємний доданок до кількості носіїв
-(фізично - концентрація акцепторів)
-Parameters[1], Parameters[3]... - концентрація
-донорів і-го типу
-Parameters[2], Parameters[4]... - енергетичне положення
-рівня донорів і-го типу (додатна величина,
-відраховується від дна зони провідності)
-}
-
-Function FermiLevelEquation(Ef:double;
-                            Parameters:array of double):double;
-{рівняння для визначення рівня Фермі в електронному напівпровіднику,
-цю функцію треба підставити в Bisection для
-безпосереднього визначення Ef;
-вміст Parameters  - див. попередню функцію,
-проте в Parameters[High(Parameters)] має бути
-температура
-}
-
-
-Function ElectronConcentration2(const T:double;
-                               const Parameters:array of double):double;
-{розрахунок концентрації електронів для випадку наявності
- Nd донорів та Nt пасток;
-Parameters[0] - сталий від'ємний доданок до кількості носіїв
-(фізично - концентрація акцепторів)
-Parameters[1] - концентрація донорів
-Parameters[2] - енергетичне положення рівня донорів і-го типу (додатна величина,
-відраховується від дна зони провідності)
-Parameters[3], Parameters[5]... - концентрація
-пасток і-го типу
-Parameters[4], Parameters[6]... - енергетичне положення
-рівня пасток і-го типу (додатна величина,
-відраховується від дна зони провідності)
-}
-
-
-Function ElectronConcentrationNew(const T:double;
                                const Parameters:array of double;
                                const Nd:byte;
                                const Nt:byte):double;
 {розрахунок концентрації електронів для випадку наявності
-декількох донорів
+декількох донорів та пасток
 Parameters[0] - сталий від'ємний доданок до кількості носіїв
 (фізично - концентрація акцепторів)
 Parameters[1], Parameters[3]... Parameters[2Nd-1] - концентрації донорів і-го типу
@@ -435,7 +395,7 @@ Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетичні положен
 }
 
 
-Function FermiLevelEquationNew(Ef:double;
+Function FermiLevelEquation(Ef:double;
                             Parameters:array of double):double;
 {рівняння для визначення рівня Фермі в електронному напівпровіднику,
 цю функцію треба підставити в Bisection для
@@ -447,8 +407,6 @@ Function FermiLevelEquationNew(Ef:double;
 кількість пасток Nt;
 в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+3]) - температура}
 
-Function FermiLevelEquation2(Ef:double;
-                            Parameters:array of double):double;
 
 
 implementation
@@ -1898,99 +1856,6 @@ end;
 
 
 Function ElectronConcentration(const T:double;
-                               const Parameters:array of double):double;
- var Ef:double;
-     tempParameters:array of double;
-     i:byte;
-begin
-  Result:=ErResult;
-  if T<=0 then Exit;
-
-  Result:=Diod.FSemiconductor.FMaterial.n_i(T);
-
-  if High(Parameters)<0 then Exit;
-  Result:=Result-Parameters[0];
-
-  if High(Parameters)<2 then Exit;
-
-  SetLength(tempParameters,High(Parameters)+2);
-  for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
-  tempParameters[High(tempParameters)]:=T;
-  Ef:=Bisection(FermiLevelEquation,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-3);
-
-  i:=2;
-  while(i<=High(Parameters)) do
-   begin
-   Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T));
-   i:=i+2;
-   end;
-
-end;
-
-
-Function FermiLevelEquation(Ef:double;
-                            Parameters:array of double):double;
- var T:double;
-     i:byte;
-begin
- Result:=ErResult;
- if High(Parameters)<0 then Exit;
- T:=Parameters[High(Parameters)];
- if T<=0 then Exit;
-
-
- Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
-//         Diod.FSemiconductor.FMaterial.Nc(T)*exp(-Ef/T/Kb);
-         Diod.FSemiconductor.FMaterial.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
-
- if High(Parameters)<1 then Exit;
-
- Result:=Result-Parameters[0];
-
- i:=2;
- while(i<High(Parameters)) do
-  begin
-   Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T));
-   i:=i+2;
-  end;
-
-end;
-
-
-Function ElectronConcentration2(const T:double;
-                               const Parameters:array of double):double;
- var Ef:double;
-     tempParameters:array of double;
-     i:byte;
-begin
-  Result:=ErResult;
-  if T<=0 then Exit;
-
-  Result:=Diod.FSemiconductor.FMaterial.n_i(T);
-
-  if High(Parameters)<0 then Exit;
-  Result:=Result-Parameters[0];
-
-  if High(Parameters)<2 then Exit;
-
-  SetLength(tempParameters,High(Parameters)+2);
-  for I := 0 to High(Parameters) do tempParameters[i]:=Parameters[i];
-  tempParameters[High(tempParameters)]:=T;
-  Ef:=Bisection(FermiLevelEquation2,tempParameters,Diod.FSemiconductor.FMaterial.EgT(T),0,1e-3);
-
-  i:=2;
-  while(i<=High(Parameters)) do
-   begin
-   if i=2
-     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))
-     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
-   i:=i+2;
-   end;
-end;
-
-
-
-Function ElectronConcentrationNew(const T:double;
                                const Parameters:array of double;
                                const Nd:byte;
                                const Nt:byte):double;
@@ -2026,7 +1891,7 @@ begin
   tempParameters[High(tempParameters)]:=T;
   tempParameters[High(tempParameters)-1]:=Nt;
   tempParameters[High(tempParameters)-2]:=Nd;
-  Ef:=Bisection(FermiLevelEquationNew,tempParameters,
+  Ef:=Bisection(FermiLevelEquation,tempParameters,
                  Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4);
 
   i:=2;
@@ -2041,7 +1906,7 @@ begin
 end;
 
 
-Function FermiLevelEquationNew(Ef:double;
+Function FermiLevelEquation(Ef:double;
                             Parameters:array of double):double;
 {рівняння для визначення рівня Фермі в електронному напівпровіднику,
 цю функцію треба підставити в Bisection для
@@ -2088,35 +1953,6 @@ begin
    i:=i+2;
    end;
 
-end;
-
-
-Function FermiLevelEquation2(Ef:double;
-                            Parameters:array of double):double;
- var T:double;
-     i:byte;
-begin
- Result:=ErResult;
- if High(Parameters)<0 then Exit;
- T:=Parameters[High(Parameters)];
- if T<=0 then Exit;
-
-
- Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
-         Diod.FSemiconductor.FMaterial.Nc(T)*exp(-Ef/T/Kb);
-
- if High(Parameters)<1 then Exit;
-
- Result:=Result-Parameters[0];
-
-  i:=2;
-  while(i<=High(Parameters)) do
-   begin
-   if i=2
-     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))
-     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
-   i:=i+2;
-   end;
 end;
 
 end.

@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..60]of string=
+  FuncName:array[0..58]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -38,7 +38,7 @@ const
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
            'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
-           'n vs T (donors only)','n vs T (donor and traps)','n vs T (donors and traps)');
+           'n vs T (donors and traps)');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -892,24 +892,6 @@ public
 end; //TMobility=class (TFitFunctEvolution)
 
 TElectronConcentration=class (TFitFunctEvolution)
-private
- Function Func(Parameters:TArrSingle):double; override;
- Function Weight(OutputData:TArrSingle):double;Override;
-public
- Constructor Create;
-end; //TElectronConcentration=class (TFitFunctEvolution)
-
-
-TElectronConcentration2=class (TFitFunctEvolution)
-private
- Function Func(Parameters:TArrSingle):double; override;
- Function Weight(OutputData:TArrSingle):double;Override;
-public
- Constructor Create;
-end; //TElectronConcentration2=class (TFitFunctEvolution)
-
-
-TElectronConcentrationNew=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;Override;
@@ -6339,73 +6321,13 @@ begin
 
 end;
 
-{ TElectronConcentration }
-
-constructor TElectronConcentration.Create;
-begin
- inherited Create('n_vs_T','Electron concentration in n-type semiconductors vs temperature',
-                  7,0,0);
- FXname[0]:='Na';
- FXname[1]:='Nd1';
- FXname[2]:='Ed1';
- FXname[3]:='Nd2';
- FXname[4]:='Ed2';
- FXname[5]:='Nd3';
- FXname[6]:='Ed3';
- fTemperatureIsRequired:=False;
- fSampleIsRequired:=False;
-// fHasPicture:=False;
- CreateFooter();
-end;
-
-function TElectronConcentration.Func(Parameters: TArrSingle): double;
-begin
- Result:=ElectronConcentration(fx,Parameters);
-end;
-
-
-function TElectronConcentration.Weight(OutputData: TArrSingle): double;
-begin
- Result:=1;
-end;
-
-
-{ TElectronConcentration2 }
-
-constructor TElectronConcentration2.Create;
-begin
- inherited Create('n_vs_Ttrap','Electron concentration in n-type semiconductors with traps',
-                  7,0,0);
- FXname[0]:='Na';
- FXname[1]:='Nd';
- FXname[2]:='Ed';
- FXname[3]:='Nt1';
- FXname[4]:='Et1';
- FXname[5]:='Nt2';
- FXname[6]:='Et2';
- fTemperatureIsRequired:=False;
- fSampleIsRequired:=False;
-// fHasPicture:=False;
- CreateFooter();
-end;
-
-function TElectronConcentration2.Func(Parameters: TArrSingle): double;
-begin
- Result:=ElectronConcentration2(fx,Parameters);
-end;
-
-function TElectronConcentration2.Weight(OutputData: TArrSingle): double;
-begin
- Result:=1;
-end;
-
 
 { TElectronConcentrationNew }
 
-constructor TElectronConcentrationNew.Create;
+constructor TElectronConcentration.Create;
  var i:byte;
 begin
- inherited Create('n_vs_Ttrap1','Electron concentration in n-type semiconductors with donors and traps',
+ inherited Create('n_vs_T','Electron concentration in n-type semiconductors with donors and traps',
                   15,0,0);
  FXname[0]:='Na';
  for I := 0 to 2 do
@@ -6421,16 +6343,16 @@ begin
 
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
- fHasPicture:=False;
+// fHasPicture:=False;
  CreateFooter();
 end;
 
-function TElectronConcentrationNew.Func(Parameters: TArrSingle): double;
+function TElectronConcentration.Func(Parameters: TArrSingle): double;
 begin
-  Result:=ElectronConcentrationNew(fx,Parameters,4,3);
+  Result:=ElectronConcentration(fx,Parameters,4,3);
 end;
 
-function TElectronConcentrationNew.Weight(OutputData: TArrSingle): double;
+function TElectronConcentration.Weight(OutputData: TArrSingle): double;
 begin
  Result:=1;
 end;
@@ -6601,9 +6523,7 @@ begin
   if str='Rsh,2 vs T' then F:=TRsh2_T.Create;
   if str='Variated Polinom' then F:=TTwoPower.Create;
   if str='Mobility' then F:=TMobility.Create;
-  if str='n vs T (donors only)' then F:=TElectronConcentration.Create;
-  if str='n vs T (donor and traps)' then F:=TElectronConcentration2.Create;
-  if str='n vs T (donors and traps)' then F:=TElectronConcentrationNew.Create;
+  if str='n vs T (donors and traps)' then F:=TElectronConcentration.Create;
 
 //  if str='None' then F:=TDiod.Create;
 end;

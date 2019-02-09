@@ -490,7 +490,7 @@ rr
 rr
 
 \begin{equation*}
-    n(T)=n_i(T)+\sum_{i=1}^{i=3}N_{di}[1-f_{FD}(T,E_{di})]-N_a
+    n(T)=n_i(T)+\sum_{i=1}^{i=4}N_{di}[1-f_{FD}(T,E_{di})]-\sum_{j=1}^{j=3}N_{tj}f_{FD}(T,E_{tj})-N_a
 \end{equation*}
 where
 $N_a$ is the acceptor density,
@@ -504,34 +504,18 @@ $N_{di}$ is the density an $i$th donor,
 $E_{di}$ is the energy level of an $i$th donor from $E_c$,
 
 \noindent
-$f_{FD}(T,E_i)$ is the Fermi--Dirac distribution function for donors
-\begin{equation*}
-    f_{FD}(T,E_i)=\left\{1+\frac{1}{2}\exp\left[\frac{E_F(T)-E_i}{kT}\right]\right\}^{-1}\,.
-\end{equation*}
-
-
-rr
-
-\begin{equation*}
-    n(T)=n_i(T)+N_{d}[1-f_{FD}(T,E_{d})]-\sum_{j=1}^{j=2}N_{tj}f_{FD}(T,E_{tj})-N_a
-\end{equation*}
-where
-$N_a$ is the acceptor density,
-$n_i$ is the intrinsic concentration
-\begin{equation*}
-    n_i(T)=[N_c(T)N_v(T)]^{0.5}\exp\left[-\frac{E_G(T)}{2kT}\right]\,,
-\end{equation*}
-$N_{d}$ is the donor density,
-$E_{d}$ is the donor energy level from $E_c$,
-
-\noindent
 $N_{tj}$ and $E_{tj}$ are the density and energy level of an $j$th electron trap,
 
 \noindent
-$f_{FD}(T,E_i)$ is the Fermi--Dirac distribution function for donors
+$f_{FD}(T,E)$ is the Fermi--Dirac distribution function for donors 
+
+\noindent
+and electron traps
 \begin{equation*}
-    f_{FD}(T,E_i)=\left\{1+\frac{1}{2}\exp\left[\frac{E_F(T)-E_i}{kT}\right]\right\}^{-1}\,.
+    f_{FD}(T,E)=\left\{1+\frac{1}{2}\exp\left[\frac{E_F(T)-E}{kT}\right]\right\}^{-1}\,.
 \end{equation*}
+
+
 
 
 \end{document}

@@ -3574,46 +3574,46 @@ begin
 end;
 
 
-Procedure ElectronConcentrationCalcul();
- var StrEf,StrN:TStringList;
-     T,Nd0,Nd1,Ed1,Ef:double;
-     param:array of double;
-begin
- StrEf:=TStringList.Create;
- StrN:=TStringList.Create;
-
- T:=15;
- Nd0:=10;
- Nd1:=5e16;
- Ed1:=0.08;
-// SetLength(param,5);
-// param[0]:=5e16;
-// param[1]:=0;
-// param[2]:=Ed1;
-// param[3]:=5e19;
-// param[4]:=0.45;
-
- while(T<600) do
- begin
-  Ef:=Bisection(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
-//  Ef:=Hord(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
-
-   StrEf.Add(FloatToStrF(T,ffFixed,3,0)+' '+
-                            FloatToStrF(Ef,ffExponent,4,0));
-
-   StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
-                            FloatToStrF(ElectronConcentration(T,[Nd0,Nd1,Ed1]),ffExponent,4,0));
-
+//Procedure ElectronConcentrationCalcul();
+// var StrEf,StrN:TStringList;
+//     T,Nd0,Nd1,Ed1,Ef:double;
+//     param:array of double;
+//begin
+// StrEf:=TStringList.Create;
+// StrN:=TStringList.Create;
+//
+// T:=15;
+// Nd0:=10;
+// Nd1:=5e16;
+// Ed1:=0.08;
+//// SetLength(param,5);
+//// param[0]:=5e16;
+//// param[1]:=0;
+//// param[2]:=Ed1;
+//// param[3]:=5e19;
+//// param[4]:=0.45;
+//
+// while(T<600) do
+// begin
+//  Ef:=Bisection(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
+////  Ef:=Hord(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
+//
+//   StrEf.Add(FloatToStrF(T,ffFixed,3,0)+' '+
+//                            FloatToStrF(Ef,ffExponent,4,0));
+//
 //   StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
-//                            FloatToStrF(ElectronConcentration(T,param),ffExponent,4,0));
-   T:=T+2;
- end;
-
- StrEf.SaveToFile('Ef.dat');
- StrN.SaveToFile('n.dat');
- StrEf.Free;
- StrN.Free;
-end;
+//                            FloatToStrF(ElectronConcentration(T,[Nd0,Nd1,Ed1]),ffExponent,4,0));
+//
+////   StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
+////                            FloatToStrF(ElectronConcentration(T,param),ffExponent,4,0));
+//   T:=T+2;
+// end;
+//
+// StrEf.SaveToFile('Ef.dat');
+// StrN.SaveToFile('n.dat');
+// StrEf.Free;
+// StrN.Free;
+//end;
 
 
  function My(T:double;d:array of double):double;
