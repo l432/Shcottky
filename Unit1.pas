@@ -4090,7 +4090,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       dispose(Vax2);
       for i:=0 to High(FitFunction.Xname) do
         dat[ord(High(TColName))+1+i]:=
-           FloatToStrF(EvolParam[i],ffExponent,4,3);
+           FloatToStrF(EvolParam[i],ffExponent,10,2);
 
       FitFunction.Free;
      end;
