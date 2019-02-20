@@ -177,6 +177,8 @@ Procedure DecimationArray(var Data:  TArrSingle; const N:word);
 {у масиві залишається лише 0-й, ?-й, 2N-й.... елементи,
 при N=0 масив не міняється}
 
+Function GetHDDSerialNumber():LongWord;
+
 implementation
 
 uses
@@ -1404,6 +1406,29 @@ begin
     inc(i);
    end;
   SetLength(Data,i);
+end;
+
+
+Function GetHDDSerialNumber():LongWord;
+Var
+_VolumeName,_FileSystemName:array [0..MAX_PATH-1] of Char;
+_VolumeSerialNo,_MaxComponentLength,_FileSystemFlags:LongWord;
+
+//Function GetHDDInfo(Disk : Char;Var VolumeName, FileSystemName : String;
+//          Var VolumeSerialNo, MaxComponentLength, FileSystemFlags:LongWord) : Boolean;
+
+begin
+  if GetVolumeInformation(nil,_VolumeName,MAX_PATH,@_VolumeSerialNo,
+         _MaxComponentLength,_FileSystemFlags,_FileSystemName,MAX_PATH)
+          then
+
+
+//  if GetVolumeInformation(PChar(Disk+':\'),_VolumeName,MAX_PATH,@_VolumeSerialNo,
+//  _MaxComponentLength,_FileSystemFlags,_FileSystemName,MAX_PATH) then
+  begin
+    Result:=_VolumeSerialNo;
+  end
+     else Result:=ErResult;
 end;
 
 end.
