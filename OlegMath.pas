@@ -508,6 +508,10 @@ Function MilliSecond:integer;
 {повертає поточне значення мілісекунд з
 врахуванням хвилин та секунд}
 
+function SecondFromDayBegining:integer;overload;
+{повертає кількість секунд з початку доби}
+function SecondFromDayBegining(ttime: TDateTime):integer;overload;
+
 implementation
 
 uses
@@ -3254,6 +3258,21 @@ Function MilliSecond:integer;
 begin
  DecodeTime(Time,Hour,Min,Sec,MSec);
  Result:=MSec+1000*Sec+60*1000*Min;
-end; 
+end;
+
+function SecondFromDayBegining:integer;
+ var Hour,Min,Sec,MSec:word;
+begin
+ DecodeTime(Time,Hour,Min,Sec,MSec);
+ Result:=Sec+60*Min+60*60*Hour;
+end;
+
+function SecondFromDayBegining(ttime: TDateTime):integer;
+ var Hour,Min,Sec,MSec:word;
+begin
+ DecodeTime(ttime,Hour,Min,Sec,MSec);
+ Result:=Sec+60*Min+60*60*Hour;
+end;
+
 
 end.

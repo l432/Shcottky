@@ -1139,7 +1139,10 @@ begin
        delete(ss,AnsiPos(' ',ss),Length(ss)-AnsiPos(' ',ss)+1);
        if AnsiUpperCase(ss)=AnsiUpperCase(sfile) then
          begin
-           delete(ss1,1,AnsiPos(':',ss1)-3);
+          if ss1[AnsiPos(':',ss1)-1]=' '
+             then delete(ss1,1,AnsiPos(':',ss1))
+             else delete(ss1,1,AnsiPos(':',ss1)-3);
+//           delete(ss1,1,AnsiPos(':',ss1)-3);
            ss1:=Trim(ss1);
            readln(f,ss);
            delete(ss,1,2);

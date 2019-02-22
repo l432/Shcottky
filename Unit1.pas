@@ -3628,7 +3628,7 @@ procedure TForm1.Button1Click(Sender: TObject);
      d:array of double;
 
 begin
-showmessage(inttostr(MilliSecond));
+showmessage(inttostr(GetHDDSerialNumber));
 
 
 //showmessage(floattostr(ElectronConcentration(150,[1.385e14,1.22e23,5.527e-6,3.622e23,7.134e-2,4.028e23,7.185e-2])));
