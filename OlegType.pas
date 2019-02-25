@@ -95,6 +95,14 @@ type
          {повертає середнє арифметичне значень в масиві Y}
          Function MeanX:double;
          {повертає середнє арифметичне значень в масиві X}
+         Function StandartDeviationY:double;
+         {повертає стандартне відхилення значень в масиві Y
+         SD=(sum[(yi-<y>)^2]/(n-1))^0.5}
+         Function StandartErrorY:double;
+         {повертає стандартну похибку значень в масиві Y
+         SЕ=SD/n^0.5}
+         Function StandartDeviationX:double;
+         Function StandartErrorX:double;
          Function Xvalue(Yvalue:double):double;
          {повертає визначає приблизну абсцису точки з
           ординатою Yvalue;
@@ -713,6 +721,60 @@ begin
          else
     Result:=Mean(X);
 end;
+
+Function Vector.StandartDeviationY:double;
+{повертає стандартне відхилення значень в масиві Y
+SD=(sum[(yi-<y>)^2]/(n-1))^0.5}
+ var mean,sum:double;
+     i:integer;
+begin
+  if n<2 then
+    Result:=ErResult
+         else
+    begin
+     mean:=MeanY;
+     sum:=0;
+     for I := 0 to High(Y) do
+       sum:=sum+sqr(Y[i]-mean);
+     Result:=sqrt(sum/(n-1))
+    end;
+end;
+
+Function Vector.StandartErrorY:double;
+{повертає стандартну похибку значень в масиві Y
+SЕ=SD/n^0.5}
+begin
+  if n<2 then
+    Result:=ErResult
+         else
+    Result:=StandartDeviationY/sqrt(n);
+end;
+
+Function Vector.StandartDeviationX:double;
+ var mean,sum:double;
+     i:integer;
+begin
+  if n<2 then
+    Result:=ErResult
+         else
+    begin
+     mean:=MeanX;
+     sum:=0;
+     for I := 0 to High(X) do
+       sum:=sum+sqr(X[i]-mean);
+     Result:=sqrt(sum/(n-1))
+    end;
+end;
+
+Function Vector.StandartErrorX:double;
+begin
+  if n<2 then
+    Result:=ErResult
+         else
+    Result:=StandartDeviationX/sqrt(n);
+end;
+
+
 
 
 Function Vector.SumX:double;

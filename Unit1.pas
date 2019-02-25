@@ -4078,6 +4078,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     //обчислення за допомогою обраної функції
     if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
      begin
+//      dat[ord(High(TColName))+1]:=FloatToStrF(Vax^.MeanY,ffExponent,10,2);
+//      dat[ord(High(TColName))+2]:=FloatToStrF(Vax^.StandartErrorY,ffExponent,10,2);
+
       FunCreate(LDateFun.Caption,FitFunction);
       new(Vax2);
       Vax.Copy(Vax2^);
