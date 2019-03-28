@@ -62,6 +62,10 @@ Function FloatDataFromRow(str:string;Number:word):double;
 (нумерація починається з 1);
 якщо там не число - то повертається ErResult}
 
+Function  DeleteStringDataFromRow(str:string;Number:word):string;
+{повертає рядок з видаленою частиною (відділеною пробілами - див.
+попередні) з номером Number}
+
 //-----використовуються при моделюванні DAP-----------
 Function PointDistance(t:double;Parameters:array of double):double;
 {відстань, між двома точками, які коливаються з однаковою частотою
@@ -178,6 +182,11 @@ Procedure DecimationArray(var Data:  TArrSingle; const N:word);
 при N=0 масив не міняється}
 
 Function GetHDDSerialNumber():LongWord;
+
+Procedure CreateDirSafety(DirName: string);
+{створюється директорія з назвою DirName
+в поточному каталозі, ігноруються можливі помилки;
+як правило, ці помилки викликані тим, що директорія з такою назвою вже є}
 
 implementation
 
@@ -322,13 +331,15 @@ begin
   Result:=AnsiReplaceStr(Result,#9,' ');
   while AnsiContainsStr(Result,'  ') do
      Result:=AnsiReplaceStr(Result,'  ',' ');
+  Result:=Trim(Result);
 end;
 
 Function Acronym(str:string):string;
 begin
   Result:='';
-  if AnsiEndsStr(' ',str) then Delete(str, Length(str), 1);
-  if AnsiStartsStr(' ',str) then Delete(str, 1, 1);
+  Result:=Trim(Result);
+//  if AnsiEndsStr(' ',str) then Delete(str, Length(str), 1);
+//  if AnsiStartsStr(' ',str) then Delete(str, 1, 1);
   if Length(str)<1 then Exit;
   Result:=str[1];
   while AnsiContainsStr(str,' ') do
@@ -348,7 +359,7 @@ begin
   if Number<1 then Exit;
 
   Result:=SomeSpaceToOne(str);
-  if AnsiStartsStr(' ',Result) then Delete(Result, 1, 1);
+//  if AnsiStartsStr(' ',Result) then Delete(Result, 1, 1);
   for I := 1 to Number-1 do
    if AnsiPos (' ', Result)>0 then
        Delete(Result, 1, AnsiPos (' ', Result))
@@ -356,9 +367,44 @@ begin
        begin
          Result:='';
          Exit;
-       end;                       
+       end;
   if AnsiPos (' ', Result)>0 then
    Result:=Copy(Result, 1, AnsiPos (' ', Result)-1);
+end;
+
+
+Function  DeleteStringDataFromRow(str:string;Number:word):string;
+{повертає рядок з видаленою частиною (відділеною пробілами - див.
+попередні) з номером Number}
+ var i,FirstSpacePosition:word;
+     tempStr:string;
+begin
+  Result:='';
+  if Number<1 then
+    begin
+    Result:=SomeSpaceToOne(str);
+    Exit;
+    end;
+  tempStr:=SomeSpaceToOne(str);
+  for I := 1 to Number-1 do
+   begin
+    FirstSpacePosition:=AnsiPos (' ', tempStr);
+    if FirstSpacePosition>0 then
+       begin
+       Result:=Result+AnsiLeftStr(tempStr,FirstSpacePosition);
+       Delete(tempStr, 1, FirstSpacePosition);
+       end                  else
+       begin
+        Result:=Result+tempStr;
+        Exit;
+       end;
+   end;
+
+  FirstSpacePosition:=AnsiPos (' ', tempStr);
+  if FirstSpacePosition>0 then
+   Result:=Result+AnsiRightStr(tempStr,Length(tempStr)-FirstSpacePosition)
+                          else
+   Result:=Trim(Result);
 end;
 
 Function FloatDataFromRow(str:string;Number:word):double;
@@ -1429,6 +1475,15 @@ begin
     Result:=_VolumeSerialNo;
   end
      else Result:=ErResult;
+end;
+
+procedure CreateDirSafety(DirName: string);
+begin
+  try
+    CreateDir(DirName);
+  except
+     ;
+  end;
 end;
 
 end.

@@ -2915,12 +2915,11 @@ object Form1: TForm1
         Top = 6
         Width = 319
         Height = 390
-        VertScrollBar.Position = 1373
         ParentBackground = True
         TabOrder = 5
         object GroupBox12: TGroupBox
           Left = -1
-          Top = -1373
+          Top = 0
           Width = 297
           Height = 1759
           Caption = 'CREATE FILES AND DIRECTORIES'
