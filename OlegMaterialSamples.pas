@@ -147,7 +147,15 @@ type
       class function Absorption(Lambda:double;T:double=300):double;
       {коефіцієнт поглинання світла,
       [Lambda]=нм, [Result]=1/м}
-
+      class function Nc(T:double=300):double;
+      class function Nv(T:double=300):double;
+      //    ефективні густини станів
+      class function n_i(T:double=300):double;
+      class function Ei(T:double=300):double;
+     {положення рівня Фермі у власному}
+      class function Vth_n(T:double=300):double;
+      class function Vth_p(T:double=300):double;
+     {теплова швидкість електронів та дірок}
     end;
 
     TMaterialLayer=class
@@ -1659,6 +1667,11 @@ begin
  Result:=TMaterial.VarshniFull(Eg0_Si,T)
 end;
 
+class function Silicon.Ei(T: double): double;
+begin
+   Result:=Eg(T)+Kb*T*ln(n_i(T)/Nc(T));
+end;
+
 class function Silicon.Green(Lambda: double): double;
 //M.A. Green / Solar Energy Materials & Solar Cells 92 (2008) 1305–1310 1306
   const  Si_absorption:array [0..241]of double=(
@@ -1823,6 +1836,23 @@ begin
  Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
 end;
 
+class function Silicon.Nc(T: double): double;
+begin
+  Result:=2.86e25*Power(T/300.0,1.58);
+ {J.Appl.Phys., 67, p2944}
+end;
+
+class function Silicon.Nv(T: double): double;
+begin
+ Result:=3.1e25*Power(T/300.0,1.85);
+ {J.Appl.Phys., 67, p2944}
+end;
+
+class function Silicon.n_i(T: double): double;
+begin
+ Result:=1.64e21*Power(T,1.706)*exp(-Eg(T)/2/T/Kb);
+end;
+
 class function Silicon.Rajkanan(Ephoton, T: double): double;
  const Eg0:array[0..2]of double=(Eg0_Si,2.5,3.2); {[]=eB}
        Ep:array[0..1]of double=(1.827e-2,5.773e-2);  {[]=eB}
@@ -1854,6 +1884,18 @@ begin
 end;
 
 
+
+class function Silicon.Vth_n(T: double): double;
+begin
+ Result:=sqrt(8*Qelem*Kb*T/m0/Pi/0.28);
+ {J.Appl.Phys., 67, p2944}
+end;
+
+class function Silicon.Vth_p(T: double): double;
+begin
+ Result:=sqrt(8*Qelem*Kb*T/m0/Pi/0.41);
+ {J.Appl.Phys., 67, p2944}
+end;
 
 Function ElectronConcentration(const T:double;
                                const Parameters:array of double;

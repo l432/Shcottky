@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..58]of string=
+  FuncName:array[0..59]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -38,7 +38,7 @@ const
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
            'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
-           'n vs T (donors and traps)');
+           'n vs T (donors and traps)','n_FeB');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -897,7 +897,26 @@ private
  Function Weight(OutputData:TArrSingle):double;Override;
 public
  Constructor Create;
-end; //TElectronConcentration2=class (TFitFunctEvolution)
+end; //TElectronConcentration=class (TFitFunctEvolution)
+
+Tn_FeB=class (TFitFunctEvolution)
+private
+ fSL:TStringList;
+ fN_fe,fN_b,fT:double;
+ fN_feAr,fN_bAr,fTAr,fYAr:array of double;
+ fNmbr:word;
+ Function Func(Parameters:TArrSingle):double; override;
+ Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+ Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);override;//abstract;
+ Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word); override;
+public
+ Constructor Create;
+ procedure Free;
+end; //Tn_FeB=class (TFitFunctEvolution)
 
 TTauDAP=class (TFitFunctEvolution)
 private
@@ -4129,6 +4148,7 @@ begin
 
     EvFitShow(X,Fit,Nitt,100);
     inc(Nitt);
+//    HelpForMe(inttostr(Nitt));
   until (Nitt>fNit)or not(fIterWindow.Visible);
  finally
   EndFitting(X[MinElemNumber(Fit)],OutputData);
@@ -6464,6 +6484,122 @@ begin
 end;
 
 
+
+
+{ Tn_FeB }
+
+procedure Tn_FeB.BeforeFitness(InputData: Pvector);
+ var OpenDialog1:TOpenDialog;
+     i:integer;
+begin
+ inherited;
+ OpenDialog1:=TOpenDialog.Create(nil);
+ OpenDialog1.Filter:='Result file (ResultAll.dat)|*.dat';
+   if OpenDialog1.Execute()
+     then
+       begin
+//        Directory:=ExtractFilePath(OpenDialog1.FileName);
+        fSL.Clear;
+        fSL.LoadFromFile(OpenDialog1.FileName);
+        fSL.Delete(0);
+        SetLength(fN_feAr,fSL.Count);
+        SetLength(fN_bAr,fSL.Count);
+        SetLength(fTAr,fSL.Count);
+        SetLength(fYAr,fSL.Count);
+        for I := 0 to fSL.Count-1 do
+           begin
+             fN_feAr[i]:=FloatDataFromRow(fSL[i],1);
+             fN_bAr[i]:=FloatDataFromRow(fSL[i],2);
+             fTAr[i]:=FloatDataFromRow(fSL[i],3);
+             fYAr[i]:=FloatDataFromRow(fSL[i],fNmbr);
+           end;
+     end;
+  OpenDialog1.Free;
+end;
+
+constructor Tn_FeB.Create;
+begin
+ inherited Create('n_FeB','Ideality factor of Si_SC',
+                  4,0,0);
+ FXname[0]:='A';
+ FXname[1]:='C';
+ FXname[2]:='Eefo';
+ FXname[3]:='B';
+ fNmbr:=4;
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ fSL:=TStringList.Create;
+ CreateFooter();
+end;
+
+function Tn_FeB.FitnessFunc(InputData: Pvector; OutputData: TArrSingle): double;
+  var i:integer;
+begin
+  Result:=0;
+  for I := 0 to fSL.Count-1 do
+     begin
+       fN_fe:=fN_feAr[i];
+       fN_b:=fN_bAr[i];
+       fT:=fTAr[i];
+       Result:=Result+sqr(Func(OutputData)-fYAr[i]);
+     end;
+//  HelpForMe(inttostr(MilliSecond()));
+end;
+
+procedure Tn_FeB.Free;
+begin
+ fSL.Free;
+ inherited Free;
+end;
+
+function Tn_FeB.Func(Parameters: TArrSingle): double;
+begin
+ Result:=1+Parameters[0]*fT/(1+Parameters[3]*Power(fT,1.5)/fN_b
+    *exp(-(Parameters[2]-Parameters[1]*Log10(fN_fe))/Kb/fT));
+end;
+
+procedure Tn_FeB.RealToFile(InputData: PVector; var OutputData: TArrSingle;
+  Xlog, Ylog: boolean; suf: string);
+var Str1:TStringList;
+    i:integer;
+begin
+  Str1:=TStringList.Create;
+  Str1.Add('N_Fe N_B T n_Fe n_Fe_calk n_Fe n_Fe_calk');
+//  if fFileHeading<>'' then Str1.Add(fFileHeading);
+  for I := 0 to fSL.Count-1 do
+    begin
+     fN_fe:=fN_feAr[i];
+     fN_b:=fN_bAr[i];
+     fT:=fTAr[i];
+
+    str1.Add(StringDataFromRow(fSL[i],1)+' '
+             +StringDataFromRow(fSL[i],2)+' '
+             +StringDataFromRow(fSL[i],3)+' '
+             +StringDataFromRow(fSL[i],fNmbr)+' '
+             +StringDataFromRow(fSL[i],fNmbr)+' '
+             +FloatToStrF(Func(OutputData),ffExponent,10,0)+' '
+             +FloatToStrF(Func(OutputData),ffExponent,10,0));
+
+//   str1.Add(FloatToStrF(fN_fe,ffExponent,10,2)+' '
+//             +FloatToStrF(fN_b,ffExponent,10,2)+' '
+//             +FloatToStrF(fT,ffExponent,10,0)+' '
+//             +FloatToStrF(fYAr[i],ffExponent,10,0)+' '
+//             +FloatToStrF(fYAr[i],ffExponent,10,0)+' '
+//             +FloatToStrF(Func(OutputData),ffExponent,10,0)+' '
+//             +FloatToStrF(Func(OutputData),ffExponent,10,0));
+     end;
+  Str1.SaveToFile('ResultAllFit.dat');
+  Str1.Free;
+end;
+
+procedure Tn_FeB.RealToGraph(InputData: PVector; var OutputData: TArrSingle;
+  Series: TLineSeries; Xlog, Ylog: boolean; Np: Word);
+begin
+end;
+
+
+
 Procedure FunCreate(str:string; var F:TFitFunction);
 begin
   if str='Linear' then F:=TLinear.Create;
@@ -6524,10 +6660,9 @@ begin
   if str='Variated Polinom' then F:=TTwoPower.Create;
   if str='Mobility' then F:=TMobility.Create;
   if str='n vs T (donors and traps)' then F:=TElectronConcentration.Create;
-
+  if str='n_FeB' then F:=Tn_FeB.Create;
 //  if str='None' then F:=TDiod.Create;
 end;
-
 
 
 end.
