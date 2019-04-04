@@ -242,7 +242,7 @@ public
  {повертає середнеє квадратичне відносне
  відхилення апроксимації даних у InputData
  від самих даних}
- Function Deviation (InputData:PVector;OutputData:TArrSingle):double;overload;
+ Function Deviation (InputData:PVector;OutputData:TArrSingle):double;overload;virtual;
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);override;
 end;   // TFitFunc=class
@@ -913,9 +913,12 @@ private
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
+
 public
  Constructor Create;
  procedure Free;
+ Function Deviation (InputData:PVector;OutputData:TArrSingle):double;override;
+ 
 end; //Tn_FeB=class (TFitFunctEvolution)
 
 TTauDAP=class (TFitFunctEvolution)
@@ -6520,18 +6523,43 @@ end;
 constructor Tn_FeB.Create;
 begin
  inherited Create('n_FeB','Ideality factor of Si_SC',
-                  4,0,0);
- FXname[0]:='A';
- FXname[1]:='C';
+                  5,0,0);
+ FXname[0]:='n0';
+ FXname[1]:='E_Fe';
  FXname[2]:='Eefo';
- FXname[3]:='B';
- fNmbr:=4;
+ FXname[3]:='N_B';
+ FXname[4]:='E_B';
+ fNmbr:=5;
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
  fHasPicture:=False;
  fSL:=TStringList.Create;
  CreateFooter();
 end;
+
+function Tn_FeB.Deviation(InputData: PVector; OutputData: TArrSingle): double;
+ var i:integer;
+     Yfit:double;
+begin
+ Result:=ErResult;
+// Fitting (InputData,Param);
+ if OutputData[0]=ErResult then Exit;
+ Result:=0;
+  for I := 0 to fSL.Count-1 do
+     begin
+       fN_fe:=fN_feAr[i];
+       fN_b:=fN_bAr[i];
+       fT:=fTAr[i];
+       Yfit:=Func(OutputData);
+       if fYAr[i]<>0 then
+         Result:=Result+sqr((fYAr[i]-Yfit)/fYAr[i])
+                         else
+         if Yfit<>0 then
+           Result:=Result+sqr((fYAr[i]-Yfit)/Yfit);
+     end;
+ Result:=sqrt(Result)/fSL.Count;
+end;
+
 
 function Tn_FeB.FitnessFunc(InputData: Pvector; OutputData: TArrSingle): double;
   var i:integer;
@@ -6554,9 +6582,16 @@ begin
 end;
 
 function Tn_FeB.Func(Parameters: TArrSingle): double;
+ var Eeff:double;
 begin
- Result:=1+Parameters[0]*fT/(1+Parameters[3]*Power(fT,1.5)/fN_b
-    *exp(-(Parameters[2]-Parameters[1]*Log10(fN_fe))/Kb/fT));
+ Eeff:=Parameters[2]+Parameters[1]*log10(fN_fe)
+       +Parameters[4]*sqrt(fN_b){+Parameters[4]*fT};
+
+// Result:=1+Parameters[0]*fT/(1+Silicon.Nv(fT)*1e-6/fN_b
+//    *exp(-Eeff/Kb/fT));
+
+ Result:=1+Parameters[0]*fT*log10(fN_b)/(1+Parameters[3]*Power(fT,1.5)/fN_b
+    *exp(-Eeff/Kb/fT));
 end;
 
 procedure Tn_FeB.RealToFile(InputData: PVector; var OutputData: TArrSingle;
