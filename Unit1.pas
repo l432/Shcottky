@@ -3732,13 +3732,16 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
     repeat
      ShotName:=AnsiUpperCase(SR.name);
-    if FileNameIsBad(ShotName)then Continue;
-
+     if FileNameIsBad(ShotName)then Continue;
+     try
      Read_File(SR.name,Vax);
+     except
+     Vax^.T:=0;
+     end;
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'я файла - те що вводиться при вимірах :)
      if Vax^.T=0 then T_bool:=True;
-     {встановлюється змінна, яка показує що є файли з невизначеною температурою}
+//     {встановлюється змінна, яка показує що є файли з невизначеною температурою}
 
      dat[ord(fname)]:=ShotName;
      if length(dat[ord(fname)])<4 then insert('0',dat[0],1);
@@ -4081,7 +4084,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //      dat[ord(High(TColName))+1]:=FloatToStrF(Vax^.MeanY,ffExponent,10,2);
 //      dat[ord(High(TColName))+2]:=FloatToStrF(Vax^.StandartErrorY,ffExponent,10,2);
 
-      FunCreate(LDateFun.Caption,FitFunction);
+      FunCreate(LDateFun.Caption,FitFunction,SR.name);
       new(Vax2);
       Vax.Copy(Vax2^);
       if (LDateFun.Caption=FunctionPhotoDDiod)
