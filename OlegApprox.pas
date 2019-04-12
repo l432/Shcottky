@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..60]of string=
+  FuncName:array[0..61]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -38,7 +38,8 @@ const
            'T-Diod','Photo T-Diod','Shot-circuit Current',
            'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
            'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
-           'n vs T (donors and traps)','n_FeB','n_FeBnew');
+           'n vs T (donors and traps)',
+           'n_FeB','n_FeBnew','n_FeBpart');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -899,6 +900,14 @@ public
  Constructor Create;
 end; //TElectronConcentration=class (TFitFunctEvolution)
 
+
+TnFeBPart=class (TFitFunctEvolution)
+private
+ Function Func(Parameters:TArrSingle):double; override;
+ Function Weight(OutputData:TArrSingle):double;Override;
+public
+ Constructor Create;
+end;
 
 TManyArgumentsFitEvolution=class (TFitFunctEvolution)
 private
@@ -6845,38 +6854,50 @@ end;
 function Tn_FeBNew.Func(Parameters: TArrSingle): double;
  var Eeff:double;
 begin
- Eeff:=Parameters[1]
- +Parameters[2]*Log10(fAllArguments[0][fCAN])*fAllArguments[1][fCAN]
- -Parameters[3]*fAllArguments[1][fCAN];
+//---------------Fe-T-------------------------
 
- Result:=1+Parameters[0]*fAllArguments[1][fCAN]
-    *Power(log10(fAllArguments[0][fCAN]),0)
-// Result:=1+fAllArguments[1][fCAN]
-//    *(Parameters[0]+Parameters[2]*Power(log10(fAllArguments[0][fCAN]),0.5))
+// Eeff:=Parameters[1]
+//// +Parameters[2]/Log10(fAllArguments[0][fCAN])*fAllArguments[1][fCAN]
+// -Parameters[3]*fAllArguments[1][fCAN];
+//
+// Result:=1+Parameters[0]*fAllArguments[1][fCAN]
+////    *Power(log10(fAllArguments[0][fCAN]),0)
+//    *(1+Parameters[5]*exp(Log10(fAllArguments[0][fCAN])*Parameters[6]))
+////    Power(fAllArguments[0][fCAN],Parameters[6]*fAllArguments[1][fCAN]))
+//// Result:=1+fAllArguments[1][fCAN]
+////    *(Parameters[0]+Parameters[2]*Power(log10(fAllArguments[0][fCAN]),0.5))
+//    /(1+Silicon.Nv(fAllArguments[1][fCAN])*1e-6
+//       /Parameters[4]
+//      *exp(-Eeff/Kb/fAllArguments[1][fCAN]));
+
+//---------------------------B-T-----------------------------
+ Eeff:=Parameters[1]
+ -Parameters[2]*fAllArguments[1][fCAN]/Log10(fAllArguments[0][fCAN])
+// -Parameters[4]*Log10(fAllArguments[0][fCAN])
+ +Parameters[3]*fAllArguments[1][fCAN];
+
+ Result:=1+Parameters[0]*Power(fAllArguments[1][fCAN],1)
+    *(Power(log10(fAllArguments[0][fCAN]),3)
+//     +Parameters[4]/log10(fAllArguments[0][fCAN]))
+        )
     /(1+Silicon.Nv(fAllArguments[1][fCAN])*1e-6
-       /Parameters[4]
+      /fAllArguments[0][fCAN]
       *exp(-Eeff/Kb/fAllArguments[1][fCAN]));
 
-
+//==============n-Fe-srh=====================
 // Eeff:=Parameters[1]
 // -Parameters[2]*fAllArguments[1][fCAN]/Log10(fAllArguments[0][fCAN])
 // +Parameters[3]*fAllArguments[1][fCAN];
-//
+
+
+
+
 // Result:=1+Parameters[0]*fAllArguments[1][fCAN]
 //    *Power(log10(fAllArguments[0][fCAN]),3)
 //    /(1+Silicon.Nv(fAllArguments[1][fCAN])*1e-6
 //      /fAllArguments[0][fCAN]
 //      *exp(-Eeff/Kb/fAllArguments[1][fCAN]));
 
-// Eeff:=Parameters[1]
-// -Parameters[2]*fAllArguments[1][fCAN]/Log10(fAllArguments[0][fCAN])
-// +Parameters[3]*fAllArguments[1][fCAN];
-//
-// Result:=1+Parameters[0]*fAllArguments[1][fCAN]
-//    *Power(log10(fAllArguments[0][fCAN]),3)
-//    /(1+Silicon.Nv(fAllArguments[1][fCAN])*1e-6
-//      /fAllArguments[0][fCAN]
-//      *exp(-Eeff/Kb/fAllArguments[1][fCAN]));
 
 end;
 
@@ -6884,12 +6905,14 @@ constructor Tn_FeBNew.Create(FileName:string='');
 begin
  fFileName:=FileName;
  inherited Create('n_FeBnew','Ideality factor of Si_SC new',
-                  5,0,0,2,3,FileName);
+                  5,0,0,2,4,FileName);
  FXname[0]:='n0';
  FXname[1]:='Eefo';
  FXname[2]:='E_B';
  FXname[3]:='E_T';
  FXname[4]:='Nb';
+// FXname[5]:='Is';
+// FXname[6]:='To';
 
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
@@ -7127,8 +7150,53 @@ begin
   if str='n vs T (donors and traps)' then F:=TElectronConcentration.Create;
   if str='n_FeB' then F:=Tn_FeB.Create;
   if str='n_FeBnew' then F:=Tn_FeBNew.Create(FileName);
-//  if str='None' then F:=TDiod.Create;
+  if str='n_FeBpart' then F:=TnFeBPart.Create;
+  if str='None' then F:=TnFeBPart.Create;
 end;
 
+
+{ TnFeBPart }
+
+constructor TnFeBPart.Create;
+
+begin
+ inherited Create('n_FeBpart','Dependence',
+                  5,0,0);
+ FXname[0]:='n0';
+ FXname[1]:='Eefo';
+ FXname[2]:='E_B';
+ FXname[3]:='E_T';
+ FXname[4]:='Nb';
+
+
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+ CreateFooter();
+
+end;
+
+function TnFeBPart.Func(Parameters: TArrSingle): double;
+ var Eeff:double;
+begin
+ Eeff:=Parameters[1]
+ -Parameters[2]*Power(fx,1)/Log10(Parameters[4])
+// -Parameters[4]*Log10(fAllArguments[0][fCAN])
+ +Parameters[3]*fX;
+
+ Result:=1+Parameters[0]*Power(fX,1.5)
+    *(Power(log10(Parameters[4]),3)
+//     +Parameters[4]/log10(fAllArguments[0][fCAN]))
+        )
+    /(1+Silicon.Nv(fX)*1e-6
+      /Parameters[4]
+      *exp(-Eeff/Kb/fx));
+
+end;
+
+function TnFeBPart.Weight(OutputData: TArrSingle): double;
+begin
+  Result:=1;
+end;
 
 end.

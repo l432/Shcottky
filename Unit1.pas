@@ -3733,6 +3733,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     repeat
      ShotName:=AnsiUpperCase(SR.name);
      if FileNameIsBad(ShotName)then Continue;
+//     showmessage(ShotName);
      try
      Read_File(SR.name,Vax);
      except
