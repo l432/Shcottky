@@ -6877,12 +6877,27 @@ begin
  +Parameters[3]*fAllArguments[1][fCAN];
 
  Result:=1+Parameters[0]*Power(fAllArguments[1][fCAN],1)
-    *(Power(log10(fAllArguments[0][fCAN]),3)
+    *(Power(log10(fAllArguments[0][fCAN]),2.8)
 //     +Parameters[4]/log10(fAllArguments[0][fCAN]))
         )
     /(1+Silicon.Nv(fAllArguments[1][fCAN])*1e-6
       /fAllArguments[0][fCAN]
       *exp(-Eeff/Kb/fAllArguments[1][fCAN]));
+
+
+// Eeff:=Parameters[1]
+//// -Parameters[2]*Power(fx,1.5)/Log10(Parameters[4])
+//// +Parameters[3]*fX
+// ;
+//
+// Result:=1+Parameters[0]*Power(fAllArguments[1][fCAN],1.5)
+//    *(Power(log10(fAllArguments[0][fCAN]),0)
+////     +Parameters[4]/log10(fAllArguments[0][fCAN]))
+//        )
+//    /(1+Silicon.Nv(fAllArguments[1][fCAN])*1e-6
+//      *exp(Parameters[2])
+//      /fAllArguments[0][fCAN]
+//      *exp(-Eeff/Kb/fAllArguments[1][fCAN]));
 
 //==============n-Fe-srh=====================
 // Eeff:=Parameters[1]
@@ -7179,19 +7194,35 @@ end;
 function TnFeBPart.Func(Parameters: TArrSingle): double;
  var Eeff:double;
 begin
+// Eeff:=Parameters[1]
+//// -Parameters[2]*Power(fx,1.5)/Log10(Parameters[4])
+//// +Parameters[3]*fX
+// ;
+//
+// Result:=1+Parameters[0]*Power(fX,1.5)
+//    *(Power(log10(Parameters[4]),0)
+////     +Parameters[4]/log10(fAllArguments[0][fCAN]))
+//        )
+//    /(1+Silicon.Nv(fX)*1e-6
+//      *exp(Parameters[2])
+//      /Parameters[4]
+//      *exp(-Eeff/Kb/fx));
+
+
  Eeff:=Parameters[1]
-// -Parameters[2]*Power(fx,1.5)/Log10(Parameters[4])
-// +Parameters[3]*fX
+ -Parameters[2]*Power(fx,1)/Log10(Parameters[4])
+ +Parameters[3]*fX
  ;
 
- Result:=1+Parameters[0]*Power(fX,1.5)
-    *(Power(log10(Parameters[4]),0)
+ Result:=1+Parameters[0]*Power(fX,1)
+    *(Power(log10(Parameters[4]),2.8)
 //     +Parameters[4]/log10(fAllArguments[0][fCAN]))
         )
     /(1+Silicon.Nv(fX)*1e-6
-      *exp(Parameters[2])
+//      *exp(Parameters[2])
       /Parameters[4]
       *exp(-Eeff/Kb/fx));
+
 
 end;
 
