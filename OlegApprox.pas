@@ -6839,7 +6839,7 @@ begin
 
 
  Str1.SaveToFile(AnsiLeftStr(fFileName,Length(fFileName)-4)
-                    +'All.dat');
+                    +'Allfit.dat');
  Str1.Free;
 
 end;
@@ -6873,13 +6873,12 @@ begin
 //---------------------------B-T-----------------------------
  Eeff:=Parameters[1]
  -Parameters[2]*Power(fAllArguments[1][fCAN],1)/Log10(fAllArguments[0][fCAN])
-// -Parameters[4]*Log10(fAllArguments[0][fCAN])
  +Parameters[3]*fAllArguments[1][fCAN];
 
- Result:=1+Parameters[0]*Power(fAllArguments[1][fCAN],1)
-    *(Power(log10(fAllArguments[0][fCAN]),2.8)
-//     +Parameters[4]/log10(fAllArguments[0][fCAN]))
-        )
+
+ Result:=1+Parameters[0]*Power(fAllArguments[1][fCAN],Parameters[5])
+//    *Power(log10(fAllArguments[0][fCAN]),2.8)
+    *Power(log10(fAllArguments[0][fCAN]),Parameters[4])
     /(1+Silicon.Nv(fAllArguments[1][fCAN])*1e-6
       /fAllArguments[0][fCAN]
       *exp(-Eeff/Kb/fAllArguments[1][fCAN]));
@@ -6920,13 +6919,13 @@ constructor Tn_FeBNew.Create(FileName:string='');
 begin
  fFileName:=FileName;
  inherited Create('n_FeBnew','Ideality factor of Si_SC new',
-                  5,0,0,2,3,FileName);
+                  6,0,0,2,3,FileName);
  FXname[0]:='n0';
  FXname[1]:='Eefo';
  FXname[2]:='E_B';
  FXname[3]:='E_T';
  FXname[4]:='Nb';
-// FXname[5]:='Is';
+ FXname[5]:='mT';
 // FXname[6]:='To';
 
  fTemperatureIsRequired:=False;
@@ -7176,23 +7175,31 @@ constructor TnFeBPart.Create;
 
 begin
  inherited Create('n_FeBpart','Dependence',
-                  5,0,0);
+//                  6,0,0);
+                  5,1,0);
  FXname[0]:='n0';
  FXname[1]:='Eefo';
  FXname[2]:='E_B';
  FXname[3]:='E_T';
- FXname[4]:='Nb';
+// FXname[4]:='Nb';
+// FXname[5]:='Tm';
+ FXname[4]:='Tm';
 
 
  fTemperatureIsRequired:=False;
  fSampleIsRequired:=False;
  fHasPicture:=False;
+
+ FVarManualDefinedOnly[0]:=True;
+ FVarName[0]:='Nb';
+
  CreateFooter();
 
 end;
 
 function TnFeBPart.Func(Parameters: TArrSingle): double;
  var Eeff:double;
+     Nb:double;
 begin
 // Eeff:=Parameters[1]
 //// -Parameters[2]*Power(fx,1.5)/Log10(Parameters[4])
@@ -7208,19 +7215,20 @@ begin
 //      /Parameters[4]
 //      *exp(-Eeff/Kb/fx));
 
+//Nb:=Parameters[4];
+Nb:=FVariab[0];
 
  Eeff:=Parameters[1]
- -Parameters[2]*Power(fx,1)/Log10(Parameters[4])
- +Parameters[3]*fX
+// -Parameters[2]*Power(fx,1)/Log10(Parameters[4])
+// +Parameters[3]*fX
+ -Parameters[3]*fX
  ;
 
- Result:=1+Parameters[0]*Power(fX,1)
-    *(Power(log10(Parameters[4]),2.8)
-//     +Parameters[4]/log10(fAllArguments[0][fCAN]))
-        )
+// Result:=1+Parameters[0]*Power(fX,Parameters[5])
+ Result:=1+Parameters[0]*Power(fX,Parameters[4])
+    *Power(log10(Nb),2.85)
     /(1+Silicon.Nv(fX)*1e-6
-//      *exp(Parameters[2])
-      /Parameters[4]
+      /Nb
       *exp(-Eeff/Kb/fx));
 
 
