@@ -7221,14 +7221,18 @@ Nb:=FVariab[0];
  Eeff:=Parameters[1]
 // -Parameters[2]*Power(fx,1)/Log10(Parameters[4])
 // +Parameters[3]*fX
- -Parameters[3]*fX
+
+// -Parameters[3]*fX
  ;
 
 // Result:=1+Parameters[0]*Power(fX,Parameters[5])
+
  Result:=1+Parameters[0]*Power(fX,Parameters[4])
-    *Power(log10(Nb),2.85)
-    /(1+Silicon.Nv(fX)*1e-6
-      /Nb
+//    *Power(log10(Nb),2.85)
+    /(1+Silicon.Nv(fX)
+//    *1e-6
+    *Parameters[2]
+//      /Nb
       *exp(-Eeff/Kb/fx));
 
 
