@@ -7199,7 +7199,7 @@ end;
 
 function TnFeBPart.Func(Parameters: TArrSingle): double;
  var Eeff:double;
-     Nb:double;
+     Nb,gamma:double;
 begin
 // Eeff:=Parameters[1]
 //// -Parameters[2]*Power(fx,1.5)/Log10(Parameters[4])
@@ -7217,6 +7217,8 @@ begin
 
 //Nb:=Parameters[4];
 Nb:=FVariab[0];
+gamma:=Parameters[2];
+//gamma:=Power((1e15/Power(10,FVariab[0])),11)*(6e12+Parameters[2])/(6e11+Parameters[2]);
 
  Eeff:=Parameters[1]
 // -Parameters[2]*Power(fx,1)/Log10(Parameters[4])
@@ -7231,7 +7233,7 @@ Nb:=FVariab[0];
 //    *Power(log10(Nb),2.85)
     /(1+Silicon.Nv(fX)
 //    *1e-6
-    *Parameters[2]
+    *gamma
 //      /Nb
       *exp(-Eeff/Kb/fx));
 
