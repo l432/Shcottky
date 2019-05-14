@@ -507,7 +507,7 @@ $E_{di}$ is the energy level of an $i$th donor from $E_c$,
 $N_{tj}$ and $E_{tj}$ are the density and energy level of an $j$th electron trap,
 
 \noindent
-$f_{FD}(T,E)$ is the Fermi--Dirac distribution function for donors 
+$f_{FD}(T,E)$ is the Fermi--Dirac distribution function for donors
 
 \noindent
 and electron traps
@@ -515,7 +515,45 @@ and electron traps
     f_{FD}(T,E)=\left\{1+\frac{1}{2}\exp\left[\frac{E_F(T)-E}{kT}\right]\right\}^{-1}\,.
 \end{equation*}
 
+rr
 
+\begin{equation*}
+    n(N_B, T)=1+\frac{n_0T^{m_T}(\lg N_B)^{m_B}}{1+\frac{N_{v,Si}(T)}{N_B}\exp\left(-\frac{E_{ef}}{kT}\right)}
+\end{equation*}
+
+\begin{equation*}
+    E_{ef}=E_{ef,0}-\frac{E_B T}{\lg N_B}+E_T T
+\end{equation*}
+
+$\qquad\qquad$boron concentration $N_B$ ($[N_B]=$cm$^{-3}$) in first column of file,
+ 
+$\qquad\qquad$ $T$ in second column, 
+ideality factor $n$ in $N_{fCol}$ column 
+
+
+rr
+
+\begin{equation*}
+    n(N_Fe, N_B, T)=1+\frac{n_0T(\lg N_B)^{3}(\lg N_{Fe})^{3}}{1+\frac{N_{v,Si}(T)}{N_B}\exp\left(-\frac{E_{ef}}{kT}\right)}
+\end{equation*}
+
+\begin{equation*}
+    E_{ef}=E_{ef,0}-\frac{E_B T}{\lg N_B}+E_T T+\frac{E_{Fe}}{\lg N_{Fe}}
+\end{equation*}
+
+$\qquad\qquad$iron concentration $N_{Fe}$ must be in first column of file,
+
+$\qquad\qquad$boron concentration $N_B$ in second column of file ($[N_B],\, [N_{Fe}]=$cm$^{-3}$),
+
+$\qquad\qquad$$T$ in third column, 
+ideality factor $n$ in $N_{fCol}$ column 
+
+
+rr
+
+\begin{equation*}
+    n(T)=1+\frac{n_0T^{m_T}}{1+\gamma N_{v,Si}(T)\exp\left(-\frac{E_{eff}}{kT}\right)}
+\end{equation*}
 
 
 \end{document}
