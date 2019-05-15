@@ -910,6 +910,15 @@ public
  Constructor Create;
 end;
 
+
+TIV_thin=class (TFitFunctEvolution)
+private
+// Function Func(Parameters:TArrSingle):double; override;
+// Function Weight(OutputData:TArrSingle):double;Override;
+public
+ Constructor Create;
+end;
+
 TManyArgumentsFitEvolution=class (TFitFunctEvolution)
 private
  fFileName:string;
@@ -7066,5 +7075,31 @@ begin
 end;
 
 
+
+{ TIV_thin }
+
+constructor TIV_thin.Create;
+begin
+ inherited Create('IV_thin','IV for thin film SC',
+                  8,1,0);
+ FXname[0]:='I01';
+ FXname[1]:='n1';
+ FXname[2]:='Rsh1';
+ FXname[3]:='I02';
+ FXname[4]:='n2';
+ FXname[5]:='Rsh2';
+ FXname[6]:='Rs';
+ FXname[7]:='Iph';
+
+
+// fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+
+// FVarManualDefinedOnly[0]:=True;
+// FVarName[0]:='N_B';
+
+ CreateFooter();
+end;
 
 end.
