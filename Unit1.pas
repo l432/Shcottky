@@ -3623,12 +3623,56 @@ end;
    Result:=Diod.Semiconductor.Material.n_i(T);
   end;
 
+
+function Button(fy:double):double;
+
+ var Vt,temp1,temp2,temp11,temp21,FVariab:double;
+     Parameters:array of double;
+
+begin
+ FVariab:=295.1;
+ SetLength(Parameters,8);
+ Parameters[0]:=1e-5;
+ Parameters[1]:=1;
+ Parameters[2]:=1e4;
+ Parameters[3]:=1e-7;
+ Parameters[4]:=2;
+ Parameters[5]:=1e5;
+ Parameters[6]:=10;
+ Parameters[7]:=2.3e-4;
+
+ Vt:=Kb*FVariab;
+ temp1:=Parameters[2]/Parameters[1];
+ temp2:=Parameters[5]/Parameters[4];
+
+ temp11:=temp1*Parameters[0];
+ temp21:=temp2*Parameters[3];
+
+// Result:=fY*Parameters[6]+
+//       Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])/
+//         Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
+
+ //         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
+//               /Power(Lambert(temp21/Vt*exp(temp2/Vt)*(fY-Parameters[3]))/temp21,Parameters[4]));
+
+
+ Result:=fY*Parameters[6]
+         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
+               /Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
+
+end;
+
+
 procedure TForm1.Button1Click(Sender: TObject);
  var x:PVector;
      d:array of double;
 
 begin
-showmessage(inttostr(GetHDDSerialNumber));
+showmessage(floattostr(Button(-2.3e-4)));
+showmessage(floattostr(Button(2e-4)));
+
+
+//showmessage(inttostr(GetHDDSerialNumber));
 
 
 //showmessage(floattostr(ElectronConcentration(150,[1.385e14,1.22e23,5.527e-6,3.622e23,7.134e-2,4.028e23,7.185e-2])));

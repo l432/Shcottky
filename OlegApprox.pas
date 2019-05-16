@@ -17,7 +17,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..61]of string=
+  FuncName:array[0..62]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -40,7 +40,7 @@ const
            'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
            'n vs T (donors and traps)',
            'Ideal. Factor vs T & N_B & N_Fe','Ideal. Factor vs T & N_B',
-           'Ideal. Factor vs T');
+           'Ideal. Factor vs T','IV thin SC');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -913,8 +913,16 @@ end;
 
 TIV_thin=class (TFitFunctEvolution)
 private
-// Function Func(Parameters:TArrSingle):double; override;
+ Function Func(Parameters:TArrSingle):double; override;
 // Function Weight(OutputData:TArrSingle):double;Override;
+ Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+//              Xlog,Ylog:boolean; suf:string);override;
+ Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
+ Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word); override;
 public
  Constructor Create;
 end;
@@ -7071,6 +7079,7 @@ begin
   if str='Ideal. Factor vs T & N_B & N_Fe' then F:=Tn_FeB.Create;
   if str='Ideal. Factor vs T & N_B' then F:=Tn_FeBNew.Create(FileName);
   if str='Ideal. Factor vs T' then F:=TnFeBPart.Create;
+  if str='IV thin SC' then F:=TIV_thin.Create;
 //  if str='None' then F:=TnFeBPart.Create;
 end;
 
@@ -7100,6 +7109,80 @@ begin
 // FVarName[0]:='N_B';
 
  CreateFooter();
+end;
+
+function TIV_thin.FitnessFunc(InputData: Pvector;
+               OutputData: TArrSingle): double;
+ var i:integer;
+begin
+  Result:=0;
+  for I := 0 to High(InputData^.X) do
+     begin
+       fX:=InputData^.X[i];
+       fY:=InputData^.Y[i];
+       Result:=Result+sqr(Func(OutputData)-fX);
+//       Result:=Result+sqr((Func(OutputData)-fX)/(fX+0.015));
+     end;
+
+end;
+
+function TIV_thin.Func(Parameters: TArrSingle): double;
+ var Vt,temp10,temp20,temp11,temp21{, temp12, temp22}:double;
+
+begin
+ Vt:=Kb*FVariab[0];
+
+ temp10:=1/Vt/Parameters[1];// q/kTn
+ temp20:=1/Vt/Parameters[4];
+
+ temp11:=Parameters[2]*temp10; // Rsh q/kTn
+ temp21:=Parameters[5]*temp20;
+
+ Result:=(fY+Parameters[7]+Parameters[0])*Parameters[2]
+        -Lambert(temp11*Parameters[0]
+                 *exp(temp11*(fY+Parameters[7]+Parameters[0])))
+         /temp10
+        +Lambert(temp21*Parameters[3]
+                 *exp(-temp21*(fY-Parameters[3])))
+         /temp20
+         +(fY-Parameters[3])*Parameters[5]
+         +fY*Parameters[6];
+
+// temp1:=Parameters[2]/Parameters[1];
+// temp2:=Parameters[5]/Parameters[4];
+//
+// temp11:=temp1*Parameters[0];
+// temp21:=temp2*Parameters[3];
+//
+// Result:=fY*Parameters[6]
+//         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
+//               /Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
+
+end;
+
+
+procedure TIV_thin.RealToGraph(InputData: PVector; var OutputData: TArrSingle;
+  Series: TLineSeries; Xlog, Ylog: boolean; Np: Word);
+var i:integer;
+begin
+  Series.Clear;
+  for I := 0 to High(InputData^.X) do
+    begin
+    fX:=InputData^.X[i];
+    fY:=InputData^.Y[i];
+    Series.AddXY(RealFunc(OutputData), fy);
+    end;
+end;
+
+function TIV_thin.StringToFile(InputData: PVector; Number: integer;
+  OutputData: TArrSingle; Xlog, Ylog: boolean): string;
+begin
+ fX:=InputData^.X[Number];
+ fY:=InputData^.Y[Number];
+ Result:=FloatToStrF(InputData^.X[Number],ffExponent,4,0)+' '+
+         FloatToStrF(InputData^.Y[Number],ffExponent,4,0)+' '+
+         FloatToStrF(RealFunc(OutputData),ffExponent,4,0)+' '+
+         FloatToStrF(InputData^.Y[Number],ffExponent,4,0);
 end;
 
 end.
