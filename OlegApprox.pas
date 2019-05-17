@@ -923,7 +923,13 @@ private
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
+ Procedure CreateFooter;override;
+ Procedure AddParDetermination(InputData:PVector;
+                               var OutputData:TArrSingle); override;
+
+
 public
+ Function Deviation (InputData:PVector;OutputData:TArrSingle):double;override;
  Constructor Create;
 end;
 
@@ -7087,10 +7093,101 @@ end;
 
 { TIV_thin }
 
+procedure TIV_thin.AddParDetermination(InputData: PVector;
+  var OutputData: TArrSingle);
+begin
+  inherited AddParDetermination(InputData,OutputData);
+
+
+  OutputData[FNx+1]:=ErResult;
+  OutputData[FNx+2]:=ErResult;
+  OutputData[FNx+3]:=ErResult;
+  OutputData[FNx+4]:=ErResult;
+  OutputData[FNx+5]:=ErResult;
+  OutputData[FNx]:=ErResult;
+
+  if OutputData[7]<Isc_min then Exit;
+  fY:=0;
+  OutputData[8]:=Func(OutputData);
+  OutputData[9]:=-Bisection(CasrtoIV,
+                           [OutputData[0],OutputData[1],
+                            OutputData[2],OutputData[3],
+                            OutputData[4],OutputData[5],
+                            OutputData[6],OutputData[7],
+                            FVariab[0]],
+                            0,-2*OutputData[7]);
+
+// if mode in [3,4,5] then
+//  begin
+//    a:=0;
+//    Fa:=0;
+//    repeat
+//      b:=a+delVm;
+//      Im:=Full_IV(F,b,Data,Rsh,Iph);
+//      Fb:=b*Im;
+//      if Fb<Fa then
+//       begin
+//         a:=b;
+//         Fa:=Fb;
+//       end
+//               else
+//       Break;
+//    until (False);
+//   case mode of
+//     4:Result:=a;
+//     5:Result:=abs(Im);
+//     else  Result:=abs(Fa);
+//   end;
+// end; //if mode=3 then
+
+//   FXname[8]:='Voc';
+//   FXname[9]:='Isc';
+//   FXname[10]:='Pm';
+//   FXname[11]:='FF';
+//   FXname[12]:='Vm';
+//   FXname[13]:='Im';
+
+// Result:=CasrtoIV(fY,[Parameters[0],Parameters[1],
+//                      Parameters[2],Parameters[3],
+//                      Parameters[4],Parameters[5],
+//                      Parameters[6],Parameters[7],
+//                      FVariab[0]]);
+
+
+//  if (OutputData[6]>Isc_min) then
+//    begin
+//     SetLength(Data,6);
+//     Data[0]:=OutputData[0];
+//     Data[1]:=OutputData[1];
+//     Data[2]:=OutputData[2];
+//     Data[3]:=OutputData[4];
+//     Data[4]:=OutputData[5];
+//     Data[5]:=FVariab[0];
+//
+//     OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,fFunc,Data,OutputData[3],OutputData[6]);
+//     OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,fFunc,Data,OutputData[3],OutputData[6]);
+//
+//    end;
+//
+//  if (OutputData[FNx]>Voc_min)and
+//     (OutputData[FNx+1]>Isc_min)and
+//     (OutputData[FNx]<>ErResult)and
+//     (OutputData[FNx+1]<>ErResult) then
+//    begin
+//     OutputData[9]:=Voc_Isc_Pm_Vm_Im(3,fFunc,Data,OutputData[3],OutputData[6]);
+//     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,fFunc,Data,OutputData[3],OutputData[6]);
+//     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,fFunc,Data,OutputData[3],OutputData[6]);
+//
+//     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+//    end;
+//
+//
+end;
+
 constructor TIV_thin.Create;
 begin
  inherited Create('IV_thin','IV for thin film SC',
-                  8,1,0);
+                  8,1,6);
  FXname[0]:='I01';
  FXname[1]:='n1';
  FXname[2]:='Rsh1';
@@ -7111,6 +7208,41 @@ begin
  CreateFooter();
 end;
 
+procedure TIV_thin.CreateFooter;
+begin
+  inc(fNAddX);
+  SetLength(FXname,FNx+fNAddX);
+
+
+   fYminDontUsed:=True;
+   FXname[8]:='Voc';
+   FXname[9]:='Isc';
+   FXname[10]:='Pm';
+   FXname[11]:='FF';
+   FXname[12]:='Vm';
+   FXname[13]:='Im';
+
+  FXname[High(FXname)]:='dev';
+  ReadFromIniFile();
+end;
+
+function TIV_thin.Deviation (InputData:PVector;OutputData:TArrSingle):double;
+ var i:integer;
+//     Xfit:double;
+begin
+ Result:=ErResult;
+ if OutputData[0]=ErResult then Exit;
+ Result:=0;
+ for I := 0 to High(InputData^.X) do
+  begin
+   fX:=InputData^.X[i];
+   fY:=InputData^.Y[i];
+   Result:=Result+sqr((Func(OutputData)-fX)/Max(0.01,abs(fX)));
+
+  end;
+ Result:=sqrt(Result)/InputData^.n;
+end;
+
 function TIV_thin.FitnessFunc(InputData: Pvector;
                OutputData: TArrSingle): double;
  var i:integer;
@@ -7121,42 +7253,40 @@ begin
        fX:=InputData^.X[i];
        fY:=InputData^.Y[i];
        Result:=Result+sqr(Func(OutputData)-fX);
-//       Result:=Result+sqr((Func(OutputData)-fX)/(fX+0.015));
+//       Result:=Result+sqr((Func(OutputData)-fX)/Max(0.01,abs(fX)));
+
      end;
 
 end;
 
 function TIV_thin.Func(Parameters: TArrSingle): double;
- var Vt,temp10,temp20,temp11,temp21{, temp12, temp22}:double;
+// var Vt,temp10,temp20,temp11,temp21{, temp12, temp22}:double;
 
 begin
- Vt:=Kb*FVariab[0];
+ Result:=CasrtoIV(fY,[Parameters[0],Parameters[1],
+                      Parameters[2],Parameters[3],
+                      Parameters[4],Parameters[5],
+                      Parameters[6],Parameters[7],
+                      FVariab[0]]);
 
- temp10:=1/Vt/Parameters[1];// q/kTn
- temp20:=1/Vt/Parameters[4];
-
- temp11:=Parameters[2]*temp10; // Rsh q/kTn
- temp21:=Parameters[5]*temp20;
-
- Result:=(fY+Parameters[7]+Parameters[0])*Parameters[2]
-        -Lambert(temp11*Parameters[0]
-                 *exp(temp11*(fY+Parameters[7]+Parameters[0])))
-         /temp10
-        +Lambert(temp21*Parameters[3]
-                 *exp(-temp21*(fY-Parameters[3])))
-         /temp20
-         +(fY-Parameters[3])*Parameters[5]
-         +fY*Parameters[6];
-
-// temp1:=Parameters[2]/Parameters[1];
-// temp2:=Parameters[5]/Parameters[4];
+// Vt:=Kb*FVariab[0];
 //
-// temp11:=temp1*Parameters[0];
-// temp21:=temp2*Parameters[3];
+// temp10:=1/Vt/Parameters[1];// q/kTn
+// temp20:=1/Vt/Parameters[4];
 //
-// Result:=fY*Parameters[6]
-//         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
-//               /Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
+// temp11:=Parameters[2]*temp10; // Rsh q/kTn
+// temp21:=Parameters[5]*temp20;
+//
+// Result:=(fY+Parameters[7]+Parameters[0])*Parameters[2]
+//        -Lambert(temp11*Parameters[0]
+//                 *exp(temp11*(fY+Parameters[7]+Parameters[0])))
+//         /temp10
+//        +Lambert(temp21*Parameters[3]
+//                 *exp(-temp21*(fY-Parameters[3])))
+//         /temp20
+//         +(fY-Parameters[3])*Parameters[5]
+//         +fY*Parameters[6];
+
 
 end;
 

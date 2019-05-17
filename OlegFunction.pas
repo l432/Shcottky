@@ -188,6 +188,8 @@ Procedure CreateDirSafety(DirName: string);
 в поточному каталозі, ігноруються можливі помилки;
 як правило, ці помилки викликані тим, що директорія з такою назвою вже є}
 
+Function CasrtoIV(I:double;Parameters:array of double):double;
+
 implementation
 
 uses
@@ -1485,5 +1487,30 @@ begin
      ;
   end;
 end;
+
+Function CasrtoIV(I:double;Parameters:array of double):double;
+ var Vt,temp10,temp20,temp11,temp21:double;
+
+begin
+ Vt:=Kb*Parameters[8];
+
+ temp10:=1/Vt/Parameters[1];// q/kTn
+ temp20:=1/Vt/Parameters[4];
+
+ temp11:=Parameters[2]*temp10; // Rsh q/kTn
+ temp21:=Parameters[5]*temp20;
+
+ Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
+        -Lambert(temp11*Parameters[0]
+                 *exp(temp11*(I+Parameters[7]+Parameters[0])))
+         /temp10
+        +Lambert(temp21*Parameters[3]
+                 *exp(-temp21*(I-Parameters[3])))
+         /temp20
+         +(I-Parameters[3])*Parameters[5]
+         +I*Parameters[6];
+end;
+
+
 
 end.
