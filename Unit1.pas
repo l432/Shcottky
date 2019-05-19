@@ -3630,35 +3630,42 @@ function Button(fy:double):double;
      Parameters:array of double;
 
 begin
- FVariab:=295.1;
- SetLength(Parameters,8);
- Parameters[0]:=1e-5;
- Parameters[1]:=1;
- Parameters[2]:=1e4;
- Parameters[3]:=1e-7;
- Parameters[4]:=2;
- Parameters[5]:=1e5;
- Parameters[6]:=10;
- Parameters[7]:=2.3e-4;
 
- Vt:=Kb*FVariab;
- temp1:=Parameters[2]/Parameters[1];
- temp2:=Parameters[5]/Parameters[4];
+// FVariab:=295.1;
+// SetLength(Parameters,8);
+// Parameters[0]:=1e-5;
+// Parameters[1]:=1;
+// Parameters[2]:=1e4;
+// Parameters[3]:=1e-7;
+// Parameters[4]:=2;
+// Parameters[5]:=1e5;
+// Parameters[6]:=10;
+// Parameters[7]:=2.3e-4;
+//
+// Vt:=Kb*FVariab;
+// temp1:=Parameters[2]/Parameters[1];
+// temp2:=Parameters[5]/Parameters[4];
+//
+// temp11:=temp1*Parameters[0];
+// temp21:=temp2*Parameters[3];
+//
+//// Result:=fY*Parameters[6]+
+////       Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])/
+////         Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
+//
+// //         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
+////               /Power(Lambert(temp21/Vt*exp(temp2/Vt)*(fY-Parameters[3]))/temp21,Parameters[4]));
+//
+//
+// Result:=fY*Parameters[6]
+//         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
+//               /Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
 
- temp11:=temp1*Parameters[0];
- temp21:=temp2*Parameters[3];
-
-// Result:=fY*Parameters[6]+
-//       Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])/
-//         Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
-
- //         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
-//               /Power(Lambert(temp21/Vt*exp(temp2/Vt)*(fY-Parameters[3]))/temp21,Parameters[4]));
-
-
- Result:=fY*Parameters[6]
-         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
-               /Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
+ Result:=CasrtoIV(fy,[3.747e-11,1.866,
+                      7.399e7,1e-13,
+                      1,2.675e3,
+                      1e-5,0,
+                      295]);
 
 end;
 
@@ -3668,8 +3675,8 @@ procedure TForm1.Button1Click(Sender: TObject);
      d:array of double;
 
 begin
-showmessage(floattostr(Button(-2.3e-4)));
-showmessage(floattostr(Button(2e-4)));
+showmessage(floattostr(Button(2e-8)));
+showmessage(floattostr(Button(1.07e-4)));
 
 
 //showmessage(inttostr(GetHDDSerialNumber));

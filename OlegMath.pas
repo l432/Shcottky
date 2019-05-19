@@ -310,6 +310,11 @@ Function GoldenSection(fun:TFunSingle; a, b:double):double;
 Function Lambert(x:double):double;
 {обчислює значення функції Ламберта}
 
+Function gLambert(x:double):double;
+{обчислюється значення функції g(x)=log(Lambert(exp(x)));
+ця функція використовується для обчислення ВАХ щоб не
+підносити експрненту у дуже великий ступінь}
+
 Procedure LambertIV (A:Pvector; n,Rs,I0,Rsh:double; var B:PVector);
 {в В розміщується результат розрахунку
 ВАХ по даним напруги з А за допомогою
@@ -2455,6 +2460,40 @@ begin
   until (eps<1e-7)or(i>1e5);
   if (i>1e5) then Result:=ErResult
              else Result:=temp2;
+end;
+
+Function gLambert(x:double):double;
+{обчислюється значення функції g(x)=log(Lambert(exp(x)));
+ця функція використовується для обчислення ВАХ щоб не
+підносити експрненту у дуже великий ступінь}
+ const Nit_Max=1e5;
+       eps=1e-7;
+ var e,y0,y1,ey0:double;
+     i:integer;
+     ToStopIteration:boolean;
+begin
+ e:=exp(1);
+ if x<=-e then y0:=x
+          else
+     if x>=e then y0:=log10(x)
+             else y0:=-e+(1+e)/2/e*(x+e);
+
+ i:=0;
+  try
+    repeat
+     ey0:=exp(y0);
+     inc(i);
+     y1:=y0-2*(y0+ey0-x)*(1+ey0)/(2*sqr(1+ey0)-(y0+ey0-x)*ey0);
+     if abs(y0)<=1 then ToStopIteration:=abs(y0-y1)<eps
+                   else ToStopIteration:=IsEqual(y0,y1,eps);
+     y0:=y1;
+    until (ToStopIteration or (i>Nit_Max));
+    
+  except
+
+  end;
+  Result:=y0;
+
 end;
 
 Procedure LambertIV (A:Pvector; n,Rs,I0,Rsh:double; var B:PVector);

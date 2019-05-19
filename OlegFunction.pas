@@ -1489,7 +1489,7 @@ begin
 end;
 
 Function CasrtoIV(I:double;Parameters:array of double):double;
- var Vt,temp10,temp20,temp11,temp21:double;
+ var Vt,temp10,temp20,temp11,temp21,x1,x2:double;
 
 begin
  Vt:=Kb*Parameters[8];
@@ -1500,15 +1500,23 @@ begin
  temp11:=Parameters[2]*temp10; // Rsh q/kTn
  temp21:=Parameters[5]*temp20;
 
- Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
-        -Lambert(temp11*Parameters[0]
-                 *exp(temp11*(I+Parameters[7]+Parameters[0])))
-         /temp10
-        +Lambert(temp21*Parameters[3]
-                 *exp(-temp21*(I-Parameters[3])))
-         /temp20
-         +(I-Parameters[3])*Parameters[5]
-         +I*Parameters[6];
+// Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
+//        -Lambert(temp11*Parameters[0]
+//                 *exp(temp11*(I+Parameters[7]+Parameters[0])))
+//         /temp10
+//        +Lambert(temp21*Parameters[3]
+//                 *exp(-temp21*(I-Parameters[3])))
+//         /temp20
+//         +(I-Parameters[3])*Parameters[5]
+//         +I*Parameters[6];
+
+ x1:=log10(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
+ x2:=log10(temp21*Parameters[3])-temp21*(I-Parameters[3]);
+ Result:=I*Parameters[6]+gLambert(x1)/temp10
+         -gLambert(x2)/temp20
+         -log10(temp11*Parameters[0])/temp10
+         +log10(temp21*Parameters[3])/temp20;
+
 end;
 
 

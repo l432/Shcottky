@@ -1920,8 +1920,14 @@ Procedure TFitVariabSet.FIsNotReadyDetermination;
  var i:integer;
 begin
  FIsNotReady:=False;
+
+
  for I := 0 to High(FVarbool) do
+   begin
+//   showmessage(inttostr(i));
    if ((FVarbool[i])and(FVarValue[i]=ErResult)) then FIsNotReady:=True;
+   end;
+// showmessage('True='+booltostr(True)+',FIsNotReady='+booltostr(FIsNotReady));
 end;
 
 Procedure TFitVariabSet.ReadFromIniFile;
@@ -2160,8 +2166,10 @@ begin
  if Form.ShowModal=mrOk then
    begin
      GRFieldFormExchange(Form,False);
+//     showmessage('hh');
      FIsNotReadyDetermination;
-     if not(FIsNotReady) then WriteToIniFile;
+//   showmessage('True='+booltostr(True)+',FIsNotReady='+booltostr(FIsNotReady));
+     if not(FIsNotReady) then    WriteToIniFile;
    end;
  ElementsFromForm(Form);
  Form.Hide;
@@ -2262,15 +2270,19 @@ end;
 Procedure TFitSampleIsUsed.FIsNotReadyDetermination;
 begin
  inherited FIsNotReadyDetermination;
+//showmessage('True='+booltostr(True)+',fSampleIsRequired='+booltostr(fSampleIsRequired));
  if fSampleIsRequired then
   begin
    if (FSample=nil) then
      begin
+       showmessage('ll');
        FIsNotReady:=True;
        Exit;
      end;
    if (FSample.Area=ErResult)or((FSample as TDiod_Schottky).Semiconductor.ARich=ErResult) then FIsNotReady:=True;
   end;
+
+// showmessage('True='+booltostr(True)+',FIsNotReady='+booltostr(FIsNotReady));
 end;
 
 //-------------------------------------------------
@@ -7094,7 +7106,10 @@ end;
 { TIV_thin }
 
 procedure TIV_thin.AddParDetermination(InputData: PVector;
-  var OutputData: TArrSingle);
+                    var OutputData: TArrSingle);
+  const Np=1000;
+  var delI,Pb,Vb:double;
+      i:integer;
 begin
   inherited AddParDetermination(InputData,OutputData);
 
@@ -7117,28 +7132,28 @@ begin
                             FVariab[0]],
                             0,-2*OutputData[7]);
 
-// if mode in [3,4,5] then
-//  begin
-//    a:=0;
-//    Fa:=0;
-//    repeat
-//      b:=a+delVm;
-//      Im:=Full_IV(F,b,Data,Rsh,Iph);
-//      Fb:=b*Im;
-//      if Fb<Fa then
-//       begin
-//         a:=b;
-//         Fa:=Fb;
-//       end
-//               else
-//       Break;
-//    until (False);
-//   case mode of
-//     4:Result:=a;
-//     5:Result:=abs(Im);
-//     else  Result:=abs(Fa);
-//   end;
-// end; //if mode=3 then
+    if (OutputData[8]<Voc_min) or
+     (OutputData[9]<Isc_min) or
+     (OutputData[8]=ErResult)and
+     (OutputData[9]=ErResult) then Exit;
+
+  delI:=OutputData[9]/Np;
+  OutputData[13]:=OutputData[9];
+  OutputData[10]:=0;
+  OutputData[12]:=0;
+  for I := 1 to Np do
+   begin
+    fY:=-OutputData[9]+i*delI;
+    Vb:=Func(OutputData);
+    Pb:=-fY*Vb;
+    if Pb<OutputData[10] then Break;
+    OutputData[13]:=-fY;
+    OutputData[12]:=Vb;
+    OutputData[10]:=Pb;
+   end;
+
+  OutputData[11]:=OutputData[10]/(OutputData[9]*OutputData[8]);
+
 
 //   FXname[8]:='Voc';
 //   FXname[9]:='Isc';
@@ -7147,41 +7162,6 @@ begin
 //   FXname[12]:='Vm';
 //   FXname[13]:='Im';
 
-// Result:=CasrtoIV(fY,[Parameters[0],Parameters[1],
-//                      Parameters[2],Parameters[3],
-//                      Parameters[4],Parameters[5],
-//                      Parameters[6],Parameters[7],
-//                      FVariab[0]]);
-
-
-//  if (OutputData[6]>Isc_min) then
-//    begin
-//     SetLength(Data,6);
-//     Data[0]:=OutputData[0];
-//     Data[1]:=OutputData[1];
-//     Data[2]:=OutputData[2];
-//     Data[3]:=OutputData[4];
-//     Data[4]:=OutputData[5];
-//     Data[5]:=FVariab[0];
-//
-//     OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,fFunc,Data,OutputData[3],OutputData[6]);
-//     OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,fFunc,Data,OutputData[3],OutputData[6]);
-//
-//    end;
-//
-//  if (OutputData[FNx]>Voc_min)and
-//     (OutputData[FNx+1]>Isc_min)and
-//     (OutputData[FNx]<>ErResult)and
-//     (OutputData[FNx+1]<>ErResult) then
-//    begin
-//     OutputData[9]:=Voc_Isc_Pm_Vm_Im(3,fFunc,Data,OutputData[3],OutputData[6]);
-//     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,fFunc,Data,OutputData[3],OutputData[6]);
-//     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,fFunc,Data,OutputData[3],OutputData[6]);
-//
-//     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
-//    end;
-//
-//
 end;
 
 constructor TIV_thin.Create;
@@ -7202,8 +7182,6 @@ begin
  fSampleIsRequired:=False;
  fHasPicture:=False;
 
-// FVarManualDefinedOnly[0]:=True;
-// FVarName[0]:='N_B';
 
  CreateFooter();
 end;
@@ -7248,6 +7226,7 @@ function TIV_thin.FitnessFunc(InputData: Pvector;
  var i:integer;
 begin
   Result:=0;
+//  showmessage(floattostr(InputData^.Y[0]));
   for I := 0 to High(InputData^.X) do
      begin
        fX:=InputData^.X[i];
@@ -7260,34 +7239,12 @@ begin
 end;
 
 function TIV_thin.Func(Parameters: TArrSingle): double;
-// var Vt,temp10,temp20,temp11,temp21{, temp12, temp22}:double;
-
 begin
  Result:=CasrtoIV(fY,[Parameters[0],Parameters[1],
                       Parameters[2],Parameters[3],
                       Parameters[4],Parameters[5],
                       Parameters[6],Parameters[7],
                       FVariab[0]]);
-
-// Vt:=Kb*FVariab[0];
-//
-// temp10:=1/Vt/Parameters[1];// q/kTn
-// temp20:=1/Vt/Parameters[4];
-//
-// temp11:=Parameters[2]*temp10; // Rsh q/kTn
-// temp21:=Parameters[5]*temp20;
-//
-// Result:=(fY+Parameters[7]+Parameters[0])*Parameters[2]
-//        -Lambert(temp11*Parameters[0]
-//                 *exp(temp11*(fY+Parameters[7]+Parameters[0])))
-//         /temp10
-//        +Lambert(temp21*Parameters[3]
-//                 *exp(-temp21*(fY-Parameters[3])))
-//         /temp20
-//         +(fY-Parameters[3])*Parameters[5]
-//         +fY*Parameters[6];
-
-
 end;
 
 
