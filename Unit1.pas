@@ -3803,9 +3803,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if Vax^.time='' then dat[ord(time)]:=IntToStr(SR.Time)
                      else dat[ord(time)]:=Vax^.time;
 
-     dat[ord(Tem)]:=FloatToStrF(Vax^.T,ffGeneral,4,1);
+     dat[ord(Tem)]:=FloatToStrF(Vax^.T,ffGeneral,5,2);
      if Vax^.T=0 then dat[ord(kT_1)]:='555'
-                 else dat[ord(kT_1)]:=FloatToStrF(1/Kb/Vax^.T,ffGeneral,4,2);
+                 else dat[ord(kT_1)]:=FloatToStrF(1/Kb/Vax^.T,ffGeneral,5,3);
 
       if Vax^.T=0 then  Vax^.T:=300;
 
@@ -4149,10 +4149,11 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       for i:=0 to High(FitFunction.Xname) do
         dat[ord(High(TColName))+1+i]:=
            FloatToStrF(EvolParam[i],ffExponent,10,2);
-
       FitFunction.Free;
-     end;
 
+      if EvolParam[0]=ErResult then Break;
+
+     end;
 
 
 
@@ -4176,6 +4177,19 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      end;
 
     StrGridData.RowCount:=StrGridData.RowCount+1;
+
+
+//_________________________
+   AssignFile(f,CurDirectory+'\'+'dates.dat');
+   Rewrite(f);
+   for j := 0 to StrGridData.RowCount-2 do
+     begin
+     for I := 0 to StrGridData.ColCount-2 do
+                           write(f,StrGridData.Cells[i,j],' ');
+     writeln(f);
+     end;
+    CloseFile(f);
+//___________________________
 
 
     until FindNext(SR) <> 0;
@@ -5070,7 +5084,7 @@ begin
   Temperature.Visible:=True;
   NameFile.Caption:='File name: '+ a^.name;
   Temperature.Caption:='Temperature = '
-      + FloatToStrF(a^.T,ffGeneral,4,1)+' K';
+      + FloatToStrF(a^.T,ffGeneral,5,2)+' K';
 end;
 
 procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
