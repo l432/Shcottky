@@ -1213,8 +1213,8 @@ procedure InputValueToLabel(Name,Hint:string; Format:TFloatFormat;
 const
  DLFunction:array[0..4]of string=
            ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
- BadName:array[0..2]of string=
-           ('FIT','DATES','SHOW');
+ BadName:array[0..3]of string=
+           ('FIT','DATES','SHOW','COMMENTS');
  mask='*.dat';
 
 var
@@ -3173,11 +3173,12 @@ begin
      until false;
      dat.SaveToFile(CurDirectory+'\'+name);
      comment.Add(name);
-     comment.Add('T='+FloatToStrF(T,ffgeneral,4,1));
+     comment.Add('T='+FloatToStrF(T,ffgeneral,5,2));
      comment.Add('');
     T:=T+10;
    end;
-  comment.SaveToFile(CurDirectory+'\'+'comments');
+//  comment.SaveToFile(CurDirectory+'\'+'comments');
+  comment.SaveToFile(CurDirectory+'\'+'comments.dat');
   comment.Free;
   dat.Free;
 end;
@@ -3212,10 +3213,11 @@ begin
      until false;
      dat.SaveToFile(CurDirectory+'\'+name);
      comment.Add(name);
-     comment.Add('T='+FloatToStrF(T,ffgeneral,4,1));
+     comment.Add('T='+FloatToStrF(T,ffgeneral,5,2));
      comment.Add('');
 
-  comment.SaveToFile(CurDirectory+'\'+'comments');
+//  comment.SaveToFile(CurDirectory+'\'+'comments');
+  comment.SaveToFile(CurDirectory+'\'+'comments.dat');
   comment.Free;
   dat.Free;
 end;
@@ -3397,10 +3399,11 @@ begin
      FileEnd;
     Write_File(CurDirectory+'\'+DirName+'\'+newFileName,VectorArray[j]);
     Comments.Add(newFileName);
-    Comments.Add('T='+FloatToStrF(VectorArray[j]^.T,ffGeneral,4,1));
+    Comments.Add('T='+FloatToStrF(VectorArray[j]^.T,ffGeneral,5,2));
     Comments.Add('');
    end;
-  Comments.SaveToFile(CurDirectory+'\'+DirName+'\comments');
+//  Comments.SaveToFile(CurDirectory+'\'+DirName+'\comments');
+  Comments.SaveToFile(CurDirectory+'\'+DirName+'\comments.dat');
 end;
 
 
@@ -4256,7 +4259,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
      Inform.Add(ShotName);
-     Inform.Add('T='+FloatToStrF(Vax^.T,ffGeneral,4,1));
+     Inform.Add('T='+FloatToStrF(Vax^.T,ffGeneral,5,2));
 
      if Vax^.T=0 then T_bool:=True;
      {встановлюється змінна, яка показує що є файли з невизначеною температурою}
@@ -4369,7 +4372,8 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       if (DR in DirNames) then
        begin
         AssignFile(f,CurDirectory+'\'+
-        GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+'comments');
+//        GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+'comments');
+        GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+'comments.dat');
         Rewrite(f);
         for j := 0 to Inform.Count-1 do
          if Odd(j) then

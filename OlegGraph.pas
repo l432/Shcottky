@@ -1128,9 +1128,15 @@ begin
  про соответствующий файл, то значение будет нулевым}
  a^.T:=0;
  a^.time:='';
-  if FileExists('comments') then
+
+  if FileExists('comments') then   a^.time:='comments';
+  if FileExists('comments.dat') then   a^.time:='comments.dat';
+
+  if a^.time<>'' then
+//  if FileExists('comments') then
     begin
-     AssignFile(f,'comments');
+//     AssignFile(f,'comments');
+     AssignFile(f,a^.time);
      Reset(f);
      while not(Eof(f)) do
       begin
