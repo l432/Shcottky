@@ -4612,7 +4612,7 @@ Isc:=Voc_Isc_Pm_Vm_Im(2,IV_DiodDouble,[Param[0]*Kb*Vax^.T,Param[1],
 
 Str:=TStringList.Create;
 Str.LoadFromFile(fname);
-Str.Add(Vax^.name+' T='+FloatToStrF(Vax^.T, ffGeneral, 4, 1)+
+Str.Add(Vax^.name+' T='+FloatToStrF(Vax^.T, ffGeneral, 5, 2)+
         ' Voc='+ FloatToStrF(Voc,ffGeneral,4,3)+
         ' Isc='+FloatToStrF(Isc,ffGeneral,4,3));
 Str.SaveToFile(fname);
