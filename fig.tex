@@ -478,12 +478,13 @@ rr
 \end{equation*}
 
 \begin{eqnarray*}
-    \mu(T)&=&(\mu_n^{-1}+\mu_{disl}^{-1}+\mu_i^{-1}+\mu_{ph}^{-1}+\mu_{pz}^{-1})^{-1}\\
+    \mu(T)&=&(\mu_n^{-1}+\mu_{disl}^{-1}+\mu_i^{-1}+\mu_{ph}^{-1}+\mu_{pz}^{-1}+\mu_{F}^{-1})^{-1}\\
     \mu_n&=&A_n\\
     \mu_{disl}&=&A_{disl}\,T\\
     \mu_{i}&=&A_{i}\,T^{3/2}\\
     \mu_{ph}&=&A_{ph}\,T^{-3/2}\\
-    \mu_{pz}&=&A_{pz}\,T^{-1/2}
+    \mu_{pz}&=&A_{pz}\,T^{-1/2}\\
+    \mu_{F}&=&A_{f}\,\exp\left(-\frac{Fb}{kT}\right)
 \end{eqnarray*}
 
 
@@ -526,9 +527,9 @@ rr
 \end{equation*}
 
 $\qquad\qquad$boron concentration $N_B$ ($[N_B]=$cm$^{-3}$) in first column of file,
- 
-$\qquad\qquad$ $T$ in second column, 
-ideality factor $n$ in $N_{fCol}$ column 
+
+$\qquad\qquad$ $T$ in second column,
+ideality factor $n$ in $N_{fCol}$ column
 
 
 rr
@@ -545,8 +546,8 @@ $\qquad\qquad$iron concentration $N_{Fe}$ must be in first column of file,
 
 $\qquad\qquad$boron concentration $N_B$ in second column of file ($[N_B],\, [N_{Fe}]=$cm$^{-3}$),
 
-$\qquad\qquad$$T$ in third column, 
-ideality factor $n$ in $N_{fCol}$ column 
+$\qquad\qquad$$T$ in third column,
+ideality factor $n$ in $N_{fCol}$ column
 
 
 rr
