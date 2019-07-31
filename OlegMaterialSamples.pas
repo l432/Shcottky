@@ -388,7 +388,8 @@ Vec^.Y[i]=Func(Vec^.X[i],T,V)
 Function ElectronConcentration(const T:double;
                                const Parameters:array of double;
                                const Nd:byte;
-                               const Nt:byte):double;
+                               const Nt:byte;
+                               const Ef0:double=0):double;
 {розрахунок концентрації електронів для випадку наявності
 декількох донорів та пасток
 Parameters[0] - сталий від'ємний доданок до кількості носіїв
@@ -400,6 +401,9 @@ Parameters[2Nd+1], Parameters[2Nd+3]...Parameters[2Nd+2Nt-1] - концентрації
 пасток і-го типу
 Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетичні положення
 рівня пасток і-го типу (додатна величина, відраховується від дна зони провідності)
+якщо Ef0=0, то положення рівня Фермі розраховується, виходячи
+з даних в Parameters (самоузгоджено),
+якщо ні - використовується дане в пераметрах функції
 }
 
 
@@ -415,7 +419,18 @@ Function FermiLevelEquation(Ef:double;
 кількість пасток Nt;
 в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+3]) - температура}
 
+Function FermiLevelEquationSimple(Ef:double;
+                            Parameters:array of double):double;
+{рівняння для визначення рівня Фермі в електронному напівпровіднику
+по значенням концентрації та температури;
+цю функцію треба підставити в Bisection для
+безпосереднього визначення Ef;
+вміст Parameters[0] - концентрація носіїв;
+Parameters[1] - температура}
 
+Function FermiLevelDeterminationSimple(const n:double;const T:double):double;
+{обчислюється значення рівня Фермі в електронному напівпровіднику
+по значенням концентрації та температури}
 
 implementation
 
@@ -1900,9 +1915,10 @@ end;
 Function ElectronConcentration(const T:double;
                                const Parameters:array of double;
                                const Nd:byte;
-                               const Nt:byte):double;
+                               const Nt:byte;
+                               const Ef0:double=0):double;
 {розрахунок концентрації електронів для випадку наявності
-декількох донорів
+декількох донорів та пасток
 Parameters[0] - сталий від'ємний доданок до кількості носіїв
 (фізично - концентрація акцепторів)
 Parameters[1], Parameters[3]... Parameters[2Nd-1] - концентрації донорів і-го типу
@@ -1912,6 +1928,9 @@ Parameters[2Nd+1], Parameters[2Nd+3]...Parameters[2Nd+2Nt-1] - концентрації
 пасток і-го типу
 Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетичні положення
 рівня пасток і-го типу (додатна величина, відраховується від дна зони провідності)
+якщо Ef0=0, то положення рівня Фермі розраховується, виходячи
+з даних в Parameters (самоузгоджено),
+якщо ні - використовується дане в пераметрах функції
 }
  var Ef:double;
      tempParameters:array of double;
@@ -1933,8 +1952,11 @@ begin
   tempParameters[High(tempParameters)]:=T;
   tempParameters[High(tempParameters)-1]:=Nt;
   tempParameters[High(tempParameters)-2]:=Nd;
-  Ef:=Bisection(FermiLevelEquation,tempParameters,
-                 Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4);
+  if Ef0=0 then
+   Ef:=Bisection(FermiLevelEquation,tempParameters,
+                 Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4)
+           else
+   Ef:=Ef0;              
 
   i:=2;
   while(i<=2*(Nd+Nt)) do
@@ -1996,5 +2018,34 @@ begin
    end;
 
 end;
+
+
+Function FermiLevelEquationSimple(Ef:double;
+                            Parameters:array of double):double;
+{рівняння для визначення рівня Фермі в електронному напівпровіднику
+по значенням концентрації та температури;
+цю функцію треба підставити в Bisection для
+безпосереднього визначення Ef;
+вміст Parameters[0] - концентрація носіїв;
+Parameters[1] - температура}
+ var T:double;
+begin
+ Result:=ErResult;
+ if High(Parameters)<>1 then Exit;
+ T:=Parameters[High(Parameters)];
+ if T<=0 then Exit;
+ Result:=abs(Parameters[0])-
+         Diod.FSemiconductor.FMaterial.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+end;
+
+Function FermiLevelDeterminationSimple(const n:double;const T:double):double;
+{обчислюється значення рівня Фермі в електронному напівпровіднику
+по значенням концентрації та температури}
+begin
+//  showmessage('FLD '+floattostr());
+  Result:=Bisection(FermiLevelEquationSimple,[n,T],
+                 Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4);
+end;
+
 
 end.

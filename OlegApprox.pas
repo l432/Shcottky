@@ -6454,7 +6454,10 @@ end;
 
 function TElectronConcentration.Func(Parameters: TArrSingle): double;
 begin
-  Result:=ElectronConcentration(fx,Parameters,4,3);
+//  showmessage(floattostr(fy)+' '+floattostr(FermiLevelDeterminationSimple(fy,fx)));
+  Result:=ElectronConcentration(fx,Parameters,4,3,FermiLevelDeterminationSimple(fy,fx));
+//
+//  Result:=ElectronConcentration(fx,Parameters,4,3);
 end;
 
 function TElectronConcentration.Weight(OutputData: TArrSingle): double;
