@@ -17,7 +17,8 @@ uses
   OlegMaterialSamples in 'OlegMaterialSamples.pas',
   OlegDefectsSi in 'OlegDefectsSi.pas',
   OlegShowTypes in 'OlegShowTypes.pas',
-  OlegTypePart2 in 'OlegTypePart2.pas';
+  OlegTypePart2 in 'OlegTypePart2.pas',
+  OlegVector in 'OlegVector.pas';
 
 {$R *.res}
 
