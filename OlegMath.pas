@@ -474,7 +474,7 @@ Function NumberMax(A:Pvector):integer;
 максимумів у векторі А;
 дані мають бути упорядковані по координаті X}
 
-Function IsEqual(a,b,eps:double):boolean;
+Function IsEqual(a,b:double;eps:double=1e-8):boolean;
 {True, якщо відносна різниця a та b менше eps}
 
 
@@ -3113,24 +3113,14 @@ for i:=1 to High(A^.X)-1 do
    inc(Result);
 end;
 
-Function IsEqual(a,b,eps:double):boolean;
+Function IsEqual(a,b:double;eps:double=1e-8):boolean;
 {True, якщо відносна різниця a та b менше eps}
-//  var maxV, minV:double;
 begin
-// minV:=abs(a);
-// maxV:=abs(b);
-// if ((minV=0)and(maxV=0)) then
  if ((a=0)and(b=0)) then
   begin
     Result:=True;
     Exit;
   end;
-// minV:=Min(abs(a),abs(b));
-// if minV>maxV then Swap(minV,maxV);
-// if minV=0 then Result:=(abs((b-a)/maxV)<eps)
-//          else Result:=(abs((b-a)/minV)<eps);
-// if minV=0 then Result:=(abs((b-a)/Max(abs(a),abs(b)))<eps)
-//           else Result:=(abs((b-a)/minV)<eps);
  Result:=(abs(b-a)/Max(abs(a),abs(b))<eps)
 end;
 

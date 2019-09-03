@@ -33,7 +33,17 @@ type
       procedure SetT(const Value: Extended);
       procedure SetData(const Number: Integer; Index: Integer;
                         const Value: double);
+      procedure PointSet(Number:integer; x,y:double);overload;
+       {заповнює координати точки з номером Number,
+       але наявність цієї точки в масиві не перевіряється}
+      procedure PointSet(Number:integer; Point:TPoint);overload;
+      function PointGet(Number:integer):TPoint;
+      procedure PointSwap(Number1,Number2:integer);
+      procedure PointCoordSwap(Point:Tpoint);
+      function IsEmptyGet: boolean;
      public
+
+
       property X[const Number: Integer]: double Index ord(cX)
                         read GetData write SetData;
       property Y[const Number: Integer]: double Index ord(cY)
@@ -41,6 +51,7 @@ type
 
 //      property X[Index: Integer]: double read GetX;
 //      property Y[Index: Integer]: double read GetY;
+      property Point[Index:Integer]:TPoint read PointGet;default;
       property n:Integer read GetN;
       {кількість точок,
       в масивaх нумерація від 0 до n-1}
@@ -53,29 +64,57 @@ type
                            - секунди з початку доби}
 //    writeln(FF,Name,' - ',temp,'  :'+inttostr(SecondFromDayBegining(FileDateToDateTime(SR.Time))));
 
-      property N_begin:Cardinal Index 0 read  fSegmentBegin
-                                        write fSegmentBegin;
+      property N_begin:Cardinal read  fSegmentBegin write fSegmentBegin;
      {номер точки з вихідного вектора, яка відповідає
       початковій у цьому}
+      property IsEmpty:boolean read IsEmptyGet;
 
-//         Procedure SetLenVector(Number:integer);
-//         procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-//         procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-//         procedure Add(newX,newY:double);
-//         procedure Delete(Ndel:integer);
-//         {видання з масиву точки з номером Ndel}
-//         procedure DeleteNfirst(Nfirst:integer);
-//         {видаляє з масиву Nfirst перших точок}
-//         Procedure Sorting (Increase:boolean=True);
-//         {процедура сортування (методом бульбашки)
-//          точок по зростанню (при Increase=True) компоненти Х}
-//         Procedure DeleteDuplicate;
-//         {видаляються точки, для яких значення абсциси вже зустрічалося}
-//         Procedure DeleteErResult;
-//         {видаляються точки, для абсциса чи ордината рівна ErResult}
-//         Procedure SwapXY;
-//         {обмінюються знчення Х та Y}
-//         Function MaxX:double;
+      Constructor Create;
+//      function PointGet(Number:integer):TPoint;
+
+      procedure SetLenVector(Number:integer);
+      procedure Clear();
+         {просто зануляється кількість точок, інших операцій не проводиться}
+      procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+      procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+      procedure Add(newX,newY:double);overload;
+      procedure Add(newXY:double);overload;
+      procedure Add(newPoint:TPoint);overload;
+      procedure Delete(NumberToDelete:integer);
+         {видання з масиву точки з номером NumberToDelete}
+      procedure DeleteNfirst(Nfirst:integer);
+         {видаляє з масиву Nfirst перших точок}
+      procedure Sorting (Increase:boolean=True);
+         {процедура сортування (методом бульбашки)
+          точок по зростанню (при Increase=True) компоненти Х}
+      procedure DeleteDuplicate;
+         {видаляються точки, для яких значення абсциси вже зустрічалося}
+      procedure DeleteErResult;
+         {видаляються точки, для абсциса чи ордината рівна ErResult}
+      procedure SwapXY;
+         {обмінюються знaчення Х та Y}
+      function CopyToArray(const Coord:TCoord_type):TArrSingle;
+      function CopyXtoArray():TArrSingle;
+         {копіюються дані з Х в массив}
+      function CopyYtoArray():TArrSingle;
+         {копіюються дані з Y в массив}
+      function CopyXtoPArray():PTArrSingle;
+         {копіюються дані з Х в вказівник на масив,
+         пом'ять виділяється всередині функції}
+      function CopyYtoPArray():PTArrSingle;
+//         Procedure CopyYtoPArray(var TargetArray:PTArrSingle);
+//         {копіюються дані з Y в массив TargetArray}
+      procedure CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
+         {заповнюються Х та Y значеннями з масивів}
+      procedure CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
+         {заповнюються Х та Y значеннями з масивів}
+//         Procedure CopyLimitedX (var Target:VectorNew;Xmin,Xmax:double);
+//         {копіюються з даного вектора в Target
+//         - точки, для яких ордината в діапазоні від Xmin до Xmax включно
+//         - поля Т та name}
+
+
+//      function MaxX:double;
 //          {повертається найбільше значення з масиву Х}
 //         Function MaxY:double;
 //          {повертається найбільше значення з масиву Y}
@@ -110,22 +149,7 @@ type
 //         {повертаються суми елементів масивів X та Y відповідно}
 //         Procedure Copy (var Target:VectorNew);
 //         {копіюються поля з даного вектора в Target}
-//         Procedure CopyXtoArray(var TargetArray:TArrSingle);
-//         {копіюються дані з Х в массив TargetArray}
-//         Procedure CopyYtoArray(var TargetArray:TArrSingle);
-//         {копіюються дані з Y в массив TargetArray}
-//         Procedure CopyXtoPArray(var TargetArray:PTArrSingle);
-//         {копіюються дані з Х в массив TargetArray}
-//         Procedure CopyYtoPArray(var TargetArray:PTArrSingle);
-//         {копіюються дані з Y в массив TargetArray}
-//         Procedure CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
-//         {заповнюються Х та Y значеннями з масивів}
-//         Procedure CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
-//         {заповнюються Х та Y значеннями з масивів}
-//         Procedure CopyLimitedX (var Target:VectorNew;Xmin,Xmax:double);
-//         {копіюються з даного вектора в Target
-//         - точки, для яких ордината в діапазоні від Xmin до Xmax включно
-//         - поля Т та name}
+
 //         Procedure MultiplyY(const A:double);
 //         {Y всіх точок множиться на A}
 //         Procedure PositiveX(var Target:VectorNew);
@@ -158,8 +182,6 @@ type
 //         Procedure DeltaY(deltaVector:VectorNew);
 //         {від значень Y віднімаються значення deltaVector.Y;
 //          якщо кількості точок різні - ніяких дій не відбувається}
-//         Procedure Clear();
-//         {просто зануляється кількість точок, інших операцій не проводиться}
 //         Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);overload;
 //         {Х заповнюється значеннями від Xmin до Xmax з кроком deltaX
 //         Y[i]=Fun(X[i],Parameters)}
@@ -197,160 +219,137 @@ uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 //  SetLength(A^.Y, A^.n);
 //end;
 //
-//Procedure VectorNew.SetLenVector(Number:integer);
-//{встановлюється кількість точок у векторі А}
-//begin
-//  n:=Number;
-//  SetLength(X, n);
-//  SetLength(Y, n);
-//end;
-//
-//procedure VectorNew.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-// var i:integer;
-//begin
-//  i:=ConfigFile.ReadInteger(Section,Ident+'n',0);
-//  if i>0 then
-//    begin
-//      Self.SetLenVector(i);
-//      for I := 0 to High(X) do
-//        begin
-//          X[i]:=ConfigFile.ReadFloat(Section,Ident+'X'+IntToStr(i),ErResult);
-//          Y[i]:=ConfigFile.ReadFloat(Section,Ident+'Y'+IntToStr(i),ErResult);
-//        end;
-//    end
-//         else
-//    n:=0;
-//  name:=ConfigFile.ReadString(Section,Ident+'name','');
-//  time:=ConfigFile.ReadString(Section,Ident+'time','');
-//  T:=ConfigFile.ReadFloat(Section,Ident+'T',ErResult);
-//  N_begin:=ConfigFile.ReadInteger(Section,Ident+'N_begin',0);
+Procedure VectorNew.SetLenVector(Number:integer);
+{встановлюється кількість точок у векторі А}
+begin
+ SetLength(Points, Number);
+end;
+
+procedure VectorNew.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+ var i:integer;
+begin
+  i:=ConfigFile.ReadInteger(Section,Ident+'n',0);
+  if i>0 then
+    begin
+      Self.SetLenVector(i);
+      for I := 0 to High(Points) do
+        PointSet(i,ConfigFile.ReadFloat(Section,Ident+'X'+IntToStr(i),ErResult),
+                   ConfigFile.ReadFloat(Section,Ident+'Y'+IntToStr(i),ErResult));
+      name:=ConfigFile.ReadString(Section,Ident+'name','');
+      time:=ConfigFile.ReadString(Section,Ident+'time','');
+      T:=ConfigFile.ReadFloat(Section,Ident+'T',0);
+      N_begin:=ConfigFile.ReadInteger(Section,Ident+'N_begin',0);
+    end
+         else Clear();
+
 //  N_end:=ConfigFile.ReadInteger(Section,Ident+'N_end',n-1);
-//end;
-//
-//procedure VectorNew.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-//var
-//  I: Integer;
-//begin
-// WriteIniDef(ConfigFile,Section,Ident+'n',n,0);
-// WriteIniDef(ConfigFile,Section,Ident+'name',name);
-// WriteIniDef(ConfigFile,Section,Ident+'time',time);
-// WriteIniDef(ConfigFile,Section,Ident+'T',T);
-// WriteIniDef(ConfigFile,Section,Ident+'N_begin',N_begin,0);
+end;
+
+procedure VectorNew.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+var
+  I: Integer;
+begin
+ WriteIniDef(ConfigFile,Section,Ident+'n',n,0);
+ WriteIniDef(ConfigFile,Section,Ident+'name',name);
+ WriteIniDef(ConfigFile,Section,Ident+'time',time);
+ WriteIniDef(ConfigFile,Section,Ident+'T',T);
+ WriteIniDef(ConfigFile,Section,Ident+'N_begin',N_begin,0);
 // WriteIniDef(ConfigFile,Section,Ident+'N_end',N_end,n-1);
-// for I := 0 to High(X) do
-//  begin
-//   ConfigFile.WriteFloat(Section,Ident+'X'+IntToStr(i),X[i]);
-//   ConfigFile.WriteFloat(Section,Ident+'Y'+IntToStr(i),Y[i])
-//  end;
-//end;
-//
-//procedure VectorNew.Add(newX,newY:double);
-//begin
-// Self.SetLenVector(n+1);
-// X[n-1]:=newX;
-// Y[n-1]:=newY;
-//end;
-//
-//procedure VectorNew.Delete(Ndel:integer);
-//var
-//  I: Integer;
-//begin
-// if (Ndel<0)or(Ndel>(n-1)) then Exit;
-// if n<1 then Exit;
-// for I := Ndel to n-2 do
-//  begin
-//    X[i]:=X[i+1];
-//    Y[i]:=Y[i+1];
-//  end;
-// if N_end=n then N_end:=N_end-1;
-// Self.SetLenVector(n-1);
-//end;
-//
-//procedure VectorNew.DeleteNfirst(Nfirst:integer);
-//var
-//  I: Integer;
-//begin
-//  if Nfirst<=0 then Exit;
-//  if Nfirst>=n then
-//    begin
-//      Self.Clear;
-//      Exit;
-//    end;
-//  for I := 0 to n-Nfirst-1 do
-//   begin
-//    X[i]:=X[i+Nfirst];
-//    Y[i]:=Y[i+Nfirst];
-//   end;
-//  Self.SetLenVector(n-Nfirst);
-//end;
-//
-//Procedure VectorNew.Sorting (Increase:boolean=True);
-//var i,j:integer;
-//    ChangeNeed:boolean;
-//    temp:double;
-//begin
-//for I := 0 to High(X)-1 do
-//  for j := 0 to High(X)-1-i do
-//     begin
-//      if Increase then ChangeNeed:=X[j]>X[j+1]
-//                  else ChangeNeed:=X[j]<X[j+1];
-//      if ChangeNeed then
-//          begin
-//          temp:=X[j];
-//          X[j]:=X[j+1];
-//          X[j+1]:=temp;
-//          temp:=Y[j];
-//          Y[j]:=Y[j+1];
-//          Y[j+1]:=temp;
-//          end;
-//     end;
-//end;
-//
-//Procedure VectorNew.DeleteDuplicate;
-// var i,j,PointToDelete,Point:integer;
-// label Start;
-//begin
-//  Point:=0;
-//  PointToDelete:=-1;
-// Start:
-//  if PointToDelete<>-1 then
-//     Self.Delete(PointToDelete);
-//  for I := Point to High(X)-1 do
-//    begin
-//      for j := i+1 to High(X) do
-//        if X[i]=X[j] then
-//          begin
-//            PointToDelete:=j;
-//            goto Start;
-//          end;
-//      Point:=I+1;
-//    end;
-//end;
-//
-//Procedure VectorNew.DeleteErResult;
-// var i,Point:integer;
-// label Start;
-//begin
-//  Point:=0;
-//  i:=-1;
-// Start:
-//  if i<>-1 then
-//     Self.Delete(i);
-//  for I := Point to High(X)-1 do
-//    begin
-//      if (X[i]=ErResult)or(Y[i]=ErResult) then
-//            goto Start;
-//      Point:=I+1;
-//    end;
-//end;
-//
-//Procedure VectorNew.SwapXY;
-// var i:integer;
-//begin
-// for I := 0 to High(X) do
-//   Swap(X[i],Y[i]);
-//end;
-//
+ for I := 0 to High(Points) do
+  begin
+   ConfigFile.WriteFloat(Section,Ident+'X'+IntToStr(i),X[i]);
+   ConfigFile.WriteFloat(Section,Ident+'Y'+IntToStr(i),Y[i])
+  end;
+end;
+
+procedure VectorNew.Add(newX,newY:double);
+begin
+ Self.SetLenVector(n+1);
+ PointSet(High(Points),newX,newY);
+end;
+
+procedure VectorNew.Delete(NumberToDelete:integer);
+var
+  I: Integer;
+begin
+ if (NumberToDelete<0)or(NumberToDelete>High(Points)) then Exit;
+ for I := NumberToDelete to High(Points)-1
+   do PointSet(i,PointGet(i+1));
+ Self.SetLenVector(High(Points));
+end;
+
+procedure VectorNew.DeleteNfirst(Nfirst:integer);
+var
+  I: Integer;
+begin
+  if Nfirst<=0 then Exit;
+  if Nfirst>High(Points) then
+    begin
+      Self.Clear;
+      Exit;
+    end;
+  for I := 0 to High(Points)-Nfirst
+    do PointSet(i,PointGet(i+Nfirst));
+  Self.SetLenVector(n-Nfirst);
+end;
+
+Procedure VectorNew.Sorting (Increase:boolean=True);
+var i,j:integer;
+    ChangeNeed:boolean;
+begin
+for I := 0 to High(Points)-1 do
+  for j := 0 to High(Points)-1-i do
+     begin
+      if Increase then ChangeNeed:=X[j]>X[j+1]
+                  else ChangeNeed:=X[j]<X[j+1];
+      if ChangeNeed then  PointSwap(j,j+1);
+     end;
+end;
+
+Procedure VectorNew.DeleteDuplicate;
+ var i,j,PointToDelete,Point:integer;
+ label Start;
+begin
+  Point:=0;
+  PointToDelete:=-1;
+ Start:
+  if PointToDelete<>-1 then
+     Self.Delete(PointToDelete);
+  for I := Point to High(Points)-1 do
+    begin
+      for j := i+1 to High(Points) do
+        if IsEqual(X[i],X[j]) then
+          begin
+            PointToDelete:=j;
+            goto Start;
+          end;
+      Point:=I+1;
+    end;
+end;
+
+Procedure VectorNew.DeleteErResult;
+ var i,Point:integer;
+ label Start;
+begin
+  Point:=0;
+  i:=-1;
+ Start:
+  if i<>-1 then
+     Self.Delete(i);
+  for I := Point to High(Points)-1 do
+    begin
+      if (X[i]=ErResult)or(Y[i]=ErResult) then
+            goto Start;
+      Point:=I+1;
+    end;
+end;
+
+Procedure VectorNew.SwapXY;
+ var i:integer;
+begin
+ for I := 0 to High(Points) do PointCoordSwap(Points[i]);
+end;
+
 //Function VectorNew.MaxX:double;
 //begin
 //  if n<1 then
@@ -359,7 +358,7 @@ uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 ////    Result:=X[MaxElemNumber(X)];
 //    Result:=MaxValue(X);
 //end;
-//
+
 //Function VectorNew.MaxY:double;
 //begin
 //  if n<1 then
@@ -519,31 +518,37 @@ uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 //  Target.N_begin:=N_begin;
 //  Target.N_end:=N_end;
 //end;
-//
+
 //Procedure VectorNew.CopyXtoArray(var TargetArray:TArrSingle);
-// var i:integer;
-//begin
-// SetLength(TargetArray,n);
-//  for I := 0 to n-1 do
-//     TargetArray[i]:=X[i];
-//end;
-//
-//Procedure VectorNew.CopyYtoArray(var TargetArray:TArrSingle);
-// var i:integer;
-//begin
-// SetLength(TargetArray,n);
-//  for I := 0 to n-1 do
-//     TargetArray[i]:=Y[i];
-//end;
-//
-//Procedure VectorNew.CopyXtoPArray(var TargetArray:PTArrSingle);
-// var i:integer;
-//begin
-// SetLength(TargetArray^,n);
-//  for I := 0 to n-1 do
-//     TargetArray^[i]:=X[i];
-//end;
-//
+function VectorNew.CopyToArray(const Coord: TCoord_type): TArrSingle;
+ var i:integer;
+begin
+ SetLength(Result,n);
+ for I := 0 to High(Points) do Result[i]:=Points[i][Coord];
+end;
+
+function VectorNew.CopyXtoArray():TArrSingle;
+begin
+ Result:=CopyToArray(cX);
+end;
+
+function VectorNew.CopyYtoArray():TArrSingle;
+begin
+ Result:=CopyToArray(cY);
+end;
+
+function VectorNew.CopyYtoPArray: PTArrSingle;
+begin
+ new(Result);
+ Result^:=CopyYtoArray();
+end;
+
+function VectorNew.CopyXtoPArray():PTArrSingle;
+begin
+ new(Result);
+ Result^:=CopyXtoArray();
+end;
+
 //Procedure VectorNew.CopyYtoPArray(var TargetArray:PTArrSingle);
 // var i:integer;
 //begin
@@ -552,24 +557,21 @@ uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 //     TargetArray^[i]:=Y[i];
 //end;
 //
-//
-//Procedure VectorNew.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
-// var i:integer;
-//begin
-// Clear();
-// for I := 0 to min(High(SourceXArray),High(SourceYArray)) do
-//   Add(SourceXArray[i],SourceYArray[i]);
-//end;
-//
-//Procedure VectorNew.CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
-// var i:integer;
-//begin
-// Clear();
-// for I := 0 to min(High(SourceXArray^),High(SourceYArray^)) do
-//   Add(SourceXArray^[i],SourceYArray^[i]);
-//end;
-//
-//
+
+Procedure VectorNew.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
+ var i:integer;
+begin
+ Clear();
+ for I := 0 to min(High(SourceXArray),High(SourceYArray)) do
+   Add(SourceXArray[i],SourceYArray[i]);
+end;
+
+Procedure VectorNew.CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
+begin
+ CopyFromXYArrays(SourceXArray^,SourceYArray^);
+end;
+
+
 //Procedure VectorNew.CopyLimitedX (var Target:VectorNew;Xmin,Xmax:double);
 // var i:integer;
 //begin
@@ -690,12 +692,23 @@ uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 // for i := 0 to High(X) do
 //        Y[i]:=Y[i]-deltaVector.Y[i];
 //end;
-//
-//Procedure VectorNew.Clear();
-//begin
-//  SetLenVector(0);
-//end;
-//
+
+procedure VectorNew.Add(newXY: double);
+begin
+ self.Add(newXY,newXY);
+end;
+
+procedure VectorNew.Add(newPoint: TPoint);
+begin
+ Self.SetLenVector(n+1);
+ PointSet(High(Points),newPoint);
+end;
+
+Procedure VectorNew.Clear();
+begin
+  SetLenVector(0);
+end;
+
 //Procedure VectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
 // const Nmax=10000;
 // var i:integer;
@@ -783,10 +796,16 @@ uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 //
 { VectorNew }
 
+constructor VectorNew.Create;
+begin
+ inherited;
+ Clear();
+end;
+
 function VectorNew.GetData(const Number: Integer; Index:Integer): double;
 begin
  if Number>High(Points)
-    then Result:=NAN
+    then Result:=ErResult
     else Result:=Points[Number][TCoord_type(Index)];
 
 end;
@@ -795,6 +814,51 @@ function VectorNew.GetN: Integer;
 begin
 // Result:=High(fX)+1;
  Result:=High(Points)+1;
+end;
+
+function VectorNew.IsEmptyGet: boolean;
+begin
+ Result:=(High(Points)<0);
+end;
+
+procedure VectorNew.PointCoordSwap(Point: Tpoint);
+begin
+ Swap(Point[cX],Point[cX]);
+end;
+
+function VectorNew.PointGet(Number: integer): TPoint;
+begin
+ Result[cX]:=Points[Number,cX];
+ Result[cY]:=Points[Number,cY];
+end;
+
+procedure VectorNew.PointSet(Number: integer; Point: TPoint);
+begin
+ try
+  Points[Number,cX]:=Point[cX];
+  Points[Number,cY]:=Point[cY];
+ except
+ end;
+end;
+
+procedure VectorNew.PointSwap(Number1, Number2: integer);
+ var tempPoint:TPoint;
+begin
+ try
+  tempPoint:=PointGet(Number1);
+  PointSet(Number1,PointGet(Number2));
+  PointSet(Number2,tempPoint);
+ except
+ end;
+end;
+
+procedure VectorNew.PointSet(Number: integer; x, y: double);
+begin
+ try
+  Points[Number,cX]:=x;
+  Points[Number,cY]:=y;
+ except
+ end;
 end;
 
 //function VectorNew.GetX(Index: Integer): double;

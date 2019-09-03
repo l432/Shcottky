@@ -1258,7 +1258,7 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit;
+uses ApprWindows, FormSelectFit, OlegVector;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -3676,10 +3676,71 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
  var x:PVector;
      d:array of double;
-
+     Vec:VectorNew;
+     Point:TPoint;
+     SourceXArray,SourceYArray:TArrSingle;
+     PSourceXArray,PSourceYArray:PTArrSingle;
+     i:integer;
+//     CT:TCoord_type;
 begin
-showmessage(floattostr(Button(2e-8)));
-showmessage(floattostr(Button(1.07e-4)));
+  Vec:=VectorNew.Create;
+  Vec.Add(1,1.358);
+  Vec.Add(10,0.5);
+  point:=Vec.Point[0];
+  point:=Vec[1];
+  Vec.Add(5.55);
+  Vec.Sorting();
+
+//  ArS:=Vec.CopyXtoArray();
+//  for I := 0 to High(ArS) do
+//   showmessage(floattostr(ArS[i]));
+
+  Vec.Clear;
+
+//  SetLength(SourceXArray,3);
+//  SourceXArray[0]:=1;
+//  SourceXArray[1]:=2;
+//  SourceXArray[2]:=3;
+//
+//  SetLength(SourceYArray,2);
+//  SourceYArray[0]:=2;
+//  SourceYArray[1]:=4;
+//
+//  Vec.CopyFromXYArrays(SourceYArray,SourceXArray);
+//  for I := 0 to Vec.n-1 do
+//   showmessage(floattostr(Vec.X[i]));
+
+  new(PSourceXArray);
+  new(PSourceYArray);
+
+  SetLength(PSourceXArray^,3);
+  PSourceXArray^[0]:=1;
+  PSourceXArray^[1]:=2;
+  PSourceXArray^[2]:=3;
+
+  SetLength(PSourceYArray^,2);
+  PSourceYArray^[0]:=2;
+  PSourceYArray^[1]:=4;
+
+  Vec.CopyFromXYPArrays(PSourceYArray,PSourceXArray);
+  for I := 0 to Vec.n-1 do
+   showmessage(floattostr(Vec.X[i]));
+
+  dispose(PSourceXArray);
+  dispose(PSourceYArray);
+
+
+//  PArS:=Vec.CopyYtoPArray();
+//  for I := 0 to High(PArS^) do
+//   showmessage(floattostr(PArS^[i]));
+//  dispose(PArs);
+
+
+  Vec.Free;
+
+
+//showmessage(floattostr(Button(2e-8)));
+//showmessage(floattostr(Button(1.07e-4)));
 
 
 //showmessage(inttostr(GetHDDSerialNumber));
