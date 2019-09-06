@@ -3677,67 +3677,33 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
  var x:PVector;
      d:array of double;
-     Vec,Vec2:VectorNew;
-     Point:TPoint;
+     Vec,Vec2:TVectorNew;
+     Point:TPointDouble;
      SourceXArray,SourceYArray:TArrSingle;
      PSourceXArray,PSourceYArray:PTArrSingle;
      i:integer;
 //     CT:TCoord_type;
 begin
-  Vec:=VectorNew.Create;
-  Vec2:=VectorNew.Create;
-  Vec.Add(1,1.358);
-  Vec.Add(10,0.5);
+  Vec:=TVectorNew.Create;
+  Vec2:=TVectorNew.Create;
+  Vec.Add(1,2);
+  Vec.Add(3,6);
   point:=Vec.Point[0];
   point:=Vec[1];
-  Vec.Add(5.55);
+  Vec.Add(5,10);
   Vec.Sorting();
 
-//  ArS:=Vec.CopyXtoArray();
-//  for I := 0 to High(ArS) do
-//   showmessage(floattostr(ArS[i]));
+//  showmessage(Vec.XYtoString);
+  showmessage(floattostr(Vec.Xvalue(12.5)));
+//    Vec.X[0]:=100;
+  showmessage(floattostr(Vec.Yvalue(0)));
 
-  Vec.Clear;
 
-//  SetLength(SourceXArray,3);
-//  SourceXArray[0]:=1;
-//  SourceXArray[1]:=2;
-//  SourceXArray[2]:=3;
-//
-//  SetLength(SourceYArray,2);
-//  SourceYArray[0]:=2;
-//  SourceYArray[1]:=4;
-//
-//  Vec.CopyFromXYArrays(SourceYArray,SourceXArray);
-//  for I := 0 to Vec.n-1 do
-//   showmessage(floattostr(Vec.X[i]));
+//  showmessage('a');
 
-  new(PSourceXArray);
-  new(PSourceYArray);
 
-  SetLength(PSourceXArray^,3);
-  PSourceXArray^[0]:=1;
-  PSourceXArray^[1]:=2;
-  PSourceXArray^[2]:=3;
+//  showmessage(Vec.XYtoString);
 
-  SetLength(PSourceYArray^,2);
-  PSourceYArray^[0]:=2;
-  PSourceYArray^[1]:=4;
-
-  Vec.CopyFromXYPArrays(PSourceYArray,PSourceXArray);
-//  for I := 0 to Vec.Count-1 do
-//   showmessage(floattostr(Vec.X[i]));
-
-  for I := 0 to Vec2.Count-1 do
-   showmessage(floattostr(Vec2.X[i]));
-
-  showmessage('a');
-  Vec.Copy(Vec2);
-  for I := 0 to Vec2.Count-1 do
-   showmessage(floattostr(Vec2.X[i]));
-
-  dispose(PSourceXArray);
-  dispose(PSourceYArray);
 
 //  showmessage(Vec.ClassName);
 
@@ -3746,7 +3712,6 @@ begin
 //  for I := 0 to High(PArS^) do
 //   showmessage(floattostr(PArS^[i]));
 //  dispose(PArs);
-
 
   Vec.Free;
   Vec2.Free;

@@ -32,6 +32,9 @@ type
   TFunDouble=Function(x,y:double):double of object;
   TFunTriple=Function(x,y,z:double):double of object;
 
+  TCoord_type=(cX,cY);
+  TPointDouble=array[TCoord_type]of double;
+
 //  TSimpleEvent = procedure() of object;
   TSimpleEvent = procedure() of object;
   TByteEvent = procedure(B: byte) of object;  
