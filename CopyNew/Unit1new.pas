@@ -3683,21 +3683,28 @@ procedure TForm1.Button1Click(Sender: TObject);
      PSourceXArray,PSourceYArray:PTArrSingle;
      i:integer;
 //     CT:TCoord_type;
+     VTrans:TVectorTransform;
 begin
   Vec:=TVectorNew.Create;
   Vec2:=TVectorNew.Create;
-  Vec.Add(1,2);
-  Vec.Add(3,6);
-  point:=Vec.Point[0];
-  point:=Vec[1];
-  Vec.Add(5,10);
-  Vec.Sorting();
+
+//  for I := -3 to 3 do
+//    begin
+//    Vec.Add(i,-2*i);
+//    Vec2.Add(1);
+//    end;
+  Vec.Filling(Kv,-5,0,1);
+  showmessage(floattostr(Vec.Int_Trap));
+  Vec.Filling(Kv,-5,5,1);
+  showmessage(floattostr(Vec.Int_Trap));
+
+//  VTrans:=TVectorTransform.Create(Vec);
+//  showmessage(VTrans.Vector.XYtoString);
+//  VTrans.AbsX(Vec2);
+//  showmessage(Vec2.XYtoString);
+//  VTrans.free;
 
 //  showmessage(Vec.XYtoString);
-  showmessage(floattostr(Vec.Xvalue(12.5)));
-//    Vec.X[0]:=100;
-  showmessage(floattostr(Vec.Yvalue(0)));
-
 
 //  showmessage('a');
 

@@ -37,7 +37,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       procedure PointSet(Number:integer; Point:TPointDouble);overload;
       function PointGet(Number:integer):TPointDouble;
       procedure PointSwap(Number1,Number2:integer);
-      procedure PointCoordSwap(Point:TPointDouble);
+      procedure PointCoordSwap(var Point:TPointDouble);
       function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;
       function IsEmptyGet: boolean;
       procedure ReadTextFile(const F: Text);
@@ -55,6 +55,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function ValueXY (Coord: TCoord_type; CoordValue: Double;i,j:integer):double;
       function GetInformation(const Index: Integer): double;
       function GetInformationInt(const Index: Integer): double;
+    function GetInt_Trap: double;
      public
 
 
@@ -105,8 +106,10 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       property MinXnumber:double Index 3 read GetInformationInt;
        {повертається найменше значення з масиву Х}
       property MinYnumber:double Index 4 read GetInformationInt;
-
-
+      property Int_Trap:double read GetInt_Trap;
+        {повертає результат інтегрування за методом
+        трапецій;  вважається, що межі інтегралу простягаються на
+        весь діапазон зміни А^.X}
 
       Constructor Create;
 
@@ -171,52 +174,18 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function Yvalue(Xvalue:double):double;
          {повертає визначає приблизну ординату точки з
           ординатою Xvalue}
-
-
-//         Procedure CopyLimitedX (var Target:VectorNew;Xmin,Xmax:double);
-//         {копіюються з даного вектора в Target
-//         - точки, для яких ордината в діапазоні від Xmin до Xmax включно
-//         - поля Т та name}
-
-//         Procedure MultiplyY(const A:double);
+      procedure MultiplyY(const A:double);
 //         {Y всіх точок множиться на A}
-//         Procedure PositiveX(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких X більше або рівне нулю;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure PositiveY(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких Y більше або рівне нулю;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure AbsX(var Target:VectorNew);
-//         {заносить в Target точки, для яких X дорівнює модулю Х даного
-//         вектора, а Y таке саме; якщо Х=0, то точка викидається;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure AbsY(var Target:VectorNew);
-//         {заносить в Target точки, для яких Y дорівнює модулю Y даного
-//         вектора, а X таке саме; якщо Y=0, то точка викидається;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure NegativeX(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких X менше нуля;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure NegativeY(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких Y менше нуля;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure Write_File(sfile:string; NumberDigit:Byte=4);
-//        {записує у файл з іменем sfile дані з масивів X та Y;
-//        якщо n=0, то запис не відбувається; NumberDigit - кількість значущих цифр}
-//         Procedure Load_File(sfile:string);
-//         {завантажуються дані з файлу sfile;
-//         якщо у файлі не два стовпчика чисел,
-//         то в результаті буде порожній вектор}
-//         Procedure DeltaY(deltaVector:VectorNew);
-//         {від значень Y віднімаються значення deltaVector.Y;
-//          якщо кількості точок різні - ніяких дій не відбувається}
-//         Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);overload;
-//         {Х заповнюється значеннями від Xmin до Xmax з кроком deltaX
-//         Y[i]=Fun(X[i],Parameters)}
-//         Procedure Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer=100);overload;
-//         {як попередня, тільки використовується не крок, а загальна
-//         кількість точок Nstep на заданому інтервалі}
-//         Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
+      procedure DeltaY(deltaVector:TVectorNew);
+         {від значень Y віднімаються значення deltaVector.Y;
+          якщо кількості точок різні - ніяких дій не відбувається}
+      Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);overload;
+         {Х заповнюється значеннями від Xmin до Xmax з кроком deltaX
+         Y[i]=Fun(X[i],Parameters)}
+      Procedure Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer=100);overload;
+         {як попередня, тільки використовується не крок, а загальна
+         кількість точок Nstep на заданому інтервалі}
+      Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
 //         Procedure Decimation(Np:word);
 //         {залишається лише 0-й, Νp-й, 2Np-й.... елементи,
 //          при Np=0 вектор масив не міняється}
@@ -232,16 +201,49 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
     TVectorManipulation=class
       private
        fVector:TVectorNew;
-       function GetVector: TVectorNew;
+//       function GetVector: TVectorNew;
        procedure SetVector(const Value: TVectorNew);
       public
-       property Vector:TVectorNew read GetVector write SetVector;
+       property Vector:TVectorNew read fVector write SetVector;
        Constructor Create(ExternalVector:TVectorNew);
        procedure Free;
     end;
 
+
+
+   TVectorTransform=class(TVectorManipulation)
+    private
+     Procedure InitTarget(var Target:TVectorNew);
+     Procedure CopyLimited (Coord:TCoord_type;var Target:TVectorNew;Clim1, Clim2:double);
+     procedure Branch(Coord:TCoord_type;var Target:TVectorNew;const IsPositive:boolean=True);
+     procedure Module(Coord:TCoord_type;var Target:TVectorNew);
+    public
+     Procedure CopyLimitedX (var Target:TVectorNew;Xmin,Xmax:double);
+       {копіюються з даного вектора в Target
+        - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
+         - поля Т та name}
+     Procedure CopyLimitedY (var Target:TVectorNew;Ymin,Ymax:double);
+     Procedure PositiveX(var Target:TVectorNew);
+         {заносить в Target ті точки, для яких X більше або рівне нулю}
+     procedure PositiveY(var Target:TVectorNew);
+         {заносить в Target ті точки, для яких Y більше або рівне нулю}
+     procedure AbsX(var Target:TVectorNew);
+         {заносить в Target точки, для яких X дорівнює модулю Х даного
+         вектора, а Y таке саме; якщо Х=0, то точка викидається}
+     procedure AbsY(var Target:TVectorNew);
+         {заносить в Target точки, для яких Y дорівнює модулю Y даного
+         вектора, а X таке саме; якщо Y=0, то точка викидається}
+     procedure NegativeX(var Target:TVectorNew);
+         {заносить в Target ті точки, для яких X менше нуля}
+     procedure NegativeY(var Target:TVectorNew);
+         {заносить в Target ті точки, для яких Y менше нуля}
+
+   end;
+
+
 //Procedure SetLenVector(A:Pvector;n:integer);
 //{встановлюється кількість точок у векторі А}
+  Function Kv(Argument:double;Parameters:array of double):double;
 
 
 implementation
@@ -663,80 +665,14 @@ begin
 end;
 
 
-//Procedure VectorNew.CopyLimitedX (var Target:VectorNew;Xmin,Xmax:double);
-// var i:integer;
-//begin
-//  Target.Clear;
-//  Target.T:=T;
-//  Target.name:=name;
-//  for I := 0 to High(X) do
-//    if (X[i]>=Xmin)and(X[i]<=Xmax) then
-//       Target.Add(X[i],Y[i])
-//end;
-//
-//Procedure VectorNew.MultiplyY(const A:double);
-// var i:integer;
-//begin
-// if A=1 then Exit;
-// for I := 0 to n - 1 do
-//  Y[i]:=Y[i]*A;
-//end;
-//
-//Procedure VectorNew.PositiveX(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if X[i]>=0 then
-//     Target.Add(X[i],Y[i]);
-//end;
-//
-//Procedure VectorNew.PositiveY(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if Y[i]>=0 then
-//     Target.Add(X[i],Y[i]);
-//end;
-//
-//Procedure VectorNew.AbsX(var Target:VectorNew);
-// var i:integer;
-//begin
-// Copy(Target);
-// for I := 0 to n - 1 do
-//     if Target.X[i]=0 then Target.Delete(i)
-//                      else
-//     Target.X[i]:=abs(Target.X[i]);
-//end;
-//
-//Procedure VectorNew.AbsY(var Target:VectorNew);
-// var i:integer;
-//begin
-// Copy(Target);
-// for I := 0 to n - 1 do
-//     if Target.Y[i]=0 then Target.Delete(i)
-//                      else
-//     Target.Y[i]:=abs(Target.Y[i]);
-//end;
-//
-//Procedure VectorNew.NegativeX(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if X[i]<0 then
-//     Target.Add(X[i],Y[i]);
-//end;
-//
-//Procedure VectorNew.NegativeY(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if Y[i]<0 then
-//     Target.Add(X[i],Y[i]);
-//end;
+
+Procedure TVectorNew.MultiplyY(const A:double);
+ var i:integer;
+begin
+ if A=1 then Exit;
+ for I := 0 to High(Points) do
+  Points[i,cY]:=Points[i,cY]*A;
+end;
 
 //
 //Procedure VectorNew.Load_File(sfile:string);
@@ -763,14 +699,14 @@ end;
 //   N_end:=n;
 //  end;
 //end;
-//
-//Procedure VectorNew.DeltaY(deltaVector:VectorNew);
-// var i:integer;
-//begin
-// if High(X)<>High(deltaVector.X) then Exit;
-// for i := 0 to High(X) do
-//        Y[i]:=Y[i]-deltaVector.Y[i];
-//end;
+
+Procedure TVectorNew.DeltaY(deltaVector:TVectorNew);
+ var i:integer;
+begin
+ if High(Self.Points)<>High(deltaVector.Points) then Exit;
+ for i := 0 to High(Self.Points) do
+        Y[i]:=Y[i]-deltaVector.Y[i];
+end;
 
 procedure TVectorNew.Add(newXY: double);
 begin
@@ -792,42 +728,42 @@ begin
   fSegmentBegin:=0;
 end;
 
-//Procedure VectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
-// const Nmax=10000;
-// var i:integer;
-//     argument:double;
-//begin
-// i:=0;
-// argument:=Xmin;
-// repeat
-//   inc(i);
-//   argument:=argument+deltaX;
-// until (argument>Xmax)or(i>Nmax);
-// if (i>Nmax) then
-//   begin
-//     Clear();
-//     Exit;
-//   end;
-// SetLenVector(i);
-// for I := 0 to n - 1 do
-//  begin
-//    X[i]:=Xmin+i*deltaX;
-//    Y[i]:=Fun(X[i],Parameters);
-//  end;
-//end;
-//
-//
-//Procedure VectorNew.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
-//begin
-//  if Nstep<1 then Clear()
-//    else if Nstep=1 then Filling(Fun,Xmin,Xmax,Xmax-Xmin+1,Parameters)
-//       else Filling(Fun,Xmin,Xmax,(Xmax-Xmin)/(Nstep-1),Parameters)
-//end;
-//
-//Procedure VectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
-//begin
-// Filling(Fun,Xmin,Xmax,deltaX,[]);
-//end;
+Procedure TVectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
+ const Nmax=10000;
+ var i:integer;
+     argument:double;
+begin
+ i:=0;
+ argument:=Xmin;
+ repeat
+   inc(i);
+   argument:=argument+deltaX;
+ until (argument>Xmax)or(i>Nmax);
+ if (i>Nmax) then
+   begin
+     Clear();
+     Exit;
+   end;
+ SetLenVector(i);
+ for I := 0 to High(Points) do
+  begin
+    X[i]:=Xmin+i*deltaX;
+    Y[i]:=Fun(X[i],Parameters);
+  end;
+end;
+
+
+Procedure TVectorNew.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
+begin
+  if Nstep<1 then Clear()
+    else if Nstep=1 then Filling(Fun,Xmin,Xmax,Xmax-Xmin+1,Parameters)
+       else Filling(Fun,Xmin,Xmax,(Xmax-Xmin)/(Nstep-1),Parameters)
+end;
+
+Procedure TVectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
+begin
+ Filling(Fun,Xmin,Xmax,deltaX,[]);
+end;
 //
 //Procedure VectorNew.Decimation(Np:word);
 // {залишається лише 0-й, ?-й, 2N-й.... елементи,
@@ -923,6 +859,15 @@ begin
  end;
 end;
 
+function TVectorNew.GetInt_Trap: double;
+ var i:integer;
+begin
+  Result:=0;
+  for I := 1 to High(Points) do
+     Result:=Result+(X[i]-X[i-1])*(Y[i]+Y[i-1]);
+  Result:=Result/2;
+end;
+
 function TVectorNew.GetN: Integer;
 begin
 // Result:=High(fX)+1;
@@ -989,9 +934,9 @@ begin
       Result := Points[i,Coord];
 end;
 
-procedure TVectorNew.PointCoordSwap(Point: TPointDouble);
+procedure TVectorNew.PointCoordSwap(var Point: TPointDouble);
 begin
- Swap(Point[cX],Point[cX]);
+ Swap(Point[cX],Point[cY]);
 end;
 
 function TVectorNew.PointGet(Number: integer): TPointDouble;
@@ -1081,16 +1026,150 @@ begin
  inherited Free;
 end;
 
-function TVectorManipulation.GetVector: TVectorNew;
-begin
- Result:=TVectorNew.Create;
- fVector.Copy(Result);
-end;
+//function TVectorManipulation.GetVector: TVectorNew;
+//begin
+//// Result:=TVectorNew.Create;
+//// Result.Clear;
+// fVector.Copy(Result);
+//end;
 
 procedure TVectorManipulation.SetVector(const Value: TVectorNew);
 begin
  Value.Copy(fVector);
 end;
 
+
+{ TVectorTransform }
+
+procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVectorNew);
+ var i:integer;
+begin
+ InitTarget(Target);
+ for I := 0 to High(Vector.Points) do
+     if Vector.Points[i,Coord]=0
+       then
+       else
+         begin
+         Target.Add(Vector[i]);
+         Target.Points[High(Target.Points)][Coord]:=
+              Abs(Target.Points[High(Target.Points)][Coord]);
+         end;
+
+// Vector.Copy(Target);
+//  for I := 0 to Target.Count-1 do
+//     if Target.Points[i,Coord]=0
+//       then
+//         Target.DeletePoint(i)
+//       else
+//         Target.Points[i][Coord]:=Abs(Target.Points[i][Coord]);
+end;
+
+procedure TVectorTransform.AbsX(var Target: TVectorNew);
+begin
+  Module(cX,Target);
+end;
+
+procedure TVectorTransform.AbsY(var Target: TVectorNew);
+begin
+ Module(cY,Target);
+end;
+
+procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVectorNew;
+                const IsPositive: boolean);
+  var i:integer;
+begin
+ InitTarget(Target);
+ for I := 0 to High(Vector.Points) do
+   if (IsPositive) then
+      begin
+       if(Vector.Points[i,Coord]>=0) then Target.Add(Vector[i])
+      end          else
+      if(Vector.Points[i,Coord]<0) then Target.Add(Vector[i]);
+end;
+
+procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
+           var Target: TVectorNew; Clim1, Clim2: double);
+ var i:integer;
+     Cmin,Cmax:double;
+begin
+  if Clim1>Clim2 then
+      begin
+        Cmax:=Clim1;
+        Cmin:=Clim2;
+      end        else
+      begin
+        Cmax:=Clim2;
+        Cmin:=Clim1;
+      end;
+  InitTarget(Target);
+  for I := 0 to High(Vector.Points) do
+    if (Vector.Points[i,Coord]>=Cmin)and(Vector.Points[i,Coord]<=Cmax) then
+       Target.Add(Vector.Points[i]);
+end;
+
+procedure TVectorTransform.CopyLimitedX(var Target: TVectorNew; Xmin, Xmax: double);
+begin
+ CopyLimited(cX,Target,Xmin, Xmax);
+end;
+
+procedure TVectorTransform.CopyLimitedY(var Target: TVectorNew; Ymin,
+  Ymax: double);
+begin
+ CopyLimited(cY,Target,Ymin, Ymax);
+end;
+
+procedure TVectorTransform.InitTarget(var Target: TVectorNew);
+begin
+  if Target=nil then  Target.Clear
+                else Target:=TVectorNew.Create;
+  Target.fT:=fVector.fT;
+end;
+
+procedure TVectorTransform.NegativeX(var Target: TVectorNew);
+begin
+  Branch(cX,Target,false);
+end;
+
+procedure TVectorTransform.NegativeY(var Target: TVectorNew);
+begin
+ Branch(cY,Target,false);
+end;
+
+procedure TVectorTransform.PositiveX(var Target: TVectorNew);
+begin
+ Branch(cX,Target);
+end;
+
+procedure TVectorTransform.PositiveY(var Target: TVectorNew);
+begin
+ Branch(cY,Target);
+end;
+
+
+//Procedure VectorNew.AbsX(var Target:VectorNew);
+// var i:integer;
+//begin
+// Copy(Target);
+// for I := 0 to n - 1 do
+//     if Target.X[i]=0 then Target.Delete(i)
+//                      else
+//     Target.X[i]:=abs(Target.X[i]);
+//end;
+//
+//Procedure VectorNew.AbsY(var Target:VectorNew);
+// var i:integer;
+//begin
+// Copy(Target);
+// for I := 0 to n - 1 do
+//     if Target.Y[i]=0 then Target.Delete(i)
+//                      else
+//     Target.Y[i]:=abs(Target.Y[i]);
+//end;
+
+
+  Function Kv(Argument:double;Parameters:array of double):double;
+  begin
+    Result:=Argument*Argument;
+  end;
 
 end.
