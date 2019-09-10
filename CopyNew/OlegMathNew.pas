@@ -551,7 +551,7 @@ function SecondFromDayBegining(ttime: TDateTime):integer;overload;
 implementation
 
 uses
-  OlegMaterialSamplesNew;
+  OlegMaterialSamplesNew, OlegVectorNew;
 
 procedure Swap(var A:integer; var B:integer);  overload;
 {процедура обміну значеннями між цілими змінними А та В}
@@ -2412,21 +2412,32 @@ Result:=Result/2;
 end;
 
 Function Int_Trap(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double):double;
-var Vec:PVector;
+//var Vec:PVector;
+var Vec:TVectorNew;
 begin
-  new(Vec);
-  Vec^.Filling(Fun,Xmin,Xmax,deltaX,Parameters);
-  Result:=Int_Trap(Vec);
-  dispose(Vec);
+  Vec:=TVectorNew.Create;
+  Vec.Filling(Fun,Xmin,Xmax,deltaX,Parameters);
+  Result:=Vec.Int_Trap;
+  Vec.Free;
+//  new(Vec);
+//  Vec^.Filling(Fun,Xmin,Xmax,deltaX,Parameters);
+//  Result:=Int_Trap(Vec);
+//  dispose(Vec);
 end;
 
 Function Int_Trap(Fun:TFun;Xmin,Xmax:double;Parameters:array of double;Npoint:integer):double;
-var Vec:PVector;
+var Vec:TVectorNew;
 begin
-  new(Vec);
-  Vec^.Filling(Fun,Xmin,Xmax,Parameters,Npoint);
-  Result:=Int_Trap(Vec);
-  dispose(Vec);
+  Vec:=TVectorNew.Create;
+  Vec.Filling(Fun,Xmin,Xmax,Parameters,Npoint);
+  Result:=Vec.Int_Trap;
+  Vec.Free;
+//var Vec:PVector;
+//begin
+//  new(Vec);
+//  Vec^.Filling(Fun,Xmin,Xmax,Parameters,Npoint);
+//  Result:=Int_Trap(Vec);
+//  dispose(Vec);
 end;
 
 Function GoldenSection(fun:TFunSingle; a, b:double):double;

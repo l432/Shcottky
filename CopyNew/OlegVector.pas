@@ -612,7 +612,9 @@ Procedure Vector.Write_File(sfile:string; NumberDigit:Byte=4);
 var i:integer;
     Str:TStringList;
 begin
+
   if n=0 then Exit;
+
   Str:=TStringList.Create;
   for I := 0 to High(X) do
      Str.Add(FloatToStrF(X[i],ffExponent,NumberDigit,0)+' '+

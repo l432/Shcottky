@@ -1120,8 +1120,11 @@ end;
 
 procedure TVectorTransform.InitTarget(var Target: TVectorNew);
 begin
-  if Target=nil then  Target.Clear
-                else Target:=TVectorNew.Create;
+  try
+   Target.Clear
+  except
+   Target:=TVectorNew.Create;
+  end;
   Target.fT:=fVector.fT;
 end;
 
@@ -1145,31 +1148,17 @@ begin
  Branch(cY,Target);
 end;
 
-
-//Procedure VectorNew.AbsX(var Target:VectorNew);
-// var i:integer;
-//begin
-// Copy(Target);
-// for I := 0 to n - 1 do
-//     if Target.X[i]=0 then Target.Delete(i)
-//                      else
-//     Target.X[i]:=abs(Target.X[i]);
-//end;
-//
-//Procedure VectorNew.AbsY(var Target:VectorNew);
-// var i:integer;
-//begin
-// Copy(Target);
-// for I := 0 to n - 1 do
-//     if Target.Y[i]=0 then Target.Delete(i)
-//                      else
-//     Target.Y[i]:=abs(Target.Y[i]);
-//end;
-
-
   Function Kv(Argument:double;Parameters:array of double):double;
+  var i:integer;
   begin
-    Result:=Argument*Argument;
+    Result:=0;
+    if High(Parameters)<0
+      then Result:=Argument*Argument
+      else
+        begin
+          for i:=0 to High(Parameters) do
+           result:=Result+Parameters[i]*Power(Argument,i)
+        end;
   end;
 
 end.

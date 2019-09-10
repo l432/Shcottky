@@ -3439,16 +3439,6 @@ begin
   for i := 0 to High(VectorArray) do dispose(VectorArray[i]);
 end;
 
-Procedure ConcentrationCalculation;
- var Vec:PVector;
- begin
-  new(Vec);
-  AllSCR(DiodPN,Vec,DiodPN.n_SCR,300,0.2,'nSCR.dat');
-  AllSCR(DiodPN,Vec,DiodPN.p_SCR,300,0,'pSCR.dat');
-
-  dispose(Vec);
- end;
-
 
 Procedure VocFF_Dependence();
  const Npoint=51;
@@ -3678,6 +3668,7 @@ procedure TForm1.Button1Click(Sender: TObject);
  var x:PVector;
      d:array of double;
      Vec,Vec2:TVectorNew;
+     Vector1,Vector2:Pvector;
      Point:TPointDouble;
      SourceXArray,SourceYArray:TArrSingle;
      PSourceXArray,PSourceYArray:PTArrSingle;
@@ -3685,18 +3676,30 @@ procedure TForm1.Button1Click(Sender: TObject);
 //     CT:TCoord_type;
      VTrans:TVectorTransform;
 begin
+
+
   Vec:=TVectorNew.Create;
+
   Vec2:=TVectorNew.Create;
+  new(Vector1);  new(Vector2);
+
 
 //  for I := -3 to 3 do
 //    begin
 //    Vec.Add(i,-2*i);
 //    Vec2.Add(1);
 //    end;
-  Vec.Filling(Kv,-5,0,1);
-  showmessage(floattostr(Vec.Int_Trap));
-  Vec.Filling(Kv,-5,5,1);
-  showmessage(floattostr(Vec.Int_Trap));
+
+//  Vector1^.Filling(Kv,-5,0,1,[1,2,3]);
+//  Vec.Filling(Kv,-5,0,1,[1,2,3]);
+//  showmessage(floattostr(Vec.Int_Trap)+#10+
+//              floattostr(Int_Trap(Vector1)));
+
+//  showmessage(floattostr(Int_Trap(Kv,-1,100,0.5,[1,2,3])));
+//  showmessage(floattostr(Int_Trap(Kv,-1,100,[1,2,3],55)));
+
+
+
 
 //  VTrans:=TVectorTransform.Create(Vec);
 //  showmessage(VTrans.Vector.XYtoString);
@@ -3720,6 +3723,7 @@ begin
 //   showmessage(floattostr(PArS^[i]));
 //  dispose(PArs);
 
+  dispose(Vector1);  dispose(Vector2);
   Vec.Free;
   Vec2.Free;
 
@@ -3765,7 +3769,6 @@ begin
 
 //IVC(DiodPN.I_Shockley,300,'IVdata.dat');
 //IVC(DiodPN.I_Shockley,300,'IVdata.dat',0.1,0.6,0.7);
-//ConcentrationCalculation;
 
 //showmessage(floattostr(Silicon.Absorption(900)));
 //FunctionToFile('abs320.dat',Silicon.Absorption,250,1450,120,320);
