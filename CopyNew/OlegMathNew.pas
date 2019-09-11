@@ -41,6 +41,8 @@ Type FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
   при невдалій - додатне число, а в Rez всі значення ErResult}
 
 
+
+
 Procedure Swap (var A:integer; var B:integer); overload;
 {процедура обміну значеннями між цілими змінними А та В}
 
@@ -301,6 +303,8 @@ Procedure Diferen (A:Pvector; var B:PVector);
 Function Lagrang(A:Pvector; x:double):double;
 {функція розрахунку значення функції в точці х використовуючи
 поліном Лагранжа, побудований на основі набору даних в масиві A}
+
+
 
 Function Splain3(V:Pvector; x:double):double;
 {функція розрахунку значення функції в точці х використовуючи
@@ -2247,6 +2251,8 @@ Function Lagrang(A:Pvector; x:double):double;
      end;
   Result:=t1;
   end;
+
+
 
 Function Splain3(V:Pvector; x:double):double;
 {функція розрахунку значення функції в точці х використовуючи

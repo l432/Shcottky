@@ -52,10 +52,16 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function MeanValue(Coord:TCoord_type):double;
       function StandartDeviation(Coord:TCoord_type):double;
       function Value (Coord: TCoord_type; CoordValue: Double):double;
+//      function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
+//      {повертає номер точки вектора, координата якого близька до CoordValue:
+//      CoordValue має знаходитися на інтервалі від
+//      Point[Result,Coord] до Point[Result+1,Coord]
+//      якщо не входить в діапазон зміни - повервається -1}
       function ValueXY (Coord: TCoord_type; CoordValue: Double;i,j:integer):double;
       function GetInformation(const Index: Integer): double;
       function GetInformationInt(const Index: Integer): double;
-    function GetInt_Trap: double;
+      function GetInt_Trap: double;
+      function GetHigh: Integer;
      public
 
 
@@ -67,6 +73,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       property Count:Integer read GetN;
       {кількість точок,
       в масивaх нумерація від 0 до n-1}
+      property HighNumber:Integer read GetHigh;
       property name:string read fName write fName;
       {назва файлу, звідки завантажені дані}
       property T:Extended read fT write SetT;
@@ -173,7 +180,13 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
           ординатою Yvalue}
       function Yvalue(Xvalue:double):double;
          {повертає визначає приблизну ординату точки з
-          ординатою Xvalue}
+          абсцисою Xvalue}
+      function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
+      {повертає номер точки вектора, координата якого близька до CoordValue:
+      CoordValue має знаходитися на інтервалі від
+      Point[Result,Coord] до Point[Result+1,Coord]
+      якщо не входить в діапазон зміни - повервається -1}
+
       procedure MultiplyY(const A:double);
 //         {Y всіх точок множиться на A}
       procedure DeltaY(deltaVector:TVectorNew);
@@ -198,47 +211,47 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
         end;
 
 
-    TVectorManipulation=class
-      private
-       fVector:TVectorNew;
-//       function GetVector: TVectorNew;
-       procedure SetVector(const Value: TVectorNew);
-      public
-       property Vector:TVectorNew read fVector write SetVector;
-       Constructor Create(ExternalVector:TVectorNew);
-       procedure Free;
-    end;
+//    TVectorManipulation=class
+//      private
+//       fVector:TVectorNew;
+////       function GetVector: TVectorNew;
+//       procedure SetVector(const Value: TVectorNew);
+//      public
+//       property Vector:TVectorNew read fVector write SetVector;
+//       Constructor Create(ExternalVector:TVectorNew);
+//       procedure Free;
+//    end;
 
 
 
-   TVectorTransform=class(TVectorManipulation)
-    private
-     Procedure InitTarget(var Target:TVectorNew);
-     Procedure CopyLimited (Coord:TCoord_type;var Target:TVectorNew;Clim1, Clim2:double);
-     procedure Branch(Coord:TCoord_type;var Target:TVectorNew;const IsPositive:boolean=True);
-     procedure Module(Coord:TCoord_type;var Target:TVectorNew);
-    public
-     Procedure CopyLimitedX (var Target:TVectorNew;Xmin,Xmax:double);
-       {копіюються з даного вектора в Target
-        - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
-         - поля Т та name}
-     Procedure CopyLimitedY (var Target:TVectorNew;Ymin,Ymax:double);
-     Procedure PositiveX(var Target:TVectorNew);
-         {заносить в Target ті точки, для яких X більше або рівне нулю}
-     procedure PositiveY(var Target:TVectorNew);
-         {заносить в Target ті точки, для яких Y більше або рівне нулю}
-     procedure AbsX(var Target:TVectorNew);
-         {заносить в Target точки, для яких X дорівнює модулю Х даного
-         вектора, а Y таке саме; якщо Х=0, то точка викидається}
-     procedure AbsY(var Target:TVectorNew);
-         {заносить в Target точки, для яких Y дорівнює модулю Y даного
-         вектора, а X таке саме; якщо Y=0, то точка викидається}
-     procedure NegativeX(var Target:TVectorNew);
-         {заносить в Target ті точки, для яких X менше нуля}
-     procedure NegativeY(var Target:TVectorNew);
-         {заносить в Target ті точки, для яких Y менше нуля}
-
-   end;
+//   TVectorTransform=class(TVectorManipulation)
+//    private
+//     Procedure InitTarget(var Target:TVectorNew);
+//     Procedure CopyLimited (Coord:TCoord_type;var Target:TVectorNew;Clim1, Clim2:double);
+//     procedure Branch(Coord:TCoord_type;var Target:TVectorNew;const IsPositive:boolean=True);
+//     procedure Module(Coord:TCoord_type;var Target:TVectorNew);
+//    public
+//     Procedure CopyLimitedX (var Target:TVectorNew;Xmin,Xmax:double);
+//       {копіюються з даного вектора в Target
+//        - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
+//         - поля Т та name}
+//     Procedure CopyLimitedY (var Target:TVectorNew;Ymin,Ymax:double);
+//     Procedure PositiveX(var Target:TVectorNew);
+//         {заносить в Target ті точки, для яких X більше або рівне нулю}
+//     procedure PositiveY(var Target:TVectorNew);
+//         {заносить в Target ті точки, для яких Y більше або рівне нулю}
+//     procedure AbsX(var Target:TVectorNew);
+//         {заносить в Target точки, для яких X дорівнює модулю Х даного
+//         вектора, а Y таке саме; якщо Х=0, то точка викидається}
+//     procedure AbsY(var Target:TVectorNew);
+//         {заносить в Target точки, для яких Y дорівнює модулю Y даного
+//         вектора, а X таке саме; якщо Y=0, то точка викидається}
+//     procedure NegativeX(var Target:TVectorNew);
+//         {заносить в Target ті точки, для яких X менше нуля}
+//     procedure NegativeY(var Target:TVectorNew);
+//         {заносить в Target ті точки, для яких Y менше нуля}
+//
+//   end;
 
 
 //Procedure SetLenVector(A:Pvector;n:integer);
@@ -564,6 +577,20 @@ begin
     else Result:=ValueXY(Coord,CoordValue,number,number-1);
 end;
 
+function TVectorNew.ValueNumber(Coord: TCoord_type;
+  CoordValue: Double): integer;
+ var i:integer;
+begin
+ for i:=0 to High(Points)-1 do
+   if (CoordValue-Points[i,Coord])*(CoordValue-Points[i+1,Coord])<=0
+    then
+     begin
+     Result:=i;
+     Exit;
+     end;
+ Result:=-1;
+end;
+
 function TVectorNew.ValueXY(Coord: TCoord_type; CoordValue: Double;
                             i,j:integer): double;
 begin
@@ -829,6 +856,11 @@ begin
 
 end;
 
+function TVectorNew.GetHigh: Integer;
+begin
+  Result:=High(Points);
+end;
+
 function TVectorNew.GetInformation(const Index: Integer): double;
 begin
  case Index of
@@ -870,7 +902,6 @@ end;
 
 function TVectorNew.GetN: Integer;
 begin
-// Result:=High(fX)+1;
  Result:=High(Points)+1;
 end;
 
@@ -1011,142 +1042,142 @@ begin
              else fT:=0;
 end;
 
-{ TVectorManipulation }
-
-constructor TVectorManipulation.Create(ExternalVector: TVectorNew);
-begin
-  inherited Create;
-  fVector:=TVectorNew.Create;
-  SetVector(ExternalVector);
-end;
-
-procedure TVectorManipulation.Free;
-begin
- fVector.Free;
- inherited Free;
-end;
-
-//function TVectorManipulation.GetVector: TVectorNew;
+//{ TVectorManipulation }
+//
+//constructor TVectorManipulation.Create(ExternalVector: TVectorNew);
 //begin
-//// Result:=TVectorNew.Create;
-//// Result.Clear;
-// fVector.Copy(Result);
+//  inherited Create;
+//  fVector:=TVectorNew.Create;
+//  SetVector(ExternalVector);
 //end;
-
-procedure TVectorManipulation.SetVector(const Value: TVectorNew);
-begin
- Value.Copy(fVector);
-end;
-
-
-{ TVectorTransform }
-
-procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVectorNew);
- var i:integer;
-begin
- InitTarget(Target);
- for I := 0 to High(Vector.Points) do
-     if Vector.Points[i,Coord]=0
-       then
-       else
-         begin
-         Target.Add(Vector[i]);
-         Target.Points[High(Target.Points)][Coord]:=
-              Abs(Target.Points[High(Target.Points)][Coord]);
-         end;
-
-// Vector.Copy(Target);
-//  for I := 0 to Target.Count-1 do
-//     if Target.Points[i,Coord]=0
+//
+//procedure TVectorManipulation.Free;
+//begin
+// fVector.Free;
+// inherited Free;
+//end;
+//
+////function TVectorManipulation.GetVector: TVectorNew;
+////begin
+////// Result:=TVectorNew.Create;
+////// Result.Clear;
+//// fVector.Copy(Result);
+////end;
+//
+//procedure TVectorManipulation.SetVector(const Value: TVectorNew);
+//begin
+// Value.Copy(fVector);
+//end;
+//
+//
+//{ TVectorTransform }
+//
+//procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVectorNew);
+// var i:integer;
+//begin
+// InitTarget(Target);
+// for I := 0 to High(Vector.Points) do
+//     if Vector.Points[i,Coord]=0
 //       then
-//         Target.DeletePoint(i)
 //       else
-//         Target.Points[i][Coord]:=Abs(Target.Points[i][Coord]);
-end;
-
-procedure TVectorTransform.AbsX(var Target: TVectorNew);
-begin
-  Module(cX,Target);
-end;
-
-procedure TVectorTransform.AbsY(var Target: TVectorNew);
-begin
- Module(cY,Target);
-end;
-
-procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVectorNew;
-                const IsPositive: boolean);
-  var i:integer;
-begin
- InitTarget(Target);
- for I := 0 to High(Vector.Points) do
-   if (IsPositive) then
-      begin
-       if(Vector.Points[i,Coord]>=0) then Target.Add(Vector[i])
-      end          else
-      if(Vector.Points[i,Coord]<0) then Target.Add(Vector[i]);
-end;
-
-procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
-           var Target: TVectorNew; Clim1, Clim2: double);
- var i:integer;
-     Cmin,Cmax:double;
-begin
-  if Clim1>Clim2 then
-      begin
-        Cmax:=Clim1;
-        Cmin:=Clim2;
-      end        else
-      begin
-        Cmax:=Clim2;
-        Cmin:=Clim1;
-      end;
-  InitTarget(Target);
-  for I := 0 to High(Vector.Points) do
-    if (Vector.Points[i,Coord]>=Cmin)and(Vector.Points[i,Coord]<=Cmax) then
-       Target.Add(Vector.Points[i]);
-end;
-
-procedure TVectorTransform.CopyLimitedX(var Target: TVectorNew; Xmin, Xmax: double);
-begin
- CopyLimited(cX,Target,Xmin, Xmax);
-end;
-
-procedure TVectorTransform.CopyLimitedY(var Target: TVectorNew; Ymin,
-  Ymax: double);
-begin
- CopyLimited(cY,Target,Ymin, Ymax);
-end;
-
-procedure TVectorTransform.InitTarget(var Target: TVectorNew);
-begin
-  try
-   Target.Clear
-  except
-   Target:=TVectorNew.Create;
-  end;
-  Target.fT:=fVector.fT;
-end;
-
-procedure TVectorTransform.NegativeX(var Target: TVectorNew);
-begin
-  Branch(cX,Target,false);
-end;
-
-procedure TVectorTransform.NegativeY(var Target: TVectorNew);
-begin
- Branch(cY,Target,false);
-end;
-
-procedure TVectorTransform.PositiveX(var Target: TVectorNew);
-begin
- Branch(cX,Target);
-end;
-
-procedure TVectorTransform.PositiveY(var Target: TVectorNew);
-begin
- Branch(cY,Target);
-end;
+//         begin
+//         Target.Add(Vector[i]);
+//         Target.Points[High(Target.Points)][Coord]:=
+//              Abs(Target.Points[High(Target.Points)][Coord]);
+//         end;
+//
+//// Vector.Copy(Target);
+////  for I := 0 to Target.Count-1 do
+////     if Target.Points[i,Coord]=0
+////       then
+////         Target.DeletePoint(i)
+////       else
+////         Target.Points[i][Coord]:=Abs(Target.Points[i][Coord]);
+//end;
+//
+//procedure TVectorTransform.AbsX(var Target: TVectorNew);
+//begin
+//  Module(cX,Target);
+//end;
+//
+//procedure TVectorTransform.AbsY(var Target: TVectorNew);
+//begin
+// Module(cY,Target);
+//end;
+//
+//procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVectorNew;
+//                const IsPositive: boolean);
+//  var i:integer;
+//begin
+// InitTarget(Target);
+// for I := 0 to High(Vector.Points) do
+//   if (IsPositive) then
+//      begin
+//       if(Vector.Points[i,Coord]>=0) then Target.Add(Vector[i])
+//      end          else
+//      if(Vector.Points[i,Coord]<0) then Target.Add(Vector[i]);
+//end;
+//
+//procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
+//           var Target: TVectorNew; Clim1, Clim2: double);
+// var i:integer;
+//     Cmin,Cmax:double;
+//begin
+//  if Clim1>Clim2 then
+//      begin
+//        Cmax:=Clim1;
+//        Cmin:=Clim2;
+//      end        else
+//      begin
+//        Cmax:=Clim2;
+//        Cmin:=Clim1;
+//      end;
+//  InitTarget(Target);
+//  for I := 0 to High(Vector.Points) do
+//    if (Vector.Points[i,Coord]>=Cmin)and(Vector.Points[i,Coord]<=Cmax) then
+//       Target.Add(Vector.Points[i]);
+//end;
+//
+//procedure TVectorTransform.CopyLimitedX(var Target: TVectorNew; Xmin, Xmax: double);
+//begin
+// CopyLimited(cX,Target,Xmin, Xmax);
+//end;
+//
+//procedure TVectorTransform.CopyLimitedY(var Target: TVectorNew; Ymin,
+//  Ymax: double);
+//begin
+// CopyLimited(cY,Target,Ymin, Ymax);
+//end;
+//
+//procedure TVectorTransform.InitTarget(var Target: TVectorNew);
+//begin
+//  try
+//   Target.Clear
+//  except
+//   Target:=TVectorNew.Create;
+//  end;
+//  Target.fT:=fVector.fT;
+//end;
+//
+//procedure TVectorTransform.NegativeX(var Target: TVectorNew);
+//begin
+//  Branch(cX,Target,false);
+//end;
+//
+//procedure TVectorTransform.NegativeY(var Target: TVectorNew);
+//begin
+// Branch(cY,Target,false);
+//end;
+//
+//procedure TVectorTransform.PositiveX(var Target: TVectorNew);
+//begin
+// Branch(cX,Target);
+//end;
+//
+//procedure TVectorTransform.PositiveY(var Target: TVectorNew);
+//begin
+// Branch(cY,Target);
+//end;
 
   Function Kv(Argument:double;Parameters:array of double):double;
   var i:integer;

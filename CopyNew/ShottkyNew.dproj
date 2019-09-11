@@ -55,9 +55,11 @@
     <DCCReference Include="OlegMaterialSamplesNew.pas" />
     <DCCReference Include="OlegMathNew.pas" />
     <DCCReference Include="OlegShowTypesNew.pas" />
+    <DCCReference Include="OlegTests.pas" />
     <DCCReference Include="OlegTypeNew.pas" />
     <DCCReference Include="OlegTypePart2New.pas" />
     <DCCReference Include="OlegVector.pas" />
+    <DCCReference Include="OlegVectorManipulation.pas" />
     <DCCReference Include="OlegVectorNew.pas" />
     <DCCReference Include="Unit1new.pas">
       <Form>Form1</Form>

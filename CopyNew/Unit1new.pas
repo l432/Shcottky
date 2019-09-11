@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraphNew, OlegTypeNew, OlegMathNew, OlegFunctionNew, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, OlegApproxNew,FrameButtons, FrDiap, OlegMaterialSamplesNew,OlegDefectsSiNew,MMSystem, 
-  OlegVector;
+  OlegVector, OlegTests;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -1259,7 +1259,7 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit, OlegVectorNew;
+uses ApprWindows, FormSelectFit, OlegVectorNew, OlegVectorManipulation;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -3668,13 +3668,14 @@ procedure TForm1.Button1Click(Sender: TObject);
  var x:PVector;
      d:array of double;
      Vec,Vec2:TVectorNew;
-     Vector1,Vector2:Pvector;
+     Vector1,Vector2:PVector;
      Point:TPointDouble;
      SourceXArray,SourceYArray:TArrSingle;
      PSourceXArray,PSourceYArray:PTArrSingle;
      i:integer;
 //     CT:TCoord_type;
      VTrans:TVectorTransform;
+     tempDouble:double;
 begin
 
 
@@ -3683,6 +3684,24 @@ begin
   Vec2:=TVectorNew.Create;
   new(Vector1);  new(Vector2);
 
+  Vector1^.Load_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\t01dl.dat');
+  Splain3Vec(Vector1, Vector1^.x[1],0.001,Vector2);
+  Vector2^.Write_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rezOld.dat');
+
+
+  VTrans:=TVectorTransform.Create();
+  VTrans.Vector.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\t01dl.dat');
+  VTrans.Splain3(VTrans.Vector.x[1],0.001,Vec2);
+  Vec2.WriteToFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rez.dat');
+
+  tempDouble:=0.5;
+  showmessage(floattostr(Splain3(Vector2, tempDouble))+
+             '   '+
+             floattostr(VTrans.YvalueSplain3(tempDouble)));
+
+  VTrans.free;
+
+  VectorEquals(Vector2,Vec2);
 
 //  for I := -3 to 3 do
 //    begin
