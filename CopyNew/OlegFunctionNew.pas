@@ -3,7 +3,7 @@ unit OlegFunctionNew;
 interface
 
 uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegTypeNew,
- Dialogs, OlegMathNew, StrUtils, Classes, Windows, OlegVector;
+ Dialogs, OlegMathNew, StrUtils, Classes, Windows, OlegVector, OlegVectorNew;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -103,9 +103,7 @@ Procedure  DelaySleep(mSec:Cardinal);
 
 Procedure  DelayQueryPerformance(mSec:Cardinal);
 
-//Function  ImpulseNoiseSmoothing(const Data:  array of Double): Double;
 Function  ImpulseNoiseSmoothing(const Data:  PTArrSingle): Double;overload;
-//Function  ImpulseNoiseSmoothing(DoubleArrayPointer:Pointer;HighDoubleArray:integer): Double;
 {розраховується середнє значення на масиві даних з врахуванням
 можливих імпульсних шумів
 див Р.Лайонс "Цифровая обработка сигналов", с.551
@@ -113,31 +111,24 @@ DoubleArrayPointer - вказівник на масив даних (на початковий елемент),
 який має бути array of double, при виклиці щось на кшталт  @DATA[Low(DATA)]
 HighDoubleArray - найбільше значення індексу масиву
 }
+
 Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
+Function  ImpulseNoiseSmoothing(const Data:  TVectorNew; ItIsXVector:boolean=False): Double;overload;
 {якщо ItIsXVector=True, то середнє рахується
 по значенням  координати X, інакше - по Y}
 
-//Procedure ImNoiseSmoothedArray(Source:array of Double;
-//                               var Target:TArrSingle;
-//                               Npoint:Word=0);overload;
 
 Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
                                Target:PTArrSingle;
                                Npoint:Word=0);overload;
-//Procedure ImNoiseSmoothedArray(SourceArrayPointer:Pointer;
-//                               SourceArrayHigh:integer;
-//                               var TargetArrayPointer:Pointer;
-//                               Npoint:Word=0);overload;
 {в Target записується результата
-зглажування (див ImpulseNoiseSmoothing) Source
+зглажування (див ImpulseNoiseSmoothingByNpoint) Source
 по Npoint точкам}
 
 Procedure ImNoiseSmoothedArray(Source:Pvector;
                                Target:Pvector;
                                Npoint:Word=0);overload;
 
-//Function ImpulseNoiseSmoothingByNpoint(Data:  array of Double;
-//                                       Npoint:Word=0): Double;
 Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
                                        Npoint:Word=0): Double;overload;
 {розраховується середнє значення на масиві даних з врахуванням
@@ -656,136 +647,10 @@ end;
 
 
 
-//Function  ImpulseNoiseSmoothing(const Data:  array of Double): Double;
-// var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
-//     Value_min,Value_max,PositivDeviation,Value_Mean:double;
-//     temp_Data:array of Double;
-//begin
-//
-//  if High(Data)<0 then
-//    begin
-//      Result:=ErResult;
-//      Exit;
-//    end;
-//  if High(Data)<4 then
-//    begin
-//      Result:=Mean(Data);
-//      Exit;
-//    end;
-//
-//  i_min:=0;
-//  i_max:=High(Data);
-//  Value_min:=Data[0];
-//  Value_max:=Data[High(Data)];
-//  for i := 0 to High(Data) do
-//    begin
-//      if Data[i]>Value_max then
-//        begin
-//          Value_max:=Data[i];
-//          i_max:=i;
-//        end;
-//      if Data[i]<Value_min then
-//        begin
-//          Value_min:=Data[i];
-//          i_min:=i;
-//        end;
-//    end;
-//
-//  SetLength(temp_Data,High(Data)-1);
-//  j:=0;
-//  for i:=0 to High(Data) do
-//     if (i<>i_min)and(i<>i_max) then
-//      begin
-//        temp_Data[j]:=Data[i];
-//        inc(j);
-//      end;
-//
-// Value_Mean:=Mean(temp_Data);
-// PositivDeviationCount:=0;
-// NegativeDeviationCount:=0;
-// PositivDeviation:=0;
-// for j := 0 to High(temp_Data) do
-//  begin
-//   if temp_Data[j]>Value_Mean then
-//    begin
-//      inc(PositivDeviationCount);
-//      PositivDeviation:=PositivDeviation+(temp_Data[j]-Value_Mean);
-//    end;
-//   if temp_Data[j]<Value_Mean then
-//      inc(NegativeDeviationCount);
-//  end;
-// Result:=Value_Mean+
-//        (PositivDeviationCount-NegativeDeviationCount)
-//        *PositivDeviation/sqr(High(temp_Data)+1);
-//end;
-
-//Function  ImpulseNoiseSmoothing(const Data:  PTArrSingle): Double;
-// var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
-//     Value_min,Value_max,PositivDeviation,Value_Mean:double;
-//     temp_Data:PTArrSingle;
-//begin
-//
-//  if High(Data^)<0 then
-//    begin
-//      Result:=ErResult;
-//      Exit;
-//    end;
-//  if High(Data^)<4 then
-//    begin
-//      Result:=Mean(Data^);
-//      Exit;
-//    end;
-//
-//  new(temp_Data);
-//  i_min:=0;
-//  i_max:=High(Data^);
-//  Value_min:=Data^[0];
-//  Value_max:=Data^[High(Data^)];
-//  for i := 0 to High(Data^) do
-//    begin
-//      if Data^[i]>Value_max then
-//        begin
-//          Value_max:=Data^[i];
-//          i_max:=i;
-//        end;
-//      if Data^[i]<Value_min then
-//        begin
-//          Value_min:=Data^[i];
-//          i_min:=i;
-//        end;
-//    end;
-//
-//  SetLength(temp_Data^,High(Data^)-1);
-//  j:=0;
-//  for i:=0 to High(Data^) do
-//     if (i<>i_min)and(i<>i_max) then
-//      begin
-//        temp_Data^[j]:=Data^[i];
-//        inc(j);
-//      end;
-//
-// Value_Mean:=Mean(temp_Data^);
-// PositivDeviationCount:=0;
-// NegativeDeviationCount:=0;
-// PositivDeviation:=0;
-// for j := 0 to High(temp_Data^) do
-//  begin
-//   if temp_Data^[j]>Value_Mean then
-//    begin
-//      inc(PositivDeviationCount);
-//      PositivDeviation:=PositivDeviation+(temp_Data^[j]-Value_Mean);
-//    end;
-//   if temp_Data^[j]<Value_Mean then
-//      inc(NegativeDeviationCount);
-//  end;
-// Result:=Value_Mean+
-//        (PositivDeviationCount-NegativeDeviationCount)
-//        *PositivDeviation/sqr(High(temp_Data^)+1);
-// dispose(temp_Data);
-//end;
 
 Function  ImpulseNoiseSmoothing(const Data:  PTArrSingle): Double;
- var i,i_min,i_max,PositivDeviationCount,NegativeDeviationCount:integer;
+ var i,i_min,i_max,
+     PositivDeviationCount,NegativeDeviationCount:integer;
      Value_min,Value_max,PositivDeviation,Value_Mean:double;
 begin
 
@@ -819,7 +684,7 @@ begin
         end;
     end;
 
-  Value_Mean:=(Sum(Data^)-Data^[i_min]+Data^[i_max])/(High(Data^)+1);
+  Value_Mean:=(Sum(Data^)-Data^[i_min]-Data^[i_max])/(High(Data^)-1);
 
 
  PositivDeviationCount:=0;
@@ -840,6 +705,15 @@ begin
  Result:=Value_Mean+
         (PositivDeviationCount-NegativeDeviationCount)
         *PositivDeviation/sqr(High(Data^)-1);
+end;
+
+Function  ImpulseNoiseSmoothing(const Data:  TVectorNew; ItIsXVector:boolean=False): Double;overload;
+ var temp:PTArrSingle;
+begin
+ if ItIsXVector then temp:=Data.CopyXtoPArray
+                else temp:=Data.CopyYtoPArray;
+ Result:=ImpulseNoiseSmoothing(temp);
+ dispose(temp);
 end;
 
 
@@ -876,6 +750,7 @@ begin
       Value_max:=Data^.Y[Data^.n-1];
     end;
 
+
   for i := 0 to Data^.n-1 do
     begin
       if ItIsXVector
@@ -906,6 +781,8 @@ begin
             end;
         end;
     end;
+
+
 
   SetLength(temp_Data^,Data^.n-2);
   j:=0;
@@ -938,117 +815,6 @@ begin
 end;
 
 
-//Function  ImpulseNoiseSmoothing(DoubleArrayPointer:Pointer;HighDoubleArray:integer): Double;
-// var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
-//     Value_min,Value_max,PositivDeviation,Value_Mean:double;
-//     Data,
-//     temp_Data:array of Double;
-//
-//begin
-//  Pointer(Data) := DoubleArrayPointer;
-//
-//  if HighDoubleArray<0 then
-//    begin
-//      Result:=ErResult;
-//      Exit;
-//    end;
-//  if HighDoubleArray<4 then
-//    begin
-//      Result:=Mean(Data);
-//      Exit;
-//    end;
-//
-//  i_min:=0;
-//  i_max:=HighDoubleArray;
-//  Value_min:=Data[0];
-//  Value_max:=Data[HighDoubleArray];
-//  for i := 0 to HighDoubleArray do
-//    begin
-//      if Data[i]>Value_max then
-//        begin
-//          Value_max:=Data[i];
-//          i_max:=i;
-//        end;
-//      if Data[i]<Value_min then
-//        begin
-//          Value_min:=Data[i];
-//          i_min:=i;
-//        end;
-//    end;
-//
-//  SetLength(temp_Data,HighDoubleArray-1);
-//  j:=0;
-//  for i:=0 to HighDoubleArray do
-//     if (i<>i_min)and(i<>i_max) then
-//      begin
-//        temp_Data[j]:=Data[i];
-//        inc(j);
-//      end;
-//
-// Value_Mean:=Mean(temp_Data);
-// PositivDeviationCount:=0;
-// NegativeDeviationCount:=0;
-// PositivDeviation:=0;
-// for j := 0 to High(temp_Data) do
-//  begin
-//   if temp_Data[j]>Value_Mean then
-//    begin
-//      inc(PositivDeviationCount);
-//      PositivDeviation:=PositivDeviation+(temp_Data[j]-Value_Mean);
-//    end;
-//   if temp_Data[j]<Value_Mean then
-//      inc(NegativeDeviationCount);
-//  end;
-// Result:=Value_Mean+
-//        (PositivDeviationCount-NegativeDeviationCount)
-//        *PositivDeviation/sqr(High(temp_Data)+1);
-//
-// Pointer(Data) := nil;
-//end;
-
-
-//Procedure ImNoiseSmoothedArray(Source:array of Double;
-//                               var Target:TArrSingle;
-//                               Npoint:Word=0);
-// var TG:array of Double;
-//     CountTargetElement,i:integer;
-//     j:Word;
-//begin
-// SetLength(Target, 0);
-// if High(Source)<0 then Exit;
-//
-// if Npoint=0 then Npoint:=Trunc(sqrt(High(Source)+1));
-//
-// if Npoint=0 then Exit;
-//
-// CountTargetElement:=(High(Source)+1) div Npoint;
-// if CountTargetElement=0
-// then
-//  begin
-//   SetLength(Target, 1);
-//   Target[0]:=ImpulseNoiseSmoothing(Source);
-//   Exit;
-//  end;
-//
-//
-//  SetLength(Target,CountTargetElement);
-//
-//  SetLength(TG,Npoint);
-//  for I := 0 to CountTargetElement - 2 do
-//   begin
-//     for j := 0 to Npoint - 1
-//     do TG[j]:=Source[I*Npoint+j];
-//     Target[I]:=ImpulseNoiseSmoothing(TG);
-//   end;
-//
-//  I:=(High(Source)+1) mod Npoint;
-//  SetLength(TG,I+Npoint);
-//  for j := 0 to Npoint+I-1
-//  do TG[j]:=Source[(CountTargetElement - 1)*Npoint+j];
-//
-//  Target[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG);
-//
-//end;
 
 
 Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
@@ -1095,48 +861,6 @@ begin
   dispose(TG);
 end;
 
-//Procedure ImNoiseSmoothedArray(Source:Pvector;
-//                           var Target:Pvector;
-//                               Npoint:Word=0);overload;
-//var tempX, tempY:TArrSingle;
-//begin
-//  Target^.T:=Source^.T;
-//  Target^.name:=Source^.name;
-//  Target^.time:=Source^.time;
-//  Target^.N_begin:=Source^.N_begin;
-//  Target^.N_end:=Source^.N_end;
-//
-//  ImNoiseSmoothedArray(Source^.X,tempX,Npoint);
-//  ImNoiseSmoothedArray(Source^.Y,tempY,Npoint);
-//  Target^.CopyFromXYArrays(tempX, tempY);
-//end;
-
-//Procedure ImNoiseSmoothedArray(Source:Pvector;
-//                              Target:Pvector;
-//                               Npoint:Word=0);overload;
-//var tempX, tempY:PTArrSingle;
-//     Data:PTArrSingle;
-//begin
-//  Target^.T:=Source^.T;
-//  Target^.name:=Source^.name;
-//  Target^.time:=Source^.time;
-//  Target^.N_begin:=Source^.N_begin;
-//  Target^.N_end:=Source^.N_end;
-//
-//  new(tempX);
-//  new(tempY);
-//  new(Data);
-//  Source^.CopyXtoPArray(Data);
-//  ImNoiseSmoothedArray(Data,tempX,Npoint);
-//  Source^.CopyYtoPArray(Data);
-//  ImNoiseSmoothedArray(Data,tempY,Npoint);
-//
-//  Target^.CopyFromXYPArrays(tempX, tempY);
-//
-//  dispose(Data);
-//  dispose(tempX);
-//  dispose(tempY);
-//end;
 
 Procedure ImNoiseSmoothedArray(Source:Pvector;
                                Target:Pvector;
@@ -1155,7 +879,12 @@ begin
 
  CountTargetElement:=Source^.n div Npoint;
  if CountTargetElement=0
-  then Target^.Add(ImpulseNoiseSmoothing(Source,True),ImpulseNoiseSmoothing(Source));
+  then
+    begin
+    Target^.Add(ImpulseNoiseSmoothing(Source,True),ImpulseNoiseSmoothing(Source));
+    Exit;
+    end;
+
 
   Target^.SetLenVector(CountTargetElement);
 
@@ -1185,42 +914,6 @@ begin
   dispose(TG);
 end;
 
-
-//Procedure ImNoiseSmoothedArray(Source:Pvector;
-//                           var Target:Pvector;
-//                               Npoint:Word=0);overload;
-//var tempX, tempY:TArrSingle;
-//begin
-//  Target^.T:=Source^.T;
-//  Target^.name:=Source^.name;
-//  Target^.time:=Source^.time;
-//  Target^.N_begin:=Source^.N_begin;
-//  Target^.N_end:=Source^.N_end;
-//
-////  ImNoiseSmoothedArray(@Source^.X[0],High(Source^.X),@tempX[0],Npoint);
-//  ImNoiseSmoothedArray(nil,10,nil,Npoint);
-//
-//  ImNoiseSmoothedArray(@Source^.Y[0],High(Source^.Y),@tempY[0],Npoint);
-//  Target^.CopyFromXYArrays(tempX, tempY);
-//end;
-
-
-
-//Function ImpulseNoiseSmoothingByNpoint(Data:  array of Double;
-//                                       Npoint:Word=0): Double;
-// var temp:TArrSingle;
-//begin
-// Result:=ErResult;
-// if High(Data)<0 then Exit;
-//
-// if Npoint=0 then Npoint:=Trunc(sqrt(High(Data)+1));
-//
-// if Npoint=0 then Exit;
-//
-// ImNoiseSmoothedArray(Data, temp, Npoint);
-// if High(temp)=0 then Result:=temp[0]
-//                 else Result:=ImpulseNoiseSmoothingByNpoint(temp,Npoint);
-//end;
 
 Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
                                        Npoint:Word=0): Double;

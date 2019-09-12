@@ -3676,6 +3676,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 //     CT:TCoord_type;
      VTrans:TVectorTransform;
      tempDouble:double;
+
 begin
 
 
@@ -3685,23 +3686,43 @@ begin
   new(Vector1);  new(Vector2);
 
   Vector1^.Load_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\t01dl.dat');
-  Splain3Vec(Vector1, Vector1^.x[1],0.001,Vector2);
-  Vector2^.Write_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rezOld.dat');
-
-
+//  ImNoiseSmoothedArray(Vector1,Vector2,6);
+////  Splain3Vec(Vector1, Vector1^.x[1],0.001,Vector2);
+//  Vector2^.Write_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rezOld.dat');
+//
+//
   VTrans:=TVectorTransform.Create();
   VTrans.Vector.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\t01dl.dat');
-  VTrans.Splain3(VTrans.Vector.x[1],0.001,Vec2);
-  Vec2.WriteToFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rez.dat');
+////  VTrans.Splain3(VTrans.Vector.x[1],0.001,Vec2);
+//  VTrans.ImNoiseSmoothedArray(Vec2,7);
+//
+//  Vec2.WriteToFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rez.dat');
 
-  tempDouble:=0.5;
-  showmessage(floattostr(Splain3(Vector2, tempDouble))+
-             '   '+
-             floattostr(VTrans.YvalueSplain3(tempDouble)));
+//  VectorEquals(Vector2,Vec2);
+
+
+  tempDouble:=0.3;
+  showmessage(floattostr(
+            ImpulseNoiseSmoothingByNpoint(Vector1,false))
+            +'   '+
+             floattostr(
+             VTrans.ImpulseNoiseSmoothingByNpoint(cY)));
+
+//  showmessage(floattostr(ImpulseNoiseSmoothing(Vector1,false))+
+//             '   '+
+//             floattostr(ImpulseNoiseSmoothing(VTrans.Vector,false)));
+
+
+
+
+  new(PSourceXArray);
+
+
+  dispose(PSourceXArray);
 
   VTrans.free;
 
-  VectorEquals(Vector2,Vec2);
+
 
 //  for I := -3 to 3 do
 //    begin

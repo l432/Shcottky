@@ -66,7 +66,23 @@ type
     {функція розрахунку значення функції в точці Xvalue використовуючи
      кубічні сплайни, побудовані на основі набору даних в масиві V
      Result=Ai+Bi(X-Xi)+Ci(X-Xi)^2+Di(X-Xi)^3 при Xi-1<=X<=Xi}
+     Function YvalueLagrang(Xvalue:double):double;
+     {функція розрахунку значення функції в точці Xvalue
+      використовуючи поліном Лагранжа}
+     Function  ImpulseNoiseSmoothing(const Coord:TCoord_type): Double;
 
+     Function ImpulseNoiseSmoothingByNpoint(const Coord:TCoord_type;
+                                       Npoint:Word=0): Double;
+
+      {розраховується середнє значення на масиві даних з врахуванням
+      можливих імпульсних шумів,
+      на відміну від ImpulseNoiseSmoothing дані розбиваються на порції
+      по Npoint штук на наборі яких розраховується середнє,
+      потім середні розбиваються на порції ....}
+     Procedure ImNoiseSmoothedArray(Target:TVectorNew;Npoint:Word=0);
+      {в Target записується результата
+      зглажування (див ImpulseNoiseSmoothingByNpoint) Source
+      по Npoint точкам}
 
    end;
 
@@ -85,6 +101,9 @@ Procedure SplainCoefCalculate(V:TVectorNew;var SplainCoef:TSplainCoefArray);
 {розраховуються кокфіцієнтів сплайцнів для апроксимації даних в Vector}
 
 implementation
+
+uses
+  Math;
 
 
 
@@ -206,6 +225,129 @@ begin
  CopyLimited(cY,Target,Ymin, Ymax);
 end;
 
+procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVectorNew;
+                            Npoint: Word);
+ var TG:TVectorTransform;
+     CountTargetElement,i:integer;
+     j:Word;
+begin
+ InitTarget(Target);
+ if Vector.Count<1 then Exit;
+
+ if Npoint=0 then Npoint:=Trunc(sqrt(Vector.Count+1));
+ if Npoint=0 then Exit;
+
+ CountTargetElement:=Vector.Count div Npoint;
+ if CountTargetElement=0
+  then
+   begin
+   Target.Add(Self.ImpulseNoiseSmoothing(cX),Self.ImpulseNoiseSmoothing(cY));
+   Exit;
+   end;
+
+ Target.SetLenVector(CountTargetElement);
+
+  TG:=TVectorTransform.Create();
+  TG.Vector.SetLenVector(Npoint);
+  for I := 0 to CountTargetElement - 2 do
+   begin
+     for j := 0 to Npoint - 1 do
+       begin
+        TG.Vector.X[j]:=Self.Vector.X[I*Npoint+j];
+        TG.Vector.Y[j]:=Self.Vector.Y[I*Npoint+j];
+       end;
+     Target.X[I]:=TG.ImpulseNoiseSmoothing(cX);
+     Target.Y[I]:=TG.ImpulseNoiseSmoothing(cY);
+   end;
+
+  I:=Vector.Count mod Npoint;
+  TG.Vector.SetLenVector(I+Npoint);
+  for j := 0 to Npoint+I-1 do
+   begin
+    TG.Vector.X[j]:=Self.Vector.X[(CountTargetElement - 1)*Npoint+j];
+    TG.Vector.Y[j]:=Self.Vector.Y[(CountTargetElement - 1)*Npoint+j];
+   end;
+
+  Target.X[CountTargetElement - 1]:=TG.ImpulseNoiseSmoothing(cX);
+  Target.Y[CountTargetElement - 1]:=TG.ImpulseNoiseSmoothing(cY);
+
+  TG.Free;
+
+end;
+
+function TVectorTransform.ImpulseNoiseSmoothing(
+                   const Coord: TCoord_type): Double;
+ var i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
+     PositivDeviation,Value_Mean:double;
+     tempVector:TVectorNew;
+begin
+
+  if Vector.Count<1 then
+    begin
+      Result:=ErResult;
+      Exit;
+    end;
+  if Vector.Count<5 then
+    begin
+      Result:=Vector.MeanValue(Coord);
+      Exit;
+    end;
+
+  i_min:=Vector.MinNumber(Coord);
+  i_max:=Vector.MaxNumber(Coord);
+
+ tempVector:=TVectorNew.Create;
+ Vector.Copy(tempVector);
+ if i_min=i_max then TempVector.DeletePoint(i_min)
+                else
+                 begin
+                  TempVector.DeletePoint(max(i_min,i_max));
+                  TempVector.DeletePoint(min(i_min,i_max));
+                 end;
+
+ Value_Mean:=tempVector.MeanValue(Coord);
+ PositivDeviationCount:=0;
+ NegativeDeviationCount:=0;
+ PositivDeviation:=0;
+ for j := 0 to tempVector.HighNumber do
+  begin
+   if tempVector[j][Coord]>Value_Mean then
+    begin
+      inc(PositivDeviationCount);
+      PositivDeviation:=PositivDeviation+(tempVector[j][Coord]-Value_Mean);
+    end;
+   if tempVector[j][Coord]<Value_Mean then
+      inc(NegativeDeviationCount);
+  end;
+
+ Result:=Value_Mean+
+        (PositivDeviationCount-NegativeDeviationCount)
+        *PositivDeviation/sqr(tempVector.HighNumber+1);
+  tempVector.Free;
+end;
+
+function TVectorTransform.ImpulseNoiseSmoothingByNpoint(
+           const Coord: TCoord_type; Npoint: Word): Double;
+ var temp:TVectorTransform;
+begin
+ Result:=ErResult;
+ if Vector.Count<1 then Exit;
+
+ if Npoint=0 then Npoint:=Trunc(sqrt(Vector.Count+1));
+ if Npoint=0 then Exit;
+
+
+ temp:=TVectorTransform.Create;
+
+
+ Self.ImNoiseSmoothedArray(temp.Vector, Npoint);
+ if temp.Vector.Count=1
+  then Result:=temp.Vector.Point[0][Coord]
+  else Result:=temp.ImpulseNoiseSmoothingByNpoint(Coord,Npoint);
+ temp.Free;
+
+end;
+
 procedure TVectorTransform.InitTarget(var Target: TVectorNew);
 begin
   try
@@ -266,6 +408,25 @@ begin
 
     Target.Y[i]:=Kub(temp,Vector.Point[j],SplainCoef[j]);
    end;
+
+end;
+
+function TVectorTransform.YvalueLagrang(Xvalue: double): double;
+ var i,j:word;
+     t1,t2:double;
+begin
+   Result:=ErResult;
+   if (Xvalue-Vector.X[Vector.HighNumber])*(Xvalue-Vector.X[0])>0 then Exit;
+   t1:=0;
+   for i:=0 to Vector.HighNumber do
+     begin
+       t2:=1;
+       for j:=0 to Vector.HighNumber do
+         if (j<>i) then
+          t2:=t2*(Xvalue-Vector.X[j])/(Vector.X[i]-Vector.X[j]);
+       t1:=t1+Vector.Y[i]*t2;
+     end;
+  Result:=t1;
 
 end;
 

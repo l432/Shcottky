@@ -2,7 +2,7 @@ unit OlegMaterialSamplesNew;
 
 interface
 uses IniFiles, TypInfo, OlegTypeNew,SysUtils,Dialogs, StdCtrls,
-     OlegFunctionNew,OlegMathNew, OlegVector, OlegVectorNew;
+     OlegFunctionNew,OlegMathNew, {OlegVector,} OlegVectorNew;
 type
     TMaterialName=(Si,GaAs,InP,H4SiC,GaN,CdTe,CdS,CdSe,CuInSe2,GaTe,GaSe,Ge,Other);
     TMaterialParametersName=(
@@ -445,7 +445,7 @@ Function FermiLevelDeterminationSimple(const n:double;const T:double):double;
 implementation
 
 uses
-  Controls, Graphics, Math;
+  Controls, Graphics, Math, OlegVectorManipulation;
 
 procedure TMaterial.SetAbsValue(Index:integer; value: Double);
 begin
@@ -1822,7 +1822,8 @@ class function Silicon.Green(Lambda: double): double;
                     1430,	2.5E-8,
                     1440,	1.8E-8,
                     1450,	1.2E-8);
- var Vect:PVector;
+ var Vect:TVectorTransform;
+
      i:integer;
 begin
   if Lambda=900 then
@@ -1831,15 +1832,12 @@ begin
      Exit;
    end;
 
-  new(Vect);
-  Vect^.SetLenVector(trunc(High(Si_absorption)/2));
-  for I := 0 to High(Vect^.X) do
-    begin
-     Vect^.X[i]:=Si_absorption[2*i];
-     Vect^.Y[i]:=Si_absorption[2*i+1];
-    end;
-  Result:=Splain3(Vect,Lambda)*100;
-  dispose(Vect);
+  Vect:=TVectorTransform.Create;
+  Vect.Vector.SetLenVector(trunc(High(Si_absorption)/2));
+  for I := 0 to Vect.Vector.HighNumber
+     do Vect.Vector.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
+  Result:=Vect.YvalueSplain3(Lambda)*100;
+  Vect.Free;
 end;
 
 class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;

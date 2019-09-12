@@ -38,7 +38,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function PointGet(Number:integer):TPointDouble;
       procedure PointSwap(Number1,Number2:integer);
       procedure PointCoordSwap(var Point:TPointDouble);
-      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;
+//      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;
       function IsEmptyGet: boolean;
       procedure ReadTextFile(const F: Text);
       function CoordToString(Coord:TCoord_type):string;
@@ -46,10 +46,10 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function Stat(Coord:TCoord_type;FunVector:TFunVectorInt;minPointNumber:Integer=1):integer;overload;
       function MaxValue(Coord:TCoord_type):double;
       function MinValue(Coord:TCoord_type):double;
-      function MaxNumber(Coord:TCoord_type):integer;
-      function MinNumber(Coord:TCoord_type):integer;
+//      function MaxNumber(Coord:TCoord_type):integer;
+//      function MinNumber(Coord:TCoord_type):integer;
       function Sum(Coord:TCoord_type):double;
-      function MeanValue(Coord:TCoord_type):double;
+//      function MeanValue(Coord:TCoord_type):double;
       function StandartDeviation(Coord:TCoord_type):double;
       function Value (Coord: TCoord_type; CoordValue: Double):double;
 //      function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
@@ -111,7 +111,6 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       {повертається порядковий номер найбільшого значення з масиву X}
       property MaxYnumber:double Index 2 read GetInformationInt;
       property MinXnumber:double Index 3 read GetInformationInt;
-       {повертається найменше значення з масиву Х}
       property MinYnumber:double Index 4 read GetInformationInt;
       property Int_Trap:double read GetInt_Trap;
         {повертає результат інтегрування за методом
@@ -208,6 +207,11 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
 //         NtoDelete - кількість точок, які видаляються
 //         з початку масиву; ця кількість відповідає
 //         тривалості перехідної характеристики фільтра}
+      function MeanValue(Coord:TCoord_type):double;
+      function MaxNumber(Coord:TCoord_type):integer;
+      function MinNumber(Coord:TCoord_type):integer;
+      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;
+
         end;
 
 
