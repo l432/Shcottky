@@ -46,6 +46,7 @@ procedure IVC(Func:TFunDouble;
 {розраховується ВАХ за законом I=Func(T,V)
 і записується у файл ResultFileName}
 
+
 Function SomeSpaceToOne(str:string):string;
 {замінює декілька пробілів на один}
 
@@ -304,18 +305,16 @@ procedure IVC(Func:TFunDouble;
               Vmax:double=0.6;
               delV:double=0.01);
  Var V:double;
-     Vax:PVector;
+     Vax:TVectorNew;
 begin
- new(Vax);
- Vax^.Clear;
+ Vax:=TVectorNew.Create;
  V:=Vmin;
  repeat
-   Vax^.Add(V,Func(T,V));
+   Vax.Add(V,Func(T,V));
    V:=V+delV;
-//  showmessage(floattostr(V));
  until (V>Vmax);
- if ResultFileName<>'' then Vax^.Write_File(ResultFileName);
- dispose(Vax);
+ if ResultFileName<>'' then Vax.WriteToFile(ResultFileName);
+ Vax.Free;
 end;
 
 Function SomeSpaceToOne(str:string):string;

@@ -2,7 +2,7 @@
 
 
 interface
- uses OlegTypeNew, IniFiles;
+ uses OlegTypeNew, IniFiles, OlegVectorNew;
 
 
 type

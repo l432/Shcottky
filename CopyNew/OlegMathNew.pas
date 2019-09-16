@@ -59,6 +59,7 @@ procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
 {додаються всі елементи з AddedArray в кінець InitArray}
 
 Function Poh(A:PVector; k:integer):double;
+//function TVectorTransform.DerivateAtPoint(PointNumber: integer): double;
 {знаходження похідної від функції, яка записана
 в масиві А в точці з індексом k}
 
@@ -274,6 +275,7 @@ Function G_ExpRsh(AP:Pvector; Variab:array of double;
                   var Rez:T2DArray):word;
 
 Procedure Smoothing (A:Pvector; var B:PVector);
+//procedure TVectorTransform.Smoothing(var Target: TVectorNew);
 {в В розміщується сглажена функція даних в А;
 а саме проводиться усереднення по трьом точкам,
 причому усереднення з ваговими коефіцієнтами,
@@ -838,6 +840,7 @@ if (k>0) and (k<High(A^.X)) then
   y3:=A^.y[k+1];
   x1:=A^.x[k-1];
   y1:=A^.y[k-1];
+
 
 // NextPoint(k+1,High(A^.X),x2,y2,A,x3,y3,inext);
 // NextPoint(k-1,0,x2,y2,A,x1,y1,inext);
@@ -2208,6 +2211,7 @@ B^.y[High(B^.X)]:=A^.y[High(B^.X)];
 end;
 
 Procedure Diferen (A:Pvector; var B:PVector);
+//procedure TVectorTransform.Diferen(var Target: TVectorNew);
 {в В розміщується похідна від значень, розташованих
 у векторі А;
 якщо у вихідному масиві кількість точок менша трьох,

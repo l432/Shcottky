@@ -38,7 +38,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function PointGet(Number:integer):TPointDouble;
       procedure PointSwap(Number1,Number2:integer);
       procedure PointCoordSwap(var Point:TPointDouble);
-//      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;
+      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;overload;
       function IsEmptyGet: boolean;
       procedure ReadTextFile(const F: Text);
       function CoordToString(Coord:TCoord_type):string;
@@ -210,8 +210,8 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function MeanValue(Coord:TCoord_type):double;
       function MaxNumber(Coord:TCoord_type):integer;
       function MinNumber(Coord:TCoord_type):integer;
-      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;
-
+//      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;overload;
+      function PoinToString(PointNumber: Integer;NumberDigit:Byte=4):string;overload;
         end;
 
 
@@ -260,11 +260,28 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
 
 //Procedure SetLenVector(A:Pvector;n:integer);
 //{встановлюється кількість точок у векторі А}
+
+
+Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+{знаходить ординату точки з абсцисою Х3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+
+
+
+Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
+{знаходить абсцису точки з ординатою Y3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+
+
   Function Kv(Argument:double;Parameters:array of double):double;
 
 
 implementation
-uses OlegMathNew,OlegGraphNew, Classes, Dialogs, Controls, Math;
+uses OlegMathNew,{OlegGraphNew,} Classes, Dialogs, Controls, Math;
 
 
 
@@ -739,6 +756,7 @@ begin
         Y[i]:=Y[i]-deltaVector.Y[i];
 end;
 
+
 procedure TVectorNew.Add(newXY: double);
 begin
  self.Add(newXY,newXY);
@@ -782,7 +800,6 @@ begin
     Y[i]:=Fun(X[i],Parameters);
   end;
 end;
-
 
 Procedure TVectorNew.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
 begin
@@ -978,6 +995,12 @@ function TVectorNew.PointGet(Number: integer): TPointDouble;
 begin
  Result[cX]:=Points[Number,cX];
  Result[cY]:=Points[Number,cY];
+end;
+
+function TVectorNew.PoinToString(PointNumber: Integer;
+         NumberDigit: Byte): string;
+begin
+  Result:=PoinToString(Self[PointNumber],NumberDigit);
 end;
 
 function TVectorNew.PoinToString(Point: TPointDouble; NumberDigit: Byte): string;
@@ -1182,6 +1205,43 @@ end;
 //begin
 // Branch(cY,Target);
 //end;
+
+
+Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+{знаходить ординату точки з абсцисою Х3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+begin
+ try
+ Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
+ except
+ Result:=ErResult;
+ end;
+end;
+
+Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+begin
+ Result:=Y_X0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],X)
+end;
+
+
+Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
+{знаходить абсцису точки з ординатою Y3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+begin
+ try
+ Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
+ except
+ Result:=ErResult;
+ end;
+end;
+
+Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+begin
+  Result:=X_Y0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],Y);
+end;
+
 
   Function Kv(Argument:double;Parameters:array of double):double;
   var i:integer;

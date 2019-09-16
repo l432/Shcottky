@@ -2,7 +2,7 @@
 interface
 uses OlegTypeNew, OlegMathNew, SysUtils, Dialogs, Classes, Series,
      Forms,Controls,WinProcs,OlegMaterialSamplesNew, StdCtrls, IniFiles, 
-  OlegVector;
+  OlegVector, OlegVectorNew;
 
 type
 
@@ -208,15 +208,21 @@ NumberDigit - кількість значущих цифр}
 
 
 Procedure Write_File3Column(sfile:string; A:PVector;
-                           Func:TFunDouble;NumberDigit:Byte=4);
+                           Func:TFunDouble;NumberDigit:Byte=4);overload;
+Procedure Write_File3Column(sfile:string; A:TVectorNew;
+                           Func:TFunDouble;NumberDigit:Byte=4);overload;
 {записує у файл з іменем sfile дані з масиву А,
 третя колонка - результат Func(A^.Y[i],A^.X[i])
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
 
+
 Procedure ToFileFromTwoVector(NameFile:string;
                               Vector,Vector2:PVector;
-                              NumberDigit:Byte=4);
+                              NumberDigit:Byte=4);overload;
+Procedure ToFileFromTwoVector(NameFile:string;
+                              Vector,Vector2:TVectorNew;
+                              NumberDigit:Byte=4);overload;
 {записує у файл з іменем NameFile дані з двох векторів
 у чотири колонки;
 якщо в обох масивах даних немає - запис не відбувається;
@@ -224,6 +230,8 @@ Procedure ToFileFromTwoVector(NameFile:string;
 кількість рядків відповідатиме більшому файлу,
 замість даних, яких недостає, буде записано нуль;
 NumberDigit - кількість значущих цифр}
+
+
 
 Procedure ToFileFromTwoSeries(NameFile:string;
                               Series,Series2:TCustomSeries;
@@ -237,36 +245,45 @@ NumberDigit - кількість значущих цифр}
 
 
 Procedure Sorting (var A:PVector;Increase:boolean=True);
+//TVectorNew.Sorting (Increase:boolean=True);
 {процедура сортування (методом бульбашки)
 даних у масиві А по зростанню (при Increase=True) компоненти А^.Х}
 
 Procedure IVchar(a:Pvector; var b:Pvector);
+//Procedure TVectorNew.Copy (TargetVector:TVectorNew);
 {заносить копію з а в b}
 
 Procedure LogX(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.PositiveX(var Target: TVectorNew);
 {записує з A в B тільки ті точки, для яких
 координата Х більше нуля}
 
 Procedure LogY(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.PositiveY(var Target: TVectorNew);
 {записує з A в B тільки ті точки, для яких
 координата Y більше нуля}
 
 Procedure ForwardIV(A:Pvector; var B:Pvector);overload;
+//procedure TVectorTransform.PositiveX(var Target: TVectorNew);
 {записує з A в B тільки ті точки, які відповідають
 прямій ділянці ВАХ (для яких координата X більше нуля)}
 Procedure ForwardIV(var A:Pvector);overload;
+//procedure TVectorTransform.Itself(TVectorTransform.PositiveX)
 {в А залишаються тільки ті точки, які відповідають
 прямій ділянці ВАХ (для яких координата X більше нуля)}
 
 Procedure SmoothingA (var A:PVector);
+//procedure TVectorTransform.Itself(TVectorTransform.Smoothing)
 {в В розміщується сглажена функція - див. Smoothing}
 
 Procedure ReverseIV(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.ReverseIV(var Target: TVectorNew);
 {записує з A в B тільки ті точки, які відповідають
 зворотній ділянці ВАХ (для яких координата X менше нуля),
 причому записує модуль координат}
 
 Procedure PidgFun(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.InitTargetToFun(var Target: TVectorNew);
 {підготовча процедура до побудови багатьох функцій;
 визначає діапазон B^.N_begin та B^.N_end, для
 яких у векторі А значення Х>0.01 та Y>0,
@@ -274,6 +291,7 @@ Procedure PidgFun(A:Pvector; var B:Pvector);
 саме заповнення масиву В не відбувається}
 
 Procedure ChungFun(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.ChungFun(var Target: TVectorNew);
 {записує в B Chung-функцію, побудовану по даним з А}
 
 Procedure WernerFun(A:Pvector; var B:Pvector);
@@ -745,19 +763,19 @@ Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
 якщо неможливо побудувати функцію Лі,
 то і Rs=ErResult}
 
-Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
-{знаходить ординату точки з абсцисою Х3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
-
-
-
-Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
-{знаходить абсцису точки з ординатою Y3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+//Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+//{знаходить ординату точки з абсцисою Х3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+//
+//
+//
+//Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
+//{знаходить абсцису точки з ординатою Y3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
 
 
 function ChisloY (A:Pvector; X:double):double;
@@ -1269,6 +1287,23 @@ begin
   Str.Free;
 end;
 
+Procedure Write_File3Column(sfile:string; A:TVectorNew;
+                           Func:TFunDouble;NumberDigit:Byte=4);overload;
+var i:integer;
+    Str:TStringList;
+begin
+  if A.Count=0 then Exit;
+  Str:=TStringList.Create;
+  for I := 0 to A.HighNumber do
+     Str.Add(A.PoinToString(i,NumberDigit)+' '+
+//     Str.Add(FloatToStrF(A^.X[i],ffExponent,NumberDigit,0)+' '+
+//             FloatToStrF(A^.Y[i],ffExponent,NumberDigit,0)+' '+
+             FloatToStrF(Func(A.Y[i],A.X[i]),ffExponent,NumberDigit,0));
+  Str.SaveToFile(sfile);
+  Str.Free;
+end;
+
+
 Procedure ToFileFromTwoVector(NameFile:string;
                               Vector,Vector2:PVector;
                               NumberDigit:Byte=4);
@@ -1304,6 +1339,39 @@ for I := minCount to maxCount-1 do
 Str.SaveToFile(NameFile);
 Str.Free;
 end;
+
+
+Procedure ToFileFromTwoVector(NameFile:string;
+                              Vector,Vector2:TVectorNew;
+                              NumberDigit:Byte=4);overload;
+var i,maxCount,minCount:integer;
+    Str:TStringList;
+    tempString:string;
+begin
+maxCount:=max(Vector.Count,Vector2.Count);
+if maxCount=0 then Exit;
+Str:=TStringList.Create;
+minCount:=min(Vector.Count,Vector2.Count);
+for I := 0 to minCount-1 do
+   Str.Add(Vector.PoinToString(i,NumberDigit)+' '+
+           Vector2.PoinToString(i,NumberDigit));
+for I := minCount to maxCount-1 do
+   begin
+    tempString:='';
+    if i>(Vector.Count-1) then
+      tempString:=tempString+'0 0 '
+                       else
+      tempString:=tempString+Vector.PoinToString(i,NumberDigit);
+    if i>(Vector2.Count-1) then
+      tempString:=tempString+'0 0'
+                       else
+      tempString:=tempString+Vector2.PoinToString(i,NumberDigit);
+    Str.Add(tempString);
+   end;
+Str.SaveToFile(NameFile);
+Str.Free;
+end;
+
 
 Procedure ToFileFromTwoSeries(NameFile:string;
                               Series,Series2:TCustomSeries;
@@ -3998,40 +4066,40 @@ begin
 end;
 
 
-Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
-{знаходить ординату точки з абсцисою Х3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-begin
- try
- Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
- except
- Result:=ErResult;
- end;
-end;
-
-Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
-begin
- Result:=Y_X0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],X)
-end;
-
-
-Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
-{знаходить абсцису точки з ординатою Y3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-begin
- try
- Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
- except
- Result:=ErResult;
- end;
-end;
-
-Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
-begin
-  Result:=X_Y0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],Y);
-end;
+//Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+//{знаходить ординату точки з абсцисою Х3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//begin
+// try
+// Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
+// except
+// Result:=ErResult;
+// end;
+//end;
+//
+//Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+//begin
+// Result:=Y_X0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],X)
+//end;
+//
+//
+//Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
+//{знаходить абсцису точки з ординатою Y3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//begin
+// try
+// Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
+// except
+// Result:=ErResult;
+// end;
+//end;
+//
+//Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+//begin
+//  Result:=X_Y0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],Y);
+//end;
 
 function ChisloY (A:Pvector; X:double):double;
 {визначає приблизну ординату точки з

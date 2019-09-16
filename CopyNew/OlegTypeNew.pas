@@ -215,7 +215,7 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 {записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 implementation
-uses OlegMathNew,OlegGraphNew, Classes, Dialogs, Controls, Math;
+uses OlegMathNew,{OlegGraphNew,} Classes, Dialogs, Controls, Math;
 
 
 procedure TDiapazon.SetData(Index:integer; value:double);

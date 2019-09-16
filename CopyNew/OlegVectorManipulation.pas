@@ -26,13 +26,22 @@ type
        procedure Free;
     end;
 
-
+   TProcTarget=Procedure(var Target:TVectorNew) of object;
 
    TVectorTransform=class(TVectorManipulation)
     private
      Procedure InitTarget(var Target:TVectorNew);
+     Procedure InitTargetToFun(var Target:TVectorNew);
+      {підготовча процедура до побудови багатьох функцій;
+      визначає  Target.N_begin, починаючи з якого
+      у Vector значення Х>0.001 та Y>0,
+      встановлює необхідний розмір Target;
+      саме заповнення Target не відбувається}
+
      Procedure CopyLimited (Coord:TCoord_type;var Target:TVectorNew;Clim1, Clim2:double);
-     procedure Branch(Coord:TCoord_type;var Target:TVectorNew;const IsPositive:boolean=True);
+     procedure Branch(Coord:TCoord_type;var Target:TVectorNew;
+                      const IsPositive:boolean=True;
+                      const IsRigorous:boolean=True);
      procedure Module(Coord:TCoord_type;var Target:TVectorNew);
     public
      Procedure CopyLimitedX (var Target:TVectorNew;Xmin,Xmax:double);
@@ -40,20 +49,31 @@ type
         - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
          - поля Т та name}
      Procedure CopyLimitedY (var Target:TVectorNew;Ymin,Ymax:double);
-     Procedure PositiveX(var Target:TVectorNew);
-         {заносить в Target ті точки, для яких X більше або рівне нулю}
-     procedure PositiveY(var Target:TVectorNew);
-         {заносить в Target ті точки, для яких Y більше або рівне нулю}
      procedure AbsX(var Target:TVectorNew);
          {заносить в Target точки, для яких X дорівнює модулю Х даного
          вектора, а Y таке саме; якщо Х=0, то точка викидається}
      procedure AbsY(var Target:TVectorNew);
          {заносить в Target точки, для яких Y дорівнює модулю Y даного
          вектора, а X таке саме; якщо Y=0, то точка викидається}
+     Procedure PositiveX(var Target:TVectorNew);//overload;
+         {заносить в Target ті точки, для яких X більше нуля}
+     procedure PositiveY(var Target:TVectorNew);
+         {заносить в Target ті точки, для яких Y більше нуля}
+     Procedure ForwardX(var Target:TVectorNew);
+         {заносить в Target ті точки, для яких X більше або рівне нулю}
+     Procedure ForwardY(var Target:TVectorNew);
      procedure NegativeX(var Target:TVectorNew);
          {заносить в Target ті точки, для яких X менше нуля}
      procedure NegativeY(var Target:TVectorNew);
          {заносить в Target ті точки, для яких Y менше нуля}
+     Procedure ReverseX(var Target:TVectorNew);
+         {заносить в Target ті точки, для яких X менше або рівне нулю}
+     Procedure ReverseY(var Target:TVectorNew);
+     Procedure ReverseIV(var Target:TVectorNew);
+     {записує у Target тільки ті точки, які відповідають
+     зворотній ділянці ВАХ (для яких координата X менше нуля),
+     причому записує модуль координат}
+
      Procedure Splain3(beg:double; step:double; var Target:TVectorNew);
       {в Target результат апроксимації даних
       з використанням кубічних сплайнів,
@@ -83,6 +103,26 @@ type
       {в Target записується результата
       зглажування (див ImpulseNoiseSmoothingByNpoint) Source
       по Npoint точкам}
+     Procedure Itself(ProcTarget:TProcTarget);
+     {дозволяє змінювати власний Vector}
+     Procedure Smoothing (var Target:TVectorNew);
+      {в Target розміщується сглажена функція даних
+      у Vector;
+      а саме проводиться усереднення по трьом точкам,
+      причому усереднення з ваговими коефіцієнтами,
+      які визначаються розподілом Гауса з дисперсією 0.6;
+      якщо у вихідному масиві кількість точок менша трьох,
+      то у результуючому буде нульова кількість}
+     Function DerivateAtPoint(PointNumber:integer):double;
+     {знаходження похідної від функції, яка записана
+     у Vector в точці з індексом PointNumber}
+     Procedure Diferen (var Target:TVectorNew);
+      {в Target розміщується похідна від значень, розташованих
+      у Vector;
+      якщо у вихідному масиві кількість точок менша трьох,
+      то у результуючому буде нульова кількість}
+     Procedure ChungFun(var Target:TVectorNew);
+      {записує в Target Chung-функцію, побудовану по даним з Vector}
 
    end;
 
@@ -100,10 +140,21 @@ Function Kub(x:double;
 Procedure SplainCoefCalculate(V:TVectorNew;var SplainCoef:TSplainCoefArray);
 {розраховуються кокфіцієнтів сплайцнів для апроксимації даних в Vector}
 
+//Function DerivateLagr(x,x1,x2,x3,y1,y2,y3:double):double;
+Function DerivateLagr(x:double;Point1,Point2,Point3:TPointDouble):double;overload;
+  {допоміжна функція для знаходження похідної -
+  похідна від поліному Лагранжа, проведеного через
+  три точки}
+Function DerivateLagr(Point1,Point2,Point3:TPointDouble):double;overload;
+{в центральній точці}
+
+Function DerivateTwoPoint(Point1,Point2:TPointDouble):double;
+
+
 implementation
 
 uses
-  Math;
+  Math, Dialogs, SysUtils;
 
 
 
@@ -182,16 +233,66 @@ begin
 end;
 
 procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVectorNew;
-                const IsPositive: boolean);
-  var i:integer;
+                const IsPositive:boolean=True;
+                const IsRigorous:boolean=True);
+//  var i:integer;
+//begin
+// InitTarget(Target);
+// for I := 0 to Vector.Count-1 do
+//   if (IsPositive) then
+//      begin
+//       if(Vector[i][Coord]>=0) then Target.Add(Vector[i])
+//      end          else
+//      if(Vector[i][Coord]<0) then Target.Add(Vector[i]);
+//end;
+ function SuitablePoint(Value:double):boolean;
+  begin
+   if IsPositive then
+      begin
+        if IsRigorous then Result:=(Value>0)
+                      else Result:=(Value>=0)
+      end        else
+      begin
+        if IsRigorous then Result:=(Value<0)
+                      else Result:=(Value<=0)
+      end;
+
+  end;
+ var i,N_begin:integer;
+
 begin
  InitTarget(Target);
+ N_begin:=-1;
  for I := 0 to Vector.Count-1 do
-   if (IsPositive) then
-      begin
-       if(Vector[i][Coord]>=0) then Target.Add(Vector[i])
-      end          else
-      if(Vector[i][Coord]<0) then Target.Add(Vector[i]);
+  if SuitablePoint(Vector[i][Coord]) then
+    begin
+      Target.Add(Vector[i]);
+      if N_begin<0 then N_begin:=i
+    end;
+ if N_begin>=0 then Target.N_begin:=Cardinal(N_begin);
+end;
+
+procedure TVectorTransform.ChungFun(var Target: TVectorNew);
+ var i:word;
+     temp:TVectorTransform;
+begin
+ InitTargetToFun(Target);
+ temp:=TVectorTransform.Create();
+ temp.Vector.SetLenVector(Target.Count);
+ for I := 0 to Target.HighNumber do
+   begin
+     temp.Vector.X[i]:=ln(Vector.Y[i+Target.N_begin]);
+     temp.Vector.Y[i]:=Vector.X[i+Target.N_begin];
+   end;
+  for I := 0 to Target.HighNumber do
+   begin
+//     Target.X[i]:=exp(temp.Vector.x[i]);
+     Target.X[i]:=Vector.Y[i+Target.N_begin];
+     Target.Y[i]:=temp.DerivateAtPoint(i);
+   end;
+ temp.Free;
+
+ Target.N_begin:=Target.N_begin+Vector.N_begin;
 end;
 
 procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
@@ -223,6 +324,41 @@ procedure TVectorTransform.CopyLimitedY(var Target: TVectorNew; Ymin,
   Ymax: double);
 begin
  CopyLimited(cY,Target,Ymin, Ymax);
+end;
+
+function TVectorTransform.DerivateAtPoint(PointNumber: integer): double;
+begin
+ Result:=ErResult;
+ try
+  if PointNumber=0
+    then Result:=DerivateTwoPoint(Vector[1],Vector[0]);
+  if PointNumber=Vector.HighNumber
+    then Result:=DerivateTwoPoint(Vector[Vector.HighNumber],Vector[Vector.HighNumber-1]);
+  if (PointNumber>0)and(PointNumber<Vector.HighNumber)
+     then Result:=DerivateLagr(Vector[PointNumber-1],Vector[PointNumber],Vector[PointNumber+1]);
+ except
+
+ end;
+end;
+
+procedure TVectorTransform.Diferen(var Target: TVectorNew);
+var i:integer;
+begin
+ InitTarget(Target);
+ if Vector.Count<3 then Exit;
+ Vector.Copy(Target);
+ for i:=0 to Vector.HighNumber do
+   Target.Y[i]:=DerivateAtPoint(i);
+end;
+
+procedure TVectorTransform.ForwardX(var Target: TVectorNew);
+begin
+  Branch(cX,Target,true,false);
+end;
+
+procedure TVectorTransform.ForwardY(var Target: TVectorNew);
+begin
+  Branch(cy,Target,true,false);
 end;
 
 procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVectorNew;
@@ -356,6 +492,36 @@ begin
    Target:=TVectorNew.Create;
   end;
   Target.T:=fVector.T;
+  Target.name:=fVector.name;
+  Target.N_begin:=fVector.N_begin;
+end;
+
+procedure TVectorTransform.InitTargetToFun(var Target: TVectorNew);
+ var i,j,Nbegin:integer;
+begin
+ InitTarget(Target);
+ j:=0;
+ Nbegin:=-1;
+ for I := 0 to Vector.HighNumber do
+  if (Vector.X[i]>0.001) and (Vector.Y[i]>0) then
+   begin
+     inc(j);
+     if Nbegin<0 then Nbegin:=i;
+   end;
+ if j>0 then
+  begin
+   Target.SetLenVector(j);
+   Target.N_begin:=Nbegin;
+  end;
+end;
+
+procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
+ var Target:TVectorNew;
+begin
+ Target:=TVectorNew.Create;
+ ProcTarget(Target);
+ Target.Copy(Self.Vector);
+ Target.Free;
 end;
 
 procedure TVectorTransform.NegativeX(var Target: TVectorNew);
@@ -373,11 +539,47 @@ begin
  Branch(cX,Target);
 end;
 
+
 procedure TVectorTransform.PositiveY(var Target: TVectorNew);
 begin
  Branch(cY,Target);
 end;
 
+
+procedure TVectorTransform.ReverseIV(var Target: TVectorNew);
+ var temp:TVectorTransform;
+begin
+ temp:=TVectorTransform.Create(Self.Vector);
+ temp.Itself(temp.NegativeX);
+ temp.Itself(temp.AbsX);
+ temp.AbsY(Target);
+ temp.Free;
+end;
+
+procedure TVectorTransform.ReverseX(var Target: TVectorNew);
+begin
+   Branch(cX,Target,false,false);
+end;
+
+procedure TVectorTransform.ReverseY(var Target: TVectorNew);
+begin
+   Branch(cY,Target,false,false);
+end;
+
+procedure TVectorTransform.Smoothing(var Target: TVectorNew);
+const W0=17;W1=66;W2=17;
+{вагові коефіцієнти для нульової, першої та другої точок}
+var i:integer;
+begin
+  InitTarget(Target);
+  if Vector.Count<3 then Exit;
+  Vector.Copy(Target);
+  for i:=1 to Target.HighNumber-1 do
+      Target.y[i]:=(W0*Vector.y[i-1]+W1*Vector.y[i]+W2*Vector.y[i+1])/(W0+W1+W2);
+  Target.y[0]:=(W1*Vector.y[0]+W2*Vector.y[1])/(W1+W2);
+  Target.y[Vector.HighNumber]:=(W1*Vector.y[Vector.HighNumber]
+                     +W0*Vector.y[Vector.HighNumber-1])/(W1+W0);
+end;
 
 procedure TVectorTransform.Splain3(beg, step: double; var Target: TVectorNew);
  var i,j:integer;
@@ -532,6 +734,29 @@ Procedure SplainCoefCalculate(V:TVectorNew;var SplainCoef:TSplainCoefArray);
                      /3*(SplainCoef[i+1].C+2*SplainCoef[i].C);
    end;
 
+end;
+
+Function DerivateLagr(x:double;Point1,Point2,Point3:TPointDouble):double;
+  {допоміжна функція для знаходження похідної -
+  похідна від поліному Лагранжа, проведеного через
+  три точки}
+begin
+  Result:=Point1[cY]*(2*x-Point2[cX]-Point3[cX])
+            /(Point1[cX]-Point2[cX])/(Point1[cX]-Point3[cX])
+        +Point2[cY]*(2*x-Point1[cX]-Point3[cX])/
+           (Point2[cX]-Point1[cX])/(Point2[cX]-Point3[cX])
+        +Point3[cY]*(2*x-Point1[cX]-Point2[cX])
+         /(Point3[cX]-Point1[cX])/(Point3[cX]-Point2[cX]);
+end;
+
+Function DerivateLagr(Point1,Point2,Point3:TPointDouble):double;
+begin
+  Result:=DerivateLagr(Point2[cX],Point1,Point2,Point3);
+end;
+
+Function DerivateTwoPoint(Point1,Point2:TPointDouble):double;
+begin
+  Result:=(Point2[cY]-Point1[cY])/(Point2[cX]-Point1[cX])
 end;
 
 end.

@@ -3685,50 +3685,63 @@ begin
   Vec2:=TVectorNew.Create;
   new(Vector1);  new(Vector2);
 
-  Vector1^.Load_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\t01dl.dat');
-//  ImNoiseSmoothedArray(Vector1,Vector2,6);
-////  Splain3Vec(Vector1, Vector1^.x[1],0.001,Vector2);
-//  Vector2^.Write_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rezOld.dat');
-//
-//
+  Vector1^.Load_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
+  ChungFun (Vector1,Vector2);
+  Vector2^.Write_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rezOld.dat');
+
+
   VTrans:=TVectorTransform.Create();
-  VTrans.Vector.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\t01dl.dat');
-////  VTrans.Splain3(VTrans.Vector.x[1],0.001,Vec2);
-//  VTrans.ImNoiseSmoothedArray(Vec2,7);
-//
+  VTrans.Vector.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
+  VTrans.ChungFun(Vec2);
+  Vec2.WriteToFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rez.dat');
+  VectorEquals(Vector2,Vec2);
+
+//  showmessage(floattostr(Poh(Vector1,188))
+//  +' '+floattostr(VTrans.DerivateAtPoint(188)));
+
+//  VectorEquals(Vector2,VTrans.Vector);
+//  VTrans.Itself(VTrans.Smoothing);
 //  Vec2.WriteToFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rez.dat');
+//  VectorEquals(Vector2,VTrans.Vector);
 
-//  VectorEquals(Vector2,Vec2);
 
-
-  tempDouble:=0.3;
-  showmessage(floattostr(
-            ImpulseNoiseSmoothingByNpoint(Vector1,false))
-            +'   '+
-             floattostr(
-             VTrans.ImpulseNoiseSmoothingByNpoint(cY)));
+//  tempDouble:=0.3;
+//  showmessage(floattostr(
+//            ImpulseNoiseSmoothingByNpoint(Vector1,false))
+//            +'   '+
+//             floattostr(
+//             VTrans.ImpulseNoiseSmoothingByNpoint(cY)));
 
 //  showmessage(floattostr(ImpulseNoiseSmoothing(Vector1,false))+
 //             '   '+
 //             floattostr(ImpulseNoiseSmoothing(VTrans.Vector,false)));
 
 
+//   for I := -3 to 3 do
+//    begin
+//    Vec.Add(i,-2*i);
+////    Vec2.Add(1);
+//
+//    end;
+//  showmessage(Vec.XYtoString);
+//  VTrans.Vector:=Vec;
+////  VTrans.PositiveX();
+//  VTrans.Itself(VTrans.NegativeX);
+//  showmessage(VTrans.Vector.XYtoString);
+//  showmessage(inttostr(VTrans.Vector.N_begin));
 
+//  VTrans.PositiveX(Vec2);
+//  showmessage(Vec2.XYtoString);
+//  showmessage(inttostr(Vec2.N_begin));
 
   new(PSourceXArray);
-
-
   dispose(PSourceXArray);
 
   VTrans.free;
 
 
 
-//  for I := -3 to 3 do
-//    begin
-//    Vec.Add(i,-2*i);
-//    Vec2.Add(1);
-//    end;
+
 
 //  Vector1^.Filling(Kv,-5,0,1,[1,2,3]);
 //  Vec.Filling(Kv,-5,0,1,[1,2,3]);
