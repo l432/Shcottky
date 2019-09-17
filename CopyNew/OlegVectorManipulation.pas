@@ -1,7 +1,7 @@
 unit OlegVectorManipulation;
 
 interface
- uses OlegVectorNew,OlegTypeNew;
+ uses OlegVectorNew,OlegTypeNew, OlegMaterialSamplesNew;
 
 
 type
@@ -116,13 +116,37 @@ type
      Function DerivateAtPoint(PointNumber:integer):double;
      {знаходження похідної від функції, яка записана
      у Vector в точці з індексом PointNumber}
-     Procedure Diferen (var Target:TVectorNew);
+     Procedure Derivate (var Target:TVectorNew);
       {в Target розміщується похідна від значень, розташованих
       у Vector;
       якщо у вихідному масиві кількість точок менша трьох,
       то у результуючому буде нульова кількість}
      Procedure ChungFun(var Target:TVectorNew);
       {записує в Target Chung-функцію, побудовану по даним з Vector}
+     Procedure WernerFun(var Target:TVectorNew);
+      {записує в Target функцію Вернера}
+     Procedure MikhAlpha_Fun(var Target:TVectorNew);
+      {записує в Target Альфа-функцію (метод Міхелешвілі),
+      Alpha=d(ln I)/d(ln V)}
+     Procedure MikhBetta_Fun(var Target:TVectorNew);
+      {записує в Target Бетта-функцію (метод Міхелешвілі),
+      Betta = d(ln Alpha)/d(ln V)
+      P.S. в статті ця функція називається Гамма}
+     Procedure MikhN_Fun(var Target:TVectorNew);
+      {записує в Target залежність фактору неідеальності від
+      прикладеної напруги, пораховану за методом
+      метод Міхелешвілі;
+      n = q V (Alpha - 1) [1 + Betta/(Alpha-1)] / k T Alpha^2}
+     Procedure MikhRs_Fun(var Target:TVectorNew);
+      {записує в Target залежність послідовного опору від
+      прикладеної напруги, пораховану за методом  Міхелешвілі;
+      Rs = V (1- Betta) / I Alpha^2}
+     Procedure HFun(var Target:TVectorNew; DD: TDiod_Schottky; N: Double);
+      {записує в Target H-функцію
+      DD - діод, N - фактор неідеальності}
+     Procedure NordeFun(var Target:TVectorNew; DD: TDiod_Schottky; Gam: Double);
+      {записує в Target функцію Норда;
+      Gam - показник гамма (див формулу)}
 
    end;
 
@@ -195,6 +219,121 @@ end;
 
 
 { TVectorTransform }
+
+procedure TVectorTransform.MikhAlpha_Fun(var Target: TVectorNew);
+ var i:word;
+     temp:TVectorTransform;
+     verytemp:TVectorNew;
+begin
+ InitTargetToFun(Target);
+ if Target.Count=0 then Exit;
+ verytemp:=TVectorNew.Create;
+ InitTargetToFun(verytemp);
+
+ temp:=TVectorTransform.Create(verytemp);
+ verytemp.Free;
+ for I := 0 to Target.HighNumber do
+   begin
+     temp.Vector.X[i]:=ln(Vector.X[i+Target.N_begin]);
+     temp.Vector.Y[i]:=ln(Vector.Y[i+Target.N_begin]);
+   end;
+{в temp функція ln I = f(ln V)}
+
+ for I := 0 to Target.HighNumber do
+   begin
+     Target.Y[i]:=temp.DerivateAtPoint(i);;
+     Target.X[i]:=Vector.X[i+Target.N_begin];
+   end;
+ temp.Free;
+ if Target.Count<3 then
+         begin
+           Target.Clear;
+           Exit;
+         end;
+
+  repeat
+  if Target.Y[0]>Target.Y[1] then
+    begin
+      Target.DeletePoint(0);
+      Target.N_begin:=Target.N_begin+1;
+      if Target.Count<3 then
+               begin
+                 Target.Clear;
+                 Exit;
+               end;
+    end
+                  else Break;
+  until false;
+
+  i:=0;
+  repeat
+  if Target.Y[i]<=0 then
+    begin
+      Target.DeletePoint(i);
+      Target.N_begin:=Target.N_begin+1;
+      if Target.Count<3 then
+               begin
+                 Target.Clear;
+                 Exit;
+               end;
+    end;
+  Inc(i);
+  until (i>=Target.Count);
+end;
+
+procedure TVectorTransform.MikhBetta_Fun(var Target: TVectorNew);
+var temp:TVectorTransform;
+    i:word;
+begin
+  MikhAlpha_Fun(Target);
+  if Target.Count=0 then Exit;
+  temp:=TVectorTransform.Create(Target);
+  temp.Itself(temp.Smoothing);
+  for I := 0 to Target.HighNumber do
+     begin
+       temp.Vector.X[i]:=ln(temp.Vector.X[i]);
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]);
+     end;
+  {в temp функція ln Aipha = f(ln V)}
+  for I := 0 to Target.HighNumber do Target.Y[i]:=temp.DerivateAtPoint(i);
+  temp.Vector:=Target;
+  temp.Itself(temp.Smoothing);
+  temp.Itself(temp.Smoothing);
+  temp.Vector.Copy(Target);
+  temp.Free;
+
+end;
+
+procedure TVectorTransform.MikhN_Fun(var Target: TVectorNew);
+var bet:TVectorNew;
+    i:word;
+begin
+//  InitTarget(Target);
+//  if Target.T=0 then Exit;
+
+  MikhAlpha_Fun(Target);
+  if Target.T=0 then Exit;
+  if Target.Count=0 then Exit;
+
+  MikhBetta_Fun(bet);
+  for I := 0 to Target.HighNumber do
+    Target.Y[i]:=Target.X[i]*(Target.Y[i]-1)*(1+bet.Y[i]/(Target.Y[i]-1))/Kb/Target.T/sqr(Target.Y[i]);
+
+  bet.Free;
+
+end;
+
+procedure TVectorTransform.MikhRs_Fun(var Target: TVectorNew);
+var bet:TVectorNew;
+    i:word;
+begin
+  MikhAlpha_Fun(Target);
+  if Target.Count=0 then Exit;
+  MikhBetta_Fun(bet);
+  for I := 0 to Target.HighNumber do
+    Target.Y[i]:=Target.X[i]*(1-bet.Y[i])/Vector.Y[i+Target.N_begin]/sqr(Target.Y[i]);
+  bet.Free;
+end;
 
 procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVectorNew);
  var i:integer;
@@ -341,7 +480,7 @@ begin
  end;
 end;
 
-procedure TVectorTransform.Diferen(var Target: TVectorNew);
+procedure TVectorTransform.Derivate(var Target: TVectorNew);
 var i:integer;
 begin
  InitTarget(Target);
@@ -359,6 +498,24 @@ end;
 procedure TVectorTransform.ForwardY(var Target: TVectorNew);
 begin
   Branch(cy,Target,true,false);
+end;
+
+procedure TVectorTransform.HFun(var Target: TVectorNew; DD: TDiod_Schottky;
+                                N: Double);
+ var i:word;
+begin
+  InitTargetToFun(Target);
+  if (n=ErResult)or
+     (Vector.T<=0)or
+      (Target.Count=0) then Exit;
+
+  for I := 0 to Target.HighNumber do
+     begin
+       Target.X[i]:=Vector.Y[i+Target.N_begin];
+       Target.Y[i]:=Vector.X[i+Target.N_begin]+N*DD.Fb(Target.T,Vector.Y[i+Target.N_begin]);
+     end;
+
+    Target.N_begin:=Target.N_begin+Vector.N_begin;
 end;
 
 procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVectorNew;
@@ -534,6 +691,21 @@ begin
  Branch(cY,Target,false);
 end;
 
+procedure TVectorTransform.NordeFun(var Target: TVectorNew; DD: TDiod_Schottky;
+  Gam: Double);
+ var i:word;
+begin
+  InitTargetToFun(Target);
+  if  (Vector.T<=0)or
+      (Target.Count=0) then Exit;
+  for I := 0 to Target.HighNumber do
+   begin
+     Target.X[i]:=Vector.X[i+Target.N_begin];
+     Target.Y[i]:=Vector.X[i+Target.N_begin]/Gam+DD.Fb(Target.T,Vector.Y[i+Target.N_begin]);
+   end;
+  Target.N_begin:=Target.N_begin+Vector.N_begin;
+end;
+
 procedure TVectorTransform.PositiveX(var Target: TVectorNew);
 begin
  Branch(cX,Target);
@@ -610,6 +782,26 @@ begin
 
     Target.Y[i]:=Kub(temp,Vector.Point[j],SplainCoef[j]);
    end;
+
+end;
+
+procedure TVectorTransform.WernerFun(var Target: TVectorNew);
+ var i:word;
+     temp:TVectorTransform;
+begin
+ InitTargetToFun(Target);
+ temp:=TVectorTransform.Create();
+ temp.Vector.SetLenVector(Target.Count);
+
+ if Target.Count=0 then Exit;
+
+  for I := 0 to Target.HighNumber do
+   begin
+     Target.X[i]:=Self.DerivateAtPoint(i+Target.N_begin);
+     Target.Y[i]:=Target.X[i]/Vector.Y[i+Target.N_begin];
+   end;
+
+  Target.N_begin:=Target.N_begin+Vector.N_begin;
 
 end;
 

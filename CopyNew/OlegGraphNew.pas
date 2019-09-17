@@ -295,32 +295,38 @@ Procedure ChungFun(A:Pvector; var B:Pvector);
 {записує в B Chung-функцію, побудовану по даним з А}
 
 Procedure WernerFun(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.WernerFun(var Target: TVectorNew);
 {записує в B функцію Вернера, побудовану по даним з А}
 
 Procedure MikhAlpha_Fun(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.MikhAlpha_Fun(var Target: TVectorNew);
 {записує в B Альфа-функцію (метод Міхелешвілі),
 побудовану по даним з А,
 Alpha=d(ln I)/d(ln V)}
 
 Procedure MikhBetta_Fun(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.MikhBetta_Fun(var Target: TVectorNew);
 {записує в B Бетта-функцію (метод Міхелешвілі),
 побудовану по даним з А,
 Betta = d(ln Alpha)/d(ln V)
 P.S. в статті ця функція називається Гамма}
 
 Procedure MikhN_Fun(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.MikhN_Fun(var Target: TVectorNew);
 {записує в B залежність фактору неідеальності від
 прикладеної напруги, пораховану за методом
 метод Міхелешвілі, за даними векора А;
 n = q V (Alpha - 1) [1 + Betta/(Alpha-1)] / k T Alpha^2}
 
 Procedure MikhRs_Fun(A:Pvector; var B:Pvector);
+//procedure TVectorTransform.MikhRs_Fun(var Target: TVectorNew);
 {записує в B залежність послідовного опору від
 прикладеної напруги, пораховану за методом
 метод Міхелешвілі, за даними векора А;
 Rs = V (1- Betta) / I Alpha^2}
 
 Procedure HFun(A: PVector; var B: PVector; DD: TDiod_Schottky; N: Double);
+//procedure TVectorTransform.HFun(var Target: TVectorNew; DD: TDiod_Schottky;
 {записує в B H-функцію, побудовану по даним з А:
 DD - діод, N - фактор неідеальності}
 
@@ -838,9 +844,11 @@ Procedure FunctionToFile(sfile:string;Func:TFunDouble;
 
 
 Procedure VectorToGraph(A:PVector;Series:TCustomSeries);
+//procedure TVectorNew.WriteToGraph(Series: TCustomSeries);
 {заносить дані з А в Series}
 
 Procedure GraphToVector(Series:TCustomSeries;A:PVector);
+//procedure TVectorNew.ReadFromGraph(Series: TCustomSeries);
 {заносить дані з Series в A, заповнюються лише масиви Х та Y координат}
 
 Procedure GraphAverage (Lines: array of TLineSeries; Minus:boolean=False;delX:double=0.002;

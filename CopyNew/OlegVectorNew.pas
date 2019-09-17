@@ -62,6 +62,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function GetInformationInt(const Index: Integer): double;
       function GetInt_Trap: double;
       function GetHigh: Integer;
+    function GetSegmentEnd: Cardinal;
      public
 
 
@@ -85,6 +86,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       property N_begin:Cardinal read  fSegmentBegin write fSegmentBegin;
      {номер точки з вихідного вектора, яка відповідає
       початковій у цьому}
+      property N_end:Cardinal read  GetSegmentEnd;
       property IsEmpty:boolean read IsEmptyGet;
       property MaxX:double Index 1 read GetInformation;
       {повертається найбільше значення з масиву X}
@@ -924,6 +926,11 @@ end;
 function TVectorNew.GetN: Integer;
 begin
  Result:=High(Points)+1;
+end;
+
+function TVectorNew.GetSegmentEnd: Cardinal;
+begin
+  Result:=fSegmentBegin+HighNumber;
 end;
 
 function TVectorNew.IsEmptyGet: boolean;

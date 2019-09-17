@@ -3676,6 +3676,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 //     CT:TCoord_type;
      VTrans:TVectorTransform;
      tempDouble:double;
+     directory:string;
 
 begin
 
@@ -3685,15 +3686,23 @@ begin
   Vec2:=TVectorNew.Create;
   new(Vector1);  new(Vector2);
 
-  Vector1^.Load_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
-  ChungFun (Vector1,Vector2);
-  Vector2^.Write_File('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rezOld.dat');
+  directory:='D:\oleg\Delphi2007\CopyNew\Data\';//home
+//  directory:='D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\';  //work
+
+  ChDir(directory);
+  Read_File('data.dat',Vector1);
+//  MikhRs_Fun (Vector1,Vector2);
+//  HFun(Vector1,Vector2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
+  NordeFun(Vector1,Vector2,Diod,GraphParameters.Gamma);
+  Vector2^.Write_File('rezOld.dat');
 
 
   VTrans:=TVectorTransform.Create();
-  VTrans.Vector.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
-  VTrans.ChungFun(Vec2);
-  Vec2.WriteToFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\rez.dat');
+  VTrans.Vector.ReadFromFile('data.dat');
+//  VTrans.MikhRs_Fun(Vec2);
+//  VTrans.HFun(Vec2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
+  VTrans.NordeFun(Vec2,Diod,GraphParameters.Gamma);
+  Vec2.WriteToFile('rez.dat');
   VectorEquals(Vector2,Vec2);
 
 //  showmessage(floattostr(Poh(Vector1,188))
@@ -5656,15 +5665,9 @@ var //Rs_tmp:double;
     tg:TGraph;
 begin
  Result:=ErResult;
-// Rs_tmp:=ErResult;
 
  tg:=ConvertStringToTGraph(CB);
 
-// if CB.ItemIndex in [4,5,13,14] then
-//     begin
-//     Rs_tmp:=RsDefineCB_Shot(A,CBdod);
-//     if Rs_tmp=ErResult then Exit;
-//     end;
  if tg in [fnDiodVerySimple,fnExpForwardRs,fnExpReverseRs] then
      begin
       GraphParCalculComBox(A,CBdod);
@@ -5675,80 +5678,6 @@ begin
  GraphParameterCalculation(A,tg);
  Result:=GraphParameters.n;
 
-//
-//case CB.ItemIndex of
-//    0: // структура вважається ідеальною
-//     Result:=1;
-//    1:  //n рахується за допомогою функції Чюнга
-//     ChungKalk(A,D[diChung],GraphParameters.Rs,Result);
-//    4:  //n рахується за допомогою апроксимації I=I0(exp(V/nkT)-1)
-//     ExpKalk(A,D[diExp],Rs_tmp,Diod,ApprExp,Result,GraphParameters.I0,
-//     GraphParameters.Fb);
-//    5:   //n рахується за допомогою апроксимації I=I0exp(V/nkT)
-//     ExKalk(1,A,D[diEx],Rs_tmp,Diod,Result,GraphParameters.I0,GraphParameters.Fb);
-//    2: //n рахується за допомогою функції Камінські І-роду
-//     Kam1Kalk (A,D[diKam1],GraphParameters.Rs,Result);
-//    3: //n рахується за допомогою функції Камінські ІI-роду
-//     Kam2Kalk (A,D[diKam2],GraphParameters.Rs,Result);
-//    6:{n рахується за допомогою методу Громова І-роду}
-//       Gr1Kalk (A,D[diGr1],Diod,GraphParameters.Rs,
-//       Result,GraphParameters.Fb,GraphParameters.I0);
-//    7:{n рахується за допомогою методу Громова ІI-роду}
-//       Gr2Kalk (A,D[diGr2],Diod,GraphParameters.Rs,Result,
-//       GraphParameters.Fb,GraphParameters.I0);
-//    8:{n рахується за допомогою методу Бохліна}
-//       BohlinKalk(A,D[diNord],Diod,GraphParameters.Gamma1,
-//       GraphParameters.Gamma2,GraphParameters.Rs,
-//       Result,GraphParameters.Fb,GraphParameters.I0);
-//    9:{n рахується за допомогою методу Сібілса}
-//       CibilsKalk(A,D[diCib],GraphParameters.Rs,Result);
-//    10:{n рахується за допомогою методу Лі}
-//       LeeKalk (A,D[diLee],Diod,GraphParameters.Rs,Result,
-//       GraphParameters.Fb,GraphParameters.I0);
-//    11:{n рахується за допомогою методу Вернера}
-//       WernerKalk(A,D[diWer],GraphParameters.Rs,Result);
-//    12:{n рахується за допомогою методу Міхелешвілі}
-//       MikhKalk (A,D[diMikh],Diod,GraphParameters.Rs,
-//       Result,GraphParameters.I0,GraphParameters.Fb);
-//    13: {n рахується за допомогою апроксимації
-//        І/[1-exp(-qV/kT)]=I0exp(V/nkT), пряма ділянка}
-//       ExKalk(2,A,D[diE2F],Rs_tmp,Diod,Result,GraphParameters.I0,
-//       GraphParameters.Fb);
-//    14: {n рахується за допомогою апроксимації
-//        І/[1-exp(-qV/kT)]=I0exp(V/nkT), зворотня ділянка}
-//       ExKalk(3,A,D[diE2R],Rs_tmp,Diod,Result,GraphParameters.I0,
-//       GraphParameters.Fb);
-//    15: //n рахується шляхом апроксимації
-//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-//     begin
-//        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
-//                   else FitFunction:=TDiodLSM.Create;
-//        FitFunction.FittingDiapazon(A,EvolParam,D[diExp]);
-//        FitFunction.Free;
-//        Result:=EvolParam[0];
-//     end;
-//    16: //n рахується шляхом апроксимації
-//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-//      //функцією Ламберта
-//      begin
-//        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
-//                   else FitFunction:=TDiodLam.Create;
-//        FitFunction.FittingDiapazon(A,EvolParam,D[diLam]);
-//        FitFunction.Free;
-//        Result:=EvolParam[0];
-//      end;
-//    17: //n рахується шляхом апроксимації
-//      //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-//      //метод differential evolution
-//      begin
-//        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
-//                  else FitFunction:=TDiod.Create;
-//        FitFunction.FittingDiapazon(A,EvolParam,D[diDE]);
-//        FitFunction.Free;
-//        Result:=EvolParam[0];
-//      end;
-//    else;
-// end; //case
 end;
 
 Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;

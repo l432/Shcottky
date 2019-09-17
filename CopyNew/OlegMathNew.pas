@@ -297,6 +297,7 @@ Function Linear(a,b,x:double):double;
 {повертає a+b*x}
 
 Procedure Diferen (A:Pvector; var B:PVector);
+//procedure TVectorTransform.Derivate(var Target: TVectorNew);
 {в В розміщується похідна від значень, розташованих
 у векторі А;
 якщо у вихідному масиві кількість точок менша трьох,
