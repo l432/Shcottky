@@ -88,11 +88,13 @@ type
    //тип використовується при апроксимації,
    //матриця 3х3
 
+  TBinary=0..1;
+
   Limits=record     //тип для відображення частини графіку
-         MinXY:0..1; //0 - встановлене мінімальне значення абсциси
-         MaxXY:0..1; //1 - встановлене максимальне значення ординати
-         MinValue:array [0..1] of double;
-         MaxValue:array [0..1] of double;
+         MinXY:TBinary; //0 - встановлене мінімальне значення абсциси
+         MaxXY:TBinary; //1 - встановлене максимальне значення ординати
+         MinValue:array [TBinary] of double;
+         MaxValue:array [TBinary] of double;
              //граничні величини для координат графіку
          end;
 
@@ -114,9 +116,12 @@ type
            property XMax:double Index 3 read fXMax write SetData;
            property YMax:double Index 4 read fYMax write SetData;
            property Br:Char read fBr write SetDataBr;
+           Constructor Create();
            procedure Copy (Souсe:TDiapazon);
            procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
            procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+           function PoinValide(Point:TPointDouble): boolean;
+           {визначає, чи задовільняють координати точки Point межам}
          end;
 
    Curve3=class //(TObject)// тип для збереження трьох параметрів,
@@ -246,6 +251,41 @@ YMin:=Souсe.Ymin;
 XMax:=Souсe.Xmax;
 YMax:=Souсe.Ymax;
 Br:=Souсe.Br;
+end;
+
+constructor TDiapazon.Create;
+begin
+ inherited Create;
+ fXMin:=0;
+ fYMin:=0;
+ fXMax:=ErResult;
+ fYMax:=ErResult;
+ fBr:='F';
+end;
+
+function TDiapazon.PoinValide(Point: TPointDouble): boolean;
+ var bXmax, bXmin, bYmax, bYmin:boolean;
+begin
+ bXmax:=false;bYmax:=false;bXmin:=false;bYmin:=false;
+case fBr of
+ 'F':begin
+    bXmax:=(XMax=ErResult)or(Point[cX]<XMax);
+    bXmin:=(XMin=ErResult)or(Point[cX]>XMin);
+    bYmax:=(YMax=ErResult)or(Point[cY]<YMax);
+    bYmin:=(YMin=ErResult)or(Point[cY]>YMin);
+     end;
+ 'R':begin
+    bXmax:=(XMax=ErResult)or(Point[cX]>-XMax);
+    bXmin:=(XMin=ErResult)or(Point[cX]<-XMin);
+    bYmax:=(YMax=ErResult)or(Point[cY]>-YMax);
+    bYmin:=(YMin=ErResult)or(Point[cY]<-YMin);
+    end;
+ end; //case
+// if YminDontUsed then bYmin:=True;
+
+ Result:=bXmax and bXmin and bYmax and bYmin;
+
+
 end;
 
 procedure TDiapazon.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);

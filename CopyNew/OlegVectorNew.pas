@@ -25,7 +25,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       fName:string;
       fT:Extended;
       ftime:string;
-      fSegmentBegin: Cardinal;
+      fSegmentBegin: Integer;
       function GetData(const Number: Integer; Index:Integer): double;
       function GetN: Integer;
       procedure SetT(const Value: Extended);
@@ -62,7 +62,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function GetInformationInt(const Index: Integer): double;
       function GetInt_Trap: double;
       function GetHigh: Integer;
-    function GetSegmentEnd: Cardinal;
+      function GetSegmentEnd: Integer;
      public
 
 
@@ -83,10 +83,10 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       {час створення файлу - година:хвилини
                            - секунди з початку доби}
 
-      property N_begin:Cardinal read  fSegmentBegin write fSegmentBegin;
+      property N_begin:Integer read  fSegmentBegin write fSegmentBegin;
      {номер точки з вихідного вектора, яка відповідає
       початковій у цьому}
-      property N_end:Cardinal read  GetSegmentEnd;
+      property N_end:Integer read  GetSegmentEnd;
       property IsEmpty:boolean read IsEmptyGet;
       property MaxX:double Index 1 read GetInformation;
       {повертається найбільше значення з масиву X}
@@ -214,6 +214,9 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function MinNumber(Coord:TCoord_type):integer;
 //      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;overload;
       function PoinToString(PointNumber: Integer;NumberDigit:Byte=4):string;overload;
+      function PointInDiapazon(Diapazon:TDiapazon;PointNumber:integer):boolean;
+      {визначає, чи знаходиться точка з номером PointNumber в межах,
+      що задаються в Diapazon}
         end;
 
 
@@ -928,7 +931,7 @@ begin
  Result:=High(Points)+1;
 end;
 
-function TVectorNew.GetSegmentEnd: Cardinal;
+function TVectorNew.GetSegmentEnd: Integer;
 begin
   Result:=fSegmentBegin+HighNumber;
 end;
@@ -1002,6 +1005,11 @@ function TVectorNew.PointGet(Number: integer): TPointDouble;
 begin
  Result[cX]:=Points[Number,cX];
  Result[cY]:=Points[Number,cY];
+end;
+
+function TVectorNew.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
+begin
+ Result:=Diapazon.PoinValide(Self[PointNumber]);
 end;
 
 function TVectorNew.PoinToString(PointNumber: Integer;

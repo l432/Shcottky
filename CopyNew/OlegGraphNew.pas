@@ -331,14 +331,17 @@ Procedure HFun(A: PVector; var B: PVector; DD: TDiod_Schottky; N: Double);
 DD - діод, N - фактор неідеальності}
 
 Procedure NordeFun(A: PVector; var B: PVector; DD: TDiod_Schottky; Gam: Double);
+//procedure TVectorTransform.NordeFun(var Target: TVectorNew; DD: TDiod_Schottky;
 {записує в B функцію Норда, побудовану по даним з А;
 AA - стала Річардсона, Szr - площа контакту,
 Gam - показник гамма (див формулу)}
 
 Procedure CibilsFunDod(A:Pvector; var B:Pvector; Va:double);
+//procedure TVectorTransform.CibilsFunDod(var Target: TVectorNew; Va: double);
 {записує в B функцію F(V)=V-Va*ln(I), побудовану по даним з А}
 
 Procedure CibilsFun(A:Pvector; D:TDiapazon; var B:Pvector);
+//procedure TVectorTransform.CibilsFun(var Target: TVectorNew; D: TDiapazon);
 {записує в B функцію Сібілса, побудовану по даним з А;
 діапазон зміни напруги від kT до тих значень,
 при яких функція F(V)=V-Va*ln(I) ще має мінімум,
@@ -490,6 +493,8 @@ eр - діелектрична проникність напівпровідни
 Procedure A_B_Diapazon(Avuh,A:Pvector;
                       var B:Pvector; D:TDiapazon;
                       YminDontUsed:boolean=False);overload;
+//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+//                      D: TDiapazon; InitVector: TVectorNew);
 {записує в В ті точки з вектора А, відповідні
 до яких точки у векторі Avuh (вихідному) задовольняють
 умовам D; зрозуміло, що для вектора А
@@ -502,6 +507,8 @@ B^.N_begin, B^.N_end не розраховуються
 
 Procedure A_B_Diapazon(A:Pvector; var B:Pvector;
                   D:TDiapazon;YminDontUsed:boolean=False);overload;
+//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+//  D: TDiapazon);
 {записує в В ті точки з вектора А, які
 задовольняють умовам D;
 B^.N_begin, B^.N_end не розраховуються
@@ -785,6 +792,7 @@ Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
 
 
 function ChisloY (A:Pvector; X:double):double;
+//function TVectorNew.Yvalue(Xvalue: double): double;
 {визначає приблизну ординату точки з
 абсцисою Х для випадку, коли ця точка
 входила б до функціональної залежності,
@@ -793,6 +801,7 @@ function ChisloY (A:Pvector; X:double):double;
 абсцис вектора А, то повертається ErResult}
 
 function ChisloX (A:Pvector; Y:double):double;
+//function TVectorNew.Xvalue(Yvalue: double): double;
 {визначає приблизну абсцису точки з
 ординатою Y для випадку, коли ця точка
 входила б до функціональної залежності,
@@ -815,6 +824,7 @@ function VocCalc(A:Pvector):double;
 за даними у векторі А}
 
 Function Extrem (A:PVector):double;
+//function TVectorTransform.ExtremumXvalue: double;
 {знаходить абсцису екстремума функції,
 що знаходиться в А;
 вважаеться, що екстремум один;
@@ -1964,7 +1974,9 @@ CibilsFunDod(A,temp,Va);
 по всім [додатнім] значенням з вектора А}
 if temp.n=0 then Break;
 
+
 A_B_Diapazon(A,temp,temp2,D);
+
 if temp2^.n=0 then
           begin
            dispose(temp);dispose(temp2);Exit;
@@ -1975,9 +1987,11 @@ if temp2^.n=0 then
 
 
 if temp2.n<3 then Break;
+
 if (Poh(temp2,2)*Poh(temp2,High (temp2^.X)-2))>0 then Break;
 //if Vmin=0 then Vmin:=Va
 //          else Vmax:=Va;
+
 
 B^.n:=B^.n+1;
 SetLength(B^.X, B^.n);
@@ -2871,6 +2885,7 @@ end;
 Function PoinValide(Dp:TDiapazon;
                    Original, Secondary:Pvector;
                    k:integer; YminDontUsed:boolean=False): boolean;
+//function TVectorNew.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
 {визначає, чи задовільняють координати точки
 вектора Original, яка відповідає k-ій точці
 вектора Secondary, умовам, записаним в змінній Dp;

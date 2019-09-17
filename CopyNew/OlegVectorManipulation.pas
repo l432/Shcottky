@@ -121,6 +121,13 @@ type
       у Vector;
       якщо у вихідному масиві кількість точок менша трьох,
       то у результуючому буде нульова кількість}
+     Function ExtremumXvalue():double;
+      {знаходить абсцису екстремума функції,
+      що знаходиться в Vector;
+      вважаеться, що екстремум один;
+      якщо екстремума немає - повертається ErResult;
+      якщо екстремум не чіткий - значить будуть
+      проблеми :-)}
      Procedure ChungFun(var Target:TVectorNew);
       {записує в Target Chung-функцію, побудовану по даним з Vector}
      Procedure WernerFun(var Target:TVectorNew);
@@ -147,7 +154,24 @@ type
      Procedure NordeFun(var Target:TVectorNew; DD: TDiod_Schottky; Gam: Double);
       {записує в Target функцію Норда;
       Gam - показник гамма (див формулу)}
-
+     Procedure CibilsFunDod(var Target:TVectorNew; Va:double);
+      {записує в Target функцію F(V)=V-Va*ln(I)}
+     Procedure CibilsFun(var Target:TVectorNew; D:TDiapazon);
+      {записує в Target функцію Сібілса;
+      діапазон зміни напруги від kT до тих значень,
+      при яких функція F(V)=V-Va*ln(I) ще має мінімум,
+      крок - 0.001}
+     Procedure CopyDiapazonPoint(var Target:TVectorNew;D:TDiapazon;InitVector:TVectorNew);overload;
+      {записує в Target ті точки з Vector, відповідні
+      до яких точки у InitVector (вихідному) задовольняють
+      умовам D; зрозуміло, що для Vector
+      мають бути відомими N_begin;
+      Target.N_begin не розраховується}
+     Procedure CopyDiapazonPoint(var Target:TVectorNew;D:TDiapazon);overload;
+      {записує в Target ті точки з Vector, які
+      задовольняють умовам D;
+      Vector.N_begin має бути 0;
+      Target.N_begin не розраховується}
    end;
 
 
@@ -434,6 +458,90 @@ begin
  Target.N_begin:=Target.N_begin+Vector.N_begin;
 end;
 
+procedure TVectorTransform.CibilsFun(var Target: TVectorNew; D: TDiapazon);
+//залежно від всього діапазону крок зміни Va вибирається адаптивно
+var Va:double;
+    tp:TVectorNew;
+    temp,temp2:TVectorTransform;
+begin
+  InitTarget(Target);
+  Va:=round(1000*(Kb*Vector.T+0.004))/1000;
+  if Va<0.01 then Va:=0.015;
+
+  temp:=TVectorTransform.Create;
+  temp2:=TVectorTransform.Create;
+  tp:=TVectorNew.Create;
+
+
+  repeat
+   Self.CibilsFunDod(tp,Va);
+   tp.Copy(temp.Vector);
+   {в temp функція F(V)=V-Va*ln(I), побудована
+   по всім [додатнім] значенням з Vector}
+
+   if tp.Count=0 then Break;
+
+   temp.CopyDiapazonPoint(tp,D,Self.Vector);
+   tp.Copy(temp2.Vector);
+   if temp2.Vector.Count=0 then
+            begin
+             temp.Free;
+             temp2.Free;
+             tp.Free;
+             Exit;
+            end;
+   {в temp2 - частина функції F(V)=V-Va*ln(I), яка
+   задовольняє умовам в D}
+
+
+   if temp2.Vector.Count<3 then Break;
+   if (temp2.DerivateAtPoint(2)*temp2.DerivateAtPoint(temp2.Vector.HighNumber-2))>0 then Break;
+
+   Target.Add(Va,Vector.Yvalue(temp2.ExtremumXvalue));
+   Va:=Va+0.001;
+   if Va>Vector.X[temp.Vector.N_begin+temp.Vector.HighNumber] then Break;
+  until false;
+
+
+  if Target.Count<2 then Target.Clear;
+
+  temp.Free;
+  temp2.Free;
+  tp.Free;
+end;
+
+procedure TVectorTransform.CibilsFunDod(var Target: TVectorNew; Va: double);
+ var i:word;
+begin
+ InitTargetToFun(Target);
+ if Target.Count=0 then Exit;
+
+  for I := 0 to Target.HighNumber do
+   begin
+     Target.X[i]:=Vector.X[i+Target.N_begin];
+     Target.Y[i]:=Vector.X[i+Target.N_begin]-Va*ln(Vector.Y[i+Target.N_begin]);
+   end;
+
+  Target.N_begin:=Target.N_begin+Vector.N_begin;
+end;
+
+procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+                      D: TDiapazon; InitVector: TVectorNew);
+ var i:integer;
+begin
+ InitTarget(Target);
+ Target.T:=InitVector.T;
+ for I := 0 to Vector.HighNumber do
+   if InitVector.PointInDiapazon(D,i+Vector.N_begin)
+     then Target.Add(Vector[i]);
+end;
+
+procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+  D: TDiapazon);
+begin
+ CopyDiapazonPoint(Target,D,Self.Vector);
+end;
+
 procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
            var Target: TVectorNew; Clim1, Clim2: double);
  var i:integer;
@@ -478,6 +586,14 @@ begin
  except
 
  end;
+end;
+
+function TVectorTransform.ExtremumXvalue: double;
+ var temp:TVectorNew;
+begin
+  Self.Derivate(temp);
+  Result:=temp.Xvalue(0);
+  temp.Free;
 end;
 
 procedure TVectorTransform.Derivate(var Target: TVectorNew);

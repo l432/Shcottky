@@ -3666,7 +3666,7 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
  var x:PVector;
-     d:array of double;
+//     d:array of double;
      Vec,Vec2:TVectorNew;
      Vector1,Vector2:PVector;
      Point:TPointDouble;
@@ -3680,7 +3680,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 begin
 
-
+    tempDouble:=0.1;
   Vec:=TVectorNew.Create;
 
   Vec2:=TVectorNew.Create;
@@ -3694,6 +3694,8 @@ begin
 //  MikhRs_Fun (Vector1,Vector2);
 //  HFun(Vector1,Vector2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
   NordeFun(Vector1,Vector2,Diod,GraphParameters.Gamma);
+//  CibilsFunDod(Vector1,Vector2,tempDouble);
+//  CibilsFun(Vector1,D[diCib],Vector2);
   Vector2^.Write_File('rezOld.dat');
 
 
@@ -3702,6 +3704,8 @@ begin
 //  VTrans.MikhRs_Fun(Vec2);
 //  VTrans.HFun(Vec2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
   VTrans.NordeFun(Vec2,Diod,GraphParameters.Gamma);
+//  VTrans.CibilsFunDod(Vec2,tempDouble);
+//  VTrans.CibilsFun(Vec2,D[diCib]);
   Vec2.WriteToFile('rez.dat');
   VectorEquals(Vector2,Vec2);
 
@@ -3714,7 +3718,7 @@ begin
 //  VectorEquals(Vector2,VTrans.Vector);
 
 
-//  tempDouble:=0.3;
+
 //  showmessage(floattostr(
 //            ImpulseNoiseSmoothingByNpoint(Vector1,false))
 //            +'   '+
