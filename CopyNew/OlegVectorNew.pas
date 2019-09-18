@@ -267,19 +267,19 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
 //{встановлюється кількість точок у векторі А}
 
 
-Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
-{знаходить ординату точки з абсцисою Х3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
-
-
-
-Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
-{знаходить абсцису точки з ординатою Y3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+//Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+//{знаходить ординату точки з абсцисою Х3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+//
+//
+//
+//Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
+//{знаходить абсцису точки з ординатою Y3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
 
 
   Function Kv(Argument:double;Parameters:array of double):double;
@@ -1222,40 +1222,40 @@ end;
 //end;
 
 
-Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
-{знаходить ординату точки з абсцисою Х3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-begin
- try
- Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
- except
- Result:=ErResult;
- end;
-end;
-
-Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
-begin
- Result:=Y_X0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],X)
-end;
-
-
-Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
-{знаходить абсцису точки з ординатою Y3,
-яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-лінійна інтерполяція по двом точкам}
-begin
- try
- Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
- except
- Result:=ErResult;
- end;
-end;
-
-Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
-begin
-  Result:=X_Y0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],Y);
-end;
+//Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+//{знаходить ординату точки з абсцисою Х3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//begin
+// try
+// Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
+// except
+// Result:=ErResult;
+// end;
+//end;
+//
+//Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+//begin
+// Result:=Y_X0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],X)
+//end;
+//
+//
+//Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
+//{знаходить абсцису точки з ординатою Y3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//begin
+// try
+// Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
+// except
+// Result:=ErResult;
+// end;
+//end;
+//
+//Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+//begin
+//  Result:=X_Y0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],Y);
+//end;
 
 
   Function Kv(Argument:double;Parameters:array of double):double;

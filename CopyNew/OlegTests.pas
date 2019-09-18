@@ -3,14 +3,16 @@ unit OlegTests;
 interface
 
 uses
-  OlegVectorNew, OlegMathNew, OlegVector;
+  OlegVectorNew, OlegMathNew, OlegVector, OlegTypeNew;
 
 procedure VectorEquals(const VectorOld:PVector; const VectorNew:TVectorNew);
+
+function ArrayToString(ArrSingle:TArrSingle):string;
 
 implementation
 
 uses
-  Dialogs;
+  Dialogs, SysUtils;
 
 procedure VectorEquals(const VectorOld:PVector; const VectorNew:TVectorNew);
  var Rez:boolean;
@@ -29,6 +31,15 @@ begin
 
  if Rez then  showmessage('OK')
         else  showmessage('Fault!!!');
+end;
+
+
+function ArrayToString(ArrSingle:TArrSingle):string;
+ var i:integer;
+begin
+  Result:='';
+  for I := 0 to High(ArrSingle) do
+    Result:=Result+floattostr(ArrSingle[i])+' ';
 end;
 
 end.

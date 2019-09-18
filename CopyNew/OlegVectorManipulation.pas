@@ -89,6 +89,10 @@ type
      Function YvalueLagrang(Xvalue:double):double;
      {функція розрахунку значення функції в точці Xvalue
       використовуючи поліном Лагранжа}
+     Function GromovAprox (var  OutputData:TArrSingle):boolean;
+      {апроксимуються дані залежністю
+      y=OutputData[0]+OutputData[1]*x+OutputData[2]*ln(x);
+      якщо апроксимація невдала - повертається False}
      Function  ImpulseNoiseSmoothing(const Coord:TCoord_type): Double;
 
      Function ImpulseNoiseSmoothingByNpoint(const Coord:TCoord_type;
@@ -172,6 +176,64 @@ type
       задовольняють умовам D;
       Vector.N_begin має бути 0;
       Target.N_begin не розраховується}
+     Procedure LeeFunDod(var Target:TVectorNew; Va:double);
+      {записує в Target функцію F(I)=V-Va*ln(I)}
+     Procedure LeeFun(var Target:TVectorNew; D:TDiapazon);
+      {записує в Target функцію Lee;
+      діапазон зміни напруги від kT до подвоєного найбільшого
+      позитивного значення напруги у вихідній ВАХ;
+      крок - 0.02;
+      в полі Target.T розміщюється не температура,
+      а параметр А апроксимації функцією А+B*x+C*ln(x);
+      він однаковий незалежно від величини Va і
+      використовується в функції LeeKalk для
+      розрахунку висоти бар'єру; ось такий контрабандний прийом :)}
+     Procedure InVectorToOut(var Target:TVectorNew;
+                              Func:TFunDouble;TtokT1:boolean=False);
+      {при TtokT1=False Target.X[i]=Vector.X[i]
+       при TtokT1=True  Target.X[i]=1/Vector.X[i]/Kb
+
+      Target.Y[i]=Func(Vector^.Y[i],Vector.X[i])}
+     Procedure TauFun(var Target:TVectorNew;Func:TFunDouble);
+      {на відміну від попередньої, за значеннями
+      в Vector намагається визначити від чого
+      залежність (Т чи kT), а вже потім відбуваються перетворення,
+      з врахуванням того, що в  Target завжди має
+      бути залежність від температури}
+     Procedure ForwardIVwithRs(var Target:TVectorNew; Rs:double);
+      {записує в Target пряму ділянку ВАХ з Vector з
+      врахуванням величини послідовного опору Rs}
+     Procedure Forward2Exp(var Target:TVectorNew; Rs:double);
+      {записує в Target залежність величини
+      I/[1-exp(-qV/kT)] від напруги з
+      врахуванням величини послідовного опору Rs
+      для прямої ділянки з Vector}
+     Procedure Reverse2Exp(var Target:TVectorNew; Rs:double);
+     Procedure N_V_Fun(var Target:TVectorNew; Rs:double);
+      {записує в Target залежність коефіцієнту неідеальності
+      від напруги використовуючи вираз n=q/kT* d(V)/d(lnI);
+      залежність I=I(V), яка знаходиться в Vector, спочатку
+      модифікується з врахуванням величини послідовного опору Rs}
+     Procedure M_V_Fun(var Target:TVectorNew;
+                      ForForwardBranch:boolean; tg:TGraph);
+      {залежно від tg будує
+       - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
+      (для випадку коли  I=const*V^m);
+       - функцію Фаулера-Нордгейма для прикладеної напруги
+          ln(I/V^2)=f(1/V);
+      - функцію Фаулера-Нордгейма для максимальної напруженості
+          ln(I/V)=f(1/V^0.5);
+      - функцію Абелеса для прикладеної напруги
+          ln(I/V)=f(1/V);
+      - функцію Абелеса для максимальної напруженості
+          ln(I/V^0.5)=f(1/V^0.5);
+      - функцію Френкеля-Пула для прикладеної напруги
+          ln(I/V)=f(V^0.5);
+      - функцію Френкеля-Пула для максимальної напруженості
+          ln(I/V^0.5)=f(1/V^0.25);
+      якщо ForForwardBranch=true, то будується залежність для прямої гілки,
+      якщо ForForwardBranch=false - для зворотньої}
+
    end;
 
 
@@ -202,7 +264,7 @@ Function DerivateTwoPoint(Point1,Point2:TPointDouble):double;
 implementation
 
 uses
-  Math, Dialogs, SysUtils;
+  Math, Dialogs, SysUtils, OlegMathNew;
 
 
 
@@ -371,18 +433,77 @@ begin
          Target.Add(Vector[i]);
          if Coord=cX then Target.X[Target.Count-1]:=Abs(Target.X[Target.Count-1]);
          if Coord=cY then Target.Y[Target.Count-1]:=Abs(Target.Y[Target.Count-1]);
-//
-//         Target.Point[Target.Count-1][Coord]:=
-//              Abs(Target.Point[Target.Count-1][Coord]);
          end;
+end;
 
-// Vector.Copy(Target);
-//  for I := 0 to Target.Count-1 do
-//     if Target.Points[i,Coord]=0
-//       then
-//         Target.DeletePoint(i)
-//       else
-//         Target.Points[i][Coord]:=Abs(Target.Points[i][Coord]);
+procedure TVectorTransform.M_V_Fun(var Target: TVectorNew;
+  ForForwardBranch: boolean; tg: TGraph);
+var temp:TVectorTransform;
+    i,j:integer;
+begin
+ InitTargetToFun(Target);
+ temp:=TVectorTransform.Create();
+ if ForForwardBranch then PositiveX(temp.fVector)
+                     else ReverseIV(temp.fVector);
+ if temp.Vector.Count=0 then Exit;
+ i:=0;
+ repeat
+   try
+    case tg of
+     fnPowerIndex:  //  m=d(ln I)/d(ln V) = f (V)
+      begin
+       temp.Vector.X[i]:=ln(temp.Vector.X[i]);
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]);
+      end;
+     fnFowlerNordheim:  // ln(I/V^2)=f(1/V)
+      begin
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]/sqr(temp.Vector.X[i]));
+       temp.Vector.X[i]:=1/temp.Vector.X[i];
+      end;
+     fnFowlerNordheimEm: // ln(I/V)=f(1/V^0.5)
+      begin
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]/temp.Vector.X[i]);
+       temp.Vector.X[i]:=1/sqrt(temp.Vector.X[i]);
+      end;
+     fnAbeles: // ln(I/V)=f(1/V)
+      begin
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]/temp.Vector.X[i]);
+       temp.Vector.X[i]:=1/temp.Vector.X[i];
+      end;
+     fnAbelesEm: // ln(I/V^0.5)=f(1/V^0.5)
+      begin
+       temp.Vector.X[i]:=1/sqrt(temp.Vector.X[i]);
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]*temp.Vector.X[i]);
+      end;
+     fnFrenkelPool: // ln(I/V)=f(V^0.5)
+      begin
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]/temp.Vector.X[i]);
+       temp.Vector.X[i]:=sqrt(temp.Vector.X[i]);
+      end;
+     fnFrenkelPoolEm: // ln(I/V^0.5)=f(V^0.25)
+      begin
+       temp.Vector.Y[i]:=ln(temp.Vector.Y[i]/sqrt(temp.Vector.X[i]));
+       temp.Vector.X[i]:=sqrt(sqrt(temp.Vector.X[i]));
+      end;
+    end; //case
+  Except
+   Temp.Vector.DeletePoint(i);
+   i:=i-1;
+   end;  //try
+  inc(i);
+ until (i>temp.Vector.HighNumber);
+
+ if temp.Vector.Count=0 then Exit;
+
+ case tg of
+   fnPowerIndex:
+    begin
+     temp.Derivate(Target);
+     for i:=0 to Target.HighNumber do
+        Target.X[i]:=exp(Target.X[i]);
+    end;
+  fnFowlerNordheim..fnFrenkelPoolEm: temp.Vector.Copy(Target);
+ end; // case
 end;
 
 procedure TVectorTransform.AbsX(var Target: TVectorNew);
@@ -606,6 +727,45 @@ begin
    Target.Y[i]:=DerivateAtPoint(i);
 end;
 
+procedure TVectorTransform.Forward2Exp(var Target: TVectorNew; Rs: double);
+ var i:integer;
+begin
+ InitTarget(Target);
+ if (Rs=ErResult) or (Vector.T<=0) then Exit;
+ ForwardIVwithRs(Target,Rs);
+ for i:=0 to Target.HighNumber do
+   Target.Y[i]:=Target.Y[i]/(1-exp(-Target.X[i]/Kb/Target.T));
+end;
+
+procedure TVectorTransform.ForwardIVwithRs(var Target: TVectorNew; Rs: double);
+ var i:integer;
+     temp:double;
+begin
+  InitTarget(Target);
+  if Rs=ErResult then Exit;
+
+  Target.N_begin:=-1;
+  for i:=0 to Vector.HighNumber do
+     begin
+     temp:=Vector.X[i]-Rs*Vector.Y[i];
+     if (temp>0)and(Vector.X[i]>0) then
+       begin
+         if Target.N_begin<0 then
+               begin
+                Target.N_begin:=i;
+                Target.Add(temp,Vector.Y[i]);
+                Continue;
+               end;
+         if temp>=Target.X[Target.HighNumber] then
+               begin
+                Target.Add(temp,Vector.Y[i]);
+                Continue;
+               end;
+           Break;
+       end;
+     end;
+end;
+
 procedure TVectorTransform.ForwardX(var Target: TVectorNew);
 begin
   Branch(cX,Target,true,false);
@@ -614,6 +774,50 @@ end;
 procedure TVectorTransform.ForwardY(var Target: TVectorNew);
 begin
   Branch(cy,Target,true,false);
+end;
+
+function TVectorTransform.GromovAprox(var OutputData: TArrSingle):boolean;
+var R:PSysEquation;
+    i:integer;
+begin
+  Result:=False;
+  if High(OutputData)<2 then SetLength(OutputData,3);
+
+  OutputData[0]:=ErResult;
+  OutputData[1]:=ErResult;
+  OutputData[2]:=ErResult;
+
+  for I:=0 to Vector.HighNumber do
+    if Vector.X[i]<0 then Exit;
+
+  new(R);
+  R^.SetLengthSys(3);
+  R^.Clear;
+
+  R^.A[0,0]:=Vector.Count;
+  for i:=0 to Vector.HighNumber do
+   begin
+     R^.A[0,1]:=R^.A[0,1]+Vector.X[i];
+     R^.A[0,2]:=R^.A[0,2]+ln(Vector.X[i]);
+     R^.A[1,1]:=R^.A[1,1]+Vector.X[i]*Vector.X[i];
+     R^.A[1,2]:=R^.A[1,2]+Vector.X[i]*ln(Vector.X[i]);
+     R^.A[2,2]:=R^.A[2,2]+ln(Vector.X[i])*ln(Vector.X[i]);
+     R^.f[0]:=R^.f[0]+Vector.Y[i];
+     R^.f[1]:=R^.f[1]+Vector.Y[i]*Vector.X[i];
+     R^.f[2]:=R^.f[2]+Vector.Y[i]*ln(Vector.X[i]);
+   end;
+  R^.A[1,0]:=R^.A[0,1];
+  R^.A[2,0]:=R^.A[0,2];
+  R^.A[2,1]:=R^.A[1,2];
+
+  GausGol(R);
+  if R^.N=ErResult then Exit;
+
+  OutputData[0]:=R^.x[0];
+  OutputData[1]:=R^.x[1];
+  OutputData[2]:=R^.x[2];
+  dispose(R);
+  Result:=True;
 end;
 
 procedure TVectorTransform.HFun(var Target: TVectorNew; DD: TDiod_Schottky;
@@ -788,6 +992,25 @@ begin
   end;
 end;
 
+procedure TVectorTransform.InVectorToOut(var Target: TVectorNew;
+                     Func: TFunDouble; TtokT1: boolean);
+ var i:integer;
+begin
+ InitTarget(Target);
+ try
+   Target.SetLenVector(Vector.Count);
+   for i := 0 to Target.HighNumber do
+    begin
+      if TtokT1 then Target.X[i]:=1/(Kb*Vector.X[i])
+                else Target.X[i]:=Vector.X[i];
+      Target.Y[i]:=Func(Vector.Y[i],Vector.X[i]);
+    end;
+ except
+ Target.Clear();
+ end;
+
+end;
+
 procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
  var Target:TVectorNew;
 begin
@@ -795,6 +1018,75 @@ begin
  ProcTarget(Target);
  Target.Copy(Self.Vector);
  Target.Free;
+end;
+
+procedure TVectorTransform.LeeFun(var Target: TVectorNew; D: TDiapazon);
+var Va:double;
+    tp:TVectorNew;
+    temp,temp2:TVectorTransform;
+    GromovKoef:TArrSingle;
+begin
+  InitTarget(Target);
+  Va:=round(100*(Kb*Vector.T+0.004))/100;
+
+  temp:=TVectorTransform.Create;
+  temp2:=TVectorTransform.Create;
+  tp:=TVectorNew.Create;
+
+  repeat
+   Self.LeeFunDod(tp,Va);
+   tp.Copy(temp.Vector);
+  {в temp функція F(I)=V-Va*ln(I), побудована
+  по всім [додатнім] значенням з вектора А}
+   if tp.Count=0 then Break;
+
+
+
+   temp.CopyDiapazonPoint(tp,D,Self.Vector);
+   tp.Copy(temp2.Vector);
+   if temp2.Vector.Count=0 then
+            begin
+             temp.Free;
+             temp2.Free;
+             tp.Free;
+             Exit;
+            end;
+  {в temp2 - частина функції F(I)=V-Va*ln(I), яка
+  задовольняє умовам в D}
+   if temp2.Vector.Count<3 then Break;
+
+
+   SetLength(GromovKoef,3);
+   GromovAprox(GromovKoef);
+
+   if not(temp2.GromovAprox(GromovKoef)) then Break;
+
+   Target.Add(Va,-GromovKoef[2]/GromovKoef[1]);
+   Va:=Va+0.02;
+   if Va>2*Vector.X[temp.Vector.N_begin+temp.Vector.HighNumber]
+             then Break;
+  until false;
+
+  Target.T:=GromovKoef[0];
+
+  if Target.Count<2 then Target.Clear;
+  temp.Free;
+  temp2.Free;
+  tp.Free;
+end;
+
+procedure TVectorTransform.LeeFunDod(var Target: TVectorNew; Va: double);
+ var i:word;
+begin
+ InitTargetToFun(Target);
+ if Target.Count=0 then Exit;
+
+ for I := 0 to Target.HighNumber do
+     begin
+       Target.X[i]:=Vector.Y[i+Target.N_begin];
+       Target.Y[i]:=Vector.X[i+Target.N_begin]-Va*ln(Target.X[i]);
+     end;
+ Target.N_begin:=Target.N_begin+Vector.N_begin;
 end;
 
 procedure TVectorTransform.NegativeX(var Target: TVectorNew);
@@ -822,6 +1114,40 @@ begin
   Target.N_begin:=Target.N_begin+Vector.N_begin;
 end;
 
+procedure TVectorTransform.N_V_Fun(var Target: TVectorNew; Rs: double);
+var temp:TVectorTransform;
+    i:integer;
+begin
+ InitTarget(Target);
+ if Vector.T<0 then Exit;
+ ForwardIVwithRs(Target,Rs);
+ if (Target.Count=0)or(Target.MinY<=0) then
+   begin
+   Target.Clear;
+   Exit;
+   end;
+
+ temp:=TVectorTransform.Create(Target);
+
+ for i:=0 to Target.HighNumber do
+  begin
+  temp.vector.x[i]:=ln(Target.y[i]);
+  temp.vector.y[i]:=Target.x[i];
+  end;
+{в temp залежність V=f(ln(I)) з врахуванням Rs}
+
+
+ for I := 0 to Target.HighNumber do
+  begin
+//  Target.X[i]:=temp^.Y[i];
+  Target.Y[i]:=temp.DerivateAtPoint(i)/Kb/Vector.T;
+  end;
+{зглажування}
+ temp.Vector:=Target;
+ temp.Smoothing(Target);
+ temp.Free;
+end;
+
 procedure TVectorTransform.PositiveX(var Target: TVectorNew);
 begin
  Branch(cX,Target);
@@ -833,6 +1159,25 @@ begin
  Branch(cY,Target);
 end;
 
+
+procedure TVectorTransform.Reverse2Exp(var Target: TVectorNew; Rs: double);
+var i:integer;
+     temp:TVectorTransform;
+begin
+ InitTarget(Target);
+ if (Rs=ErResult) or (Vector.T<=0) then Exit;
+
+ temp:=TVectorTransform.Create;
+ ReverseIV(temp.fVector);
+ if temp.Vector.Count=0 then Exit;
+ for i:=0 to temp.Vector.HighNumber do
+   begin
+   temp.Vector.X[i]:=(temp.Vector.X[i]-Rs*temp.Vector.Y[i]);
+   temp.Vector.Y[i]:=-temp.Vector.Y[i]/(1-exp(temp.Vector.X[i]/Kb/Vector.T));
+   end;
+ temp.PositiveY(Target);
+ temp.Free;
+end;
 
 procedure TVectorTransform.ReverseIV(var Target: TVectorNew);
  var temp:TVectorTransform;
@@ -899,6 +1244,23 @@ begin
     Target.Y[i]:=Kub(temp,Vector.Point[j],SplainCoef[j]);
    end;
 
+end;
+
+procedure TVectorTransform.TauFun(var Target: TVectorNew; Func: TFunDouble);
+ var XisT:boolean;
+      i: integer;
+     tempV:TVectorTransform;
+begin
+ XisT:=(Vector.X[0]>50)and(Vector.X[Vector.HighNumber]>100);
+ if XisT then  Self.InVectorToOut(Target,Func)
+         else
+          begin
+            tempV:=TVectorTransform.Create(Vector);
+            for i := 0 to tempV.Vector.HighNumber do
+                    tempV.Vector.X[i]:=1/(Kb*Self.Vector.X[i]);
+            tempV.InVectorToOut(Target,Func);
+            tempV.Free;
+          end;
 end;
 
 procedure TVectorTransform.WernerFun(var Target: TVectorNew);

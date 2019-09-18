@@ -55,6 +55,23 @@ procedure Swap(var A:real; var B:real); overload;
 procedure Swap(var A:Pvector; var B:Pvector); overload;
 {процедура обміну значеннями між векторами, на які вказують А та В}
 
+
+Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+{знаходить ординату точки з абсцисою Х3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+
+
+
+Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
+{знаходить абсцису точки з ординатою Y3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+
+
+
 procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
 {додаються всі елементи з AddedArray в кінець InitArray}
 
@@ -630,6 +647,43 @@ begin
     end;
   dispose(C);
 end;
+
+
+Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+{знаходить ординату точки з абсцисою Х3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+begin
+ try
+ Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
+ except
+ Result:=ErResult;
+ end;
+end;
+
+Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+begin
+ Result:=Y_X0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],X)
+end;
+
+
+Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
+{знаходить абсцису точки з ординатою Y3,
+яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+лінійна інтерполяція по двом точкам}
+begin
+ try
+ Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
+ except
+ Result:=ErResult;
+ end;
+end;
+
+Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+begin
+  Result:=X_Y0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],Y);
+end;
+
 
 
 procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
@@ -1278,16 +1332,18 @@ SetLength(NumX,R^.N);
 for I := 0 to High(NumX)do NumX[i]:=i;
 
 new(Rtemp);
-Rtemp^.N:=R^.N;
-SetLength(Rtemp^.f,R^.N);
-SetLength(Rtemp^.x,R^.N);
-SetLength(Rtemp^.A,R^.N,R^.N);
-for i := 0 to High(R^.f) do
- begin
- Rtemp^.f[i]:=R^.f[i];
- Rtemp^.x[i]:=R^.x[i];
- for j := 0 to R^.N - 1 do Rtemp^.A[i,j]:=R^.A[i,j];
- end;
+ R^.CopyTo(Rtemp^);
+
+//Rtemp^.N:=R^.N;
+//SetLength(Rtemp^.f,R^.N);
+//SetLength(Rtemp^.x,R^.N);
+//SetLength(Rtemp^.A,R^.N,R^.N);
+//for i := 0 to High(R^.f) do
+// begin
+// Rtemp^.f[i]:=R^.f[i];
+// Rtemp^.x[i]:=R^.x[i];
+// for j := 0 to R^.N - 1 do Rtemp^.A[i,j]:=R^.A[i,j];
+// end;
 
 {в наступному циклі проводиться відшук головного елементу
 та прямий хід методу Гауса}

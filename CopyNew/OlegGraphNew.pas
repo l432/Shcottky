@@ -2,67 +2,67 @@
 interface
 uses OlegTypeNew, OlegMathNew, SysUtils, Dialogs, Classes, Series,
      Forms,Controls,WinProcs,OlegMaterialSamplesNew, StdCtrls, IniFiles, 
-  OlegVector, OlegVectorNew;
+     OlegVector, OlegVectorNew;
 
 type
 
-  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
-              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
-              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
-
-
-{типи функцій, які можна можна побудувати}
-  TGraph=(fnEmpty,
-          fnPowerIndex, //залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
-          fnFowlerNordheim, //ф-я Фаулера-Нордгейма для прикладеної напруги   ln(I/V^2)=f(1/V);
-          fnFowlerNordheimEm,//ф-я Фаулера-Нордгейма для максимальної напруженості  ln(I/V)=f(1/V^0.5);
-          fnAbeles, //ф-я Абелеса для прикладеної напруги   ln(I/V)=f(1/V);
-          fnAbelesEm,//ф-я Абелеса для максимальної напруженості ln(I/V^0.5)=f(1/V^0.5);
-          fnFrenkelPool, //ф-я Френкеля-Пула для прикладеної напруги ln(I/V)=f(V^0.5);
-          fnFrenkelPoolEm,//ф-я Френкеля-Пула для максимальної напруженості ln(I/V^0.5)=f(1/V^0.25);
-          fnReverse,//reverse IV characteristic
-          fnForward, //Forward I-V-characteristic
-          fnKaminskii1,//'Kaminski function I
-          fnKaminskii2, //Kaminski function II
-          fnGromov1, //Gromov function I
-          fnGromov2, //Gromov function II
-          fnCheung, //Cheung function
-          fnCibils,  //Cibils function
-          fnWerner, //Werner function
-          fnForwardRs, //Forward I-V-characteristic with Rs
-          fnIdeality, //Ideality factor vs voltage
-          fnExpForwardRs, //Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs
-          fnExpReverseRs, //Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs
-          fnH,  //H - function
-          fnNorde, //Norde"s function
-          fnFvsV,  //F(V) = V - Va * ln( I )
-          fnFvsI,  //F(I) = V - Va * ln( I )
-          fnMikhelA, //Alpha function (Mikhelashvili"s method)
-          fnMikhelB, //Betta function (Mikhelashvili"s method)
-          fnMikhelIdeality, //Ideality factor vs voltage (Mikhelashvili"s method)
-          fnMikhelRs, //Series resistant vs voltage (Mikhelashvili"s method)
-          fnDLdensity,//Deep level density
-          fnDLdensityIvanov,//Deep level density (Ivanov method)
-          fnLee,  //Lee function
-          fnBohlin, //Bohlin function
-          fnNeq1, //n=1
-          fnMikhelashvili, //Mikhelashvili function
-          fnDiodLSM,  //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, method LSM
-          fnDiodLambert,  // Lambert function
-          fnDiodEvolution, //evolution methods
-          fnReq0,  //Rs=0
-          fnRvsTpower2, //'A+B*T+C*T^2'
-//          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
-          fnDiodVerySimple, //I=I0exp(qV/nkT)
-          fnRectification, //розрахунок коефіцієнта випрямлення
-          fnTauR,   //рекомбінаційний час по величині струму
-          fnIgen,    //генераційний струм по величині рекомбінаційного часу
-          fnTauG,   //генераційний час по величині струму
-          fnIrec,    //рекомбінаційний струм по величині генераційного часу
-          fnLdif,    //довжина дифузії по часу релаксації
-          fnTau     //час релаксації по довжині дифузії
-          );
-
+//  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
+//              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
+//              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
+//
+//
+//{типи функцій, які можна можна побудувати}
+//  TGraph=(fnEmpty,
+//          fnPowerIndex, //залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
+//          fnFowlerNordheim, //ф-я Фаулера-Нордгейма для прикладеної напруги   ln(I/V^2)=f(1/V);
+//          fnFowlerNordheimEm,//ф-я Фаулера-Нордгейма для максимальної напруженості  ln(I/V)=f(1/V^0.5);
+//          fnAbeles, //ф-я Абелеса для прикладеної напруги   ln(I/V)=f(1/V);
+//          fnAbelesEm,//ф-я Абелеса для максимальної напруженості ln(I/V^0.5)=f(1/V^0.5);
+//          fnFrenkelPool, //ф-я Френкеля-Пула для прикладеної напруги ln(I/V)=f(V^0.5);
+//          fnFrenkelPoolEm,//ф-я Френкеля-Пула для максимальної напруженості ln(I/V^0.5)=f(1/V^0.25);
+//          fnReverse,//reverse IV characteristic
+//          fnForward, //Forward I-V-characteristic
+//          fnKaminskii1,//'Kaminski function I
+//          fnKaminskii2, //Kaminski function II
+//          fnGromov1, //Gromov function I
+//          fnGromov2, //Gromov function II
+//          fnCheung, //Cheung function
+//          fnCibils,  //Cibils function
+//          fnWerner, //Werner function
+//          fnForwardRs, //Forward I-V-characteristic with Rs
+//          fnIdeality, //Ideality factor vs voltage
+//          fnExpForwardRs, //Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnExpReverseRs, //Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnH,  //H - function
+//          fnNorde, //Norde"s function
+//          fnFvsV,  //F(V) = V - Va * ln( I )
+//          fnFvsI,  //F(I) = V - Va * ln( I )
+//          fnMikhelA, //Alpha function (Mikhelashvili"s method)
+//          fnMikhelB, //Betta function (Mikhelashvili"s method)
+//          fnMikhelIdeality, //Ideality factor vs voltage (Mikhelashvili"s method)
+//          fnMikhelRs, //Series resistant vs voltage (Mikhelashvili"s method)
+//          fnDLdensity,//Deep level density
+//          fnDLdensityIvanov,//Deep level density (Ivanov method)
+//          fnLee,  //Lee function
+//          fnBohlin, //Bohlin function
+//          fnNeq1, //n=1
+//          fnMikhelashvili, //Mikhelashvili function
+//          fnDiodLSM,  //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, method LSM
+//          fnDiodLambert,  // Lambert function
+//          fnDiodEvolution, //evolution methods
+//          fnReq0,  //Rs=0
+//          fnRvsTpower2, //'A+B*T+C*T^2'
+////          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
+//          fnDiodVerySimple, //I=I0exp(qV/nkT)
+//          fnRectification, //розрахунок коефіцієнта випрямлення
+//          fnTauR,   //рекомбінаційний час по величині струму
+//          fnIgen,    //генераційний струм по величині рекомбінаційного часу
+//          fnTauG,   //генераційний час по величині струму
+//          fnIrec,    //рекомбінаційний струм по величині генераційного часу
+//          fnLdif,    //довжина дифузії по часу релаксації
+//          fnTau     //час релаксації по довжині дифузії
+//          );
+//
 
 {тип, для збереження різних параметрів, які використовуються
  в розрахунках}
@@ -348,9 +348,11 @@ Procedure CibilsFun(A:Pvector; D:TDiapazon; var B:Pvector);
 крок - 0.001}
 
 Procedure LeeFunDod(A:Pvector; var B:Pvector; Va:double);
+//procedure TVectorTransform.LeeFunDod(var Target: TVectorNew; Va: double);
 {записує в B функцію F(I)=V-Va*ln(I), побудовану по даним з А}
 
 Procedure LeeFun(A:Pvector; D:TDiapazon; var B:Pvector);
+//procedure TVectorTransform.LeeFun(var Target: TVectorNew; D: TDiapazon);
 {записує в B функцію Lee, побудовану по даним з А;
 діапазон зміни напруги від kT до подвоєного найбільшого
 позитивного значення напруги у вихідній ВАХ;
@@ -376,6 +378,8 @@ Procedure LeeFun(A:Pvector; D:TDiapazon; var B:Pvector);
 
 Procedure InVectorToOut(InVector:Pvector;var OutVector:Pvector;
                         Func:TFunDouble;TtokT1:boolean=False);
+//procedure TVectorTransform.InVectorToOut(var Target: TVectorNew;
+//                     Func: TFunDouble; TtokT1: boolean);
 {при TtokT1=False OutVector^.X[i]=InVector^.X[i]
  при TtokT1=True  OutVector^.X[i]=1/InVector^.X[i]/Kb
 
@@ -383,6 +387,7 @@ OutVector^.Y[i]=Func(InVector^.Y[i],InVector^.X[i])}
 
 Procedure TauFun(InVector:Pvector;var OutVector:Pvector;
                  Func:TFunDouble);
+//procedure TVectorTransform.TauFun(var Target: TVectorNew; Func: TFunDouble);
 {на відміну від попередньої, за значеннями
 в InVector намагається визначити від чого
 залежність (Т чи kT), а вже потім відбуваються перетворення,
@@ -390,28 +395,34 @@ Procedure TauFun(InVector:Pvector;var OutVector:Pvector;
 бути залежність від температури}
 
 Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
+//procedure TVectorTransform.ForwardIVwithRs(var Target: TVectorNew; Rs: double);
 {записує в В пряму ділянку ВАХ з А з
 врахуванням величини послідовного опору Rs}
 
 Procedure Forward2Exp(A:Pvector; var B:Pvector; Rs:double);
+//procedure TVectorTransform.Forward2Exp(var Target: TVectorNew; Rs: double);
 {записує в В залежність величини
 I/[1-exp(-qV/kT)] від напруги з
 врахуванням величини послідовного опору Rs
 для прямої ділянки з А}
 
 Procedure Reverse2Exp(A:Pvector; var B:Pvector; Rs:double);
+//procedure TVectorTransform.Reverse2Exp(var Target: TVectorNew; Rs: double);
 {записує в В залежність величини
 I/[1-exp(-qV/kT)] від напруги з
 врахуванням величини послідовного опору Rs
 для зворотньої ділянки з А}
 
 Procedure N_V_Fun(A:Pvector; var B:Pvector; Rs:double);
+//procedure TVectorTransform.N_V_Fun(var Target: TVectorNew; Rs: double);
 {записує в В залежність коефіцієнту неідеальності
 від напруги використовуючи вираз n=q/kT* d(V)/d(lnI);
 залежність I=I(V), яка знаходиться в А, спочатку
 модифікується з врахуванням величини послідовного опору Rs}
 
 Procedure M_V_Fun(A:Pvector; var B:Pvector; ForForwardBranch:boolean; tg:TGraph);
+//procedure TVectorTransform.M_V_Fun(var Target: TVectorNew;
+//  ForForwardBranch: boolean; tg: TGraph);
 {по даним у векторі А будує функцію залежно від значення fun:
 fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
 (для випадку коли  I=const*V^m);

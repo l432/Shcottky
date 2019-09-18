@@ -3676,26 +3676,43 @@ procedure TForm1.Button1Click(Sender: TObject);
 //     CT:TCoord_type;
      VTrans:TVectorTransform;
      tempDouble:double;
+     tempBool:boolean;
      directory:string;
-
+     OutputData:TArrSingle;
+     tg: TGraph;
 begin
 
-    tempDouble:=0.1;
+    tempDouble:=0;
+    tempBool:=False;
   Vec:=TVectorNew.Create;
 
   Vec2:=TVectorNew.Create;
   new(Vector1);  new(Vector2);
 
-  directory:='D:\oleg\Delphi2007\CopyNew\Data\';//home
-//  directory:='D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\';  //work
+//  directory:='D:\oleg\Delphi2007\CopyNew\Data\';//home
+  directory:='D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\';  //work
+
+   SetLength(OutputData,3);
+
 
   ChDir(directory);
   Read_File('data.dat',Vector1);
 //  MikhRs_Fun (Vector1,Vector2);
 //  HFun(Vector1,Vector2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
-  NordeFun(Vector1,Vector2,Diod,GraphParameters.Gamma);
-//  CibilsFunDod(Vector1,Vector2,tempDouble);
+//  NordeFun(Vector1,Vector2,Diod,GraphParameters.Gamma);
+
+//  LeeFunDod(Vector1,Vector2,tempDouble);
+//  GromovAprox (Vector2, OutputData[0],OutputData[1],OutputData[2]);
+//  showmessage(ArrayToString(OutputData));
+
 //  CibilsFun(Vector1,D[diCib],Vector2);
+//  LeeFun(Vector1,D[diLee],Vector2);
+//  TauFun(Vector1,Vector2,DiodPN.TauToLdif);
+//  N_V_Fun(Vector1,Vector2,tempDouble);
+
+  tg:=fnFrenkelPoolEm;
+
+  M_V_Fun(Vector1,Vector2,tempBool,tg);
   Vector2^.Write_File('rezOld.dat');
 
 
@@ -3703,9 +3720,18 @@ begin
   VTrans.Vector.ReadFromFile('data.dat');
 //  VTrans.MikhRs_Fun(Vec2);
 //  VTrans.HFun(Vec2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
-  VTrans.NordeFun(Vec2,Diod,GraphParameters.Gamma);
-//  VTrans.CibilsFunDod(Vec2,tempDouble);
+//  VTrans.NordeFun(Vec2,Diod,GraphParameters.Gamma);
+//  VTrans.LeeFunDod(Vec2,tempDouble);
+
+//  Vec2.Copy(VTrans.Vector);
+//  VTrans.GromovAprox(OutputData);
+//  showmessage(ArrayToString(OutputData));
+
+
 //  VTrans.CibilsFun(Vec2,D[diCib]);
+//  VTrans.LeeFun(Vec2,D[diLee]);
+//  VTrans.TauFun(Vec2,DiodPN.TauToLdif);
+  VTrans.M_V_Fun(Vec2,tempBool,tg);
   Vec2.WriteToFile('rez.dat');
   VectorEquals(Vector2,Vec2);
 
