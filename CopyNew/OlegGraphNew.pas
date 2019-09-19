@@ -4,7 +4,7 @@ uses OlegTypeNew, OlegMathNew, SysUtils, Dialogs, Classes, Series,
      Forms,Controls,WinProcs,OlegMaterialSamplesNew, StdCtrls, IniFiles, 
      OlegVector, OlegVectorNew;
 
-type
+//type
 
 //  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
 //              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
@@ -64,54 +64,54 @@ type
 //          );
 //
 
-{тип, для збереження різних параметрів, які використовуються
- в розрахунках}
- TGraphParameters=class
-  private
-  public
-   Diapazon:TDiapazon;
-   Rs:double;
-   n:double;
-   Fb:double;
-   Gamma:double;
-    {параметр у функції Норда}
-   Gamma1:double;
-   Gamma2:double;
-    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
-                  у методі Бохліна}
-   Va:double;
-    {напруга, яка використовується для побудови
-     допоміжних функцій у методах Сібілса та Лі}
-   I0:double;
-   Iph:double;
-   Rsh:double;
-   Krec:double;
-   {коефіцієнт випрямлення}
-   Vrect:double;
-  {напруга, при якій відбувається визначення
-   коефіцієнта випрямлення}
-   RA:double;
-   RB:double;
-   RC:double;
-  {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
-      Rs=A+B*T+C*T^2}
-   ForForwardBranch:boolean;
-    {used in M_V_Fun()}
-   NssType:boolean;
-    {used in Nss_Fun()}
-   Iph_Exp:boolean;
-   Iph_Lam:boolean;
-   Iph_DE:boolean;
-  {визначають, чи потрібно підбирати фотострум
-   у формулі I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-  тобто чи освітлена ВАХ апроксимується;
-  Iph_Exp - пряма апроксимація за МНК (fnDiodLSM)
-  Iph_Lam - апроксимація за МНК функції Ламберта (fnDiodLambert)
-  Iph_DE - еволюційний метод(fnDiodEvolution)}
-   Procedure Clear();
-   procedure WriteToIniFile(ConfigFile:TIniFile);
-   procedure ReadFromIniFile(ConfigFile:TIniFile);
- end;
+//{тип, для збереження різних параметрів, які використовуються
+// в розрахунках}
+// TGraphParameters=class
+//  private
+//  public
+//   Diapazon:TDiapazon;
+//   Rs:double;
+//   n:double;
+//   Fb:double;
+//   Gamma:double;
+//    {параметр у функції Норда}
+//   Gamma1:double;
+//   Gamma2:double;
+//    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
+//                  у методі Бохліна}
+//   Va:double;
+//    {напруга, яка використовується для побудови
+//     допоміжних функцій у методах Сібілса та Лі}
+//   I0:double;
+//   Iph:double;
+//   Rsh:double;
+//   Krec:double;
+//   {коефіцієнт випрямлення}
+//   Vrect:double;
+//  {напруга, при якій відбувається визначення
+//   коефіцієнта випрямлення}
+//   RA:double;
+//   RB:double;
+//   RC:double;
+//  {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
+//      Rs=A+B*T+C*T^2}
+//   ForForwardBranch:boolean;
+//    {used in M_V_Fun()}
+//   NssType:boolean;
+//    {used in Nss_Fun()}
+//   Iph_Exp:boolean;
+//   Iph_Lam:boolean;
+//   Iph_DE:boolean;
+//  {визначають, чи потрібно підбирати фотострум
+//   у формулі I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+//  тобто чи освітлена ВАХ апроксимується;
+//  Iph_Exp - пряма апроксимація за МНК (fnDiodLSM)
+//  Iph_Lam - апроксимація за МНК функції Ламберта (fnDiodLambert)
+//  Iph_DE - еволюційний метод(fnDiodEvolution)}
+//   Procedure Clear();
+//   procedure WriteToIniFile(ConfigFile:TIniFile);
+//   procedure ReadFromIniFile(ConfigFile:TIniFile);
+// end;
 
 const
   cnbb=' can not be built';
@@ -173,8 +173,8 @@ const
  'Lifetime'
  );
 
-var
-  GraphParameters:TGraphParameters;
+//var
+//  GraphParameters:TGraphParameters;
 
 Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
 
@@ -444,6 +444,8 @@ fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від н�
 
 
 Procedure Nss_Fun(A: PVector; var B: PVector; Fb, Rs: Double; DD: TDiod_Schottky; D: TDiapazon; nV: Boolean);
+//procedure TVectorTransform.Nss_Fun(var Target: TVectorNew; Fb, Rs: Double;
+//  DD: TDiod_Schottky; D: TDiapazon; nByDerivate: Boolean);
 {записує в В залежність густини станів
 Nss=ep*ep0*(n-1)/q*del від різниці Ес-Ess=(Fb-V/n),
 [Nss] = еВ-1 см-2; [Ec-Ess] = еВ;
@@ -459,6 +461,8 @@ Fb - висота бар'єру Шотки
 Rs - величина послідовного опору}
 
 Procedure Dit_Fun(A: PVector; var B: PVector; Rs: Double; DD: TDiod_Schottky; D: TDiapazon);
+//procedure TVectorTransform.Dit_Fun(var Target: TVectorNew; Rs: Double;
+//  DD: TDiod_Schottky; D: TDiapazon);
 {записує в В залежність густини станів,
 обчислену за методом Іванова,
 Dit=ep*ep0/(q^2*del)*d(Vcal-Vexp)/dVs
@@ -483,6 +487,8 @@ Szr - площа контакту
 
 
 Procedure IvanovAprox (V: PVector; DD: TDiod_Schottky; var del: Double; var Fb: Double; OutsideTemperature: Double = 555);
+//function TVectorTransform.IvanovAprox(var OutputData: TArrSingle;
+//  DD: TDiod_Schottky; OutsideTemperature: Double): boolean;
 {апроксимація даних у векторі V параметричною залежністю
 I=Szr AA T^2 exp(-Fb/kT) exp(qVs/kT)
 V=Vs+del*[Sqrt(2q Nd ep / eps0) (Sqrt(Fb/q)-Sqrt(Fb/q-Vs))]
@@ -553,6 +559,7 @@ Procedure LimitFun(A, A1:Pvector; var B:Pvector; Lim:Limits);
 Function PoinValide(Dp:TDiapazon;
                    Original, Secondary:Pvector;
                    k:integer; YminDontUsed:boolean=False): boolean;
+//function TVectorNew.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
 {визначає, чи задовільняють координати точки
 вектора Original, яка відповідає k-ій точці
 вектора Secondary, умовам, записаним в змінній Dp;
@@ -699,7 +706,10 @@ Procedure CibilsKalk(const A:Pvector; const D:TDiapazon;
 показника ідеальності n}
 
 Procedure IvanovKalk(A: PVector);overload;
+//procedure TVectorTransform.IvanovKalk;
 Procedure IvanovKalk(A: PVector; D: TDiapazon; Rs: Double; DD: TDiod_Schottky; var del: Double; var Fb: Double);overload;
+//procedure TVectorTransform.IvanovKalk(D: TDiapazon; Rs: Double;
+//  DD: TDiod_Schottky; out del, Fb: Double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за методом Іванова
 визначає величину товщини діелектричного шару del
@@ -2445,6 +2455,7 @@ if (Fb=ErResult)then Exit;
 new(temp);
 if nV then N_V_Fun(A,temp,Rs)
       else MikhN_Fun(A,temp);
+
 if temp^.n=0 then
           begin
           dispose(temp);
@@ -2532,9 +2543,12 @@ if temp^.n=0 then
           end;
 for I := 0 to High(temp^.X) do
   begin
-   Vs:=Fb+DD.Fb(A^.T,temp^.Y[i]);
-   Vcal:=Vs+Rs*temp^.Y[i]+
-         del*sqrt(2*Qelem*DD.Semiconductor.Nd*DD.Semiconductor.Material.Eps/Eps0)*(sqrt(Fb)-sqrt(Fb-Vs));
+   Vs:=Fb-DD.Fb(A^.T,temp^.Y[i]);
+   Vcal:=Vs+Rs*temp^.Y[i]
+        + del*sqrt(2*Qelem
+                   *DD.Semiconductor.Nd
+                   *DD.Semiconductor.Material.Eps/Eps0)
+             *(sqrt(Fb)-sqrt(Fb-Vs));
    temp^.Y[i]:=Vcal-temp^.X[i];
    temp^.X[i]:=Vs;
   end;
@@ -2896,7 +2910,6 @@ end;
 Function PoinValide(Dp:TDiapazon;
                    Original, Secondary:Pvector;
                    k:integer; YminDontUsed:boolean=False): boolean;
-//function TVectorNew.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
 {визначає, чи задовільняють координати точки
 вектора Original, яка відповідає k-ій точці
 вектора Secondary, умовам, записаним в змінній Dp;
@@ -4880,48 +4893,48 @@ begin
                else GraphParameters.Fb:=EvolParam[4];
 end;
 
-{ TGraphParameters }
-
-procedure TGraphParameters.Clear;
-begin
-   Rs:=ErResult;
-   n:=ErResult;
-   Fb:=ErResult;
-   I0:=ErResult;
-   Iph:=ErResult;
-   Rsh:=ErResult;
-   Krec:=ErResult;
-end;
-
-procedure TGraphParameters.ReadFromIniFile(ConfigFile: TIniFile);
-begin
- Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
- Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
- Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
- Gamma:=ConfigFile.ReadFloat('Diapaz','Gamma',2);
- Gamma1:=ConfigFile.ReadFloat('Diapaz','Gamma1',2);
- Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
- Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
- Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
- RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
- RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
- RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
-end;
-
-procedure TGraphParameters.WriteToIniFile(ConfigFile: TIniFile);
-begin
- ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
- ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
- ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
- ConfigFile.WriteFloat('Diapaz','Gamma',Gamma);
- ConfigFile.WriteFloat('Diapaz','Gamma1',Gamma1);
- ConfigFile.WriteFloat('Diapaz','Gamma2',Gamma2);
- ConfigFile.WriteFloat('Diapaz','Va',Va);
- ConfigFile.WriteFloat('Diapaz','Vrect',Vrect);
- ConfigFile.WriteFloat('Resistivity','RA',RA);
- ConfigFile.WriteFloat('Resistivity','RB',RB);
- ConfigFile.WriteFloat('Resistivity','RC',RC);
-
-end;
+//{ TGraphParameters }
+//
+//procedure TGraphParameters.Clear;
+//begin
+//   Rs:=ErResult;
+//   n:=ErResult;
+//   Fb:=ErResult;
+//   I0:=ErResult;
+//   Iph:=ErResult;
+//   Rsh:=ErResult;
+//   Krec:=ErResult;
+//end;
+//
+//procedure TGraphParameters.ReadFromIniFile(ConfigFile: TIniFile);
+//begin
+// Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
+// Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
+// Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
+// Gamma:=ConfigFile.ReadFloat('Diapaz','Gamma',2);
+// Gamma1:=ConfigFile.ReadFloat('Diapaz','Gamma1',2);
+// Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
+// Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
+// Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
+// RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
+// RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
+// RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
+//end;
+//
+//procedure TGraphParameters.WriteToIniFile(ConfigFile: TIniFile);
+//begin
+// ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
+// ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
+// ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
+// ConfigFile.WriteFloat('Diapaz','Gamma',Gamma);
+// ConfigFile.WriteFloat('Diapaz','Gamma1',Gamma1);
+// ConfigFile.WriteFloat('Diapaz','Gamma2',Gamma2);
+// ConfigFile.WriteFloat('Diapaz','Va',Va);
+// ConfigFile.WriteFloat('Diapaz','Vrect',Vrect);
+// ConfigFile.WriteFloat('Resistivity','RA',RA);
+// ConfigFile.WriteFloat('Resistivity','RB',RB);
+// ConfigFile.WriteFloat('Resistivity','RC',RC);
+//
+//end;
 
 end.

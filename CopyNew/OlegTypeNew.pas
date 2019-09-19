@@ -25,6 +25,10 @@ var   StartValue,EndValue,Freq:Int64;
 
 type
 
+  TCoord_type=(cX,cY);
+  TPointDouble=array[TCoord_type]of double;
+
+
   TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
               diKam1, diKam2, diGr1, diGr2, diCib, diLee,
               diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
@@ -82,6 +86,82 @@ type
           fnTau     //час релаксації по довжині дифузії
           );
 
+{}  TDiapazon=class //(TObject)// тип для збереження тих меж, в яких
+                           // відбуваються апроксимації різних функцій
+         private
+           fXMin:double;
+           fYMin:double;
+           fXMax:double;
+           fYMax:double;
+           fBr:Char; //'F' коли діапазон для прямої гілки
+                     //'R' коли діапазон для зворотньої гілки
+           procedure SetData(Index:integer; value:double);
+           procedure SetDataBr(value:Char);
+
+         public
+           property XMin:double Index 1 read fXMin write SetData;
+           property YMin:double Index 2 read fYMin write SetData;
+           property XMax:double Index 3 read fXMax write SetData;
+           property YMax:double Index 4 read fYMax write SetData;
+           property Br:Char read fBr write SetDataBr;
+           Constructor Create();
+           procedure Copy (Souсe:TDiapazon);
+           procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+           procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+           function PoinValide(Point:TPointDouble): boolean;
+           {визначає, чи задовільняють координати точки Point межам}
+         end;
+
+{тип, для збереження різних параметрів, які використовуються
+ в розрахунках}
+ TGraphParameters=class
+  private
+  public
+   Diapazon:TDiapazon;
+   Rs:double;
+   n:double;
+   Fb:double;
+   Gamma:double;
+    {параметр у функції Норда}
+   Gamma1:double;
+   Gamma2:double;
+    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
+                  у методі Бохліна}
+   Va:double;
+    {напруга, яка використовується для побудови
+     допоміжних функцій у методах Сібілса та Лі}
+   I0:double;
+   Iph:double;
+   Rsh:double;
+   Krec:double;
+   {коефіцієнт випрямлення}
+   Vrect:double;
+  {напруга, при якій відбувається визначення
+   коефіцієнта випрямлення}
+   RA:double;
+   RB:double;
+   RC:double;
+  {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
+      Rs=A+B*T+C*T^2}
+   ForForwardBranch:boolean;
+    {used in M_V_Fun()}
+   NssType:boolean;
+    {used in Nss_Fun()}
+   Iph_Exp:boolean;
+   Iph_Lam:boolean;
+   Iph_DE:boolean;
+  {визначають, чи потрібно підбирати фотострум
+   у формулі I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+  тобто чи освітлена ВАХ апроксимується;
+  Iph_Exp - пряма апроксимація за МНК (fnDiodLSM)
+  Iph_Lam - апроксимація за МНК функції Ламберта (fnDiodLambert)
+  Iph_DE - еволюційний метод(fnDiodEvolution)}
+   Procedure Clear();
+   procedure WriteToIniFile(ConfigFile:TIniFile);
+   procedure ReadFromIniFile(ConfigFile:TIniFile);
+ end;
+
+
 
   TFunS=Function(x:double):double;
   TFun=Function(Argument:double;Parameters:array of double):double;
@@ -90,8 +170,6 @@ type
   TFunDouble=Function(x,y:double):double of object;
   TFunTriple=Function(x,y,z:double):double of object;
 
-  TCoord_type=(cX,cY);
-  TPointDouble=array[TCoord_type]of double;
 
 //  TSimpleEvent = procedure() of object;
   TSimpleEvent = procedure() of object;
@@ -159,31 +237,7 @@ type
              //граничні величини для координат графіку
          end;
 
-{}  TDiapazon=class //(TObject)// тип для збереження тих меж, в яких
-                           // відбуваються апроксимації різних функцій
-         private
-           fXMin:double;
-           fYMin:double;
-           fXMax:double;
-           fYMax:double;
-           fBr:Char; //'F' коли діапазон для прямої гілки
-                     //'R' коли діапазон для зворотньої гілки
-           procedure SetData(Index:integer; value:double);
-           procedure SetDataBr(value:Char);
 
-         public
-           property XMin:double Index 1 read fXMin write SetData;
-           property YMin:double Index 2 read fYMin write SetData;
-           property XMax:double Index 3 read fXMax write SetData;
-           property YMax:double Index 4 read fYMax write SetData;
-           property Br:Char read fBr write SetDataBr;
-           Constructor Create();
-           procedure Copy (Souсe:TDiapazon);
-           procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-           procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-           function PoinValide(Point:TPointDouble): boolean;
-           {визначає, чи задовільняють координати точки Point межам}
-         end;
 
    Curve3=class //(TObject)// тип для збереження трьох параметрів,
                            // по яким можна побудувати різні криві тощо
@@ -261,6 +315,8 @@ TSimpleClass=class
     class procedure EmptyProcedure;
   end;
 
+var
+  GraphParameters:TGraphParameters;
 
 
 
@@ -590,5 +646,50 @@ begin
   SetLength(x,N);
   SetLength(A,N,N);
 end;
+
+{ TGraphParameters }
+
+procedure TGraphParameters.Clear;
+begin
+   Rs:=ErResult;
+   n:=ErResult;
+   Fb:=ErResult;
+   I0:=ErResult;
+   Iph:=ErResult;
+   Rsh:=ErResult;
+   Krec:=ErResult;
+end;
+
+procedure TGraphParameters.ReadFromIniFile(ConfigFile: TIniFile);
+begin
+ Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
+ Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
+ Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
+ Gamma:=ConfigFile.ReadFloat('Diapaz','Gamma',2);
+ Gamma1:=ConfigFile.ReadFloat('Diapaz','Gamma1',2);
+ Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
+ Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
+ Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
+ RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
+ RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
+ RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
+end;
+
+procedure TGraphParameters.WriteToIniFile(ConfigFile: TIniFile);
+begin
+ ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
+ ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
+ ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
+ ConfigFile.WriteFloat('Diapaz','Gamma',Gamma);
+ ConfigFile.WriteFloat('Diapaz','Gamma1',Gamma1);
+ ConfigFile.WriteFloat('Diapaz','Gamma2',Gamma2);
+ ConfigFile.WriteFloat('Diapaz','Va',Va);
+ ConfigFile.WriteFloat('Diapaz','Vrect',Vrect);
+ ConfigFile.WriteFloat('Resistivity','RA',RA);
+ ConfigFile.WriteFloat('Resistivity','RB',RB);
+ ConfigFile.WriteFloat('Resistivity','RC',RC);
+
+end;
+
 
 end.

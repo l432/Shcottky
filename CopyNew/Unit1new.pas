@@ -3710,9 +3710,15 @@ begin
 //  TauFun(Vector1,Vector2,DiodPN.TauToLdif);
 //  N_V_Fun(Vector1,Vector2,tempDouble);
 
-  tg:=fnFrenkelPoolEm;
+//  tg:=fnFrenkelPoolEm;
+//  M_V_Fun(Vector1,Vector2,tempBool,tg);
+//
+// Nss_Fun(Vector1,Vector2,0.5,5,
+//               Diod,D[diNss],tempBool);
+ Dit_Fun(Vector1,Vector2,
+                 RsDefineCB(Vector1,ComBDitRs,ComBDitRs_n),
+                 Diod,D[diIvan]);
 
-  M_V_Fun(Vector1,Vector2,tempBool,tg);
   Vector2^.Write_File('rezOld.dat');
 
 
@@ -3731,7 +3737,11 @@ begin
 //  VTrans.CibilsFun(Vec2,D[diCib]);
 //  VTrans.LeeFun(Vec2,D[diLee]);
 //  VTrans.TauFun(Vec2,DiodPN.TauToLdif);
-  VTrans.M_V_Fun(Vec2,tempBool,tg);
+//  VTrans.M_V_Fun(Vec2,tempBool,tg);
+  VTrans. Dit_Fun(Vec2,
+                 RsDefineCB(Vector1,ComBDitRs,ComBDitRs_n),
+                 Diod,D[diIvan]);
+
   Vec2.WriteToFile('rez.dat');
   VectorEquals(Vector2,Vec2);
 

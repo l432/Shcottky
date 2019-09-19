@@ -37,7 +37,7 @@ type
       у Vector значення Х>0.001 та Y>0,
       встановлює необхідний розмір Target;
       саме заповнення Target не відбувається}
-
+     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word);
      Procedure CopyLimited (Coord:TCoord_type;var Target:TVectorNew;Clim1, Clim2:double);
      procedure Branch(Coord:TCoord_type;var Target:TVectorNew;
                       const IsPositive:boolean=True;
@@ -93,6 +93,27 @@ type
       {апроксимуються дані залежністю
       y=OutputData[0]+OutputData[1]*x+OutputData[2]*ln(x);
       якщо апроксимація невдала - повертається False}
+     Function IvanovAprox (var  OutputData:TArrSingle;
+                           DD: TDiod_Schottky; OutsideTemperature: Double = 555):boolean;
+      {апроксимація даних у векторі V параметричною залежністю
+      I=Szr AA T^2 exp(-Fb/kT) exp(qVs/kT)
+      V=Vs+del*[Sqrt(2q Nd ep / eps0) (Sqrt(Fb/q)-Sqrt(Fb/q-Vs))]
+      де
+      AA - стала Річардсона
+      Szr - площа контакту
+      Fb - висота бар'єру Шотки
+      Vs - падіння напруги на ОПЗ напівпровідника
+           (параметр залежності)
+      del - товщина діелектричного шару
+      (якщо точніше - товщина шару, поділена на
+      величину відносної діелектричної проникності шару)
+      Nd - концентрація донорів у напівпровіднику;
+      eр - діелектрична проникність напівпровідника
+      ер0 - діелектрична стала
+      OutputData[0]=del;
+      OutputData[1]=Fb;
+      }
+
      Function  ImpulseNoiseSmoothing(const Coord:TCoord_type): Double;
 
      Function ImpulseNoiseSmoothingByNpoint(const Coord:TCoord_type;
@@ -233,6 +254,61 @@ type
           ln(I/V^0.5)=f(1/V^0.25);
       якщо ForForwardBranch=true, то будується залежність для прямої гілки,
       якщо ForForwardBranch=false - для зворотньої}
+     Procedure Nss_Fun(var Target:TVectorNew;
+                       Fb, Rs: Double; DD: TDiod_Schottky;
+                       D: TDiapazon; nByDerivate: Boolean);
+      {записує в Target залежність густини станів
+      Nss=ep*ep0*(n-1)/q*del від різниці Ес-Ess=(Fb-V/n),
+      [Nss] = еВ-1 м-2; [Ec-Ess] = еВ;
+      n - фактор неідеальності,
+      nByDerivate - вибір яким методом обчислювати n(V)
+           true - за допомогою похідної
+           false - за методом Міхелешвілі
+      ер - діелектрична проникність напівпровідника
+      ер0 - діелектрична стала
+      del - товщина діелектричного шару
+      Fb - висота бар'єру Шотки
+      Rs - величина послідовного опору}
+     Procedure IvanovKalk(D: TDiapazon; Rs: Double; DD: TDiod_Schottky;
+              out del: Double; out Fb: Double);overload;
+      {на основі даних з Vector (з врахуванням
+      обмежень, вказаних в D), за методом Іванова
+      визначає величину товщини діелектричного шару del
+      (якщо точніше - товщини шару, поділеної на
+      величину відносної діелектричної проникності шару)
+      та висота бар'єру Fb;
+      AA - стала Річардсона
+      Szr - площа контакту
+      Nd - концентрація донорів у напівпровіднику;
+      eр - діелектрична проникність напівпровідника
+      Rs - послідовний опір, апроксимацію потрібно проводити
+      для ВАХ, побудованої з врахуванням Rs
+      }
+     Procedure IvanovKalk();overload;
+
+     Procedure Dit_Fun(var Target:TVectorNew;
+                      Rs: Double; DD: TDiod_Schottky; D: TDiapazon);
+      {записує в Target залежність густини станів,
+      обчислену за методом Іванова,
+      Dit=ep*ep0/(q^2*del)*d(Vcal-Vexp)/dVs
+      від різниці Ес-Ess=(Fb-qVs),
+      [Dit] = еВ-1 м-2; [Ec-Ess] = еВ;
+      ер - діелектрична проникність діелектрика
+      ер0 - діелектрична стала
+      del - товщина діелектричного шару
+      Rs - величина послідовного опору
+      Vcal та Vexp - розраховане та виміряне
+      значення напруги при однакових значеннях сируму;
+      Vcal=Vs+del*[Sqrt(2q*Nd*eps/eps0) (Sqrt(Fb/q)-Sqrt(Fb/q-Vs))]
+      Vexp=V-IRs
+      eр - діелектрична проникність напівпровідника
+      Fb - висота бар'єру Шотки
+      Nd - концентрація донорів у напівпровіднику;
+      Vs - падіння напруги на ОПЗ напівпровідника
+      Vs=Fb/q-kT/q*ln(Szr*AA*T^2/I);
+      AA - стала Річардсона
+      Szr - площа контакту
+      }
 
    end;
 
@@ -401,6 +477,7 @@ begin
   if Target.T=0 then Exit;
   if Target.Count=0 then Exit;
 
+  bet:=TVectorNew.Create;
   MikhBetta_Fun(bet);
   for I := 0 to Target.HighNumber do
     Target.Y[i]:=Target.X[i]*(Target.Y[i]-1)*(1+bet.Y[i]/(Target.Y[i]-1))/Kb/Target.T/sqr(Target.Y[i]);
@@ -439,7 +516,7 @@ end;
 procedure TVectorTransform.M_V_Fun(var Target: TVectorNew;
   ForForwardBranch: boolean; tg: TGraph);
 var temp:TVectorTransform;
-    i,j:integer;
+    i:integer;
 begin
  InitTargetToFun(Target);
  temp:=TVectorTransform.Create();
@@ -709,6 +786,52 @@ begin
  end;
 end;
 
+procedure TVectorTransform.Dit_Fun(var Target: TVectorNew; Rs: Double;
+  DD: TDiod_Schottky; D: TDiapazon);
+var i:integer;
+    Vs,Vcal,del,Fb:double;
+    temp:TVectorTransform;
+//    aproxData:TArrSingle;
+begin
+  InitTarget(Target);
+
+  if (Rs=ErResult)then Exit;
+  Self.IvanovKalk(D, Rs, DD, del, Fb);
+  if (Fb=ErResult)or(del<=0) then Exit;
+  temp:=TVectorTransform.Create;
+  CopyDiapazonPoint(temp.fVector,D);
+  if temp.Vector.IsEmpty then
+            begin
+            temp.Free;
+            Exit;
+            end;
+
+  for I := 0 to temp.Vector.HighNumber do
+    begin
+     Vs:=Fb-DD.Fb(Vector.T,temp.Vector.Y[i]);
+     Vcal:=Vs+Rs*temp.Vector.Y[i]+
+           del*sqrt(2*Qelem*DD.Semiconductor.Nd*DD.Semiconductor.Material.Eps/Eps0)*(sqrt(Fb)-sqrt(Fb-Vs));
+     temp.Vector.Y[i]:=Vcal-temp.Vector.X[i];
+     temp.Vector.X[i]:=Vs;
+    end;
+
+  temp.Itself(temp.Derivate);
+  temp.PositiveY(Target);
+
+  temp.Free;
+
+  if Target.Count<2 then
+       begin
+         Target.Clear;
+         Exit;
+       end;
+  for I := 0 to Target.HighNumber do
+   begin
+    Target.Y[i]:=Target.Y[i]*Eps0/del/Qelem/1e4;
+    Target.X[i]:=Fb-Target.X[i];
+   end;
+end;
+
 function TVectorTransform.ExtremumXvalue: double;
  var temp:TVectorNew;
 begin
@@ -781,11 +904,12 @@ var R:PSysEquation;
     i:integer;
 begin
   Result:=False;
-  if High(OutputData)<2 then SetLength(OutputData,3);
-
-  OutputData[0]:=ErResult;
-  OutputData[1]:=ErResult;
-  OutputData[2]:=ErResult;
+  InitArrSingle(OutputData,3);
+//  if High(OutputData)<2 then SetLength(OutputData,3);
+//
+//  OutputData[0]:=ErResult;
+//  OutputData[1]:=ErResult;
+//  OutputData[2]:=ErResult;
 
   for I:=0 to Vector.HighNumber do
     if Vector.X[i]<0 then Exit;
@@ -961,6 +1085,15 @@ begin
 
 end;
 
+procedure TVectorTransform.InitArrSingle(var OutputData: TArrSingle;
+  NumberOfData: word);
+  var i:word;
+begin
+ if High(OutputData)<(NumberOfData-1) then SetLength(OutputData,NumberOfData);
+ for i := 0 to High(OutputData)
+    do OutputData[i]:=ErResult;
+end;
+
 procedure TVectorTransform.InitTarget(var Target: TVectorNew);
 begin
   try
@@ -1018,6 +1151,101 @@ begin
  ProcTarget(Target);
  Target.Copy(Self.Vector);
  Target.Free;
+end;
+
+function TVectorTransform.IvanovAprox(var OutputData: TArrSingle;
+  DD: TDiod_Schottky; OutsideTemperature: Double): boolean;
+var temp:TVectorNew;
+    a,b,Temperature:double;
+    i:integer;
+    Param:array of double;
+begin
+ Result:=False;
+ InitArrSingle(OutputData,2);
+// del:=ErResult;
+//  Fb:=ErResult;
+  if OutsideTemperature=ErResult then Temperature:=Vector.T
+                                 else Temperature:=OutsideTemperature;
+  if (Temperature<=0)or(Vector.Count=0) then Exit;
+  SetLength(Param,6);
+
+  temp:=TVectorNew.Create;
+  temp.SetLenVector(Vector.Count);
+  try
+  for I := 0 to temp.HighNumber do
+    begin
+     temp.X[i]:=1/Vector.X[i];
+     temp.Y[i]:=sqrt(DD.Fb(Temperature,Vector.Y[i]));
+    end;
+  except
+   temp.Free;
+   Exit;
+  end;//try
+
+  Param[0]:=temp.Count;
+  for i := 1 to 5 do Param[i]:=0;
+  try
+    for I := 0 to temp.HighNumber do
+    begin
+    Param[1]:=Param[1]+temp.X[i];
+    Param[2]:=Param[2]+temp.X[i]*temp.Y[i];
+    Param[3]:=Param[3]+temp.X[i]*sqr(temp.Y[i]);
+    Param[4]:=Param[4]+temp.X[i]*temp.Y[i]*sqr(temp.Y[i]);
+    Param[5]:=Param[5]+temp.Y[i];
+    end;
+    temp.Free;
+  except
+    temp.Free;
+    Exit;
+  end;//try
+
+  try
+  a:=(Param[2]*(Param[0]+Param[3])-Param[1]*(Param[5]+Param[4]))/(Param[3]*Param[1]-sqr(Param[2]));
+  b:=(Param[3]*(Param[0]+Param[3])-Param[2]*(Param[5]+Param[4]))/(Param[3]*Param[1]-sqr(Param[2]));
+  b:=(sqrt(sqr(a)+4*b)-a)/2;
+  except
+    Exit;
+  end;
+  OutputData[0]:=a/sqrt(2*Qelem*DD.Semiconductor.Nd*DD.Semiconductor.Material.Eps/Eps0);
+  OutputData[1]:=sqr(b);
+  Result:=True;
+end;
+
+procedure TVectorTransform.IvanovKalk;
+begin
+  IvanovKalk(GraphParameters.Diapazon,
+             GraphParameters.Rs,Diod,
+             GraphParameters.Krec,GraphParameters.Fb)
+end;
+
+procedure TVectorTransform.IvanovKalk(D: TDiapazon; Rs: Double;
+  DD: TDiod_Schottky; out del, Fb: Double);
+ var temp,temp2:TVectorTransform;
+     OutputData: TArrSingle;
+begin
+  del:=ErResult;
+  Fb:=ErResult;
+  if Rs=ErResult then Exit;
+  temp:=TVectorTransform.Create();
+    ForwardIVwithRs(temp.fVector,Rs);
+  if temp.Vector.Count=0 then
+      begin
+        temp.Free;
+        Exit;
+      end;
+  temp2:=TVectorTransform.Create();
+  temp.CopyDiapazonPoint(temp2.fVector,D,Vector);
+  if temp2.Vector.Count=0 then
+      begin
+        temp2.Free;
+        temp.Free;
+        Exit;
+      end;
+  temp2.IvanovAprox(OutputData,DD);
+  del:=OutputData[0];
+  Fb:=OutputData[1];
+  temp2.Free;
+  temp.Free;
 end;
 
 procedure TVectorTransform.LeeFun(var Target: TVectorNew; D: TDiapazon);
@@ -1112,6 +1340,33 @@ begin
      Target.Y[i]:=Vector.X[i+Target.N_begin]/Gam+DD.Fb(Target.T,Vector.Y[i+Target.N_begin]);
    end;
   Target.N_begin:=Target.N_begin+Vector.N_begin;
+end;
+
+procedure TVectorTransform.Nss_Fun(var Target: TVectorNew; Fb, Rs: Double;
+  DD: TDiod_Schottky; D: TDiapazon; nByDerivate: Boolean);
+  var temp:TVectorNew;
+      i:integer;
+begin
+  InitTarget(Target);
+  if (Fb=ErResult)then Exit;
+  temp:=TVectorNew.Create;
+  if nByDerivate then N_V_Fun(temp,Rs)
+                 else MikhN_Fun(temp);
+
+ try
+  for I := 0 to temp.HighNumber do
+   if (temp.Y[i]>=1)and
+      (Self.Vector.PointInDiapazon(D,i+temp.N_begin))
+         then
+              Target.Add(Fb-temp.x[i]/temp.y[i],
+                         DD.Semiconductor.Material.Eps
+                         *Eps0
+                         *(temp.y[i]-1)/DD.Thick_i/1.6e-19);
+
+ except
+   Target.Clear;
+ end;
+  temp.Free;
 end;
 
 procedure TVectorTransform.N_V_Fun(var Target: TVectorNew; Rs: double);
