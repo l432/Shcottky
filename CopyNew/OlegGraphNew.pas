@@ -535,24 +535,30 @@ B^.N_begin, B^.N_end не розраховуються
 
 
 Procedure Kam1_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
+//procedure TVectorTransform.Kam1_Fun(var Target: TVectorNew; D: TDiapazon);
 {записує в B функцію Камінскі першого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
 
 Procedure Kam2_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
+//procedure TVectorTransform.Kam2_Fun(var Target: TVectorNew; D: TDiapazon);
 {записує в B функцію Камінскі другого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
 
 Procedure Gr1_Fun (A:Pvector; var B:Pvector);
+//procedure TVectorTransform.Gr1_Fun(var Target: TVectorNew);
 {записує в B функцію Громова першого роду
 спираючись на точки вектора А}
 
 Procedure Gr2_Fun (A: PVector; var B: PVector; DD: TDiod_Schottky);
+//procedure TVectorTransform.Gr2_Fun(var Target: TVectorNew; DD: TDiod_Schottky);
 {записує в B функцію Громова другого роду
 спираючись на точки вектора А}
 
 Procedure LimitFun(A, A1:Pvector; var B:Pvector; Lim:Limits);
+//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+//  Lim: Limits; InitVector: TVectorNew);
 {записує з А в В тільки ті точки, для яких
 в масиві А1 виконуються умови, розташовані в Lim}
 
@@ -568,6 +574,7 @@ Function PoinValide(Dp:TDiapazon;
 
 Procedure ChungKalk(A:PVector);overload;
 Procedure ChungKalk(A:PVector; D:TDiapazon; var Rs:double; var n:double);overload;
+//procedure TVectorTransform.ChungKalk(D: TDiapazon; out Rs, n: double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Чюнга (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -575,6 +582,7 @@ Procedure ChungKalk(A:PVector; D:TDiapazon; var Rs:double; var n:double);overloa
 
 Procedure WernerKalk(A:PVector);overload;
 Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);overload;
+//procedure TVectorTransform.WernerKalk(var D: TDiapazon; var Rs, n: double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації функції Вернера (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -582,6 +590,8 @@ Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);ov
 
 Procedure MikhKalk(A: PVector);overload;
 Procedure MikhKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; var Rs: Double; var n: Double; var I0: Double; var Fb: Double);overload;
+//procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
+//           var Target: TVectorNew; Clim1, Clim2: double);
 {на основі даних з вектора А за допомогою
 методу Міхелешвілі визначаються величини
 послідовного опору Rs, коефіцієнта неідеальності n,
@@ -595,6 +605,8 @@ Szr - площа контакту}
 
 Procedure HFunKalk(A: PVector);overload;
 Procedure HFunKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; N: Double; var Rs: Double; var Fb: Double);overload;
+//procedure TVectorTransform.HFunKalk(D: TDiapazon; DD: TDiod_Schottky; N: Double;
+//  out Rs, Fb: Double);
 {на основі даних з вектора А шляхом побудови та
 лінійної апроксимації H-функції (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -606,6 +618,8 @@ Procedure ExKalk(Index: Integer; A: PVector);overload;
 Procedure ExKalk(Index: Integer; A: PVector; D: TDiapazon;
                 Rs: Double; DD: TDiod_Schottky;
                 var n: Double; var I0: Double; var Fb: Double);overload;
+//procedure TVectorTransform.ExKalk(Index: Integer; D: TDiapazon; Rs: Double;
+//                       DD: TDiod_Schottky; out n, I0, Fb: Double);
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
 масштабі (з врахуванням
@@ -627,6 +641,8 @@ Szr - площа контакту}
 Procedure ExKalk(A:Pvector; DD:TDiod_Schottky;
                  var n:double; var I0:double; var Fb:double;
                  OutsideTemperature:double=ErResult);overload;
+//procedure TVectorTransform.ExKalk(DD: TDiod_Schottky; out n, I0, Fb: double;
+//  OutsideTemperature: double);
 {на основі даних з вектора А шляхом
 лінійної апроксимації ВАХ в напівлогарифмічному
 масштабі, визначає величину
@@ -664,6 +680,8 @@ Procedure ExpKalk(A: PVector; D: TDiapazon;
                   Rs: Double; DD: TDiod_Schottky;
                   Xp: IRE; var n: Double; var I0:
                   Double; var Fb: Double);
+//procedure TVectorTransform.ExpKalk(D: TDiapazon; Rs: Double; DD: TDiod_Schottky;
+//        Xp: IRE; var n, I0, Fb: Double);
 {на основі даних з вектора А шляхом
 апроксимації ВАХ за формулою I=I0(exp(V/nkT)-1)+V/R
 (з врахуванням обмежень, вказаних в D), визначає величину
@@ -678,6 +696,8 @@ AA - стала Річардсона,
 Szr - площа контакту}
 
 Procedure NordDodat(A: PVector; D: TDiapazon; DD: TDiod_Schottky; Gamma: Double; var V0: Double; var I0: Double; var F0: Double);
+//procedure TVectorTransform.NordDodat(D: TDiapazon; DD: TDiod_Schottky;
+//  Gamma: Double; out V0, I0, F0: Double);
 {на основі даних з вектора А (з рахуванням
 обмежень в D) будує функцію Норда та визначає
 координату її мінімума V0, відповідне
@@ -686,6 +706,8 @@ Procedure NordDodat(A: PVector; D: TDiapazon; DD: TDiod_Schottky; Gamma: Double;
 
 Procedure NordKalk(A: PVector);overload;
 Procedure NordKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; Gamma, n: Double; var Rs: Double; var Fb: Double);overload;
+//procedure TVectorTransform.NordKalk(D: TDiapazon; DD: TDiod_Schottky; Gamma,
+//  n: Double; out Rs, Fb: Double);
 {на основі даних з вектора А шляхом побудови
 функції Норда (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -700,6 +722,7 @@ n - показник ідеальності}
 Procedure CibilsKalk(const A:Pvector);overload;
 Procedure CibilsKalk(const A:Pvector; const D:TDiapazon;
                      out Rs:double; out n:double);overload;
+//procedure TVectorTransform.CibilsKalk(const D: TDiapazon; out Rs, n: double);
 {на основі даних з вектора А шляхом побудови
 функції Сібілса, визначає величину
 послідовного опору Rs та
@@ -726,6 +749,7 @@ Rs - послідовний опір, апроксимацію потрібно 
 
 Procedure Kam1Kalk (A:Pvector);overload;
 Procedure Kam1Kalk (A:Pvector; D:TDiapazon; var Rs:double; var n:double);overload;
+//procedure TVectorTransform.Kam1Kalk(D: TDiapazon; out Rs, n: double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -733,6 +757,7 @@ Procedure Kam1Kalk (A:Pvector; D:TDiapazon; var Rs:double; var n:double);overloa
 
 Procedure Kam2Kalk (A:Pvector);overload;
 Procedure Kam2Kalk (const A:Pvector; const D:TDiapazon; out Rs:double; out n:double);overload;
+//procedure TVectorTransform.Kam2Kalk(const D: TDiapazon; out Rs, n: double);
 {на основі даних з вектора А шляхом побудови
 функції Камінські (з врахуванням
 обмежень, вказаних в D), визначає величину
@@ -2708,27 +2733,13 @@ Procedure Kam1_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
 var temp:Pvector;
     i,j:integer;
 begin
+
 new(temp);
 
-
-//A_B_Diapazon(A,A,temp,D);
-//{в temp ті точки вектора А, які задовольняють D}
-//
-//if temp^.n=0 then
-//             begin
-//             B^.n:=0;
-//             dispose(temp);
-//             Exit;
-//             end;
-//
 
 IVChar(A,temp);
 SetLenVector(B,temp^.n-1);
 
-
-//SetLength(B^.X, temp^.n-1);
-//SetLength(B^.Y, temp^.n-1);
-//B^.n:=temp^.n-1;
 
 try
 for i:=0 to High(B^.X) do
@@ -2743,9 +2754,6 @@ for i:=0 to High(B^.X) do
           temp^.Y[j]:=temp^.Y[j+1];
           end;
     SetLenVector(temp,temp^.n-1);
-//    temp^.n:=temp^.n-1;
-//    SetLength(temp^.X, temp^.n);
-//    SetLength(temp^.Y, temp^.n);
     end;
   end;
 except
@@ -2985,75 +2993,7 @@ Procedure WernerKalk(A:PVector; var D:TDiapazon; var Rs:double; var n:double);
 послідовного опору Rs та коефіцієнта неідеальності n}
 var temp1, temp2:Pvector;
     aa,bb:double;
-//    Dev,DYmin:TArrSingle;
-//    Dtemp:Diapazon;
-//    Np,i,Ntemp:integer;
-//    Xtemp:double;
 begin
-//Rs:=ErResult;
-//n:=ErResult;
-//if A^.T<=0 then Exit;
-//new(temp1);
-//WernerFun(A,temp1);         // в temp1 повна функція Вернера
-//if temp1^.n=0 then
-//             begin
-//               dispose(temp1);
-//               Exit;
-//             end;
-//Dtemp:=Diapazon.Create;
-//Dtemp.Copy(D);
-//new(temp2);
-//Np:=0;
-//Ntemp:=0;
-//repeat
-//  if A^.Y[MaxElemNumber(A^.Y)]<=Dtemp.Ymin
-//    then Dtemp.Ymin:=0.99999*A^.Y[MaxElemNumber(A^.Y)];
-//  A_B_Diapazon(A,temp1,temp2,Dtemp);
-////  showmessage(floattostr(Dtemp.Ymin));
-//  if (High(Dev)>-1)and(temp2^.n<=Ntemp) then Break;
-//
-//  if temp2^.n>1 then
-//    begin
-//    inc(Np);
-//    SetLength(Dev,Np);
-//    Dev[Np-1]:=0;
-//    SetLength(DYmin,Np);
-//    DYmin[Np-1]:=Dtemp.Ymin;
-//    LinAprox(temp2,aa,bb);
-//    Ntemp:=temp2^.n;
-//    for I := 0 to High(temp2^.X) do
-//     Dev[Np-1]:=Dev[Np-1]+sqr((temp2^.Y[i]-aa-bb*temp2^.X[i])/temp2^.Y[i]);
-//    Dev[Np-1]:=sqrt(Dev[Np-1])/temp2^.n;
-//    end;
-//
-//
-//  if A^.Y[MinElemNumber(A^.Y)]>=Dtemp.Ymin
-//    then Break;
-//
-//  Xtemp:=ChisloX(A,Dtemp.Ymin);
-//  i:=0;
-//  repeat
-//    if (A^.X[i]<Xtemp)and(A^.X[i+1]>=Xtemp) then Break;
-//    inc(i);
-//  until (i=High(A^.X));
-//
-//  if i=High(A^.X) then Dtemp.Ymin:=0.9999999*A^.Y[0]
-//                  else Dtemp.Ymin:=0.9999999*A^.Y[i];
-//
-//until False;
-//
-//if High(Dev)>0 then
-//  begin
-//    Dtemp.Ymin:=DYmin[MinElemNumber(Dev)];
-//    A_B_Diapazon(A,temp1,temp2,Dtemp);
-//    LinAprox(temp2,aa,bb);
-//    n:=1/Kb/A^.T/aa;
-//    Rs:=-bb/aa;
-//    D.Copy(Dtemp);
-//  end;
-//dispose(temp1);dispose(temp2);
-//Dtemp.Free;
-
 Rs:=ErResult;
 n:=ErResult;
 if A^.T<=0 then Exit;
@@ -3375,7 +3315,8 @@ if (DD.Semiconductor.ARich=ErResult)or(DD.Area=ErResult)
    or(Temperature<=0) then Exit;
 
 new(temp2);
-IVchar(A,temp2);
+//IVchar(A,temp2);
+LogY(A,temp2);
 if temp2^.n<2 then
     begin
       dispose(temp2);
@@ -3472,6 +3413,7 @@ if temp1^.n=0 then
                dispose(temp1);
                Exit;
              end;
+
 new(temp2);
 
 repeat
@@ -3480,9 +3422,7 @@ Median (temp1,temp2);
 Smoothing(temp2,temp1);
 until False;
 
-
 A_B_Diapazon(A,temp1,temp2,D);
-
 if temp2^.n<3 then
           begin
            dispose(temp1);dispose(temp2);Exit;
@@ -3491,11 +3431,7 @@ if temp2^.n<3 then
 задовольняє умовам в D}
 
 V0:=Extrem(temp2);
-//showmessage(floattostr(V0));
-
 F0:=ChisloY(temp2,V0);
-//showmessage(floattostr(F0));
-
 I0:=ChisloY(A,V0);
 dispose(temp2);
 dispose(temp1);

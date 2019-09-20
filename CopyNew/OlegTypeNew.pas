@@ -235,6 +235,7 @@ type
          MinValue:array [TBinary] of double;
          MaxValue:array [TBinary] of double;
              //граничні величини для координат графіку
+         function PoinValide(Point:TPointDouble): boolean;             
          end;
 
 
@@ -691,5 +692,31 @@ begin
 
 end;
 
+
+{ Limits }
+
+function Limits.PoinValide(Point: TPointDouble): boolean;
+begin
+    Result:=False;
+    if (MinXY=0) and (MaxXY=0)
+     then
+      Result:=((MinValue[0]=ErResult)or(Point[cX]>MinValue[0]))
+       and ((MaxValue[0]=ErResult)or(Point[cX]<MaxValue[0]));
+
+    if (MinXY=0) and (MaxXY=1)
+     then
+      Result:=((MinValue[0]=ErResult)or(Point[cX]>MinValue[0]))
+       and ((MaxValue[1]=ErResult) or (Point[cY]<MaxValue[1]));
+
+    if (MinXY=1) and (MaxXY=1)
+     then
+      Result:=((MinValue[1]=ErResult)or(Point[cY]>MinValue[1]))
+       and ((MaxValue[1]=ErResult)or(Point[cY]<MaxValue[1]));
+
+    if (MinXY=1) and (MaxXY=0)
+     then
+      Result:=((MinValue[1]=ErResult)or(Point[cY]>MinValue[1]))
+       and ((MaxValue[0]=ErResult)or(Point[cX]<MaxValue[0]));
+end;
 
 end.

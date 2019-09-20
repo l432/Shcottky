@@ -81,6 +81,7 @@ Function Poh(A:PVector; k:integer):double;
 в масиві А в точці з індексом k}
 
 Procedure LinAprox (V:PVector; var a,b:double);
+//function TVectorTransform.LinAprox(var OutputData: TArrSingle): boolean;
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x}
 
@@ -143,6 +144,7 @@ bool з'явилась при удосконаленні програми для
 щоб зняти цю заплатку не хочеться}
 
 Procedure Newts(Nr:integer; AV:Pvector; eps:real; Xp:IRE; var Xr:IRE; var rez:integer);
+//procedure TVectorTransform.Newts(Nr: integer; eps: real; Xp: IRE; var Xr: IRE;
 {процедура апроксимації даних в А за формулою y=I0(exp(x/E)-1)+x/R
 за методом найменших квадратів зі статистичними
 ваговими коефіцієнтами;
@@ -302,6 +304,7 @@ Procedure Smoothing (A:Pvector; var B:PVector);
 
 
 Procedure Median (A:Pvector; var B:PVector);
+//procedure TVectorTransform.Median(var Target: TVectorNew);
 {в В розміщується результат дії на дані в А
 медіанного трьохточкового фільтра;
 якщо у вихідному масиві кількість точок менша трьох,
@@ -332,6 +335,7 @@ Function Splain3(V:Pvector; x:double):double;
 Result=Ai+Bi(X-Xi)+Ci(X-Xi)^2+Di(X-Xi)^3 при Xi-1<=X<=Xi}
 
 Procedure Splain3Vec(V:Pvector; beg:double; step:double; var Rez:Pvector);
+//procedure TVectorTransform.Splain3(var Target:TVectorNew;beg:double; step:double);
 {розраховується інтерполяція даних у векторі V з
 використанням кубічних сплайнів, починаючи з точки з координатою
 beg і з кроком step;
@@ -526,6 +530,7 @@ Function StrToInt555(Value:string):integer;
 результат дорівнює ErResult}
 
 Function NumberMax(A:Pvector):integer;
+//function TVectorTransform.MaximumCount: integer;
 {обчислюється кількість локальних
 максимумів у векторі А;
 дані мають бути упорядковані по координаті X}
@@ -2228,22 +2233,6 @@ Procedure Median (A:Pvector; var B:PVector);
 медіанного трьохточкового фільтра;
 якщо у вихідному масиві кількість точок менша трьох,
 то у результуючому буде нульова кількість}
-//Function Med(a,b,c:double):double;
-//{повертає середнє за величиною з трьох чисел a, b, c}
-// begin
-//  if a>b then swap(a,b);
-//  if b>c then swap(b,c);
-//  if a>b then swap(a,b);
-//  Result:=b;
-//
-//  {Result:=b;
-//  if ((a<b)or(a=b))and((a>c)or(a=c)) then Result:=a;
-//  if ((a>b)or(a=b))and((a<c)or(a=c)) then Result:=a;
-//  if ((b<a)or(a=b))and((b>c)or(b=c)) then Result:=b;
-//  if ((b>a)or(a=b))and((b<c)or(b=c)) then Result:=b;
-//  if ((c<b)or(c=b))and((c>a)or(c=a)) then Result:=c;
-//  if ((c>b)or(c=b))and((c<a)or(c=a)) then Result:=c;}
-// end;
 
 var i:integer;
 begin

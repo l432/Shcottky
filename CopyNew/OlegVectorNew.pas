@@ -214,9 +214,10 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
       function MinNumber(Coord:TCoord_type):integer;
 //      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;overload;
       function PoinToString(PointNumber: Integer;NumberDigit:Byte=4):string;overload;
-      function PointInDiapazon(Diapazon:TDiapazon;PointNumber:integer):boolean;
+      function PointInDiapazon(Diapazon:TDiapazon;PointNumber:integer):boolean;overload;
       {визначає, чи знаходиться точка з номером PointNumber в межах,
       що задаються в Diapazon}
+      function PointInDiapazon(Lim:Limits;PointNumber:integer):boolean;overload;
         end;
 
 
@@ -585,7 +586,8 @@ function TVectorNew.Value(Coord: TCoord_type; CoordValue: Double): double;
 begin
   i:=1;
   Result:=ErResult;
-  if High(Points)<0 then Exit;
+  if (High(Points)<0)
+     or(CoordValue=ErResult) then Exit;
   repeat
    if ((Points[i,Coord]-CoordValue)*(Points[i-1,Coord]-CoordValue))<=0 then
      begin
@@ -1005,6 +1007,11 @@ function TVectorNew.PointGet(Number: integer): TPointDouble;
 begin
  Result[cX]:=Points[Number,cX];
  Result[cY]:=Points[Number,cY];
+end;
+
+function TVectorNew.PointInDiapazon(Lim: Limits; PointNumber: integer): boolean;
+begin
+ Result:=Lim.PoinValide(Self[PointNumber]);
 end;
 
 function TVectorNew.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
