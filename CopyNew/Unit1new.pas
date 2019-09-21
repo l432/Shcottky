@@ -3689,8 +3689,8 @@ begin
   Vec2:=TVectorNew.Create;
   new(Vector1);  new(Vector2);
 
-//  directory:='D:\oleg\Delphi2007\CopyNew\Data\';//home
-  directory:='D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\';  //work
+  directory:='D:\oleg\Delphi2007\CopyNew\Data\';//home
+//  directory:='D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\';  //work
 
 
 
@@ -3717,12 +3717,11 @@ begin
 // Dit_Fun(Vector1,Vector2,
 //                 RsDefineCB(Vector1,ComBDitRs,ComBDitRs_n),
 //                 Diod,D[diIvan]);
-  SetLength(OutputDataOld,3);
+  SetLength(OutputDataOld,4);
 //  LinAprox(Vector1,OutputDataOld[0],OutputDataOld[1]);
 //  ExKalk(Vector1,Diod,OutputDataOld[0],OutputDataOld[1],OutputDataOld[2]);
 //  NordKalk(Vector1,D[diNord],Diod,2,1,OutputDataOld[0],OutputDataOld[1]);
-  Kam2Kalk(Vector1,D[diKam2],OutputDataOld[0],OutputDataOld[1]);
-
+  LeeKalk(Vector1,D[diLee],Diod,OutputDataOld[0],OutputDataOld[1],OutputDataOld[2],OutputDataOld[3]);
 
   Median(Vector1,Vector2);
 
@@ -3731,9 +3730,9 @@ begin
 
   VTrans:=TVectorTransform.Create();
   VTrans.Vector.ReadFromFile('data.dat');
-    SetLength(OutputData,3);
+    SetLength(OutputData,4);
 
-  VTrans.Kam2Kalk(D[diKam2],OutputData[0],OutputData[1]);
+//  VTrans.LeeKalk(D[diLee],Diod,OutputData[0],OutputData[1],OutputData[2],OutputData[3]);
   showmessage(ArrayToString(OutputDataOld)+#10+
               ArrayToString(OutputData));
 

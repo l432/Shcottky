@@ -16,8 +16,8 @@ type
 //
 //    TPoint=array[TCoord_type]of double;
 
-TFunVector=Function(Coord: TCoord_type): Double of object;
-TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
+    TFunVector=Function(Coord: TCoord_type): Double of object;
+    TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
 
     TVectorNew=class
      private
@@ -59,7 +59,7 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
 //      якщо не входить в діапазон зміни - повервається -1}
       function ValueXY (Coord: TCoord_type; CoordValue: Double;i,j:integer):double;
       function GetInformation(const Index: Integer): double;
-      function GetInformationInt(const Index: Integer): double;
+      function GetInformationInt(const Index: Integer): integer;
       function GetInt_Trap: double;
       function GetHigh: Integer;
       function GetSegmentEnd: Integer;
@@ -109,11 +109,11 @@ TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
        property StandartErrorY:double Index 12 read GetInformation;
          {повертає стандартну похибку значень в масиві Y
          SЕ=SD/n^0.5}
-      property MaxXnumber:double Index 1 read GetInformationInt;
+      property MaxXnumber:integer Index 1 read GetInformationInt;
       {повертається порядковий номер найбільшого значення з масиву X}
-      property MaxYnumber:double Index 2 read GetInformationInt;
-      property MinXnumber:double Index 3 read GetInformationInt;
-      property MinYnumber:double Index 4 read GetInformationInt;
+      property MaxYnumber:integer Index 2 read GetInformationInt;
+      property MinXnumber:integer Index 3 read GetInformationInt;
+      property MinYnumber:integer Index 4 read GetInformationInt;
       property Int_Trap:double read GetInt_Trap;
         {повертає результат інтегрування за методом
         трапецій;  вважається, що межі інтегралу простягаються на
@@ -908,13 +908,13 @@ begin
  end;
 end;
 
-function TVectorNew.GetInformationInt(const Index: Integer): double;
+function TVectorNew.GetInformationInt(const Index: Integer): Integer;
 begin
  case Index of
   1:Result:=Stat(cX,Self.MaxNumber);
   2:Result:=Stat(cY,Self.MaxNumber);
-  3:Result:=Stat(cX,Self.MaxNumber);
-  4:Result:=Stat(cY,Self.MaxNumber);
+  3:Result:=Stat(cX,Self.MinNumber);
+  4:Result:=Stat(cY,Self.MinNumber);
   else Result:=ErResult;
  end;
 end;

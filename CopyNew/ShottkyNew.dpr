@@ -21,7 +21,8 @@ uses
   OlegVectorNew in 'OlegVectorNew.pas',
   OlegVector in 'OlegVector.pas',
   OlegVectorManipulation in 'OlegVectorManipulation.pas',
-  OlegTests in 'OlegTests.pas';
+  OlegTests in 'OlegTests.pas',
+  OlegMathShottky in 'OlegMathShottky.pas';
 
 {$R *.res}
 
