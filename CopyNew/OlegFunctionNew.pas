@@ -115,6 +115,9 @@ HighDoubleArray - найбільше значення індексу масиву
 
 Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
 Function  ImpulseNoiseSmoothing(const Data:  TVectorNew; ItIsXVector:boolean=False): Double;overload;
+//function TVectorTransform.ImpulseNoiseSmoothing(
+//                   const Coord: TCoord_type): Double;
+
 {якщо ItIsXVector=True, то середнє рахується
 по значенням  координати X, інакше - по Y}
 
@@ -129,6 +132,8 @@ Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
 Procedure ImNoiseSmoothedArray(Source:Pvector;
                                Target:Pvector;
                                Npoint:Word=0);overload;
+//procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVectorNew;
+//                            Npoint: Word);
 
 Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
                                        Npoint:Word=0): Double;overload;
@@ -140,6 +145,8 @@ Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
 
 Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean=False;
                                        Npoint:Word=0): Double;overload;
+//function TVectorTransform.ImpulseNoiseSmoothingByNpoint(
+//           const Coord: TCoord_type; Npoint: Word): Double;
 
 
 Function Bisection(const F:TFun; const Parameters:array of double;
@@ -180,7 +187,17 @@ Procedure CreateDirSafety(DirName: string);
 в поточному каталозі, ігноруються можливі помилки;
 як правило, ці помилки викликані тим, що директорія з такою назвою вже є}
 
-Function CasrtoIV(I:double;Parameters:array of double):double;
+//Function CasrtoIV(I:double;Parameters:array of double):double;
+
+
+Function MilliSecond:integer;
+{повертає поточне значення мілісекунд з
+врахуванням хвилин та секунд}
+
+function SecondFromDayBegining:integer;overload;
+{повертає кількість секунд з початку доби}
+function SecondFromDayBegining(ttime: TDateTime):integer;overload;
+
 
 implementation
 
@@ -1180,37 +1197,56 @@ begin
   end;
 end;
 
-Function CasrtoIV(I:double;Parameters:array of double):double;
- var Vt,temp10,temp20,temp11,temp21,x1,x2:double;
+//Function CasrtoIV(I:double;Parameters:array of double):double;
+// var Vt,temp10,temp20,temp11,temp21,x1,x2:double;
+//
+//begin
+// Vt:=Kb*Parameters[8];
+//
+// temp10:=1/Vt/Parameters[1];// q/kTn
+// temp20:=1/Vt/Parameters[4];
+//
+// temp11:=Parameters[2]*temp10; // Rsh q/kTn
+// temp21:=Parameters[5]*temp20;
+//
+//// Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
+////        -Lambert(temp11*Parameters[0]
+////                 *exp(temp11*(I+Parameters[7]+Parameters[0])))
+////         /temp10
+////        +Lambert(temp21*Parameters[3]
+////                 *exp(-temp21*(I-Parameters[3])))
+////         /temp20
+////         +(I-Parameters[3])*Parameters[5]
+////         +I*Parameters[6];
+//
+// x1:=log10(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
+// x2:=log10(temp21*Parameters[3])-temp21*(I-Parameters[3]);
+// Result:=I*Parameters[6]+gLambert(x1)/temp10
+//         -gLambert(x2)/temp20
+//         -log10(temp11*Parameters[0])/temp10
+//         +log10(temp21*Parameters[3])/temp20;
+//
+//end;
 
+Function MilliSecond:integer;
+ var Hour,Min,Sec,MSec:word;
 begin
- Vt:=Kb*Parameters[8];
-
- temp10:=1/Vt/Parameters[1];// q/kTn
- temp20:=1/Vt/Parameters[4];
-
- temp11:=Parameters[2]*temp10; // Rsh q/kTn
- temp21:=Parameters[5]*temp20;
-
-// Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
-//        -Lambert(temp11*Parameters[0]
-//                 *exp(temp11*(I+Parameters[7]+Parameters[0])))
-//         /temp10
-//        +Lambert(temp21*Parameters[3]
-//                 *exp(-temp21*(I-Parameters[3])))
-//         /temp20
-//         +(I-Parameters[3])*Parameters[5]
-//         +I*Parameters[6];
-
- x1:=log10(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
- x2:=log10(temp21*Parameters[3])-temp21*(I-Parameters[3]);
- Result:=I*Parameters[6]+gLambert(x1)/temp10
-         -gLambert(x2)/temp20
-         -log10(temp11*Parameters[0])/temp10
-         +log10(temp21*Parameters[3])/temp20;
-
+ DecodeTime(Time,Hour,Min,Sec,MSec);
+ Result:=MSec+1000*Sec+60*1000*Min;
 end;
 
+function SecondFromDayBegining:integer;
+ var Hour,Min,Sec,MSec:word;
+begin
+ DecodeTime(Time,Hour,Min,Sec,MSec);
+ Result:=Sec+60*Min+60*60*Hour;
+end;
 
+function SecondFromDayBegining(ttime: TDateTime):integer;
+ var Hour,Min,Sec,MSec:word;
+begin
+ DecodeTime(ttime,Hour,Min,Sec,MSec);
+ Result:=Sec+60*Min+60*60*Hour;
+end;
 
 end.

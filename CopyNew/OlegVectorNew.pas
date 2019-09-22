@@ -18,6 +18,7 @@ type
 
     TFunVector=Function(Coord: TCoord_type): Double of object;
     TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
+    TFunVectorPointBool=Function(i:integer): boolean of object;
 
     TVectorNew=class
      private
@@ -63,6 +64,9 @@ type
       function GetInt_Trap: double;
       function GetHigh: Integer;
       function GetSegmentEnd: Integer;
+      procedure DeletePointsByCondition(FunVPB:TFunVectorPointBool);
+      function  FunVPBDeleteErResult(i:integer):boolean;
+      function  FunVPBDeleteZeroY(i:integer):boolean;
      public
 
 
@@ -153,7 +157,9 @@ type
       procedure DeleteDuplicate;
          {видаляються точки, для яких значення абсциси вже зустрічалося}
       procedure DeleteErResult;
-         {видаляються точки, для абсциса чи ордината рівна ErResult}
+         {видаляються точки, для яких абсциса чи ордината рівна ErResult}
+      Procedure DeleteZeroY;
+         {видаляються точки, для яких ордината рівна 0}
       procedure SwapXY;
          {обмінюються знaчення Х та Y}
       function CopyToArray(const Coord:TCoord_type):TArrSingle;
@@ -182,6 +188,10 @@ type
       function Yvalue(Xvalue:double):double;
          {повертає визначає приблизну ординату точки з
           абсцисою Xvalue}
+      function Krect(Xvalue:double):double;
+      {обчислення коефіцієнту випрямлення при напрузі V;
+      якщо точок в потрібному діапазоні немає -
+      пишиться повідомлення і повертається ErResult}
       function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
       {повертає номер точки вектора, координата якого близька до CoordValue:
       CoordValue має знаходитися на інтервалі від
@@ -473,6 +483,28 @@ begin
  Self.SetLenVector(High(Points));
 end;
 
+procedure TVectorNew.DeletePointsByCondition(FunVPB: TFunVectorPointBool);
+ var i,Point:integer;
+ label Start;
+begin
+  Point:=0;
+  i:=-1;
+ Start:
+  if i<>-1 then
+     Self.DeletePoint(i);
+  for I := Point to High(Points)-1 do
+    begin
+      if FunVPB(i) then
+            goto Start;
+      Point:=I+1;
+    end;
+end;
+
+procedure TVectorNew.DeleteZeroY;
+begin
+ DeletePointsByCondition(FunVPBDeleteZeroY);
+end;
+
 procedure TVectorNew.DeleteNfirst(Nfirst:integer);
 var
   I: Integer;
@@ -558,20 +590,22 @@ begin
 end;
 
 Procedure TVectorNew.DeleteErResult;
- var i,Point:integer;
- label Start;
+// var i,Point:integer;
+// label Start;
+//begin
+//  Point:=0;
+//  i:=-1;
+// Start:
+//  if i<>-1 then
+//     Self.DeletePoint(i);
+//  for I := Point to High(Points)-1 do
+//    begin
+//      if (X[i]=ErResult)or(Y[i]=ErResult) then
+//            goto Start;
+//      Point:=I+1;
+//    end;
 begin
-  Point:=0;
-  i:=-1;
- Start:
-  if i<>-1 then
-     Self.DeletePoint(i);
-  for I := Point to High(Points)-1 do
-    begin
-      if (X[i]=ErResult)or(Y[i]=ErResult) then
-            goto Start;
-      Point:=I+1;
-    end;
+ DeletePointsByCondition(FunVPBDeleteErResult);
 end;
 
 Procedure TVectorNew.SwapXY;
@@ -819,6 +853,16 @@ Procedure TVectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
 begin
  Filling(Fun,Xmin,Xmax,deltaX,[]);
 end;
+function TVectorNew.FunVPBDeleteErResult(i: integer): boolean;
+begin
+ Result:=(Points[i][cX]=ErResult)or(Points[i][cY]=ErResult);
+end;
+
+function TVectorNew.FunVPBDeleteZeroY(i: integer): boolean;
+begin
+ Result:=(Points[i][cY]=0);
+end;
+
 //
 //Procedure VectorNew.Decimation(Np:word);
 // {залишається лише 0-й, ?-й, 2N-й.... елементи,
@@ -941,6 +985,16 @@ end;
 function TVectorNew.IsEmptyGet: boolean;
 begin
  Result:=(High(Points)<0);
+end;
+
+function TVectorNew.Krect(Xvalue: double): double;
+  var temp1, temp2:double;
+begin
+   Result:=ErResult;
+   temp1:=Yvalue(Xvalue);
+   temp2:=Yvalue(-Xvalue);
+   if (temp1=ErResult)or(temp2=ErResult) then Exit;
+   if (temp2<>0) then Result:=abs(temp1/temp2);
 end;
 
 function TVectorNew.MaxNumber(Coord: TCoord_type): integer;

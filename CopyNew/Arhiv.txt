@@ -1,0 +1,939 @@
+{OlegMath}
+
+Type FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
+
+  TFun1D=Function(A:Pvector; Variab:array of double;
+                  Param:array of double;
+                  var Rez:array of double):word;
+  {тип для функції, яка використовується в методі
+  Ньютона, її задача повернути масив чисел Rez, що
+  є значеннями системи рівнянь при змінних,
+  рівних значенням в Variab;
+  Param - масив параметрів, які входять до наших рівнянь;
+  A - вектор, по даним якого розраховуються функції,
+  введено для можливості використання
+  функцій більш загального типу;
+  при вдалій операцій функція повертає 0,
+  при невдалій - додатне число, а в Rez всі значення ErResult}
+
+  TFun2D=Function(A:Pvector; Variab:array of double;
+                  Param:array of double;
+                  var Rez:T2DArray):word;
+  {тип для функції, яка використовується в методі
+  Ньютона, її задача повернути двомірний масив чисел Rez, що
+  є значеннями якобіана (набору функцій)
+  від системи рівнянь при змінних,
+  рівних значенням в Variab;
+  Param - масив параметрів, які використовуються у
+  наборі функцій;
+  A - вектор, по даним якого розраховуються функції,
+  введено для можливості використання
+  функцій більш загального типу;
+  при вдалій операцій функція повертає 0,
+  при невдалій - додатне число, а в Rez всі значення ErResult}
+
+
+
+
+
+
+Procedure ExpAprox (V:PVector; var I0,E:double);
+{апроксимуються дані у векторі V
+залежністю I=I0[exp(V/E)-1]
+за методом найменших квадратів зі
+статистичними ваговими коефіцієнтами}
+var Vari,Param1,Param2:array of double;
+    temp:PVector;
+    i:integer;
+    ErStr:string;
+begin
+ErStr:='';
+I0:=ErResult;
+E:=ErResult;
+if V^.n<7 then Exit;
+
+SetLength(Vari,2);
+{бо дві змінних - I0,E}
+
+
+{початкове наближення І0 та Е - результат
+лінійної апроксимації 5 останніх точок ВАХ
+в напівлогарифмічному масштабі}
+new(temp);
+temp^.n:=5;
+SetLength(temp^.X,temp^.n);
+SetLength(temp^.Y,temp^.n);
+for I := 0 to High(temp^.X) do
+  begin
+  temp^.X[i]:=V^.X[V^.n-1-i];
+  temp^.Y[i]:=ln(V^.Y[V^.n-1-i]);
+  end;
+LinAprox(temp,Vari[0],Vari[1]);
+Vari[0]:=exp(Vari[0]);
+Vari[1]:=1/Vari[1];
+dispose(temp);
+
+
+if
+  Newton(V, F_Exp, G_Exp,Param1,Param2, 1e-4, 1000, Vari,ErStr)<>0
+    then Exit;
+I0:=Vari[0];
+E:=Vari[1];
+end;
+
+------------------------------------------------------------
+Function Newton(A:Pvector; funF:TFun1D; funG:TFun2D;
+                ParF:array of double; ParG:array of double;
+                eps:real; Nmax:integer;
+                var X0:array of double;var ErStr:string):word;
+{Розв'язок системи рівнянь методом Ньютона,
+F - функція, яка повертає масив значень функцій
+    цієї системи;
+G - функція, яка повертає масив значень якобіану
+    функцій цієї системи;
+ParF - масив параметрів, які використовуються
+     у функції F;
+ParG - масив параметрів, які використовуються
+     у функції G;
+A - масив даних, які використовуються при
+    побудові функцій F та G;
+eps - відносна точність, на яку не повинні
+    відрізнятися розв'язки на двох сусудніх
+    кроках, щоб можна було припинити ітераційний
+    процес;
+Nmax - максимальне число ітерацій;
+Х0 - вектор початкових наближень, в нього ж
+    розміщується результат;
+ErStr - рядок, де розміщено опис помилки;
+При вдалому закінченні
+функція повертає 0;
+ErStr='';
+в Х0 - розв'язки;
+При невдалому закінченні
+функція повертає 1;
+ErStr не нульовий;
+в Х0 - ErResult;
+}
+var X1,X2:array of double;
+    temp:double;
+    i,j, Nit:integer;
+    SysEq:PSysEquation;
+    bool:boolean;
+begin
+  i:=High(X0)+1;
+//  showmessage(IntToStr(i));
+  SetLength(X1,i);
+  SetLength(X2,i);
+  new(SysEq);
+  SetLength(SysEq^.A,i,i);
+  SetLength(SysEq^.f,i);
+  SetLength(SysEq^.x,i);
+  SysEq^.N:=i;
+  for I := 0 to High(X1) do X1[i]:=X0[i];
+  Nit:=0;
+  Result:=1;
+  for I := 0 to High(X0) do X0[i]:=ErResult;
+repeat
+
+ if (funF(A,X1,ParF,SysEq^.f)<>0) or
+    (funG(A,X1,ParG,SysEq^.A)<>0) then
+    begin
+     ErStr:='Error in function';
+     dispose(SysEq);
+     Exit;
+    end;
+ { for I := 0 to High(SysEq^.f) do SysEq^.f[i]:=-SysEq^.f[i];
+ GausGol(SysEq);
+ if SysEq^.N=ErResult then
+   begin
+     ErStr:='Error during Gauss method';
+     dispose(SysEq);
+     Exit;
+   end;
+ bool:=true;
+ for I := 0 to High(SysEq^.f) do
+      bool:=bool and (abs(SysEq^.x[i]/X1[i])<eps);
+
+ for I := 0 to High(X1) do X1[i]:=X1[i]+SysEq^.x[i];{}
+
+
+ for I := 0 to High(SysEq^.f) do
+   begin
+     temp:=0;
+     for j:=0 to High(SysEq^.f) do
+             temp:=temp+SysEq^.A[i,j]*X1[j];
+     SysEq^.f[i]:=temp-SysEq^.f[i];
+   end;
+
+
+ GausGol(SysEq);
+ if SysEq^.N=ErResult then
+   begin
+     ErStr:='Error during Gauss method';
+     dispose(SysEq);
+     Exit;
+   end;
+ Inc(Nit);
+ bool:=true;
+ for I := 0 to High(SysEq^.f) do
+       bool:=bool and (abs((X1[i]-SysEq^.x[i])/X1[i])<eps);
+
+ for I := 0 to High(X1) do X1[i]:=SysEq^.x[i];
+
+until bool or (Nit>Nmax);
+ dispose(SysEq);
+ if Nit>Nmax then
+     ErStr:='The number of iterations is too much'
+             else
+     begin
+       for I := 0 to High(X1) do X0[i]:=X1[i];
+       Result:=0;
+       ErStr:='';
+     end;
+end;
+
+---------------------------------------------------------------------------------------
+
+Function SpeedSlalom(AP:Pvector; funF:TFun1D; ParF:array of double;
+                eps:real; Nmax:integer;
+                var X0:array of double;var ErStr:string):word;
+{Розв'язок системи рівнянь методом найшвидшлго спуску,
+F :TFun1D=Function(A:Pvector; Variab:array of double;
+                  Param:array of double;
+                  var Rez:array of double):word;
+- функція, яка повертає в масиві Rez значень величини
+Rez[0]- значення функціоналу, який визначається
+ сумою квадратів рівнянь, які входять до системи;
+Rez[1]... - значення похідних від функціоналу по різним
+змінним
+
+ParF - масив параметрів, які використовуються
+     у функції F;
+A - масив даних, які використовуються при
+    побудові функції F;
+eps - відносна точність, на яку не повинні
+    відрізнятися розв'язки на двох сусудніх
+    кроках, щоб можна було припинити ітераційний
+    процес;
+Nmax - максимальне число ітерацій;
+Х0 - вектор початкових наближень, в нього ж
+    розміщується результат;
+ErStr - рядок, де розміщено опис помилки;
+При вдалому закінченні
+функція повертає 0;
+ErStr='';
+в Х0 - розв'язки;
+При невдалому закінченні
+функція повертає 1;
+ErStr не нульовий;
+в Х0 - ErResult;
+}
+  function Alph (x:double):double;
+  {допоміжна функція, необхідна для використання
+  у методі оптимізації за методов золотого перерізу
+  при пошуку ширини кроку - див опис методу
+  найшвидшого спуску}
+   var X11, X12:array of double;
+       i:integer;
+   begin
+     Result:=ErResult;
+     SetLength(X11,High(X0)+2);
+     SetLength(X12,High(X0)+1);
+     if (funF(AP,X0,ParF,X11)<>0) then Exit;
+     for I := 0 to High(X12) do
+       X12[i]:=X0[i]-x*X11[i+1];
+     if (funF(AP,X12,ParF,X11)<>0) then Exit;
+     Result:=X11[0];
+   end;
+
+const al=0.618;
+      bet=0.382;
+
+var Xk,Xk1:array of double;
+    i,Nit:integer;
+    alp, ep, x1, x2, y1, y2,a,b:double;
+    bool:boolean;
+begin
+showmessage('X0[1]='+floattostr(X0[1]));
+  i:=High(X0)+2;
+  SetLength(Xk,i-1);
+  SetLength(Xk1,i);
+  for I := 0 to High(Xk) do Xk[i]:=X0[i];
+  Nit:=0;
+  Result:=1;
+//  for I := 0 to High(X0) do X0[i]:=ErResult;
+repeat
+{----мінімізація для знахожження кроку-----------}
+{}
+a:=0;b:=10;
+ep:=1e-10*abs(b-a);
+x1:=al*a+bet*b;
+x2:=al*b+bet*a;
+y1:=Alph(x1);
+y2:=Alph(x2);
+if (y1=ErResult)or(y2=ErResult) then
+ begin
+  ErStr:='Error of step defination';
+  for I := 0 to High(X0) do X0[i]:=ErResult;
+  Exit;
+ end;
+
+repeat
+if y1<y2 then
+ begin
+   b:=x2;
+   x2:=x1;
+   y2:=y1;
+   x1:=al*a+bet*b;
+   y1:=Alph(x1);
+ end
+         else
+  begin
+   a:=x1;
+   x1:=x2;
+   y1:=y2;
+   x2:=al*b+bet*a;
+   y2:=Alph(x2);
+  end;
+if (y1=ErResult)or(y2=ErResult) then
+ begin
+  ErStr:='Error of step defination';
+  for I := 0 to High(X0) do X0[i]:=ErResult;
+  Exit;
+ end;
+
+until abs(b-a)<ep;
+alp:=(a+b)/2;
+{}
+{alp:=7e-4;}
+showmessage('alp='+floattostr(alp));
+{------------------------------------------------}
+
+
+//showmessage('X0[1]='+floattostr(X0[1]));
+
+ if (funF(AP,X0,ParF,Xk1)<>0)  then
+    begin
+     ErStr:='Error in function';
+     for I := 0 to High(X0) do X0[i]:=ErResult;
+     Exit;
+    end;
+ Inc(Nit);
+ bool:=true;
+showmessage('Xk[1]='+floattostr(Xk[1]));
+showmessage('Xk1[2]='+floattostr(Xk1[2]));
+
+ for I := 0 to High(X0) do X0[i]:=X0[i]-alp*Xk1[i+1];
+
+
+ for I := 0 to High(X0) do
+       bool:=bool and (abs((X0[i]-Xk[i])/Xk[i])<eps);
+
+ for I := 0 to High(Xk) do Xk[i]:=X0[i];
+
+until (bool or (Nit>Nmax));
+
+ if Nit>Nmax then
+     begin
+     ErStr:='The number of iterations is too much';
+     for I := 0 to High(X0) do X0[i]:=ErResult;
+     end
+             else
+     begin
+       Result:=0;
+       ErStr:='';
+     end;
+
+end;
+
+-------------------------------------------------------------------
+
+Function SpSlExpRsh(AP:Pvector; Variab:array of double;
+                     Param:array of double;
+                     var Rez:array of double):word;
+{функція, потрібна для проведення апроксимації
+залежності в А функцією I=I0[exp(V/E)-1]+V/Rsh;
+надалі ця функція використовується у розв'язку
+системи рівнянь методом найшвидшого спуску;
+Variab[0]=I0;
+Variab[1]=E;
+Variab[2]=Rsh;
+Rez[0] - функціонал, який є сумою квадратів
+умов мінімізації квадратичної форми;
+Rez[1(2,3)] - значення похідної функціоналу
+по змінній І0 (Е,Rsh) при значеннях, записаних
+в  Variab
+}
+var i:integer;
+    A,B,C,XXY,XY{,ly,K,M,K1,MMly,Mly}: double;
+    f1,f2,f3,g11,g12,g13,g21,g22,g23,g31,g32,g33:extended;
+begin
+
+try
+
+f1:=0;f2:=0;f3:=0;
+g11:=0;g12:=0;g13:=0;
+g21:=0;g22:=0;g23:=0;
+{g31:=0;g32:=0;}g33:=0;
+
+for I := 0 to High(AP^.X) do
+   begin
+   A:=exp(AP^.X[i]/Variab[1]);
+   B:=A-1;
+   C:=Variab[0]*B+AP^.X[i]/Variab[2]-AP^.Y[i];
+   XY:=AP^.X[i]/AP^.Y[i];
+   XXY:=AP^.X[i]*XY;
+
+   f1:=f1+C*B/AP^.Y[i];
+   f2:=f2+XY*C*A;
+   f3:=f3+XY*C;
+   g11:=g11+sqr(B)/AP^.Y[i];
+   g12:=g12+XY*A*(2*Variab[0]*B+AP^.x[i]/Variab[2]-AP^.Y[i]);
+   g13:=g13+XY*B;
+   g21:=g21+XY*B*A;
+   g22:=g22+XXY*A*(Variab[0]*(1-2*A)-AP^.x[i]/Variab[2]+AP^.Y[i]);
+   g23:=g23+XXY*A;
+   g33:=g33+XXY;
+
+{   ly:=ln(AP^.Y[i]);
+   A:=exp(AP^.X[i]/Variab[1]);
+   B:=A-1;
+   M:=Variab[0]*B+AP^.X[i]/Variab[2];
+   K:=ln(M)-ly;
+   Mly:=M*ly;
+   MMly:=sqr(M)*ly;
+   K1:=1-K;
+
+
+   f1:=f1+B*K/Mly;
+   showmessage('f1='+floattostrf(B/M,ffExponent,3,2));
+   f2:=f2+A*K/Mly*AP^.X[i];
+   f3:=f3+K*AP^.X[i]/Mly;
+   g11:=g11+sqr(B)*K1/MMly;
+   g12:=g12+A*AP^.X[i]*(B*Variab[0]-AP^.X[i]/Variab[2]*K)/MMly;
+   g13:=g13+B*AP^.X[i]*K1/MMly;
+   g21:=g21+B*A*K1/MMly;
+   g22:=g22+A*sqr(AP^.X[i])*(A*Variab[0]+(AP^.X[i]/Variab[2]-Variab[0])*K)/MMly;
+   g23:=g23+A*sqr(AP^.X[i])*K1/MMly;
+   g33:=g33+sqr(AP^.X[i])*K1/MMly;}
+
+   end;
+
+g12:=-g12/sqr(Variab[1]);
+g31:=g13;
+g13:=-g13/sqr(Variab[2]);
+g22:=g22/sqr(Variab[1]);
+g32:=-g23*Variab[0]/sqr(Variab[1]);
+g23:=-g23/sqr(Variab[2]);
+g33:=-g33/sqr(Variab[2]);
+
+Rez[0]:=sqr(f1)+sqr(f2)+sqr(f3);
+Rez[1]:=2*(f1*g11+f2*g21+f3*g31);
+Rez[2]:=2*(f1*g12+f2*g22+f3*g32);
+Rez[3]:=2*(f1*g13+f2*g23+f3*g33);
+Result:=0;
+except
+for I := 0 to High(Rez) do Rez[i]:=ErResult;
+Result:=1;
+end;
+{showmessage('Rez[0]='+floattostr(Rez[0])+#10+
+            'Rez[1]='+floattostr(Rez[1])+#10+
+            'Rez[2]='+floattostr(Rez[2])+#10+
+            'Rez[3]='+floattostr(Rez[3])); }
+//showmessage('f1='+floattostr(A));
+//showmessage('f2='+floattostr(f2));
+//showmessage('f3='+floattostr(f3));
+//showmessage('Rez[1]='+floattostr(Rez[1]));
+end;
+
+----------------------------------------------------------------------------------------------
+
+Function F_Exp(AP:Pvector; Variab:array of double;
+                     Param:array of double;
+                     var Rez:array of double):word;
+{функція, потрібна для проведення апроксимації даних в А
+функцією I=I0[exp(V/E0)-1] за допомогою методу Ньютона
+(правильніше - апроксимація за методом найменших квадратів, але
+розв'язок системи рівнянь за методом Ньютона;
+повертає в Rez значення функцій, які є умовою мінімізації
+квадратичної форми;
+Param - в даному випадку не використовується,
+при виклиці просто пустий масив}
+var i:integer;
+    A,B,C,XY: double;
+begin
+try
+for I := 0 to High(Rez) do Rez[i]:=0;
+for I := 0 to High(AP^.X) do
+   begin
+   A:=exp(AP^.X[i]/Variab[1]);
+   B:=A-1;
+   C:=Variab[0]*B-AP^.Y[i];
+   XY:=AP^.X[i]/AP^.Y[i];
+
+   Rez[0]:=Rez[0]+C*B/AP^.Y[i];
+   Rez[1]:=Rez[1]+XY*C*A;
+   end;
+
+Result:=0;
+except
+for I := 0 to High(Rez) do Rez[i]:=ErResult;
+Result:=1;
+end; //try
+end;
+
+--------------------------------------------------------------------------------------
+Function G_Exp(AP:Pvector; Variab:array of double;
+                  Param:array of double;
+                  var Rez:T2DArray):word;
+{функція, потрібна для проведення апроксимації даних в А
+функцією I=I0[exp(V/E0)-1] за допомогою методу Ньютона
+(правильніше - апроксимація за методом найменших квадратів, але
+розв'язок системи рівнянь за методом Ньютона;
+повертає в Rez значення якобіану функцій, які є умовою мінімізації
+квадратичної форми;
+Param - в даному випадку не використовується,
+при виклиці просто пустий масив}
+var i,j:integer;
+    A,B,XXY,XY: double;
+begin
+
+try
+for I := 0 to High(Rez) do
+  for j := 0 to High(Rez) do
+     Rez[i,j]:=0;
+
+for I := 0 to High(AP^.X) do
+   begin
+   A:=exp(AP^.X[i]/Variab[1]);
+   B:=A-1;
+   XY:=AP^.X[i]/AP^.Y[i];
+   XXY:=AP^.X[i]*XY;
+
+   Rez[0,0]:=Rez[0,0]+sqr(B)/AP^.Y[i];
+   Rez[0,1]:=Rez[0,1]+XY*A*(2*Variab[0]*B-AP^.Y[i]);
+   Rez[1,0]:=Rez[1,0]+XY*B*A;
+   Rez[1,1]:=Rez[1,1]+XXY*A*(Variab[0]*(1-2*A)+AP^.Y[i]);
+
+   end;
+
+Rez[0,1]:=-Rez[0,1]/sqr(Variab[1]);
+Rez[1,1]:=Rez[1,1]/sqr(Variab[1]);
+
+Result:=0;
+except
+for I := 0 to High(Rez) do
+  for j := 0 to High(Rez)do
+     Rez[i,j]:=ErResult;
+Result:=1;
+end;//try
+end;
+
+------------------------------------------------------------------------------------
+
+Function F_ExpRsh(AP:Pvector; Variab:array of double;
+                     Param:array of double;
+                     var Rez:array of double):word;
+var i:integer;
+    A,B,C,XY: double;
+begin
+try
+for I := 0 to High(Rez) do Rez[i]:=0;
+for I := 0 to High(AP^.X) do
+   begin
+   A:=exp(AP^.X[i]/Variab[1]);
+   B:=A-1;
+   C:=Variab[0]*B+AP^.X[i]/Variab[2]-AP^.Y[i];
+   XY:=AP^.X[i]/AP^.Y[i];
+
+   Rez[0]:=Rez[0]+C*B/AP^.Y[i];
+   Rez[1]:=Rez[1]+XY*C*A;
+   Rez[2]:=Rez[2]+XY*C;
+
+
+   end;
+
+Result:=0;
+except
+for I := 0 to High(Rez) do Rez[i]:=ErResult;
+Result:=1;
+end; //try
+end;
+
+--------------------------------------------------------------------
+
+Function G_ExpRsh(AP:Pvector; Variab:array of double;
+                  Param:array of double;
+                  var Rez:T2DArray):word;
+var i,j:integer;
+    A,B,XXY,XY: double;
+begin
+
+try
+for I := 0 to High(Rez) do
+  for j := 0 to High(Rez) do
+     Rez[i,j]:=0;
+
+
+for I := 0 to High(AP^.X) do
+   begin
+   A:=exp(AP^.X[i]/Variab[1]);
+   B:=A-1;
+   XY:=AP^.X[i]/AP^.Y[i];
+   XXY:=AP^.X[i]*XY;
+
+   Rez[0,0]:=Rez[0,0]+sqr(B)/AP^.Y[i];
+   Rez[0,1]:=Rez[0,1]+XY*A*(2*Variab[0]*B+AP^.x[i]/Variab[2]-AP^.Y[i]);
+   Rez[0,2]:=Rez[0,2]+XY*B;
+   Rez[1,0]:=Rez[1,0]+XY*B*A;
+   Rez[1,1]:=Rez[1,1]+XXY*A*(Variab[0]*(1-2*A)-AP^.x[i]/Variab[2]+AP^.Y[i]);
+   Rez[1,2]:=Rez[1,2]+XXY*A;
+   Rez[2,2]:=Rez[2,2]+XXY;
+
+
+   end;
+
+Rez[0,1]:=-Rez[0,1]/sqr(Variab[1]);
+Rez[2,0]:=Rez[0,2];
+Rez[0,2]:=-Rez[0,2]/sqr(Variab[2]);
+Rez[1,1]:=Rez[1,1]/sqr(Variab[1]);
+Rez[2,1]:=-Rez[1,2]*Variab[0]/sqr(Variab[1]);
+Rez[1,2]:=-Rez[1,2]/sqr(Variab[2]);
+Rez[2,2]:=-Rez[2,2]/sqr(Variab[2]);
+
+Result:=0;
+except
+for I := 0 to High(Rez) do
+  for j := 0 to High(Rez)do
+     Rez[i,j]:=ErResult;
+Result:=1;
+end;//try
+end;
+
+----------------------------------------------------------
+
+Procedure LambertIV (A:Pvector; n,Rs,I0,Rsh:double; var B:PVector);
+{в В розміщується результат розрахунку
+ВАХ по даним напруги з А за допомогою
+функції Ламберта по значеннях параметрів n,Rs,I0,Rsh}
+var i:integer;
+begin
+B^.n:=0;
+if (n=0) or(Rs=0) or (I0=0) or (Rsh=0) then Exit;
+if (A^.n=0) or (A^.T=0) then Exit;
+SetLenVector(B,A^.n);
+for i:=0 to High(B^.X) do
+ begin
+   B^.X[i]:=A^.X[i];
+   B^.Y[i]:=LambertAprShot(B^.X[i], Kb*A^.T*n,Rs,I0,Rsh);
+ end;
+end;
+
+-------------------------------------------------------------
+
+
+
+
+
+
+Procedure ExpAprox (V:PVector; var I0,E:double);
+{апроксимуються дані у векторі V
+залежністю I=I0[exp(V/E)-1]
+за методом найменших квадратів зі
+статистичними ваговими коефіцієнтами}
+var Vari,Param1,Param2:array of double;
+    temp:PVector;
+    i:integer;
+    ErStr:string;
+begin
+ErStr:='';
+I0:=ErResult;
+E:=ErResult;
+if V^.n<7 then Exit;
+
+SetLength(Vari,2);
+{бо дві змінних - I0,E}
+
+
+{початкове наближення І0 та Е - результат
+лінійної апроксимації 5 останніх точок ВАХ
+в напівлогарифмічному масштабі}
+new(temp);
+temp^.n:=5;
+SetLength(temp^.X,temp^.n);
+SetLength(temp^.Y,temp^.n);
+for I := 0 to High(temp^.X) do
+  begin
+  temp^.X[i]:=V^.X[V^.n-1-i];
+  temp^.Y[i]:=ln(V^.Y[V^.n-1-i]);
+  end;
+LinAprox(temp,Vari[0],Vari[1]);
+Vari[0]:=exp(Vari[0]);
+Vari[1]:=1/Vari[1];
+dispose(temp);
+
+
+if
+  Newton(V, F_Exp, G_Exp,Param1,Param2, 1e-4, 1000, Vari,ErStr)<>0
+    then Exit;
+I0:=Vari[0];
+E:=Vari[1];
+end;
+-----------------------------------------------------------------------------
+
+
+Procedure ExpRshAprox (V:PVector; var I0,E,Rsh:double);
+{апроксимуються дані у векторі V
+залежністю I=I0[exp(V/E)-1]+V/Rsh
+за методом найменших квадратів зі
+статистичними ваговими коефіцієнтами;
+в самій процедурі реалізується метод
+розв'язку системи нелінійних рівнянь методом Ньютона,
+а не використовується функція Newton через те, що
+необхідно динамічно змінювати значення вектора
+початкових наближень}
+const eps=1e-4;
+      Nmax=1000;
+var Vari,Param1,X1,X2:array of double;
+    temp:PVector;
+    i,j,Nit:integer;
+    ErStr:string;
+    SysEq:PSysEquation;
+    bool:boolean;
+    Emin,tmp:double;
+begin
+ErStr:='';
+I0:=ErResult;
+E:=ErResult;
+Rsh:=ErResult;
+if V^.n<7 then Exit;
+
+Emin:=2*V^.X[V^.n-1]/ln(1e38*V^.y[V^.n-1]);
+{Emin - мінімально можливе значення
+величини Е; обмеження пов'язане з тим,
+що числа типу double можуть змінюватись
+в діапазоні до (приблизно)1.1е38, а при
+обчисленнях фігурують доданки ~exp(2x/E)/y}
+
+SetLength(Vari,3);
+{бо три змінних - I0,E,Rsh}
+
+
+{початкове наближення Rsh - опір, порахований
+по двом першим точкам ВАХ}
+Vari[2]:=10*abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
+{початкове наближення І0 та Е - результат
+лінійної апроксимації 5 останніх точок ВАХ
+в напівлогарифмічному масштабі}
+new(temp);
+temp^.n:=5;
+SetLength(temp^.X,temp^.n);
+SetLength(temp^.Y,temp^.n);
+for I := 0 to High(temp^.X) do
+  begin
+  temp^.X[i]:=V^.X[V^.n-1-i];
+  temp^.Y[i]:=ln(V^.Y[V^.n-1-i]);
+  end;
+LinAprox(temp,Vari[0],Vari[1]);
+Vari[0]:=0.1*exp(Vari[0]);
+Vari[1]:=1/Vari[1];
+dispose(temp);
+
+
+if vari[1]<Emin then vari[1]:=Emin*1.2;
+
+
+  i:=3;
+  SetLength(X1,i);
+  SetLength(X2,i);
+  new(SysEq);
+  SetLength(SysEq^.A,i,i);
+  SetLength(SysEq^.f,i);
+  SetLength(SysEq^.x,i);
+  SysEq^.N:=i;
+
+  for I := 0 to High(X1) do X1[i]:=Vari[i];
+  Nit:=0;
+
+repeat
+{
+showmessage(floattostrf(X1[0],ffExponent,3,2)+#10+
+            floattostrf(X1[1],ffExponent,3,2)+#10+
+            floattostrf(X1[2],ffExponent,3,2));
+            {}
+
+
+
+ if (F_ExpRsh(V,X1,Param1,SysEq^.f)<>0) or
+    (G_ExpRsh(V,X1,Param1,SysEq^.A)<>0) then
+    begin
+     ErStr:='Error in function';
+     dispose(SysEq);
+       showmessage('Vari[0]='+floattostr(X1[0])+#10+
+            'Vari[1]='+floattostr(X1[1])+#10+
+            'Vari[2]='+floattostrf(X1[2],ffExponent,3,2));
+     Exit;
+    end;
+ for I := 0 to High(SysEq^.f) do
+   begin
+     tmp:=0;
+     for j:=0 to High(SysEq^.f) do
+             tmp:=tmp+SysEq^.A[i,j]*X1[j];
+     SysEq^.f[i]:=tmp-SysEq^.f[i];
+   end;
+
+
+ GausGol(SysEq);
+ if SysEq^.N=ErResult then
+   begin
+     ErStr:='Error during Gauss method';
+     dispose(SysEq);
+     Exit;
+   end;
+ Inc(Nit);
+ bool:=true;
+  try
+ for I := 0 to High(SysEq^.f) do
+       bool:=bool and (abs((X1[i]-SysEq^.x[i])/X1[i])<eps);
+ except
+ {  Nit:=0;
+   if Vari[0]<0.1 then Vari[0]:=Vari[0]*1.1;
+   Vari[2]:=abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
+   for I := 0 to High(X1) do X1[i]:=Vari[i];}
+ {
+  showmessage('Vari[0]='+floattostr(X1[0])+#10+
+            'Vari[1]='+floattostr(X1[1])+#10+
+            'Vari[2]='+floattostrf(X1[2],ffExponent,3,2));{}
+ end;
+
+ for I := 0 to High(X1) do X1[i]:=SysEq^.x[i];
+
+  if ((X1[2]<10)or(X1[2]>1e10)) then
+  begin
+  Vari[2]:=Vari[2]*0.9;
+ for I := 0 to High(X1) do X1[i]:=Vari[i];
+  end;
+
+
+ if (X1[1]<Emin)or (vari[2]<10)or(X1[0]=0) then
+   begin
+   Nit:=0;
+   if Vari[0]<0.1 then Vari[0]:=Vari[0]*1.1 else Nit:=Nmax+1;
+   Vari[2]:=10*abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
+   for I := 0 to High(X1) do X1[i]:=Vari[i];
+   end;
+
+until bool or (Nit>Nmax);
+ dispose(SysEq);
+ if Nit>Nmax then
+     ErStr:='The number of iterations is too much'
+             else
+     begin
+       I0:=X1[0];
+       E:=X1[1];
+       Rsh:=X1[2];
+       ErStr:='';
+     end;
+
+end;
+
+------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------
+{OlegGraph}
+
+Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
+var
+    Str:TStringList;
+    Voc,Isc:double;
+    FileHandle:integer;
+begin
+if not(FileExists(fname)) then
+  begin
+    FileHandle:=FileCreate(fname);
+    FileClose(FileHandle);
+  end;
+Voc:=Voc_Isc_Pm_Vm_Im(1,IV_DiodDouble,[Param[0]*Kb*Vax^.T,Param[1],
+                      Param[2],Param[4]*Kb*Vax^.T,Param[5]],
+                      Param[3],Param[6]);
+Isc:=Voc_Isc_Pm_Vm_Im(2,IV_DiodDouble,[Param[0]*Kb*Vax^.T,Param[1],
+                      Param[2],Param[4]*Kb*Vax^.T,Param[5]],
+                      Param[3],Param[6]);
+
+
+
+Str:=TStringList.Create;
+Str.LoadFromFile(fname);
+Str.Add(Vax^.name+' T='+FloatToStrF(Vax^.T, ffGeneral, 5, 2)+
+        ' Voc='+ FloatToStrF(Voc,ffGeneral,4,3)+
+        ' Isc='+FloatToStrF(Isc,ffGeneral,4,3));
+Str.SaveToFile(fname);
+Str.Free;
+end;
+
+-------------------------------------------------------------------------------------------------
+
+Procedure ExKalk_nconst(Index: Integer; A: PVector; D: TDiapazon;
+          DD: TDiod_Schottky; Rs, n: Double; var I0: Double; var Fb: Double);overload;
+{на основі даних з вектора А шляхом
+лінійної апроксимації ВАХ в напівлогарифмічному
+масштабі (з врахуванням
+обмежень, вказаних в D),
+та значення коефіцієнту неідеальності n
+визначає величину
+струму насичення І0
+висоту бар'єру Fb;
+Фактично, це апроксимація за формулою I=I0exp(V/nkT)
+Index вказує що саме апроксимується:
+1 - величина вихідного струму І
+2 - величина I/[1-exp(-qV/kT)] для прямої гілки
+3 - величина I/[1-exp(-qV/kT)] для зворотньої гілки
+для побудови ВАХ потрібний
+Rs - послідовний опір,
+для визначення Fb
+AA - стала Річардсона,
+Szr - площа контакту}
+var temp1,temp2:Pvector;
+    i:integer;
+    n_temp:double;
+begin
+//n:=ErResult;
+Fb:=ErResult;
+I0:=ErResult;
+if (Rs=ErResult)or(DD.Area=ErResult)or(DD.Semiconductor.ARich=ErResult)or(A^.T<=0) then Exit;
+
+new(temp2);
+case Index of
+   1:ForwardIVwithRs(A,temp2,Rs);
+   2:Forward2Exp(A,temp2,Rs);
+   3:Reverse2Exp(A,temp2,Rs);
+ end;//case
+if temp2^.n=0 then
+               begin
+                dispose(temp2);
+                Exit;
+               end;
+new(temp1);
+A_B_Diapazon(A,temp2,temp1,D);
+dispose(temp2);
+if temp1^.n<2 then
+    begin
+      dispose(temp1);
+      Exit;
+    end;
+for I := 0 to High(temp1^.X) do temp1^.Y[i]:=ln(temp1^.Y[i]);
+
+ {в temp1 лінійна частина BAX в напівлогарифмічному
+ масштабі з врахуванням Rs (якщо вдало вибрано діапазон)}
+n_temp:=1/(Kb*A^.T*n);
+LinAproxBconst(temp1,I0,n_temp);
+I0:=exp(I0);
+//n:=1/(Kb*A^.T*n);
+//if Index=3 then n:=-n;
+Fb:=DD.Fb(A^.T,I0);
+dispose(temp1);
+end;
+
+

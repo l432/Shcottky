@@ -88,6 +88,12 @@ type
      Function YvalueLagrang(Xvalue:double):double;
      {функція розрахунку значення функції в точці Xvalue
       використовуючи поліном Лагранжа}
+     Function YvalueLinear(Xvalue:double):double;
+     {повертає ординату точки, яка має абсцису XValue
+      для лінійної залежності, побудованої по Vector}
+     Function XvalueLinear(YValue:double):double;
+      {повертає  абсцису точки, яка має  ординату YValue
+      для лінійної залежності, побудованої по даним Vector}
      Function GromovAprox (var  OutputData:TArrSingle):boolean;
       {апроксимуються дані залежністю
       y=OutputData[0]+OutputData[1]*x+OutputData[2]*ln(x);
@@ -95,7 +101,17 @@ type
      Function LinAprox (var  OutputData:TArrSingle):boolean;
      {апроксимуються дані у векторі V лінійною
       залежністю y=OutputData[0]+OutputData[1]*x}
-
+     function LinAproxBconst (b:double):double;
+      {визначається коефіцієнт а лінійної
+      апроксимації даних залежністю y=a+b*x;
+      параметр b вважається відомим}
+     function LinAproxAconst (a:double):double;
+      {визначається коефіцієнт b лінійної
+      апроксимації даних залежністю y=a+b*x;
+      параметр a вважається відомим}
+     Function ParabAprox (var  OutputData:TArrSingle):boolean;
+      {апроксимуються дані  параболічною
+      залежністю y=OutputData[0]+OutputData[1]*x+OutputData[2]*x^2}
      Function IvanovAprox (var  OutputData:TArrSingle;
                            DD: TDiod_Schottky; OutsideTemperature: Double = 555):boolean;
       {апроксимація даних у векторі V параметричною залежністю
@@ -172,6 +188,10 @@ type
       задовольняють умовам D;
       Vector.N_begin має бути 0;
       Target.N_begin не розраховується}
+     function Isc():double;
+      {обчислюється струм короткого замикання}
+     function Voc():double;
+      {обчислюється напруга холостого ходу}
    end;
 
 
@@ -621,6 +641,20 @@ begin
   Target.N_begin:=fVector.N_begin;
 end;
 
+function TVectorTransform.Isc: double;
+ var temp, temp2:double;
+begin
+ Result:=0;
+ if Vector.Count<2 then Exit;
+ temp:=Vector.Yvalue(0);
+ temp2:=Vector.Yvalue(0.01);
+ if (abs(temp2/temp)>2) then Exit
+             else Result:=-temp;
+ if temp=ErResult then
+      Result:=(-Vector.Y[1]*Vector.X[0]+Vector.Y[0]*Vector.X[1])
+              /(Vector.X[0]-Vector.X[1]);
+end;
+
 procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
  var Target:TVectorNew;
 begin
@@ -710,6 +744,31 @@ begin
   Result:=True;
 end;
 
+function TVectorTransform.LinAproxAconst(a: double): double;
+var Sx,Sxy,Sx2:double;
+    i:integer;
+begin
+ Sx:=0;Sxy:=0;Sx2:=0;
+ for i:=0 to Vector.HighNumber do
+   begin
+   Sx:=Sx+Vector.x[i];
+   Sxy:=Sxy+Vector.x[i]*Vector.y[i];
+   Sx2:=Sx2+Vector.x[i]*Vector.x[i];
+   end;
+ try
+ Result:=(Sxy-a*Sx)/Sx2;
+ except
+  Result:=ErResult;
+ end;
+end;
+
+function TVectorTransform.LinAproxBconst(b: double): double;
+begin
+ if Vector.IsEmpty then Result:=ErResult
+                   else
+      Result:=(Vector.SumY-b*Vector.SumX)/Vector.Count;
+end;
+
 procedure TVectorTransform.NegativeX(var Target: TVectorNew);
 begin
   Branch(cX,Target,false);
@@ -718,6 +777,35 @@ end;
 procedure TVectorTransform.NegativeY(var Target: TVectorNew);
 begin
  Branch(cY,Target,false);
+end;
+
+function TVectorTransform.ParabAprox(var OutputData: TArrSingle): boolean;
+var Sx,Sy,Sxy,Sx2,Sx3,Sx4,Syx2,pr:double;
+    i:integer;
+begin
+  Result:=False;
+  InitArrSingle(OutputData,3);
+ Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;Sx3:=0;Sx4:=0;Syx2:=0;
+ with Vector do begin
+  for i:=0 to HighNumber do
+   begin
+   Sx:=Sx+x[i];
+   Sy:=Sy+y[i];
+   Sxy:=Sxy+x[i]*y[i];
+   Sx2:=Sx2+sqr(x[i]);
+   Sx3:=Sx3+sqr(x[i])*x[i];
+   Sx4:=Sx4+sqr(sqr(x[i]));
+   Syx2:=Syx2+sqr(x[i])*y[i];
+   end;
+
+  pr:=Sx4*(Count*Sx2-Sx*Sx)-Sx3*(Count*Sx3-Sx*Sx2)+Sx2*(Sx3*Sx-Sx2*Sx2);
+  try
+  OutputData[2]:=(Syx2*(Count*Sx2-Sx*Sx)-Sx3*(Count*Sxy-Sx*Sy)+Sx2*(Sxy*Sx-Sx2*Sy))/pr;
+  OutputData[1]:=(Sx4*(Count*Sxy-Sx*Sy)-Syx2*(Count*Sx3-Sx*Sx2)+Sx2*(Sx3*Sy-Sx2*Sxy))/pr;
+  OutputData[0]:=(Sx4*(Sy*Sx2-Sx*Sxy)-Sx3*(Sy*Sx3-Sxy*Sx2)+Syx2*(Sx3*Sx-Sx2*Sx2))/pr;
+  except
+  end;
+ end;
 end;
 
 procedure TVectorTransform.PositiveX(var Target: TVectorNew);
@@ -794,6 +882,28 @@ begin
 
 end;
 
+function TVectorTransform.Voc: double;
+ var temp:double;
+begin
+ Result:=0;
+ temp:=Vector.Xvalue(0);
+ if (temp=ErResult)or
+    (temp<=0) then Exit
+              else Result:=temp;
+end;
+
+function TVectorTransform.XvalueLinear(YValue: double): double;
+ var OutputData: TArrSingle;
+begin
+  Result:=ErResult;
+  if YValue=ErResult then Exit;
+  if LinAprox(OutputData) then
+    try
+     Result:=(YValue-OutputData[0])/OutputData[1];
+    except
+    end;
+end;
+
 function TVectorTransform.YvalueLagrang(Xvalue: double): double;
  var i,j:word;
      t1,t2:double;
@@ -811,6 +921,15 @@ begin
      end;
   Result:=t1;
 
+end;
+
+function TVectorTransform.YvalueLinear(Xvalue: double): double;
+ var OutputData: TArrSingle;
+begin
+  Result:=ErResult;
+  if XValue=ErResult then Exit;
+  if LinAprox(OutputData)
+    then Result:=Linear(Xvalue,OutputData);
 end;
 
 function TVectorTransform.YvalueSplain3(Xvalue: double): double;

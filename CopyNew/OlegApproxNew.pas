@@ -6,7 +6,7 @@ uses OlegTypeNew,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
       OlegMathNew,ApprWindows,StdCtrls,FrParam,Series,Classes,
       OlegGraphNew,OlegMaterialSamplesNew,OlegFunctionNew,OlegDefectsSiNew, 
-  OlegVector;
+  OlegVector, OlegVectorNew;
 
 const
   FunctionDiod='Diod';
@@ -89,13 +89,20 @@ private
  Constructor Create(FunctionName,FunctionCaption:string);
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word); virtual;abstract;
+              Xlog,Ylog:boolean; Np:Word); overload;virtual;abstract;
+ Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word); overload;virtual;abstract;
  {див. FittingGraph}
  Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);virtual;//abstract;
+              Xlog,Ylog:boolean; suf:string);overload;virtual;//abstract;
+ Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);overload;virtual;//abstract;
  {див. FittingGraphFile}
  Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;virtual;
+              Xlog,Ylog:boolean):string;overload;virtual;
+ Function StringToFile(InputData:TVectorNew;Number:integer; OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;overload;virtual;
  {створюється рядок, який вноситься у файл з результатами
  інтерполяції; використовується в RealToFile}
  Procedure PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
@@ -117,7 +124,9 @@ public
  Xlog = True - абсциси у у логарифмічному масштабі,
  Ylog = True - ординати у логарифмічному масштабі}
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-             Xlog:boolean=False;Ylog:boolean=False);virtual;abstract;
+             Xlog:boolean=False;Ylog:boolean=False);overload;virtual;abstract;
+ Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
+             Xlog:boolean=False;Ylog:boolean=False);overload;virtual;abstract;
  {фактично, обгортка для процедури RealFitting,
  де дійсно відбувається апроксимація;
  ця процедура лише виловлює помилки,
@@ -132,7 +141,11 @@ public
  Procedure FittingGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog:boolean=False;Ylog:boolean=False;
-              Np:Word=150);virtual;
+              Np:Word=150);overload;virtual;
+ Procedure FittingGraph (InputData:TVectorNew; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog:boolean=False;Ylog:boolean=False;
+              Np:Word=150);overload;virtual;
  {апроксимація і дані вносяться в Series -
  щоб можна було побудувати графік
  Np - кількість точок на графіку,
@@ -151,13 +164,11 @@ public
  фактично це обгортка для RealToFile, яка
  у нащадках може мінятися}
  Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
-                            D:TDiapazon);virtual;abstract;
+                            D:TDiapazon);overload;virtual;abstract;
+ Procedure FittingDiapazon (InputData:TVectorNew; var OutputData:TArrSingle;
+                            D:TDiapazon);overload;virtual;abstract;
 {апроксимуються дані у векторі V відповідно до обмежень
  в D, отримані параметри розміщуються в OutputData}
-// Function Deviation (InputData:PVector):double;virtual;abstract;
-// {повертає середнеє квадратичне відносне
-// відхилення апроксимації даних у InputData
-// від самих даних}
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);virtual;abstract;
  {в OutStrings додаються рядки, які містять
@@ -168,26 +179,35 @@ public
 //--------------------------------------------------------------------
 TFitWithoutParameteres=class (TFitFunction)
 private
-//  FtempVector:PVector;  //результати операції саме тут розміщуються
   FErrorMessage:string; //виводиться при помилці
-//  procedure RealTransform(InputData:PVector);
-//  {cаме тут в FtempVector вноситься перетворений потрібним чином InputData}
   Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word); override;
+  Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
   Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
+  Function StringToFile(InputData:TVectorNew;Number:integer; OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
+protected
+ fVector:TVectorNew;
 public
  FtempVector:PVector;  //результати операції саме тут розміщуються
  Constructor Create(FunctionName:string);
  Procedure Free;
- procedure RealTransform(InputData:PVector);
+ procedure RealTransform(InputData:PVector);overload;
+ procedure RealTransform(InputData:TVectorNew);overload;
   {cаме тут в FtempVector вноситься перетворений потрібним чином InputData}
  Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
                      Xlog:boolean=False;Ylog:boolean=False):double;override;
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
+ Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure FittingDiapazon (InputData:PVector;
+                   var OutputData:TArrSingle;D:TDiapazon);override;
+ Procedure FittingDiapazon (InputData:TVectorNew;
                    var OutputData:TArrSingle;D:TDiapazon);override;
 // Function Deviation (InputData:PVector):double;override;
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
@@ -216,13 +236,20 @@ private
   {а ось це - апроксимуюча функція,
   за умовчанням співпадає з Func}
  Procedure RealFitting (InputData:PVector;
-         var OutputData:TArrSingle); virtual;abstract;
+         var OutputData:TArrSingle); overload;virtual;abstract;
+ Procedure RealFitting (InputData:TVectorNew;
+         var OutputData:TArrSingle); overload;virtual;abstract;
  {апроксимуються дані у векторі InputData, отримані параметри
  розміщуються в OutputData;}
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
+ Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word); override;
  Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
+ Function StringToFile(InputData:TVectorNew;Number:integer;OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
 
 public
@@ -239,7 +266,11 @@ public
 }
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
+ Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
+                            D:TDiapazon);override;
+ Procedure FittingDiapazon (InputData:TVectorNew; var OutputData:TArrSingle;
                             D:TDiapazon);override;
  Function Deviation (InputData:PVector):double;overload;
  {повертає середнеє квадратичне відносне
@@ -254,6 +285,7 @@ end;   // TFitFunc=class
 TLinear=class (TFitFunctionSimple)
 private
   Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
+  Procedure RealFitting (InputData:TVectorNew; var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
   Constructor Create;
@@ -262,6 +294,7 @@ end; // TLinear=class (TFitFunction)
 TOhmLaw=class (TFitFunctionSimple)
 private
   Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
+  Procedure RealFitting (InputData:TVectorNew; var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
   Constructor Create;
@@ -270,6 +303,7 @@ end; // TOhmLaw=class (TFitFunctionSimple)
 TQuadratic=class (TFitFunctionSimple)
 private
   Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
+  Procedure RealFitting (InputData:TVectorNew; var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
   Constructor Create;
@@ -278,6 +312,7 @@ end; // TQuadratic=class (TFitFunction)
 TGromov=class (TFitFunctionSimple)
 private
   Procedure RealFitting (InputData:PVector;var OutputData:TArrSingle);override;
+  Procedure RealFitting (InputData:TVectorNew;var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
   Constructor Create;
@@ -321,7 +356,8 @@ private
  {записує дані в ini-файл, обгортка для RealWriteToIniFile}
  Procedure RealWriteToIniFile;virtual;
  {безпосередньо записує дані в ini-файл, в цьому класі - FVarValue, FVarBool}
- Procedure BeforeFitness(InputData:Pvector);virtual;
+ Procedure BeforeFitness(InputData:Pvector);overload;virtual;
+ Procedure BeforeFitness(InputData:TVectorNew);overload;virtual;
  {виконується перед початком апроксимації,
  полягає у заповненні полів потрібними
  значеннями}
@@ -364,6 +400,8 @@ private
 public
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
+ Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
  procedure SetValueGR;override;
  {показ форми для керування параметрами апроксимації}
 end;   // TFitVariabSet=class(TFitFunctionSimple)
@@ -373,14 +411,24 @@ TNoiseSmoothing=class(TFitVariabSet)
  Function Func(Parameters:TArrSingle):double; override;
  Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
+ Procedure RealFitting (InputData:TVectorNew;
+         var OutputData:TArrSingle); override;
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
-  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+ Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
+ Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word);override;
+ Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word);override;
  Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;
-
+ Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);override;
+protected
+ fVector:TVectorNew;
 public
 Constructor Create;
 Procedure Free;
@@ -400,6 +448,7 @@ private
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
  procedure SetT(const Value: double);
  Function GetT():double;
 public
@@ -419,7 +468,9 @@ private
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
- Function DetermineVoltage(InputData:Pvector):double;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
+ Function DetermineVoltage(InputData:Pvector):double;overload;
+ Function DetermineVoltage(InputData:TVectorNew):double;overload;
 public
 end; //TFitVoltageIsUsed=class(TFitTemperatureIsUsed)
 
@@ -439,6 +490,8 @@ private
  Function Sum1(Parameters:TArrSingle):double; virtual;
  Function Sum2(Parameters:TArrSingle):double; virtual;
  Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
+ Function StringToFile(InputData:TVectorNew;Number:integer;OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
 public
 end; //TFitSumFunction=class(TFitVoltageIsUsed)
@@ -465,6 +518,8 @@ private
  Function Func(Parameters:TArrSingle):double; override;
  Procedure RealFitting (InputData:PVector;
                var OutputData:TArrSingle); override;
+ Procedure RealFitting (InputData:TVectorNew;
+               var OutputData:TArrSingle); override;
 public
  Constructor Create;
 end; // TDiod=class (TFitSampleIsUsed)
@@ -474,8 +529,13 @@ private
   Function Func(Parameters:TArrSingle):double; override;
   Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
+  Procedure RealFitting (InputData:TVectorNew;
+         var OutputData:TArrSingle); override;
   Procedure FIsNotReadyDetermination;override;
   Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word);override;
+  Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word);override;
 public
@@ -536,9 +596,11 @@ private
  {дані про тип параметрів}
  Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
- Procedure IterWindowPrepare(InputData:PVector);virtual;
+ Procedure IterWindowPrepare(InputData:PVector);overload;virtual;
+ Procedure IterWindowPrepare(InputData:TVectorNew);overload;virtual;
 {підготовка вікна до показу даних}
  Procedure IterWindowDataShow(CurrentIterNumber:integer; InterimResult:TArrSingle);
  {показ номера біжучої ітерації
@@ -551,11 +613,15 @@ private
 використовується, як правило в TrueFitting}
  Procedure RealFitting (InputData:PVector;
          var OutputData:TArrSingle); override;
+ Procedure RealFitting (InputData:TVectorNew;
+         var OutputData:TArrSingle); override;
  {для цього класу та нащадків стає обгорткою,
  де забезпечується певна робота з формою fIterWindow,
  сама інтерполяція відбувається в TrueFitting}
  Procedure TrueFitting (InputData:PVector;
-         var OutputData:TArrSingle); virtual;abstract;
+         var OutputData:TArrSingle); overload;virtual;abstract;
+ Procedure TrueFitting (InputData:TVectorNew;               //!!!!!!!!!!!!!!!!!!!!
+         var OutputData:TArrSingle); overload;virtual;abstract;
 public
  property Nit:integer read FNit write SetNit;
 end;  // TFitIteration=class (TFitSampleIsUsed)
@@ -584,6 +650,8 @@ private
 {розраховуються додаткові параметри}
 public
  Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+                    Xlog:boolean=False;Ylog:boolean=False);override;
+ Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
 end;
 
@@ -614,8 +682,12 @@ private
  {дані про кількість ітерацій}
  Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
  Procedure IterWindowPrepare(InputData:PVector);override;
+ Procedure IterWindowPrepare(InputData:TVectorNew);override;
  Procedure RealFitting (InputData:PVector;
+         var OutputData:TArrSingle); override;
+ Procedure RealFitting (InputData:TVectorNew;
          var OutputData:TArrSingle); override;
  Procedure TrueFitting (InputData:PVector;var OutputData:TArrSingle); override;
 //------Cлужбові функції для МНК-----------------------
@@ -805,6 +877,7 @@ private
 public
  Constructor Create;
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
 end; // TTunRevers=class (TFitFunctEvolution)
 
 TTunReversRs=class (TFitFunctEvolution)
@@ -921,7 +994,12 @@ private
 //              Xlog,Ylog:boolean; suf:string);override;
  Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
+ Function StringToFile(InputData:TVectorNew;Number:integer;OutputData:TArrSingle;
+              Xlog,Ylog:boolean):string;override;
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word); override;
+ Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
  Procedure CreateFooter;override;
@@ -951,9 +1029,15 @@ private
 
  Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
  Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;
+ Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);override;
  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+              Series: TLineSeries;
+              Xlog,Ylog:boolean; Np:Word); override;
+ Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
  procedure AditionalRealToFile(OutputData:TArrSingle);virtual;
@@ -1018,6 +1102,7 @@ TDoubleDiodAbstract=class (TFitFunctEvolution)
    Function Func(Parameters:TArrSingle):double; override;
    Function RealFunc(DeterminedParameters:TArrSingle):double; override;
    Procedure BeforeFitness(InputData:Pvector);override;
+   Procedure BeforeFitness(InputData:TVectorNew);override;
  public
 end;  // TDoubleDiodAbstract=class (TFitFunctEvolution)
 
@@ -1090,6 +1175,7 @@ TNGausian=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
 public
  Constructor Create(NGaus:byte);
 end; // TNGausian=class (TFitFunctEvolution)
@@ -1124,6 +1210,7 @@ private
 public
  Constructor Create;
  Procedure BeforeFitness(InputData: Pvector);override;
+ Procedure BeforeFitness(InputData: TVectorNew);override;
 end; //TPower2=class (TFitFunctEvolution)
 
 TTEandSCLC_kT1=class (TFitFunctEvolution)
@@ -1203,6 +1290,8 @@ TCurrentSC=class (TFitFunctEvolution)
 private
  Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;//abstract;
+ Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
+              Xlog,Ylog:boolean; suf:string);override;//abstract;
 
 public
  Constructor Create;
@@ -1229,6 +1318,7 @@ private
  Constructor Create (FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
  Procedure FIsNotReadyDetermination;override;
  Function Weight(OutputData:TArrSingle):double;override;
  Function TECurrent(V,T,Seff,A:double):double;
@@ -1294,6 +1384,7 @@ private
  Function Sum1(Parameters:TArrSingle):double; override;
  Function Sum2(Parameters:TArrSingle):double; override;
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
 public
  Constructor Create;
 end; // TRevShSCLC2=class (TFitFunctEvolutionEm)
@@ -1377,6 +1468,7 @@ TPhonAsTunAndTE2_kT1=class (TPhonAsTunAndTE2)
 тобто стале значення напруги потрібно вводити}
 private
  Procedure BeforeFitness(InputData:Pvector);override;
+ Procedure BeforeFitness(InputData:TVectorNew);override;
  Function Sum1(Parameters:TArrSingle):double; override;
  Function Sum2(Parameters:TArrSingle):double; override;
  Procedure AddParDetermination(InputData:PVector;
@@ -1435,11 +1527,13 @@ Procedure FunCreate(str:string; var F:TFitFunction;
 {створює F того чи іншого типу залежно
 від значення str}
 
-Function FitName(V: PVector; st:string='fit'):string;
+Function FitName(V: PVector; st:string='fit'):string;overload;
+Function FitName(V: TVectorNew; st:string='fit'):string;overload;
 {повертає змінене значення V^.name,
 зміна полягає у дописуванні st перед першою крапкою}
 
-Function Parametr(V: PVector; FunName,ParName:string):double;
+Function Parametr(V: PVector; FunName,ParName:string):double;overload;
+Function Parametr(V: TVectorNew; FunName,ParName:string):double;overload;
 {повертає параметр з іменем ParName,
 який знаходиться в результаті апроксимації даних в V
 за допомогою функції FunName}
@@ -1462,7 +1556,7 @@ Var_Rand  задає масштаб зміни (лінійний чи логар
 implementation
 
 uses
-  StrUtils;
+  StrUtils, OlegVectorManipulation, OlegMathShottky;
 
 function TOIniFile.ReadRand(const Section, Ident: string): TVar_Rand;
 var j:integer;
@@ -1523,10 +1617,25 @@ begin
   showmessage('The options are absent');
 end;
 
+function TFitFunction.StringToFile(InputData: TVectorNew; Number: integer;
+  OutputData: TArrSingle; Xlog, Ylog: boolean): string;
+begin
+ Result:=InputData.PoinToString(Number);
+end;
+
 Procedure TFitFunction.FittingGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog:boolean=False;Ylog:boolean=False;
               Np:Word=150);
+begin
+  Fitting(InputData,OutputData,Xlog,Ylog);
+  if OutputData[0]=ErResult then Exit;
+  RealToGraph(InputData,OutputData,Series,Xlog,Ylog,Np);
+end;
+
+procedure TFitFunction.FittingGraph(InputData: TVectorNew;
+  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+  Np: Word);
 begin
   Fitting(InputData,OutputData,Xlog,Ylog);
   if OutputData[0]=ErResult then Exit;
@@ -1583,6 +1692,19 @@ begin
   end;
 end;
 
+procedure TFitFunction.RealToFile(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
+var Str1:TStringList;
+    i:integer;
+begin
+  Str1:=TStringList.Create;
+  if fFileHeading<>'' then Str1.Add(fFileHeading);
+  for I := 0 to InputData.HighNumber do
+    Str1.Add(StringToFile(InputData,i,OutputData,Xlog,Ylog));
+  Str1.SaveToFile(FitName(InputData,suf));
+  Str1.Free;
+end;
+
 //------------------------------------------------------
 Constructor TFitWithoutParameteres.Create(FunctionName:string);
 begin
@@ -1609,7 +1731,25 @@ begin
           'the points" quantity is very low';
       end;
  new(FtempVector);
+ fVector:=TVectorNew.Create;
  fFileHeading:='X In Out';
+end;
+
+procedure TFitWithoutParameteres.RealToGraph(InputData: TVectorNew;
+  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+  Np: Word);
+begin
+   fVector.WriteToGraph(Series);
+end;
+
+procedure TFitWithoutParameteres.RealTransform(InputData: TVectorNew);
+ var temp:TVectorTransform;
+begin
+ temp:=TVectorTransform.Create(InputData);
+ if Name='Smoothing' then temp.Smoothing(fVector);
+ if Name='Derivative' then temp.Derivate(fVector);
+ if Name='Median' then temp.Median(fVector);
+ temp.Free;
 end;
 
 Procedure TFitWithoutParameteres.RealTransform(InputData:PVector);
@@ -1617,6 +1757,13 @@ begin
  if Name='Smoothing' then Smoothing(InputData,FtempVector);
  if Name='Derivative' then Diferen(InputData,FtempVector);
  if Name='Median' then Median(InputData,FtempVector);
+end;
+
+function TFitWithoutParameteres.StringToFile(InputData: TVectorNew;
+  Number: integer; OutputData: TArrSingle; Xlog, Ylog: boolean): string;
+begin
+  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+          FloatToStrF(fVector.Y[Number],ffExponent,4,0);
 end;
 
 Procedure TFitWithoutParameteres.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
@@ -1641,6 +1788,7 @@ end;
 
 Procedure TFitWithoutParameteres.Free;
 begin
+ fVector.Free;
  dispose(FtempVector);
  inherited;
 end;
@@ -1666,6 +1814,28 @@ begin
      Exit;
     end;
   OutputData[0]:=1;
+end;
+
+procedure TFitWithoutParameteres.Fitting(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean);
+begin
+  SetLength(OutputData,1);
+  OutputData[0]:=ErResult;
+  try
+   RealTransform(InputData);
+  finally
+  end;
+  if fVector.IsEmpty then
+    begin
+     MessageDlg(FErrorMessage, mtError, [mbOK], 0);
+     Exit;
+    end;
+  OutputData[0]:=1;
+end;
+
+procedure TFitWithoutParameteres.FittingDiapazon(InputData: TVectorNew;
+  var OutputData: TArrSingle; D: TDiapazon);
+begin
 end;
 
 Procedure TFitWithoutParameteres.FittingDiapazon (InputData:PVector;
@@ -1703,6 +1873,29 @@ end;
 Function TFitFunctionSimple.RealFunc(Parameters:TArrSingle):double;
 begin
   Result:=Func(Parameters);
+end;
+
+procedure TFitFunctionSimple.RealToGraph(InputData: TVectorNew;
+  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+  Np: Word);
+var h,x,y:double;
+    i:integer;
+begin
+  Series.Clear;
+  h:=(InputData.X[InputData.HighNumber]-InputData.X[0])/Np;
+  for I := 0 to Np do
+    begin
+    x:=InputData.X[0]+i*h;
+    y:=FinalFunc(x,OutputData,Xlog,Ylog);
+    Series.AddXY(x, y);
+    end;
+end;
+
+function TFitFunctionSimple.StringToFile(InputData: TVectorNew; Number: integer;
+  OutputData: TArrSingle; Xlog, Ylog: boolean): string;
+begin
+  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+          FloatToStrF(FinalFunc(InputData.X[Number],OutputData,Xlog,Ylog),ffExponent,4,0);
 end;
 
 Procedure TFitFunctionSimple.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
@@ -1771,6 +1964,50 @@ begin
 end;
 
 
+procedure TFitFunctionSimple.Fitting(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean);
+var i:integer;
+    tempV:TVectorNew;
+begin
+ SetLength(OutputData,FNx);
+ OutputData[0]:=ErResult;
+ tempV:=TVectorNew.Create;
+ try
+  InputData.Copy(tempV);
+  for i := 0 to tempV.HighNumber do
+   begin
+     if XLog then tempV.X[i]:=Log10(InputData.X[i]);
+     if YLog then tempV.Y[i]:=Log10(InputData.Y[i]);
+   end;
+ except
+  tempV.Free;
+  MessageDlg('Data are uncorrect!!!', mtError,[mbOk],0);
+  Exit;
+ end; //try
+
+ try
+   RealFitting (tempV,OutputData);
+ except
+   OutputData[0]:=ErResult;
+ end;
+ tempV.Free;
+ if (OutputData[0]=ErResult) then
+   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
+end;
+
+procedure TFitFunctionSimple.FittingDiapazon(InputData: TVectorNew;
+  var OutputData: TArrSingle; D: TDiapazon);
+  var temp:TVectorNew;
+      temp2:TVectorTransform;
+begin
+  temp.Create;
+  temp2:=TVectorTransform.Create(InputData);
+  temp2.CopyDiapazonPoint(temp,D);
+  Fitting(temp,OutputData);
+  temp.Free;
+  temp2.Free;
+end;
+
 Procedure TFitFunctionSimple.FittingDiapazon (InputData:PVector;
                    var OutputData:TArrSingle;D:TDiapazon);
   var temp:Pvector;
@@ -1838,6 +2075,15 @@ begin
  Result:=Parameters[0]+Parameters[1]*fX;
 end;
 
+procedure TLinear.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+  var temp:TVectorTransform;
+begin
+ temp:=TVectorTransform.Create(InputData);
+ temp.LinAprox(OutputData);
+ temp.Free;
+end;
+
 Procedure TLinear.RealFitting (InputData:PVector; var OutputData:TArrSingle);
 begin
    LinAprox(InputData,OutputData[0],OutputData[1]);
@@ -1854,6 +2100,19 @@ end;
 Function TOhmLaw.Func(Parameters:TArrSingle):double;
 begin
  Result:=fX/Parameters[0];
+end;
+
+procedure TOhmLaw.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+ var temp:TVectorTransform;
+begin
+ temp:=TVectorTransform.Create(InputData);
+ try
+ OutputData[0]:=1/temp.LinAproxAconst(0);
+ except
+ OutputData[0]:=ErResult;
+ end;
+ temp.Free;
 end;
 
 Procedure TOhmLaw.RealFitting (InputData:PVector; var OutputData:TArrSingle);
@@ -1875,6 +2134,15 @@ begin
  Result:=Parameters[0]+Parameters[1]*fX+Parameters[2]*sqr(fX);
 end;
 
+procedure TQuadratic.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+  var temp:TVectorTransform;
+begin
+ temp:=TVectorTransform.Create(InputData);
+ temp.ParabAprox(OutputData);
+ temp.Free;
+end;
+
 Procedure TQuadratic.RealFitting (InputData:PVector; var OutputData:TArrSingle);
 begin
    ParabAprox(InputData,OutputData[0],OutputData[1],OutputData[2]);
@@ -1892,12 +2160,28 @@ begin
  Result:=Parameters[0]+Parameters[1]*fX+Parameters[2]*ln(fX);
 end;
 
+procedure TGromov.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+  var temp:TVectorTransform;
+begin
+ temp:=TVectorTransform.Create(InputData);
+ temp.GromovAprox(OutputData);
+ temp.Free;
+end;
+
 Procedure TGromov.RealFitting (InputData:PVector; var OutputData:TArrSingle);
 begin
   GromovAprox(InputData,OutputData[0],OutputData[1],OutputData[2]);
 end;
 
 //--------------------------------------------------------------------
+procedure TFitVariabSet.BeforeFitness(InputData: TVectorNew);
+ var i:integer;
+begin
+ for I := 0 to High(FVarbool) do
+  if FVarbool[i] then FVariab[i]:=FVarValue[i];
+end;
+
 Constructor TFitVariabSet.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
  var i:integer;
@@ -1929,6 +2213,23 @@ begin
    if ((FVarbool[i])and(FVarValue[i]=ErResult)) then FIsNotReady:=True;
    end;
 // showmessage('True='+booltostr(True)+',FIsNotReady='+booltostr(FIsNotReady));
+end;
+
+procedure TFitVariabSet.Fitting(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean);
+begin
+  FIsNotReadyDetermination;
+  if FIsNotReady then SetValueGR;
+  if FIsNotReady then
+     begin
+     MessageDlg('Approximation is imposible.'+#10+#13+
+                  'Parameters of function are undefined', mtError,[mbOk],0);
+     SetLength(OutputData,FNx);
+     OutputData[0]:=ErResult;
+     Exit;
+     end;
+  BeforeFitness(InputData);
+  inherited;
 end;
 
 Procedure TFitVariabSet.ReadFromIniFile;
@@ -2178,6 +2479,12 @@ begin
 end;
 
 //----------------------------------------------------
+procedure TFitTemperatureIsUsed.BeforeFitness(InputData: TVectorNew);
+begin
+ if fTemperatureIsRequired then FVariab[0]:=InputData.T;
+ inherited BeforeFitness(InputData);
+end;
+
 Constructor TFitTemperatureIsUsed.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
 begin
@@ -2202,11 +2509,26 @@ begin
  inherited BeforeFitness(InputData);
 end;
 //----------------------------------------------------
+procedure TFitVoltageIsUsed.BeforeFitness(InputData: TVectorNew);
+begin
+ if fVoltageIsRequired then FVariab[0]:=DetermineVoltage(InputData);
+ inherited BeforeFitness(InputData);
+end;
+
 Constructor TFitVoltageIsUsed.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
 begin
  inherited Create(FunctionName,FunctionCaption,Npar,Nvar);
  fVoltageIsRequired:=False;
+end;
+
+function TFitVoltageIsUsed.DetermineVoltage(InputData: TVectorNew): double;
+begin
+ try
+  Result:=StrToFloat(copy(InputData.name,1,length(InputData.name)-4))/10;
+ except
+  Result:=ErResult;
+ end;
 end;
 
 Procedure TFitVoltageIsUsed.BeforeFitness(InputData:Pvector);
@@ -2238,6 +2560,14 @@ begin
        Result:=Sum1(Parameters)+Sum2(Parameters)
                        else
        Result:=ErResult;
+end;
+
+function TFitSumFunction.StringToFile(InputData: TVectorNew; Number: integer;
+  OutputData: TArrSingle; Xlog, Ylog: boolean): string;
+begin
+   Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+          FloatToStrF(Sum1(OutputData),ffExponent,4,0)+' '+
+          FloatToStrF(Sum2(OutputData),ffExponent,4,0);
 end;
 
 Function TFitSumFunction.Sum1(Parameters:TArrSingle):double;
@@ -2303,6 +2633,15 @@ begin
  Result:=Parameters[0]*exp(fX/(Parameters[1]*Kb*FVariab[0]));
 end;
 
+procedure TExponent.RealFitting(InputData: TVectorNew;
+                  var OutputData: TArrSingle);
+ var temp: TVectorShottky;
+begin
+ temp:=TVectorShottky.Create(InputData);
+ temp.ExKalk((FSample as TDiod_Schottky), OutputData[1],OutputData[0],OutputData[2],FVariab[0]);
+ temp.Free;
+end;
+
 Procedure TExponent.RealFitting (InputData:PVector;
          var OutputData:TArrSingle);
 begin
@@ -2348,6 +2687,31 @@ begin
    IvanovAprox(InputData, (FSample as TDiod_Schottky), OutputData[1],OutputData[0],FVariab[0]);
 end;
 
+procedure TIvanov.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+ var temp:TVectorTransform;
+begin
+ temp:=TVectorTransform.Create(InputData);
+ temp.IvanovAprox(OutputData,(FSample as TDiod_Schottky),FVariab[0]);
+ Swap(OutputData[1],OutputData[0]);
+ temp.Free;
+end;
+
+procedure TIvanov.RealToGraph(InputData: TVectorNew; var OutputData: TArrSingle;
+  Series: TLineSeries; Xlog, Ylog: boolean; Np: Word);
+var h,x,y:double;
+    i:integer;
+begin
+  Series.Clear;
+  h:=(InputData.X[InputData.HighNumber]-InputData.X[0])/Np;
+  for I := 0 to Np do
+    begin
+    x:=InputData.X[0]+i*h;
+    y:=FinalFunc(x,OutputData);
+    Series.AddXY(x, y);
+    end;
+end;
+
 Procedure TIvanov.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word);
@@ -2365,6 +2729,23 @@ begin
 end;
 
 //-----------------------------------------------
+procedure TFitIteration.BeforeFitness(InputData: TVectorNew);
+ var i:integer;
+begin
+ inherited BeforeFitness(InputData);
+ for I := 0 to High(FXmode) do
+  if FXmode[i]=cons then
+    begin
+     FXvalue[i]:=FA[i];
+     if (FXt[i]<=FVarNum)and(FXt[i]>0) then
+       FXvalue[i]:=FXvalue[i]+FB[i]*FVariab[FXt[i]-1]+
+                   FC[i]*sqr(FVariab[FXt[i]-1]);
+     if FXt[i]>FVarNum then
+       FXvalue[i]:=FXvalue[i]+FB[i]/FVariab[FXt[i]-FVarNum-1]+
+                     FC[i]/sqr(FVariab[FXt[i]-FVarNum-1]);
+    end;
+end;
+
 Constructor TFitIteration.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
 begin
@@ -2381,6 +2762,27 @@ procedure TFitIteration.SetNit(value:integer);
 begin
   if value>0 then fNit:=value
              else fNit:=1000;
+end;
+
+procedure TFitIteration.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+begin
+ IterWindowPrepare(InputData);
+
+ //QueryPerformanceCounter(StartValue);
+
+ TrueFitting (InputData,OutputData);
+
+//QueryPerformanceCounter(EndValue);
+//QueryPerformanceFrequency(Freq);
+//showmessage('tics='+inttostr(EndValue-StartValue)+#10+#13+
+//             'time='+floattostr((EndValue-StartValue)/Freq)
+//             +' s'+#10+#13+
+//                'freq+'+inttostr(Freq));
+
+ IterWindowClear();
+ fIterWindow.Close;
+ fIterWindow.Destroy;
 end;
 
 Procedure TFitIteration.RealReadFromIniFile;
@@ -2606,6 +3008,33 @@ begin
   fIterWindow.LNitN.Caption:=Inttostr(CurrentIterNumber);
 end;
 
+procedure TFitIteration.IterWindowPrepare(InputData: TVectorNew);
+ var i:integer;
+begin
+ fIterWindow:=TApp.Create(Application);
+ SetLength(Labels,2*FNx);
+ for I := 0 to FNx - 1 do
+  begin
+    Labels[i]:=TLabel.Create(fIterWindow);
+    Labels[i].Name:='Lb'+IntToStr(i)+FXname[i];
+    Labels[i+FNx]:=TLabel.Create(fIterWindow);
+    Labels[i+FNx].Name:='Lb'+IntToStr(i)+FXname[i]+'n';
+    Labels[i].Parent:=fIterWindow;
+    Labels[i+FNx].Parent:=fIterWindow;
+    Labels[i].Left:=24;
+    Labels[i+FNx].Left:=90;
+    if FXmode[i]=cons then Labels[i+FNx].Font.Color:=clGreen;
+
+    Labels[i].Top:=round(3.5*fIterWindow.LNmax.Height)+i*round(1.5*Labels[i].Height);
+    Labels[i+FNx].Top:=Labels[i].Top;
+    Labels[i].Caption:=FXname[i]+' =';
+  end;
+ fIterWindow.LNmaxN.Caption:=inttostr(FNit);
+ fIterWindow.Height:=Labels[High(Labels)].Top+3*Labels[High(Labels)].Height;
+ if InputData.name<>'' then fIterWindow.Caption:=', '+InputData.name;
+ fIterWindow.Show;
+end;
+
 Procedure TFitIteration.RealFitting (InputData:PVector;
          var OutputData:TArrSingle);
 begin
@@ -2658,6 +3087,16 @@ begin
 
   FXname[High(FXname)]:='dev';
   ReadFromIniFile();
+end;
+
+procedure TFitAdditionParam.Fitting(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean);
+begin
+  inherited ;
+  if (not(FIsNotReady))and(OutputData[0]<>ErResult) then
+   begin
+     AddParDetermination(InputData,OutputData);
+   end;
 end;
 
 procedure TFitAdditionParam.AddParDetermination(InputData:PVector;
@@ -2723,6 +3162,19 @@ begin
 end;
 
 //---------------------------------------------------------
+procedure TFitFunctLSM.BeforeFitness(InputData: TVectorNew);
+ var i:integer;
+begin
+ inherited BeforeFitness(InputData);
+ for I := 0 to High(FXmode) do
+  begin
+    if (FXname[i]='Rs')and(FXvalue[i]<=1e-4) then FXvalue[i]:=1e-4;
+    if (FXname[i]='Rsh')and((FXvalue[i]>=1e12)or(FXvalue[i]<=0))
+       then FXvalue[i]:=1e12;
+    if (FXname[i]='n')and(FXvalue[i]<=0) then FXvalue[i]:=1;
+  end;
+end;
+
 Constructor TFitFunctLSM.Create(FunctionName,FunctionCaption:string;
                      Npar:byte);
 begin
@@ -2742,6 +3194,17 @@ begin
  FXname[3]:='Rsh';
  if Npar=5 then FXname[4]:='Iph';
  fFileHeading:='V I Ifit';
+end;
+
+procedure TFitFunctLSM.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+begin
+ if not((FName='DiodLSM')or(FName='DiodLam')
+    or(FName='PhotoDiodLSM')or(FName='PhotoDiodLam'))
+      then Exit;
+ if FVariab[0]<=0 then Exit;
+ if InputData.Count<7 then  Exit;
+ inherited RealFitting (InputData, OutputData);
 end;
 
 Procedure TFitFunctLSM.RealReadFromIniFile;
@@ -3105,6 +3568,29 @@ begin
   {в temp - ВАХ з врахуванням Rsh0}
  IA_Determine012(temp,IA);
  dispose(temp);
+end;
+
+procedure TFitFunctLSM.IterWindowPrepare(InputData: TVectorNew);
+begin
+ inherited IterWindowPrepare(InputData);
+ if (Name='PhotoDiodLam') then
+  begin
+   Labels[2].Visible:=False;
+   Labels[2+fNx].Visible:=False;
+   Labels[4].Visible:=False;
+   Labels[4+fNx].Visible:=False;
+   Labels[3].Top:=Labels[2].Top;
+   Labels[3+fNx].Top:=Labels[3].Top;
+   fIterWindow.Height:=Labels[3].Top+3*Labels[3].Height;
+  end;
+ if FName='DiodLSM' then
+   fIterWindow.Caption:='Direct Aproximation'+fIterWindow.Caption;
+ if FName='DiodLam' then
+   fIterWindow.Caption:='Lambert Aproximation'+fIterWindow.Caption;
+ if FName='PhotoDiodLSM' then
+   fIterWindow.Caption:='Direct Aproximation of Illuminated I-V'+fIterWindow.Caption;
+ if FName='PhotoDiodLam' then
+   fIterWindow.Caption:='Lambert Aproximation of Illuminated I-V'+fIterWindow.Caption;
 end;
 
 Function TFitFunctLSM.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
@@ -4441,6 +4927,34 @@ begin
 
 end;
 
+procedure TTunRevers.BeforeFitness(InputData: TVectorNew);
+begin
+  inherited BeforeFitness(InputData);;
+//  FXmode[0]:=cons;
+
+// init
+//  FXvalue[0]:=
+//  exp(-2.1991855-0.0137213*InputData^.T);
+
+  // UST3an
+//  FXvalue[0]:=
+//  exp(5.5610464-0.0354045*InputData^.T);
+//  exp(1.3006748-0.0226845*InputData^.T);
+
+
+  // UST1
+//  FXvalue[0]:=
+//  exp(-2.2835525-0.0154696*InputData^.T);
+
+    // UST2
+//  FXvalue[0]:=
+//  exp(-5.1670493-0.004438*InputData^.T);
+
+    // UST3
+//  FXvalue[0]:=
+//  exp(1.3989381-0.0186924*InputData^.T);
+end;
+
 Constructor TTunRevers.Create;
 begin
 // inherited Create('TunRev','Trap-assisted tunneling, rewers diod',
@@ -4790,6 +5304,105 @@ end;
 
 
 //---------{ TDoubleDiodAbstract }-------------------
+
+procedure TDoubleDiodAbstract.BeforeFitness(InputData: TVectorNew);
+begin
+  inherited BeforeFitness(InputData);
+//  FXmode[3]:=cons;
+//  FXvalue[3]:=
+//  465322.06312-2560.90172*InputData^.T
+//              +3.51936*InputData^.T*InputData^.T;
+//SC11,ud4-ud5 new
+
+//  660671.43474-3748.91622*InputData^.T
+//              +5.3318*InputData^.T*InputData^.T;
+//SC11,d2-d5 new
+
+//  919141.44464-5356.56852*InputData^.T
+//              +7.83626*InputData^.T*InputData^.T;
+//SC11,d1,ud1 new
+
+
+//  472756.82001-2721.61113*InputData^.T
+//              +3.93081*InputData^.T*InputData^.T;
+//SC11,udark new
+
+
+//  410163.6713-2296.92381*InputData^.T
+//              +3.2296*InputData^.T*InputData^.T;
+//SC11,dark new
+
+
+
+
+//  18927.42946-197.25815*InputData^.T
+//              +0.69134*InputData^.T*InputData^.T
+//             -7.87913E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC8,dark
+
+
+
+//  18060.96578-184.95448*InputData^.T
+//              +0.63811*InputData^.T*InputData^.T
+//             -7.15121E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC8,d1-d6
+
+
+//  -10897.85016+93.22157*InputData^.T
+//              -0.25296*InputData^.T*InputData^.T
+//              +2.26949E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC12,udark
+
+
+//  10786.04599-109.07446*InputData^.T
+//              +0.37268*InputData^.T*InputData^.T
+//             -4.13941E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC12,dark
+
+
+//  -17097.35067+159.37431*InputData^.T
+//              -0.4887*InputData^.T*InputData^.T
+//             +5.07437E-4*InputData^.T*InputData^.T*InputData^.T;
+//SC12,ud
+
+//  51514.7-494.388*InputData^.T
+//              +1.58592*InputData^.T*InputData^.T
+//             -0.00168533*InputData^.T*InputData^.T*InputData^.T;
+//SC12,d
+
+//  313955.48805-2878.35512*InputData^.T
+//              +8.88596*InputData^.T*InputData^.T
+//             -0.0092*InputData^.T*InputData^.T*InputData^.T;
+//SC4,Ru3
+
+
+//  -13022.75173+106.85001*InputData^.T
+//              -0.19438*InputData^.T*InputData^.T;
+//SC4,Ru2
+
+
+//  -45638.9+475.334*InputData^.T
+//              -1.52424*InputData^.T*InputData^.T
+//             +0.00156349*InputData^.T*InputData^.T*InputData^.T;
+//SC4,Rdark
+
+//  264319-2481.35*InputData^.T
+//              +7.88726*InputData^.T*InputData^.T
+//             -0.00842522*InputData^.T*InputData^.T*InputData^.T;
+//SC4,d1d2
+
+//           1e12;
+//SC17
+
+//  1.22474E7-105746.87906*InputData^.T
+//              +307.12012*InputData^.T*InputData^.T
+//             -0.29993*InputData^.T*InputData^.T*InputData^.T;
+//SC13
+
+//  FXmode[2]:=cons;
+//  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
+
+end;
 
 procedure TDoubleDiodAbstract.CreateFooter;
 begin
@@ -5219,6 +5832,34 @@ end;
 
 
 
+procedure TNGausian.BeforeFitness(InputData: TVectorNew);
+ var i:byte;
+     Xmin,Xmax,delY,delX:double;
+begin
+ Xmin:=InputData.MinXnumber;
+ Xmax:=InputData.MaxXnumber;
+ delY:=InputData.MaxYnumber-
+       InputData.MinYnumber;
+ delX:=Xmax-Xmin;
+ for I := 1 to round(FNx/3) do
+  begin
+   FXmin[3*i-3]:=0;
+   FXmax[3*i-3]:=delY;
+   FXminlim[3*i-3]:=0;
+   FXmaxlim[3*i-3]:=delY*10;
+
+   FXmin[3*i-2]:=Xmin;
+   FXmax[3*i-2]:=Xmax;
+   FXminlim[3*i-2]:=Xmin-5*delX;
+   FXmaxlim[3*i-2]:=Xmax+5*delX;
+
+   FXmin[3*i-1]:=delX/10;
+   FXmax[3*i-1]:=delX;
+   FXminlim[3*i-1]:=delX/1000;
+   FXmaxlim[3*i-1]:=10*delX;
+  end;
+end;
+
 Constructor TNGausian.Create(NGaus:byte);
  var i:byte;
 begin
@@ -5340,6 +5981,37 @@ end;
 //begin
 // Result:=ln(Func(OutputData))-ln(fY);
 //end;
+
+procedure TPower2.BeforeFitness(InputData: TVectorNew);
+begin
+  inherited BeforeFitness(InputData);;
+//  FXmode[0]:=cons;
+
+// init
+//  FXvalue[0]:=
+//  exp(1.4313948-0.4722452/InputData^.T/8.625e-5);
+
+
+  // UST3an
+//  FXvalue[0]:=
+//  exp(-1.0807311-0.4093689/InputData^.T/8.625e-5);
+
+
+  // UST1
+//  FXvalue[0]:=
+//  exp(3.7782636-0.5441406/InputData^.T/8.625e-5);
+//  exp(-1.4641207-0.394953/InputData^.T/8.625e-5);
+
+
+    // UST2
+//  FXvalue[0]:=
+//  exp(1.6712534-0.4740671/InputData^.T/8.625e-5);
+
+
+    // UST3
+//  FXvalue[0]:=
+//  exp(-4.9514571-0.283333/InputData^.T/8.625e-5);
+end;
 
 Constructor TPower2.Create;
 begin
@@ -5588,6 +6260,14 @@ end;
 
 //-----------------------------------------------------------------------
 
+procedure TFitFunctEvolutionEm.BeforeFitness(InputData: TVectorNew);
+begin
+ inherited BeforeFitness(InputData);
+ F2:=2/(FSample as TDiod_Schottky).nu;
+ F1:=(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(FVariab[1],FVariab[0])-(FSample as TDiod_Schottky).Vbi(FVariab[0]);
+ fkT:=Kb*FVariab[0];
+end;
+
 Constructor TFitFunctEvolutionEm.Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
 begin
@@ -5811,6 +6491,13 @@ begin
  Result:=Parameters[4]*exp(Parameters[5]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fKT));
 end;
 
+procedure TRevShSCLC2.BeforeFitness(InputData: TVectorNew);
+begin
+ inherited BeforeFitness(InputData);
+ Fm1:=1+FVariab[2]/FVariab[0];
+ Fm2:=1+FVariab[3]/FVariab[0];
+end;
+
 Constructor TRevShSCLC2.Create;
 begin
  inherited Create('RevShSCLC2','Dependence of reverse current on bias. First component is SCLC current, second is TE current',
@@ -6002,6 +6689,13 @@ begin
  FXname[3]:='Fb0';
 end;
 
+procedure TPhonAsTunAndTE2_kT1.BeforeFitness(InputData: TVectorNew);
+begin
+  inherited BeforeFitness(InputData);
+  FVariab[0]:=FVariab[0]*FVariab[1];
+//  FVariab[0]:=FVariab[0]*0.424;
+end;
+
 Constructor TPhonAsTunAndTE2_kT1.Create;
 begin
 
@@ -6176,10 +6870,55 @@ begin
   end;
 end;
 
+Function FitName(V: TVectorNew; st:string='fit'):string;overload;
+begin
+  if V.name = '' then
+    Result := st+'.dat'
+  else
+  begin
+    Result := V.name;
+    Insert(st, Result, Pos('.', Result));
+  end;
+end;
+
+
 Function Parametr(V: PVector; FunName,ParName:string):double;
 {повертає параметр з іменем ParName,
 який знаходиться в результаті апроксимації даних в V
 за допомогою функції FunName}
+ var i,par_number:integer;
+     error:boolean;
+     F:TFitFunction;
+     EP:TArrSingle;
+begin
+  Result:=ErResult;
+  error:=true;
+  for I := 1 to High(FuncName) do
+   if FunName=FuncName[i] then
+    begin
+      error:=False;
+      Break;
+    end;
+  if error then Exit;
+  FunCreate(FunName,F);
+  par_number:=-1;
+  for i := 0 to High(F.Xname) do
+   if F.Xname[i]=ParName then
+    begin
+      par_number:=i;
+      Break;
+    end;
+  if par_number<0 then
+    begin
+      F.Free;
+      Exit;
+    end;
+  F.Fitting(V,EP);
+  Result:=EP[par_number];
+  F.Free;
+end;
+
+Function Parametr(V: TVectorNew; FunName,ParName:string):double;overload;
  var i,par_number:integer;
      error:boolean;
      F:TFitFunction;
@@ -6235,6 +6974,26 @@ begin
  AlL:=Silicon.Absorption(FVariab[0],fx)*
           Parameters[1]*Power(fx/T0,Parameters[2]);
  Result:=Parameters[0]*AlL/(1+AlL);
+end;
+
+procedure TCurrentSC.RealToFile(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
+ const T0=300;
+var Str1:TStringList;
+    i:integer;
+    AlL:double;
+begin
+  Str1:=TStringList.Create;
+  for I := 0 to InputData.HighNumber do
+    begin
+    AlL:=Silicon.Absorption(FVariab[0],InputData.X[i])*
+          OutputData[1]*Power(InputData.X[i]/T0,OutputData[2]);
+    Str1.Add(FloatToStrF(InputData.X[i],ffExponent,4,0)+' '+
+             FloatToStrF(OutputData[0]*AlL/(1+AlL),ffExponent,4,0)+' '+
+             FloatToStrF(OutputData[1]*Power(InputData.X[i]/T0,OutputData[2]),ffExponent,4,0));
+    end;
+  Str1.SaveToFile(FitName(InputData,suf));
+  Str1.Free;
 end;
 
 procedure TCurrentSC.RealToFile(InputData: PVector; var OutputData: TArrSingle;
@@ -6476,6 +7235,7 @@ begin
  FVarManualDefinedOnly[0]:=True;
  fHasPicture:=False;
  ReadFromIniFile();
+ fVector:=TVectorNew.Create;
  new(FtempVector);
 end;
 
@@ -6503,8 +7263,27 @@ begin
   OutputData[0]:=1;
 end;
 
+procedure TNoiseSmoothing.Fitting(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean);
+begin
+  FIsNotReadyDetermination;
+  if FIsNotReady then SetValueGR;
+  if FIsNotReady then
+     begin
+     MessageDlg('Approximation is imposible.'+#10+#13+
+                  'Parameters of function are undefined', mtError,[mbOk],0);
+     SetLength(OutputData,FNx);
+     OutputData[0]:=ErResult;
+     Exit;
+     end;
+  BeforeFitness(InputData);
+  SetLength(OutputData,1);
+  OutputData[0]:=1;
+end;
+
 procedure TNoiseSmoothing.Free;
 begin
+ fVector.Free;
  dispose(FtempVector);
  inherited;
 end;
@@ -6524,6 +7303,30 @@ procedure TNoiseSmoothing.RealToFile(InputData: PVector;
   var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
 begin
   FtempVector.Write_File(FitName(InputData));
+end;
+
+procedure TNoiseSmoothing.RealFitting(InputData: TVectorNew;
+  var OutputData: TArrSingle);
+begin
+
+end;
+
+procedure TNoiseSmoothing.RealToFile(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
+begin
+  fVector.WriteToFile(FitName(InputData));
+end;
+
+procedure TNoiseSmoothing.RealToGraph(InputData: TVectorNew;
+  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+  Np: Word);
+ var
+     temp:TVectorTransform;
+begin
+  temp:=TVectorTransform.Create(InputData);
+  temp.ImNoiseSmoothedArray(fVector,abs(Round(FVariab[0])));
+  temp.Free;
+  fVector.WriteToGraph(Series);
 end;
 
 procedure TNoiseSmoothing.RealToGraph(InputData: PVector;
@@ -6862,6 +7665,24 @@ begin
     InputData.name:=ExtractFileName(fFileName);
 end;
 
+procedure TManyArgumentsFitEvolution.BeforeFitness(InputData: TVectorNew);
+ var OpenDialog1:TOpenDialog;
+begin
+ inherited BeforeFitness(InputData);
+ if fFileName='' then
+  begin
+   OpenDialog1:=TOpenDialog.Create(nil);
+   OpenDialog1.Filter:='Data file (*.dat)|*.dat';
+     if OpenDialog1.Execute() then
+      begin
+        fFileName:=OpenDialog1.FileName;
+        DataReading();
+      end;
+   OpenDialog1.Free;
+  end;
+    InputData.name:=ExtractFileName(fFileName);
+end;
+
 function TManyArgumentsFitEvolution.ColumnsTitle: string;
  var i:integer;
 begin
@@ -6991,6 +7812,37 @@ begin
   Str1.Free;
 
   AditionalRealToFile(OutputData);
+end;
+
+procedure TManyArgumentsFitEvolution.RealToFile(InputData: TVectorNew;
+  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
+var Str1:TStringList;
+    i,j:integer;
+    tempStr:string;
+begin
+  Str1:=TStringList.Create;
+  Str1.Add(ColumnsTitle());
+  for I := 0 to fSL.Count-1 do
+    begin
+     fCAN:=i;
+     tempStr:='';
+     for j := 1 to fArgumentNumber do
+       tempStr:=tempStr+StringDataFromRow(fSL[i],j)+' ';
+     tempStr:=tempStr+StringDataFromRow(fSL[i],abs(round(FVariab[High(FVariab)])))+' ';
+     tempStr:=tempStr+FloatToStrF(Func(OutputData),ffExponent,10,0);
+     str1.Add(tempStr);
+    end;
+  Str1.SaveToFile(AnsiLeftStr(fFileName,Length(fFileName)-4)
+                  +'Fit.dat');
+  Str1.Free;
+
+  AditionalRealToFile(OutputData);
+end;
+
+procedure TManyArgumentsFitEvolution.RealToGraph(InputData: TVectorNew;
+  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+  Np: Word);
+begin
 end;
 
 procedure TManyArgumentsFitEvolution.RealToGraph(InputData: PVector;
@@ -7186,6 +8038,32 @@ begin
                       FVariab[0]]);
 end;
 
+
+procedure TIV_thin.RealToGraph(InputData: TVectorNew;
+  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+  Np: Word);
+var i:integer;
+begin
+  Series.Clear;
+  for I := 0 to InputData.HighNumber do
+    begin
+    fX:=InputData.X[i];
+    fY:=InputData.Y[i];
+    Series.AddXY(RealFunc(OutputData), fy);
+    end;
+end;
+
+function TIV_thin.StringToFile(InputData: TVectorNew; Number: integer;
+  OutputData: TArrSingle; Xlog, Ylog: boolean): string;
+begin
+ fX:=InputData.X[Number];
+ fY:=InputData.Y[Number];
+ Result:=InputData.PoinToString(Number)+' '+
+// FloatToStrF(InputData.X[Number],ffExponent,4,0)+' '+
+//         FloatToStrF(InputData.Y[Number],ffExponent,4,0)+' '+
+         FloatToStrF(RealFunc(OutputData),ffExponent,4,0)+' '+
+         FloatToStrF(InputData.Y[Number],ffExponent,4,0);
+end;
 
 procedure TIV_thin.RealToGraph(InputData: PVector; var OutputData: TArrSingle;
   Series: TLineSeries; Xlog, Ylog: boolean; Np: Word);

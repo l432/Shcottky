@@ -1,14 +1,14 @@
 ﻿unit OlegMathNew;
 
 interface
- uses OlegTypeNew, Dialogs, SysUtils, Math, Classes, OlegVector;
+ uses OlegTypeNew, Dialogs, SysUtils, Math, Classes, OlegVector, OlegVectorNew;
 
 Type FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
      TFun_IV=Function(Argument:double;Parameters:array of double;Key:double):double;
      TFunCorrection=Function (A:Pvector; var B:Pvector; fun:byte=0):boolean;
      {функція для перетворення даних в Pvector, зокрема використовується в диференціальних
      методах аналізу ВАХ}
-
+     TFunCorrectionNew=Function (A:TVectorNew; var B:TVectorNew; fun:byte=0):boolean;
 
   TFun1D=Function(A:Pvector; Variab:array of double;
                   Param:array of double;
@@ -52,8 +52,8 @@ procedure Swap(var A:double; var B:double); overload;
 procedure Swap(var A:real; var B:real); overload;
 {процедура обміну значеннями між дійсними змінними А та В}
 
-procedure Swap(var A:Pvector; var B:Pvector); overload;
-{процедура обміну значеннями між векторами, на які вказують А та В}
+//procedure Swap(var A:Pvector; var B:Pvector); overload;
+//{процедура обміну значеннями між векторами, на які вказують А та В}
 
 
 Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
@@ -86,41 +86,49 @@ Procedure LinAprox (V:PVector; var a,b:double);
 залежністю y=a+b*x}
 
 Function LinAproxYvalue(V:PVector;XValue:double):double;
+//function TVectorTransform.YvalueLinear(Xvalue: double): double;
 {повертає ординату точки, яка має абсцису XValue
 для лінійної залежності, побудованої по даним
 вектора V}
 
 Function LinAproxXvalue(V:PVector;YValue:double):double;
+//function TVectorTransform.XvalueLinear(YValue: double): double;
 {повертає  абсцису точки, яка має  ординату YValue
 для лінійної залежності, побудованої по даним
 вектора V}
 
 Procedure LinAproxBconst (V:PVector; var a:double; b:double);
+//function TVectorTransform.LinAproxBconst(b: double): double;
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x;
 параметр b вважається відомим}
 
 Procedure LinAproxAconst (V:PVector; a:double; var b:double);
+//function TVectorTransform.LinAproxBconst(b: double): double;
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x;
 параметр a вважається відомим}
 
 
 Procedure ParabAprox (V:Pvector; var a,b,c:double);
+//function TVectorTransform.ParabAprox(var OutputData: TArrSingle): boolean;
 {апроксимуються дані у векторі V параболічною
 залежністю y=a+b*x+с*x2}
 
 Procedure GromovAprox (V:PVector; var a,b,c:double);
+//function TVectorTransform.GromovAprox(var OutputData: TArrSingle):boolean;
 {апроксимуються дані у векторі V
 залежністю y=a+b*x+c*ln(x)}
 
 Procedure ExpAprox (V:PVector; var I0,E:double);
+//Arhiv
 {апроксимуються дані у векторі V
 залежністю I=I0[exp(V/E0)-1]
 за методом найменших квадратів зі
 статистичними ваговими коефіцієнтами}
 
 Procedure ExpRshAprox (V:PVector; var I0,E,Rsh:double);
+//Arhiv
 {апроксимуються дані у векторі V
 залежністю I=I0[exp(V/E0)-1]+V/Rsh
 за методом найменших квадратів зі
@@ -179,6 +187,7 @@ Function Newton(A:Pvector; funF:TFun1D; funG:TFun2D;
                 ParF:array of double; ParG:array of double;
                 eps:real; Nmax:integer;
                 var X0:array of double;var ErStr:string):word;
+//Arhiv
 {Розв'язок системи рівнянь методом Ньютона,
 F - функція, яка повертає масив значень функцій
     цієї системи;
@@ -211,6 +220,7 @@ ErStr не нульовий;
 Function SpeedSlalom(AP:Pvector; funF:TFun1D; ParF:array of double;
                 eps:real; Nmax:integer;
                 var X0:array of double;var ErStr:string):word;
+//Arhiv
 {Розв'язок системи рівнянь методом найшвидшлго спуску,
 F :TFun1D=Function(A:Pvector; Variab:array of double;
                   Param:array of double;
@@ -246,6 +256,7 @@ ErStr не нульовий;
 Function SpSlExpRsh(AP:Pvector; Variab:array of double;
                      Param:array of double;
                      var Rez:array of double):word;
+//Arhiv
 {функція, потрібна для проведення апроксимації
 залежності в А функцією I=I0[exp(V/E0)-1]+V/Rsh;
 надалі ця функція використовується у розв'язку
@@ -264,6 +275,7 @@ Rez[1(2,3)] - значення похідної функціоналу
 Function F_Exp(AP:Pvector; Variab:array of double;
                      Param:array of double;
                      var Rez:array of double):word;
+//Arhiv
 {функція, потрібна для проведення апроксимації даних в А
 функцією I=I0[exp(V/E0)-1] за допомогою методу Ньютона
 (правильніше - апроксимація за методом найменших квадратів, але
@@ -276,6 +288,7 @@ Param - в даному випадку не використовується,
 Function G_Exp(AP:Pvector; Variab:array of double;
                   Param:array of double;
                   var Rez:T2DArray):word;
+//Arhiv
 {функція, потрібна для проведення апроксимації даних в А
 функцією I=I0[exp(V/E0)-1] за допомогою методу Ньютона
 (правильніше - апроксимація за методом найменших квадратів, але
@@ -288,10 +301,12 @@ Param - в даному випадку не використовується,
 Function F_ExpRsh(AP:Pvector; Variab:array of double;
                      Param:array of double;
                      var Rez:array of double):word;
+//Arhiv
 
 Function G_ExpRsh(AP:Pvector; Variab:array of double;
                   Param:array of double;
                   var Rez:T2DArray):word;
+//Arhiv
 
 Procedure Smoothing (A:Pvector; var B:PVector);
 //procedure TVectorTransform.Smoothing(var Target: TVectorNew);
@@ -313,8 +328,10 @@ Procedure Median (A:Pvector; var B:PVector);
 Function MedianFiltr(a,b,c:double):double;
 {повертає середнє за величиною з трьох чисел a, b, c}
 
-Function Linear(a,b,x:double):double;
+Function Linear(a,b,x:double):double;overload;
 {повертає a+b*x}
+Function Linear(x:double;data:TArrSingle):double;overload;
+{повертає data[0]+data[1]*x}
 
 Procedure Diferen (A:Pvector; var B:PVector);
 //procedure TVectorTransform.Derivate(var Target: TVectorNew);
@@ -324,12 +341,14 @@ Procedure Diferen (A:Pvector; var B:PVector);
 то у результуючому буде нульова кількість}
 
 Function Lagrang(A:Pvector; x:double):double;
+//function TVectorTransform.YvalueLagrang(Xvalue: double): double;
 {функція розрахунку значення функції в точці х використовуючи
 поліном Лагранжа, побудований на основі набору даних в масиві A}
 
 
 
 Function Splain3(V:Pvector; x:double):double;
+//function TVectorTransform.YvalueSplain3(Xvalue: double): double;
 {функція розрахунку значення функції в точці х використовуючи
 кубічні сплайни, побудовані на основі набору даних в масиві V
 Result=Ai+Bi(X-Xi)+Ci(X-Xi)^2+Di(X-Xi)^3 при Xi-1<=X<=Xi}
@@ -376,6 +395,7 @@ Function gLambert(x:double):double;
 підносити експрненту у дуже великий ступінь}
 
 Procedure LambertIV (A:Pvector; n,Rs,I0,Rsh:double; var B:PVector);
+//Arhiv
 {в В розміщується результат розрахунку
 ВАХ по даним напруги з А за допомогою
 функції Ламберта по значеннях параметрів n,Rs,I0,Rsh}
@@ -570,18 +590,21 @@ Function cosh(x:double):Double;
 Function tanh(x:double):Double;
 Function arcTanh(x:double):Double;
 
-Function MilliSecond:integer;
-{повертає поточне значення мілісекунд з
-врахуванням хвилин та секунд}
+//Function MilliSecond:integer;
+//{повертає поточне значення мілісекунд з
+//врахуванням хвилин та секунд}
+//
+//function SecondFromDayBegining:integer;overload;
+//{повертає кількість секунд з початку доби}
+//function SecondFromDayBegining(ttime: TDateTime):integer;overload;
 
-function SecondFromDayBegining:integer;overload;
-{повертає кількість секунд з початку доби}
-function SecondFromDayBegining(ttime: TDateTime):integer;overload;
+Function CasrtoIV(I:double;Parameters:array of double):double;
+
 
 implementation
 
 uses
-  OlegMaterialSamplesNew, OlegVectorNew;
+  OlegMaterialSamplesNew;
 
 procedure Swap(var A:integer; var B:integer);  overload;
 {процедура обміну значеннями між цілими змінними А та В}
@@ -604,55 +627,55 @@ begin
   C:=A; A:=B; B:=C;
 end;
 
-procedure Swap(var A:Pvector; var B:Pvector); overload;
-{процедура обміну значеннями між векторами, на які вказують А та В}
-  var C:Pvector;
-      i:integer;
-begin
-  new(C);
-  C^.n:=A^.n;
-  C^.name:=A^.name;
-  C^.T:=A^.T;
-  C^.time:=A^.time;
-  C^.N_begin:=A^.N_begin;
-  C^.N_end:=A^.N_end;
-  SetLength(C^.X,C^.n);
-  SetLength(C^.Y,C^.n);
-  for i:=0 to High(C^.X) do
-    begin
-    C^.X[i]:=A^.X[i];
-    C^.Y[i]:=A^.Y[i];
-    end;
-
-  A^.n:=B^.n;
-  A^.name:=B^.name;
-  A^.T:=B^.T;
-  A^.time:=B^.time;
-  A^.N_begin:=B^.N_begin;
-  A^.N_end:=B^.N_end;
-  SetLength(A^.X,A^.n);
-  SetLength(A^.Y,A^.n);
-  for i:=0 to High(A^.X) do
-    begin
-    A^.X[i]:=B^.X[i];
-    A^.Y[i]:=B^.Y[i];
-    end;
-
-  B^.n:=C^.n;
-  B^.name:=C^.name;
-  B^.T:=C^.T;
-  B^.time:=C^.time;
-  B^.N_begin:=C^.N_begin;
-  B^.N_end:=C^.N_end;
-  SetLength(B^.X,B^.n);
-  SetLength(B^.Y,B^.n);
-  for i:=0 to High(B^.X) do
-    begin
-    B^.X[i]:=C^.X[i];
-    B^.Y[i]:=C^.Y[i];
-    end;
-  dispose(C);
-end;
+//procedure Swap(var A:Pvector; var B:Pvector); overload;
+//{процедура обміну значеннями між векторами, на які вказують А та В}
+//  var C:Pvector;
+//      i:integer;
+//begin
+//  new(C);
+//  C^.n:=A^.n;
+//  C^.name:=A^.name;
+//  C^.T:=A^.T;
+//  C^.time:=A^.time;
+//  C^.N_begin:=A^.N_begin;
+//  C^.N_end:=A^.N_end;
+//  SetLength(C^.X,C^.n);
+//  SetLength(C^.Y,C^.n);
+//  for i:=0 to High(C^.X) do
+//    begin
+//    C^.X[i]:=A^.X[i];
+//    C^.Y[i]:=A^.Y[i];
+//    end;
+//
+//  A^.n:=B^.n;
+//  A^.name:=B^.name;
+//  A^.T:=B^.T;
+//  A^.time:=B^.time;
+//  A^.N_begin:=B^.N_begin;
+//  A^.N_end:=B^.N_end;
+//  SetLength(A^.X,A^.n);
+//  SetLength(A^.Y,A^.n);
+//  for i:=0 to High(A^.X) do
+//    begin
+//    A^.X[i]:=B^.X[i];
+//    A^.Y[i]:=B^.Y[i];
+//    end;
+//
+//  B^.n:=C^.n;
+//  B^.name:=C^.name;
+//  B^.T:=C^.T;
+//  B^.time:=C^.time;
+//  B^.N_begin:=C^.N_begin;
+//  B^.N_end:=C^.N_end;
+//  SetLength(B^.X,B^.n);
+//  SetLength(B^.Y,B^.n);
+//  for i:=0 to High(B^.X) do
+//    begin
+//    B^.X[i]:=C^.X[i];
+//    B^.Y[i]:=C^.Y[i];
+//    end;
+//  dispose(C);
+//end;
 
 
 Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
@@ -2226,6 +2249,15 @@ Function Linear(a,b,x:double):double;
 {повертає a+b*x}
 begin
   Result:=a+b*x;
+end;
+
+Function Linear(x:double;data:TArrSingle):double;
+begin
+  try
+  Result:=data[0]+data[1]*x;
+  except
+  Result:=ErResult;
+  end;
 end; 
 
 Procedure Median (A:Pvector; var B:PVector);
@@ -2534,7 +2566,7 @@ end;
 
 Function Lambert(x:double):double;
 {обчислює значення функції Ламберта}
-var temp1,temp2,eps:double;
+var temp1,temp2{,eps}:double;
     i:integer;
 begin
   if x=0 then
@@ -2544,7 +2576,7 @@ begin
      end;
   temp1:=0;
   i:=0;
-  eps:=1;
+//  eps:=1;
   repeat
     temp2:=temp1-(temp1*exp(temp1)-x)/(exp(temp1)*(temp1+1)-
            (temp1+2)*(temp1*exp(temp1)-x)/(2*temp1+2));
@@ -2553,10 +2585,10 @@ begin
            i:=1000000;
            Break;
          end;
-    eps:=abs((temp2-temp1)/temp2);
+//    eps:=abs((temp2-temp1)/temp2);
     temp1:=temp2;
     inc(i);
-  until (eps<1e-7)or(i>1e5);
+  until (IsEqual(temp2,temp1,1e-7))or(i>1e5);
   if (i>1e5) then Result:=ErResult
              else Result:=temp2;
 end;
@@ -2608,12 +2640,7 @@ SetLenVector(B,A^.n);
 for i:=0 to High(B^.X) do
  begin
    B^.X[i]:=A^.X[i];
-{   B^.Y[i]:=Kb*A^.T*n/Rs*Lambert(Rs*Rsh*I0/(Kb*A^.T*n*(Rsh+Rs))*exp(Rsh*(B^.X[i]+Rs*I0)/(Kb*A^.T*n*(Rsh+Rs))))+
-             B^.X[i]/(Rsh+Rs)-I0*Rsh/(Rsh+Rs);}
-{   B^.Y[i]:=Kb*A^.T*n/Rs*Lambert(Rs*I0/(Kb*A^.T*n)*exp((B^.X[i]+Rs*I0)/(Kb*A^.T*n)))+
-             B^.X[i]/Rsh-I0;}
-
-    B^.Y[i]:=LambertAprShot(B^.X[i], Kb*A^.T*n,Rs,I0,Rsh);
+   B^.Y[i]:=LambertAprShot(B^.X[i], Kb*A^.T*n,Rs,I0,Rsh);
  end;
 end;
 
@@ -3381,26 +3408,56 @@ begin
 end;
 
 
-Function MilliSecond:integer;
- var Hour,Min,Sec,MSec:word;
-begin
- DecodeTime(Time,Hour,Min,Sec,MSec);
- Result:=MSec+1000*Sec+60*1000*Min;
-end;
+//Function MilliSecond:integer;
+// var Hour,Min,Sec,MSec:word;
+//begin
+// DecodeTime(Time,Hour,Min,Sec,MSec);
+// Result:=MSec+1000*Sec+60*1000*Min;
+//end;
+//
+//function SecondFromDayBegining:integer;
+// var Hour,Min,Sec,MSec:word;
+//begin
+// DecodeTime(Time,Hour,Min,Sec,MSec);
+// Result:=Sec+60*Min+60*60*Hour;
+//end;
+//
+//function SecondFromDayBegining(ttime: TDateTime):integer;
+// var Hour,Min,Sec,MSec:word;
+//begin
+// DecodeTime(ttime,Hour,Min,Sec,MSec);
+// Result:=Sec+60*Min+60*60*Hour;
+//end;
 
-function SecondFromDayBegining:integer;
- var Hour,Min,Sec,MSec:word;
-begin
- DecodeTime(Time,Hour,Min,Sec,MSec);
- Result:=Sec+60*Min+60*60*Hour;
-end;
+Function CasrtoIV(I:double;Parameters:array of double):double;
+ var Vt,temp10,temp20,temp11,temp21,x1,x2:double;
 
-function SecondFromDayBegining(ttime: TDateTime):integer;
- var Hour,Min,Sec,MSec:word;
 begin
- DecodeTime(ttime,Hour,Min,Sec,MSec);
- Result:=Sec+60*Min+60*60*Hour;
-end;
+ Vt:=Kb*Parameters[8];
 
+ temp10:=1/Vt/Parameters[1];// q/kTn
+ temp20:=1/Vt/Parameters[4];
+
+ temp11:=Parameters[2]*temp10; // Rsh q/kTn
+ temp21:=Parameters[5]*temp20;
+
+// Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
+//        -Lambert(temp11*Parameters[0]
+//                 *exp(temp11*(I+Parameters[7]+Parameters[0])))
+//         /temp10
+//        +Lambert(temp21*Parameters[3]
+//                 *exp(-temp21*(I-Parameters[3])))
+//         /temp20
+//         +(I-Parameters[3])*Parameters[5]
+//         +I*Parameters[6];
+
+ x1:=log10(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
+ x2:=log10(temp21*Parameters[3])-temp21*(I-Parameters[3]);
+ Result:=I*Parameters[6]+gLambert(x1)/temp10
+         -gLambert(x2)/temp20
+         -log10(temp11*Parameters[0])/temp10
+         +log10(temp21*Parameters[3])/temp20;
+
+end;
 
 end.

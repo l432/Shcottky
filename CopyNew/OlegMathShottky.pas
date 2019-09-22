@@ -375,13 +375,54 @@ type
       Rs - послідовний опір,
       Хр   - вектор початкових наближень
       для визначення Fb - параметри діода}
+    Procedure GraphCalculation(var Target:TVectorNew;tg:TGraph);
+    Procedure GraphParameterCalculation(tg:TGraph);
+    Procedure GraphParCalcFitting(tg:TGraph);
+    Function dB_dV_Build(var Target:TVectorNew; fun:byte=0):boolean;
+      {по даним у Vector будує в Target залежність похідної
+      диференційного нахилу ВАХ від напруги (метод Булярського) -
+      безпосередньо самі математичні перетворювання
+      без підготовчих операцій
+      fun - кількість зглажувань
+      якщо все добре - повертається True}
+    Function Rnp_Build(var Target:TVectorNew; fun:byte=0):boolean;
+      {по даним у Vector будує в Target залежність
+      приведеної швидкості рекомбінації (див. Булярського)
+      безпосередньо самі математичні перетворювання
+      без підготовчих операцій
+      fun - кількість зглажувань
+      якщо все добре - повертається True}
+    Function dRnp_dV_Build(var Target:TVectorNew; fun:byte=0):boolean;
+      {по даним у Vector будує в Target  залежність
+      похідної приведеної швидкості рекомбінації (див. Булярського)
+      безпосередньо самі математичні перетворювання
+      без підготовчих операцій
+      fun - кількість зглажувань
+      якщо все добре - повертається True}
+    Function Rnp2_exp_Build(var Target:TVectorNew; fun:byte=0):boolean;
+      {по даним у Vector будує в Target залежність
+      функції L(V) (див. Булярського, ФТП, 1998, т.32, с.1193)
+      безпосередньо самі математичні перетворювання
+      без підготовчих операцій
+      fun - кількість зглажувань
+      якщо все добре - повертається True}
+    Function Gamma_Build(var Target:TVectorNew; fun:byte=0):boolean;
+      {по даним у Vector будує в Target залежність
+      функції gamm(V) (див. Булярського, Письма в ЖТФ, 1999, т.25, №5, с.22)
+      правильніше - 1/gamma, тому що в теорії положенню
+      рівнів відповідає мінімум функції gamma,
+      а я хотів дивитись тільки на максимуми
+      безпосередньо самі математичні перетворювання
+      без підготовчих операцій
+      fun - кількість зглажувань
+      якщо все добре - повертається True}
 
    end;
 
 implementation
 
 uses
-  Math, Dialogs, SysUtils, OlegMathNew;
+  Math, Dialogs, SysUtils, OlegMathNew, OlegApproxNew;
 
 
 { TVectorShottky }
@@ -824,6 +865,41 @@ begin
   temp1.Free;
 end;
 
+function TVectorShottky.dB_dV_Build(var Target: TVectorNew; fun: byte): boolean;
+ var temp:TVectorTransform;
+     kT:double;
+     j:integer;
+begin
+  Result:=False;
+  Derivate(Target);
+  if Target.IsEmpty then Exit;
+
+  kT:=Vector.T*Kb;
+
+  temp:=TVectorTransform.Create(Target);
+  for j := 0 to Target.HighNumber do
+    temp.Vector.X[j]:=Vector.Y[j];
+  Target.DeleteZeroY;
+  temp.Vector.DeleteZeroY;
+  for j:=0 to Target.HighNumber do
+        Target.Y[j]:=1/Target.Y[j]*temp.Vector.X[j]/kT;
+
+//  for j:=0 to Target.HighNumber do
+//        Target.Y[j]:=1/Target.Y[j]*Vector.Y[j]/kT;
+
+  Target.Copy(temp.Vector);
+//  temp:=TVectorTransform.Create(Target);
+  temp.Itself(temp.PositiveX);
+  for j:=1 to fun do temp.Itself(temp.Smoothing);
+  temp.Derivate(Target);
+  Target.Copy(temp.Vector);
+
+  temp.CopyLimitedX(Target,temp.Vector.X[0]+0.038,temp.Vector.X[temp.Vector.HighNumber]-0.04);
+
+  temp.Free;
+  Result:=True;
+end;
+
 procedure TVectorShottky.Dit_Fun(var Target: TVectorNew; Rs: Double;
   DD: TDiod_Schottky; D: TDiapazon);
 var i:integer;
@@ -868,6 +944,23 @@ begin
     Target.Y[i]:=Target.Y[i]*Eps0/del/Qelem;
     Target.X[i]:=Fb-Target.X[i];
    end;
+end;
+
+function TVectorShottky.dRnp_dV_Build(var Target: TVectorNew;
+  fun: byte): boolean;
+  var j:integer;
+      temp:TVectorShottky;
+begin
+  Result:=False;
+  InitTarget(Target);
+  if not(Rnp_Build(Target,fun)) then Exit;
+  temp:=TVectorShottky.Create(Target);
+  temp.Derivate(Target);
+  Target.Copy(temp.Vector);
+  for j:=1 to fun do temp.Itself(temp.Smoothing);
+  temp.CopyLimitedX(Target,0.038,temp.Vector.X[temp.Vector.HighNumber]-0.04);
+  temp.Free;
+  Result:=True;
 end;
 
 procedure TVectorShottky.ExKalk(Index: Integer);
@@ -967,6 +1060,27 @@ begin
   Gr1Kalk (GraphParameters.Diapazon,Diod,
            GraphParameters.Rs,GraphParameters.n,
            GraphParameters.Fb,GraphParameters.I0)
+end;
+
+function TVectorShottky.Gamma_Build(var Target: TVectorNew; fun: byte): boolean;
+  var j:integer;
+      temp:TVectorTransform;
+      verytemp:TVectorNew;
+begin
+  Result:=False;
+  InitTarget(Target);
+  temp:=TVectorTransform.Create;
+  verytemp:=TVectorNew.Create;
+  if not(dRnp_dV_Build(verytemp,fun)) then Exit;
+  verytemp.Copy(temp.Vector);
+  verytemp.Free;
+  if not(Rnp_Build(Target,fun)) then Exit;
+  for j := 0 to Target.HighNumber do
+    temp.Vector.Y[j]:=1/(temp.Vector.Y[j]/Target.Y[j]*2*Kb*Vector.T);
+
+  temp.CopyLimitedX(Target,0.038,temp.Vector.X[temp.Vector.HighNumber]-0.04);
+  temp.Free;
+  Result:=True;
 end;
 
 procedure TVectorShottky.Gr1Kalk(D: TDiapazon; DD: TDiod_Schottky; out Rs, n,
@@ -1207,6 +1321,125 @@ begin
  for i:=0 to Target.HighNumber do Target.X[i]:=Vector.Y[i+Target.N_begin];
  {фактично, правильно буде будувати лише у випадку,
  коли в А знаходиться вихідний файл, для якого А^.N_begin=0}
+end;
+
+procedure TVectorShottky.GraphCalculation(var Target: TVectorNew; tg: TGraph);
+begin
+ case tg of
+  fnPowerIndex,fnFowlerNordheim,
+  fnFowlerNordheimEm,fnAbeles,
+  fnAbelesEm,fnFrenkelPool,fnFrenkelPoolEm:
+      M_V_Fun(Target,GraphParameters.ForForwardBranch,tg);
+  fnReverse: ReverseIV(Target);
+  fnForward:  PositiveX(Target);
+  fnKaminskii1: Kam1_Fun(Target,GraphParameters.Diapazon);
+  fnKaminskii2: Kam2_Fun(Target,GraphParameters.Diapazon);
+  fnGromov1: Gr1_Fun(Target);
+  fnGromov2: Gr2_Fun(Target, Diod);
+  fnCheung: ChungFun(Target);
+  fnCibils:  CibilsFun(Target,GraphParameters.Diapazon);
+  fnWerner: WernerFun(Target);
+  fnForwardRs:ForwardIVwithRs(Target,GraphParameters.Rs);
+  fnIdeality: N_V_Fun(Target,GraphParameters.Rs);
+  fnExpForwardRs: Forward2Exp(Target,GraphParameters.Rs);
+  fnExpReverseRs: Reverse2Exp(Target,GraphParameters.Rs);
+  fnH:  HFun(Target, Diod, GraphParameters.n);
+  fnNorde: NordeFun(Target, Diod, GraphParameters.Gamma);
+  fnFvsV:  CibilsFunDod(Target,GraphParameters.Va);
+  fnFvsI:  LeeFunDod(Target,GraphParameters.Va);
+  fnMikhelA: MikhAlpha_Fun(Target);
+  fnMikhelB: MikhBetta_Fun(Target);
+  fnMikhelIdeality: MikhN_Fun(Target);
+  fnMikhelRs: MikhRs_Fun(Target);
+  fnDLdensity:Nss_Fun(Target,GraphParameters.Fb,GraphParameters.Rs,
+               Diod,GraphParameters.Diapazon,GraphParameters.NssType);
+  fnDLdensityIvanov:Dit_Fun(Target,GraphParameters.Rs,Diod,GraphParameters.Diapazon);
+  fnLee: LeeFun(Target,GraphParameters.Diapazon);
+//  fnTauR: TauRFun(InVector,OutVector);
+  fnTauR: TauFun(Target,DiodPN.TauRec);
+  fnIgen: InVectorToOut(Target,DiodPN.Igen,True);
+  fnTauG: TauFun(Target,DiodPN.TauGen);
+  fnIrec: InVectorToOut(Target,DiodPN.TauGen,True);
+  fnLdif: InVectorToOut(Target,DiodPN.TauToLdif);
+  fnTau: InVectorToOut(Target,DiodPN.LdifToTauRec);
+  else ;
+end;
+
+end;
+
+procedure TVectorShottky.GraphParameterCalculation(tg: TGraph);
+begin
+  case tg of
+    fnKaminskii1: Kam1Kalk ();
+    fnKaminskii2: Kam2Kalk ();
+    fnGromov1:    Gr1Kalk ();
+    fnGromov2:    Gr2Kalk ();
+    fnCheung:     ChungKalk();
+    fnCibils:     CibilsKalk();
+    fnWerner:     WernerKalk();
+    fnExpForwardRs: ExKalk(2);
+    fnExpReverseRs: ExKalk(3);
+    fnH:          HFunKalk();
+    fnNorde:      NordKalk();
+    fnDLdensityIvanov: IvanovKalk();
+    fnLee:        LeeKalk ();
+    fnBohlin:     BohlinKalk();
+    fnNeq1:       GraphParameters.n:=1;
+    fnMikhelashvili: MikhKalk ();
+    fnDiodLSM,fnDiodLambert,fnDiodEvolution:
+                  GraphParCalcFitting(tg);
+    fnReq0:       GraphParameters.Rs:=0;
+    fnRvsTpower2: GraphParameters.Rs:=GraphParameters.RA+
+                          GraphParameters.RB*Vector.T+
+                          GraphParameters.RC*sqr(Vector.T);
+    fnDiodVerySimple: ExKalk(1);
+    fnRectification:  GraphParameters.Krec:=Vector.Krect(GraphParameters.Vrect);
+  end;
+end;
+
+procedure TVectorShottky.GraphParCalcFitting(tg: TGraph);
+ var IphNeeded:boolean;
+begin
+ case tg of
+   fnDiodLSM:
+     begin
+      IphNeeded:=GraphParameters.Iph_Exp;
+      if IphNeeded then FitFunction:=TPhotoDiodLSM.Create
+                   else FitFunction:=TDiodLSM.Create;
+     end;
+   fnDiodLambert:
+     begin
+      IphNeeded:=GraphParameters.Iph_Lam;
+      if IphNeeded then FitFunction:=TPhotoDiodLam.Create
+                   else FitFunction:=TDiodLam.Create;
+     end;
+   fnDiodEvolution:
+     begin
+      IphNeeded:=GraphParameters.Iph_DE;
+      if IphNeeded then FitFunction:=TPhotoDiod.Create
+                   else FitFunction:=TDiod.Create;
+     end;
+  else Exit;
+ end;
+  FitFunction.FittingDiapazon(Vector,EvolParam,
+                              GraphParameters.Diapazon);
+  FitFunction.Free;
+  if EvolParam[0]=ErResult then
+   begin
+    GraphParameters.Clear();
+    Exit;
+   end;
+  GraphParameters.n:=EvolParam[0];
+  GraphParameters.Rs:=EvolParam[1];
+  GraphParameters.I0:=EvolParam[2];
+  GraphParameters.Rsh:=EvolParam[3];
+  if IphNeeded then
+                begin
+                GraphParameters.Iph:=EvolParam[4];
+                GraphParameters.Fb:=ErResult;
+                end
+               else GraphParameters.Fb:=EvolParam[4];
+
 end;
 
 procedure TVectorShottky.HFun(var Target: TVectorNew; DD: TDiod_Schottky;
@@ -1887,6 +2120,39 @@ begin
    end;
  temp.PositiveY(Target);
  temp.Free;
+end;
+
+function TVectorShottky.Rnp2_exp_Build(var Target: TVectorNew;
+  fun: byte): boolean;
+  var j:integer;
+      temp:TVectorTransform;
+begin
+  Result:=False;
+  if not Rnp_Build(Target,fun) then Exit;
+  for j := 0 to Target.HighNumber do
+    Target.Y[j]:=sqr(Target.Y[j])/exp(Target.X[j]/2/Kb/Vector.T);
+  temp:=TVectorTransform.Create(Target);
+  for j:=1 to fun do temp.Itself(temp.Smoothing);
+  temp.Vector.Copy(Target);
+  temp.Free;
+  Result:=True;
+end;
+
+function TVectorShottky.Rnp_Build(var Target: TVectorNew; fun: byte): boolean;
+  var i:integer;
+begin
+  InitTargetToFun(Target);
+  Result:=True;
+  Target.SetLenVector(Vector.Count);
+  try
+    for I := 0 to Target.HighNumber do
+     begin
+       Target.X[i]:=Vector.X[i];
+       Target.Y[i]:=DiodPN.Rnp(Vector.T,Vector.X[i],Vector.Y[i]);
+     end;
+  except
+    Result:=False;
+  end;
 end;
 
 procedure TVectorShottky.RRR(E: double; Target: TVectorNew);
