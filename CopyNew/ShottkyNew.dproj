@@ -50,6 +50,7 @@
     </DCCReference>
     <DCCReference Include="OlegApproxNew.pas" />
     <DCCReference Include="OlegDefectsSiNew.pas" />
+    <DCCReference Include="OlegDigitalManipulation.pas" />
     <DCCReference Include="OlegFunctionNew.pas" />
     <DCCReference Include="OlegGraphNew.pas" />
     <DCCReference Include="OlegMaterialSamplesNew.pas" />

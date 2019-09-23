@@ -3549,7 +3549,8 @@ begin
 //                    floattostrf(tauR,ffExponent,4,0);
                     Form1.Button1.Caption:='n='+floattostrf(n,ffExponent,4,0)+' Rsh='+
                     floattostrf(Rsh,ffExponent,4,0);
-                    (FitIV as TDoubleDiodLight).AddParDetermination(nil,OutputData);
+//!!!!!!!!було так  (FitIV as TDoubleDiodLight).AddParDetermination(nil,OutputData);
+                    (FitIV as TDoubleDiodLight).AddParDetermination(VaxFile,OutputData);
 
 
                     Str.Add(FloatToStrF(T,ffFixed,3,0)+' '+
@@ -3721,7 +3722,7 @@ begin
 
 
   VTrans:=TVectorShottky.Create();
-  VTrans.Vector.ReadFromFile('data.dat');
+  VTrans.ReadFromFile('data.dat');
   VTrans.ParabAprox(OutputData);
 
   Vec2.WriteToFile('rez.dat');

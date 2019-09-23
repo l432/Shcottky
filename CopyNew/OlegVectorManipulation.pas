@@ -26,54 +26,58 @@ type
        procedure Free;
     end;
 
-   TProcTarget=Procedure(var Target:TVectorNew) of object;
+   TProcTarget=Procedure(Target:TVectorNew) of object;
 
-   TVectorTransform=class(TVectorManipulation)
+//   TVectorTransform=class(TVectorManipulation)
+   TVectorTransform=class(TVectorNew)
     private
+//     procedure SetVector(const Value: TVectorNew);
      procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word);
-     Procedure CopyLimited (Coord:TCoord_type;var Target:TVectorNew;Clim1, Clim2:double);
-     procedure Branch(Coord:TCoord_type;var Target:TVectorNew;
+     Procedure CopyLimited (Coord:TCoord_type;Target:TVectorNew;Clim1, Clim2:double);
+     procedure Branch(Coord:TCoord_type;Target:TVectorNew;
                       const IsPositive:boolean=True;
                       const IsRigorous:boolean=True);
-     procedure Module(Coord:TCoord_type;var Target:TVectorNew);
+     procedure Module(Coord:TCoord_type;Target:TVectorNew);
     protected
-     Procedure InitTarget(var Target:TVectorNew);
+     Procedure InitTarget(Target:TVectorNew);
     public
-     Procedure CopyLimitedX (var Target:TVectorNew;Xmin,Xmax:double);
+//     Constructor Create(ExternalVector:TVectorNew);overload;
+//     Constructor Create();overload;
+     Procedure CopyLimitedX (Target:TVectorNew;Xmin,Xmax:double);
        {копіюються з даного вектора в Target
         - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
          - поля Т та name}
-     Procedure CopyLimitedY (var Target:TVectorNew;Ymin,Ymax:double);
-     procedure AbsX(var Target:TVectorNew);
+     Procedure CopyLimitedY (Target:TVectorNew;Ymin,Ymax:double);
+     procedure AbsX(Target:TVectorNew);
          {заносить в Target точки, для яких X дорівнює модулю Х даного
          вектора, а Y таке саме; якщо Х=0, то точка викидається}
-     procedure AbsY(var Target:TVectorNew);
+     procedure AbsY(Target:TVectorNew);
          {заносить в Target точки, для яких Y дорівнює модулю Y даного
          вектора, а X таке саме; якщо Y=0, то точка викидається}
-     Procedure PositiveX(var Target:TVectorNew);//overload;
+     Procedure PositiveX(Target:TVectorNew);//overload;
          {заносить в Target ті точки, для яких X більше нуля}
-     procedure PositiveY(var Target:TVectorNew);
+     procedure PositiveY(Target:TVectorNew);
          {заносить в Target ті точки, для яких Y більше нуля}
-     Procedure ForwardX(var Target:TVectorNew);
+     Procedure ForwardX(Target:TVectorNew);
          {заносить в Target ті точки, для яких X більше або рівне нулю}
-     Procedure ForwardY(var Target:TVectorNew);
-     procedure NegativeX(var Target:TVectorNew);
+     Procedure ForwardY(Target:TVectorNew);
+     procedure NegativeX(Target:TVectorNew);
          {заносить в Target ті точки, для яких X менше нуля}
-     procedure NegativeY(var Target:TVectorNew);
+     procedure NegativeY(Target:TVectorNew);
          {заносить в Target ті точки, для яких Y менше нуля}
-     Procedure ReverseX(var Target:TVectorNew);
+     Procedure ReverseX(Target:TVectorNew);
          {заносить в Target ті точки, для яких X менше або рівне нулю}
-     Procedure ReverseY(var Target:TVectorNew);
-     Procedure ReverseIV(var Target:TVectorNew);
+     Procedure ReverseY(Target:TVectorNew);
+     Procedure ReverseIV(Target:TVectorNew);
      {записує у Target тільки ті точки, які відповідають
      зворотній ділянці ВАХ (для яких координата X менше нуля),
      причому записує модуль координат}
-     Procedure Median (var Target:TVectorNew);
+     Procedure Median (Target:TVectorNew);
       {в Target розміщується результат дії на дані в Vector
       медіанного трьохточкового фільтра;
       якщо у вихідному масиві кількість точок менша трьох,
       то у результуючому буде нульова кількість}
-     Procedure Splain3(var Target:TVectorNew;beg:double; step:double);
+     Procedure Splain3(Target:TVectorNew;beg:double; step:double);
       {в Target результат апроксимації даних
       з використанням кубічних сплайнів,
       починаючи з точки з координатою
@@ -149,7 +153,7 @@ type
       по Npoint точкам}
      Procedure Itself(ProcTarget:TProcTarget);
      {дозволяє змінювати власний Vector}
-     Procedure Smoothing (var Target:TVectorNew);
+     Procedure Smoothing (Target:TVectorNew);
       {в Target розміщується сглажена функція даних
       у Vector;
       а саме проводиться усереднення по трьом точкам,
@@ -160,7 +164,7 @@ type
      Function DerivateAtPoint(PointNumber:integer):double;
      {знаходження похідної від функції, яка записана
      у Vector в точці з індексом PointNumber}
-     Procedure Derivate (var Target:TVectorNew);
+     Procedure Derivate (Target:TVectorNew);
       {в Target розміщується похідна від значень, розташованих
       у Vector;
       якщо у вихідному масиві кількість точок менша трьох,
@@ -176,14 +180,14 @@ type
       {обчислюється кількість локальних
       максимумів у Vector;
       дані мають бути упорядковані по координаті X}
-     Procedure CopyDiapazonPoint(var Target:TVectorNew;D:TDiapazon;InitVector:TVectorNew);overload;
+     Procedure CopyDiapazonPoint(Target:TVectorNew;D:TDiapazon;InitVector:TVectorNew);overload;
       {записує в Target ті точки з Vector, відповідні
       до яких точки у InitVector (вихідному) задовольняють
       умовам D; зрозуміло, що для Vector
       мають бути відомими N_begin;
       Target.N_begin не розраховується}
-     Procedure CopyDiapazonPoint(var Target:TVectorNew;Lim:Limits;InitVector:TVectorNew);overload;
-     Procedure CopyDiapazonPoint(var Target:TVectorNew;D:TDiapazon);overload;
+     Procedure CopyDiapazonPoint(Target:TVectorNew;Lim:Limits;InitVector:TVectorNew);overload;
+     Procedure CopyDiapazonPoint(Target:TVectorNew;D:TDiapazon);overload;
       {записує в Target ті точки з Vector, які
       задовольняють умовам D;
       Vector.N_begin має бути 0;
@@ -249,7 +253,7 @@ end;
 
 procedure TVectorManipulation.SetVector(const Value: TVectorNew);
 begin
- Value.Copy(fVector);
+ Value.CopyTo(fVector);
 end;
 
 
@@ -258,55 +262,55 @@ end;
 function TVectorTransform.MaximumCount: integer;
  var i:integer;
 begin
-  if Vector.Count<3 then
+  if Count<3 then
      begin
        Result:=ErResult;
        Exit;
      end;
   Result:=0;
-  for i:=1 to Vector.HighNumber-1 do
-   if (Vector.Y[i]>Vector.Y[i-1])
-       and(Vector.Y[i]>Vector.Y[i+1])
+  for i:=1 to HighNumber-1 do
+   if (Y[i]>Y[i-1])
+       and(Y[i]>Y[i+1])
           then inc(Result);
 end;
 
-procedure TVectorTransform.Median(var Target: TVectorNew);
+procedure TVectorTransform.Median(Target: TVectorNew);
   var i:integer;
 begin
   InitTarget(Target);
-  if Vector.Count<3 then Exit;
-  Vector.Copy(Target);
+  if Self.Count<3 then Exit;
+  Self.CopyTo(Target);
   for i:=1 to Target.HighNumber-1 do
-    Target.y[i]:=MedianFiltr(Vector.y[i-1],Vector.y[i],Vector.y[i+1]);;
+    Target.y[i]:=MedianFiltr(Self.y[i-1],Self.y[i],Self.y[i+1]);;
 end;
 
-procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVectorNew);
+procedure TVectorTransform.Module(Coord: TCoord_type; Target: TVectorNew);
  var i:integer;
 begin
  InitTarget(Target);
- for I := 0 to Vector.Count-1 do
-     if Vector.Point[i][Coord]=0
+ for I := 0 to Self.HighNumber do
+     if Self.Point[i][Coord]=0
        then
        else
          begin
-         Target.Add(Vector[i]);
+         Target.Add(Self[i]);
          if Coord=cX then Target.X[Target.Count-1]:=Abs(Target.X[Target.Count-1]);
          if Coord=cY then Target.Y[Target.Count-1]:=Abs(Target.Y[Target.Count-1]);
          end;
 end;
 
-procedure TVectorTransform.AbsX(var Target: TVectorNew);
+procedure TVectorTransform.AbsX(Target: TVectorNew);
 begin
   Module(cX,Target);
 end;
 
-procedure TVectorTransform.AbsY(var Target: TVectorNew);
+procedure TVectorTransform.AbsY(Target: TVectorNew);
 begin
  Module(cY,Target);
 end;
 
 
-procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVectorNew;
+procedure TVectorTransform.Branch(Coord: TCoord_type; Target: TVectorNew;
                 const IsPositive:boolean=True;
                 const IsRigorous:boolean=True);
  function SuitablePoint(Value:double):boolean;
@@ -327,24 +331,24 @@ procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVectorNew;
 begin
  InitTarget(Target);
  N_begin:=-1;
- for I := 0 to Vector.Count-1 do
-  if SuitablePoint(Vector[i][Coord]) then
+ for I := 0 to Self.HighNumber do
+  if SuitablePoint(Self[i][Coord]) then
     begin
-      Target.Add(Vector[i]);
+      Target.Add(Self[i]);
       if N_begin<0 then N_begin:=i
     end;
  if N_begin>=0 then Target.N_begin:=Cardinal(N_begin);
 end;
 
-procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+procedure TVectorTransform.CopyDiapazonPoint(Target: TVectorNew;
                       D: TDiapazon; InitVector: TVectorNew);
  var i,j:integer;
 begin
  InitTarget(Target);
  Target.T:=InitVector.T;
  j:=-1;
- for I := 0 to Vector.HighNumber do
-   if InitVector.PointInDiapazon(D,i+Vector.N_begin)
+ for I := 0 to Self.HighNumber do
+   if InitVector.PointInDiapazon(D,i+Self.N_begin)
      then
       begin
       if j<0 then
@@ -352,25 +356,25 @@ begin
            j:=0;
            Target.N_begin:=Target.N_begin+i;
          end;
-      Target.Add(Vector[i]);
+      Target.Add(Self[i]);
       end;
 end;
 
-procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+procedure TVectorTransform.CopyDiapazonPoint(Target: TVectorNew;
   D: TDiapazon);
 begin
- CopyDiapazonPoint(Target,D,Self.Vector);
+ CopyDiapazonPoint(Target,D,Self);
 end;
 
-procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+procedure TVectorTransform.CopyDiapazonPoint(Target: TVectorNew;
   Lim: Limits; InitVector: TVectorNew);
  var i,j:integer;
 begin
  InitTarget(Target);
  Target.T:=InitVector.T;
  j:=-1;
- for I := 0 to Vector.HighNumber do
-   if InitVector.PointInDiapazon(Lim,i+Vector.N_begin)
+ for I := 0 to Self.HighNumber do
+   if InitVector.PointInDiapazon(Lim,i+Self.N_begin)
      then
       begin
       if j<0 then
@@ -378,12 +382,12 @@ begin
            j:=0;
            Target.N_begin:=Target.N_begin+i;
          end;
-      Target.Add(Vector[i]);
+      Target.Add(Self[i]);
       end;
 end;
 
 procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
-           var Target: TVectorNew; Clim1, Clim2: double);
+           Target: TVectorNew; Clim1, Clim2: double);
  var i:integer;
      Cmin,Cmax:double;
 begin
@@ -397,32 +401,43 @@ begin
         Cmin:=Clim1;
       end;
   InitTarget(Target);
-  for I := 0 to Vector.Count-1 do
-    if (Vector[i][Coord]>=Cmin)and(Vector[i][Coord]<=Cmax) then
-       Target.Add(Vector[i]);
+  for I := 0 to Self.HighNumber do
+    if (Self[i][Coord]>=Cmin)and(Self[i][Coord]<=Cmax) then
+       Target.Add(Self[i]);
 end;
 
-procedure TVectorTransform.CopyLimitedX(var Target: TVectorNew; Xmin, Xmax: double);
+procedure TVectorTransform.CopyLimitedX(Target: TVectorNew; Xmin, Xmax: double);
 begin
  CopyLimited(cX,Target,Xmin, Xmax);
 end;
 
-procedure TVectorTransform.CopyLimitedY(var Target: TVectorNew; Ymin,
+procedure TVectorTransform.CopyLimitedY(Target: TVectorNew; Ymin,
   Ymax: double);
 begin
  CopyLimited(cY,Target,Ymin, Ymax);
 end;
+
+//constructor TVectorTransform.Create;
+//begin
+// inherited Create;
+//end;
+
+//constructor TVectorTransform.Create(ExternalVector: TVectorNew);
+//begin
+//  Create();
+//  SetVector(ExternalVector);
+//end;
 
 function TVectorTransform.DerivateAtPoint(PointNumber: integer): double;
 begin
  Result:=ErResult;
  try
   if PointNumber=0
-    then Result:=DerivateTwoPoint(Vector[1],Vector[0]);
-  if PointNumber=Vector.HighNumber
-    then Result:=DerivateTwoPoint(Vector[Vector.HighNumber],Vector[Vector.HighNumber-1]);
-  if (PointNumber>0)and(PointNumber<Vector.HighNumber)
-     then Result:=DerivateLagr(Vector[PointNumber-1],Vector[PointNumber],Vector[PointNumber+1]);
+    then Result:=DerivateTwoPoint(Self[1],Self[0]);
+  if PointNumber=Self.HighNumber
+    then Result:=DerivateTwoPoint(Self[Self.HighNumber],Self[Self.HighNumber-1]);
+  if (PointNumber>0)and(PointNumber<Self.HighNumber)
+     then Result:=DerivateLagr(Self[PointNumber-1],Self[PointNumber],Self[PointNumber+1]);
  except
 
  end;
@@ -434,27 +449,27 @@ begin
   temp:=TVectorNew.Create;
   Self.Derivate(temp);
   Result:=temp.Xvalue(0);
-  if (Result>Vector.MaxX)or(Result<Vector.MinX)
+  if (Result>Self.MaxX)or(Result<Self.MinX)
      then result:=ErResult;
   temp.Free;
 end;
 
-procedure TVectorTransform.Derivate(var Target: TVectorNew);
+procedure TVectorTransform.Derivate(Target: TVectorNew);
 var i:integer;
 begin
  InitTarget(Target);
- if Vector.Count<3 then Exit;
- Vector.Copy(Target);
- for i:=0 to Vector.HighNumber do
+ if Self.Count<3 then Exit;
+ Self.CopyTo(Target);
+ for i:=0 to Self.HighNumber do
    Target.Y[i]:=DerivateAtPoint(i);
 end;
 
-procedure TVectorTransform.ForwardX(var Target: TVectorNew);
+procedure TVectorTransform.ForwardX(Target: TVectorNew);
 begin
   Branch(cX,Target,true,false);
 end;
 
-procedure TVectorTransform.ForwardY(var Target: TVectorNew);
+procedure TVectorTransform.ForwardY(Target: TVectorNew);
 begin
   Branch(cy,Target,true,false);
 end;
@@ -466,24 +481,24 @@ begin
   Result:=False;
   InitArrSingle(OutputData,3);
 
-  for I:=0 to Vector.HighNumber do
-    if Vector.X[i]<0 then Exit;
+  for I:=0 to Self.HighNumber do
+    if Self.X[i]<0 then Exit;
 
   new(R);
   R^.SetLengthSys(3);
   R^.Clear;
 
-  R^.A[0,0]:=Vector.Count;
-  for i:=0 to Vector.HighNumber do
+  R^.A[0,0]:=Self.Count;
+  for i:=0 to Self.HighNumber do
    begin
-     R^.A[0,1]:=R^.A[0,1]+Vector.X[i];
-     R^.A[0,2]:=R^.A[0,2]+ln(Vector.X[i]);
-     R^.A[1,1]:=R^.A[1,1]+Vector.X[i]*Vector.X[i];
-     R^.A[1,2]:=R^.A[1,2]+Vector.X[i]*ln(Vector.X[i]);
-     R^.A[2,2]:=R^.A[2,2]+ln(Vector.X[i])*ln(Vector.X[i]);
-     R^.f[0]:=R^.f[0]+Vector.Y[i];
-     R^.f[1]:=R^.f[1]+Vector.Y[i]*Vector.X[i];
-     R^.f[2]:=R^.f[2]+Vector.Y[i]*ln(Vector.X[i]);
+     R^.A[0,1]:=R^.A[0,1]+Self.X[i];
+     R^.A[0,2]:=R^.A[0,2]+ln(Self.X[i]);
+     R^.A[1,1]:=R^.A[1,1]+Self.X[i]*Self.X[i];
+     R^.A[1,2]:=R^.A[1,2]+Self.X[i]*ln(Self.X[i]);
+     R^.A[2,2]:=R^.A[2,2]+ln(Self.X[i])*ln(Self.X[i]);
+     R^.f[0]:=R^.f[0]+Self.Y[i];
+     R^.f[1]:=R^.f[1]+Self.Y[i]*Self.X[i];
+     R^.f[2]:=R^.f[2]+Self.Y[i]*ln(Self.X[i]);
    end;
   R^.A[1,0]:=R^.A[0,1];
   R^.A[2,0]:=R^.A[0,2];
@@ -506,40 +521,41 @@ procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVectorNew;
      j:Word;
 begin
  InitTarget(Target);
- if Vector.Count<1 then Exit;
+ if Self.Count<1 then Exit;
 
- if Npoint=0 then Npoint:=Trunc(sqrt(Vector.Count+1));
+ if Npoint=0 then Npoint:=Trunc(sqrt(Self.Count+1));
  if Npoint=0 then Exit;
 
- CountTargetElement:=Vector.Count div Npoint;
+ CountTargetElement:=Self.Count div Npoint;
  if CountTargetElement=0
   then
    begin
-   Target.Add(Self.ImpulseNoiseSmoothing(cX),Self.ImpulseNoiseSmoothing(cY));
+   Target.Add(Self.ImpulseNoiseSmoothing(cX),
+              Self.ImpulseNoiseSmoothing(cY));
    Exit;
    end;
 
  Target.SetLenVector(CountTargetElement);
 
   TG:=TVectorTransform.Create();
-  TG.Vector.SetLenVector(Npoint);
+  TG.SetLenVector(Npoint);
   for I := 0 to CountTargetElement - 2 do
    begin
      for j := 0 to Npoint - 1 do
        begin
-        TG.Vector.X[j]:=Self.Vector.X[I*Npoint+j];
-        TG.Vector.Y[j]:=Self.Vector.Y[I*Npoint+j];
+        TG.X[j]:=Self.X[I*Npoint+j];
+        TG.Y[j]:=Self.Y[I*Npoint+j];
        end;
      Target.X[I]:=TG.ImpulseNoiseSmoothing(cX);
      Target.Y[I]:=TG.ImpulseNoiseSmoothing(cY);
    end;
 
-  I:=Vector.Count mod Npoint;
-  TG.Vector.SetLenVector(I+Npoint);
+  I:=Self.Count mod Npoint;
+  TG.SetLenVector(I+Npoint);
   for j := 0 to Npoint+I-1 do
    begin
-    TG.Vector.X[j]:=Self.Vector.X[(CountTargetElement - 1)*Npoint+j];
-    TG.Vector.Y[j]:=Self.Vector.Y[(CountTargetElement - 1)*Npoint+j];
+    TG.X[j]:=Self.X[(CountTargetElement - 1)*Npoint+j];
+    TG.Y[j]:=Self.Y[(CountTargetElement - 1)*Npoint+j];
    end;
 
   Target.X[CountTargetElement - 1]:=TG.ImpulseNoiseSmoothing(cX);
@@ -554,22 +570,22 @@ function TVectorTransform.ImpulseNoiseSmoothing(
      tempVector:TVectorNew;
 begin
 
-  if Vector.Count<1 then
+  if Self.Count<1 then
     begin
       Result:=ErResult;
       Exit;
     end;
-  if Vector.Count<5 then
+  if Self.Count<5 then
     begin
-      Result:=Vector.MeanValue(Coord);
+      Result:=Self.MeanValue(Coord);
       Exit;
     end;
 
-  i_min:=Vector.MinNumber(Coord);
-  i_max:=Vector.MaxNumber(Coord);
+  i_min:=Self.MinNumber(Coord);
+  i_max:=Self.MaxNumber(Coord);
 
  tempVector:=TVectorNew.Create;
- Vector.Copy(tempVector);
+ Self.CopyTo(tempVector);
  if i_min=i_max then TempVector.DeletePoint(i_min)
                 else
                  begin
@@ -603,18 +619,18 @@ function TVectorTransform.ImpulseNoiseSmoothingByNpoint(
  var temp:TVectorTransform;
 begin
  Result:=ErResult;
- if Vector.Count<1 then Exit;
+ if Self.Count<1 then Exit;
 
- if Npoint=0 then Npoint:=Trunc(sqrt(Vector.Count+1));
+ if Npoint=0 then Npoint:=Trunc(sqrt(Self.Count+1));
  if Npoint=0 then Exit;
 
 
  temp:=TVectorTransform.Create;
 
 
- Self.ImNoiseSmoothedArray(temp.Vector, Npoint);
- if temp.Vector.Count=1
-  then Result:=temp.Vector.Point[0][Coord]
+ Self.ImNoiseSmoothedArray(temp, Npoint);
+ if temp.Count=1
+  then Result:=temp[0][Coord]
   else Result:=temp.ImpulseNoiseSmoothingByNpoint(Coord,Npoint);
  temp.Free;
 
@@ -629,30 +645,31 @@ begin
     do OutputData[i]:=ErResult;
 end;
 
-procedure TVectorTransform.InitTarget(var Target: TVectorNew);
+procedure TVectorTransform.InitTarget(Target: TVectorNew);
 begin
-  try
-   Target.Clear
-  except
-   Target:=TVectorNew.Create;
-  end;
-  Target.T:=fVector.T;
-  Target.name:=fVector.name;
-  Target.N_begin:=fVector.N_begin;
+//  try
+//   Target.Clear
+//  except
+//   Target:=TVectorNew.Create;
+//  end;
+  Target.Clear;
+  Target.T:=Self.T;
+  Target.name:=Self.name;
+  Target.N_begin:=Self.N_begin;
 end;
 
 function TVectorTransform.Isc: double;
  var temp, temp2:double;
 begin
  Result:=0;
- if Vector.Count<2 then Exit;
- temp:=Vector.Yvalue(0);
- temp2:=Vector.Yvalue(0.01);
+ if Self.Count<2 then Exit;
+ temp:=Self.Yvalue(0);
+ temp2:=Self.Yvalue(0.01);
  if (abs(temp2/temp)>2) then Exit
              else Result:=-temp;
  if temp=ErResult then
-      Result:=(-Vector.Y[1]*Vector.X[0]+Vector.Y[0]*Vector.X[1])
-              /(Vector.X[0]-Vector.X[1]);
+      Result:=(-Self.Y[1]*Self.X[0]+Self.Y[0]*Self.X[1])
+              /(Self.X[0]-Self.X[1]);
 end;
 
 procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
@@ -660,7 +677,7 @@ procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
 begin
  Target:=TVectorNew.Create;
  ProcTarget(Target);
- Target.Copy(Self.Vector);
+ Target.CopyTo(Self);
  Target.Free;
 end;
 
@@ -673,18 +690,18 @@ var temp:TVectorNew;
 begin
  Result:=False;
  InitArrSingle(OutputData,2);
-  if OutsideTemperature=ErResult then Temperature:=Vector.T
+  if OutsideTemperature=ErResult then Temperature:=Self.T
                                  else Temperature:=OutsideTemperature;
-  if (Temperature<=0)or(Vector.Count=0) then Exit;
+  if (Temperature<=0)or(Self.Count=0) then Exit;
   SetLength(Param,6);
 
   temp:=TVectorNew.Create;
-  temp.SetLenVector(Vector.Count);
+  temp.SetLenVector(Self.Count);
   try
   for I := 0 to temp.HighNumber do
     begin
-     temp.X[i]:=1/Vector.X[i];
-     temp.Y[i]:=sqrt(DD.Fb(Temperature,Vector.Y[i]));
+     temp.X[i]:=1/Self.X[i];
+     temp.Y[i]:=sqrt(DD.Fb(Temperature,Self.Y[i]));
     end;
   except
    temp.Free;
@@ -727,16 +744,16 @@ begin
   Result:=False;
   InitArrSingle(OutputData,2);
   Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;
-  for i:=0 to Vector.HighNumber do
+  for i:=0 to Self.HighNumber do
      begin
-     Sx:=Sx+Vector.x[i];
-     Sy:=Sy+Vector.y[i];
-     Sxy:=Sxy+Vector.x[i]*Vector.y[i];
-     Sx2:=Sx2+Vector.x[i]*Vector.x[i];
+     Sx:=Sx+Self.x[i];
+     Sy:=Sy+Self.y[i];
+     Sxy:=Sxy+Self.x[i]*Self.y[i];
+     Sx2:=Sx2+Self.x[i]*Self.x[i];
      end;
   try
-  OutputData[0]:=(Sx2*Sy-Sxy*Sx)/(Vector.Count*Sx2-Sx*Sx);
-  OutputData[1]:=(Vector.Count*Sxy-Sy*Sx)/(Vector.Count*Sx2-Sx*Sx);
+  OutputData[0]:=(Sx2*Sy-Sxy*Sx)/(Self.Count*Sx2-Sx*Sx);
+  OutputData[1]:=(Self.Count*Sxy-Sy*Sx)/(Self.Count*Sx2-Sx*Sx);
   except
    InitArrSingle(OutputData,2);
    Exit;
@@ -749,11 +766,11 @@ var Sx,Sxy,Sx2:double;
     i:integer;
 begin
  Sx:=0;Sxy:=0;Sx2:=0;
- for i:=0 to Vector.HighNumber do
+ for i:=0 to Self.HighNumber do
    begin
-   Sx:=Sx+Vector.x[i];
-   Sxy:=Sxy+Vector.x[i]*Vector.y[i];
-   Sx2:=Sx2+Vector.x[i]*Vector.x[i];
+   Sx:=Sx+Self.x[i];
+   Sxy:=Sxy+Self.x[i]*Self.y[i];
+   Sx2:=Sx2+Self.x[i]*Self.x[i];
    end;
  try
  Result:=(Sxy-a*Sx)/Sx2;
@@ -764,17 +781,17 @@ end;
 
 function TVectorTransform.LinAproxBconst(b: double): double;
 begin
- if Vector.IsEmpty then Result:=ErResult
+ if Self.IsEmpty then Result:=ErResult
                    else
-      Result:=(Vector.SumY-b*Vector.SumX)/Vector.Count;
+      Result:=(Self.SumY-b*Self.SumX)/Self.Count;
 end;
 
-procedure TVectorTransform.NegativeX(var Target: TVectorNew);
+procedure TVectorTransform.NegativeX(Target: TVectorNew);
 begin
   Branch(cX,Target,false);
 end;
 
-procedure TVectorTransform.NegativeY(var Target: TVectorNew);
+procedure TVectorTransform.NegativeY(Target: TVectorNew);
 begin
  Branch(cY,Target,false);
 end;
@@ -786,7 +803,7 @@ begin
   Result:=False;
   InitArrSingle(OutputData,3);
  Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;Sx3:=0;Sx4:=0;Syx2:=0;
- with Vector do begin
+ with Self do begin
   for i:=0 to HighNumber do
    begin
    Sx:=Sx+x[i];
@@ -808,76 +825,82 @@ begin
  end;
 end;
 
-procedure TVectorTransform.PositiveX(var Target: TVectorNew);
+procedure TVectorTransform.PositiveX(Target: TVectorNew);
 begin
  Branch(cX,Target);
 end;
 
 
-procedure TVectorTransform.PositiveY(var Target: TVectorNew);
+procedure TVectorTransform.PositiveY(Target: TVectorNew);
 begin
  Branch(cY,Target);
 end;
 
-procedure TVectorTransform.ReverseIV(var Target: TVectorNew);
+procedure TVectorTransform.ReverseIV(Target: TVectorNew);
  var temp:TVectorTransform;
 begin
- temp:=TVectorTransform.Create(Self.Vector);
+ temp:=TVectorTransform.Create(Self);
  temp.Itself(temp.NegativeX);
  temp.Itself(temp.AbsX);
  temp.AbsY(Target);
  temp.Free;
 end;
 
-procedure TVectorTransform.ReverseX(var Target: TVectorNew);
+procedure TVectorTransform.ReverseX(Target: TVectorNew);
 begin
    Branch(cX,Target,false,false);
 end;
 
-procedure TVectorTransform.ReverseY(var Target: TVectorNew);
+procedure TVectorTransform.ReverseY(Target: TVectorNew);
 begin
    Branch(cY,Target,false,false);
 end;
 
-procedure TVectorTransform.Smoothing(var Target: TVectorNew);
+//procedure TVectorTransform.SetVector(const Value: TVectorNew);
+//begin
+// Value.CopyTo(Self);
+//end;
+
+procedure TVectorTransform.Smoothing(Target: TVectorNew);
 const W0=17;W1=66;W2=17;
 {вагові коефіцієнти для нульової, першої та другої точок}
 var i:integer;
 begin
   InitTarget(Target);
-  if Vector.Count<3 then Exit;
-  Vector.Copy(Target);
+  if Self.Count<3 then Exit;
+  Self.CopyTo(Target);
   for i:=1 to Target.HighNumber-1 do
-      Target.y[i]:=(W0*Vector.y[i-1]+W1*Vector.y[i]+W2*Vector.y[i+1])/(W0+W1+W2);
-  Target.y[0]:=(W1*Vector.y[0]+W2*Vector.y[1])/(W1+W2);
-  Target.y[Vector.HighNumber]:=(W1*Vector.y[Vector.HighNumber]
-                     +W0*Vector.y[Vector.HighNumber-1])/(W1+W0);
+      Target.y[i]:=(W0*Self.y[i-1]+W1*Self.y[i]+W2*Self.y[i+1])
+                   /(W0+W1+W2);
+  Target.y[0]:=(W1*Self.y[0]+W2*Self.y[1])/(W1+W2);
+  Target.y[Self.HighNumber]:=(W1*Self.y[Self.HighNumber]
+                     +W0*Self.y[Self.HighNumber-1])/(W1+W0);
 end;
 
-procedure TVectorTransform.Splain3(var Target:TVectorNew;beg:double; step:double);
+procedure TVectorTransform.Splain3(Target:TVectorNew;beg:double; step:double);
  var i,j:integer;
      temp:double;
      SplainCoef:TSplainCoefArray;
 begin
   InitTarget(Target);
-   j:=Vector.ValueNumber(cX,beg);
+   j:=Self.ValueNumber(cX,beg);
    if j<0 then Exit;
 
-  SplainCoefCalculate(Vector,SplainCoef);
+  SplainCoefCalculate(Self,SplainCoef);
   i:=0;
   temp:=beg;
   repeat
    inc(i);
    temp:=temp+step;
-  until (temp>Vector.X[Vector.HighNumber]);
+  until (temp>Self.X[Self.HighNumber]);
 
   Target.SetLenVector(i);
   for i:=0 to Target.HighNumber do
    begin
     temp:=beg+i*step;
     Target.X[i]:=temp;
-    j:=Vector.ValueNumber(cX,temp);
-    Target.Y[i]:=Kub(temp,Vector.Point[j],SplainCoef[j]);
+    j:=Self.ValueNumber(cX,temp);
+    Target.Y[i]:=Kub(temp,Self.Point[j],SplainCoef[j]);
    end;
 
 end;
@@ -886,7 +909,7 @@ function TVectorTransform.Voc: double;
  var temp:double;
 begin
  Result:=0;
- temp:=Vector.Xvalue(0);
+ temp:=Self.Xvalue(0);
  if (temp=ErResult)or
     (temp<=0) then Exit
               else Result:=temp;
@@ -909,18 +932,17 @@ function TVectorTransform.YvalueLagrang(Xvalue: double): double;
      t1,t2:double;
 begin
    Result:=ErResult;
-   if (Xvalue-Vector.X[Vector.HighNumber])*(Xvalue-Vector.X[0])>0 then Exit;
+   if (Xvalue-Self.X[Self.HighNumber])*(Xvalue-Self.X[0])>0 then Exit;
    t1:=0;
-   for i:=0 to Vector.HighNumber do
+   for i:=0 to Self.HighNumber do
      begin
        t2:=1;
-       for j:=0 to Vector.HighNumber do
+       for j:=0 to Self.HighNumber do
          if (j<>i) then
-          t2:=t2*(Xvalue-Vector.X[j])/(Vector.X[i]-Vector.X[j]);
-       t1:=t1+Vector.Y[i]*t2;
+          t2:=t2*(Xvalue-Self.X[j])/(Self.X[i]-Self.X[j]);
+       t1:=t1+Self.Y[i]*t2;
      end;
   Result:=t1;
-
 end;
 
 function TVectorTransform.YvalueLinear(Xvalue: double): double;
@@ -937,13 +959,13 @@ function TVectorTransform.YvalueSplain3(Xvalue: double): double;
      SplainCoef:TSplainCoefArray;
 begin
    Result:=ErResult;
-   i:=Vector.ValueNumber(cX,Xvalue);
+   i:=Self.ValueNumber(cX,Xvalue);
    if i<0 then Exit;
 
-   if (Xvalue>Vector.MaxX)or(Xvalue<Vector.MinX) then Exit;
-   SplainCoefCalculate(Vector,SplainCoef);
+   if (Xvalue>Self.MaxX)or(Xvalue<Self.MinX) then Exit;
+   SplainCoefCalculate(Self,SplainCoef);
 
-  Result:=Kub(Xvalue,Vector.Point[i],SplainCoef[i]);
+  Result:=Kub(Xvalue,Self[i],SplainCoef[i]);
 end;
 
 Function Kub (x:double;coef:array of double):double;overload;

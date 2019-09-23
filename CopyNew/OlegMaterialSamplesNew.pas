@@ -1833,9 +1833,9 @@ begin
    end;
 
   Vect:=TVectorTransform.Create;
-  Vect.Vector.SetLenVector(trunc(High(Si_absorption)/2));
-  for I := 0 to Vect.Vector.HighNumber
-     do Vect.Vector.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
+  Vect.SetLenVector(trunc(High(Si_absorption)/2));
+  for I := 0 to Vect.HighNumber
+     do Vect.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
   Result:=Vect.YvalueSplain3(Lambda)*100;
   Vect.Free;
 end;

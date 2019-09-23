@@ -123,7 +123,8 @@ type
         трапецій;  вважається, що межі інтегралу простягаються на
         весь діапазон зміни А^.X}
 
-      Constructor Create;
+      Constructor Create;overload;
+      Constructor Create(ExternalVector:TVectorNew);overload;
 
       procedure SetLenVector(Number:integer);
       procedure Clear();
@@ -140,10 +141,11 @@ type
       NumberDigit - кількість значущих цифр}
       procedure ReadFromGraph(Series:TCustomSeries);
       procedure WriteToGraph(Series:TCustomSeries);
-      procedure Copy (TargetVector:TVectorNew);
+      procedure CopyTo (TargetVector:TVectorNew);
        {копіюються поля з даного вектора в
         уже раніше створений TargetVector}
-
+      procedure CopyFrom (const SourceVector:TVectorNew);
+      {копіюються поля з SourceVector в даний}
       procedure Add(newX,newY:double);overload;
       procedure Add(newXY:double);overload;
       procedure Add(newPoint:TPointDouble);overload;
@@ -672,7 +674,7 @@ begin
    Result:=Result+FloaTtoStr(Points[i,Coord])+' ';
 end;
 
-Procedure TVectorNew.Copy (TargetVector:TVectorNew);
+Procedure TVectorNew.CopyTo (TargetVector:TVectorNew);
  var i:integer;
 begin
   TargetVector.SetLenVector(Self.Count);
@@ -708,6 +710,12 @@ begin
  Result^:=CopyYtoArray();
 end;
 
+constructor TVectorNew.Create(ExternalVector: TVectorNew);
+begin
+  Create();
+  CopyFrom(ExternalVector);
+end;
+
 function TVectorNew.CopyXtoPArray():PTArrSingle;
 begin
  new(Result);
@@ -722,6 +730,11 @@ end;
 //     TargetArray^[i]:=Y[i];
 //end;
 //
+
+procedure TVectorNew.CopyFrom(const SourceVector: TVectorNew);
+begin
+ SourceVector.CopyTo(Self);
+end;
 
 Procedure TVectorNew.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
  var i:integer;
