@@ -2,7 +2,7 @@
 
 
 interface
- uses IniFiles,SysUtils, StdCtrls,OlegTypeNew, Series;
+ uses IniFiles,SysUtils, StdCtrls,OlegTypeNew, Series, Graphics, TeEngine;
 
 
 type
@@ -140,7 +140,7 @@ type
       якщо .Count=0, то запис у файл не відбувається;
       NumberDigit - кількість значущих цифр}
       procedure ReadFromGraph(Series:TCustomSeries);
-      procedure WriteToGraph(Series:TCustomSeries);
+      procedure WriteToGraph(Series:TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
       procedure CopyTo (TargetVector:TVectorNew);
        {копіюються поля з даного вектора в
         уже раніше створений TargetVector}
@@ -322,8 +322,8 @@ var F:TextFile;
 //    i:integer;
     ss, ss1:string;
 begin
-  fName:=NameFile;
   Clear;
+  Self.fName:=NameFile;
   if not(FileExists(NameFile)) then Exit;
   AssignFile(f,NameFile);
   ReadTextFile(F);
@@ -415,12 +415,12 @@ begin
  Str.Free;
 end;
 
-procedure TVectorNew.WriteToGraph(Series: TCustomSeries);
+procedure TVectorNew.WriteToGraph(Series: TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
  var i:integer;
 begin
  Series.Clear;
  for I := 0 to High(Points) do
-   Series.AddXY(Points[i,cX],Points[i,cY]);
+   Series.AddXY(Points[i,cX],Points[i,cY],ALabel,AColor);
 end;
 
 procedure TVectorNew.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);

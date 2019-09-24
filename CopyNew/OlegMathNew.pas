@@ -1,44 +1,45 @@
 ﻿unit OlegMathNew;
 
 interface
- uses OlegTypeNew, Dialogs, SysUtils, Math, Classes, OlegVector, OlegVectorNew;
+ uses OlegTypeNew, Dialogs, SysUtils, Math, Classes, {OlegVector,} OlegVectorNew;
 
-Type FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
+Type
+//     FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
      TFun_IV=Function(Argument:double;Parameters:array of double;Key:double):double;
-     TFunCorrection=Function (A:Pvector; var B:Pvector; fun:byte=0):boolean;
+//     TFunCorrection=Function (A:Pvector; var B:Pvector; fun:byte=0):boolean;
+     TFunCorrectionNew=Function (A:TVectorNew; B:TVectorNew; fun:byte=0):boolean;
      {функція для перетворення даних в Pvector, зокрема використовується в диференціальних
      методах аналізу ВАХ}
-     TFunCorrectionNew=Function (A:TVectorNew; var B:TVectorNew; fun:byte=0):boolean;
 
-  TFun1D=Function(A:Pvector; Variab:array of double;
-                  Param:array of double;
-                  var Rez:array of double):word;
-  {тип для функції, яка використовується в методі
-  Ньютона, її задача повернути масив чисел Rez, що
-  є значеннями системи рівнянь при змінних,
-  рівних значенням в Variab;
-  Param - масив параметрів, які входять до наших рівнянь;
-  A - вектор, по даним якого розраховуються функції,
-  введено для можливості використання
-  функцій більш загального типу;
-  при вдалій операцій функція повертає 0,
-  при невдалій - додатне число, а в Rez всі значення ErResult}
+//  TFun1D=Function(A:Pvector; Variab:array of double;
+//                  Param:array of double;
+//                  var Rez:array of double):word;
+//  {тип для функції, яка використовується в методі
+//  Ньютона, її задача повернути масив чисел Rez, що
+//  є значеннями системи рівнянь при змінних,
+//  рівних значенням в Variab;
+//  Param - масив параметрів, які входять до наших рівнянь;
+//  A - вектор, по даним якого розраховуються функції,
+//  введено для можливості використання
+//  функцій більш загального типу;
+//  при вдалій операцій функція повертає 0,
+//  при невдалій - додатне число, а в Rez всі значення ErResult}
 
-  TFun2D=Function(A:Pvector; Variab:array of double;
-                  Param:array of double;
-                  var Rez:T2DArray):word;
-  {тип для функції, яка використовується в методі
-  Ньютона, її задача повернути двомірний масив чисел Rez, що
-  є значеннями якобіана (набору функцій)
-  від системи рівнянь при змінних,
-  рівних значенням в Variab;
-  Param - масив параметрів, які використовуються у
-  наборі функцій;
-  A - вектор, по даним якого розраховуються функції,
-  введено для можливості використання
-  функцій більш загального типу;
-  при вдалій операцій функція повертає 0,
-  при невдалій - додатне число, а в Rez всі значення ErResult}
+//  TFun2D=Function(A:Pvector; Variab:array of double;
+//                  Param:array of double;
+//                  var Rez:T2DArray):word;
+//  {тип для функції, яка використовується в методі
+//  Ньютона, її задача повернути двомірний масив чисел Rez, що
+//  є значеннями якобіана (набору функцій)
+//  від системи рівнянь при змінних,
+//  рівних значенням в Variab;
+//  Param - масив параметрів, які використовуються у
+//  наборі функцій;
+//  A - вектор, по даним якого розраховуються функції,
+//  введено для можливості використання
+//  функцій більш загального типу;
+//  при вдалій операцій функція повертає 0,
+//  при невдалій - додатне число, а в Rez всі значення ErResult}
 
 
 
@@ -75,59 +76,59 @@ Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
 procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
 {додаються всі елементи з AddedArray в кінець InitArray}
 
-Function Poh(A:PVector; k:integer):double;
+//Function Poh(A:PVector; k:integer):double;
 //function TVectorTransform.DerivateAtPoint(PointNumber: integer): double;
 {знаходження похідної від функції, яка записана
 в масиві А в точці з індексом k}
 
-Procedure LinAprox (V:PVector; var a,b:double);
+//Procedure LinAprox (V:PVector; var a,b:double);
 //function TVectorTransform.LinAprox(var OutputData: TArrSingle): boolean;
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x}
 
-Function LinAproxYvalue(V:PVector;XValue:double):double;
+//Function LinAproxYvalue(V:PVector;XValue:double):double;
 //function TVectorTransform.YvalueLinear(Xvalue: double): double;
 {повертає ординату точки, яка має абсцису XValue
 для лінійної залежності, побудованої по даним
 вектора V}
 
-Function LinAproxXvalue(V:PVector;YValue:double):double;
+//Function LinAproxXvalue(V:PVector;YValue:double):double;
 //function TVectorTransform.XvalueLinear(YValue: double): double;
 {повертає  абсцису точки, яка має  ординату YValue
 для лінійної залежності, побудованої по даним
 вектора V}
 
-Procedure LinAproxBconst (V:PVector; var a:double; b:double);
+//Procedure LinAproxBconst (V:PVector; var a:double; b:double);
 //function TVectorTransform.LinAproxBconst(b: double): double;
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x;
 параметр b вважається відомим}
 
-Procedure LinAproxAconst (V:PVector; a:double; var b:double);
+//Procedure LinAproxAconst (V:PVector; a:double; var b:double);
 //function TVectorTransform.LinAproxBconst(b: double): double;
 {апроксимуються дані у векторі V лінійною
 залежністю y=a+b*x;
 параметр a вважається відомим}
 
 
-Procedure ParabAprox (V:Pvector; var a,b,c:double);
+//Procedure ParabAprox (V:Pvector; var a,b,c:double);
 //function TVectorTransform.ParabAprox(var OutputData: TArrSingle): boolean;
 {апроксимуються дані у векторі V параболічною
 залежністю y=a+b*x+с*x2}
 
-Procedure GromovAprox (V:PVector; var a,b,c:double);
+//Procedure GromovAprox (V:PVector; var a,b,c:double);
 //function TVectorTransform.GromovAprox(var OutputData: TArrSingle):boolean;
 {апроксимуються дані у векторі V
 залежністю y=a+b*x+c*ln(x)}
 
-Procedure ExpAprox (V:PVector; var I0,E:double);
+//Procedure ExpAprox (V:PVector; var I0,E:double);
 //Arhiv
 {апроксимуються дані у векторі V
 залежністю I=I0[exp(V/E0)-1]
 за методом найменших квадратів зі
 статистичними ваговими коефіцієнтами}
 
-Procedure ExpRshAprox (V:PVector; var I0,E,Rsh:double);
+//Procedure ExpRshAprox (V:PVector; var I0,E,Rsh:double);
 //Arhiv
 {апроксимуються дані у векторі V
 залежністю I=I0[exp(V/E0)-1]+V/Rsh
@@ -724,587 +725,587 @@ begin
    InitArray[High(InitArray)-High(AddedArray)+i]:=AddedArray[i];
 end;
 
-Function Poh (A:PVector; k:integer):double;
-
-  Function PohPol(x,x1,x2,x3,y1,y2,y3:double):double;
-  {допоміжна функція для знаходження похідної -
-  похідна від поліному Лагранжа, проведеного через
-  три точки}
-    begin
-    Result:=y1*(2*x-x2-x3)/(x1-x2)/(x1-x3)+y2*(2*x-x1-x3)/(x2-x1)/(x2-x3)+y3*(2*x-x1-x2)/(x3-x1)/(x3-x2);
-    end;
-
-  Procedure NextPoint(i1,i2:integer;F1, F:double; A:PVector;
-            var x:double; var y:double; var Inext:integer);
-  {процедура пошуку в масиві A такої точки (в діапазоні номерів
-  від і1 до, максимум, i2), значення ординати якої за модулем
-  не менше від F на  0,01% і присвоєння змінним х та у координат
-  цієї точки, а Inext - номера. Якщо такої точки не знайшлося,
-  то змінній х присвоюється ординати точки з номером і2,
-  змінній у - число на 0.001% більше за модулем ніж F, Inext - i2.
-  i2 не обов'язково має бути більшим за і1.
-  Головна мета цієї функції - виключити можливість, коли
-  похідна дорівнює нулеві  }
-  var i:integer;
-      bool:boolean;
-      c:double;
-
-  begin
-   bool:=True;
-   if i2>=i1 then i:=i1-1
-             else i:=i1+1;
-
-   repeat
-     if i2>=i1 then i:=i+1
-               else i:=i-1;
-
-     if F=0 then c:=(F-A^.Y[i])/A^.Y[i]
-            else c:=(F-A^.Y[i])/F;
-     if (F=0) and (A^.Y[i]=0) then Continue;
-
-     if (abs(c)>1e-4)and(F1<>A^.X[i]) then
-           begin
-            x:=A^.X[i];
-            y:=A^.Y[i];
-            Inext:=i;
-            bool:=False;
-            break;
-           end;
-    until (i=i2);
-   if bool then
-           begin
-            x:=A^.X[i2];
-            y:=F+F*1e-5;
-            Inext:=i2;
-           end;
-  end;   //NextPoint
-
-  Function RunRom(x1,x2,x3,y1,y2,y3:double):double;
- {функція розрахунку похідної по трьом точкам
- за методом Рунге-Ромберга}
-var f1,f2,h1,h2:double;
- begin
- h1:=x2-x1;
- h2:=x3-x1;
- f1:=(y2-y1)/h1;
- f2:=(y3-y1)/h2;
- Result:=(f1*h2-f2*h1)/(h2-h1);
- end;
-
- Function PohLagr (A:PVector; x:double):double;
-{функція розрахунку в точці х
-похідної від поліному Лагранжа, побудованого
-по всім точкам з А}
- var i,j,k:word;
-     t1,t2,t3,t4:double;
-  begin
-   Result:=ErResult;
-   if (x-A^.X[High(A^.X)])*(x-A^.X[0])>0 then Exit;
-   t1:=0;
-   for i:=0 to High(A^.X) do
-     begin
-       t2:=1;
-       t3:=0;
-       for j:=0 to High(A^.X) do
-         if (j<>i) then
-          begin
-          t2:=t2*(A^.X[i]-A^.X[j]);
-          t4:=1;
-          for k:=0 to High(A^.X) do
-           if (k<>j)and(k<>i) then t4:=t4*(x-A^.X[k]);
-          t3:=t3+t4;
-          end;  //for j:=0 to High(A^.X) do
-     t1:=t1+A^.Y[i]*t3/t2;
-     end;
-  Result:=t1;
-  end;
-
-var x1,x2,x3,y1,y2,y3:double;
-    //inext:integer;
-begin
-
-Result:=0;
-
-{похідна за методом Рунге-Ромберга}
-{дає гірші результати, ніж з використанням
-поліному Лежандра (див.нижче)... а може я не
-зовсім правильно робив, все-таки в книжках
-говорили про рівномірні мережі, а я просто
-для трьох точок намагався}
-{x1:=A^.x[k];
-y1:=A^.y[k];
-
-if k=0 then
-  begin
-  NextPoint(k+1,High(A^.X)-1,x1,y1,A,x2,y2,inext);
-  NextPoint(inext+1,High(A^.X),x2,y2,A,x3,y3,inext);
-  Result:=RunRom(x1,x2,x3,y1,y2,y3);
-  end;
-
-if (k=1)and(k<>(High(A^.X)-1)) then
-  begin
-  NextPoint(k+1,High(A^.X)-1,x1,y1,A,x2,y2,inext);
-  NextPoint(inext+1,High(A^.X),x2,y2,A,x3,y3,inext);
-  Result:=((A^.Y[1]-A^.Y[0])/(A^.X[1]-A^.X[0])+
-  RunRom(x1,x2,x3,y1,y2,y3))/2;
-  end;
-
-if (k=1)and(k=(High(A^.X)-1)) then
-  begin
-  x2:=x1;
-  y2:=y1;
-  NextPoint(k+1,High(A^.X),x2,y2,A,x3,y3,inext);
-  NextPoint(k-1,0,x2,y2,A,x1,y1,inext);
-  Result:=((y3-y2)/(x3-x2)+(y2-y1)/(x2-x1))/2;
-  end;
-
-if k=High(A^.X) then
-  begin
-  NextPoint(k-1,1,x1,y1,A,x2,y2,inext);
-  NextPoint(inext-1,0,x2,y2,A,x3,y3,inext);
-  Result:=RunRom(x1,x2,x3,y1,y2,y3);
-  end;
-
-if (k=(High(A^.X)-1))and(k<>1) then
-  begin
-  NextPoint(k-1,1,x1,y1,A,x2,y2,inext);
-  NextPoint(inext-1,0,x2,y2,A,x3,y3,inext);
-  Result:=((A^.Y[High(A^.X)]-A^.Y[k])/(A^.X[High(A^.X)]-A^.X[k])+
-  RunRom(x1,x2,x3,y1,y2,y3))/2;
-  end;
-
-if (k>1)and(k<(High(A^.X)-1)) then
-  begin
-  NextPoint(k+1,High(A^.X)-1,x1,y1,A,x2,y2,inext);
-  NextPoint(inext+1,High(A^.X),x2,y2,A,x3,y3,inext);
-  Result:=RunRom(x1,x2,x3,y1,y2,y3);
-  NextPoint(k-1,1,x1,y1,A,x2,y2,inext);
-  NextPoint(inext-1,0,x2,y2,A,x3,y3,inext);
-  Result:=(Result+RunRom(x1,x2,x3,y1,y2,y3))/2;
-  end;}
-
-
-{похідна розраховується на основі поліному Лежандра}
-{}
-if k=0 then
-  begin
-  x1:=A^.x[k];
-  y1:=A^.y[k];
-  x2:=A^.x[k+1];
-  y2:=A^.y[k+1];
-//  x3:=A^.x[k+2];
-//  y3:=A^.y[k+2];
-
-//  NextPoint(k+1,High(A^.X),x1,y1,A,x2,y2,inext);
+//Function Poh (A:PVector; k:integer):double;
+//
+//  Function PohPol(x,x1,x2,x3,y1,y2,y3:double):double;
+//  {допоміжна функція для знаходження похідної -
+//  похідна від поліному Лагранжа, проведеного через
+//  три точки}
+//    begin
+//    Result:=y1*(2*x-x2-x3)/(x1-x2)/(x1-x3)+y2*(2*x-x1-x3)/(x2-x1)/(x2-x3)+y3*(2*x-x1-x2)/(x3-x1)/(x3-x2);
+//    end;
+//
+//  Procedure NextPoint(i1,i2:integer;F1, F:double; A:PVector;
+//            var x:double; var y:double; var Inext:integer);
+//  {процедура пошуку в масиві A такої точки (в діапазоні номерів
+//  від і1 до, максимум, i2), значення ординати якої за модулем
+//  не менше від F на  0,01% і присвоєння змінним х та у координат
+//  цієї точки, а Inext - номера. Якщо такої точки не знайшлося,
+//  то змінній х присвоюється ординати точки з номером і2,
+//  змінній у - число на 0.001% більше за модулем ніж F, Inext - i2.
+//  i2 не обов'язково має бути більшим за і1.
+//  Головна мета цієї функції - виключити можливість, коли
+//  похідна дорівнює нулеві  }
+//  var i:integer;
+//      bool:boolean;
+//      c:double;
+//
+//  begin
+//   bool:=True;
+//   if i2>=i1 then i:=i1-1
+//             else i:=i1+1;
+//
+//   repeat
+//     if i2>=i1 then i:=i+1
+//               else i:=i-1;
+//
+//     if F=0 then c:=(F-A^.Y[i])/A^.Y[i]
+//            else c:=(F-A^.Y[i])/F;
+//     if (F=0) and (A^.Y[i]=0) then Continue;
+//
+//     if (abs(c)>1e-4)and(F1<>A^.X[i]) then
+//           begin
+//            x:=A^.X[i];
+//            y:=A^.Y[i];
+//            Inext:=i;
+//            bool:=False;
+//            break;
+//           end;
+//    until (i=i2);
+//   if bool then
+//           begin
+//            x:=A^.X[i2];
+//            y:=F+F*1e-5;
+//            Inext:=i2;
+//           end;
+//  end;   //NextPoint
+//
+//  Function RunRom(x1,x2,x3,y1,y2,y3:double):double;
+// {функція розрахунку похідної по трьом точкам
+// за методом Рунге-Ромберга}
+//var f1,f2,h1,h2:double;
+// begin
+// h1:=x2-x1;
+// h2:=x3-x1;
+// f1:=(y2-y1)/h1;
+// f2:=(y3-y1)/h2;
+// Result:=(f1*h2-f2*h1)/(h2-h1);
+// end;
+//
+// Function PohLagr (A:PVector; x:double):double;
+//{функція розрахунку в точці х
+//похідної від поліному Лагранжа, побудованого
+//по всім точкам з А}
+// var i,j,k:word;
+//     t1,t2,t3,t4:double;
+//  begin
+//   Result:=ErResult;
+//   if (x-A^.X[High(A^.X)])*(x-A^.X[0])>0 then Exit;
+//   t1:=0;
+//   for i:=0 to High(A^.X) do
+//     begin
+//       t2:=1;
+//       t3:=0;
+//       for j:=0 to High(A^.X) do
+//         if (j<>i) then
+//          begin
+//          t2:=t2*(A^.X[i]-A^.X[j]);
+//          t4:=1;
+//          for k:=0 to High(A^.X) do
+//           if (k<>j)and(k<>i) then t4:=t4*(x-A^.X[k]);
+//          t3:=t3+t4;
+//          end;  //for j:=0 to High(A^.X) do
+//     t1:=t1+A^.Y[i]*t3/t2;
+//     end;
+//  Result:=t1;
+//  end;
+//
+//var x1,x2,x3,y1,y2,y3:double;
+//    //inext:integer;
+//begin
+//
+//Result:=0;
+//
+//{похідна за методом Рунге-Ромберга}
+//{дає гірші результати, ніж з використанням
+//поліному Лежандра (див.нижче)... а може я не
+//зовсім правильно робив, все-таки в книжках
+//говорили про рівномірні мережі, а я просто
+//для трьох точок намагався}
+//{x1:=A^.x[k];
+//y1:=A^.y[k];
+//
+//if k=0 then
+//  begin
+//  NextPoint(k+1,High(A^.X)-1,x1,y1,A,x2,y2,inext);
 //  NextPoint(inext+1,High(A^.X),x2,y2,A,x3,y3,inext);
-//  Result:=PohPol(x1,x1,x2,x3,y1,y2,y3);
-  Result:=(y2-y1)/(x2-x1)
-  end;
+//  Result:=RunRom(x1,x2,x3,y1,y2,y3);
+//  end;
+//
+//if (k=1)and(k<>(High(A^.X)-1)) then
+//  begin
+//  NextPoint(k+1,High(A^.X)-1,x1,y1,A,x2,y2,inext);
+//  NextPoint(inext+1,High(A^.X),x2,y2,A,x3,y3,inext);
+//  Result:=((A^.Y[1]-A^.Y[0])/(A^.X[1]-A^.X[0])+
+//  RunRom(x1,x2,x3,y1,y2,y3))/2;
+//  end;
+//
+//if (k=1)and(k=(High(A^.X)-1)) then
+//  begin
+//  x2:=x1;
+//  y2:=y1;
+//  NextPoint(k+1,High(A^.X),x2,y2,A,x3,y3,inext);
+//  NextPoint(k-1,0,x2,y2,A,x1,y1,inext);
+//  Result:=((y3-y2)/(x3-x2)+(y2-y1)/(x2-x1))/2;
+//  end;
+//
+//if k=High(A^.X) then
+//  begin
+//  NextPoint(k-1,1,x1,y1,A,x2,y2,inext);
+//  NextPoint(inext-1,0,x2,y2,A,x3,y3,inext);
+//  Result:=RunRom(x1,x2,x3,y1,y2,y3);
+//  end;
+//
+//if (k=(High(A^.X)-1))and(k<>1) then
+//  begin
+//  NextPoint(k-1,1,x1,y1,A,x2,y2,inext);
+//  NextPoint(inext-1,0,x2,y2,A,x3,y3,inext);
+//  Result:=((A^.Y[High(A^.X)]-A^.Y[k])/(A^.X[High(A^.X)]-A^.X[k])+
+//  RunRom(x1,x2,x3,y1,y2,y3))/2;
+//  end;
+//
+//if (k>1)and(k<(High(A^.X)-1)) then
+//  begin
+//  NextPoint(k+1,High(A^.X)-1,x1,y1,A,x2,y2,inext);
+//  NextPoint(inext+1,High(A^.X),x2,y2,A,x3,y3,inext);
+//  Result:=RunRom(x1,x2,x3,y1,y2,y3);
+//  NextPoint(k-1,1,x1,y1,A,x2,y2,inext);
+//  NextPoint(inext-1,0,x2,y2,A,x3,y3,inext);
+//  Result:=(Result+RunRom(x1,x2,x3,y1,y2,y3))/2;
+//  end;}
+//
+//
+//{похідна розраховується на основі поліному Лежандра}
+//{}
+//if k=0 then
+//  begin
+//  x1:=A^.x[k];
+//  y1:=A^.y[k];
+//  x2:=A^.x[k+1];
+//  y2:=A^.y[k+1];
+////  x3:=A^.x[k+2];
+////  y3:=A^.y[k+2];
+//
+////  NextPoint(k+1,High(A^.X),x1,y1,A,x2,y2,inext);
+////  NextPoint(inext+1,High(A^.X),x2,y2,A,x3,y3,inext);
+////  Result:=PohPol(x1,x1,x2,x3,y1,y2,y3);
+//  Result:=(y2-y1)/(x2-x1)
+//  end;
+//
+//if k=High(A^.X) then
+//  begin
+//  x3:=A^.x[k];
+//  y3:=A^.y[k];
+////  x1:=A^.x[k-2];
+////  y1:=A^.y[k-2];
+//  x2:=A^.x[k-1];
+//  y2:=A^.y[k-1];
+////  NextPoint(k-1,1,x3,y3,A,x2,y2,inext);
+////  NextPoint(inext-1,0,x2,y2,A,x1,y1,inext);
+////  Result:=PohPol(x3,x1,x2,x3,y1,y2,y3);
+//  Result:=(y3-y2)/(x3-x2)
+//  end;
+//
+//if (k>0) and (k<High(A^.X)) then
+// begin
+// x2:=A^.x[k];
+// y2:=A^.y[k];
+//
+//  x3:=A^.x[k+1];
+//  y3:=A^.y[k+1];
+//  x1:=A^.x[k-1];
+//  y1:=A^.y[k-1];
+//
+//
+//// NextPoint(k+1,High(A^.X),x2,y2,A,x3,y3,inext);
+//// NextPoint(k-1,0,x2,y2,A,x1,y1,inext);
+// Result:=PohPol(x2,x1,x2,x3,y1,y2,y3);
+// end;{}
+//
+//{похідна розраховується на основі поліному Лежандра -
+//ще один варіант: якщо в попередньому похідна знаходилася
+//як похідна від поліному Лежанндра, проведеного через дану точку
+//і дві сусідніх, то в цьому випадку похідна знаходиться
+//як похідна від поліному Лежандра,
+//проведеного через всі точки}
+//{дуже погано - при великій кількості точок поліном Лежандра
+//сильно осцилює}
+//// Result:=PohLagr(A,A^.X[k]);
+//
+//end;
 
-if k=High(A^.X) then
-  begin
-  x3:=A^.x[k];
-  y3:=A^.y[k];
-//  x1:=A^.x[k-2];
-//  y1:=A^.y[k-2];
-  x2:=A^.x[k-1];
-  y2:=A^.y[k-1];
-//  NextPoint(k-1,1,x3,y3,A,x2,y2,inext);
-//  NextPoint(inext-1,0,x2,y2,A,x1,y1,inext);
-//  Result:=PohPol(x3,x1,x2,x3,y1,y2,y3);
-  Result:=(y3-y2)/(x3-x2)
-  end;
+//Procedure LinAprox (V:PVector; var a,b:double);
+//{апроксимуються дані у векторі V лінійною
+//залежністю y=a+b*x}
+//var Sx,Sy,Sxy,Sx2:double;
+//    i:integer;
+//begin
+// Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;
+//for i:=0 to High(V^.X) do
+//   begin
+//   Sx:=Sx+V^.x[i];
+//   Sy:=Sy+V^.y[i];
+//   Sxy:=Sxy+V^.x[i]*V^.y[i];
+//   Sx2:=Sx2+V^.x[i]*V^.x[i];
+//   end;
+//try
+//a:=(Sx2*Sy-Sxy*Sx)/(V^.n*Sx2-Sx*Sx);
+//b:=(V^.n*Sxy-Sy*Sx)/(V^.n*Sx2-Sx*Sx);
+//except
+//a:=ErResult;
+//b:=ErResult;
+//end;
+//end;
+//
+//Function LinAproxYvalue(V:PVector;XValue:double):double;
+// var a,b:double;
+//begin
+//  Result:=ErResult;
+//  if XValue=ErResult then Exit;
+//
+//  LinAprox (V,a,b);
+//  if a<>ErResult
+//   then Result:=a+b*XValue
+////   else Result:=ErResult;
+//end;
+//
+//Function LinAproxXvalue(V:PVector;YValue:double):double;
+// var a,b:double;
+//begin
+//  Result:=ErResult;
+//  if YValue=ErResult then Exit;
+//
+//  LinAprox (V,a,b);
+//  if a<>ErResult
+//   then
+//    try
+//     Result:=(YValue-a)/b;
+//    except
+////     Result:=ErResult;
+//    end
+////   else Result:=ErResult;
+//end;
 
-if (k>0) and (k<High(A^.X)) then
- begin
- x2:=A^.x[k];
- y2:=A^.y[k];
+//Procedure LinAproxBconst (V:PVector; var a:double; b:double);
+//{апроксимуються дані у векторі V лінійною
+//залежністю y=a+b*x;
+//параметр b вважається відомим}
+//var Sy,Sx:double;
+//    i:integer;
+//begin
+// Sy:=0;Sx:=0;
+//for i:=0 to High(V^.X) do
+//   begin
+//   Sx:=Sx+V^.x[i];
+//   Sy:=Sy+V^.y[i];
+//   end;
+//a:=(Sy-b*Sx)/V^.n;
+//end;
 
-  x3:=A^.x[k+1];
-  y3:=A^.y[k+1];
-  x1:=A^.x[k-1];
-  y1:=A^.y[k-1];
+//Procedure LinAproxAconst (V:PVector; a:double; var b:double);
+//{апроксимуються дані у векторі V лінійною
+//залежністю y=a+b*x;
+//параметр a вважається відомим}
+//var Sx,Sxy,Sx2:double;
+//    i:integer;
+//begin
+// Sx:=0;Sxy:=0;Sx2:=0;
+//for i:=0 to High(V^.X) do
+//   begin
+//   Sx:=Sx+V^.x[i];
+//   Sxy:=Sxy+V^.x[i]*V^.y[i];
+//   Sx2:=Sx2+V^.x[i]*V^.x[i];
+//   end;
+//b:=(Sxy-a*Sx)/Sx2;
+//end;
+//
+//
+//Procedure ParabAprox (V:Pvector; var a,b,c:double);
+//{апроксимуються дані у векторі V параболічною
+//залежністю y=a+b*x+с*x2}
+//
+//var Sx,Sy,Sxy,Sx2,Sx3,Sx4,Syx2,pr:double;
+//    i:integer;
+//
+//begin
+//Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;Sx3:=0;Sx4:=0;Syx2:=0;
+// with V^ do begin
+//  for i:=0 to High(X) do
+//   begin
+//   Sx:=Sx+x[i];
+//   Sy:=Sy+y[i];
+//   Sxy:=Sxy+x[i]*y[i];
+//   Sx2:=Sx2+sqr(x[i]);
+//   Sx3:=Sx3+sqr(x[i])*x[i];
+//   Sx4:=Sx4+sqr(sqr(x[i]));
+//   Syx2:=Syx2+sqr(x[i])*y[i];
+//   end;
+//
+//pr:=Sx4*(n*Sx2-Sx*Sx)-Sx3*(n*Sx3-Sx*Sx2)+Sx2*(Sx3*Sx-Sx2*Sx2);
+//c:=(Syx2*(n*Sx2-Sx*Sx)-Sx3*(n*Sxy-Sx*Sy)+Sx2*(Sxy*Sx-Sx2*Sy))/pr;
+//b:=(Sx4*(n*Sxy-Sx*Sy)-Syx2*(n*Sx3-Sx*Sx2)+Sx2*(Sx3*Sy-Sx2*Sxy))/pr;
+//a:=(Sx4*(Sy*Sx2-Sx*Sxy)-Sx3*(Sy*Sx3-Sxy*Sx2)+Syx2*(Sx3*Sx-Sx2*Sx2))/pr;
+//
+// end;
+//end;
+//
+//Procedure GromovAprox (V:PVector; var a,b,c:double);
+//{апроксимуються дані у векторі V
+//залежністю y=a+b*x+c*ln(x) за методом найменших квадратів}
+//var R:PSysEquation;
+//    i,j:integer;
+//begin
+//a:=ErResult;
+//b:=ErResult;
+//c:=ErResult;
+//
+//for I:=0 to V^.n-1 do
+//  if V^.X[i]<0 then Exit;
+//
+//new(R);
+//R^.N:=3;
+//SetLength(R^.f,R^.N);
+//SetLength(R^.x,R^.N);
+//SetLength(R^.A,R^.N,R^.N);
+//for i := 0 to High(R^.f) do
+// begin
+// R^.f[i]:=0;
+// R^.x[i]:=0;
+// for j:=0 to R^.N-1 do R^.A[i,j]:=0;
+// end;
+//
+//R^.A[0,0]:=V^.n;
+//for i:=0 to V^.n-1 do
+// begin
+//   R^.A[0,1]:=R^.A[0,1]+V^.X[i];
+//   R^.A[0,2]:=R^.A[0,2]+ln(V^.X[i]);
+//   R^.A[1,1]:=R^.A[1,1]+V^.X[i]*V^.X[i];
+//   R^.A[1,2]:=R^.A[1,2]+V^.X[i]*ln(V^.X[i]);
+//   R^.A[2,2]:=R^.A[2,2]+ln(V^.X[i])*ln(V^.X[i]);
+//   R^.f[0]:=R^.f[0]+V^.Y[i];
+//   R^.f[1]:=R^.f[1]+V^.Y[i]*V^.X[i];
+//   R^.f[2]:=R^.f[2]+V^.Y[i]*ln(V^.X[i]);
+// end;
+//R^.A[1,0]:=R^.A[0,1];
+//R^.A[2,0]:=R^.A[0,2];
+//R^.A[2,1]:=R^.A[1,2];
+//GausGol(R);
+//if R^.N=ErResult then Exit;
+//a:=R^.x[0];
+//b:=R^.x[1];
+//c:=R^.x[2];
+//dispose(R);
+//end;
 
-
-// NextPoint(k+1,High(A^.X),x2,y2,A,x3,y3,inext);
-// NextPoint(k-1,0,x2,y2,A,x1,y1,inext);
- Result:=PohPol(x2,x1,x2,x3,y1,y2,y3);
- end;{}
-
-{похідна розраховується на основі поліному Лежандра -
-ще один варіант: якщо в попередньому похідна знаходилася
-як похідна від поліному Лежанндра, проведеного через дану точку
-і дві сусідніх, то в цьому випадку похідна знаходиться
-як похідна від поліному Лежандра,
-проведеного через всі точки}
-{дуже погано - при великій кількості точок поліном Лежандра
-сильно осцилює}
-// Result:=PohLagr(A,A^.X[k]);
-
-end;
-
-Procedure LinAprox (V:PVector; var a,b:double);
-{апроксимуються дані у векторі V лінійною
-залежністю y=a+b*x}
-var Sx,Sy,Sxy,Sx2:double;
-    i:integer;
-begin
- Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;
-for i:=0 to High(V^.X) do
-   begin
-   Sx:=Sx+V^.x[i];
-   Sy:=Sy+V^.y[i];
-   Sxy:=Sxy+V^.x[i]*V^.y[i];
-   Sx2:=Sx2+V^.x[i]*V^.x[i];
-   end;
-try
-a:=(Sx2*Sy-Sxy*Sx)/(V^.n*Sx2-Sx*Sx);
-b:=(V^.n*Sxy-Sy*Sx)/(V^.n*Sx2-Sx*Sx);
-except
-a:=ErResult;
-b:=ErResult;
-end;
-end;
-
-Function LinAproxYvalue(V:PVector;XValue:double):double;
- var a,b:double;
-begin
-  Result:=ErResult;
-  if XValue=ErResult then Exit;
-
-  LinAprox (V,a,b);
-  if a<>ErResult
-   then Result:=a+b*XValue
-//   else Result:=ErResult;
-end;
-
-Function LinAproxXvalue(V:PVector;YValue:double):double;
- var a,b:double;
-begin
-  Result:=ErResult;
-  if YValue=ErResult then Exit;
-
-  LinAprox (V,a,b);
-  if a<>ErResult
-   then
-    try
-     Result:=(YValue-a)/b;
-    except
-//     Result:=ErResult;
-    end
-//   else Result:=ErResult;
-end;
-
-Procedure LinAproxBconst (V:PVector; var a:double; b:double);
-{апроксимуються дані у векторі V лінійною
-залежністю y=a+b*x;
-параметр b вважається відомим}
-var Sy,Sx:double;
-    i:integer;
-begin
- Sy:=0;Sx:=0;
-for i:=0 to High(V^.X) do
-   begin
-   Sx:=Sx+V^.x[i];
-   Sy:=Sy+V^.y[i];
-   end;
-a:=(Sy-b*Sx)/V^.n;
-end;
-
-Procedure LinAproxAconst (V:PVector; a:double; var b:double);
-{апроксимуються дані у векторі V лінійною
-залежністю y=a+b*x;
-параметр a вважається відомим}
-var Sx,Sxy,Sx2:double;
-    i:integer;
-begin
- Sx:=0;Sxy:=0;Sx2:=0;
-for i:=0 to High(V^.X) do
-   begin
-   Sx:=Sx+V^.x[i];
-   Sxy:=Sxy+V^.x[i]*V^.y[i];
-   Sx2:=Sx2+V^.x[i]*V^.x[i];
-   end;
-b:=(Sxy-a*Sx)/Sx2;
-end;
-
-
-Procedure ParabAprox (V:Pvector; var a,b,c:double);
-{апроксимуються дані у векторі V параболічною
-залежністю y=a+b*x+с*x2}
-
-var Sx,Sy,Sxy,Sx2,Sx3,Sx4,Syx2,pr:double;
-    i:integer;
-
-begin
-Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;Sx3:=0;Sx4:=0;Syx2:=0;
- with V^ do begin
-  for i:=0 to High(X) do
-   begin
-   Sx:=Sx+x[i];
-   Sy:=Sy+y[i];
-   Sxy:=Sxy+x[i]*y[i];
-   Sx2:=Sx2+sqr(x[i]);
-   Sx3:=Sx3+sqr(x[i])*x[i];
-   Sx4:=Sx4+sqr(sqr(x[i]));
-   Syx2:=Syx2+sqr(x[i])*y[i];
-   end;
-
-pr:=Sx4*(n*Sx2-Sx*Sx)-Sx3*(n*Sx3-Sx*Sx2)+Sx2*(Sx3*Sx-Sx2*Sx2);
-c:=(Syx2*(n*Sx2-Sx*Sx)-Sx3*(n*Sxy-Sx*Sy)+Sx2*(Sxy*Sx-Sx2*Sy))/pr;
-b:=(Sx4*(n*Sxy-Sx*Sy)-Syx2*(n*Sx3-Sx*Sx2)+Sx2*(Sx3*Sy-Sx2*Sxy))/pr;
-a:=(Sx4*(Sy*Sx2-Sx*Sxy)-Sx3*(Sy*Sx3-Sxy*Sx2)+Syx2*(Sx3*Sx-Sx2*Sx2))/pr;
-
- end;
-end;
-
-Procedure GromovAprox (V:PVector; var a,b,c:double);
-{апроксимуються дані у векторі V
-залежністю y=a+b*x+c*ln(x) за методом найменших квадратів}
-var R:PSysEquation;
-    i,j:integer;
-begin
-a:=ErResult;
-b:=ErResult;
-c:=ErResult;
-
-for I:=0 to V^.n-1 do
-  if V^.X[i]<0 then Exit;
-
-new(R);
-R^.N:=3;
-SetLength(R^.f,R^.N);
-SetLength(R^.x,R^.N);
-SetLength(R^.A,R^.N,R^.N);
-for i := 0 to High(R^.f) do
- begin
- R^.f[i]:=0;
- R^.x[i]:=0;
- for j:=0 to R^.N-1 do R^.A[i,j]:=0;
- end;
-
-R^.A[0,0]:=V^.n;
-for i:=0 to V^.n-1 do
- begin
-   R^.A[0,1]:=R^.A[0,1]+V^.X[i];
-   R^.A[0,2]:=R^.A[0,2]+ln(V^.X[i]);
-   R^.A[1,1]:=R^.A[1,1]+V^.X[i]*V^.X[i];
-   R^.A[1,2]:=R^.A[1,2]+V^.X[i]*ln(V^.X[i]);
-   R^.A[2,2]:=R^.A[2,2]+ln(V^.X[i])*ln(V^.X[i]);
-   R^.f[0]:=R^.f[0]+V^.Y[i];
-   R^.f[1]:=R^.f[1]+V^.Y[i]*V^.X[i];
-   R^.f[2]:=R^.f[2]+V^.Y[i]*ln(V^.X[i]);
- end;
-R^.A[1,0]:=R^.A[0,1];
-R^.A[2,0]:=R^.A[0,2];
-R^.A[2,1]:=R^.A[1,2];
-GausGol(R);
-if R^.N=ErResult then Exit;
-a:=R^.x[0];
-b:=R^.x[1];
-c:=R^.x[2];
-dispose(R);
-end;
-
-Procedure ExpAprox (V:PVector; var I0,E:double);
-{апроксимуються дані у векторі V
-залежністю I=I0[exp(V/E)-1]
-за методом найменших квадратів зі
-статистичними ваговими коефіцієнтами}
-var Vari,Param1,Param2:array of double;
-    temp:PVector;
-    i:integer;
-    ErStr:string;
-begin
-ErStr:='';
-I0:=ErResult;
-E:=ErResult;
-if V^.n<7 then Exit;
-
-SetLength(Vari,2);
-{бо дві змінних - I0,E}
-
-
-{початкове наближення І0 та Е - результат
-лінійної апроксимації 5 останніх точок ВАХ
-в напівлогарифмічному масштабі}
-new(temp);
-temp^.n:=5;
-SetLength(temp^.X,temp^.n);
-SetLength(temp^.Y,temp^.n);
-for I := 0 to High(temp^.X) do
-  begin
-  temp^.X[i]:=V^.X[V^.n-1-i];
-  temp^.Y[i]:=ln(V^.Y[V^.n-1-i]);
-  end;
-LinAprox(temp,Vari[0],Vari[1]);
-Vari[0]:=exp(Vari[0]);
-Vari[1]:=1/Vari[1];
-dispose(temp);
-
-
-if
-  Newton(V, F_Exp, G_Exp,Param1,Param2, 1e-4, 1000, Vari,ErStr)<>0
-    then Exit;
-I0:=Vari[0];
-E:=Vari[1];
-end;
-
-
-Procedure ExpRshAprox (V:PVector; var I0,E,Rsh:double);
-{апроксимуються дані у векторі V
-залежністю I=I0[exp(V/E)-1]+V/Rsh
-за методом найменших квадратів зі
-статистичними ваговими коефіцієнтами;
-в самій процедурі реалізується метод
-розв'язку системи нелінійних рівнянь методом Ньютона,
-а не використовується функція Newton через те, що
-необхідно динамічно змінювати значення вектора
-початкових наближень}
-const eps=1e-4;
-      Nmax=1000;
-var Vari,Param1,X1,X2:array of double;
-    temp:PVector;
-    i,j,Nit:integer;
-    ErStr:string;
-    SysEq:PSysEquation;
-    bool:boolean;
-    Emin,tmp:double;
-begin
-ErStr:='';
-I0:=ErResult;
-E:=ErResult;
-Rsh:=ErResult;
-if V^.n<7 then Exit;
-
-Emin:=2*V^.X[V^.n-1]/ln(1e38*V^.y[V^.n-1]);
-{Emin - мінімально можливе значення
-величини Е; обмеження пов'язане з тим,
-що числа типу double можуть змінюватись
-в діапазоні до (приблизно)1.1е38, а при
-обчисленнях фігурують доданки ~exp(2x/E)/y}
-
-SetLength(Vari,3);
-{бо три змінних - I0,E,Rsh}
-
-
-{початкове наближення Rsh - опір, порахований
-по двом першим точкам ВАХ}
-Vari[2]:=10*abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
-{початкове наближення І0 та Е - результат
-лінійної апроксимації 5 останніх точок ВАХ
-в напівлогарифмічному масштабі}
-new(temp);
-temp^.n:=5;
-SetLength(temp^.X,temp^.n);
-SetLength(temp^.Y,temp^.n);
-for I := 0 to High(temp^.X) do
-  begin
-  temp^.X[i]:=V^.X[V^.n-1-i];
-  temp^.Y[i]:=ln(V^.Y[V^.n-1-i]);
-  end;
-LinAprox(temp,Vari[0],Vari[1]);
-Vari[0]:=0.1*exp(Vari[0]);
-Vari[1]:=1/Vari[1];
-dispose(temp);
-
-
-if vari[1]<Emin then vari[1]:=Emin*1.2;
-
-
-  i:=3;
-  SetLength(X1,i);
-  SetLength(X2,i);
-  new(SysEq);
-  SetLength(SysEq^.A,i,i);
-  SetLength(SysEq^.f,i);
-  SetLength(SysEq^.x,i);
-  SysEq^.N:=i;
-
-  for I := 0 to High(X1) do X1[i]:=Vari[i];
-  Nit:=0;
-
-repeat
-{
-showmessage(floattostrf(X1[0],ffExponent,3,2)+#10+
-            floattostrf(X1[1],ffExponent,3,2)+#10+
-            floattostrf(X1[2],ffExponent,3,2));
-            {}
-
-
-
- if (F_ExpRsh(V,X1,Param1,SysEq^.f)<>0) or
-    (G_ExpRsh(V,X1,Param1,SysEq^.A)<>0) then
-    begin
-     ErStr:='Error in function';
-     dispose(SysEq);
-       showmessage('Vari[0]='+floattostr(X1[0])+#10+
-            'Vari[1]='+floattostr(X1[1])+#10+
-            'Vari[2]='+floattostrf(X1[2],ffExponent,3,2));
-     Exit;
-    end;
- for I := 0 to High(SysEq^.f) do
-   begin
-     tmp:=0;
-     for j:=0 to High(SysEq^.f) do
-             tmp:=tmp+SysEq^.A[i,j]*X1[j];
-     SysEq^.f[i]:=tmp-SysEq^.f[i];
-   end;
-
-
- GausGol(SysEq);
- if SysEq^.N=ErResult then
-   begin
-     ErStr:='Error during Gauss method';
-     dispose(SysEq);
-     Exit;
-   end;
- Inc(Nit);
- bool:=true;
-  try
- for I := 0 to High(SysEq^.f) do
-       bool:=bool and (abs((X1[i]-SysEq^.x[i])/X1[i])<eps);
- except
- {  Nit:=0;
-   if Vari[0]<0.1 then Vari[0]:=Vari[0]*1.1;
-   Vari[2]:=abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
-   for I := 0 to High(X1) do X1[i]:=Vari[i];}
- {
-  showmessage('Vari[0]='+floattostr(X1[0])+#10+
-            'Vari[1]='+floattostr(X1[1])+#10+
-            'Vari[2]='+floattostrf(X1[2],ffExponent,3,2));{}
- end;
-
- for I := 0 to High(X1) do X1[i]:=SysEq^.x[i];
-
-  if ((X1[2]<10)or(X1[2]>1e10)) then
-  begin
-  Vari[2]:=Vari[2]*0.9;
- for I := 0 to High(X1) do X1[i]:=Vari[i];
-  end;
-
-
- if (X1[1]<Emin)or (vari[2]<10)or(X1[0]=0) then
-   begin
-   Nit:=0;
-   if Vari[0]<0.1 then Vari[0]:=Vari[0]*1.1 else Nit:=Nmax+1;
-   Vari[2]:=10*abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
-   for I := 0 to High(X1) do X1[i]:=Vari[i];
-   end;
-
-until bool or (Nit>Nmax);
- dispose(SysEq);
- if Nit>Nmax then
-     ErStr:='The number of iterations is too much'
-             else
-     begin
-       I0:=X1[0];
-       E:=X1[1];
-       Rsh:=X1[2];
-       ErStr:='';
-     end;
-
-end;
+//Procedure ExpAprox (V:PVector; var I0,E:double);
+//{апроксимуються дані у векторі V
+//залежністю I=I0[exp(V/E)-1]
+//за методом найменших квадратів зі
+//статистичними ваговими коефіцієнтами}
+//var Vari,Param1,Param2:array of double;
+//    temp:PVector;
+//    i:integer;
+//    ErStr:string;
+//begin
+//ErStr:='';
+//I0:=ErResult;
+//E:=ErResult;
+//if V^.n<7 then Exit;
+//
+//SetLength(Vari,2);
+//{бо дві змінних - I0,E}
+//
+//
+//{початкове наближення І0 та Е - результат
+//лінійної апроксимації 5 останніх точок ВАХ
+//в напівлогарифмічному масштабі}
+//new(temp);
+//temp^.n:=5;
+//SetLength(temp^.X,temp^.n);
+//SetLength(temp^.Y,temp^.n);
+//for I := 0 to High(temp^.X) do
+//  begin
+//  temp^.X[i]:=V^.X[V^.n-1-i];
+//  temp^.Y[i]:=ln(V^.Y[V^.n-1-i]);
+//  end;
+//LinAprox(temp,Vari[0],Vari[1]);
+//Vari[0]:=exp(Vari[0]);
+//Vari[1]:=1/Vari[1];
+//dispose(temp);
+//
+//
+//if
+//  Newton(V, F_Exp, G_Exp,Param1,Param2, 1e-4, 1000, Vari,ErStr)<>0
+//    then Exit;
+//I0:=Vari[0];
+//E:=Vari[1];
+//end;
+//
+//
+//Procedure ExpRshAprox (V:PVector; var I0,E,Rsh:double);
+//{апроксимуються дані у векторі V
+//залежністю I=I0[exp(V/E)-1]+V/Rsh
+//за методом найменших квадратів зі
+//статистичними ваговими коефіцієнтами;
+//в самій процедурі реалізується метод
+//розв'язку системи нелінійних рівнянь методом Ньютона,
+//а не використовується функція Newton через те, що
+//необхідно динамічно змінювати значення вектора
+//початкових наближень}
+//const eps=1e-4;
+//      Nmax=1000;
+//var Vari,Param1,X1,X2:array of double;
+//    temp:PVector;
+//    i,j,Nit:integer;
+//    ErStr:string;
+//    SysEq:PSysEquation;
+//    bool:boolean;
+//    Emin,tmp:double;
+//begin
+//ErStr:='';
+//I0:=ErResult;
+//E:=ErResult;
+//Rsh:=ErResult;
+//if V^.n<7 then Exit;
+//
+//Emin:=2*V^.X[V^.n-1]/ln(1e38*V^.y[V^.n-1]);
+//{Emin - мінімально можливе значення
+//величини Е; обмеження пов'язане з тим,
+//що числа типу double можуть змінюватись
+//в діапазоні до (приблизно)1.1е38, а при
+//обчисленнях фігурують доданки ~exp(2x/E)/y}
+//
+//SetLength(Vari,3);
+//{бо три змінних - I0,E,Rsh}
+//
+//
+//{початкове наближення Rsh - опір, порахований
+//по двом першим точкам ВАХ}
+//Vari[2]:=10*abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
+//{початкове наближення І0 та Е - результат
+//лінійної апроксимації 5 останніх точок ВАХ
+//в напівлогарифмічному масштабі}
+//new(temp);
+//temp^.n:=5;
+//SetLength(temp^.X,temp^.n);
+//SetLength(temp^.Y,temp^.n);
+//for I := 0 to High(temp^.X) do
+//  begin
+//  temp^.X[i]:=V^.X[V^.n-1-i];
+//  temp^.Y[i]:=ln(V^.Y[V^.n-1-i]);
+//  end;
+//LinAprox(temp,Vari[0],Vari[1]);
+//Vari[0]:=0.1*exp(Vari[0]);
+//Vari[1]:=1/Vari[1];
+//dispose(temp);
+//
+//
+//if vari[1]<Emin then vari[1]:=Emin*1.2;
+//
+//
+//  i:=3;
+//  SetLength(X1,i);
+//  SetLength(X2,i);
+//  new(SysEq);
+//  SetLength(SysEq^.A,i,i);
+//  SetLength(SysEq^.f,i);
+//  SetLength(SysEq^.x,i);
+//  SysEq^.N:=i;
+//
+//  for I := 0 to High(X1) do X1[i]:=Vari[i];
+//  Nit:=0;
+//
+//repeat
+//{
+//showmessage(floattostrf(X1[0],ffExponent,3,2)+#10+
+//            floattostrf(X1[1],ffExponent,3,2)+#10+
+//            floattostrf(X1[2],ffExponent,3,2));
+//            {}
+//
+//
+//
+// if (F_ExpRsh(V,X1,Param1,SysEq^.f)<>0) or
+//    (G_ExpRsh(V,X1,Param1,SysEq^.A)<>0) then
+//    begin
+//     ErStr:='Error in function';
+//     dispose(SysEq);
+//       showmessage('Vari[0]='+floattostr(X1[0])+#10+
+//            'Vari[1]='+floattostr(X1[1])+#10+
+//            'Vari[2]='+floattostrf(X1[2],ffExponent,3,2));
+//     Exit;
+//    end;
+// for I := 0 to High(SysEq^.f) do
+//   begin
+//     tmp:=0;
+//     for j:=0 to High(SysEq^.f) do
+//             tmp:=tmp+SysEq^.A[i,j]*X1[j];
+//     SysEq^.f[i]:=tmp-SysEq^.f[i];
+//   end;
+//
+//
+// GausGol(SysEq);
+// if SysEq^.N=ErResult then
+//   begin
+//     ErStr:='Error during Gauss method';
+//     dispose(SysEq);
+//     Exit;
+//   end;
+// Inc(Nit);
+// bool:=true;
+//  try
+// for I := 0 to High(SysEq^.f) do
+//       bool:=bool and (abs((X1[i]-SysEq^.x[i])/X1[i])<eps);
+// except
+// {  Nit:=0;
+//   if Vari[0]<0.1 then Vari[0]:=Vari[0]*1.1;
+//   Vari[2]:=abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
+//   for I := 0 to High(X1) do X1[i]:=Vari[i];}
+// {
+//  showmessage('Vari[0]='+floattostr(X1[0])+#10+
+//            'Vari[1]='+floattostr(X1[1])+#10+
+//            'Vari[2]='+floattostrf(X1[2],ffExponent,3,2));{}
+// end;
+//
+// for I := 0 to High(X1) do X1[i]:=SysEq^.x[i];
+//
+//  if ((X1[2]<10)or(X1[2]>1e10)) then
+//  begin
+//  Vari[2]:=Vari[2]*0.9;
+// for I := 0 to High(X1) do X1[i]:=Vari[i];
+//  end;
+//
+//
+// if (X1[1]<Emin)or (vari[2]<10)or(X1[0]=0) then
+//   begin
+//   Nit:=0;
+//   if Vari[0]<0.1 then Vari[0]:=Vari[0]*1.1 else Nit:=Nmax+1;
+//   Vari[2]:=10*abs((V^.X[1]-V^.X[0])/(V^.Y[1]-V^.Y[0]));
+//   for I := 0 to High(X1) do X1[i]:=Vari[i];
+//   end;
+//
+//until bool or (Nit>Nmax);
+// dispose(SysEq);
+// if Nit>Nmax then
+//     ErStr:='The number of iterations is too much'
+//             else
+//     begin
+//       I0:=X1[0];
+//       E:=X1[1];
+//       Rsh:=X1[2];
+//       ErStr:='';
+//     end;
+//
+//end;
 
 
 Procedure GausGol(var R:PSysEquation);
