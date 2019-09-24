@@ -60,9 +60,9 @@
     <DCCReference Include="OlegTests.pas" />
     <DCCReference Include="OlegTypeNew.pas" />
     <DCCReference Include="OlegTypePart2New.pas" />
-    <DCCReference Include="OlegVector.pas" />
     <DCCReference Include="OlegVectorManipulation.pas" />
     <DCCReference Include="OlegVectorNew.pas" />
+    <DCCReference Include="OlegVectorOld.pas" />
     <DCCReference Include="Unit1new.pas">
       <Form>Form1</Form>
     </DCCReference>

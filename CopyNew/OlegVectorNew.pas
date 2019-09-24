@@ -6,15 +6,64 @@ interface
 
 
 type
-
-//    Point=record
-//         X:double;
-//         Y:double;
-//    end;
-
-//    TCoord_type=(cX,cY);
 //
-//    TPoint=array[TCoord_type]of double;
+//  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
+//              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
+//              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
+//
+//
+//{типи функцій, які можна можна побудувати}
+//  TGraph=(fnEmpty,
+//          fnPowerIndex, //залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
+//          fnFowlerNordheim, //ф-я Фаулера-Нордгейма для прикладеної напруги   ln(I/V^2)=f(1/V);
+//          fnFowlerNordheimEm,//ф-я Фаулера-Нордгейма для максимальної напруженості  ln(I/V)=f(1/V^0.5);
+//          fnAbeles, //ф-я Абелеса для прикладеної напруги   ln(I/V)=f(1/V);
+//          fnAbelesEm,//ф-я Абелеса для максимальної напруженості ln(I/V^0.5)=f(1/V^0.5);
+//          fnFrenkelPool, //ф-я Френкеля-Пула для прикладеної напруги ln(I/V)=f(V^0.5);
+//          fnFrenkelPoolEm,//ф-я Френкеля-Пула для максимальної напруженості ln(I/V^0.5)=f(1/V^0.25);
+//          fnReverse,//reverse IV characteristic
+//          fnForward, //Forward I-V-characteristic
+//          fnKaminskii1,//'Kaminski function I
+//          fnKaminskii2, //Kaminski function II
+//          fnGromov1, //Gromov function I
+//          fnGromov2, //Gromov function II
+//          fnCheung, //Cheung function
+//          fnCibils,  //Cibils function
+//          fnWerner, //Werner function
+//          fnForwardRs, //Forward I-V-characteristic with Rs
+//          fnIdeality, //Ideality factor vs voltage
+//          fnExpForwardRs, //Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnExpReverseRs, //Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnH,  //H - function
+//          fnNorde, //Norde"s function
+//          fnFvsV,  //F(V) = V - Va * ln( I )
+//          fnFvsI,  //F(I) = V - Va * ln( I )
+//          fnMikhelA, //Alpha function (Mikhelashvili"s method)
+//          fnMikhelB, //Betta function (Mikhelashvili"s method)
+//          fnMikhelIdeality, //Ideality factor vs voltage (Mikhelashvili"s method)
+//          fnMikhelRs, //Series resistant vs voltage (Mikhelashvili"s method)
+//          fnDLdensity,//Deep level density
+//          fnDLdensityIvanov,//Deep level density (Ivanov method)
+//          fnLee,  //Lee function
+//          fnBohlin, //Bohlin function
+//          fnNeq1, //n=1
+//          fnMikhelashvili, //Mikhelashvili function
+//          fnDiodLSM,  //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, method LSM
+//          fnDiodLambert,  // Lambert function
+//          fnDiodEvolution, //evolution methods
+//          fnReq0,  //Rs=0
+//          fnRvsTpower2, //'A+B*T+C*T^2'
+////          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
+//          fnDiodVerySimple, //I=I0exp(qV/nkT)
+//          fnRectification, //розрахунок коефіцієнта випрямлення
+//          fnTauR,   //рекомбінаційний час по величині струму
+//          fnIgen,    //генераційний струм по величині рекомбінаційного часу
+//          fnTauG,   //генераційний час по величині струму
+//          fnIrec,    //рекомбінаційний струм по величині генераційного часу
+//          fnLdif,    //довжина дифузії по часу релаксації
+//          fnTau     //час релаксації по довжині дифузії
+//          );
+
 
     TFunVector=Function(Coord: TCoord_type): Double of object;
     TFunVectorInt=Function(Coord: TCoord_type): Integer of object;

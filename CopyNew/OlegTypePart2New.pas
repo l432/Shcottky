@@ -3,7 +3,7 @@
 interface
 
 uses
-  IniFiles, OlegTypeNew, OlegVector;
+  IniFiles, OlegTypeNew{, OlegVector};
 
 type
 

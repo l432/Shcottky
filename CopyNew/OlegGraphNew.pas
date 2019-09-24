@@ -113,80 +113,80 @@ uses OlegTypeNew, OlegMathNew, SysUtils, Dialogs, Classes, Series,
 //   procedure ReadFromIniFile(ConfigFile:TIniFile);
 // end;
 
-const
-  cnbb=' can not be built';
-  cnbd=' can not be determined';
-  tIVc='The I-V-characteristic has not point';
-  bfcia=#10'because forward current is absent';
-  rsi=#10'because range is selected improperly or'#10'forward characteristic has a repetitive element';
+//const
+//  cnbb=' can not be built';
+//  cnbd=' can not be determined';
+//  tIVc='The I-V-characteristic has not point';
+//  bfcia=#10'because forward current is absent';
+//  rsi=#10'because range is selected improperly or'#10'forward characteristic has a repetitive element';
 
 
- GraphLabel:array [TGraph] of string=
- ('Empty',
- 'Power index',
- 'Fowler-Nordheim',
- 'Fowler-Nordheim (max electric field)',
- 'Abeles',
- 'Abeles (max electric field)',
- 'Frenkel-Pool',
- 'Frenkel-Pool (max electric field)',
- 'Reverse',
- 'Forward',
- 'I Kaminski',
- 'II Kaminski',
- 'I Gromov',
- 'II Gromov',
- 'Cheung',
- 'Cibils',
- 'Werner',
- 'Forward I-V characteristic with Rs',
- 'Ideality factor vs voltage',
- 'If/[1-exp(-qVf/kT)]',
- 'Ir/[1-exp(-qVr/kT)]',
- 'H-function',
- 'Norde',
- 'F(V) = V - Va * ln( I )',
- 'F(I) = V - Va * ln( I )',
- 'Mikhelashvili Alpha',
- 'Mikhelashvili Betta',
- 'Ideality factor vs voltage (Mikhelashvili method)',
- 'Series resistant vs voltage (Mikhelashvili method)',
- 'Deep level density',
- 'Ivanov',
- 'Lee',
- 'Bohlin',
- 'n=1',
- 'Mikhelashvili',
- 'Full Diod',
- 'Lambert Diod',
- 'Evolution Diod',
- 'R=0',
- 'A+B*T+C*T^2',
-// 'I0(exp(qV/nkT)-1)',
- 'I=I0exp(qV/nkT)',
- 'Rect.Koef',
- 'Recombination time',
- 'Generation current',
- 'Generation time',
- 'Recombination current',
- 'Diffusion length',
- 'Lifetime'
- );
+// GraphLabel:array [TGraph] of string=
+// ('Empty',
+// 'Power index',
+// 'Fowler-Nordheim',
+// 'Fowler-Nordheim (max electric field)',
+// 'Abeles',
+// 'Abeles (max electric field)',
+// 'Frenkel-Pool',
+// 'Frenkel-Pool (max electric field)',
+// 'Reverse',
+// 'Forward',
+// 'I Kaminski',
+// 'II Kaminski',
+// 'I Gromov',
+// 'II Gromov',
+// 'Cheung',
+// 'Cibils',
+// 'Werner',
+// 'Forward I-V characteristic with Rs',
+// 'Ideality factor vs voltage',
+// 'If/[1-exp(-qVf/kT)]',
+// 'Ir/[1-exp(-qVr/kT)]',
+// 'H-function',
+// 'Norde',
+// 'F(V) = V - Va * ln( I )',
+// 'F(I) = V - Va * ln( I )',
+// 'Mikhelashvili Alpha',
+// 'Mikhelashvili Betta',
+// 'Ideality factor vs voltage (Mikhelashvili method)',
+// 'Series resistant vs voltage (Mikhelashvili method)',
+// 'Deep level density',
+// 'Ivanov',
+// 'Lee',
+// 'Bohlin',
+// 'n=1',
+// 'Mikhelashvili',
+// 'Full Diod',
+// 'Lambert Diod',
+// 'Evolution Diod',
+// 'R=0',
+// 'A+B*T+C*T^2',
+//// 'I0(exp(qV/nkT)-1)',
+// 'I=I0exp(qV/nkT)',
+// 'Rect.Koef',
+// 'Recombination time',
+// 'Generation current',
+// 'Generation time',
+// 'Recombination current',
+// 'Diffusion length',
+// 'Lifetime'
+// );
 
 //var
 //  GraphParameters:TGraphParameters;
 
-Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
-
-Function ConvertStringToTGraph(str:string):TGraph;overload;
-
-Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;overload;
-
-Function GraphName(tg:TGraph):string;
-
-Function GraphHint(tg:TGraph):string;
-
-Function GraphErrorMessage(tg:TGraph):string;
+//Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
+//
+//Function ConvertStringToTGraph(str:string):TGraph;overload;
+//
+//Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;overload;
+//
+//Function GraphName(tg:TGraph):string;
+//
+//Function GraphHint(tg:TGraph):string;
+//
+//Function GraphErrorMessage(tg:TGraph):string;
 
 //Procedure Read_File (sfile:string; var a:PVector);
 {читає дані з файлу з коротким ім'ям sfile в
@@ -982,199 +982,199 @@ uses
   Math, OlegApproxNew;
 
 
-Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
-begin
- case tg of
-   fnGromov1:
-    Result:=diGr1;
-   fnGromov2:
-    Result:=diGr2;
-   fnCheung:
-    Result:=diChung;
-   fnWerner:
-    Result:=diWer;
-   fnForwardRs:
-    Result:=diEx;
-   fnExpForwardRs:
-    Result:=diE2F;
-   fnExpReverseRs:
-    Result:=diE2R;
-   fnH:
-    Result:=diHfunc;
-   fnNorde,fnBohlin:
-    Result:=diNord;
-   fnFvsV:
-    Result:=diCib;
-   fnFvsI:
-    Result:=diLee;
-   fnMikhelA,fnMikhelB,
-   fnMikhelIdeality,fnMikhelRs,
-   fnMikhelashvili:
-    Result:=diMikh;
-   fnDLdensity:
-    Result:=diNss;
-   fnDLdensityIvanov:
-    Result:=diIvan;
-   fnDiodLSM:
-    Result:=diExp;
-   fnDiodLambert:
-    Result:=diLam;
-   fnDiodEvolution:
-    Result:=diDE;
-   else Result:=diNon;
- end;
-end;
-
-Function ConvertStringToTGraph(str:string):TGraph;
- var  tg:TGraph;
-begin
-  Result:=fnEmpty;
-  for tg := Low(TGraph) to High(TGraph) do
-   if str=GraphLabel[tg] then
-    begin
-     Result:=tg;
-     Exit;
-    end;
-end;
-
-Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;
-begin
-  Result:=ConvertStringToTGraph(ComboBox.Items[ComboBox.ItemIndex]);
-end;
-
-Function GraphName(tg:TGraph):string;
-const
-    withRs=' vs V characteristic with Rs';
-begin
-  case tg of
-    fnReverse,fnForward:
-      Result:=GraphLabel[tg]+' I-V characteristic';
-    fnForwardRs:
-      Result:='Forward I'+withRs;
-    fnIdeality,fnH,fnFvsV,fnFvsI,
-    fnMikhelIdeality,fnMikhelRs,
-    fnDLdensity:
-      Result:=GraphLabel[tg];
-    fnExpForwardRs:
-      Result:='Forward I/[1-exp(-qV/kT)]'+withRs;
-    fnExpReverseRs:
-      Result:='Reverse I/[1-exp(-qV/kT)]'+withRs;
-    fnDLdensityIvanov:
-      Result:='Deep level density (Ivanov method)';
-    else  Result:=GraphLabel[tg]+' function';
-  end;
-end;
-
-Function GraphHint(tg:TGraph):string;
-begin
- case tg of
-   fnPowerIndex:
-     Result:='Y = d (ln I)/d (ln V)'#10'X = V';
-   fnFowlerNordheim:
-     Result:='Y = ln (I/V^2)'#10'X = 1/V';
-   fnFowlerNordheimEm:
-     Result:='Y = ln (I/V)'#10'X = 1/V^0.5';
-   fnAbeles:
-     Result:='Y = ln (I/V)'#10'X = 1/V';
-   fnAbelesEm:
-     Result:='Y = ln (I/V^0.5)'#10'X = 1/V^0.5';
-   fnFrenkelPool:
-     Result:='Y = ln (I/V)'#10'X = V^0.5';
-   fnFrenkelPoolEm:
-     Result:='Y = ln (I/V^0.5)'#10'X = V^0.25';
-   fnReverse:
-     Result:='if X<0 then X=abs(X), Y=abs(Y)';
-   fnForward:
-     Result:='X>0 only';
-   fnKaminskii1:
-     Result:='Y = ( I - I0 )^(-1)  int (I dV)'#10'X = ( I + I0 ) / 2';
-   fnKaminskii2:
-     Result:='Y = ln( I / I0 ) / ( I - I0 )'#10'X = ( V - V0 ) / ( I - I0 )';
-   fnGromov1:
-     Result:='Y = V'#10'X = I';
-   fnGromov2:
-     Result:='Y = (V/2) - (kT/e) ln [I/(S Ar T^2)]'#10'X = I';
-   fnCheung:
-     Result:='C ( I )  =  d V / d ( ln I )';
-   fnCibils:
-     Result:='X - arbitrary voltage Va'#10'Y = I0, minimum of function (V-Va*ln(I))';
-   fnWerner:
-     Result:='Y = (dI/dV) / I'#10'X = dI/dV';
-   fnForwardRs:
-     Result:='V replaced by (V - I Rs)';
-   fnIdeality:
-     Result:='n = d ( V ) / d ( ln I ) (k T)^(-1)';
-   fnExpForwardRs:
-     Result:= 'Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)';
-   fnExpReverseRs:
-     Result:='Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)';
-   fnH:
-     Result:='H(I) = V-n (kT/e) ln[I/(S Ar T^2)] = I Rs + n Фb';
-   fnNorde:
-     Result:='F(V) = (V/gamma) - (kT/e) ln [I/(S Ar T^2)]';
-   fnFvsV:
-     Result:='F(V) = V - Va * ln( I )';
-   fnFvsI:
-     Result:='F(I) = V - Va * ln( I )';
-   fnMikhelA:
-     Result:='Y = d(lnI)/d(lnV)'#10'X = V';
-   fnMikhelB:
-     Result:='Y = d(ln Alpha)/d(ln V)'#10'X = V';
-   fnMikhelIdeality:
-     Result:='Y = q V (Alpha - 1) [1 + Betta / (Alpha - 1)] / k T Alpha^2'#10'X = V';
-   fnMikhelRs:
-     Result:='Y = V (1- Betta) / I Alpha^2'#10'X = V';
-   fnDLdensity:
-     Result:='Nss = ep ep0 ( n - 1 ) / ( d e )';
-   fnDLdensityIvanov:
-     Result:='Dit=ep ep0 /d * (q^-2) * d(Vcal-Vexp)/dVs';
-   fnLee:
-     Result:='X - arbitrary voltage Va'#10+
-     'Y = -C/B, where C and B are the coefficienfs of'#10+
-     'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)';
-   fnTauR:
-     Result:='q^2 S^2 ni^4 mu k T / Na I0^2';
-   fnIgen:
-     Result:='S ni^2 / Na * (mu k T / tau)^0.5';
-   fnTauG:
-     Result:='q S ni W / 2 I0';
-   fnIrec:
-     Result:='q S ni W / 2 tau';
-   fnTau:
-     Result:='L^2 / mu k T';
-   fnLdif:
-     Result:='(tau mu k T)^0.5';
- else
-     Result:='Some error';
- end;
-end;
-
-Function GraphErrorMessage(tg:TGraph):string;
-begin
- Result:='';
- if tg=fnEmpty then Exit
-           else Result:=GraphName(tg)+cnbb;
- case tg of
-     fnReverse,fnExpReverseRs:
-           Result:=tIVc+#10'with negative voltage';
-      fnForward:  Result:=tIVc+#10'with positive voltage';
-      fnKaminskii1: Result:=Result+rsi;
-      fnKaminskii2: Result:=Result+rsi+#10'or negative current';
-      fnGromov1: Result:=Result+#10'because I-V-characteristic has not point'#10'with positive voltage';
-      fnGromov2,fnCheung,fnWerner,fnH,fnNorde:
-           Result:=Result+bfcia;
-      fnCibils,fnLee:
-           Result:=Result+bfcia+#10'or range is selected improperly';
-      fnForwardRs,fnExpForwardRs:
-           Result:=tIVc+#10'with positive current';
-      fnIdeality: Result:=Result+bfcia+#10'or forward characteristic has a negative current';
-      fnFvsV,fnFvsI:
-           Result:='The function'+cnbb+bfcia;
-      fnMikhelA: Result:=Result+bfcia+#10'or there is no maximum on the curve';
-      fnMikhelB,fnMikhelIdeality,fnMikhelRs:
-           Result:=Result+#10'because impossible to build Alpha function';
-     end;
-end;
+//Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
+//begin
+// case tg of
+//   fnGromov1:
+//    Result:=diGr1;
+//   fnGromov2:
+//    Result:=diGr2;
+//   fnCheung:
+//    Result:=diChung;
+//   fnWerner:
+//    Result:=diWer;
+//   fnForwardRs:
+//    Result:=diEx;
+//   fnExpForwardRs:
+//    Result:=diE2F;
+//   fnExpReverseRs:
+//    Result:=diE2R;
+//   fnH:
+//    Result:=diHfunc;
+//   fnNorde,fnBohlin:
+//    Result:=diNord;
+//   fnFvsV:
+//    Result:=diCib;
+//   fnFvsI:
+//    Result:=diLee;
+//   fnMikhelA,fnMikhelB,
+//   fnMikhelIdeality,fnMikhelRs,
+//   fnMikhelashvili:
+//    Result:=diMikh;
+//   fnDLdensity:
+//    Result:=diNss;
+//   fnDLdensityIvanov:
+//    Result:=diIvan;
+//   fnDiodLSM:
+//    Result:=diExp;
+//   fnDiodLambert:
+//    Result:=diLam;
+//   fnDiodEvolution:
+//    Result:=diDE;
+//   else Result:=diNon;
+// end;
+//end;
+//
+//Function ConvertStringToTGraph(str:string):TGraph;
+// var  tg:TGraph;
+//begin
+//  Result:=fnEmpty;
+//  for tg := Low(TGraph) to High(TGraph) do
+//   if str=GraphLabel[tg] then
+//    begin
+//     Result:=tg;
+//     Exit;
+//    end;
+//end;
+//
+//Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;
+//begin
+//  Result:=ConvertStringToTGraph(ComboBox.Items[ComboBox.ItemIndex]);
+//end;
+//
+//Function GraphName(tg:TGraph):string;
+//const
+//    withRs=' vs V characteristic with Rs';
+//begin
+//  case tg of
+//    fnReverse,fnForward:
+//      Result:=GraphLabel[tg]+' I-V characteristic';
+//    fnForwardRs:
+//      Result:='Forward I'+withRs;
+//    fnIdeality,fnH,fnFvsV,fnFvsI,
+//    fnMikhelIdeality,fnMikhelRs,
+//    fnDLdensity:
+//      Result:=GraphLabel[tg];
+//    fnExpForwardRs:
+//      Result:='Forward I/[1-exp(-qV/kT)]'+withRs;
+//    fnExpReverseRs:
+//      Result:='Reverse I/[1-exp(-qV/kT)]'+withRs;
+//    fnDLdensityIvanov:
+//      Result:='Deep level density (Ivanov method)';
+//    else  Result:=GraphLabel[tg]+' function';
+//  end;
+//end;
+//
+//Function GraphHint(tg:TGraph):string;
+//begin
+// case tg of
+//   fnPowerIndex:
+//     Result:='Y = d (ln I)/d (ln V)'#10'X = V';
+//   fnFowlerNordheim:
+//     Result:='Y = ln (I/V^2)'#10'X = 1/V';
+//   fnFowlerNordheimEm:
+//     Result:='Y = ln (I/V)'#10'X = 1/V^0.5';
+//   fnAbeles:
+//     Result:='Y = ln (I/V)'#10'X = 1/V';
+//   fnAbelesEm:
+//     Result:='Y = ln (I/V^0.5)'#10'X = 1/V^0.5';
+//   fnFrenkelPool:
+//     Result:='Y = ln (I/V)'#10'X = V^0.5';
+//   fnFrenkelPoolEm:
+//     Result:='Y = ln (I/V^0.5)'#10'X = V^0.25';
+//   fnReverse:
+//     Result:='if X<0 then X=abs(X), Y=abs(Y)';
+//   fnForward:
+//     Result:='X>0 only';
+//   fnKaminskii1:
+//     Result:='Y = ( I - I0 )^(-1)  int (I dV)'#10'X = ( I + I0 ) / 2';
+//   fnKaminskii2:
+//     Result:='Y = ln( I / I0 ) / ( I - I0 )'#10'X = ( V - V0 ) / ( I - I0 )';
+//   fnGromov1:
+//     Result:='Y = V'#10'X = I';
+//   fnGromov2:
+//     Result:='Y = (V/2) - (kT/e) ln [I/(S Ar T^2)]'#10'X = I';
+//   fnCheung:
+//     Result:='C ( I )  =  d V / d ( ln I )';
+//   fnCibils:
+//     Result:='X - arbitrary voltage Va'#10'Y = I0, minimum of function (V-Va*ln(I))';
+//   fnWerner:
+//     Result:='Y = (dI/dV) / I'#10'X = dI/dV';
+//   fnForwardRs:
+//     Result:='V replaced by (V - I Rs)';
+//   fnIdeality:
+//     Result:='n = d ( V ) / d ( ln I ) (k T)^(-1)';
+//   fnExpForwardRs:
+//     Result:= 'Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)';
+//   fnExpReverseRs:
+//     Result:='Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)';
+//   fnH:
+//     Result:='H(I) = V-n (kT/e) ln[I/(S Ar T^2)] = I Rs + n Фb';
+//   fnNorde:
+//     Result:='F(V) = (V/gamma) - (kT/e) ln [I/(S Ar T^2)]';
+//   fnFvsV:
+//     Result:='F(V) = V - Va * ln( I )';
+//   fnFvsI:
+//     Result:='F(I) = V - Va * ln( I )';
+//   fnMikhelA:
+//     Result:='Y = d(lnI)/d(lnV)'#10'X = V';
+//   fnMikhelB:
+//     Result:='Y = d(ln Alpha)/d(ln V)'#10'X = V';
+//   fnMikhelIdeality:
+//     Result:='Y = q V (Alpha - 1) [1 + Betta / (Alpha - 1)] / k T Alpha^2'#10'X = V';
+//   fnMikhelRs:
+//     Result:='Y = V (1- Betta) / I Alpha^2'#10'X = V';
+//   fnDLdensity:
+//     Result:='Nss = ep ep0 ( n - 1 ) / ( d e )';
+//   fnDLdensityIvanov:
+//     Result:='Dit=ep ep0 /d * (q^-2) * d(Vcal-Vexp)/dVs';
+//   fnLee:
+//     Result:='X - arbitrary voltage Va'#10+
+//     'Y = -C/B, where C and B are the coefficienfs of'#10+
+//     'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)';
+//   fnTauR:
+//     Result:='q^2 S^2 ni^4 mu k T / Na I0^2';
+//   fnIgen:
+//     Result:='S ni^2 / Na * (mu k T / tau)^0.5';
+//   fnTauG:
+//     Result:='q S ni W / 2 I0';
+//   fnIrec:
+//     Result:='q S ni W / 2 tau';
+//   fnTau:
+//     Result:='L^2 / mu k T';
+//   fnLdif:
+//     Result:='(tau mu k T)^0.5';
+// else
+//     Result:='Some error';
+// end;
+//end;
+//
+//Function GraphErrorMessage(tg:TGraph):string;
+//begin
+// Result:='';
+// if tg=fnEmpty then Exit
+//           else Result:=GraphName(tg)+cnbb;
+// case tg of
+//     fnReverse,fnExpReverseRs:
+//           Result:=tIVc+#10'with negative voltage';
+//      fnForward:  Result:=tIVc+#10'with positive voltage';
+//      fnKaminskii1: Result:=Result+rsi;
+//      fnKaminskii2: Result:=Result+rsi+#10'or negative current';
+//      fnGromov1: Result:=Result+#10'because I-V-characteristic has not point'#10'with positive voltage';
+//      fnGromov2,fnCheung,fnWerner,fnH,fnNorde:
+//           Result:=Result+bfcia;
+//      fnCibils,fnLee:
+//           Result:=Result+bfcia+#10'or range is selected improperly';
+//      fnForwardRs,fnExpForwardRs:
+//           Result:=tIVc+#10'with positive current';
+//      fnIdeality: Result:=Result+bfcia+#10'or forward characteristic has a negative current';
+//      fnFvsV,fnFvsI:
+//           Result:='The function'+cnbb+bfcia;
+//      fnMikhelA: Result:=Result+bfcia+#10'or there is no maximum on the curve';
+//      fnMikhelB,fnMikhelIdeality,fnMikhelRs:
+//           Result:=Result+#10'because impossible to build Alpha function';
+//     end;
+//end;
 
 //Procedure Read_File (sfile:string; var a:Pvector);
 //var F:TextFile;

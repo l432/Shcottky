@@ -19,7 +19,7 @@ uses
   OlegShowTypesNew in 'OlegShowTypesNew.pas',
   OlegTypePart2New in 'OlegTypePart2New.pas',
   OlegVectorNew in 'OlegVectorNew.pas',
-  OlegVector in 'OlegVector.pas',
+  OlegVectorOld in 'OlegVectorOld.pas',
   OlegVectorManipulation in 'OlegVectorManipulation.pas',
   OlegTests in 'OlegTests.pas',
   OlegMathShottky in 'OlegMathShottky.pas',
