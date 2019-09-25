@@ -202,6 +202,7 @@ Procedure ToFileFromXYArrays(NameFile:string;
                              NumberDigit:Byte=4);
 
 Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
+//procedure TVectorNew.WriteToFile(NameFile: string; NumberDigit: Byte);
 {записує у файл з іменем sfile дані з масиву А;
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
@@ -767,6 +768,8 @@ Procedure Gr1Kalk (A:Pvector);overload;
 Procedure Gr1Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);overload;
+//procedure TVectorTransform.Gr1Kalk(D: TDiapazon; DD: TDiod_Schottky; out Rs, n,
+//  Fb, I0: double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D) методом Громова
 першого роду визначаються величини
@@ -781,6 +784,8 @@ Procedure Gr2Kalk (A:Pvector);overload;
 Procedure Gr2Kalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);overload;
+//procedure TVectorTransform.Gr2Kalk(D: TDiapazon; DD: TDiod_Schottky; var Rs, n,
+//  Fb, I0: double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D) методом Громова
 другого роду визначаються величини
@@ -795,6 +800,8 @@ Procedure BohlinKalk(A:Pvector);overload;
 Procedure BohlinKalk(A:Pvector; D:TDiapazon; DD:TDiod_Schottky; Gamma1,Gamma2:double;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);overload;
+//procedure TVectorTransform.BohlinKalk(D: TDiapazon; DD: TDiod_Schottky; Gamma1,
+//  Gamma2: double; var Rs, n, Fb, I0: double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D), за допомогою
 методу Бохліна визначаються величини
@@ -812,6 +819,8 @@ Procedure LeeKalk (A:Pvector);overload;
 Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
                    var Rs:double; var n:double;
                    var Fb:double; var I0:double);overload;
+//procedure TVectorTransform.LeeKalk(D: TDiapazon; DD: TDiod_Schottky; out Rs, n,
+//  Fb, I0: double);
 {на основі даних з вектора А (з врахуванням
 обмежень, вказаних в D) методом побудови
 функції Лі визначаються величини
@@ -821,21 +830,6 @@ Procedure LeeKalk (A:Pvector; D:TDiapazon; DD:TDiod_Schottky;
 лише Rs, решті величин присвоюється значення ErResult;
 якщо неможливо побудувати функцію Лі,
 то і Rs=ErResult}
-
-//Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
-//{знаходить ординату точки з абсцисою Х3,
-//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-//лінійна інтерполяція по двом точкам}
-//Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
-//
-//
-//
-//Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
-//{знаходить абсцису точки з ординатою Y3,
-//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
-//лінійна інтерполяція по двом точкам}
-//Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
-
 
 function ChisloY (A:Pvector; X:double):double;
 //function TVectorNew.Yvalue(Xvalue: double): double;
@@ -856,16 +850,19 @@ function ChisloX (A:Pvector; Y:double):double;
 ординат вектора А, то повертається ErResult}
 
 function Krect(A:Pvector; V:double):double;
+//function TVectorNew.Krect(Xvalue: double): double;
 {обчислення коефіцієнту випрямлення
 за даними у векторі А при напрузі V;
 якщо точок в потрібному діапазоні немає -
 пишиться повідомлення і повертається ErResult}
 
 function IscCalc(A:Pvector):double;
+//function TVectorTransform.IscCalc: double;
 {обчислюється струм короткого замикання
 за даними у векторі А}
 
 function VocCalc(A:Pvector):double;
+//function TVectorTransform.Voc: double;
 {обчислюється напруга холостого ходу
 за даними у векторі А}
 
@@ -969,8 +966,10 @@ I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
 Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
 
 Procedure GraphCalculation(InVector:Pvector; var OutVector:Pvector;tg:TGraph);
+//procedure TVectorShottky.GraphCalculation(var Target: TVectorNew; tg: TGraph);
 
 Procedure GraphParameterCalculation(InVector:Pvector; tg:TGraph);
+//procedure TVectorShottky.GraphParameterCalculation(tg: TGraph);
 
 
 Procedure GraphParCalcFitting(InVector:Pvector; tg:TGraph);
@@ -4275,7 +4274,8 @@ Procedure GraphAverage (Lines: array of TLineSeries;Minus:boolean=False;
 вибирається найменший діапазон абсцис серед всіх
 графіків;
 крок між абсцисами сусідніх точок - delX}
-var VectorArr: array of PVector;
+//var VectorArr: array of PVector;
+var VectorArr: array of TVectorNew;
     i:word;
     Xmin,Xmax,x,y:double;
 begin
@@ -4288,38 +4288,37 @@ try
  SetLength(VectorArr,High(Lines));
  for i:= 0 to High(VectorArr) do
    begin
-   new(VectorArr[i]);
-   GraphToVector(Lines[i+1],VectorArr[i]);
-   Sorting(VectorArr[i]);
+   VectorArr[i]:=TVectorNew.Create;
+   VectorArr[i].ReadFromGraph(Lines[i+1]);
+   VectorArr[i].Sorting;
    end;
  if (NumLines>0) then
    begin
-    for i:= 0 to High(VectorArr[NumLines-1]^.X) do
-     VectorArr[NumLines-1]^.X[i]:=VectorArr[NumLines-1]^.X[i]+shiftX;
-    VectorToGraph(VectorArr[NumLines-1],Lines[NumLines]);
+    for i:= 0 to VectorArr[NumLines-1].HighNumber do
+     VectorArr[NumLines-1].X[i]:=VectorArr[NumLines-1].X[i]+shiftX;
+     VectorArr[NumLines-1].WriteToGraph(Lines[NumLines]);
    end;
 
- Xmin:=VectorArr[0]^.X[0];
- Xmax:=VectorArr[0]^.X[High(VectorArr[0]^.X)];
+ Xmin:=VectorArr[0].X[0];
+ Xmax:=VectorArr[0].X[VectorArr[0].HighNumber];
   for i:= 1 to High(VectorArr) do
     begin
-     if Xmin<VectorArr[i]^.X[0] then Xmin:=VectorArr[i]^.X[0];
-     if Xmax>VectorArr[i]^.X[High(VectorArr[i]^.X)]
-                   then Xmax:=VectorArr[i]^.X[High(VectorArr[i]^.X)];
+     if Xmin<VectorArr[i].X[0] then Xmin:=VectorArr[i].X[0];
+     if Xmax>VectorArr[i].X[VectorArr[i].HighNumber]
+                   then Xmax:=VectorArr[i].X[VectorArr[i].HighNumber];
     end;
   x:=Xmin;
   repeat
     y:=0;
     for i:= 0 to High(VectorArr) do
-      if Minus then y:=y+Power(-1,i)*ChisloY(VectorArr[i],x)
-               else y:=y+ChisloY(VectorArr[i],x);
+      if Minus then y:=y+Power(-1,i)*VectorArr[i].Yvalue(x)
+               else y:=y+VectorArr[i].Yvalue(x);
 
     Lines[0].AddXY(x,y/(High(VectorArr)+1));
     x:=x+delX;
   until x>Xmax;
 
- for I := 0 to High(VectorArr) do
-   dispose(VectorArr[i]);
+ for I := 0 to High(VectorArr) do VectorArr[i].Free;
 finally
 end;//try
 end;

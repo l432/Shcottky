@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraphNew, OlegTypeNew, OlegMathNew, OlegFunctionNew, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, OlegApproxNew,FrameButtons, FrDiap, OlegMaterialSamplesNew,OlegDefectsSiNew,MMSystem, 
-  OlegVector, OlegTests;
+  OlegVector, OlegTests, OlegVectorNew;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -1200,8 +1200,10 @@ Function ParamDeterm(Source:TArrSingle;ParamName:string):double;overload;
 
 
 Function FunCorrectionDefine():TFunCorrection;
+Function FunCorrectionDefineNew():TFunCorrectionNew;
 {визначення, яка диференційна операція буде проводитися
 відповідно до вмісту CBDLFunction}
+
 
 Function FileNameIsBad(FileName:string):boolean;
 {повертає True, якщо FileName містить
@@ -1211,6 +1213,20 @@ Procedure GraphParCalculComBox(InVector:Pvector;ComboBox:TCombobox);
 
 procedure InputValueToLabel(Name,Hint:string; Format:TFloatFormat;
                    var Lab:Tlabel;var Value:double);
+
+
+Function dB_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
+Function Rnp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
+Function dRnp_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
+Function Rnp2_exp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
+Function Gamma_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
+
+Function dB_dV_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;overload;
+Function Rnp_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;overload;
+Function dRnp_dV_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;overload;
+Function Rnp2_exp_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;overload;
+Function Gamma_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;overload;
+
 const
  DLFunction:array[0..4]of string=
            ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
@@ -1259,7 +1275,8 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit, OlegVectorNew, OlegVectorManipulation;
+uses ApprWindows, FormSelectFit, OlegVectorManipulation, 
+  OlegMathShottky;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -3532,7 +3549,8 @@ begin
 //                    floattostrf(tauR,ffExponent,4,0);
                     Form1.Button1.Caption:='n='+floattostrf(n,ffExponent,4,0)+' Rsh='+
                     floattostrf(Rsh,ffExponent,4,0);
-                    (FitIV as TDoubleDiodLight).AddParDetermination(nil,OutputData);
+//!!!!!!!!було так  (FitIV as TDoubleDiodLight).AddParDetermination(nil,OutputData);
+                    (FitIV as TDoubleDiodLight).AddParDetermination(VaxFile,OutputData);
 
 
                     Str.Add(FloatToStrF(T,ffFixed,3,0)+' '+
@@ -3674,7 +3692,7 @@ procedure TForm1.Button1Click(Sender: TObject);
      PSourceXArray,PSourceYArray:PTArrSingle;
      i:integer;
 //     CT:TCoord_type;
-     VTrans:TVectorTransform;
+     VTrans:TVectorShottky;
      tempDouble:double;
      tempBool:boolean;
      directory:string;
@@ -3682,81 +3700,41 @@ procedure TForm1.Button1Click(Sender: TObject);
      tg: TGraph;
 begin
 
-    tempDouble:=0;
+    tempDouble:=0.1;
     tempBool:=False;
   Vec:=TVectorNew.Create;
 
   Vec2:=TVectorNew.Create;
   new(Vector1);  new(Vector2);
 
-//  directory:='D:\oleg\Delphi2007\CopyNew\Data\';//home
-  directory:='D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\';  //work
+  directory:='D:\oleg\Delphi2007\CopyNew\Data\';//home
+//  directory:='D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\';  //work
 
 
 
   ChDir(directory);
   Read_File('data.dat',Vector1);
-//  MikhRs_Fun (Vector1,Vector2);
-//  HFun(Vector1,Vector2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
-//  NordeFun(Vector1,Vector2,Diod,GraphParameters.Gamma);
+//  Gamma_Build(Vector1,Vector2,2);
 
-//  LeeFunDod(Vector1,Vector2,tempDouble);
-//  GromovAprox (Vector2, OutputData[0],OutputData[1],OutputData[2]);
-//  showmessage(ArrayToString(OutputData));
-
-//  CibilsFun(Vector1,D[diCib],Vector2);
-//  LeeFun(Vector1,D[diLee],Vector2);
-//  TauFun(Vector1,Vector2,DiodPN.TauToLdif);
-//  N_V_Fun(Vector1,Vector2,tempDouble);
-
-//  tg:=fnFrenkelPoolEm;
-//  M_V_Fun(Vector1,Vector2,tempBool,tg);
-//
-// Nss_Fun(Vector1,Vector2,0.5,5,
-//               Diod,D[diNss],tempBool);
-// Dit_Fun(Vector1,Vector2,
-//                 RsDefineCB(Vector1,ComBDitRs,ComBDitRs_n),
-//                 Diod,D[diIvan]);
   SetLength(OutputDataOld,3);
-//  LinAprox(Vector1,OutputDataOld[0],OutputDataOld[1]);
-//  ExKalk(Vector1,Diod,OutputDataOld[0],OutputDataOld[1],OutputDataOld[2]);
-//  NordKalk(Vector1,D[diNord],Diod,2,1,OutputDataOld[0],OutputDataOld[1]);
-  Kam2Kalk(Vector1,D[diKam2],OutputDataOld[0],OutputDataOld[1]);
-
-
-  Median(Vector1,Vector2);
-
+  ParabAprox(Vector1,OutputDataOld[0],OutputDataOld[1],OutputDataOld[2]);
   Vector2^.Write_File('rezOld.dat');
 
 
-  VTrans:=TVectorTransform.Create();
-  VTrans.Vector.ReadFromFile('data.dat');
-    SetLength(OutputData,3);
+  VTrans:=TVectorShottky.Create();
+  VTrans.ReadFromFile('data.dat');
+  VTrans.ParabAprox(OutputData);
 
-  VTrans.Kam2Kalk(D[diKam2],OutputData[0],OutputData[1]);
+  Vec2.WriteToFile('rez.dat');
+//  showmessage(floattostr(LinAproxXvalue(Vector1,tempDouble))+#10+
+//               floattostr(VTrans.LinAproxBconst(tempDouble)));
+
   showmessage(ArrayToString(OutputDataOld)+#10+
               ArrayToString(OutputData));
 
-//  VTrans.MikhRs_Fun(Vec2);
-//  VTrans.HFun(Vec2,Diod,nDefineCB(Vector1,CombHfuncN,CombHfuncN_Rs));
-//  VTrans.NordeFun(Vec2,Diod,GraphParameters.Gamma);
-//  VTrans.LeeFunDod(Vec2,tempDouble);
-
-//  Vec2.Copy(VTrans.Vector);
-//  VTrans.GromovAprox(OutputData);
-//  showmessage(ArrayToString(OutputData));
-
-
-//  VTrans.CibilsFun(Vec2,D[diCib]);
-//  VTrans.LeeFun(Vec2,D[diLee]);
-//  VTrans.TauFun(Vec2,DiodPN.TauToLdif);
-//  VTrans.M_V_Fun(Vec2,tempBool,tg);
-//  VTrans. Dit_Fun(Vec2,
-//                 RsDefineCB(Vector1,ComBDitRs,ComBDitRs_n),
-//                 Diod,D[diIvan]);
-  VTrans.Median(Vec2);
-  Vec2.WriteToFile('rez.dat');
   VectorEquals(Vector2,Vec2);
+
+
 
 //  showmessage(floattostr(Poh(Vector1,188))
 //  +' '+floattostr(VTrans.DerivateAtPoint(188)));
@@ -6996,8 +6974,19 @@ begin
   if B^.n=0 then Exit;
 
   kT:=A^.T*Kb;
+
+  new(temp);
+  B^.Copy(temp^);
+  for j := 0 to High(B^.X) do
+    temp^.X[j]:=A^.Y[j];
+  B^.DeleteZeroY;
+  temp^.DeleteZeroY;
   for j:=0 to High(B^.X) do
-        B^.Y[j]:=1/B^.Y[j]*A^.Y[j]/kT;
+        B^.Y[j]:=1/B^.Y[j]*temp^.X[j]/kT;
+  dispose(temp);
+
+//  for j:=0 to High(B^.X) do
+//        B^.Y[j]:=1/B^.Y[j]*A^.Y[j]/kT;
 
   ForwardIV(B);
 
@@ -7011,6 +7000,46 @@ begin
   Result:=True;
 end;
 
+
+Function dB_dV_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;
+ var temp:TVectorShottky;
+begin
+ temp:=TVectorShottky.Create(A);
+ Result:=temp.dB_dV_Build(B);
+ temp.Free;
+end;
+
+Function Rnp_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;
+ var temp:TVectorShottky;
+begin
+ temp:=TVectorShottky.Create(A);
+ Result:=temp.Rnp_Build(B);
+ temp.Free;
+end;
+
+Function dRnp_dV_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;
+ var temp:TVectorShottky;
+begin
+ temp:=TVectorShottky.Create(A);
+ Result:=temp.dRnp_dV_Build(B);
+ temp.Free;
+end;
+
+Function Rnp2_exp_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;
+ var temp:TVectorShottky;
+begin
+ temp:=TVectorShottky.Create(A);
+ Result:=temp.Rnp2_exp_Build(B);
+ temp.Free;
+end;
+
+Function Gamma_Build(A:TVectorNew; var B:TVectorNew; fun:byte):boolean;
+ var temp:TVectorShottky;
+begin
+ temp:=TVectorShottky.Create(A);
+ Result:=temp.Gamma_Build(B);
+ temp.Free;
+end;
 
 
 Function FuncLimit(A:Pvector; var B:Pvector):boolean;
@@ -7121,5 +7150,15 @@ begin
   if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Result:=Rnp2_exp_Build;
   if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Result:=Gamma_Build;
 end;
+
+Function FunCorrectionDefineNew():TFunCorrectionNew;
+begin
+  Result:=dB_dV_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='Rnp' then  Result:=Rnp_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='dRnp/dV' then  Result:=dRnp_dV_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Result:=Rnp2_exp_Build;
+  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Result:=Gamma_Build;
+end;
+
 
 end.

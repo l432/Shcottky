@@ -33,7 +33,9 @@ type
          Procedure DeleteDuplicate;
          {видаляються точки, для яких значення абсциси вже зустрічалося}
          Procedure DeleteErResult;
-         {видаляються точки, для абсциса чи ордината рівна ErResult}
+         {видаляються точки, для яких абсциса чи ордината рівна ErResult}
+         Procedure DeleteZeroY;
+         {видаляються точки, для яких ордината рівна 0}
          Procedure SwapXY;
          {обмінюються знчення Х та Y}
          Function MaxX:double;
@@ -245,6 +247,23 @@ begin
     Y[i]:=Y[i+Nfirst];
    end;
   Self.SetLenVector(n-Nfirst);
+end;
+
+procedure Vector.DeleteZeroY;
+ var i,Point:integer;
+ label Start;
+begin
+  Point:=0;
+  i:=-1;
+ Start:
+  if i<>-1 then
+     Self.Delete(i);
+  for I := Point to High(X)-1 do
+    begin
+      if (Y[i]=0) then
+            goto Start;
+      Point:=I+1;
+    end;
 end;
 
 Procedure Vector.Sorting (Increase:boolean=True);
