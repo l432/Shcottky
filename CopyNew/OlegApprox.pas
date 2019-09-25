@@ -1,12 +1,12 @@
-﻿unit OlegApproxNew;
+﻿unit OlegApprox;
 
 interface
 
-uses OlegTypeNew,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
+uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
-      OlegMathNew,ApprWindows,StdCtrls,FrParam,Series,Classes,
-      OlegGraphNew,OlegMaterialSamplesNew,OlegFunctionNew,OlegDefectsSiNew, 
-      OlegVectorNew;
+      OlegMath,ApprWindows,StdCtrls,FrParam,Series,Classes,
+      OlegGraph,OlegMaterialSamples,OlegFunction,OlegDefectsSi,
+      OlegVector;
 
 const
   FunctionDiod='Diod';

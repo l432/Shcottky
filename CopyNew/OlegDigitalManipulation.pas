@@ -3,7 +3,7 @@
 interface
 
 uses
-  Windows,Math,OlegVectorNew,OlegTypeNew;
+  Windows,Math,OlegVector,OlegType;
 
 type
 

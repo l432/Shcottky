@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{850593d2-be65-4fac-982b-f73a7830565c}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+    <DCC_DependencyCheckOutputName>Shottky.exe</DCC_DependencyCheckOutputName>
+    <MainSource>Shottky.dpr</MainSource>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_DebugInformation>False</DCC_DebugInformation>
+    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    <DCC_Define>RELEASE</DCC_Define>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_Define>DEBUG</DCC_Define>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Delphi.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1058</VersionInfo><VersionInfo Name="CodePage">1251</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">Shottky.dpr</Source></Source></Delphi.Personality><ModelSupport>True</ModelSupport></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
+  <ItemGroup>
+    <DelphiCompile Include="Shottky.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <DCCReference Include="ApprWindows.pas">
+      <Form>App</Form>
+    </DCCReference>
+    <DCCReference Include="FormSelectFit.pas">
+      <Form>FormSF</Form>
+    </DCCReference>
+    <DCCReference Include="FrameButtons.pas">
+      <Form>FrBut</Form>
+    </DCCReference>
+    <DCCReference Include="FrApprPar.pas">
+      <Form>FrApprP</Form>
+    </DCCReference>
+    <DCCReference Include="FrDiap.pas">
+      <Form>FrDp</Form>
+    </DCCReference>
+    <DCCReference Include="FrParam.pas">
+      <Form>FrParamP</Form>
+    </DCCReference>
+    <DCCReference Include="OlegApprox.pas" />
+    <DCCReference Include="OlegDefectsSi.pas" />
+    <DCCReference Include="OlegDigitalManipulation.pas" />
+    <DCCReference Include="OlegFunction.pas" />
+    <DCCReference Include="OlegGraph.pas" />
+    <DCCReference Include="OlegMaterialSamples.pas" />
+    <DCCReference Include="OlegMath.pas" />
+    <DCCReference Include="OlegMathShottky.pas" />
+    <DCCReference Include="OlegShowTypes.pas" />
+    <DCCReference Include="OlegTests.pas" />
+    <DCCReference Include="OlegType.pas" />
+    <DCCReference Include="OlegTypePart2.pas" />
+    <DCCReference Include="OlegVector.pas" />
+    <DCCReference Include="OlegVectorManipulation.pas" />
+    <DCCReference Include="OlegVectorOld.pas" />
+    <DCCReference Include="Unit1new.pas">
+      <Form>Form1</Form>
+    </DCCReference>
+    <None Include="ModelSupport_Shottky\ApprWindows\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\ApprWindows\default.txvpck" />
+    <None Include="ModelSupport_Shottky\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\default.txvpck" />
+    <None Include="ModelSupport_Shottky\FormSelectFit\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\FormSelectFit\default.txvpck" />
+    <None Include="ModelSupport_Shottky\FrameButtons\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\FrameButtons\default.txvpck" />
+    <None Include="ModelSupport_Shottky\FrApprPar\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\FrApprPar\default.txvpck" />
+    <None Include="ModelSupport_Shottky\FrDiap\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\FrDiap\default.txvpck" />
+    <None Include="ModelSupport_Shottky\FrParam\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\FrParam\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegApproxNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegApproxNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegApprox\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegApprox\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegDefectsSiNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegDefectsSiNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegDefectsSi\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegDefectsSi\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegDigitalManipulation\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegDigitalManipulation\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegFunctionNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegFunctionNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegFunction\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegFunction\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegGraphNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegGraphNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegGraph\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegGraph\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegMaterialSamplesNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegMaterialSamplesNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegMaterialSamples\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegMaterialSamples\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegMathNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegMathNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegMathShottky\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegMathShottky\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegMath\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegMath\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegShowTypesNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegShowTypesNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegShowTypes\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegShowTypes\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegTests\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegTests\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegTypeNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegTypeNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegTypePart2New\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegTypePart2New\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegTypePart2\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegTypePart2\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegType\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegType\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegVectorManipulation\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegVectorManipulation\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegVectorNew\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegVectorNew\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegVectorOld\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegVectorOld\default.txvpck" />
+    <None Include="ModelSupport_Shottky\OlegVector\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\OlegVector\default.txvpck" />
+    <None Include="ModelSupport_Shottky\Unit1new\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\Unit1new\default.txvpck" />
+    <None Include="ModelSupport_Shottky\Unit1\default.txaPackage" />
+    <None Include="ModelSupport_Shottky\Unit1\default.txvpck" />
+  </ItemGroup>
+</Project>

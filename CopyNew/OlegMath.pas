@@ -1,7 +1,7 @@
-﻿unit OlegMathNew;
+﻿unit OlegMath;
 
 interface
- uses OlegTypeNew, Dialogs, SysUtils, Math, Classes, {OlegVector,} OlegVectorNew;
+ uses OlegType, Dialogs, SysUtils, Math, Classes, OlegVector;
 
 Type
 //     FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
@@ -605,7 +605,7 @@ Function CasrtoIV(I:double;Parameters:array of double):double;
 implementation
 
 uses
-  OlegMaterialSamplesNew;
+  OlegMaterialSamples;
 
 procedure Swap(var A:integer; var B:integer);  overload;
 {процедура обміну значеннями між цілими змінними А та В}

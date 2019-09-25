@@ -1,7 +1,7 @@
 unit OlegMathShottky;
 
 interface
- uses OlegVectorNew,OlegTypeNew, OlegMaterialSamplesNew, 
+ uses OlegVector,OlegType, OlegMaterialSamples, 
   OlegVectorManipulation, StdCtrls, IniFiles;
 
 
@@ -608,7 +608,7 @@ var
 implementation
 
 uses
-  Math, Dialogs, SysUtils, OlegMathNew, OlegApproxNew;
+  Math, Dialogs, SysUtils, OlegMath, OlegApprox;
 
 
 { TVectorShottky }

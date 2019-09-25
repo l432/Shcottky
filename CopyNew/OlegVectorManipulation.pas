@@ -1,7 +1,7 @@
 unit OlegVectorManipulation;
 
 interface
- uses OlegVectorNew,OlegTypeNew, OlegMaterialSamplesNew;
+ uses OlegVector,OlegType, OlegMaterialSamples;
 
 
 type
@@ -225,7 +225,7 @@ Function DerivateTwoPoint(Point1,Point2:TPointDouble):double;
 implementation
 
 uses
-  Math, Dialogs, SysUtils, OlegMathNew;
+  Math, Dialogs, SysUtils, OlegMath;
 
 
 

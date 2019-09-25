@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, ExtCtrls, StdCtrls,IniFiles,FrameButtons,OlegMathNew,OlegFunctionNew;
+  Dialogs, ExtCtrls, StdCtrls,IniFiles,FrameButtons,OlegMath,OlegFunction;
 
 const
  FuncName:array[0..0] of string =('Diod');

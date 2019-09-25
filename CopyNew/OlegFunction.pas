@@ -1,9 +1,9 @@
-unit OlegFunctionNew;
+unit OlegFunction;
 
 interface
 
-uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegTypeNew,
- Dialogs, OlegMathNew, StrUtils, Classes, Windows, {OlegVector, }OlegVectorNew;
+uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
+ Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до

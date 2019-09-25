@@ -2,7 +2,7 @@
 
 
 interface
- uses OlegTypeNew, IniFiles;
+ uses OlegType, IniFiles;
 
 
 type
@@ -149,7 +149,7 @@ Procedure SetLenVector(A:Pvector;n:integer);
 
 
 implementation
-uses OlegMathNew,OlegGraphNew, Classes, Dialogs, Controls, Math, SysUtils;
+uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math, SysUtils;
 
 
 

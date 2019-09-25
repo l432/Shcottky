@@ -1,8 +1,8 @@
-unit OlegDefectsSiNew;
+unit OlegDefectsSi;
 
 interface
 
-uses OlegMaterialSamplesNew,OlegTypeNew,Math;
+uses OlegMaterialSamples,OlegType,Math;
 
 type
   TDefectName=(Fei,FeB);

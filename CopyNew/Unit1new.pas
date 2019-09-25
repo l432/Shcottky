@@ -5,9 +5,9 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
-  OlegGraphNew, OlegTypeNew, OlegMathNew, OlegFunctionNew, Math, FileCtrl, Grids, Series, IniFiles,
-  TypInfo, Spin, OlegApproxNew,FrameButtons, FrDiap, OlegMaterialSamplesNew,OlegDefectsSiNew,MMSystem, 
-  {OlegVector,} OlegTests, OlegVectorNew, OlegMathShottky,
+  OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
+  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
+  OlegTests, OlegVector, OlegMathShottky,
   OlegVectorManipulation;
 
 type

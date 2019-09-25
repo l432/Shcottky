@@ -1,8 +1,8 @@
-unit OlegMaterialSamplesNew;
+unit OlegMaterialSamples;
 
 interface
-uses IniFiles, TypInfo, OlegTypeNew,SysUtils,Dialogs, StdCtrls,
-     OlegFunctionNew,OlegMathNew, {OlegVector,} OlegVectorNew;
+uses IniFiles, TypInfo, OlegType,SysUtils,Dialogs, StdCtrls,
+     OlegFunction,OlegMath, OlegVector;
 type
     TMaterialName=(Si,GaAs,InP,H4SiC,GaN,CdTe,CdS,CdSe,CuInSe2,GaTe,GaSe,Ge,Other);
     TMaterialParametersName=(

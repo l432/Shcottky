@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,OlegApproxNew,Unit1new,FrameButtons;
+  Dialogs, StdCtrls, ExtCtrls,OlegApprox,Unit1new,FrameButtons;
 
 type
   TFormSF = class(TForm)

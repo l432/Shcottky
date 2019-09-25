@@ -1,9 +1,9 @@
-unit OlegShowTypesNew;
+unit OlegShowTypes;
 
 interface
 
 uses
-  OlegTypePart2New, StdCtrls, OlegTypeNew, IniFiles, Classes, OlegFunctionNew;
+  OlegTypePart2, StdCtrls, OlegType, IniFiles, Classes, OlegFunction;
 
 const DoubleConstantSection='DoubleConstant';
       NoFile='no file';

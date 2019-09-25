@@ -1,8 +1,8 @@
-﻿unit OlegVectorNew;
+﻿unit OlegVector;
 
 
 interface
- uses IniFiles,SysUtils, StdCtrls,OlegTypeNew, Series, Graphics, TeEngine;
+ uses IniFiles,SysUtils, StdCtrls,OlegType, Series, Graphics, TeEngine;
 
 
 type
@@ -348,7 +348,7 @@ type
 
 
 implementation
-uses OlegMathNew,{OlegGraphNew,} Classes, Dialogs, Controls, Math;
+uses OlegMath, Classes, Dialogs, Controls, Math;
 
 
 

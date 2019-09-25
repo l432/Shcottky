@@ -1,9 +1,9 @@
-﻿unit OlegTypePart2New;
+﻿unit OlegTypePart2;
 
 interface
 
 uses
-  IniFiles, OlegTypeNew{, OlegVector};
+  IniFiles, OlegType;
 
 type
 

@@ -1,8 +1,8 @@
-﻿unit OlegGraphNew;
+﻿unit OlegGraph;
 interface
-uses OlegTypeNew, OlegMathNew, SysUtils, Dialogs, Classes, Series,
-     Forms,Controls,WinProcs,OlegMaterialSamplesNew, StdCtrls, IniFiles, 
-     {OlegVector,} OlegVectorNew;
+uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
+     Forms,Controls,WinProcs,OlegMaterialSamples, StdCtrls, IniFiles, 
+     OlegVector;
 
 //type
 
@@ -979,7 +979,7 @@ I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
 implementation
 
 uses
-  Math, OlegApproxNew;
+  Math, OlegApprox;
 
 
 //Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
