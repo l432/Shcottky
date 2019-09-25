@@ -6,7 +6,7 @@ uses OlegTypeNew,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
       Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
       OlegMathNew,ApprWindows,StdCtrls,FrParam,Series,Classes,
       OlegGraphNew,OlegMaterialSamplesNew,OlegFunctionNew,OlegDefectsSiNew, 
-  OlegVector, OlegVectorNew;
+      {OlegVector,} OlegVectorNew;
 
 const
   FunctionDiod='Diod';
@@ -87,22 +87,22 @@ private
  {назви колонок у файлі з результатами апроксимації,
  що утворюється впроцедурі FittingGraphFile}
  Constructor Create(FunctionName,FunctionCaption:string);
- Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word); overload;virtual;abstract;
+// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word); overload;virtual;abstract;
  Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word); overload;virtual;abstract;
+              Xlog,Ylog:boolean; Np:Word); {overload;}virtual;abstract;
  {див. FittingGraph}
- Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);overload;virtual;//abstract;
+// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+//              Xlog,Ylog:boolean; suf:string);overload;virtual;//abstract;
  Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);overload;virtual;//abstract;
+              Xlog,Ylog:boolean; suf:string);{overload;}virtual;//abstract;
  {див. FittingGraphFile}
- Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;overload;virtual;
+// Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;overload;virtual;
  Function StringToFile(InputData:TVectorNew;Number:integer; OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;overload;virtual;
+              Xlog,Ylog:boolean):string;{overload;}virtual;
  {створюється рядок, який вноситься у файл з результатами
  інтерполяції; використовується в RealToFile}
  Procedure PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
@@ -123,10 +123,10 @@ public
  даних, представлених у логарифмічному масштабі
  Xlog = True - абсциси у у логарифмічному масштабі,
  Ylog = True - ординати у логарифмічному масштабі}
- Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-             Xlog:boolean=False;Ylog:boolean=False);overload;virtual;abstract;
+// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+//             Xlog:boolean=False;Ylog:boolean=False);overload;virtual;abstract;
  Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
-             Xlog:boolean=False;Ylog:boolean=False);overload;virtual;abstract;
+             Xlog:boolean=False;Ylog:boolean=False);{overload;}virtual;abstract;
  {фактично, обгортка для процедури RealFitting,
  де дійсно відбувається апроксимація;
  ця процедура лише виловлює помилки,
@@ -138,28 +138,28 @@ public
  представлені у векторі InputData у логарифмічному масштабі
  Xlog = True - абсциси у у логарифмічному масштабі,
  Ylog = True - ординати у логарифмічному масштабі}
- Procedure FittingGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog:boolean=False;Ylog:boolean=False;
-              Np:Word=150);overload;virtual;
+// Procedure FittingGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog:boolean=False;Ylog:boolean=False;
+//              Np:Word=150);overload;virtual;
  Procedure FittingGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog:boolean=False;Ylog:boolean=False;
-              Np:Word=150);overload;virtual;
+              Np:Word=150);{overload;}virtual;
  {апроксимація і дані вносяться в Series -
  щоб можна було побудувати графік
  Np - кількість точок на графіку,
  Xlog,Ylog див. Fitting
  фактично це обгортка для RealToGraph, яка
  у нащадках може мінятися}
- Procedure FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog:boolean=False;Ylog:boolean=False;
-              Np:Word=150; suf:string='fit');overload;virtual;
+// Procedure FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog:boolean=False;Ylog:boolean=False;
+//              Np:Word=150; suf:string='fit');overload;virtual;
  Procedure FittingGraphFile (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog:boolean=False;Ylog:boolean=False;
-              Np:Word=150; suf:string='fit');overload;virtual;
+              Np:Word=150; suf:string='fit');{overload;}virtual;
  {апроксимація, дані вносяться в Series, крім
  того апроксимуюча крива заноситься в файл -
  третім стопчиком;
@@ -167,10 +167,10 @@ public
  Xlog,Ylog див. Fitting,
  фактично це обгортка для RealToFile, яка
  у нащадках може мінятися}
- Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
-                            D:TDiapazon);overload;virtual;abstract;
+// Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
+//                            D:TDiapazon);overload;virtual;abstract;
  Procedure FittingDiapazon (InputData:TVectorNew; var OutputData:TArrSingle;
-                            D:TDiapazon);overload;virtual;abstract;
+                            D:TDiapazon);{overload;}virtual;abstract;
 {апроксимуються дані у векторі V відповідно до обмежень
  в D, отримані параметри розміщуються в OutputData}
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
@@ -184,33 +184,33 @@ public
 TFitWithoutParameteres=class (TFitFunction)
 private
   FErrorMessage:string; //виводиться при помилці
-  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word); override;
+//  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word); override;
   Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
-  Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;override;
+//  Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;override;
   Function StringToFile(InputData:TVectorNew;Number:integer; OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
 protected
- fVector:TVectorNew;
+ fVector:TVectorNew;//результати операції саме тут розміщуються
 public
- FtempVector:PVector;  //результати операції саме тут розміщуються
+// FtempVector:PVector;  //результати операції саме тут розміщуються
  Constructor Create(FunctionName:string);
  Procedure Free;
- procedure RealTransform(InputData:PVector);overload;
- procedure RealTransform(InputData:TVectorNew);overload;
+// procedure RealTransform(InputData:PVector);overload;
+ procedure RealTransform(InputData:TVectorNew);{overload;}
   {cаме тут в FtempVector вноситься перетворений потрібним чином InputData}
  Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
                      Xlog:boolean=False;Ylog:boolean=False):double;override;
- Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);override;
+// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
- Procedure FittingDiapazon (InputData:PVector;
-                   var OutputData:TArrSingle;D:TDiapazon);override;
+// Procedure FittingDiapazon (InputData:PVector;
+//                   var OutputData:TArrSingle;D:TDiapazon);override;
  Procedure FittingDiapazon (InputData:TVectorNew;
                    var OutputData:TArrSingle;D:TDiapazon);override;
 // Function Deviation (InputData:PVector):double;override;
@@ -239,20 +239,20 @@ private
  Function RealFunc(Parameters:TArrSingle):double; virtual;
   {а ось це - апроксимуюча функція,
   за умовчанням співпадає з Func}
- Procedure RealFitting (InputData:PVector;
-         var OutputData:TArrSingle); overload;virtual;abstract;
+// Procedure RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle); overload;virtual;abstract;
  Procedure RealFitting (InputData:TVectorNew;
          var OutputData:TArrSingle); overload;virtual;abstract;
  {апроксимуються дані у векторі InputData, отримані параметри
  розміщуються в OutputData;}
- Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word); override;
+// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word); override;
  Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
- Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;override;
+// Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;override;
  Function StringToFile(InputData:TVectorNew;Number:integer;OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
 
@@ -268,20 +268,20 @@ public
  Xlog = True - абсциси у у логарифмічному масштабі,
  Ylog = True - ординати у логарифмічному масштабі
 }
- Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);override;
+// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
- Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
-                            D:TDiapazon);override;
+// Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
+//                            D:TDiapazon);override;
  Procedure FittingDiapazon (InputData:TVectorNew; var OutputData:TArrSingle;
                             D:TDiapazon);override;
- Function Deviation (InputData:PVector):double;overload;
+// Function Deviation (InputData:PVector):double;overload;
  Function Deviation (InputData:TVectorNew):double;overload;
  {повертає середнеє квадратичне відносне
  відхилення апроксимації даних у InputData
  від самих даних}
- Function Deviation (InputData:PVector;OutputData:TArrSingle):double;overload;virtual;
+// Function Deviation (InputData:PVector;OutputData:TArrSingle):double;overload;virtual;
  Function Deviation (InputData:TVectorNew;OutputData:TArrSingle):double;overload;virtual;
  Procedure DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);override;
@@ -290,7 +290,7 @@ end;   // TFitFunc=class
 //--------------------------------------------------------------------
 TLinear=class (TFitFunctionSimple)
 private
-  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
+//  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
   Procedure RealFitting (InputData:TVectorNew; var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
@@ -299,7 +299,7 @@ end; // TLinear=class (TFitFunction)
 
 TOhmLaw=class (TFitFunctionSimple)
 private
-  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
+//  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
   Procedure RealFitting (InputData:TVectorNew; var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
@@ -308,7 +308,7 @@ end; // TOhmLaw=class (TFitFunctionSimple)
 
 TQuadratic=class (TFitFunctionSimple)
 private
-  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
+//  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
   Procedure RealFitting (InputData:TVectorNew; var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
@@ -317,7 +317,7 @@ end; // TQuadratic=class (TFitFunction)
 
 TGromov=class (TFitFunctionSimple)
 private
-  Procedure RealFitting (InputData:PVector;var OutputData:TArrSingle);override;
+//  Procedure RealFitting (InputData:PVector;var OutputData:TArrSingle);override;
   Procedure RealFitting (InputData:TVectorNew;var OutputData:TArrSingle);override;
   Function Func(Parameters:TArrSingle):double; override;
 public
@@ -362,8 +362,8 @@ private
  {записує дані в ini-файл, обгортка для RealWriteToIniFile}
  Procedure RealWriteToIniFile;virtual;
  {безпосередньо записує дані в ini-файл, в цьому класі - FVarValue, FVarBool}
- Procedure BeforeFitness(InputData:Pvector);overload;virtual;
- Procedure BeforeFitness(InputData:TVectorNew);overload;virtual;
+// Procedure BeforeFitness(InputData:Pvector);overload;virtual;
+ Procedure BeforeFitness(InputData:TVectorNew);{overload;}virtual;
  {виконується перед початком апроксимації,
  полягає у заповненні полів потрібними
  значеннями}
@@ -404,8 +404,8 @@ private
  Procedure GRButtonsToForm(Form:TForm);
  {На форму виводяться кнопки Ok, Cancel}
 public
- Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);override;
+// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
  procedure SetValueGR;override;
@@ -413,24 +413,24 @@ public
 end;   // TFitVariabSet=class(TFitFunctionSimple)
 //---------------------------------------------
 TNoiseSmoothing=class(TFitVariabSet)
- FtempVector:PVector;
+// FtempVector:PVector;
  Function Func(Parameters:TArrSingle):double; override;
- Procedure RealFitting (InputData:PVector;
-         var OutputData:TArrSingle); override;
+// Procedure RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle); override;
  Procedure RealFitting (InputData:TVectorNew;
          var OutputData:TArrSingle); override;
- Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);override;
+// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
- Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word);override;
+// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word);override;
  Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word);override;
- Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);override;
+// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+//              Xlog,Ylog:boolean; suf:string);override;
  Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;
 protected
@@ -453,7 +453,7 @@ private
  необхідно для спадкоємців у Сreate поставити цю змінну в False}
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
  procedure SetT(const Value: double);
  Function GetT():double;
@@ -473,10 +473,10 @@ private
  поставити цю змінну в True}
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
- Function DetermineVoltage(InputData:Pvector):double;overload;
- Function DetermineVoltage(InputData:TVectorNew):double;overload;
+// Function DetermineVoltage(InputData:Pvector):double;overload;
+ Function DetermineVoltage(InputData:TVectorNew):double;//overload;
 public
 end; //TFitVoltageIsUsed=class(TFitTemperatureIsUsed)
 
@@ -495,8 +495,8 @@ private
  Function Func(Parameters:TArrSingle):double; override;
  Function Sum1(Parameters:TArrSingle):double; virtual;
  Function Sum2(Parameters:TArrSingle):double; virtual;
- Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;override;
+// Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;override;
  Function StringToFile(InputData:TVectorNew;Number:integer;OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
 public
@@ -522,8 +522,8 @@ end; //TFitSampleIsUsed=class(TFitSumFunction)
 TExponent=class (TFitSampleIsUsed)
 private
  Function Func(Parameters:TArrSingle):double; override;
- Procedure RealFitting (InputData:PVector;
-               var OutputData:TArrSingle); override;
+// Procedure RealFitting (InputData:PVector;
+//               var OutputData:TArrSingle); override;
  Procedure RealFitting (InputData:TVectorNew;
                var OutputData:TArrSingle); override;
 public
@@ -533,14 +533,14 @@ end; // TDiod=class (TFitSampleIsUsed)
 TIvanov=class (TFitSampleIsUsed)
 private
   Function Func(Parameters:TArrSingle):double; override;
-  Procedure RealFitting (InputData:PVector;
-         var OutputData:TArrSingle); override;
+//  Procedure RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle); override;
   Procedure RealFitting (InputData:TVectorNew;
          var OutputData:TArrSingle); override;
   Procedure FIsNotReadyDetermination;override;
-  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word);override;
+//  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word);override;
   Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word);override;
@@ -601,12 +601,12 @@ private
  Procedure GRSetValueParam(Component:TComponent;ToForm:boolean);virtual;
  {дані про тип параметрів}
  Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
- Procedure IterWindowPrepare(InputData:PVector);overload;virtual;
- Procedure IterWindowPrepare(InputData:TVectorNew);overload;virtual;
+// Procedure IterWindowPrepare(InputData:PVector);overload;virtual;
+ Procedure IterWindowPrepare(InputData:TVectorNew);{overload;}virtual;
 {підготовка вікна до показу даних}
  Procedure IterWindowDataShow(CurrentIterNumber:integer; InterimResult:TArrSingle);
  {показ номера біжучої ітерації
@@ -617,17 +617,17 @@ private
               var OutputData:TArrSingle);virtual;
 {перенесення даних з FinalResult в OutputData,
 використовується, як правило в TrueFitting}
- Procedure RealFitting (InputData:PVector;
-         var OutputData:TArrSingle); override;
+// Procedure RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle); override;
  Procedure RealFitting (InputData:TVectorNew;
          var OutputData:TArrSingle); override;
  {для цього класу та нащадків стає обгорткою,
  де забезпечується певна робота з формою fIterWindow,
  сама інтерполяція відбувається в TrueFitting}
- Procedure TrueFitting (InputData:PVector;
-         var OutputData:TArrSingle); overload;virtual;abstract;
- Procedure TrueFitting (InputData:TVectorNew;               
-         var OutputData:TArrSingle); overload;virtual;abstract;
+// Procedure TrueFitting (InputData:PVector;
+//         var OutputData:TArrSingle); overload;virtual;abstract;
+ Procedure TrueFitting (InputData:TVectorNew;
+         var OutputData:TArrSingle); {overload;}virtual;abstract;
 public
  property Nit:integer read FNit write SetNit;
 end;  // TFitIteration=class (TFitSampleIsUsed)
@@ -651,14 +651,14 @@ private
  Constructor Create(FunctionName,FunctionCaption:string;
                      Npar,Nvar,NaddX:byte);
  Procedure CreateFooter;virtual;
- procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); overload;virtual;
+// procedure AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle); overload;virtual;
  procedure AddParDetermination(InputData:TVectorNew;
-                               var OutputData:TArrSingle); overload;virtual;
+                               var OutputData:TArrSingle); {overload;}virtual;
 {розраховуються додаткові параметри}
 public
- Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);override;
+// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);override;
  Procedure Fitting (InputData:TVectorNew; var OutputData:TArrSingle;
                     Xlog:boolean=False;Ylog:boolean=False);override;
 end;
@@ -689,58 +689,58 @@ private
  Procedure GRSetValueAccur(Component:TComponent;ToForm:boolean);
  {дані про кількість ітерацій}
  Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
- Procedure IterWindowPrepare(InputData:PVector);override;
+// Procedure IterWindowPrepare(InputData:PVector);override;
  Procedure IterWindowPrepare(InputData:TVectorNew);override;
- Procedure RealFitting (InputData:PVector;
-         var OutputData:TArrSingle); override;
+// Procedure RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle); override;
  Procedure RealFitting (InputData:TVectorNew;
          var OutputData:TArrSingle); override;
- Procedure TrueFitting (InputData:PVector;var OutputData:TArrSingle); override;
+// Procedure TrueFitting (InputData:PVector;var OutputData:TArrSingle); override;
  Procedure TrueFitting (InputData:TVectorNew;var OutputData:TArrSingle); override;
 //------Cлужбові функції для МНК-----------------------
- Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);overload;virtual;
- Procedure InitialApproximation(InputData:TVectorNew;var IA:TArrSingle);overload;virtual;
+// Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);overload;virtual;
+ Procedure InitialApproximation(InputData:TVectorNew;var IA:TArrSingle);{overload;}virtual;
   {по значенням в InputData визначає початкове наближення
   для параметрів і заносяться в IA,
   крім того встановлюються потрібні довжини
   для масивів IA та Another}
- Procedure IA_Begin(var AuxiliaryVector:PVector;var IA:TArrSingle);overload;
- Procedure IA_Begin(var AuxiliaryVector:TVectorNew;var IA:TArrSingle);overload;
- Function IA_Determine3(Vector1,Vector2:PVector):double;overload;
- Function IA_Determine3(Vector1,Vector2:TVectorNew):double;overload;
- Procedure IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);overload;
- Procedure IA_Determine012(AuxiliaryVector:TVectorNew;var IA:TArrSingle);overload;
- Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;overload;virtual;
- Function ParamCorectIsDone(InputData:TVectorNew;var IA:TArrSingle):boolean;overload;virtual;
+// Procedure IA_Begin(var AuxiliaryVector:PVector;var IA:TArrSingle);overload;
+ Procedure IA_Begin(var AuxiliaryVector:TVectorNew;var IA:TArrSingle);//overload;
+// Function IA_Determine3(Vector1,Vector2:PVector):double;overload;
+ Function IA_Determine3(Vector1,Vector2:TVectorNew):double;//overload;
+// Procedure IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);overload;
+ Procedure IA_Determine012(AuxiliaryVector:TVectorNew;var IA:TArrSingle);//overload;
+// Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;overload;virtual;
+ Function ParamCorectIsDone(InputData:TVectorNew;var IA:TArrSingle):boolean;{overload;}virtual;
 {коректуються величини в IA, щоб їх можна було використовувати для
 апроксимації InputData, якщо таки не вдалося -
 повертається False}
- Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;overload;virtual;
- Function ParamIsBad(InputData:TVectorNew; IA:TArrSingle):boolean;overload;virtual;
+// Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;overload;virtual;
+ Function ParamIsBad(InputData:TVectorNew; IA:TArrSingle):boolean;{overload;}virtual;
   {перевіряє чи параметри можна використовувати для
   апроксимації даних в InputData функцією I0(exp(q(V-IRs)/nkT)-1)+(V-IRs)/Rsh
   IA[0] - n, IA[1] - Rs, IA[2] - I0, IA[3] - Rsh}
- Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;overload;virtual;
+// Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+//             var RezF:TArrSingle; var RezSum:double):boolean;overload;virtual;
  Function SquareFormIsCalculated(InputData:TVectorNew; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;overload;virtual;
+             var RezF:TArrSingle; var RezSum:double):boolean;{overload;}virtual;
  {обчислюються значення квадратичної форми RezSum,
  розрахованої для InputData та значень параметрів в Х;
  також обчислюються значення функцій RezF,
  отриманих як похідні від квадратичної форми;
  при невдалих спробах повертається False}
- Function Secant(num:word;a,b,F:double;InputData:PVector;IA:TArrSingle):double;overload;
- Function Secant(num:word;a,b,F:double;InputData:TVectorNew;IA:TArrSingle):double;overload;
+// Function Secant(num:word;a,b,F:double;InputData:PVector;IA:TArrSingle):double;overload;
+ Function Secant(num:word;a,b,F:double;InputData:TVectorNew;IA:TArrSingle):double;//overload;
   {обчислюється оптимальне значення параметра al
   в методі поординатного спуску;
   використовується метод дихотомії;
   а та b задають початковий відрізок, де шукається розв'язок}
- Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;overload;virtual;
+// Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+//                     X:TArrSingle):double;overload;virtual;
  Function SquareFormDerivate(InputData:TVectorNew;num:byte;al,F:double;
-                     X:TArrSingle):double;overload;virtual;
+                     X:TArrSingle):double;{overload;}virtual;
   {розраховується значення похідної квадратичної форми,
   функція використовується при  покоординатному спуску і обчислюється
   похідна по al, яка описує зміну  того чи іншого параметра апроксимації
@@ -761,7 +761,7 @@ end; // TDiodLSM=class (TFitFunctLSM)
 
 TPhotoDiodLSM=class (TFitFunctLSM)
 private
- Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);override;
+// Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);override;
  Procedure InitialApproximation(InputData:TVectorNew;var IA:TArrSingle);override;
 {Param = n  при num = 0; Rs при 1; I0 при 2; Rsh при 3; Iph при 4}
  Function Func(Parameters:TArrSingle):double; override;
@@ -771,17 +771,17 @@ end; // TPhotoDiodLSM=class (TFitFunctLSM)
 
 TDiodLam=class (TFitFunctLSM)
 private
- Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
+// Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
  Function ParamIsBad(InputData:TVectorNew; IA:TArrSingle):boolean;override;
  {перевіряє чи параметри можна використовувати для
  апроксимації даних в InputData функцією Ламверта,
  IA[0] - n, IA[1] - Rs, IA[2] - I0, IA[3] - Rsh}
- Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;override;
+// Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+//             var RezF:TArrSingle; var RezSum:double):boolean;override;
  Function SquareFormIsCalculated(InputData:TVectorNew; X:TArrSingle;
              var RezF:TArrSingle; var RezSum:double):boolean;override;
- Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;overload;override;
+// Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+//                     X:TArrSingle):double;overload;override;
  Function SquareFormDerivate(InputData:TVectorNew;num:byte;al,F:double;
                      X:TArrSingle):double;overload;override;
  Function Func(Parameters:TArrSingle):double; override;
@@ -791,23 +791,23 @@ end; // TDiodLam=class (TFitFunctLSM)
 
 TPhotoDiodLam=class (TFitFunctLSM)
 private
- Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
+// Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
  Procedure InitialApproximation(InputData:TVectorNew;var  IA:TArrSingle);override;
- Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;override;
+// Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;override;
  Function ParamCorectIsDone(InputData:TVectorNew;var IA:TArrSingle):boolean;override;
- Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
+// Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
  Function ParamIsBad(InputData:TVectorNew; IA:TArrSingle):boolean;override;
  {перевіряє чи параметри можна використовувати для
  апроксимації ВАХ при освітленні в InputData функцію Ламверта,
   A[0] - n, IA[1] - Rs, IA[2] - Isc, IA[3] - Rsh, IA[3] - Voc}
- Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;override;
+// Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+//             var RezF:TArrSingle; var RezSum:double):boolean;override;
  Function SquareFormIsCalculated(InputData:TVectorNew; X:TArrSingle;
              var RezF:TArrSingle; var RezSum:double):boolean;override;
 {X[0] - n, X[1] - Rs, X[2] -  Rsh, X[3] -  Isc, X[4] - Voc;
 RezF[0] - похідна по n, RezF[1] - по Rs, RezF[3] - по Rsh}
- Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;override;
+// Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+//                     X:TArrSingle):double;override;
  Function SquareFormDerivate(InputData:TVectorNew;num:byte;al,F:double;
                      X:TArrSingle):double;override;
  Procedure EndFitting(FinalResult:TArrSingle;
@@ -844,15 +844,15 @@ private
  {дані про тип еволюційного методу}
  Procedure GRSetValueParam(Component:TComponent;ToForm:boolean);override;
  Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);override;
- Procedure TrueFitting (InputData:PVector;var OutputData:TArrSingle); override;
+// Procedure TrueFitting (InputData:PVector;var OutputData:TArrSingle); override;
  Procedure TrueFitting (InputData:TVectorNew;var OutputData:TArrSingle); override;
  Procedure PenaltyFun(var X:TArrSingle);
  {контролює можливі значення параметрів у масиві X,
  що підбираються при апроксимації еволюційними методами,
  заважаючи їм прийняти нереальні значення -
  тобто за межами FXminlim та FXmaxlim}
- Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;overload;virtual;
- Function FitnessFunc(InputData:TVectorNew; OutputData:TArrSingle):double;overload;virtual;
+// Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;overload;virtual;
+ Function FitnessFunc(InputData:TVectorNew; OutputData:TArrSingle):double;{overload;}virtual;
  {цільова функція для оцінки якості апроксимації
  даних в InputData з використанням OutputData,
  найчастіше - квадратична форма}
@@ -863,30 +863,30 @@ private
  Procedure VarRand(var X:TArrSingle);
  {випадковим чином задає значення змінних
  масиву  Х в діапазоні від FXmin до FXmax}
- Procedure  EvFitInit(InputData:PVector;var X:TArrArrSingle; var Fit:TArrSingle);overload;
- Procedure  EvFitInit(InputData:TVectorNew;var X:TArrArrSingle; var Fit:TArrSingle);overload;
+// Procedure  EvFitInit(InputData:PVector;var X:TArrArrSingle; var Fit:TArrSingle);overload;
+ Procedure  EvFitInit(InputData:TVectorNew;var X:TArrArrSingle; var Fit:TArrSingle);//overload;
  {початкове встановлення випадкових значень в Х
  та розрахунок початкових величин цільової функції}
  Procedure EvFitShow(X:TArrArrSingle; Fit:TArrSingle; Nit,Nshow:integer);
  {проводить зміну значень на вікні під час еволюційної апроксимації,
  якщо Nit кратна Nshow}
- Procedure MABCFit (InputData:PVector;var OutputData:TArrSingle);overload;
- Procedure MABCFit (InputData:TVectorNew;var OutputData:TArrSingle);overload;
+// Procedure MABCFit (InputData:PVector;var OutputData:TArrSingle);overload;
+ Procedure MABCFit (InputData:TVectorNew;var OutputData:TArrSingle);//overload;
   {апроксимуються дані у векторі InputData за методом
   modified artificial bee colony;
   результати апроксимації вносяться в OutputData}
- Procedure PSOFit (InputData:PVector;var OutputData:TArrSingle);overload;
- Procedure PSOFit (InputData:TVectorNew;var OutputData:TArrSingle);overload;
+// Procedure PSOFit (InputData:PVector;var OutputData:TArrSingle);overload;
+ Procedure PSOFit (InputData:TVectorNew;var OutputData:TArrSingle);//overload;
   {апроксимуються дані у векторі InputData за методом
   particle swarm optimization;
   результати апроксимації вносяться в OutputData}
- Procedure DEFit (InputData:PVector;var OutputData:TArrSingle);overload;
- Procedure DEFit (InputData:TVectorNew;var OutputData:TArrSingle);overload;
+// Procedure DEFit (InputData:PVector;var OutputData:TArrSingle);overload;
+ Procedure DEFit (InputData:TVectorNew;var OutputData:TArrSingle);//overload;
   {апроксимуються дані у векторі InputData за методом
   differential evolution;
   результати апроксимації вносяться в OutputData}
- Procedure TLBOFit (InputData:PVector;var OutputData:TArrSingle);overload;
- Procedure TLBOFit (InputData:TVectorNew;var OutputData:TArrSingle);overload;
+// Procedure TLBOFit (InputData:PVector;var OutputData:TArrSingle);overload;
+ Procedure TLBOFit (InputData:TVectorNew;var OutputData:TArrSingle);//overload;
   {апроксимуються дані у векторі InputData за методом
   teaching learning based optimization;
   результати апроксимації вносяться в OutputData}
@@ -916,7 +916,7 @@ private
  Function Func(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
 end; // TTunRevers=class (TFitFunctEvolution)
 
@@ -944,8 +944,8 @@ private
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;override;
- Procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); override;
+// Procedure AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle); override;
  Procedure AddParDetermination(InputData:TVectorNew;
                                var OutputData:TArrSingle); override;
  Procedure CreateFooter;override;
@@ -1031,29 +1031,29 @@ TIV_thin=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
 // Function Weight(OutputData:TArrSingle):double;Override;
- Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+// Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
  Function FitnessFunc(InputData:TVectorNew; OutputData:TArrSingle):double;override;
 // Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
 //              Xlog,Ylog:boolean; suf:string);override;
- Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;override;
+// Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;override;
  Function StringToFile(InputData:TVectorNew;Number:integer;OutputData:TArrSingle;
               Xlog,Ylog:boolean):string;override;
- Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word); override;
+// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word); override;
  Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
  Procedure CreateFooter;override;
- Procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); override;
+// Procedure AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle); override;
  Procedure AddParDetermination(InputData:TVectorNew;
                                var OutputData:TArrSingle); override;
 
 
 public
- Function Deviation (InputData:PVector;OutputData:TArrSingle):double;override;
+// Function Deviation (InputData:PVector;OutputData:TArrSingle):double;override;
  Function Deviation (InputData:TVectorNew;OutputData:TArrSingle):double;override;
  Constructor Create;
 end;
@@ -1073,17 +1073,17 @@ private
  procedure DataCorrection();virtual;
  function ColumnsTitle():string;
 
- Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+// Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
  Function FitnessFunc(InputData:TVectorNew; OutputData:TArrSingle):double;override;
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
- Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);override;
+// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+//              Xlog,Ylog:boolean; suf:string);override;
  Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;
- Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word); override;
+// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word); override;
  Procedure RealToGraph (InputData:TVectorNew; var OutputData:TArrSingle;
               Series: TLineSeries;
               Xlog,Ylog:boolean; Np:Word); override;
@@ -1094,7 +1094,7 @@ public
                      Npar,Nvar,NaddX,ArgNum{,FCIF}:byte;
                      FileName:string='');
  procedure Free;
- Function Deviation (InputData:PVector;OutputData:TArrSingle):double;override;
+// Function Deviation (InputData:PVector;OutputData:TArrSingle):double;override;
  Function Deviation (InputData:TVectorNew;OutputData:TArrSingle):double;override;
 end; //TManyArgumentsFitEvolution=class (TFitFunctEvolution)
 
@@ -1146,11 +1146,11 @@ TDoubleDiodAbstract=class (TFitFunctEvolution)
    fFunc:TFun_IV;
    Procedure CreateFooter;override;
    Procedure Hook();virtual;
-   Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
+//   Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
    Function FitnessFunc(InputData:TVectorNew; OutputData:TArrSingle):double;override;
    Function Func(Parameters:TArrSingle):double; override;
    Function RealFunc(DeterminedParameters:TArrSingle):double; override;
-   Procedure BeforeFitness(InputData:Pvector);override;
+//   Procedure BeforeFitness(InputData:Pvector);override;
    Procedure BeforeFitness(InputData:TVectorNew);override;
  public
 end;  // TDoubleDiodAbstract=class (TFitFunctEvolution)
@@ -1179,8 +1179,8 @@ TDoubleDiodLight=class (TDoubleDiodAbstract)
 private
 public
  Constructor Create;
- Procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); override;
+// Procedure AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle); override;
  Procedure AddParDetermination(InputData:TVectorNew;
                                var OutputData:TArrSingle); override;
 end; // TDoubleDiodLight=class (TDoubleDiodAbstract)
@@ -1214,8 +1214,8 @@ private
  Function Func(Parameters:TArrSingle):double; override;
  Function RealFunc(DeterminedParameters:TArrSingle):double; override;
  Function Weight(OutputData:TArrSingle):double;override;
- Procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); override;
+// Procedure AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle); override;
  Procedure AddParDetermination(InputData:TVectorNew;
                                var OutputData:TArrSingle); override;
  Procedure CreateFooter;override;
@@ -1227,7 +1227,7 @@ end; // TTripleDiodLight=class (TFitFunctEvolution)
 TNGausian=class (TFitFunctEvolution)
 private
  Function Func(Parameters:TArrSingle):double; override;
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
 public
  Constructor Create(NGaus:byte);
@@ -1262,7 +1262,7 @@ private
  Function Sum2(Parameters:TArrSingle):double; override;
 public
  Constructor Create;
- Procedure BeforeFitness(InputData: Pvector);override;
+// Procedure BeforeFitness(InputData: Pvector);override;
  Procedure BeforeFitness(InputData: TVectorNew);override;
 end; //TPower2=class (TFitFunctEvolution)
 
@@ -1341,8 +1341,8 @@ end; // TBarierHeigh=class (TFitFunctEvolution)
 TCurrentSC=class (TFitFunctEvolution)
 {Isc(T)=Nph*Abs*Lo*T^m/(1+Abs*Lo*T^m)}
 private
- Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);override;//abstract;
+// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
+//              Xlog,Ylog:boolean; suf:string);override;//abstract;
  Procedure RealToFile (InputData:TVectorNew; var OutputData:TArrSingle;
               Xlog,Ylog:boolean; suf:string);override;//abstract;
 
@@ -1370,15 +1370,15 @@ private
  знаходилась в FVariab[0]}
  Constructor Create (FunctionName,FunctionCaption:string;
                      Npar,Nvar:byte);
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
  Procedure FIsNotReadyDetermination;override;
  Function Weight(OutputData:TArrSingle):double;override;
  Function TECurrent(V,T,Seff,A:double):double;
  {повертає величину Seff S A* T^2 exp(-(Fb0-A Em)/kT)(1-exp(-qV/kT))}
  Procedure CreateFooter;override;
- Procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); override;
+// Procedure AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle); override;
  Procedure AddParDetermination(InputData:TVectorNew;
                                var OutputData:TArrSingle); override;
 public
@@ -1438,7 +1438,7 @@ private
  Fm2:double;
  Function Sum1(Parameters:TArrSingle):double; override;
  Function Sum2(Parameters:TArrSingle):double; override;
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
 public
  Constructor Create;
@@ -1522,12 +1522,12 @@ TPhonAsTunAndTE2_kT1=class (TPhonAsTunAndTE2)
 {струм як функція 1/kT,
 тобто стале значення напруги потрібно вводити}
 private
- Procedure BeforeFitness(InputData:Pvector);override;
+// Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVectorNew);override;
  Function Sum1(Parameters:TArrSingle):double; override;
  Function Sum2(Parameters:TArrSingle):double; override;
- Procedure AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle); override;
+// Procedure AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle); override;
  Procedure AddParDetermination(InputData:TVectorNew;
                                var OutputData:TArrSingle); override;
  Procedure CreateFooter;override;
@@ -1584,13 +1584,13 @@ Procedure FunCreate(str:string; var F:TFitFunction;
 {створює F того чи іншого типу залежно
 від значення str}
 
-Function FitName(V: PVector; st:string='fit'):string;overload;
-Function FitName(V: TVectorNew; st:string='fit'):string;overload;
+//Function FitName(V: PVector; st:string='fit'):string;overload;
+Function FitName(V: TVectorNew; st:string='fit'):string;//overload;
 {повертає змінене значення V^.name,
 зміна полягає у дописуванні st перед першою крапкою}
 
-Function Parametr(V: PVector; FunName,ParName:string):double;overload;
-Function Parametr(V: TVectorNew; FunName,ParName:string):double;overload;
+//Function Parametr(V: PVector; FunName,ParName:string):double;overload;
+Function Parametr(V: TVectorNew; FunName,ParName:string):double;//overload;
 {повертає параметр з іменем ParName,
 який знаходиться в результаті апроксимації даних в V
 за допомогою функції FunName}
@@ -1680,15 +1680,15 @@ begin
  Result:=InputData.PoinToString(Number);
 end;
 
-Procedure TFitFunction.FittingGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog:boolean=False;Ylog:boolean=False;
-              Np:Word=150);
-begin
-  Fitting(InputData,OutputData,Xlog,Ylog);
-  if OutputData[0]=ErResult then Exit;
-  RealToGraph(InputData,OutputData,Series,Xlog,Ylog,Np);
-end;
+//Procedure TFitFunction.FittingGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog:boolean=False;Ylog:boolean=False;
+//              Np:Word=150);
+//begin
+//  Fitting(InputData,OutputData,Xlog,Ylog);
+//  if OutputData[0]=ErResult then Exit;
+//  RealToGraph(InputData,OutputData,Series,Xlog,Ylog,Np);
+//end;
 
 procedure TFitFunction.FittingGraph(InputData: TVectorNew;
   var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
@@ -1708,36 +1708,36 @@ begin
   RealToFile (InputData,OutputData,Xlog,Ylog,suf);
 end;
 
-Procedure TFitFunction.FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog:boolean=False;Ylog:boolean=False;
-              Np:Word=150; suf:string='fit');
-begin
-  FittingGraph(InputData,OutputData,Series,Xlog,Ylog);
-  if OutputData[0]=ErResult then Exit;
-  RealToFile (InputData,OutputData,Xlog,Ylog,suf);
-end;
+//Procedure TFitFunction.FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog:boolean=False;Ylog:boolean=False;
+//              Np:Word=150; suf:string='fit');
+//begin
+//  FittingGraph(InputData,OutputData,Series,Xlog,Ylog);
+//  if OutputData[0]=ErResult then Exit;
+//  RealToFile (InputData,OutputData,Xlog,Ylog,suf);
+//end;
 
-Procedure TFitFunction.RealToFile (InputData:PVector; var OutputData:TArrSingle;
-              Xlog,Ylog:boolean; suf:string);
-var Str1:TStringList;
-    i:integer;
-begin
-  Str1:=TStringList.Create;
-  if fFileHeading<>'' then Str1.Add(fFileHeading);
-  for I := 0 to High(InputData^.X) do
-    Str1.Add(StringToFile(InputData,i,OutputData,Xlog,Ylog));
-  Str1.SaveToFile(FitName(InputData,suf));
-  Str1.Free;
-end;
+//Procedure TFitFunction.RealToFile (InputData:PVector; var OutputData:TArrSingle;
+//              Xlog,Ylog:boolean; suf:string);
+//var Str1:TStringList;
+//    i:integer;
+//begin
+//  Str1:=TStringList.Create;
+//  if fFileHeading<>'' then Str1.Add(fFileHeading);
+//  for I := 0 to High(InputData^.X) do
+//    Str1.Add(StringToFile(InputData,i,OutputData,Xlog,Ylog));
+//  Str1.SaveToFile(FitName(InputData,suf));
+//  Str1.Free;
+//end;
 
-Function TFitFunction.StringToFile(InputData:PVector;
-              Number:integer; OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;
-begin
- Result:=FloatToStrF(InputData^.X[Number],ffExponent,4,0)+' '+
-         FloatToStrF(InputData^.Y[Number],ffExponent,4,0);
-end;
+//Function TFitFunction.StringToFile(InputData:PVector;
+//              Number:integer; OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;
+//begin
+// Result:=FloatToStrF(InputData^.X[Number],ffExponent,4,0)+' '+
+//         FloatToStrF(InputData^.Y[Number],ffExponent,4,0);
+//end;
 
 Procedure TFitFunction.PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
  var Img:TImage;
@@ -1796,7 +1796,7 @@ begin
         FErrorMessage:='The median filter"s using is imposible,'+#10+
           'the points" quantity is very low';
       end;
- new(FtempVector);
+// new(FtempVector);
  fVector:=TVectorNew.Create;
  fFileHeading:='X In Out';
 end;
@@ -1818,12 +1818,12 @@ begin
  temp.Free;
 end;
 
-Procedure TFitWithoutParameteres.RealTransform(InputData:PVector);
-begin
- if Name='Smoothing' then Smoothing(InputData,FtempVector);
- if Name='Derivative' then Diferen(InputData,FtempVector);
- if Name='Median' then Median(InputData,FtempVector);
-end;
+//Procedure TFitWithoutParameteres.RealTransform(InputData:PVector);
+//begin
+// if Name='Smoothing' then Smoothing(InputData,FtempVector);
+// if Name='Derivative' then Diferen(InputData,FtempVector);
+// if Name='Median' then Median(InputData,FtempVector);
+//end;
 
 function TFitWithoutParameteres.StringToFile(InputData: TVectorNew;
   Number: integer; OutputData: TArrSingle; Xlog, Ylog: boolean): string;
@@ -1832,30 +1832,30 @@ begin
           FloatToStrF(fVector.Y[Number],ffExponent,4,0);
 end;
 
-Procedure TFitWithoutParameteres.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word);
-var
-   i:integer;
-begin
-   Series.Clear;
-   for I := 0 to High(FtempVector^.X) do
-     Series.AddXY(FtempVector^.X[i],FtempVector^.Y[i]);
-end;
-
-Function TFitWithoutParameteres.StringToFile(InputData:PVector;
-                   Number:integer; OutputData:TArrSingle;
-                   Xlog,Ylog:boolean):string;
-begin
-  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
-          FloatToStrF(FtempVector^.Y[Number],ffExponent,4,0);
-end;
+//Procedure TFitWithoutParameteres.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word);
+//var
+//   i:integer;
+//begin
+//   Series.Clear;
+//   for I := 0 to High(FtempVector^.X) do
+//     Series.AddXY(FtempVector^.X[i],FtempVector^.Y[i]);
+//end;
+//
+//Function TFitWithoutParameteres.StringToFile(InputData:PVector;
+//                   Number:integer; OutputData:TArrSingle;
+//                   Xlog,Ylog:boolean):string;
+//begin
+//  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+//          FloatToStrF(FtempVector^.Y[Number],ffExponent,4,0);
+//end;
 
 
 Procedure TFitWithoutParameteres.Free;
 begin
  fVector.Free;
- dispose(FtempVector);
+// dispose(FtempVector);
  inherited;
 end;
 
@@ -1865,22 +1865,22 @@ begin
  Result:=ErResult;
 end;
 
-Procedure TFitWithoutParameteres.Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);
-begin
-  SetLength(OutputData,1);
-  OutputData[0]:=ErResult;
-  try
-   RealTransform(InputData);
-  finally
-  end;
-  if FtempVector^.n=0 then
-    begin
-     MessageDlg(FErrorMessage, mtError, [mbOK], 0);
-     Exit;
-    end;
-  OutputData[0]:=1;
-end;
+//Procedure TFitWithoutParameteres.Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);
+//begin
+//  SetLength(OutputData,1);
+//  OutputData[0]:=ErResult;
+//  try
+//   RealTransform(InputData);
+//  finally
+//  end;
+//  if FtempVector^.n=0 then
+//    begin
+//     MessageDlg(FErrorMessage, mtError, [mbOK], 0);
+//     Exit;
+//    end;
+//  OutputData[0]:=1;
+//end;
 
 procedure TFitWithoutParameteres.Fitting(InputData: TVectorNew;
   var OutputData: TArrSingle; Xlog, Ylog: boolean);
@@ -1904,10 +1904,10 @@ procedure TFitWithoutParameteres.FittingDiapazon(InputData: TVectorNew;
 begin
 end;
 
-Procedure TFitWithoutParameteres.FittingDiapazon (InputData:PVector;
-                   var OutputData:TArrSingle;D:TDiapazon);
-begin
-end;
+//Procedure TFitWithoutParameteres.FittingDiapazon (InputData:PVector;
+//                   var OutputData:TArrSingle;D:TDiapazon);
+//begin
+//end;
 
 //Function TFitWithoutParameteres.Deviation (InputData:PVector):double;
 //begin
@@ -1964,29 +1964,29 @@ begin
           FloatToStrF(FinalFunc(InputData.X[Number],OutputData,Xlog,Ylog),ffExponent,4,0);
 end;
 
-Procedure TFitFunctionSimple.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word);
-var h,x,y:double;
-    i:integer;
-begin
-  Series.Clear;
-  h:=(InputData^.X[High(InputData^.X)]-InputData^.X[0])/Np;
-  for I := 0 to Np do
-    begin
-    x:=InputData^.X[0]+i*h;
-    y:=FinalFunc(x,OutputData,Xlog,Ylog);
-    Series.AddXY(x, y);
-    end;
-end;
-
-Function TFitFunctionSimple.StringToFile(InputData:PVector;
-              Number:integer; OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;
-begin
-  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
-          FloatToStrF(FinalFunc(InputData^.X[Number],OutputData,Xlog,Ylog),ffExponent,4,0);
-end;
+//Procedure TFitFunctionSimple.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word);
+//var h,x,y:double;
+//    i:integer;
+//begin
+//  Series.Clear;
+//  h:=(InputData^.X[High(InputData^.X)]-InputData^.X[0])/Np;
+//  for I := 0 to Np do
+//    begin
+//    x:=InputData^.X[0]+i*h;
+//    y:=FinalFunc(x,OutputData,Xlog,Ylog);
+//    Series.AddXY(x, y);
+//    end;
+//end;
+//
+//Function TFitFunctionSimple.StringToFile(InputData:PVector;
+//              Number:integer; OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;
+//begin
+//  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+//          FloatToStrF(FinalFunc(InputData^.X[Number],OutputData,Xlog,Ylog),ffExponent,4,0);
+//end;
 
 
 Function TFitFunctionSimple.FinalFunc(X:double;DeterminedParameters:TArrSingle;
@@ -1998,36 +1998,36 @@ begin
    if YLog then Result:=exp(Result*ln(10))
 end;
 
-Procedure TFitFunctionSimple.Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);
-var i:integer;
-    tempV:Pvector;
-begin
- SetLength(OutputData,FNx);
- OutputData[0]:=ErResult;
- new(tempV);
- try
-  IVchar(InputData,tempV);
-  for i := 0 to High(tempV^.X)do
-   begin
-     if XLog then tempV^.X[i]:=Log10(InputData^.X[i]);
-     if YLog then tempV^.Y[i]:=Log10(InputData^.Y[i]);
-   end;
- except
-  dispose(tempV);
-  MessageDlg('Data are uncorrect!!!', mtError,[mbOk],0);
-  Exit;
- end; //try
-
- try
-   RealFitting (tempV,OutputData);
- except
-   OutputData[0]:=ErResult;
- end;
- dispose(tempV);
- if (OutputData[0]=ErResult) then
-   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
-end;
+//Procedure TFitFunctionSimple.Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);
+//var i:integer;
+//    tempV:Pvector;
+//begin
+// SetLength(OutputData,FNx);
+// OutputData[0]:=ErResult;
+// new(tempV);
+// try
+//  IVchar(InputData,tempV);
+//  for i := 0 to High(tempV^.X)do
+//   begin
+//     if XLog then tempV^.X[i]:=Log10(InputData^.X[i]);
+//     if YLog then tempV^.Y[i]:=Log10(InputData^.Y[i]);
+//   end;
+// except
+//  dispose(tempV);
+//  MessageDlg('Data are uncorrect!!!', mtError,[mbOk],0);
+//  Exit;
+// end; //try
+//
+// try
+//   RealFitting (tempV,OutputData);
+// except
+//   OutputData[0]:=ErResult;
+// end;
+// dispose(tempV);
+// if (OutputData[0]=ErResult) then
+//   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
+//end;
 
 
 procedure TFitFunctionSimple.Fitting(InputData: TVectorNew;
@@ -2039,7 +2039,7 @@ begin
  OutputData[0]:=ErResult;
  tempV:=TVectorNew.Create;
  try
-  InputData.Copy(tempV);
+  InputData.CopyTo(tempV);
   for i := 0 to tempV.HighNumber do
    begin
      if XLog then tempV.X[i]:=Log10(InputData.X[i]);
@@ -2074,49 +2074,49 @@ begin
   temp2.Free;
 end;
 
-Procedure TFitFunctionSimple.FittingDiapazon (InputData:PVector;
-                   var OutputData:TArrSingle;D:TDiapazon);
-  var temp:Pvector;
-begin
-  new(temp);
-  A_B_Diapazon(InputData,temp,D,fYminDontUsed);
-  Fitting(temp,OutputData);
-  dispose(temp);
-end;
+//Procedure TFitFunctionSimple.FittingDiapazon (InputData:PVector;
+//                   var OutputData:TArrSingle;D:TDiapazon);
+//  var temp:Pvector;
+//begin
+//  new(temp);
+//  A_B_Diapazon(InputData,temp,D,fYminDontUsed);
+//  Fitting(temp,OutputData);
+//  dispose(temp);
+//end;
 
-Function TFitFunctionSimple.Deviation (InputData:PVector;OutputData:TArrSingle):double;
- var i:integer;
-     Yfit:double;
-begin
- Result:=ErResult;
-// Fitting (InputData,Param);
- if OutputData[0]=ErResult then Exit;
- Result:=0;
- for I := 0 to High(InputData^.X) do
-  begin
-   Yfit:=FinalFunc(InputData^.X[i],OutputData);
-   if InputData^.Y[i]<>0 then
-         Result:=Result+sqr((InputData^.Y[i]-Yfit)/InputData^.Y[i])
-                         else
-         if Yfit<>0 then
-           Result:=Result+sqr((InputData^.Y[i]-Yfit)/Yfit);
-  end;
- Result:=sqrt(Result)/InputData^.n;
-end;
-
-Function TFitFunctionSimple.Deviation (InputData:PVector):double;
- var Param:TArrSingle;
-//     i:integer;
-begin
+//Function TFitFunctionSimple.Deviation (InputData:PVector;OutputData:TArrSingle):double;
+// var i:integer;
+//     Yfit:double;
+//begin
 // Result:=ErResult;
- Fitting (InputData,Param);
- Result:=Deviation (InputData,Param);
-// if Param[0]=ErResult then Exit;
+//// Fitting (InputData,Param);
+// if OutputData[0]=ErResult then Exit;
 // Result:=0;
 // for I := 0 to High(InputData^.X) do
-//  Result:=Result+sqr((InputData^.Y[i]-FinalFunc(InputData^.X[i],Param))/InputData^.Y[i]);
+//  begin
+//   Yfit:=FinalFunc(InputData^.X[i],OutputData);
+//   if InputData^.Y[i]<>0 then
+//         Result:=Result+sqr((InputData^.Y[i]-Yfit)/InputData^.Y[i])
+//                         else
+//         if Yfit<>0 then
+//           Result:=Result+sqr((InputData^.Y[i]-Yfit)/Yfit);
+//  end;
 // Result:=sqrt(Result)/InputData^.n;
-end;
+//end;
+
+//Function TFitFunctionSimple.Deviation (InputData:PVector):double;
+// var Param:TArrSingle;
+////     i:integer;
+//begin
+//// Result:=ErResult;
+// Fitting (InputData,Param);
+// Result:=Deviation (InputData,Param);
+//// if Param[0]=ErResult then Exit;
+//// Result:=0;
+//// for I := 0 to High(InputData^.X) do
+////  Result:=Result+sqr((InputData^.Y[i]-FinalFunc(InputData^.X[i],Param))/InputData^.Y[i]);
+//// Result:=sqrt(Result)/InputData^.n;
+//end;
 
 Procedure TFitFunctionSimple.DataToStrings(DeterminedParameters:TArrSingle;
                          OutStrings:TStrings);
@@ -2176,10 +2176,10 @@ begin
  temp.Free;
 end;
 
-Procedure TLinear.RealFitting (InputData:PVector; var OutputData:TArrSingle);
-begin
-   LinAprox(InputData,OutputData[0],OutputData[1]);
-end;
+//Procedure TLinear.RealFitting (InputData:PVector; var OutputData:TArrSingle);
+//begin
+//   LinAprox(InputData,OutputData[0],OutputData[1]);
+//end;
 
 Constructor TOhmLaw.Create;
 begin
@@ -2207,11 +2207,11 @@ begin
  temp.Free;
 end;
 
-Procedure TOhmLaw.RealFitting (InputData:PVector; var OutputData:TArrSingle);
-begin
-   LinAproxAconst(InputData,0,OutputData[0]);
-   OutputData[0]:=1/OutputData[0];
-end;
+//Procedure TOhmLaw.RealFitting (InputData:PVector; var OutputData:TArrSingle);
+//begin
+//   LinAproxAconst(InputData,0,OutputData[0]);
+//   OutputData[0]:=1/OutputData[0];
+//end;
 
 
 Constructor TQuadratic.Create;
@@ -2235,10 +2235,10 @@ begin
  temp.Free;
 end;
 
-Procedure TQuadratic.RealFitting (InputData:PVector; var OutputData:TArrSingle);
-begin
-   ParabAprox(InputData,OutputData[0],OutputData[1],OutputData[2]);
-end;
+//Procedure TQuadratic.RealFitting (InputData:PVector; var OutputData:TArrSingle);
+//begin
+//   ParabAprox(InputData,OutputData[0],OutputData[1],OutputData[2]);
+//end;
 
 Constructor TGromov.Create;
 begin
@@ -2261,10 +2261,10 @@ begin
  temp.Free;
 end;
 
-Procedure TGromov.RealFitting (InputData:PVector; var OutputData:TArrSingle);
-begin
-  GromovAprox(InputData,OutputData[0],OutputData[1],OutputData[2]);
-end;
+//Procedure TGromov.RealFitting (InputData:PVector; var OutputData:TArrSingle);
+//begin
+//  GromovAprox(InputData,OutputData[0],OutputData[1],OutputData[2]);
+//end;
 
 //--------------------------------------------------------------------
 procedure TFitVariabSet.BeforeFitness(InputData: TVectorNew);
@@ -2369,12 +2369,12 @@ begin
   end;
 end;
 
-Procedure TFitVariabSet.BeforeFitness(InputData:Pvector);
- var i:integer;
-begin
- for I := 0 to High(FVarbool) do
-  if FVarbool[i] then FVariab[i]:=FVarValue[i];
-end;
+//Procedure TFitVariabSet.BeforeFitness(InputData:Pvector);
+// var i:integer;
+//begin
+// for I := 0 to High(FVarbool) do
+//  if FVarbool[i] then FVariab[i]:=FVarValue[i];
+//end;
 
 Procedure TFitVariabSet.WriteIniDefFit(const Ident: string; Value:double);
 begin
@@ -2416,22 +2416,22 @@ begin
  Value:=FConfigFile.ReadRand(FName,Ident);
 end;
 
-Procedure TFitVariabSet.Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);
-begin
-  FIsNotReadyDetermination;
-  if FIsNotReady then SetValueGR;
-  if FIsNotReady then
-     begin
-     MessageDlg('Approximation is imposible.'+#10+#13+
-                  'Parameters of function are undefined', mtError,[mbOk],0);
-     SetLength(OutputData,FNx);
-     OutputData[0]:=ErResult;
-     Exit;
-     end;
-  BeforeFitness(InputData);
-  inherited;
-end;
+//Procedure TFitVariabSet.Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);
+//begin
+//  FIsNotReadyDetermination;
+//  if FIsNotReady then SetValueGR;
+//  if FIsNotReady then
+//     begin
+//     MessageDlg('Approximation is imposible.'+#10+#13+
+//                  'Parameters of function are undefined', mtError,[mbOk],0);
+//     SetLength(OutputData,FNx);
+//     OutputData[0]:=ErResult;
+//     Exit;
+//     end;
+//  BeforeFitness(InputData);
+//  inherited;
+//end;
 
 Procedure TFitVariabSet.GRFormPrepare(Form:TForm);
 begin
@@ -2595,11 +2595,11 @@ begin
   FVariab[0] := Value;
 end;
 
-Procedure TFitTemperatureIsUsed.BeforeFitness(InputData:Pvector);
-begin
- if fTemperatureIsRequired then FVariab[0]:=InputData^.T;
- inherited BeforeFitness(InputData);
-end;
+//Procedure TFitTemperatureIsUsed.BeforeFitness(InputData:Pvector);
+//begin
+// if fTemperatureIsRequired then FVariab[0]:=InputData^.T;
+// inherited BeforeFitness(InputData);
+//end;
 //----------------------------------------------------
 procedure TFitVoltageIsUsed.BeforeFitness(InputData: TVectorNew);
 begin
@@ -2623,20 +2623,20 @@ begin
  end;
 end;
 
-Procedure TFitVoltageIsUsed.BeforeFitness(InputData:Pvector);
-begin
- if fVoltageIsRequired then FVariab[0]:=DetermineVoltage(InputData);
- inherited BeforeFitness(InputData);
-end;
+//Procedure TFitVoltageIsUsed.BeforeFitness(InputData:Pvector);
+//begin
+// if fVoltageIsRequired then FVariab[0]:=DetermineVoltage(InputData);
+// inherited BeforeFitness(InputData);
+//end;
 
-Function TFitVoltageIsUsed.DetermineVoltage(InputData:Pvector):double;
-begin
- try
-  Result:=StrToFloat(copy(InputData^.name,1,length(InputData^.name)-4))/10;
- except
-  Result:=ErResult;
- end;
-end;
+//Function TFitVoltageIsUsed.DetermineVoltage(InputData:Pvector):double;
+//begin
+// try
+//  Result:=StrToFloat(copy(InputData^.name,1,length(InputData^.name)-4))/10;
+// except
+//  Result:=ErResult;
+// end;
+//end;
 
 //----------------------------------------------------
 Constructor TFitSumFunction.Create(FunctionName,FunctionCaption:string;
@@ -2672,14 +2672,14 @@ begin
  Result:=ErResult;
 end;
 
-Function TFitSumFunction.StringToFile(InputData:PVector;
-              Number:integer; OutputData:TArrSingle;
-              Xlog,Ylog:boolean):string;
-begin
-  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
-          FloatToStrF(Sum1(OutputData),ffExponent,4,0)+' '+
-          FloatToStrF(Sum2(OutputData),ffExponent,4,0);
-end;
+//Function TFitSumFunction.StringToFile(InputData:PVector;
+//              Number:integer; OutputData:TArrSingle;
+//              Xlog,Ylog:boolean):string;
+//begin
+//  Result:=inherited StringToFile(InputData,Number,OutputData,Xlog,Ylog)+' '+
+//          FloatToStrF(Sum1(OutputData),ffExponent,4,0)+' '+
+//          FloatToStrF(Sum2(OutputData),ffExponent,4,0);
+//end;
 
 //------------------------------------------------------------
 Constructor TFitSampleIsUsed.Create(FunctionName,FunctionCaption:string;
@@ -2734,11 +2734,11 @@ begin
  temp.Free;
 end;
 
-Procedure TExponent.RealFitting (InputData:PVector;
-         var OutputData:TArrSingle);
-begin
-   ExKalk(InputData,(FSample as TDiod_Schottky),OutputData[1],OutputData[0],OutputData[2],FVariab[0]);
-end;
+//Procedure TExponent.RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle);
+//begin
+//   ExKalk(InputData,(FSample as TDiod_Schottky),OutputData[1],OutputData[0],OutputData[2],FVariab[0]);
+//end;
 
 
 Constructor TIvanov.Create;
@@ -2773,11 +2773,11 @@ begin
 end;
 
 
-Procedure TIvanov.RealFitting (InputData:PVector;
-                       var OutputData:TArrSingle);
-begin
-   IvanovAprox(InputData, (FSample as TDiod_Schottky), OutputData[1],OutputData[0],FVariab[0]);
-end;
+//Procedure TIvanov.RealFitting (InputData:PVector;
+//                       var OutputData:TArrSingle);
+//begin
+//   IvanovAprox(InputData, (FSample as TDiod_Schottky), OutputData[1],OutputData[0],FVariab[0]);
+//end;
 
 procedure TIvanov.RealFitting(InputData: TVectorNew;
   var OutputData: TArrSingle);
@@ -2804,21 +2804,21 @@ begin
     end;
 end;
 
-Procedure TIvanov.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-              Series: TLineSeries;
-              Xlog,Ylog:boolean; Np:Word);
-var h,x,y:double;
-    i:integer;
-begin
-  Series.Clear;
-  h:=(InputData^.X[High(InputData^.X)]-InputData^.X[0])/Np;
-  for I := 0 to Np do
-    begin
-    x:=InputData^.X[0]+i*h;
-    y:=FinalFunc(x,OutputData);
-    Series.AddXY(x, y);
-    end;
-end;
+//Procedure TIvanov.RealToGraph (InputData:PVector; var OutputData:TArrSingle;
+//              Series: TLineSeries;
+//              Xlog,Ylog:boolean; Np:Word);
+//var h,x,y:double;
+//    i:integer;
+//begin
+//  Series.Clear;
+//  h:=(InputData^.X[High(InputData^.X)]-InputData^.X[0])/Np;
+//  for I := 0 to Np do
+//    begin
+//    x:=InputData^.X[0]+i*h;
+//    y:=FinalFunc(x,OutputData);
+//    Series.AddXY(x, y);
+//    end;
+//end;
 
 //-----------------------------------------------
 procedure TFitIteration.BeforeFitness(InputData: TVectorNew);
@@ -3015,49 +3015,49 @@ begin
          end;
 end;
 
-Procedure TFitIteration.BeforeFitness(InputData:Pvector);
- var i:integer;
-begin
- inherited BeforeFitness(InputData);
- for I := 0 to High(FXmode) do
-  if FXmode[i]=cons then
-    begin
-     FXvalue[i]:=FA[i];
-     if (FXt[i]<=FVarNum)and(FXt[i]>0) then
-       FXvalue[i]:=FXvalue[i]+FB[i]*FVariab[FXt[i]-1]+
-                   FC[i]*sqr(FVariab[FXt[i]-1]);
-     if FXt[i]>FVarNum then
-       FXvalue[i]:=FXvalue[i]+FB[i]/FVariab[FXt[i]-FVarNum-1]+
-                     FC[i]/sqr(FVariab[FXt[i]-FVarNum-1]);
-    end;
-end;
+//Procedure TFitIteration.BeforeFitness(InputData:Pvector);
+// var i:integer;
+//begin
+// inherited BeforeFitness(InputData);
+// for I := 0 to High(FXmode) do
+//  if FXmode[i]=cons then
+//    begin
+//     FXvalue[i]:=FA[i];
+//     if (FXt[i]<=FVarNum)and(FXt[i]>0) then
+//       FXvalue[i]:=FXvalue[i]+FB[i]*FVariab[FXt[i]-1]+
+//                   FC[i]*sqr(FVariab[FXt[i]-1]);
+//     if FXt[i]>FVarNum then
+//       FXvalue[i]:=FXvalue[i]+FB[i]/FVariab[FXt[i]-FVarNum-1]+
+//                     FC[i]/sqr(FVariab[FXt[i]-FVarNum-1]);
+//    end;
+//end;
 
-Procedure TFitIteration.IterWindowPrepare(InputData:PVector);
- var i:integer;
-begin
- fIterWindow:=TApp.Create(Application);
- SetLength(Labels,2*FNx);
- for I := 0 to FNx - 1 do
-  begin
-    Labels[i]:=TLabel.Create(fIterWindow);
-    Labels[i].Name:='Lb'+IntToStr(i)+FXname[i];
-    Labels[i+FNx]:=TLabel.Create(fIterWindow);
-    Labels[i+FNx].Name:='Lb'+IntToStr(i)+FXname[i]+'n';
-    Labels[i].Parent:=fIterWindow;
-    Labels[i+FNx].Parent:=fIterWindow;
-    Labels[i].Left:=24;
-    Labels[i+FNx].Left:=90;
-    if FXmode[i]=cons then Labels[i+FNx].Font.Color:=clGreen;
-
-    Labels[i].Top:=round(3.5*fIterWindow.LNmax.Height)+i*round(1.5*Labels[i].Height);
-    Labels[i+FNx].Top:=Labels[i].Top;
-    Labels[i].Caption:=FXname[i]+' =';
-  end;
- fIterWindow.LNmaxN.Caption:=inttostr(FNit);
- fIterWindow.Height:=Labels[High(Labels)].Top+3*Labels[High(Labels)].Height;
- if InputData^.name<>'' then fIterWindow.Caption:=', '+InputData^.name;
- fIterWindow.Show;
-end;
+//Procedure TFitIteration.IterWindowPrepare(InputData:PVector);
+// var i:integer;
+//begin
+// fIterWindow:=TApp.Create(Application);
+// SetLength(Labels,2*FNx);
+// for I := 0 to FNx - 1 do
+//  begin
+//    Labels[i]:=TLabel.Create(fIterWindow);
+//    Labels[i].Name:='Lb'+IntToStr(i)+FXname[i];
+//    Labels[i+FNx]:=TLabel.Create(fIterWindow);
+//    Labels[i+FNx].Name:='Lb'+IntToStr(i)+FXname[i]+'n';
+//    Labels[i].Parent:=fIterWindow;
+//    Labels[i+FNx].Parent:=fIterWindow;
+//    Labels[i].Left:=24;
+//    Labels[i+FNx].Left:=90;
+//    if FXmode[i]=cons then Labels[i+FNx].Font.Color:=clGreen;
+//
+//    Labels[i].Top:=round(3.5*fIterWindow.LNmax.Height)+i*round(1.5*Labels[i].Height);
+//    Labels[i+FNx].Top:=Labels[i].Top;
+//    Labels[i].Caption:=FXname[i]+' =';
+//  end;
+// fIterWindow.LNmaxN.Caption:=inttostr(FNit);
+// fIterWindow.Height:=Labels[High(Labels)].Top+3*Labels[High(Labels)].Height;
+// if InputData^.name<>'' then fIterWindow.Caption:=', '+InputData^.name;
+// fIterWindow.Show;
+//end;
 
 Procedure TFitIteration.IterWindowClear;
  var i:integer;
@@ -3127,26 +3127,26 @@ begin
  fIterWindow.Show;
 end;
 
-Procedure TFitIteration.RealFitting (InputData:PVector;
-         var OutputData:TArrSingle);
-begin
- IterWindowPrepare(InputData);
-
- //QueryPerformanceCounter(StartValue);
-
- TrueFitting (InputData,OutputData);
-
-//QueryPerformanceCounter(EndValue);
-//QueryPerformanceFrequency(Freq);
-//showmessage('tics='+inttostr(EndValue-StartValue)+#10+#13+
-//             'time='+floattostr((EndValue-StartValue)/Freq)
-//             +' s'+#10+#13+
-//                'freq+'+inttostr(Freq));
-
- IterWindowClear();
- fIterWindow.Close;
- fIterWindow.Destroy;
-end;
+//Procedure TFitIteration.RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle);
+//begin
+// IterWindowPrepare(InputData);
+//
+// //QueryPerformanceCounter(StartValue);
+//
+// TrueFitting (InputData,OutputData);
+//
+////QueryPerformanceCounter(EndValue);
+////QueryPerformanceFrequency(Freq);
+////showmessage('tics='+inttostr(EndValue-StartValue)+#10+#13+
+////             'time='+floattostr((EndValue-StartValue)/Freq)
+////             +' s'+#10+#13+
+////                'freq+'+inttostr(Freq));
+//
+// IterWindowClear();
+// fIterWindow.Close;
+// fIterWindow.Destroy;
+//end;
 
 //-----------------------------------------------------
 procedure TFitAdditionParam.AddParDetermination(InputData: TVectorNew;
@@ -3239,67 +3239,67 @@ begin
    end;
 end;
 
-procedure TFitAdditionParam.AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle);
-begin
-//  fNAddX:=fNAddX+1;
-  SetLength(OutputData,FNx+fNAddX);
-//  SetLength(FXname,FNx+fNAddX);
-//  FXname[High(FXname)]:='dev';
-  OutputData[High(OutputData)]:=Deviation(InputData,OutputData);
-
-  if (fIsDiod and(fNaddX=2) and (FNx>3)) then
+//procedure TFitAdditionParam.AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle);
+//begin
+////  fNAddX:=fNAddX+1;
+//  SetLength(OutputData,FNx+fNAddX);
+////  SetLength(FXname,FNx+fNAddX);
+////  FXname[High(FXname)]:='dev';
+//  OutputData[High(OutputData)]:=Deviation(InputData,OutputData);
+//
+//  if (fIsDiod and(fNaddX=2) and (FNx>3)) then
+////   begin
+////     FXname[FNx]:='Fb';
+//     if (FSample is TDiod_Schottky) then
+//      OutputData[FNx]:=(FSample as TDiod_Schottky).Fb(FVariab[0],OutputData[2])
+//                                    else
+//      OutputData[FNx]:=0;
+////   end;
+//
+//  if (fIsPhotoDiod and (fNaddX=5) and (FNx>4)) then
 //   begin
-//     FXname[FNx]:='Fb';
-     if (FSample is TDiod_Schottky) then
-      OutputData[FNx]:=(FSample as TDiod_Schottky).Fb(FVariab[0],OutputData[2])
-                                    else
-      OutputData[FNx]:=0;
+////     FXname[FNx]:='Voc';
+////     FXname[FNx+1]:='Isc';
+////     FXname[FNx+2]:='Pm';
+////     FXname[FNx+3]:='FF';
+//    if (OutputData[4]>Isc_min) then
+//       begin
+//        OutputData[FNx]:=
+//           Voc_Isc_Pm_Vm_Im(1,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
+//           OutputData[3],OutputData[4]);
+////Function Voc_Isc_Pm_Vm_Im(mode:byte;F:TFun_IV;Data:array of double;
+////                          Rsh:double=1e12;Iph:double=0):double;
+////           Voc_Isc_Pm(1,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+//        OutputData[FNx+1]:=
+//           Voc_Isc_Pm_Vm_Im(2,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
+//           OutputData[3],OutputData[4]);
+////           Voc_Isc_Pm(2,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+//       end;
+//    if (OutputData[FNx]>Voc_min)and
+//       (OutputData[FNx+1]>Isc_min)and
+//       (OutputData[FNx]<>ErResult)and
+//       (OutputData[FNx+1]<>ErResult) then
+//         begin
+//          OutputData[FNx+2]:=
+//           Voc_Isc_Pm_Vm_Im(3,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
+//           OutputData[3],OutputData[4]);
+////            Voc_Isc_Pm(3,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
+//          OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+//         end;
 //   end;
+//end;
 
-  if (fIsPhotoDiod and (fNaddX=5) and (FNx>4)) then
-   begin
-//     FXname[FNx]:='Voc';
-//     FXname[FNx+1]:='Isc';
-//     FXname[FNx+2]:='Pm';
-//     FXname[FNx+3]:='FF';
-    if (OutputData[4]>Isc_min) then
-       begin
-        OutputData[FNx]:=
-           Voc_Isc_Pm_Vm_Im(1,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
-           OutputData[3],OutputData[4]);
-//Function Voc_Isc_Pm_Vm_Im(mode:byte;F:TFun_IV;Data:array of double;
-//                          Rsh:double=1e12;Iph:double=0):double;
-//           Voc_Isc_Pm(1,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
-        OutputData[FNx+1]:=
-           Voc_Isc_Pm_Vm_Im(2,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
-           OutputData[3],OutputData[4]);
-//           Voc_Isc_Pm(2,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
-       end;
-    if (OutputData[FNx]>Voc_min)and
-       (OutputData[FNx+1]>Isc_min)and
-       (OutputData[FNx]<>ErResult)and
-       (OutputData[FNx+1]<>ErResult) then
-         begin
-          OutputData[FNx+2]:=
-           Voc_Isc_Pm_Vm_Im(3,IV_Diod,[OutputData[0]*FVariab[0]*Kb,OutputData[1],OutputData[2]],
-           OutputData[3],OutputData[4]);
-//            Voc_Isc_Pm(3,InputData,OutputData[0],OutputData[1],OutputData[2],OutputData[3],OutputData[4]);
-          OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
-         end;
-   end;
-end;
-
-Procedure TFitAdditionParam.Fitting (InputData:PVector; var OutputData:TArrSingle;
-                    Xlog:boolean=False;Ylog:boolean=False);
-begin
-  inherited ;
-  if {(fNaddX>0)and}(not(FIsNotReady))and(OutputData[0]<>ErResult) then
-   begin
-//     SetLength(OutputData,FNx+fNAddX);
-     AddParDetermination(InputData,OutputData);
-   end;
-end;
+//Procedure TFitAdditionParam.Fitting (InputData:PVector; var OutputData:TArrSingle;
+//                    Xlog:boolean=False;Ylog:boolean=False);
+//begin
+//  inherited ;
+//  if {(fNaddX>0)and}(not(FIsNotReady))and(OutputData[0]<>ErResult) then
+//   begin
+////     SetLength(OutputData,FNx+fNAddX);
+//     AddParDetermination(InputData,OutputData);
+//   end;
+//end;
 
 //---------------------------------------------------------
 procedure TFitFunctLSM.BeforeFitness(InputData: TVectorNew);
@@ -3435,193 +3435,193 @@ begin
               else  fAccurancy:=StrToFloat555((Component as TLabeledEdit).Text);
 end;
 
-Procedure TFitFunctLSM.BeforeFitness(InputData:Pvector);
- var i:integer;
-begin
- inherited BeforeFitness(InputData);
- for I := 0 to High(FXmode) do
-  begin
-    if (FXname[i]='Rs')and(FXvalue[i]<=1e-4) then FXvalue[i]:=1e-4;
-    if (FXname[i]='Rsh')and((FXvalue[i]>=1e12)or(FXvalue[i]<=0))
-       then FXvalue[i]:=1e12;
-    if (FXname[i]='n')and(FXvalue[i]<=0) then FXvalue[i]:=1;
-  end;
-end;
+//Procedure TFitFunctLSM.BeforeFitness(InputData:Pvector);
+// var i:integer;
+//begin
+// inherited BeforeFitness(InputData);
+// for I := 0 to High(FXmode) do
+//  begin
+//    if (FXname[i]='Rs')and(FXvalue[i]<=1e-4) then FXvalue[i]:=1e-4;
+//    if (FXname[i]='Rsh')and((FXvalue[i]>=1e12)or(FXvalue[i]<=0))
+//       then FXvalue[i]:=1e12;
+//    if (FXname[i]='n')and(FXvalue[i]<=0) then FXvalue[i]:=1;
+//  end;
+//end;
 
-Procedure TFitFunctLSM.IterWindowPrepare(InputData:PVector);
-begin
- inherited IterWindowPrepare(InputData);
- if (Name='PhotoDiodLam') then
-  begin
-   Labels[2].Visible:=False;
-   Labels[2+fNx].Visible:=False;
-   Labels[4].Visible:=False;
-   Labels[4+fNx].Visible:=False;
-   Labels[3].Top:=Labels[2].Top;
-   Labels[3+fNx].Top:=Labels[3].Top;
-   fIterWindow.Height:=Labels[3].Top+3*Labels[3].Height;
-  end;
- if FName='DiodLSM' then
-   fIterWindow.Caption:='Direct Aproximation'+fIterWindow.Caption;
- if FName='DiodLam' then
-   fIterWindow.Caption:='Lambert Aproximation'+fIterWindow.Caption;
- if FName='PhotoDiodLSM' then
-   fIterWindow.Caption:='Direct Aproximation of Illuminated I-V'+fIterWindow.Caption;
- if FName='PhotoDiodLam' then
-   fIterWindow.Caption:='Lambert Aproximation of Illuminated I-V'+fIterWindow.Caption;
-end;
+//Procedure TFitFunctLSM.IterWindowPrepare(InputData:PVector);
+//begin
+// inherited IterWindowPrepare(InputData);
+// if (Name='PhotoDiodLam') then
+//  begin
+//   Labels[2].Visible:=False;
+//   Labels[2+fNx].Visible:=False;
+//   Labels[4].Visible:=False;
+//   Labels[4+fNx].Visible:=False;
+//   Labels[3].Top:=Labels[2].Top;
+//   Labels[3+fNx].Top:=Labels[3].Top;
+//   fIterWindow.Height:=Labels[3].Top+3*Labels[3].Height;
+//  end;
+// if FName='DiodLSM' then
+//   fIterWindow.Caption:='Direct Aproximation'+fIterWindow.Caption;
+// if FName='DiodLam' then
+//   fIterWindow.Caption:='Lambert Aproximation'+fIterWindow.Caption;
+// if FName='PhotoDiodLSM' then
+//   fIterWindow.Caption:='Direct Aproximation of Illuminated I-V'+fIterWindow.Caption;
+// if FName='PhotoDiodLam' then
+//   fIterWindow.Caption:='Lambert Aproximation of Illuminated I-V'+fIterWindow.Caption;
+//end;
 
-Procedure TFitFunctLSM.RealFitting (InputData:PVector;
-         var OutputData:TArrSingle);
-begin
- if not((FName='DiodLSM')or(FName='DiodLam')
-    or(FName='PhotoDiodLSM')or(FName='PhotoDiodLam'))
-      then Exit;
- if FVariab[0]<=0 then Exit;
- if InputData^.n<7 then  Exit;
- inherited RealFitting (InputData, OutputData);
-end;
+//Procedure TFitFunctLSM.RealFitting (InputData:PVector;
+//         var OutputData:TArrSingle);
+//begin
+// if not((FName='DiodLSM')or(FName='DiodLam')
+//    or(FName='PhotoDiodLSM')or(FName='PhotoDiodLam'))
+//      then Exit;
+// if FVariab[0]<=0 then Exit;
+// if InputData^.n<7 then  Exit;
+// inherited RealFitting (InputData, OutputData);
+//end;
+//
+
+//Function TFitFunctLSM.Secant(num:word;a,b,F:double;
+//                InputData:PVector;IA:TArrSingle):double;
+//  var i:integer;
+//      c,Fb,Fa:double;
+//begin
+//    Result:=0;
+//    Fa:=SquareFormDerivate(InputData,num,a,F,IA);
+//    if Fa=ErResult then Exit;
+//    if Fa=0 then
+//               begin
+//                  Result:=a;
+//                  Exit;
+//                end;
+//    repeat
+//      Fb:=SquareFormDerivate(InputData,num,b,F,IA);
+//      if Fb=0 then
+//                begin
+//                  Result:=b;
+//                  Exit;
+//                end;
+//      if Fb=ErResult then Break
+//                     else
+//                       begin
+//                       if Fb*Fa<=0 then Break
+//                                  else b:=2*b
+//                       end;
+//    until false;
+//    i:=0;
+//    repeat
+//      inc(i);
+//      c:=(a+b)/2;
+//      Fb:=SquareFormDerivate(InputData,num,c,F,IA);
+//      Fa:=SquareFormDerivate(InputData,num,a,F,IA);
+//      if (Fb*Fa<=0) or (Fb=ErResult)
+//        then b:=c
+//        else a:=c;
+//    until (i>1e5)or(abs((b-a)/c)<1e-2);
+//    if (i>1e5) then Exit;
+//    Result:=c;
+//end;
 
 
-Function TFitFunctLSM.Secant(num:word;a,b,F:double;
-                InputData:PVector;IA:TArrSingle):double;
-  var i:integer;
-      c,Fb,Fa:double;
-begin
-    Result:=0;
-    Fa:=SquareFormDerivate(InputData,num,a,F,IA);
-    if Fa=ErResult then Exit;
-    if Fa=0 then
-               begin
-                  Result:=a;
-                  Exit;
-                end;
-    repeat
-      Fb:=SquareFormDerivate(InputData,num,b,F,IA);
-      if Fb=0 then
-                begin
-                  Result:=b;
-                  Exit;
-                end;
-      if Fb=ErResult then Break
-                     else
-                       begin
-                       if Fb*Fa<=0 then Break
-                                  else b:=2*b
-                       end;
-    until false;
-    i:=0;
-    repeat
-      inc(i);
-      c:=(a+b)/2;
-      Fb:=SquareFormDerivate(InputData,num,c,F,IA);
-      Fa:=SquareFormDerivate(InputData,num,a,F,IA);
-      if (Fb*Fa<=0) or (Fb=ErResult)
-        then b:=c
-        else a:=c;
-    until (i>1e5)or(abs((b-a)/c)<1e-2);
-    if (i>1e5) then Exit;
-    Result:=c;
-end;
+//Procedure TFitFunctLSM.TrueFitting (InputData:PVector;
+//         var OutputData:TArrSingle);
+// var X,X2,derivX:TArrSingle;
+//     bool:boolean;
+//     Nitt,i:integer;
+//     Sum1,Sum2,al:double;
+//begin
+//  SetLength(X,fNx);
+//  SetLength(derivX,fNx);
+//  SetLength(X2,fNx);
+//  InitialApproximation(InputData,X);
+//  if X[1]<0 then X[1]:=1;
+//  if X[0]=ErResult then
+//                  begin
+//                    IterWindowClear();
+//                    Exit;
+//                  end;
+//  if not(ParamCorectIsDone(InputData,X)) then
+//                  begin
+//                    IterWindowClear();
+//                    Exit;
+//                  end;
+//  Nitt:=0;
+//  Sum2:=1;
+//
+//  repeat
+//   if Nitt<1 then
+//      if not(SquareFormIsCalculated(InputData,X,derivX,Sum1)) then
+//                  begin
+//                    IterWindowClear();
+//                    Exit;
+//                  end;
+//
+//   bool:=true;
+//   if not(odd(Nitt)) then for I := 0 to High(X) do X2[i]:=X[i];
+//   if not(odd(Nitt))or (Nitt=0) then Sum2:=Sum1;
+//
+//   for I := 0 to High(X) do
+//       begin
+//         if FXmode[i]=cons then Continue;
+//         if derivX[i]=0 then Continue;
+//         if abs(X[i]/100/derivX[i])>1e100 then Continue;
+//         al:=Secant(i,0,0.1*abs(X[i]/derivX[i]),derivX[i],InputData,X);
+//         if abs(al*derivX[i]/X[i])>2 then Continue;
+//         X[i]:=X[i]-al*derivX[i];
+//         if not(ParamCorectIsDone(InputData,X)) then
+//                  begin
+//                    IterWindowClear();
+//                    Exit;
+//                  end;
+//         bool:=(bool)and(abs((X2[i]-X[i])/X[i])<fAccurancy);
+//         if not(SquareFormIsCalculated(InputData,X,derivX,Sum1)) then
+//            begin
+//              IterWindowClear();
+//              Exit;
+//            end;
+//       end;
+//
+//    if (Nitt mod 25)=0 then
+//       begin
+//        IterWindowDataShow(Nitt,X);
+//        for I := 0 to FNx - 1 do
+//         begin
+//         if (FXname[i]='Rs')and(X[i]<=1e-4) then
+//                     Labels[i+FNx].Caption:='0';
+//         if (FXname[i]='Rsh')and(X[i]>=9e11) then
+//                     Labels[i+FNx].Caption:='INF';
+//         end;
+//        Application.ProcessMessages;
+//       end;
+//
+//    Inc(Nitt);
+//  until (abs((sum2-sum1)/sum1)<fAccurancy) or
+//        bool or
+//        (Nitt>FNit) or
+//        not(FIterWindow.Visible);
+//  EndFitting(X,OutputData);
+//end;
 
+//Procedure TFitFunctLSM.IA_Begin(var AuxiliaryVector:PVector;
+//               var IA:TArrSingle);
+//begin
+//   IA[0]:=ErResult;
+//   new(AuxiliaryVector);
+//end;
 
-Procedure TFitFunctLSM.TrueFitting (InputData:PVector;
-         var OutputData:TArrSingle);
- var X,X2,derivX:TArrSingle;
-     bool:boolean;
-     Nitt,i:integer;
-     Sum1,Sum2,al:double;
-begin
-  SetLength(X,fNx);
-  SetLength(derivX,fNx);
-  SetLength(X2,fNx);
-  InitialApproximation(InputData,X);
-  if X[1]<0 then X[1]:=1;
-  if X[0]=ErResult then
-                  begin
-                    IterWindowClear();
-                    Exit;
-                  end;
-  if not(ParamCorectIsDone(InputData,X)) then
-                  begin
-                    IterWindowClear();
-                    Exit;
-                  end;
-  Nitt:=0;
-  Sum2:=1;
-
-  repeat
-   if Nitt<1 then
-      if not(SquareFormIsCalculated(InputData,X,derivX,Sum1)) then
-                  begin
-                    IterWindowClear();
-                    Exit;
-                  end;
-
-   bool:=true;
-   if not(odd(Nitt)) then for I := 0 to High(X) do X2[i]:=X[i];
-   if not(odd(Nitt))or (Nitt=0) then Sum2:=Sum1;
-
-   for I := 0 to High(X) do
-       begin
-         if FXmode[i]=cons then Continue;
-         if derivX[i]=0 then Continue;
-         if abs(X[i]/100/derivX[i])>1e100 then Continue;
-         al:=Secant(i,0,0.1*abs(X[i]/derivX[i]),derivX[i],InputData,X);
-         if abs(al*derivX[i]/X[i])>2 then Continue;
-         X[i]:=X[i]-al*derivX[i];
-         if not(ParamCorectIsDone(InputData,X)) then
-                  begin
-                    IterWindowClear();
-                    Exit;
-                  end;
-         bool:=(bool)and(abs((X2[i]-X[i])/X[i])<fAccurancy);
-         if not(SquareFormIsCalculated(InputData,X,derivX,Sum1)) then
-            begin
-              IterWindowClear();
-              Exit;
-            end;
-       end;
-
-    if (Nitt mod 25)=0 then
-       begin
-        IterWindowDataShow(Nitt,X);
-        for I := 0 to FNx - 1 do
-         begin
-         if (FXname[i]='Rs')and(X[i]<=1e-4) then
-                     Labels[i+FNx].Caption:='0';
-         if (FXname[i]='Rsh')and(X[i]>=9e11) then
-                     Labels[i+FNx].Caption:='INF';
-         end;
-        Application.ProcessMessages;
-       end;
-
-    Inc(Nitt);
-  until (abs((sum2-sum1)/sum1)<fAccurancy) or
-        bool or
-        (Nitt>FNit) or
-        not(FIterWindow.Visible);
-  EndFitting(X,OutputData);
-end;
-
-Procedure TFitFunctLSM.IA_Begin(var AuxiliaryVector:PVector;
-               var IA:TArrSingle);
-begin
-   IA[0]:=ErResult;
-   new(AuxiliaryVector);
-end;
-
-Function TFitFunctLSM.IA_Determine3(Vector1,Vector2:PVector):double;
-begin
- Diferen (Vector1,Vector2);
-   {фактично, в temp залеженість оберненого опору від напруги}
- if FXmode[3]=cons then Result:=FXvalue[3]
-                   else
-         Result:=(Vector2^.X[1]/Vector2^.y[2]-Vector2^.X[2]/Vector2^.y[1])/
-                (Vector2^.X[1]-Vector2^.X[2]);
-  {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
-        значення при нульовій напрузі}
-end;
+//Function TFitFunctLSM.IA_Determine3(Vector1,Vector2:PVector):double;
+//begin
+// Diferen (Vector1,Vector2);
+//   {фактично, в temp залеженість оберненого опору від напруги}
+// if FXmode[3]=cons then Result:=FXvalue[3]
+//                   else
+//         Result:=(Vector2^.X[1]/Vector2^.y[2]-Vector2^.X[2]/Vector2^.y[1])/
+//                (Vector2^.X[1]-Vector2^.X[2]);
+//  {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
+//        значення при нульовій напрузі}
+//end;
 
 procedure TFitFunctLSM.InitialApproximation(InputData: TVectorNew;
   var IA: TArrSingle);
@@ -3644,79 +3644,79 @@ begin
    AuxiliaryVector:=TVectorNew.Create;
 end;
 
-Procedure TFitFunctLSM.IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
- var i,k:integer;
-     temp2:PVector;
-begin
-  k:=-1;
-  for i:=0 to High(AuxiliaryVector^.X) do
-         if AuxiliaryVector^.Y[i]<0 then k:=i;
-  new(temp2);
-  if k<0 then IVchar(AuxiliaryVector,temp2)
-         else
-         begin
-           SetLenVector(temp2,AuxiliaryVector^.n-k-1);
-           for i:=0 to High(temp2^.X) do
-             begin
-              temp2^.Y[i]:=AuxiliaryVector^.Y[i+k+1];
-              temp2^.X[i]:=AuxiliaryVector^.X[i+k+1];
-             end;
-         end;
-  for i:=0 to High(temp2^.X) do
-     temp2^.Y[i]:=ln(temp2^.Y[i]);
-
-  if High(temp2^.X)>6 then
-     begin
-       SetLenVector(AuxiliaryVector,High(temp2^.X)-3);
-       for i:=3 to High(temp2^.X) do
-        begin
-         AuxiliaryVector^.X[i-3]:=temp2^.X[i];
-         AuxiliaryVector^.Y[i-3]:=temp2^.Y[i];
-        end;
-     end;
-  LinAprox(AuxiliaryVector,IA[2],IA[0]);{}
-  IA[2]:=exp(IA[2]);
-  IA[0]:=1/(Kb*FVariab[0]*IA[0]);
-  {I00 та n0 в результаті лінійної апроксимації залежності
-  ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
-  if FXmode[2]=cons then IA[2]:=FXvalue[2];
-  if FXmode[0]=cons then IA[0]:=FXvalue[0];
-
-  for i:=0 to High(temp2^.X) do
-     begin
-      temp2^.Y[i]:=exp(temp2^.Y[i]);;
-     end;
- {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
-  значення струму додатні}
-
-  Diferen (temp2,AuxiliaryVector);
-   for i:=0 to High(AuxiliaryVector.X) do
-     begin
-     AuxiliaryVector^.X[i]:=1/temp2^.Y[i];
-     AuxiliaryVector^.Y[i]:=1/AuxiliaryVector^.Y[i];
-     end;
-  {в temp - залежність dV/dI від 1/І}
-
-  if AuxiliaryVector^.n>5 then
-     begin
-     SetLenVector(temp2,5);
-     for i:=0 to 4 do
-       begin
-           temp2^.X[i]:=AuxiliaryVector^.X[High(AuxiliaryVector.X)-i];
-           temp2^.Y[i]:=AuxiliaryVector^.Y[High(AuxiliaryVector.X)-i];
-       end;
-     end
-             else
-         IVchar(temp2,AuxiliaryVector);
-  LinAprox(temp2,IA[1],AuxiliaryVector^.X[0]);
-  {Rs0 - як вільних член лінійної апроксимації
-  щонайбільше п'яти останніх точок залежності dV/dI від 1/І;
-  dV/dI= (nKbT)/(qI)+Rs;
-  temp^.X[0] використане лише для того, щоб
-  не вводити допоміжну змінну}
-  if FXmode[1]=cons then IA[1]:=FXvalue[1];
- dispose(temp2);
-end;
+//Procedure TFitFunctLSM.IA_Determine012(AuxiliaryVector:PVector;var IA:TArrSingle);
+// var i,k:integer;
+//     temp2:PVector;
+//begin
+//  k:=-1;
+//  for i:=0 to High(AuxiliaryVector^.X) do
+//         if AuxiliaryVector^.Y[i]<0 then k:=i;
+//  new(temp2);
+//  if k<0 then IVchar(AuxiliaryVector,temp2)
+//         else
+//         begin
+//           SetLenVector(temp2,AuxiliaryVector^.n-k-1);
+//           for i:=0 to High(temp2^.X) do
+//             begin
+//              temp2^.Y[i]:=AuxiliaryVector^.Y[i+k+1];
+//              temp2^.X[i]:=AuxiliaryVector^.X[i+k+1];
+//             end;
+//         end;
+//  for i:=0 to High(temp2^.X) do
+//     temp2^.Y[i]:=ln(temp2^.Y[i]);
+//
+//  if High(temp2^.X)>6 then
+//     begin
+//       SetLenVector(AuxiliaryVector,High(temp2^.X)-3);
+//       for i:=3 to High(temp2^.X) do
+//        begin
+//         AuxiliaryVector^.X[i-3]:=temp2^.X[i];
+//         AuxiliaryVector^.Y[i-3]:=temp2^.Y[i];
+//        end;
+//     end;
+//  LinAprox(AuxiliaryVector,IA[2],IA[0]);{}
+//  IA[2]:=exp(IA[2]);
+//  IA[0]:=1/(Kb*FVariab[0]*IA[0]);
+//  {I00 та n0 в результаті лінійної апроксимації залежності
+//  ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
+//  if FXmode[2]=cons then IA[2]:=FXvalue[2];
+//  if FXmode[0]=cons then IA[0]:=FXvalue[0];
+//
+//  for i:=0 to High(temp2^.X) do
+//     begin
+//      temp2^.Y[i]:=exp(temp2^.Y[i]);;
+//     end;
+// {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
+//  значення струму додатні}
+//
+//  Diferen (temp2,AuxiliaryVector);
+//   for i:=0 to High(AuxiliaryVector.X) do
+//     begin
+//     AuxiliaryVector^.X[i]:=1/temp2^.Y[i];
+//     AuxiliaryVector^.Y[i]:=1/AuxiliaryVector^.Y[i];
+//     end;
+//  {в temp - залежність dV/dI від 1/І}
+//
+//  if AuxiliaryVector^.n>5 then
+//     begin
+//     SetLenVector(temp2,5);
+//     for i:=0 to 4 do
+//       begin
+//           temp2^.X[i]:=AuxiliaryVector^.X[High(AuxiliaryVector.X)-i];
+//           temp2^.Y[i]:=AuxiliaryVector^.Y[High(AuxiliaryVector.X)-i];
+//       end;
+//     end
+//             else
+//         IVchar(temp2,AuxiliaryVector);
+//  LinAprox(temp2,IA[1],AuxiliaryVector^.X[0]);
+//  {Rs0 - як вільних член лінійної апроксимації
+//  щонайбільше п'яти останніх точок залежності dV/dI від 1/І;
+//  dV/dI= (nKbT)/(qI)+Rs;
+//  temp^.X[0] використане лише для того, щоб
+//  не вводити допоміжну змінну}
+//  if FXmode[1]=cons then IA[1]:=FXvalue[1];
+// dispose(temp2);
+//end;
 
 procedure TFitFunctLSM.IA_Determine012(AuxiliaryVector: TVectorNew;
   var IA: TArrSingle);
@@ -3729,7 +3729,7 @@ begin
   for i:=0 to AuxiliaryVector.HighNumber do
          if AuxiliaryVector.Y[i]<0 then k:=i;
   temp2:=TVectorNew.Create;
-  if k<0 then AuxiliaryVector.Copy(temp2)
+  if k<0 then AuxiliaryVector.CopyTo(temp2)
          else
          begin
            temp2.SetLenVector(AuxiliaryVector.Count-k-1);
@@ -3769,7 +3769,7 @@ begin
      end;
  {в temp2 - частина ВАХ з врахуванням Rsh0, для якої
   значення струму додатні}
-  temp2.Copy(ttemp);
+  temp2.CopyTo(ttemp);
   ttemp.Derivate(AuxiliaryVector);
    for i:=0 to AuxiliaryVector.HighNumber do
      begin
@@ -3788,8 +3788,8 @@ begin
        end;
      end
              else
-         temp2.Copy(AuxiliaryVector);
-  temp2.Copy(ttemp);
+         temp2.CopyTo(AuxiliaryVector);
+  temp2.CopyTo(ttemp);
   ttemp.LinAprox(outputData);
   IA[1]:=outputData[0];
   AuxiliaryVector.X[0]:=outputData[1];
@@ -3818,18 +3818,18 @@ begin
         значення при нульовій напрузі}
 end;
 
-Procedure TFitFunctLSM.InitialApproximation(InputData:PVector;var IA:TArrSingle);
-  var temp:Pvector;
-      i:integer;
-begin
- IA_Begin(temp,IA);
- IA[3]:=IA_Determine3(InputData,temp);
- for I := 0 to High(temp^.X) do
-    temp^.Y[i]:=(InputData^.Y[i]-InputData^.X[i]/IA[3]);
-  {в temp - ВАХ з врахуванням Rsh0}
- IA_Determine012(temp,IA);
- dispose(temp);
-end;
+//Procedure TFitFunctLSM.InitialApproximation(InputData:PVector;var IA:TArrSingle);
+//  var temp:Pvector;
+//      i:integer;
+//begin
+// IA_Begin(temp,IA);
+// IA[3]:=IA_Determine3(InputData,temp);
+// for I := 0 to High(temp^.X) do
+//    temp^.Y[i]:=(InputData^.Y[i]-InputData^.X[i]/IA[3]);
+//  {в temp - ВАХ з врахуванням Rsh0}
+// IA_Determine012(temp,IA);
+// dispose(temp);
+//end;
 
 procedure TFitFunctLSM.IterWindowPrepare(InputData: TVectorNew);
 begin
@@ -3854,18 +3854,18 @@ begin
    fIterWindow.Caption:='Lambert Aproximation of Illuminated I-V'+fIterWindow.Caption;
 end;
 
-Function TFitFunctLSM.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
-begin
-  Result:=false;
-  if IA[1]<0.0001 then IA[1]:=0.0001;
-  if (IA[3]<=0) or (IA[3]>1e12) then IA[3]:=1e12;
-  while (ParamIsBad(InputData,IA))and(IA[0]<1000) do
-     IA[0]:=IA[0]*2;
-  while (ParamIsBad(InputData,IA))and(IA[2]>1e-15) do
-     IA[2]:=IA[2]/1.5;
-  if  ParamIsBad(InputData,IA) then Exit;
-  Result:=true;
-end;
+//Function TFitFunctLSM.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
+//begin
+//  Result:=false;
+//  if IA[1]<0.0001 then IA[1]:=0.0001;
+//  if (IA[3]<=0) or (IA[3]>1e12) then IA[3]:=1e12;
+//  while (ParamIsBad(InputData,IA))and(IA[0]<1000) do
+//     IA[0]:=IA[0]*2;
+//  while (ParamIsBad(InputData,IA))and(IA[2]>1e-15) do
+//     IA[2]:=IA[2]/1.5;
+//  if  ParamIsBad(InputData,IA) then Exit;
+//  Result:=true;
+//end;
 
 function TFitFunctLSM.ParamCorectIsDone(InputData: TVectorNew;
   var IA: TArrSingle): boolean;
@@ -3897,61 +3897,61 @@ begin
   Result:=false;
 end;
 
-Function TFitFunctLSM.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
- var bt:double;
-     i:integer;
-begin
-  Result:=true;
-  if IA[0]<=0 then Exit;
-  bt:=2/Kb/FVariab[0]/IA[0];
-  if IA[1]<0 then Exit;
-  if (IA[2]<0) or (IA[2]>1) then Exit;
-  if IA[3]<=1e-4 then Exit;
-  for I := 0 to High(InputData^.X) do
-    if bt*(InputData^.X[i]-IA[1]*InputData^.Y[i])>700 then Exit;
-  Result:=false;
-end;
+//Function TFitFunctLSM.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+// var bt:double;
+//     i:integer;
+//begin
+//  Result:=true;
+//  if IA[0]<=0 then Exit;
+//  bt:=2/Kb/FVariab[0]/IA[0];
+//  if IA[1]<0 then Exit;
+//  if (IA[2]<0) or (IA[2]>1) then Exit;
+//  if IA[3]<=1e-4 then Exit;
+//  for I := 0 to High(InputData^.X) do
+//    if bt*(InputData^.X[i]-IA[1]*InputData^.Y[i])>700 then Exit;
+//  Result:=false;
+//end;
 
-Function TFitFunctLSM.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;
- var i:integer;
-     n, Rs, I0, Rsh, Iph,
-     Zi,ZIi,nkT,vi,ei,eiI0:double;
-begin
- n:=X[0];
- Rs:=X[1];
- I0:=X[2];
- Rsh:=X[3];
- Iph:=0;
- if High(X)=4 then Iph:=X[4];
- nkT:=n*Kb*FVariab[0];
- for I := 0 to High(RezF) do  RezF[i]:=0;
- RezSum:=0;
- try
-  for I := 0 to High(InputData^.X) do
-     begin
-       vi:=(InputData^.X[i]-InputData^.Y[i]*Rs);
-       ei:=exp(vi/nkT);
-       Zi:=I0*(ei-1)+vi/Rsh-InputData^.Y[i];
-       if High(X)>3 then Zi:=Zi-Iph;
-       ZIi:=Zi/abs(InputData^.Y[i]);
-       eiI0:=ei*I0/nkT;
-       RezSum:=RezSum+ZIi*Zi;
-       RezF[0]:=RezF[0]-ZIi*eiI0*vi;
-       RezF[1]:=RezF[1]-Zi*(eiI0+1/Rsh);
-       RezF[2]:=RezF[2]+ZIi*(ei-1);
-       RezF[3]:=RezF[3]-ZIi*vi;
-       if High(X)=4 then RezF[4]:=RezF[4]-ZIi;
-     end;
-  for I := 0 to High(RezF) do RezF[i]:=RezF[i]*2;
-  RezF[0]:=RezF[0]/n;
-  RezF[3]:=RezF[3]/Rsh/Rsh;
-  Result:=True;
- except
-  Result:=False;
- end;
-end;
-
+//Function TFitFunctLSM.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+//             var RezF:TArrSingle; var RezSum:double):boolean;
+// var i:integer;
+//     n, Rs, I0, Rsh, Iph,
+//     Zi,ZIi,nkT,vi,ei,eiI0:double;
+//begin
+// n:=X[0];
+// Rs:=X[1];
+// I0:=X[2];
+// Rsh:=X[3];
+// Iph:=0;
+// if High(X)=4 then Iph:=X[4];
+// nkT:=n*Kb*FVariab[0];
+// for I := 0 to High(RezF) do  RezF[i]:=0;
+// RezSum:=0;
+// try
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       vi:=(InputData^.X[i]-InputData^.Y[i]*Rs);
+//       ei:=exp(vi/nkT);
+//       Zi:=I0*(ei-1)+vi/Rsh-InputData^.Y[i];
+//       if High(X)>3 then Zi:=Zi-Iph;
+//       ZIi:=Zi/abs(InputData^.Y[i]);
+//       eiI0:=ei*I0/nkT;
+//       RezSum:=RezSum+ZIi*Zi;
+//       RezF[0]:=RezF[0]-ZIi*eiI0*vi;
+//       RezF[1]:=RezF[1]-Zi*(eiI0+1/Rsh);
+//       RezF[2]:=RezF[2]+ZIi*(ei-1);
+//       RezF[3]:=RezF[3]-ZIi*vi;
+//       if High(X)=4 then RezF[4]:=RezF[4]-ZIi;
+//     end;
+//  for I := 0 to High(RezF) do RezF[i]:=RezF[i]*2;
+//  RezF[0]:=RezF[0]/n;
+//  RezF[3]:=RezF[3]/Rsh/Rsh;
+//  Result:=True;
+// except
+//  Result:=False;
+// end;
+//end;
+//
 
 procedure TFitFunctLSM.TrueFitting(InputData: TVectorNew;
   var OutputData: TArrSingle);
@@ -4073,53 +4073,53 @@ begin
     Result:=c;
 end;
 
-Function TFitFunctLSM.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;
- var i:integer;
-     Zi,Rez,nkT,vi,ei,eiI0,
-     n,Rs,I0,Rsh,Iph:double;
-begin
- Result:=ErResult;
- n:=X[0];
- Rs:=X[1];
- I0:=X[2];
- Rsh:=X[3];
- Iph:=0;
- if High(X)>3 then Iph:=X[4];
- try
-  case num of
-   0:n:=n-al*F;
-   1:Rs:=Rs-al*F;
-   2:I0:=I0-al*F;
-   3:Rsh:=Rsh-al*F;
-   4:Iph:=Iph-al*F;
-  end;//case
-  if ParamIsBad(InputData,X) then  Exit;
-  nkT:=n*Kb*FVariab[0];
-  Rez:=0;
-  for I := 0 to High(InputData^.X) do
-   begin
-     vi:=(InputData^.X[i]-InputData^.Y[i]*Rs);
-     ei:=exp(vi/nkT);
-     Zi:=I0*(ei-1)+vi/Rsh-InputData^.Y[i];
-     if High(X)>3 then Zi:=Zi-Iph;
-     eiI0:=ei*I0/nkT;
-
-     case num of
-       0:Rez:=Rez+Zi/abs(InputData^.Y[i])*eiI0*vi;
-       1:Rez:=Rez+Zi*(eiI0+1/Rsh);
-       2:Rez:=Rez+Zi/abs(InputData^.Y[i])*(1-ei);
-       3:Rez:=Rez+Zi/abs(InputData^.Y[i])*vi/Rsh/Rsh;
-       4:Rez:=Rez-ZI/abs(InputData^.Y[i]);
-     end; //case
-   end;
-   Rez:=2*F*Rez;
-   if num=0 then Rez:=Rez/n;
-  Result:=Rez;
- except
- end;//try
-end;
-
+//Function TFitFunctLSM.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+//                     X:TArrSingle):double;
+// var i:integer;
+//     Zi,Rez,nkT,vi,ei,eiI0,
+//     n,Rs,I0,Rsh,Iph:double;
+//begin
+// Result:=ErResult;
+// n:=X[0];
+// Rs:=X[1];
+// I0:=X[2];
+// Rsh:=X[3];
+// Iph:=0;
+// if High(X)>3 then Iph:=X[4];
+// try
+//  case num of
+//   0:n:=n-al*F;
+//   1:Rs:=Rs-al*F;
+//   2:I0:=I0-al*F;
+//   3:Rsh:=Rsh-al*F;
+//   4:Iph:=Iph-al*F;
+//  end;//case
+//  if ParamIsBad(InputData,X) then  Exit;
+//  nkT:=n*Kb*FVariab[0];
+//  Rez:=0;
+//  for I := 0 to High(InputData^.X) do
+//   begin
+//     vi:=(InputData^.X[i]-InputData^.Y[i]*Rs);
+//     ei:=exp(vi/nkT);
+//     Zi:=I0*(ei-1)+vi/Rsh-InputData^.Y[i];
+//     if High(X)>3 then Zi:=Zi-Iph;
+//     eiI0:=ei*I0/nkT;
+//
+//     case num of
+//       0:Rez:=Rez+Zi/abs(InputData^.Y[i])*eiI0*vi;
+//       1:Rez:=Rez+Zi*(eiI0+1/Rsh);
+//       2:Rez:=Rez+Zi/abs(InputData^.Y[i])*(1-ei);
+//       3:Rez:=Rez+Zi/abs(InputData^.Y[i])*vi/Rsh/Rsh;
+//       4:Rez:=Rez-ZI/abs(InputData^.Y[i]);
+//     end; //case
+//   end;
+//   Rez:=2*F*Rez;
+//   if num=0 then Rez:=Rez/n;
+//  Result:=Rez;
+// except
+// end;//try
+//end;
+//
 function TFitFunctLSM.SquareFormDerivate(InputData: TVectorNew; num: byte; al,
   F: double; X: TArrSingle): double;
  var i:integer;
@@ -4229,117 +4229,117 @@ begin
 end;
 
 
-Function TDiodLam.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
- var bt:double;
-begin
-  Result:=true;
-  if IA[0]<=0 then Exit;
-  bt:=1/Kb/FVariab[0];
-  if IA[0]<=0 then Exit;
-  if IA[1]<0 then Exit;
-  if IA[2]<0  then Exit;
-  if IA[3]<0 then Exit;
-  if bt/IA[0]*(InputData^.X[InputData^.n-1]+IA[1]*IA[2])>ln(1e308)
-                       then Exit;
-  if bt*IA[1]*IA[2]/IA[0]*exp(Kb*FVariab[0]/IA[0]*(InputData^.X[InputData^.n-1]+IA[1]*IA[2]))>ln(1e308)
-                       then Exit;
-  Result:=false;
-end;
+//Function TDiodLam.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+// var bt:double;
+//begin
+//  Result:=true;
+//  if IA[0]<=0 then Exit;
+//  bt:=1/Kb/FVariab[0];
+//  if IA[0]<=0 then Exit;
+//  if IA[1]<0 then Exit;
+//  if IA[2]<0  then Exit;
+//  if IA[3]<0 then Exit;
+//  if bt/IA[0]*(InputData^.X[InputData^.n-1]+IA[1]*IA[2])>ln(1e308)
+//                       then Exit;
+//  if bt*IA[1]*IA[2]/IA[0]*exp(Kb*FVariab[0]/IA[0]*(InputData^.X[InputData^.n-1]+IA[1]*IA[2]))>ln(1e308)
+//                       then Exit;
+//  Result:=false;
+//end;
 
 
-Function TDiodLam.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;
- var i:integer;
-     n, Rs, I0, Rsh,
-     bt,Zi,Wi,F1s,
-     I0Rs,nWi,ci,ZIi,s23,
-     F2,F1:double;
-begin
- n:=X[0];
- Rs:=X[1];
- I0:=X[2];
- Rsh:=X[3];
- bt:=1/Kb/FVariab[0];
- for I := 0 to High(RezF) do  RezF[i]:=0;
- RezSum:=0;
+//Function TDiodLam.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+//             var RezF:TArrSingle; var RezSum:double):boolean;
+// var i:integer;
+//     n, Rs, I0, Rsh,
+//     bt,Zi,Wi,F1s,
+//     I0Rs,nWi,ci,ZIi,s23,
+//     F2,F1:double;
+//begin
+// n:=X[0];
+// Rs:=X[1];
+// I0:=X[2];
+// Rsh:=X[3];
+// bt:=1/Kb/FVariab[0];
+// for I := 0 to High(RezF) do  RezF[i]:=0;
+// RezSum:=0;
+//
+// I0Rs:=I0*Rs;
+// F2:=bt*I0Rs;
+// F1:=bt*Rs;
+// try
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       ci:=bt*(InputData^.X[i]+I0Rs);
+//       Wi:=Lambert(bt*I0Rs/n*exp(ci/n));
+//       nWi:=n*Wi;
+//       Zi:=n/bt/Rs*Wi+InputData^.X[i]/Rsh-I0-InputData^.Y[i];
+//       ZIi:=Zi/abs(InputData^.Y[i]);
+//       F1s:=F1*(Wi+1);
+//       s23:=(F2-nWi)/F1s;
+//       RezSum:=RezSum+ZIi*Zi;
+//       RezF[0]:=RezF[0]+ZIi*Wi*(nWi-ci)/F1s;
+//       RezF[1]:=RezF[1]+ZIi*Wi*s23;
+//       RezF[2]:=RezF[2]-ZIi*s23;
+//       RezF[3]:=RezF[3]-ZIi*InputData^.X[i];
+//     end;
+//
+//  for I := 0 to High(RezF) do RezF[i]:=RezF[i]*2;
+//  RezF[1]:=RezF[1]/n;
+//  RezF[2]:=RezF[2]/Rs;
+//  RezF[2]:=RezF[2]/I0;
+//  RezF[3]:=RezF[3]/Rsh/Rsh;
+//  Result:=True;
+// except
+//  Result:=False;
+// end;
+//end;
 
- I0Rs:=I0*Rs;
- F2:=bt*I0Rs;
- F1:=bt*Rs;
- try
-  for I := 0 to High(InputData^.X) do
-     begin
-       ci:=bt*(InputData^.X[i]+I0Rs);
-       Wi:=Lambert(bt*I0Rs/n*exp(ci/n));
-       nWi:=n*Wi;
-       Zi:=n/bt/Rs*Wi+InputData^.X[i]/Rsh-I0-InputData^.Y[i];
-       ZIi:=Zi/abs(InputData^.Y[i]);
-       F1s:=F1*(Wi+1);
-       s23:=(F2-nWi)/F1s;
-       RezSum:=RezSum+ZIi*Zi;
-       RezF[0]:=RezF[0]+ZIi*Wi*(nWi-ci)/F1s;
-       RezF[1]:=RezF[1]+ZIi*Wi*s23;
-       RezF[2]:=RezF[2]-ZIi*s23;
-       RezF[3]:=RezF[3]-ZIi*InputData^.X[i];
-     end;
-
-  for I := 0 to High(RezF) do RezF[i]:=RezF[i]*2;
-  RezF[1]:=RezF[1]/n;
-  RezF[2]:=RezF[2]/Rs;
-  RezF[2]:=RezF[2]/I0;
-  RezF[3]:=RezF[3]/Rsh/Rsh;
-  Result:=True;
- except
-  Result:=False;
- end;
-end;
-
-Function TDiodLam.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;
- var i:integer;
-     Yi,bt,Zi,Wi,I0Rs,ci,Rez,g1,
-     n,Rs,I0,Rsh:double;
-begin
- Result:=ErResult;
- n:=X[0];
- Rs:=X[1];
- I0:=X[2];
- Rsh:=X[3];
- try
-  case num of
-   0:n:=n-al*F;
-   1:Rs:=Rs-al*F;
-   2:I0:=I0-al*F;
-   3:Rsh:=Rsh-al*F;
-  end;//case
-  if ParamIsBad(InputData,X) then  Exit;
-  bt:=1/Kb/FVariab[0];
-  I0Rs:=I0*Rs;
-  g1:=bt*I0Rs;
-  Rez:=0;
-  for I := 0 to High(InputData^.X) do
-     begin
-       ci:=bt*(InputData^.X[i]+I0Rs);
-       Yi:=bt*I0Rs/n*exp(ci/n);
-       Wi:=Lambert(Yi);
-       Zi:=n/bt/Rs*Wi+InputData^.X[i]/Rsh-I0-InputData^.Y[i];
-       case num of
-           0:Rez:=Rez-Zi/abs(InputData^.Y[i])*Wi*(ci-n*Wi)/(1+Wi);
-           1:Rez:=Rez+Zi/abs(InputData^.Y[i])*Wi*(n*Wi-g1)/(1+Wi);
-           2:Rez:=Rez-Zi/abs(InputData^.Y[i])*(n*Wi-g1)/(1+Wi);
-           3:Rez:=Rez+Zi/abs(InputData^.Y[i])*InputData^.X[i];
-        end; //case
-     end;
-  case num of
-       0:Rez:=2*Rez*F/(bt*n*Rs);
-       1:Rez:=2*Rez*F/(bt*Rs*Rs);
-       2:Rez:=2*Rez*F/(bt*I0Rs);
-       3:Rez:=2*Rez*F/Rsh/Rsh;
-  end; //case
-  Result:=Rez;
- except
- end;//try
-end;
+//Function TDiodLam.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+//                     X:TArrSingle):double;
+// var i:integer;
+//     Yi,bt,Zi,Wi,I0Rs,ci,Rez,g1,
+//     n,Rs,I0,Rsh:double;
+//begin
+// Result:=ErResult;
+// n:=X[0];
+// Rs:=X[1];
+// I0:=X[2];
+// Rsh:=X[3];
+// try
+//  case num of
+//   0:n:=n-al*F;
+//   1:Rs:=Rs-al*F;
+//   2:I0:=I0-al*F;
+//   3:Rsh:=Rsh-al*F;
+//  end;//case
+//  if ParamIsBad(InputData,X) then  Exit;
+//  bt:=1/Kb/FVariab[0];
+//  I0Rs:=I0*Rs;
+//  g1:=bt*I0Rs;
+//  Rez:=0;
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       ci:=bt*(InputData^.X[i]+I0Rs);
+//       Yi:=bt*I0Rs/n*exp(ci/n);
+//       Wi:=Lambert(Yi);
+//       Zi:=n/bt/Rs*Wi+InputData^.X[i]/Rsh-I0-InputData^.Y[i];
+//       case num of
+//           0:Rez:=Rez-Zi/abs(InputData^.Y[i])*Wi*(ci-n*Wi)/(1+Wi);
+//           1:Rez:=Rez+Zi/abs(InputData^.Y[i])*Wi*(n*Wi-g1)/(1+Wi);
+//           2:Rez:=Rez-Zi/abs(InputData^.Y[i])*(n*Wi-g1)/(1+Wi);
+//           3:Rez:=Rez+Zi/abs(InputData^.Y[i])*InputData^.X[i];
+//        end; //case
+//     end;
+//  case num of
+//       0:Rez:=2*Rez*F/(bt*n*Rs);
+//       1:Rez:=2*Rez*F/(bt*Rs*Rs);
+//       2:Rez:=2*Rez*F/(bt*I0Rs);
+//       3:Rez:=2*Rez*F/Rsh/Rsh;
+//  end; //case
+//  Result:=Rez;
+// except
+// end;//try
+//end;
 
 function TDiodLam.SquareFormDerivate(InputData: TVectorNew; num: byte; al,
   F: double; X: TArrSingle): double;
@@ -4467,30 +4467,30 @@ begin
   Result:=false;
 end;
 
-Procedure TPhotoDiodLSM.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
- var temp,temp2:Pvector;
-     i:integer;
-begin
- IA_Begin(temp,IA);
-
- if (VocCalc(InputData)<=0.002) then Exit;
- IA[4]:=IscCalc(InputData);
- if (IA[4]<=1e-8) then Exit;
-
- new(temp2);
- IVchar(InputData,temp2);
- for I := 0 to High(temp2^.X) do
-   temp2^.Y[i]:=temp2^.Y[i]+IA[4];
-
- IA[3]:=IA_Determine3(temp2,temp);
-
- for I := 0 to High(temp^.X) do
-   temp^.Y[i]:=(temp2^.Y[i]-temp2^.X[i]/IA[3]);
-    {в temp - ВАХ з врахуванням Rsh0}
- dispose(temp2);
- IA_Determine012(temp,IA);
- dispose(temp);
-end;
+//Procedure TPhotoDiodLSM.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
+// var temp,temp2:Pvector;
+//     i:integer;
+//begin
+// IA_Begin(temp,IA);
+//
+// if (VocCalc(InputData)<=0.002) then Exit;
+// IA[4]:=IscCalc(InputData);
+// if (IA[4]<=1e-8) then Exit;
+//
+// new(temp2);
+// IVchar(InputData,temp2);
+// for I := 0 to High(temp2^.X) do
+//   temp2^.Y[i]:=temp2^.Y[i]+IA[4];
+//
+// IA[3]:=IA_Determine3(temp2,temp);
+//
+// for I := 0 to High(temp^.X) do
+//   temp^.Y[i]:=(temp2^.Y[i]-temp2^.X[i]/IA[3]);
+//    {в temp - ВАХ з врахуванням Rsh0}
+// dispose(temp2);
+// IA_Determine012(temp,IA);
+// dispose(temp);
+//end;
 
 
 Constructor TPhotoDiodLSM.Create;
@@ -4554,58 +4554,58 @@ end;
 
 
 
-Procedure TPhotoDiodLam.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
-  var temp,temp2:Pvector;
-      i:integer;
-begin
-   IA_Begin(temp,IA);
+//Procedure TPhotoDiodLam.InitialApproximation(InputData:PVector;var  IA:TArrSingle);
+//  var temp,temp2:Pvector;
+//      i:integer;
+//begin
+//   IA_Begin(temp,IA);
+//
+//   IA[2]:=IscCalc(InputData);
+//   IA[4]:=VocCalc(InputData);
+//   if (IA[4]<=0.002)or(IA[2]<1e-8) then Exit;
+//   FXmode[2]:=cons;
+//   FXmode[4]:=cons;
+//
+//   IA[3]:=IA_Determine3(InputData,temp);
+//
+//   {n та Rs0 - як нахил та вільних член лінійної апроксимації
+//    щонайбільше семи останніх точок залежності dV/dI від kT/q(Isc+I-V/Rsh);}
+//    for I := 0 to High(temp^.X) do
+//       begin
+//         temp^.Y[i]:=1/temp^.Y[i];
+//         temp^.X[i]:=Kb*FVariab[0]/(IA[2]+InputData^.Y[i]-InputData^.X[i]/IA[3]);
+//       end;
+//    new(temp2);
+//    if temp^.n>7 then
+//       begin
+//        SetLenVector(temp2,7);
+//       for i:=0 to 6 do
+//          begin
+//            temp2^.X[i]:=temp^.X[High(temp.X)-i];
+//            temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
+//          end;
+//       end
+//                else IVchar(temp2,temp);
+//       LinAprox(temp2,IA[1],IA[0]);
+//    if FXmode[1]=cons then IA[1]:=FXvalue[1];
+//    if FXmode[0]=cons then IA[0]:=FXvalue[0];
+//    dispose(temp2);
+//    dispose(temp);
+//end;
 
-   IA[2]:=IscCalc(InputData);
-   IA[4]:=VocCalc(InputData);
-   if (IA[4]<=0.002)or(IA[2]<1e-8) then Exit;
-   FXmode[2]:=cons;
-   FXmode[4]:=cons;
 
-   IA[3]:=IA_Determine3(InputData,temp);
-
-   {n та Rs0 - як нахил та вільних член лінійної апроксимації
-    щонайбільше семи останніх точок залежності dV/dI від kT/q(Isc+I-V/Rsh);}
-    for I := 0 to High(temp^.X) do
-       begin
-         temp^.Y[i]:=1/temp^.Y[i];
-         temp^.X[i]:=Kb*FVariab[0]/(IA[2]+InputData^.Y[i]-InputData^.X[i]/IA[3]);
-       end;
-    new(temp2);
-    if temp^.n>7 then
-       begin
-        SetLenVector(temp2,7);
-       for i:=0 to 6 do
-          begin
-            temp2^.X[i]:=temp^.X[High(temp.X)-i];
-            temp2^.Y[i]:=temp^.Y[High(temp.X)-i];
-          end;
-       end
-                else IVchar(temp2,temp);
-       LinAprox(temp2,IA[1],IA[0]);
-    if FXmode[1]=cons then IA[1]:=FXvalue[1];
-    if FXmode[0]=cons then IA[0]:=FXvalue[0];
-    dispose(temp2);
-    dispose(temp);
-end;
-
-
-Function TPhotoDiodLam.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
-begin
-  Result:=false;
-  if (FVariab[0]<=0) or (IA[2]<=5e-8) or (IA[4]<=1e-3) then Exit;
-  if (IA[0]=0)or(IA[0]=ErResult) then Exit;
-  if IA[1]<0.0001 then IA[1]:=0.0001;
-  if (IA[3]<=0) or (IA[3]>1e12) then IA[3]:=1e12;
-  while (ParamIsBad(InputData,IA))and(IA[0]<1000) do
-   IA[0]:=IA[0]*2;
-  if  ParamIsBad(InputData,IA) then Exit;
-  Result:=true;
-end;
+//Function TPhotoDiodLam.ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;
+//begin
+//  Result:=false;
+//  if (FVariab[0]<=0) or (IA[2]<=5e-8) or (IA[4]<=1e-3) then Exit;
+//  if (IA[0]=0)or(IA[0]=ErResult) then Exit;
+//  if IA[1]<0.0001 then IA[1]:=0.0001;
+//  if (IA[3]<=0) or (IA[3]>1e12) then IA[3]:=1e12;
+//  while (ParamIsBad(InputData,IA))and(IA[0]<1000) do
+//   IA[0]:=IA[0]*2;
+//  if  ParamIsBad(InputData,IA) then Exit;
+//  Result:=true;
+//end;
 
 function TPhotoDiodLam.ParamCorectIsDone(InputData: TVectorNew;
   var IA: TArrSingle): boolean;
@@ -4645,153 +4645,153 @@ begin
   Result:=false;
 end;
 
-Function TPhotoDiodLam.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
- var nkT,t1,t2:double;
-begin
-  Result:=true;
-  nkT:=IA[0]*Kb*FVariab[0];
-  if IA[0]<=0 then Exit;
-  if IA[1]<=0 then Exit;
-  if IA[3]<=0 then Exit;
-  if IA[2]<=0 then Exit;
-  if IA[4]<=0 then Exit;
-  if 2*(IA[4]+IA[2]*IA[1])/nkT > ln(1e308) then Exit;
-  if exp(IA[4]/nkT) = exp(IA[2]*IA[1]/nkT) then Exit;
-  t1:=(IA[1]*IA[2]-IA[4])/nkT;
-  if t1 > ln(1e308) then Exit;
-  t2:=IA[3]*IA[1]/nkT/(IA[1]+IA[3])*
-      (IA[4]/IA[3]+(IA[2]+(IA[1]*IA[2]-IA[4])/IA[3])/(1-exp(t1))
-           +InputData^.X[InputData^.n-1]/IA[1]);
-  if abs(t2) > ln(1e308) then Exit;
-  if IA[1]/nkT*(IA[2]-IA[4]/(IA[1]+IA[3]))*exp(-IA[4]/nkT)*exp(t2)/(1-exp(t1))> 700
-                         then Exit;
-  Result:=false;
-end;
+//Function TPhotoDiodLam.ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;
+// var nkT,t1,t2:double;
+//begin
+//  Result:=true;
+//  nkT:=IA[0]*Kb*FVariab[0];
+//  if IA[0]<=0 then Exit;
+//  if IA[1]<=0 then Exit;
+//  if IA[3]<=0 then Exit;
+//  if IA[2]<=0 then Exit;
+//  if IA[4]<=0 then Exit;
+//  if 2*(IA[4]+IA[2]*IA[1])/nkT > ln(1e308) then Exit;
+//  if exp(IA[4]/nkT) = exp(IA[2]*IA[1]/nkT) then Exit;
+//  t1:=(IA[1]*IA[2]-IA[4])/nkT;
+//  if t1 > ln(1e308) then Exit;
+//  t2:=IA[3]*IA[1]/nkT/(IA[1]+IA[3])*
+//      (IA[4]/IA[3]+(IA[2]+(IA[1]*IA[2]-IA[4])/IA[3])/(1-exp(t1))
+//           +InputData^.X[InputData^.n-1]/IA[1]);
+//  if abs(t2) > ln(1e308) then Exit;
+//  if IA[1]/nkT*(IA[2]-IA[4]/(IA[1]+IA[3]))*exp(-IA[4]/nkT)*exp(t2)/(1-exp(t1))> 700
+//                         then Exit;
+//  Result:=false;
+//end;
 
 
-Function TPhotoDiodLam.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-             var RezF:TArrSingle; var RezSum:double):boolean;
- var i:integer;
-    Yi,Zi,Wi,GVI,Z1,Y1,F1,F12,F21,F22,F3,F31,
-    ZIi,nkT,W_W1,
-    n,Rs,Rsh,Isc,Voc:double;
-begin
- Result:=False;
- for I := 0 to High(RezF) do  RezF[i]:=0;
- RezSum:=0;
- n:=X[0];
- Rs:=X[1];
- Rsh:=X[3];
- Isc:=X[2];
- Voc:=X[4];
-
- try
-  nkT:=n*kb*FVariab[0];
-  GVI:=(exp(Isc*Rs/nkT)-exp(Voc/nkT));
-  Z1:=Rsh/(Rs+Rsh)*((Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT))+Voc/Rsh);
-  Y1:=Voc/Rsh+(Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT));
-  F1:=exp((Isc*Rs+Voc)/nkT)*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc)/(nkT*n*(Rs+Rsh)*GVI*GVI);
-  F12:=(exp(2*Voc/nkT)*(Rs+Rsh)*(nkT+Isc*Rs-Voc)+
-     exp(2*Isc*Rs/nkT)*((nkT-Isc*Rs)*(Rs+Rsh)+Rs*Voc)+
-     exp((Isc*Rs+Voc)/nkT)*(-2*nkT*(Rs+Rsh)+(Rs*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc))/nkT+Rsh*Voc))/sqr(GVI);
-  F21:=(exp(2*Isc*Rs/nkT)*nkT*Voc-exp((Isc*Rs+Voc)/nkT)*
-      (Isc*(Rs + Rsh)*(Isc*(Rs + Rsh)-Voc)+nkT*Voc))/
-      (sqr(GVI)*nkT*sqr((Rs + Rsh)));
-  F22:=(-exp(Voc/nkT)*nkT*(Rs + Rsh) +
-     exp(Isc*Rs/nkT)*((nkT - Isc*Rs)*(Rs + Rsh) + Rs*Voc))*
-     (exp(Isc*Rs/nkT)*nkT*(Isc*(Rs + Rsh)*(Rs+Rsh) - Rsh*Voc) +
-     exp(Voc/nkT)*(-Isc*(nkT + Isc*Rs)*(Rs + Rsh)*(Rs+Rsh) +
-     (nkT*Rsh + Isc* Rs* (Rs + Rsh))* Voc))/(nkT*Rs*sqr(GVI)*(Isc*(Rs+Rsh)-Voc));
-  F3:=Voc/(1-exp((Voc-Isc*Rs)/nkT));
-  F31:=nkT*Voc/(Rs*(Isc-Voc/(Rs+Rsh)));
-
-  for I := 0 to High(InputData^.X) do
-     begin
-       Yi:=Rs/nkT*(Isc-Voc/(Rs+Rsh))*exp(-Voc/nkT)/(1-exp((Rs*Isc-Voc)/nkT))*
-       exp(Rsh*Rs/nkT/(Rs+Rsh)*(InputData^.X[i]/Rs+Y1));
-       Zi:=InputData^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-InputData^.Y[i];
-       Wi:=Lambert(Yi);
-       if Wi=ErResult then Exit;
-       W_W1:=Wi/(Wi+1);
-       ZIi:=Zi/abs(InputData^.Y[i]);
-       RezSum:=RezSum+ZIi*Zi;
-       RezF[0]:=RezF[0]+ZIi*(F1+Kb*FVariab[0]/Rs*Wi-
-                W_W1/(n*Rs*(Rs+Rsh))*(F12+Rsh*InputData^.X[i]));
-       RezF[1]:=RezF[1]+ZIi*(-InputData^.X[i]/sqr(Rs+Rsh)+F21-nkT/sqr(Rs)*Wi+
-              W_W1/(Rs*sqr(Rs+Rsh))*(F22-Rsh*InputData^.X[i]));
-      RezF[3]:=RezF[3]+ZIi*(F3-InputData^.X[i]+F31*Wi)/((1+Wi)*sqr(Rs+Rsh));
-     end;
-  for I := 0 to High(RezF) do RezF[i]:=RezF[i]*2;
-  Result:=True;
- finally
- end;
-end;
-
-Function TPhotoDiodLam.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-                     X:TArrSingle):double;
- var i:integer;
-     Yi,Zi,Wi,GVI,Z1,Y1,F1,F12,F21,F22,F3,F31,
-     nkT,W_W1,Rez,
-     n,Rs,Rsh,Isc,Voc:double;
-begin
- Result:=ErResult;
- n:=X[0];
- Rs:=X[1];
- Rsh:=X[3];
- Isc:=X[2];
- Voc:=X[4];
- try
-  case num of
-     0:n:=n-al*F;
-     1:Rs:=Rs-al*F;
-     3:Rsh:=Rsh-al*F;
-   end;//case
-  if ParamIsBad(InputData,X) then  Exit;
-  nkT:=n*kb*FVariab[0];
-  GVI:=(exp(Isc*Rs/nkT)-exp(Voc/nkT));
-  Z1:=Rsh/(Rs+Rsh)*((Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT))+Voc/Rsh);
-  Y1:=Voc/Rsh+(Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT));
-  F1:=exp((Isc*Rs+Voc)/nkT)*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc)/(nkT*n*(Rs+Rsh)*GVI*GVI);
-  F12:=(exp(2*Voc/nkT)*(Rs+Rsh)*(nkT+Isc*Rs-Voc)+
-     exp(2*Isc*Rs/nkT)*((nkT-Isc*Rs)*(Rs+Rsh)+Rs*Voc)+
-     exp((Isc*Rs+Voc)/nkT)*(-2*nkT*(Rs+Rsh)+(Rs*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc))/nkT+Rsh*Voc))/sqr(GVI);
-  F21:=(exp(2*Isc*Rs/nkT)*nkT*Voc-exp((Isc*Rs+Voc)/nkT)*
-      (Isc*(Rs + Rsh)*(Isc*(Rs + Rsh)-Voc)+nkT*Voc))/
-      (sqr(GVI)*nkT*sqr((Rs + Rsh)));
-  F22:=(-exp(Voc/nkT)*nkT*(Rs + Rsh) +
-     exp(Isc*Rs/nkT)*((nkT - Isc*Rs)*(Rs + Rsh) + Rs*Voc))*
-     (exp(Isc*Rs/nkT)*nkT*(Isc*(Rs + Rsh)*(Rs+Rsh) - Rsh*Voc) +
-     exp(Voc/nkT)*(-Isc*(nkT + Isc*Rs)*(Rs + Rsh)*(Rs+Rsh) +
-     (nkT*Rsh + Isc* Rs* (Rs + Rsh))* Voc))/(nkT*Rs*sqr(GVI)*(Isc*(Rs+Rsh)-Voc));
-  F3:=Voc/(1-exp((Voc-Isc*Rs)/nkT));
-  F31:=nkT*Voc/(Rs*(Isc-Voc/(Rs+Rsh)));
-
-  Rez:=0;
-  for I := 0 to High(InputData^.X) do
-     begin
-       Yi:=Rs/nkT*(Isc-Voc/(Rs+Rsh))*exp(-Voc/nkT)/(1-exp((Rs*Isc-Voc)/nkT))*
-       exp(Rsh*Rs/nkT/(Rs+Rsh)*(InputData^.X[i]/Rs+Y1));
-       Zi:=InputData^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-InputData^.Y[i];
-       Wi:=Lambert(Yi);
-       if Wi=ErResult then Exit;
-       W_W1:=Wi/(Wi+1);
-
-       case num of
-        0: Rez:=Rez+Zi/abs(InputData^.Y[i])*(F1+Kb*FVariab[0]/Rs*Wi-
-                    W_W1/(n*Rs*(Rs+Rsh))*(F12+Rsh*InputData^.X[i]));
-
-        1: Rez:=Rez+Zi/abs(InputData^.Y[i])*(-InputData^.X[i]/sqr(Rs+Rsh)+F21-nkT/sqr(Rs)*Wi+
-                  W_W1/(Rs*sqr(Rs+Rsh))*(F22-Rsh*InputData^.X[i]));
-
-        3: Rez:=Rez+Zi/abs(InputData^.Y[i])*(F3-InputData^.X[i]+F31*Wi)/((1+Wi)*sqr(Rs+Rsh));
-
-       end; //case
-     end;
-  Rez:=2*F*Rez;
-  Result:=Rez;
- except
- end;//try
-end;
+//Function TPhotoDiodLam.SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
+//             var RezF:TArrSingle; var RezSum:double):boolean;
+// var i:integer;
+//    Yi,Zi,Wi,GVI,Z1,Y1,F1,F12,F21,F22,F3,F31,
+//    ZIi,nkT,W_W1,
+//    n,Rs,Rsh,Isc,Voc:double;
+//begin
+// Result:=False;
+// for I := 0 to High(RezF) do  RezF[i]:=0;
+// RezSum:=0;
+// n:=X[0];
+// Rs:=X[1];
+// Rsh:=X[3];
+// Isc:=X[2];
+// Voc:=X[4];
+//
+// try
+//  nkT:=n*kb*FVariab[0];
+//  GVI:=(exp(Isc*Rs/nkT)-exp(Voc/nkT));
+//  Z1:=Rsh/(Rs+Rsh)*((Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT))+Voc/Rsh);
+//  Y1:=Voc/Rsh+(Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT));
+//  F1:=exp((Isc*Rs+Voc)/nkT)*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc)/(nkT*n*(Rs+Rsh)*GVI*GVI);
+//  F12:=(exp(2*Voc/nkT)*(Rs+Rsh)*(nkT+Isc*Rs-Voc)+
+//     exp(2*Isc*Rs/nkT)*((nkT-Isc*Rs)*(Rs+Rsh)+Rs*Voc)+
+//     exp((Isc*Rs+Voc)/nkT)*(-2*nkT*(Rs+Rsh)+(Rs*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc))/nkT+Rsh*Voc))/sqr(GVI);
+//  F21:=(exp(2*Isc*Rs/nkT)*nkT*Voc-exp((Isc*Rs+Voc)/nkT)*
+//      (Isc*(Rs + Rsh)*(Isc*(Rs + Rsh)-Voc)+nkT*Voc))/
+//      (sqr(GVI)*nkT*sqr((Rs + Rsh)));
+//  F22:=(-exp(Voc/nkT)*nkT*(Rs + Rsh) +
+//     exp(Isc*Rs/nkT)*((nkT - Isc*Rs)*(Rs + Rsh) + Rs*Voc))*
+//     (exp(Isc*Rs/nkT)*nkT*(Isc*(Rs + Rsh)*(Rs+Rsh) - Rsh*Voc) +
+//     exp(Voc/nkT)*(-Isc*(nkT + Isc*Rs)*(Rs + Rsh)*(Rs+Rsh) +
+//     (nkT*Rsh + Isc* Rs* (Rs + Rsh))* Voc))/(nkT*Rs*sqr(GVI)*(Isc*(Rs+Rsh)-Voc));
+//  F3:=Voc/(1-exp((Voc-Isc*Rs)/nkT));
+//  F31:=nkT*Voc/(Rs*(Isc-Voc/(Rs+Rsh)));
+//
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       Yi:=Rs/nkT*(Isc-Voc/(Rs+Rsh))*exp(-Voc/nkT)/(1-exp((Rs*Isc-Voc)/nkT))*
+//       exp(Rsh*Rs/nkT/(Rs+Rsh)*(InputData^.X[i]/Rs+Y1));
+//       Zi:=InputData^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-InputData^.Y[i];
+//       Wi:=Lambert(Yi);
+//       if Wi=ErResult then Exit;
+//       W_W1:=Wi/(Wi+1);
+//       ZIi:=Zi/abs(InputData^.Y[i]);
+//       RezSum:=RezSum+ZIi*Zi;
+//       RezF[0]:=RezF[0]+ZIi*(F1+Kb*FVariab[0]/Rs*Wi-
+//                W_W1/(n*Rs*(Rs+Rsh))*(F12+Rsh*InputData^.X[i]));
+//       RezF[1]:=RezF[1]+ZIi*(-InputData^.X[i]/sqr(Rs+Rsh)+F21-nkT/sqr(Rs)*Wi+
+//              W_W1/(Rs*sqr(Rs+Rsh))*(F22-Rsh*InputData^.X[i]));
+//      RezF[3]:=RezF[3]+ZIi*(F3-InputData^.X[i]+F31*Wi)/((1+Wi)*sqr(Rs+Rsh));
+//     end;
+//  for I := 0 to High(RezF) do RezF[i]:=RezF[i]*2;
+//  Result:=True;
+// finally
+// end;
+//end;
+//
+//Function TPhotoDiodLam.SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
+//                     X:TArrSingle):double;
+// var i:integer;
+//     Yi,Zi,Wi,GVI,Z1,Y1,F1,F12,F21,F22,F3,F31,
+//     nkT,W_W1,Rez,
+//     n,Rs,Rsh,Isc,Voc:double;
+//begin
+// Result:=ErResult;
+// n:=X[0];
+// Rs:=X[1];
+// Rsh:=X[3];
+// Isc:=X[2];
+// Voc:=X[4];
+// try
+//  case num of
+//     0:n:=n-al*F;
+//     1:Rs:=Rs-al*F;
+//     3:Rsh:=Rsh-al*F;
+//   end;//case
+//  if ParamIsBad(InputData,X) then  Exit;
+//  nkT:=n*kb*FVariab[0];
+//  GVI:=(exp(Isc*Rs/nkT)-exp(Voc/nkT));
+//  Z1:=Rsh/(Rs+Rsh)*((Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT))+Voc/Rsh);
+//  Y1:=Voc/Rsh+(Isc+(Rs*Isc-Voc)/Rsh)/(1-exp((Rs*Isc-Voc)/nkT));
+//  F1:=exp((Isc*Rs+Voc)/nkT)*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc)/(nkT*n*(Rs+Rsh)*GVI*GVI);
+//  F12:=(exp(2*Voc/nkT)*(Rs+Rsh)*(nkT+Isc*Rs-Voc)+
+//     exp(2*Isc*Rs/nkT)*((nkT-Isc*Rs)*(Rs+Rsh)+Rs*Voc)+
+//     exp((Isc*Rs+Voc)/nkT)*(-2*nkT*(Rs+Rsh)+(Rs*(Isc*Rs-Voc)*(Isc*(Rs+Rsh)-Voc))/nkT+Rsh*Voc))/sqr(GVI);
+//  F21:=(exp(2*Isc*Rs/nkT)*nkT*Voc-exp((Isc*Rs+Voc)/nkT)*
+//      (Isc*(Rs + Rsh)*(Isc*(Rs + Rsh)-Voc)+nkT*Voc))/
+//      (sqr(GVI)*nkT*sqr((Rs + Rsh)));
+//  F22:=(-exp(Voc/nkT)*nkT*(Rs + Rsh) +
+//     exp(Isc*Rs/nkT)*((nkT - Isc*Rs)*(Rs + Rsh) + Rs*Voc))*
+//     (exp(Isc*Rs/nkT)*nkT*(Isc*(Rs + Rsh)*(Rs+Rsh) - Rsh*Voc) +
+//     exp(Voc/nkT)*(-Isc*(nkT + Isc*Rs)*(Rs + Rsh)*(Rs+Rsh) +
+//     (nkT*Rsh + Isc* Rs* (Rs + Rsh))* Voc))/(nkT*Rs*sqr(GVI)*(Isc*(Rs+Rsh)-Voc));
+//  F3:=Voc/(1-exp((Voc-Isc*Rs)/nkT));
+//  F31:=nkT*Voc/(Rs*(Isc-Voc/(Rs+Rsh)));
+//
+//  Rez:=0;
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       Yi:=Rs/nkT*(Isc-Voc/(Rs+Rsh))*exp(-Voc/nkT)/(1-exp((Rs*Isc-Voc)/nkT))*
+//       exp(Rsh*Rs/nkT/(Rs+Rsh)*(InputData^.X[i]/Rs+Y1));
+//       Zi:=InputData^.X[i]/(Rs+Rsh)-Z1+nkT/Rs*Lambert(Yi)-InputData^.Y[i];
+//       Wi:=Lambert(Yi);
+//       if Wi=ErResult then Exit;
+//       W_W1:=Wi/(Wi+1);
+//
+//       case num of
+//        0: Rez:=Rez+Zi/abs(InputData^.Y[i])*(F1+Kb*FVariab[0]/Rs*Wi-
+//                    W_W1/(n*Rs*(Rs+Rsh))*(F12+Rsh*InputData^.X[i]));
+//
+//        1: Rez:=Rez+Zi/abs(InputData^.Y[i])*(-InputData^.X[i]/sqr(Rs+Rsh)+F21-nkT/sqr(Rs)*Wi+
+//                  W_W1/(Rs*sqr(Rs+Rsh))*(F22-Rsh*InputData^.X[i]));
+//
+//        3: Rez:=Rez+Zi/abs(InputData^.Y[i])*(F3-InputData^.X[i]+F31*Wi)/((1+Wi)*sqr(Rs+Rsh));
+//
+//       end; //case
+//     end;
+//  Rez:=2*F*Rez;
+//  Result:=Rez;
+// except
+// end;//try
+//end;
 
 function TPhotoDiodLam.SquareFormDerivate(InputData: TVectorNew; num: byte; al,
   F: double; X: TArrSingle): double;
@@ -4969,7 +4969,7 @@ begin
             ttemp.Y[i]:=temp.Y[temp.HighNumber-i];
           end;
        end
-                else ttemp.Copy(temp);
+                else ttemp.CopyTo(temp);
 
     ttemp.LinAprox(outputData);
     IA[1]:=outputData[0];
@@ -5272,15 +5272,15 @@ begin
   GRSetValueEvType(Component,ToForm);
 end;
 
-Procedure TFitFunctEvolution.TrueFitting (InputData:PVector;var OutputData:TArrSingle);
-begin
-  case fEvType of
-    TMABC:MABCFit (InputData,OutputData);
-    TTLBO:TLBOFit (InputData,OutputData);
-    TPSO: PSOFit (InputData,OutputData);
-    else DEFit (InputData,OutputData);
-  end;
-end;
+//Procedure TFitFunctEvolution.TrueFitting (InputData:PVector;var OutputData:TArrSingle);
+//begin
+//  case fEvType of
+//    TMABC:MABCFit (InputData,OutputData);
+//    TTLBO:TLBOFit (InputData,OutputData);
+//    TPSO: PSOFit (InputData,OutputData);
+//    else DEFit (InputData,OutputData);
+//  end;
+//end;
 
 
 Procedure TFitFunctEvolution.PenaltyFun(var X:TArrSingle);
@@ -5440,17 +5440,17 @@ begin
  end;//try
 end;
 
-Function TFitFunctEvolution.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
- var i:integer;
-begin
-  Result:=0;
-  for I := 0 to High(InputData^.X) do
-     begin
-       fX:=InputData^.X[i];
-       fY:=InputData^.Y[i];
-       Result:=Result+sqr(Summand(OutputData))/Weight(OutputData);
-     end;
-end;
+//Function TFitFunctEvolution.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
+// var i:integer;
+//begin
+//  Result:=0;
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       fX:=InputData^.X[i];
+//       fY:=InputData^.Y[i];
+//       Result:=Result+sqr(Summand(OutputData))/Weight(OutputData);
+//     end;
+//end;
 
 Function TFitFunctEvolution.Summand(OutputData:TArrSingle):double;
 begin
@@ -5573,22 +5573,22 @@ begin
 end;
 
 
-Procedure  TFitFunctEvolution.EvFitInit(InputData:PVector;
-                  var X:TArrArrSingle; var Fit:TArrSingle);
- var i:integer;
-begin
-  i:=0;
-  repeat
-   if (i mod 25)=0 then Randomize;
-     VarRand(X[i]);
-     try
-      Fit[i]:=FitnessFunc(InputData,X[i])
-     except
-      Continue;
-     end;
-    inc(i);
-  until (i>High(X));
-end;
+//Procedure  TFitFunctEvolution.EvFitInit(InputData:PVector;
+//                  var X:TArrArrSingle; var Fit:TArrSingle);
+// var i:integer;
+//begin
+//  i:=0;
+//  repeat
+//   if (i mod 25)=0 then Randomize;
+//     VarRand(X[i]);
+//     try
+//      Fit[i]:=FitnessFunc(InputData,X[i])
+//     except
+//      Continue;
+//     end;
+//    inc(i);
+//  until (i>High(X));
+//end;
 
 Procedure TFitFunctEvolution.EvFitShow(X:TArrArrSingle;
             Fit:TArrSingle; Nit,Nshow:integer);
@@ -5600,441 +5600,441 @@ begin
      end;
 end;
 
-Procedure TFitFunctEvolution.MABCFit (InputData:PVector;var OutputData:TArrSingle);
-var Fit,FitMut,Count,Xnew:TArrSingle;
-    Np,i,j,Nitt,Limit:integer;
-    X:TArrArrSingle;
-    SumFit:double;
-
- Procedure NewSolution(i:integer);
- Label NewSLabel;
- var j,k:integer;
-     r,temp:double;
-     bool:boolean;
- begin
-  NewSLabel:
-  repeat
-   j:=Random(Np);
-  until (j<>i);
-  r:=RandomAB(-1,1);
-  for k := 0 to fNx - 1 do
-     case fXmode[k] of
-      lin:Xnew[k]:=X[i,k]+r*(X[i,k]-X[j,k]);
-      logar:
-          begin
-          temp:=ln(X[i,k])+r*(ln(X[i,k])-ln(X[j,k]));;
-          Xnew[k]:=exp(temp);
-          end;
-      cons:Xnew[k]:=fXValue[k];
-     end;//case Xmode[k] of
-  PenaltyFun(Xnew);
-  bool:=False;
-  try
-   FitMut[i]:=FitnessFunc(InputData,Xnew)
-  except
-   bool:=True
-  end;
-  if bool then goto NewSLabel;
- end; // Procedure NewSolution
-
-begin
-  Limit:=36;
-  Np:=fNx*8;
-  SetLength(X,Np,fNx);
-  SetLength(Fit,Np);
-  SetLength(Count,Np);
-  SetLength(FitMut,Np);
-  SetLength(Xnew,fNx);
-  for i:=0 to High(X) do  Count[i]:=0;
-
-  Nitt:=0;
-  fIterWindow.Caption:='Modified Artificial Bee Colony'+fIterWindow.Caption;
-
-  try
-   EvFitInit(InputData,X,Fit);
-   repeat
-     i:=0;
-     repeat  //Employed bee
-      if (i mod 25)=0 then Randomize;
-      NewSolution(i);
-      if Fit[i]>FitMut[i] then
-       begin
-        X[i]:=Copy(Xnew);
-        Fit[i]:=FitMut[i];
-        Count[i]:=0;
-       end
-                     else
-        Count[i]:=Count[i]+1;
-      inc(i);
-     until (i>(Np-1));  //Employed bee
-
-     SumFit:=0;   //Onlookers bee
-     for I := 0 to Np - 1 do
-       SumFit:=SumFit+1/(1+Fit[i]);
-
-     i:=0;//номер   Onlookers bee
-     j:=0; // номер джерела меду
-     repeat
-       if (i mod 25)=0 then Randomize;
-       if Random<1/(1+Fit[j])/SumFit then
-        begin
-          i:=i+1;
-          NewSolution(j);
-          if Fit[j]>FitMut[j] then
-           begin
-           X[j]:=Copy(Xnew);
-           Fit[j]:=FitMut[j];
-           Count[j]:=0;
-           end
-        end;    // if Random<1/(1+Fit[j])/SumFit then
-       j:=j+1;
-       if j=Np then j:=0;
-     until(i=Np);     //Onlookers bee
-
-     i:=0;
-     repeat   //scout
-      if (i mod 25)=0 then Randomize;
-      j:=MinElemNumber(Fit);
-      if (Count[i]>Limit)and(i<>j) then
-       begin
-        VarRand(X[i]);
-        try
-         Fit[i]:=FitnessFunc(InputData,X[i])
-        except
-         Continue;
-        end;
-        Count[i]:=0;
-       end;// if Count[i]>Limit then
-      inc(i);
-     until i>(Np-1);//scout
-
-     EvFitShow(X,Fit,Nitt,100);
-     inc(Nitt);
-   until (Nitt>fNit)or not(fIterWindow.Visible);
-  finally
-   EndFitting(X[MinElemNumber(Fit)],OutputData);
-  end;//try
-end;
-
-
-Procedure TFitFunctEvolution.PSOFit (InputData:PVector;var OutputData:TArrSingle);
- const
-      C1=2;
-      C2=2;
-      Wmax=0.9;
-      Wmin=0.4;
- var LocBestFit,VelArhiv,XArhiv:TArrSingle;
-     Np,i,j,Nitt,GlobBestNumb,k:integer;
-     X,Vel,LocBestPar:TArrArrSingle;
-     W,temp:double;
-
-begin
- Nitt:=0;
- fIterWindow.Caption:='Particle Swarm Optimization'+fIterWindow.Caption;
- Np:=fNx*15;
- SetLength(X,Np);
- SetLength(LocBestFit,Np);
- SetLength(LocBestPar,Np,fNx);
- SetLength(VelArhiv,fNx);
- SetLength(XArhiv,fNx);
-
- try
-  EvFitInit(InputData,X,LocBestFit);
-  GlobBestNumb:=MinElemNumber(LocBestFit);
-  for I := 0 to High(X) do LocBestPar[i]:=Copy(X[i]);
-  {початкові значення швидкостей}
-  SetLength(Vel,Np,fNx);
-  for I := 0 to Np-1 do
-   for j:= 0 to fNx-1 do Vel[i,j]:=0;
-
-  k:=0;
-  repeat
-   temp:=0;
-   W:=Wmax-(Wmax-Wmin)*Nitt/fNit;
-   i:=0;
-   repeat
-    if (i mod 25)=0 then Randomize;
-    VelArhiv:=Copy(Vel[i]);
-    XArhiv:=Copy(X[i]);
-    for j := 0 to High(fXmode) do
-      case fXmode[j] of
-        lin:VelArhiv[j]:=W*VelArhiv[j]+C1*Random*(LocBestPar[i,j]-X[i,j])+
-                     C2*Random*(LocBestPar[GlobBestNumb,j]-X[i,j]);
-        logar:
-            VelArhiv[j]:=W*VelArhiv[j]+C1*Random*(ln(LocBestPar[i,j])-ln(X[i,j]))+
-                     C2*Random*(ln(LocBestPar[GlobBestNumb,j])-ln(X[i,j]));
-      end; //case fXmode[j] of
-    for j := 0 to High(fXmode) do
-      case fXmode[j] of
-        lin:
-          begin
-            XArhiv[j]:=XArhiv[j]+VelArhiv[j];
-            while(XArhiv[j]>FXmaxlim[j])
-                or(XArhiv[j]<FXminlim[j])do
-              begin
-               if XArhiv[j]>FXmaxlim[j] then
-                  begin
-                   VelArhiv[j]:=FXmaxlim[j]-X[i,j];
-                   temp:=FXmaxlim[j]-Random*X[i,j];
-
-                  end
-                                       else
-                  begin
-                   VelArhiv[j]:=FXminlim[j]-X[i,j];
-                   temp:=FXminlim[j]+Random*X[i,j];
-                  end;
-               if (temp>FXmaxlim[j])
-                  or(temp<FXminlim[j]) then
-                  begin
-                   Continue;
-                  end;
-               XArhiv[j]:=temp;
-              end;//while(XArhiv[j]>FXmaxlim[j]) or(XArhiv[j]<FXminlim[j])
-          end;// lin:
-        logar:
-          begin
-            XArhiv[j]:=ln(XArhiv[j])+VelArhiv[j];
-            while(XArhiv[j]>ln(FXmaxlim[j]))
-                or(XArhiv[j]<ln(FXminlim[j]))do
-              begin
-               if (XArhiv[j]>ln(FXmaxlim[j])) then
-                  begin
-                   VelArhiv[j]:=ln(FXmaxlim[j])-ln(X[i,j]);
-                   temp:=ln(FXmaxlim[j])-RandomAB(-1,1)*ln(X[i,j]);
-                  end
-                                              else
-                  begin
-                    VelArhiv[j]:=ln(FXminlim[j])-ln(X[i,j]);
-                    temp:=ln(FXminlim[j])+RandomAB(-1,1)*ln(X[i,j]);
-                  end;
-               if (temp>ln(FXmaxlim[j]))
-                     or(temp<ln(FXminlim[j])) then Continue;
-               XArhiv[j]:=temp;
-              end;//while(XArhiv[j]>ln(FXmaxlim[j])) or(XArhiv[j]<ln(FXminlim[j]))
-             XArhiv[j]:=exp(XArhiv[j]);
-          end; //logar:
-      end;//case Xmode[j] of
-
-    try
-      temp:=FitnessFunc(InputData,XArhiv)
-    except
-     inc(k);
-     if k>20 then VarRand(X[i]);
-     Continue;
-    end;
-    k:=0;
-    Vel[i]:=Copy(VelArhiv);
-    X[i]:=Copy(XArhiv);
-    if temp<LocBestFit[i] then
-        begin
-         LocBestFit[i]:=temp;
-         LocBestPar[i]:=Copy(X[i]);
-        end;
-    inc(i);
-   until (i>High(X));
-   GlobBestNumb:=MinElemNumber(LocBestFit);
-   EvFitShow(LocBestPar,LocBestFit,Nitt,100);
-   inc(Nitt);
-  until (Nitt>fNit)or not(fIterWindow.Visible);
- finally
-  EndFitting(LocBestPar[MinElemNumber(LocBestFit)],OutputData);
- end;//try
-end;
-
-Procedure TFitFunctEvolution.DEFit (InputData:PVector;var OutputData:TArrSingle);
- const
-      F=0.8;
-      CR=0.3;
- var Fit,FitMut:TArrSingle;
-     Np,i,j,Nitt,k:integer;
-     X,Mut:TArrArrSingle;
-     r:array [1..3] of integer;
-     temp:double;
-begin
- Nitt:=0;
- fIterWindow.Caption:='Differential Evolution'+fIterWindow.Caption;
- Np:=fNx*8;
- SetLength(X,Np,fNx);
- SetLength(Mut,Np,fNx);
- SetLength(Fit,Np);
- SetLength(FitMut,Np);
-
- try
-  EvFitInit(InputData,X,Fit);
-  repeat
-    i:=0;
-    repeat  //Вектор мутації
-     if (i mod 25)=0 then Randomize;
-     for j := 1 to 3 do
-        repeat
-          r[j]:=Random(Np);
-        until (r[j]<>i);
-     for k := 0 to High(fXmode) do
-        case fXmode[k] of
-          lin:Mut[i,k]:=X[r[1],k]+F*(X[r[2],k]-X[r[3],k]);
-          logar:
-            begin
-             temp:=ln(X[r[1],k])+F*(ln(X[r[2],k])-ln(X[r[3],k]));;
-             Mut[i,k]:=exp(temp);
-            end;
-          cons:Mut[i,k]:=fXvalue[k];
-        end;//case fXmode[k] of
-     PenaltyFun(Mut[i]);
-     try
-      FitnessFunc(InputData,Mut[i])
-     except
-      Continue;
-     end;
-     inc(i);
-    until (i>High(Mut));  //Вектор мутації
-
-    i:=0;
-    repeat  //Пробні вектори
-       if (i mod 25)=0 then Randomize;
-       r[2]:=Random(fNx); //randn(i)
-       for k := 0 to High(fXmode)do
-        case fXmode[k] of
-          lin,logar:
-            if (Random>CR) and (k<>r[2]) then Mut[i,k]:=X[i,k];
-        end;//case Xmode[k] of
-       PenaltyFun(Mut[i]);
-       try
-        FitMut[i]:=FitnessFunc(InputData,Mut[i])
-       except
-        Continue;
-       end;
-       inc(i);
-    until i>(Np-1);
-
-    for I := 0 to High(X) do
-     if Fit[i]>FitMut[i] then
-       begin
-        X[i]:=Copy(Mut[i]);
-        Fit[i]:=FitMut[i]
-       end;
-
-    EvFitShow(X,Fit,Nitt,100);
-    inc(Nitt);
-//    HelpForMe(inttostr(Nitt));
-  until (Nitt>fNit)or not(fIterWindow.Visible);
- finally
-  EndFitting(X[MinElemNumber(Fit)],OutputData);
- end;//try
-end;
-
-Procedure TFitFunctEvolution.TLBOFit (InputData:PVector;var OutputData:TArrSingle);
- var X:PClassroom;
-     Fit:PTArrSingle;
-     Xmean,Xnew:TArrSingle;
-     i,j,Nitt,Tf,k,Nl:integer;
-     temp,r:double;
-begin
- Nitt:=0;
- fIterWindow.Caption:='Teaching Learning Based Optimization'+fIterWindow.Caption;
- Nl:=1000;
- SetLength(Xmean,fNx);
- SetLength(Xnew,fNx);
- new(X);
- SetLength(X^,Nl,fNx);
- new(Fit);
- SetLength(Fit^,Nl);
- try
-  EvFitInit(InputData,X^,Fit^);
-  temp:=1e10;
-  repeat
-  //----------Teacher phase--------------
-    for I := 0 to High(Xmean) do Xmean[i]:=0;
-    j:=MaxElemNumber(Fit^);
-    for I := 0 to Nl-1 do
-      begin
-        for k := 0 to High(fXmode) do
-            case fXmode[k] of
-              lin:Xmean[k]:=Xmean[k]+X^[i,k];
-              logar:Xmean[k]:=Xmean[k]+ln(X^[i,k]);
-            end;
-      end;  //for I := 0 to Nl-1 do
-    for k := 0 to High(fXmode) do
-      case fXmode[k] of
-         lin,logar:Xmean[k]:=Xmean[k]/Nl;
-         cons:Xmean[k]:=fXvalue[k];
-      end;
-    i:=0;
-    repeat
-      if (i mod 25)=0 then Randomize;
-      if i=j then
-        begin
-          inc(i);
-          Continue;
-        end;
-      r:=Random;
-      Tf:=1+Random(2);
-      for k := 0 to High(fXmode) do
-        case fXmode[k] of
-          lin:Xnew[k]:=X^[i,k]+r*(X^[j,k]-Tf*Xmean[k]);
-          logar:
-            begin
-             temp:=ln(X^[i,k])+r*(ln(X^[j,k])-Tf*Xmean[k]);
-             Xnew[k]:=exp(temp);
-            end;
-          cons:Xnew[k]:=fXvalue[k];
-        end;
-      PenaltyFun(Xnew);
-      try
-       temp:=FitnessFunc(InputData,Xnew)
-      except
-       Continue;
-      end;
-      if Fit^[i]>temp then
-          begin
-           for k := 0 to High(Xnew) do X^[i,k]:=Xnew[k];
-           Fit^[i]:=temp;
-          end;
-      inc(i);
-    until i>High(Fit^);
-
-  //----------Learner phase--------------
-    i:=0;
-    repeat
-      if (i mod 25)=0 then Randomize;
-      r:=Random;
-      repeat
-       Tf:=Random(Nl);
-      until (Tf<>i);
-      if Fit^[i]>Fit^[Tf] then r:=-1*r;
-      for k := 0 to High(fXmode) do
-       case fXmode[k] of
-         lin:Xnew[k]:=X^[i,k]+r*(X^[i,k]-X^[Tf,k]);
-         logar:
-            begin
-             temp:=ln(X^[i,k])+r*(ln(X^[j,k])-ln(X^[Tf,k]));
-             Xnew[k]:=exp(temp);
-            end;
-         cons:Xnew[k]:=fXvalue[k];
-       end;//case
-
-      PenaltyFun(Xnew);
-      try
-       temp:=FitnessFunc(InputData,Xnew)
-      except
-       Continue;
-      end;
-      if Fit^[i]>temp then
-          begin
-           for k := 0 to High(Xnew) do X^[i,k]:=Xnew[k];
-           Fit^[i]:=temp;
-          end;
-      inc(i);
-    until i>High(Fit^);
-    EvFitShow(X^,Fit^,Nitt,25);
-    inc(Nitt);
-  until (Nitt>Nit)or not(fIterWindow.Visible);
- finally
-  EndFitting(X^[MinElemNumber(Fit^)],OutputData);
-  dispose(X);
-  dispose(Fit);
- end;//try
-end;
-
+//Procedure TFitFunctEvolution.MABCFit (InputData:PVector;var OutputData:TArrSingle);
+//var Fit,FitMut,Count,Xnew:TArrSingle;
+//    Np,i,j,Nitt,Limit:integer;
+//    X:TArrArrSingle;
+//    SumFit:double;
+//
+// Procedure NewSolution(i:integer);
+// Label NewSLabel;
+// var j,k:integer;
+//     r,temp:double;
+//     bool:boolean;
+// begin
+//  NewSLabel:
+//  repeat
+//   j:=Random(Np);
+//  until (j<>i);
+//  r:=RandomAB(-1,1);
+//  for k := 0 to fNx - 1 do
+//     case fXmode[k] of
+//      lin:Xnew[k]:=X[i,k]+r*(X[i,k]-X[j,k]);
+//      logar:
+//          begin
+//          temp:=ln(X[i,k])+r*(ln(X[i,k])-ln(X[j,k]));;
+//          Xnew[k]:=exp(temp);
+//          end;
+//      cons:Xnew[k]:=fXValue[k];
+//     end;//case Xmode[k] of
+//  PenaltyFun(Xnew);
+//  bool:=False;
+//  try
+//   FitMut[i]:=FitnessFunc(InputData,Xnew)
+//  except
+//   bool:=True
+//  end;
+//  if bool then goto NewSLabel;
+// end; // Procedure NewSolution
+//
+//begin
+//  Limit:=36;
+//  Np:=fNx*8;
+//  SetLength(X,Np,fNx);
+//  SetLength(Fit,Np);
+//  SetLength(Count,Np);
+//  SetLength(FitMut,Np);
+//  SetLength(Xnew,fNx);
+//  for i:=0 to High(X) do  Count[i]:=0;
+//
+//  Nitt:=0;
+//  fIterWindow.Caption:='Modified Artificial Bee Colony'+fIterWindow.Caption;
+//
+//  try
+//   EvFitInit(InputData,X,Fit);
+//   repeat
+//     i:=0;
+//     repeat  //Employed bee
+//      if (i mod 25)=0 then Randomize;
+//      NewSolution(i);
+//      if Fit[i]>FitMut[i] then
+//       begin
+//        X[i]:=Copy(Xnew);
+//        Fit[i]:=FitMut[i];
+//        Count[i]:=0;
+//       end
+//                     else
+//        Count[i]:=Count[i]+1;
+//      inc(i);
+//     until (i>(Np-1));  //Employed bee
+//
+//     SumFit:=0;   //Onlookers bee
+//     for I := 0 to Np - 1 do
+//       SumFit:=SumFit+1/(1+Fit[i]);
+//
+//     i:=0;//номер   Onlookers bee
+//     j:=0; // номер джерела меду
+//     repeat
+//       if (i mod 25)=0 then Randomize;
+//       if Random<1/(1+Fit[j])/SumFit then
+//        begin
+//          i:=i+1;
+//          NewSolution(j);
+//          if Fit[j]>FitMut[j] then
+//           begin
+//           X[j]:=Copy(Xnew);
+//           Fit[j]:=FitMut[j];
+//           Count[j]:=0;
+//           end
+//        end;    // if Random<1/(1+Fit[j])/SumFit then
+//       j:=j+1;
+//       if j=Np then j:=0;
+//     until(i=Np);     //Onlookers bee
+//
+//     i:=0;
+//     repeat   //scout
+//      if (i mod 25)=0 then Randomize;
+//      j:=MinElemNumber(Fit);
+//      if (Count[i]>Limit)and(i<>j) then
+//       begin
+//        VarRand(X[i]);
+//        try
+//         Fit[i]:=FitnessFunc(InputData,X[i])
+//        except
+//         Continue;
+//        end;
+//        Count[i]:=0;
+//       end;// if Count[i]>Limit then
+//      inc(i);
+//     until i>(Np-1);//scout
+//
+//     EvFitShow(X,Fit,Nitt,100);
+//     inc(Nitt);
+//   until (Nitt>fNit)or not(fIterWindow.Visible);
+//  finally
+//   EndFitting(X[MinElemNumber(Fit)],OutputData);
+//  end;//try
+//end;
+//
+//
+//Procedure TFitFunctEvolution.PSOFit (InputData:PVector;var OutputData:TArrSingle);
+// const
+//      C1=2;
+//      C2=2;
+//      Wmax=0.9;
+//      Wmin=0.4;
+// var LocBestFit,VelArhiv,XArhiv:TArrSingle;
+//     Np,i,j,Nitt,GlobBestNumb,k:integer;
+//     X,Vel,LocBestPar:TArrArrSingle;
+//     W,temp:double;
+//
+//begin
+// Nitt:=0;
+// fIterWindow.Caption:='Particle Swarm Optimization'+fIterWindow.Caption;
+// Np:=fNx*15;
+// SetLength(X,Np);
+// SetLength(LocBestFit,Np);
+// SetLength(LocBestPar,Np,fNx);
+// SetLength(VelArhiv,fNx);
+// SetLength(XArhiv,fNx);
+//
+// try
+//  EvFitInit(InputData,X,LocBestFit);
+//  GlobBestNumb:=MinElemNumber(LocBestFit);
+//  for I := 0 to High(X) do LocBestPar[i]:=Copy(X[i]);
+//  {початкові значення швидкостей}
+//  SetLength(Vel,Np,fNx);
+//  for I := 0 to Np-1 do
+//   for j:= 0 to fNx-1 do Vel[i,j]:=0;
+//
+//  k:=0;
+//  repeat
+//   temp:=0;
+//   W:=Wmax-(Wmax-Wmin)*Nitt/fNit;
+//   i:=0;
+//   repeat
+//    if (i mod 25)=0 then Randomize;
+//    VelArhiv:=Copy(Vel[i]);
+//    XArhiv:=Copy(X[i]);
+//    for j := 0 to High(fXmode) do
+//      case fXmode[j] of
+//        lin:VelArhiv[j]:=W*VelArhiv[j]+C1*Random*(LocBestPar[i,j]-X[i,j])+
+//                     C2*Random*(LocBestPar[GlobBestNumb,j]-X[i,j]);
+//        logar:
+//            VelArhiv[j]:=W*VelArhiv[j]+C1*Random*(ln(LocBestPar[i,j])-ln(X[i,j]))+
+//                     C2*Random*(ln(LocBestPar[GlobBestNumb,j])-ln(X[i,j]));
+//      end; //case fXmode[j] of
+//    for j := 0 to High(fXmode) do
+//      case fXmode[j] of
+//        lin:
+//          begin
+//            XArhiv[j]:=XArhiv[j]+VelArhiv[j];
+//            while(XArhiv[j]>FXmaxlim[j])
+//                or(XArhiv[j]<FXminlim[j])do
+//              begin
+//               if XArhiv[j]>FXmaxlim[j] then
+//                  begin
+//                   VelArhiv[j]:=FXmaxlim[j]-X[i,j];
+//                   temp:=FXmaxlim[j]-Random*X[i,j];
+//
+//                  end
+//                                       else
+//                  begin
+//                   VelArhiv[j]:=FXminlim[j]-X[i,j];
+//                   temp:=FXminlim[j]+Random*X[i,j];
+//                  end;
+//               if (temp>FXmaxlim[j])
+//                  or(temp<FXminlim[j]) then
+//                  begin
+//                   Continue;
+//                  end;
+//               XArhiv[j]:=temp;
+//              end;//while(XArhiv[j]>FXmaxlim[j]) or(XArhiv[j]<FXminlim[j])
+//          end;// lin:
+//        logar:
+//          begin
+//            XArhiv[j]:=ln(XArhiv[j])+VelArhiv[j];
+//            while(XArhiv[j]>ln(FXmaxlim[j]))
+//                or(XArhiv[j]<ln(FXminlim[j]))do
+//              begin
+//               if (XArhiv[j]>ln(FXmaxlim[j])) then
+//                  begin
+//                   VelArhiv[j]:=ln(FXmaxlim[j])-ln(X[i,j]);
+//                   temp:=ln(FXmaxlim[j])-RandomAB(-1,1)*ln(X[i,j]);
+//                  end
+//                                              else
+//                  begin
+//                    VelArhiv[j]:=ln(FXminlim[j])-ln(X[i,j]);
+//                    temp:=ln(FXminlim[j])+RandomAB(-1,1)*ln(X[i,j]);
+//                  end;
+//               if (temp>ln(FXmaxlim[j]))
+//                     or(temp<ln(FXminlim[j])) then Continue;
+//               XArhiv[j]:=temp;
+//              end;//while(XArhiv[j]>ln(FXmaxlim[j])) or(XArhiv[j]<ln(FXminlim[j]))
+//             XArhiv[j]:=exp(XArhiv[j]);
+//          end; //logar:
+//      end;//case Xmode[j] of
+//
+//    try
+//      temp:=FitnessFunc(InputData,XArhiv)
+//    except
+//     inc(k);
+//     if k>20 then VarRand(X[i]);
+//     Continue;
+//    end;
+//    k:=0;
+//    Vel[i]:=Copy(VelArhiv);
+//    X[i]:=Copy(XArhiv);
+//    if temp<LocBestFit[i] then
+//        begin
+//         LocBestFit[i]:=temp;
+//         LocBestPar[i]:=Copy(X[i]);
+//        end;
+//    inc(i);
+//   until (i>High(X));
+//   GlobBestNumb:=MinElemNumber(LocBestFit);
+//   EvFitShow(LocBestPar,LocBestFit,Nitt,100);
+//   inc(Nitt);
+//  until (Nitt>fNit)or not(fIterWindow.Visible);
+// finally
+//  EndFitting(LocBestPar[MinElemNumber(LocBestFit)],OutputData);
+// end;//try
+//end;
+//
+//Procedure TFitFunctEvolution.DEFit (InputData:PVector;var OutputData:TArrSingle);
+// const
+//      F=0.8;
+//      CR=0.3;
+// var Fit,FitMut:TArrSingle;
+//     Np,i,j,Nitt,k:integer;
+//     X,Mut:TArrArrSingle;
+//     r:array [1..3] of integer;
+//     temp:double;
+//begin
+// Nitt:=0;
+// fIterWindow.Caption:='Differential Evolution'+fIterWindow.Caption;
+// Np:=fNx*8;
+// SetLength(X,Np,fNx);
+// SetLength(Mut,Np,fNx);
+// SetLength(Fit,Np);
+// SetLength(FitMut,Np);
+//
+// try
+//  EvFitInit(InputData,X,Fit);
+//  repeat
+//    i:=0;
+//    repeat  //Вектор мутації
+//     if (i mod 25)=0 then Randomize;
+//     for j := 1 to 3 do
+//        repeat
+//          r[j]:=Random(Np);
+//        until (r[j]<>i);
+//     for k := 0 to High(fXmode) do
+//        case fXmode[k] of
+//          lin:Mut[i,k]:=X[r[1],k]+F*(X[r[2],k]-X[r[3],k]);
+//          logar:
+//            begin
+//             temp:=ln(X[r[1],k])+F*(ln(X[r[2],k])-ln(X[r[3],k]));;
+//             Mut[i,k]:=exp(temp);
+//            end;
+//          cons:Mut[i,k]:=fXvalue[k];
+//        end;//case fXmode[k] of
+//     PenaltyFun(Mut[i]);
+//     try
+//      FitnessFunc(InputData,Mut[i])
+//     except
+//      Continue;
+//     end;
+//     inc(i);
+//    until (i>High(Mut));  //Вектор мутації
+//
+//    i:=0;
+//    repeat  //Пробні вектори
+//       if (i mod 25)=0 then Randomize;
+//       r[2]:=Random(fNx); //randn(i)
+//       for k := 0 to High(fXmode)do
+//        case fXmode[k] of
+//          lin,logar:
+//            if (Random>CR) and (k<>r[2]) then Mut[i,k]:=X[i,k];
+//        end;//case Xmode[k] of
+//       PenaltyFun(Mut[i]);
+//       try
+//        FitMut[i]:=FitnessFunc(InputData,Mut[i])
+//       except
+//        Continue;
+//       end;
+//       inc(i);
+//    until i>(Np-1);
+//
+//    for I := 0 to High(X) do
+//     if Fit[i]>FitMut[i] then
+//       begin
+//        X[i]:=Copy(Mut[i]);
+//        Fit[i]:=FitMut[i]
+//       end;
+//
+//    EvFitShow(X,Fit,Nitt,100);
+//    inc(Nitt);
+////    HelpForMe(inttostr(Nitt));
+//  until (Nitt>fNit)or not(fIterWindow.Visible);
+// finally
+//  EndFitting(X[MinElemNumber(Fit)],OutputData);
+// end;//try
+//end;
+//
+//Procedure TFitFunctEvolution.TLBOFit (InputData:PVector;var OutputData:TArrSingle);
+// var X:PClassroom;
+//     Fit:PTArrSingle;
+//     Xmean,Xnew:TArrSingle;
+//     i,j,Nitt,Tf,k,Nl:integer;
+//     temp,r:double;
+//begin
+// Nitt:=0;
+// fIterWindow.Caption:='Teaching Learning Based Optimization'+fIterWindow.Caption;
+// Nl:=1000;
+// SetLength(Xmean,fNx);
+// SetLength(Xnew,fNx);
+// new(X);
+// SetLength(X^,Nl,fNx);
+// new(Fit);
+// SetLength(Fit^,Nl);
+// try
+//  EvFitInit(InputData,X^,Fit^);
+//  temp:=1e10;
+//  repeat
+//  //----------Teacher phase--------------
+//    for I := 0 to High(Xmean) do Xmean[i]:=0;
+//    j:=MaxElemNumber(Fit^);
+//    for I := 0 to Nl-1 do
+//      begin
+//        for k := 0 to High(fXmode) do
+//            case fXmode[k] of
+//              lin:Xmean[k]:=Xmean[k]+X^[i,k];
+//              logar:Xmean[k]:=Xmean[k]+ln(X^[i,k]);
+//            end;
+//      end;  //for I := 0 to Nl-1 do
+//    for k := 0 to High(fXmode) do
+//      case fXmode[k] of
+//         lin,logar:Xmean[k]:=Xmean[k]/Nl;
+//         cons:Xmean[k]:=fXvalue[k];
+//      end;
+//    i:=0;
+//    repeat
+//      if (i mod 25)=0 then Randomize;
+//      if i=j then
+//        begin
+//          inc(i);
+//          Continue;
+//        end;
+//      r:=Random;
+//      Tf:=1+Random(2);
+//      for k := 0 to High(fXmode) do
+//        case fXmode[k] of
+//          lin:Xnew[k]:=X^[i,k]+r*(X^[j,k]-Tf*Xmean[k]);
+//          logar:
+//            begin
+//             temp:=ln(X^[i,k])+r*(ln(X^[j,k])-Tf*Xmean[k]);
+//             Xnew[k]:=exp(temp);
+//            end;
+//          cons:Xnew[k]:=fXvalue[k];
+//        end;
+//      PenaltyFun(Xnew);
+//      try
+//       temp:=FitnessFunc(InputData,Xnew)
+//      except
+//       Continue;
+//      end;
+//      if Fit^[i]>temp then
+//          begin
+//           for k := 0 to High(Xnew) do X^[i,k]:=Xnew[k];
+//           Fit^[i]:=temp;
+//          end;
+//      inc(i);
+//    until i>High(Fit^);
+//
+//  //----------Learner phase--------------
+//    i:=0;
+//    repeat
+//      if (i mod 25)=0 then Randomize;
+//      r:=Random;
+//      repeat
+//       Tf:=Random(Nl);
+//      until (Tf<>i);
+//      if Fit^[i]>Fit^[Tf] then r:=-1*r;
+//      for k := 0 to High(fXmode) do
+//       case fXmode[k] of
+//         lin:Xnew[k]:=X^[i,k]+r*(X^[i,k]-X^[Tf,k]);
+//         logar:
+//            begin
+//             temp:=ln(X^[i,k])+r*(ln(X^[j,k])-ln(X^[Tf,k]));
+//             Xnew[k]:=exp(temp);
+//            end;
+//         cons:Xnew[k]:=fXvalue[k];
+//       end;//case
+//
+//      PenaltyFun(Xnew);
+//      try
+//       temp:=FitnessFunc(InputData,Xnew)
+//      except
+//       Continue;
+//      end;
+//      if Fit^[i]>temp then
+//          begin
+//           for k := 0 to High(Xnew) do X^[i,k]:=Xnew[k];
+//           Fit^[i]:=temp;
+//          end;
+//      inc(i);
+//    until i>High(Fit^);
+//    EvFitShow(X^,Fit^,Nitt,25);
+//    inc(Nitt);
+//  until (Nitt>Nit)or not(fIterWindow.Visible);
+// finally
+//  EndFitting(X^[MinElemNumber(Fit^)],OutputData);
+//  dispose(X);
+//  dispose(Fit);
+// end;//try
+//end;
+//
 
 procedure TFitFunctEvolution.TLBOFit(InputData: TVectorNew;
   var OutputData: TArrSingle);
@@ -6222,34 +6222,34 @@ begin
                  DeterminedParameters[1],DeterminedParameters[2]],DeterminedParameters[3]);
 end;
 
-procedure TTunRevers.BeforeFitness(InputData: Pvector);
-begin
-  inherited BeforeFitness(InputData);;
-//  FXmode[0]:=cons;
-
-// init
-//  FXvalue[0]:=
-//  exp(-2.1991855-0.0137213*InputData^.T);
-
-  // UST3an
-//  FXvalue[0]:=
-//  exp(5.5610464-0.0354045*InputData^.T);
-//  exp(1.3006748-0.0226845*InputData^.T);
-
-
-  // UST1
-//  FXvalue[0]:=
-//  exp(-2.2835525-0.0154696*InputData^.T);
-
-    // UST2
-//  FXvalue[0]:=
-//  exp(-5.1670493-0.004438*InputData^.T);
-
-    // UST3
-//  FXvalue[0]:=
-//  exp(1.3989381-0.0186924*InputData^.T);
-
-end;
+//procedure TTunRevers.BeforeFitness(InputData: Pvector);
+//begin
+//  inherited BeforeFitness(InputData);;
+////  FXmode[0]:=cons;
+//
+//// init
+////  FXvalue[0]:=
+////  exp(-2.1991855-0.0137213*InputData^.T);
+//
+//  // UST3an
+////  FXvalue[0]:=
+////  exp(5.5610464-0.0354045*InputData^.T);
+////  exp(1.3006748-0.0226845*InputData^.T);
+//
+//
+//  // UST1
+////  FXvalue[0]:=
+////  exp(-2.2835525-0.0154696*InputData^.T);
+//
+//    // UST2
+////  FXvalue[0]:=
+////  exp(-5.1670493-0.004438*InputData^.T);
+//
+//    // UST3
+////  FXvalue[0]:=
+////  exp(1.3989381-0.0186924*InputData^.T);
+//
+//end;
 
 procedure TTunRevers.BeforeFitness(InputData: TVectorNew);
 begin
@@ -6449,44 +6449,44 @@ begin
  Result:=sqr(fY);
 end;
 
-procedure TPhotoDiodTun.AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle);
-begin
-  inherited;
-  OutputData[FNx]:=ErResult;
-  OutputData[FNx+1]:=ErResult;
-  OutputData[FNx+2]:=ErResult;
-  OutputData[FNx+3]:=ErResult;
-  OutputData[FNx+5]:=ErResult;
-  if (OutputData[4]>Isc_min) then
-    begin
-//     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnel,
+//procedure TPhotoDiodTun.AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle);
+//begin
+//  inherited;
+//  OutputData[FNx]:=ErResult;
+//  OutputData[FNx+1]:=ErResult;
+//  OutputData[FNx+2]:=ErResult;
+//  OutputData[FNx+3]:=ErResult;
+//  OutputData[FNx+5]:=ErResult;
+//  if (OutputData[4]>Isc_min) then
+//    begin
+////     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnel,
+////                                     [OutputData[0],OutputData[1],
+////                                      OutputData[2]],OutputData[3],OutputData[4]);
+////     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnel,
+////                                     [OutputData[0],OutputData[1],
+////                                      OutputData[2]],OutputData[3],OutputData[4]);
+//     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnelLight,
 //                                     [OutputData[0],OutputData[1],
-//                                      OutputData[2]],OutputData[3],OutputData[4]);
-//     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnel,
+//                                      OutputData[2],OutputData[4]],OutputData[3]);
+//     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnelLight,
 //                                     [OutputData[0],OutputData[1],
-//                                      OutputData[2]],OutputData[3],OutputData[4]);
-     OutputData[5]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTunnelLight,
-                                     [OutputData[0],OutputData[1],
-                                      OutputData[2],OutputData[4]],OutputData[3]);
-     OutputData[6]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTunnelLight,
-                                     [OutputData[0],OutputData[1],
-                                      OutputData[2],OutputData[4]],OutputData[3]);
-    end;
-  if (OutputData[FNx]>Voc_min)and
-     (OutputData[FNx+1]>Isc_min)and
-     (OutputData[FNx]<>ErResult)and
-     (OutputData[FNx+1]<>ErResult) then
-    begin
-//     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnel,
+//                                      OutputData[2],OutputData[4]],OutputData[3]);
+//    end;
+//  if (OutputData[FNx]>Voc_min)and
+//     (OutputData[FNx+1]>Isc_min)and
+//     (OutputData[FNx]<>ErResult)and
+//     (OutputData[FNx+1]<>ErResult) then
+//    begin
+////     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnel,
+////                                     [OutputData[0],OutputData[1],
+////                                      OutputData[2]],OutputData[3],OutputData[4]);
+//     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnelLight,
 //                                     [OutputData[0],OutputData[1],
-//                                      OutputData[2]],OutputData[3],OutputData[4]);
-     OutputData[7]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTunnelLight,
-                                     [OutputData[0],OutputData[1],
-                                      OutputData[2],OutputData[4]],OutputData[3]);
-     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
-    end;
-end;
+//                                      OutputData[2],OutputData[4]],OutputData[3]);
+//     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+//    end;
+//end;
 
 
 Constructor TDiodTwo.Create;
@@ -6800,54 +6800,54 @@ begin
   end;
 end;
 
-Function TDoubleDiodAbstract.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
- var i:integer;
-//     tempI:PVector;
-begin
-  Result:=0;
-
-    for I := 0 to High(InputData^.X) do
-     begin
-       fX:=InputData^.X[i];
-       fY:=InputData^.Y[i];
-       if fIsPhotoDiod then
-          Result:=Result+abs(Summand(OutputData)/(fY+OutputData[6]))
-                       else
-          Result:=Result+abs(Summand(OutputData)/fy);
-     end;
-
-{цільова функція базується на різниці площ під
-кривими, відносній та абсолютній}
-//  new(tempI);
-//  tempI.SetLenVector(InputData^.n);
-//  for I := 0 to High(InputData^.X) do
+//Function TDoubleDiodAbstract.FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;
+// var i:integer;
+////     tempI:PVector;
+//begin
+//  Result:=0;
+//
+//    for I := 0 to High(InputData^.X) do
 //     begin
 //       fX:=InputData^.X[i];
 //       fY:=InputData^.Y[i];
-//       tempI.Y[i]:=Func(OutputData);
-//       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+//       if fIsPhotoDiod then
+//          Result:=Result+abs(Summand(OutputData)/(fY+OutputData[6]))
+//                       else
+//          Result:=Result+abs(Summand(OutputData)/fy);
 //     end;
-//  for I := 0 to High(InputData^.X)-1 do
-//   begin
-//        if tempI.X[i]*tempI.X[i+1]<0 then
-//         Result:=Result+abs((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
-//                  abs(tempI.X[i+1]-tempI.X[i])
-//                  /(InputData^.Y[i+1]-InputData^.Y[i]))
-//                                     else
-//         Result:=Result+abs((tempI.X[i]+tempI.X[i+1])
-//                   /(InputData^.Y[i+1]-InputData^.Y[i]));
 //
+//{цільова функція базується на різниці площ під
+//кривими, відносній та абсолютній}
+////  new(tempI);
+////  tempI.SetLenVector(InputData^.n);
+////  for I := 0 to High(InputData^.X) do
+////     begin
+////       fX:=InputData^.X[i];
+////       fY:=InputData^.Y[i];
+////       tempI.Y[i]:=Func(OutputData);
+////       tempI.X[i]:=tempI.Y[i]-InputData^.Y[i];
+////     end;
+////  for I := 0 to High(InputData^.X)-1 do
+////   begin
+////        if tempI.X[i]*tempI.X[i+1]<0 then
+////         Result:=Result+abs((sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+////                  abs(tempI.X[i+1]-tempI.X[i])
+////                  /(InputData^.Y[i+1]-InputData^.Y[i]))
+////                                     else
+////         Result:=Result+abs((tempI.X[i]+tempI.X[i+1])
+////                   /(InputData^.Y[i+1]-InputData^.Y[i]));
 ////
-//////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
-//////                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
-//////                         abs(tempI.X[i+1]-tempI.X[i]))
-////////                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
-//////                                     else
-//////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
-//////                        (tempI.X[i]+tempI.X[i+1]));
-//    end;
-//  dispose(tempI);
-end;
+//////
+////////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+////////                         (sqr(tempI.X[i])+sqr(tempI.X[i+1]))/
+////////                         abs(tempI.X[i+1]-tempI.X[i]))
+//////////                         (abs(tempI.X[i])+abs(tempI.X[i+1])))
+////////                                     else
+////////         Result:=Result+abs((InputData^.X[i+1]-InputData^.X[i])/2*
+////////                        (tempI.X[i]+tempI.X[i+1]));
+////    end;
+////  dispose(tempI);
+//end;
 
 function TDoubleDiodAbstract.FitnessFunc(InputData: TVectorNew;
   OutputData: TArrSingle): double;
@@ -6919,105 +6919,105 @@ begin
                  DeterminedParameters[3],Isc);
 end;
 
-Procedure TDoubleDiodAbstract.BeforeFitness(InputData:Pvector);
-
-begin
-  inherited BeforeFitness(InputData);
-//  FXmode[3]:=cons;
-//  FXvalue[3]:=
-//  465322.06312-2560.90172*InputData^.T
-//              +3.51936*InputData^.T*InputData^.T;
-//SC11,ud4-ud5 new
-
-//  660671.43474-3748.91622*InputData^.T
-//              +5.3318*InputData^.T*InputData^.T;
-//SC11,d2-d5 new
-
-//  919141.44464-5356.56852*InputData^.T
-//              +7.83626*InputData^.T*InputData^.T;
-//SC11,d1,ud1 new
-
-
-//  472756.82001-2721.61113*InputData^.T
-//              +3.93081*InputData^.T*InputData^.T;
-//SC11,udark new
-
-
-//  410163.6713-2296.92381*InputData^.T
-//              +3.2296*InputData^.T*InputData^.T;
-//SC11,dark new
-
-
-
-
-//  18927.42946-197.25815*InputData^.T
-//              +0.69134*InputData^.T*InputData^.T
-//             -7.87913E-4*InputData^.T*InputData^.T*InputData^.T;
-//SC8,dark
-
-
-
-//  18060.96578-184.95448*InputData^.T
-//              +0.63811*InputData^.T*InputData^.T
-//             -7.15121E-4*InputData^.T*InputData^.T*InputData^.T;
-//SC8,d1-d6
-
-
-//  -10897.85016+93.22157*InputData^.T
-//              -0.25296*InputData^.T*InputData^.T
-//              +2.26949E-4*InputData^.T*InputData^.T*InputData^.T;
-//SC12,udark
-
-
-//  10786.04599-109.07446*InputData^.T
-//              +0.37268*InputData^.T*InputData^.T
-//             -4.13941E-4*InputData^.T*InputData^.T*InputData^.T;
-//SC12,dark
-
-
-//  -17097.35067+159.37431*InputData^.T
-//              -0.4887*InputData^.T*InputData^.T
-//             +5.07437E-4*InputData^.T*InputData^.T*InputData^.T;
-//SC12,ud
-
-//  51514.7-494.388*InputData^.T
-//              +1.58592*InputData^.T*InputData^.T
-//             -0.00168533*InputData^.T*InputData^.T*InputData^.T;
-//SC12,d
-
-//  313955.48805-2878.35512*InputData^.T
-//              +8.88596*InputData^.T*InputData^.T
-//             -0.0092*InputData^.T*InputData^.T*InputData^.T;
-//SC4,Ru3
-
-
-//  -13022.75173+106.85001*InputData^.T
-//              -0.19438*InputData^.T*InputData^.T;
-//SC4,Ru2
-
-
-//  -45638.9+475.334*InputData^.T
-//              -1.52424*InputData^.T*InputData^.T
-//             +0.00156349*InputData^.T*InputData^.T*InputData^.T;
-//SC4,Rdark
-
-//  264319-2481.35*InputData^.T
-//              +7.88726*InputData^.T*InputData^.T
-//             -0.00842522*InputData^.T*InputData^.T*InputData^.T;
-//SC4,d1d2
-
-//           1e12;
-//SC17
-
-//  1.22474E7-105746.87906*InputData^.T
-//              +307.12012*InputData^.T*InputData^.T
-//             -0.29993*InputData^.T*InputData^.T*InputData^.T;
-//SC13
-
-//  FXmode[2]:=cons;
-//  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
-
-end;
+//Procedure TDoubleDiodAbstract.BeforeFitness(InputData:Pvector);
+//
+//begin
+//  inherited BeforeFitness(InputData);
+////  FXmode[3]:=cons;
+////  FXvalue[3]:=
+////  465322.06312-2560.90172*InputData^.T
+////              +3.51936*InputData^.T*InputData^.T;
+////SC11,ud4-ud5 new
+//
+////  660671.43474-3748.91622*InputData^.T
+////              +5.3318*InputData^.T*InputData^.T;
+////SC11,d2-d5 new
+//
+////  919141.44464-5356.56852*InputData^.T
+////              +7.83626*InputData^.T*InputData^.T;
+////SC11,d1,ud1 new
+//
+//
+////  472756.82001-2721.61113*InputData^.T
+////              +3.93081*InputData^.T*InputData^.T;
+////SC11,udark new
+//
+//
+////  410163.6713-2296.92381*InputData^.T
+////              +3.2296*InputData^.T*InputData^.T;
+////SC11,dark new
+//
+//
+//
+//
+////  18927.42946-197.25815*InputData^.T
+////              +0.69134*InputData^.T*InputData^.T
+////             -7.87913E-4*InputData^.T*InputData^.T*InputData^.T;
+////SC8,dark
+//
+//
+//
+////  18060.96578-184.95448*InputData^.T
+////              +0.63811*InputData^.T*InputData^.T
+////             -7.15121E-4*InputData^.T*InputData^.T*InputData^.T;
+////SC8,d1-d6
+//
+//
+////  -10897.85016+93.22157*InputData^.T
+////              -0.25296*InputData^.T*InputData^.T
+////              +2.26949E-4*InputData^.T*InputData^.T*InputData^.T;
+////SC12,udark
+//
+//
+////  10786.04599-109.07446*InputData^.T
+////              +0.37268*InputData^.T*InputData^.T
+////             -4.13941E-4*InputData^.T*InputData^.T*InputData^.T;
+////SC12,dark
+//
+//
+////  -17097.35067+159.37431*InputData^.T
+////              -0.4887*InputData^.T*InputData^.T
+////             +5.07437E-4*InputData^.T*InputData^.T*InputData^.T;
+////SC12,ud
+//
+////  51514.7-494.388*InputData^.T
+////              +1.58592*InputData^.T*InputData^.T
+////             -0.00168533*InputData^.T*InputData^.T*InputData^.T;
+////SC12,d
+//
+////  313955.48805-2878.35512*InputData^.T
+////              +8.88596*InputData^.T*InputData^.T
+////             -0.0092*InputData^.T*InputData^.T*InputData^.T;
+////SC4,Ru3
+//
+//
+////  -13022.75173+106.85001*InputData^.T
+////              -0.19438*InputData^.T*InputData^.T;
+////SC4,Ru2
+//
+//
+////  -45638.9+475.334*InputData^.T
+////              -1.52424*InputData^.T*InputData^.T
+////             +0.00156349*InputData^.T*InputData^.T*InputData^.T;
+////SC4,Rdark
+//
+////  264319-2481.35*InputData^.T
+////              +7.88726*InputData^.T*InputData^.T
+////             -0.00842522*InputData^.T*InputData^.T*InputData^.T;
+////SC4,d1d2
+//
+////           1e12;
+////SC17
+//
+////  1.22474E7-105746.87906*InputData^.T
+////              +307.12012*InputData^.T*InputData^.T
+////             -0.29993*InputData^.T*InputData^.T*InputData^.T;
+////SC13
+//
+////  FXmode[2]:=cons;
+////  FXvalue[2]:=exp(24.91705-1.24519/InputData^.T/Kb);
+//
+//end;
 
 //-----------------------------------------------------------
 Constructor TDoubleDiod.Create;
@@ -7092,47 +7092,47 @@ begin
  CreateFooter();
 end;
 
-procedure TDoubleDiodLight.AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle);
-  var Data:array of double;
-begin
-  inherited AddParDetermination(InputData,OutputData);
-//ТИМЧАСОВО!!!!
-
-  OutputData[FNx+1]:=ErResult;
-  OutputData[FNx+2]:=ErResult;
-  OutputData[FNx+3]:=ErResult;
-  OutputData[FNx+4]:=ErResult;
-  OutputData[FNx+5]:=ErResult;
-  OutputData[FNx]:=ErResult;
-
-  if (OutputData[6]>Isc_min) then
-    begin
-     SetLength(Data,6);
-     Data[0]:=OutputData[0];
-     Data[1]:=OutputData[1];
-     Data[2]:=OutputData[2];
-     Data[3]:=OutputData[4];
-     Data[4]:=OutputData[5];
-     Data[5]:=FVariab[0];
-
-     OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,fFunc,Data,OutputData[3],OutputData[6]);
-     OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,fFunc,Data,OutputData[3],OutputData[6]);
-
-    end;
-
-  if (OutputData[FNx]>Voc_min)and
-     (OutputData[FNx+1]>Isc_min)and
-     (OutputData[FNx]<>ErResult)and
-     (OutputData[FNx+1]<>ErResult) then
-    begin
-     OutputData[9]:=Voc_Isc_Pm_Vm_Im(3,fFunc,Data,OutputData[3],OutputData[6]);
-     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,fFunc,Data,OutputData[3],OutputData[6]);
-     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,fFunc,Data,OutputData[3],OutputData[6]);
-
-     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
-    end;
-end;
+//procedure TDoubleDiodLight.AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle);
+//  var Data:array of double;
+//begin
+//  inherited AddParDetermination(InputData,OutputData);
+////ТИМЧАСОВО!!!!
+//
+//  OutputData[FNx+1]:=ErResult;
+//  OutputData[FNx+2]:=ErResult;
+//  OutputData[FNx+3]:=ErResult;
+//  OutputData[FNx+4]:=ErResult;
+//  OutputData[FNx+5]:=ErResult;
+//  OutputData[FNx]:=ErResult;
+//
+//  if (OutputData[6]>Isc_min) then
+//    begin
+//     SetLength(Data,6);
+//     Data[0]:=OutputData[0];
+//     Data[1]:=OutputData[1];
+//     Data[2]:=OutputData[2];
+//     Data[3]:=OutputData[4];
+//     Data[4]:=OutputData[5];
+//     Data[5]:=FVariab[0];
+//
+//     OutputData[7]:=Voc_Isc_Pm_Vm_Im(1,fFunc,Data,OutputData[3],OutputData[6]);
+//     OutputData[8]:=Voc_Isc_Pm_Vm_Im(2,fFunc,Data,OutputData[3],OutputData[6]);
+//
+//    end;
+//
+//  if (OutputData[FNx]>Voc_min)and
+//     (OutputData[FNx+1]>Isc_min)and
+//     (OutputData[FNx]<>ErResult)and
+//     (OutputData[FNx+1]<>ErResult) then
+//    begin
+//     OutputData[9]:=Voc_Isc_Pm_Vm_Im(3,fFunc,Data,OutputData[3],OutputData[6]);
+//     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,fFunc,Data,OutputData[3],OutputData[6]);
+//     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,fFunc,Data,OutputData[3],OutputData[6]);
+//
+//     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+//    end;
+//end;
 
 procedure TDoubleDiodTauLight.Hook;
 begin
@@ -7284,53 +7284,53 @@ begin
 end;
 
 
-procedure TTripleDiodLight.AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle);
-begin
-  inherited;
-  OutputData[FNx]:=ErResult;
-  OutputData[FNx+1]:=ErResult;
-  OutputData[FNx+2]:=ErResult;
-  OutputData[FNx+3]:=ErResult;
-  OutputData[FNx+4]:=ErResult;
-  OutputData[FNx+5]:=ErResult;
-  if (OutputData[6]>Isc_min) then
-    begin
-     OutputData[9]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTriple,
-                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
-                                      OutputData[5],OutputData[8],OutputData[7]],
-                                      OutputData[3],OutputData[6]);
-     OutputData[10]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTriple,
-                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
-                                      OutputData[5],OutputData[8],OutputData[7]],
-                                      OutputData[3],OutputData[6]);
-    end;
-  if (OutputData[FNx]>Voc_min)and
-     (OutputData[FNx+1]>Isc_min)and
-     (OutputData[FNx]<>ErResult)and
-     (OutputData[FNx+1]<>ErResult) then
-    begin
-     OutputData[11]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTriple,
-                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
-                                      OutputData[5],OutputData[8],OutputData[7]],
-                                      OutputData[3],OutputData[6]);
-     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,IV_DiodTriple,
-                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
-                                      OutputData[5],OutputData[8],OutputData[7]],
-                                      OutputData[3],OutputData[6]);
-     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,IV_DiodTriple,
-                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
-                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
-                                      OutputData[5],OutputData[8],OutputData[7]],
-                                      OutputData[3],OutputData[6]);
-     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
-    end;
-end;
-
+//procedure TTripleDiodLight.AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle);
+//begin
+//  inherited;
+//  OutputData[FNx]:=ErResult;
+//  OutputData[FNx+1]:=ErResult;
+//  OutputData[FNx+2]:=ErResult;
+//  OutputData[FNx+3]:=ErResult;
+//  OutputData[FNx+4]:=ErResult;
+//  OutputData[FNx+5]:=ErResult;
+//  if (OutputData[6]>Isc_min) then
+//    begin
+//     OutputData[9]:=Voc_Isc_Pm_Vm_Im(1,IV_DiodTriple,
+//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+//                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+//                                      OutputData[5],OutputData[8],OutputData[7]],
+//                                      OutputData[3],OutputData[6]);
+//     OutputData[10]:=Voc_Isc_Pm_Vm_Im(2,IV_DiodTriple,
+//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+//                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+//                                      OutputData[5],OutputData[8],OutputData[7]],
+//                                      OutputData[3],OutputData[6]);
+//    end;
+//  if (OutputData[FNx]>Voc_min)and
+//     (OutputData[FNx+1]>Isc_min)and
+//     (OutputData[FNx]<>ErResult)and
+//     (OutputData[FNx+1]<>ErResult) then
+//    begin
+//     OutputData[11]:=Voc_Isc_Pm_Vm_Im(3,IV_DiodTriple,
+//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+//                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+//                                      OutputData[5],OutputData[8],OutputData[7]],
+//                                      OutputData[3],OutputData[6]);
+//     OutputData[FNx+4]:=Voc_Isc_Pm_Vm_Im(4,IV_DiodTriple,
+//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+//                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+//                                      OutputData[5],OutputData[8],OutputData[7]],
+//                                      OutputData[3],OutputData[6]);
+//     OutputData[FNx+5]:=Voc_Isc_Pm_Vm_Im(5,IV_DiodTriple,
+//                                     [OutputData[0]*Kb*FVariab[0],OutputData[1],
+//                                      OutputData[2],OutputData[4]*Kb*FVariab[0],
+//                                      OutputData[5],OutputData[8],OutputData[7]],
+//                                      OutputData[3],OutputData[6]);
+//     OutputData[FNx+3]:=OutputData[FNx+2]/OutputData[FNx]/OutputData[FNx+1];
+//    end;
+//end;
+//
 
 
 procedure TNGausian.BeforeFitness(InputData: TVectorNew);
@@ -7395,37 +7395,37 @@ begin
      Parameters[3*i-3]*exp(-sqr((fX-Parameters[3*i-2]))/2/sqr(Parameters[3*i-1]));
 end;
 
-Procedure TNGausian.BeforeFitness(InputData:Pvector);
- var i:byte;
-     Xmin,Xmax,delY,delX:double;
-begin
- Xmin:=InputData^.X[MinElemNumber(InputData^.X)];
- Xmax:=InputData^.X[MaxElemNumber(InputData^.X)];
- delY:=InputData^.Y[MaxElemNumber(InputData^.Y)]-
-       InputData^.Y[MinElemNumber(InputData^.Y)];
- delX:=Xmax-Xmin;
- for I := 1 to round(FNx/3) do
-  begin
-   FXmin[3*i-3]:=0;
-   FXmax[3*i-3]:=delY;
-   FXminlim[3*i-3]:=0;
-   FXmaxlim[3*i-3]:=delY*10;
-
-   FXmin[3*i-2]:=Xmin;
-   FXmax[3*i-2]:=Xmax;
-   FXminlim[3*i-2]:=Xmin-5*delX;
-   FXmaxlim[3*i-2]:=Xmax+5*delX;
-
-   FXmin[3*i-1]:=delX/10;
-   FXmax[3*i-1]:=delX;
-   FXminlim[3*i-1]:=delX/1000;
-   FXmaxlim[3*i-1]:=10*delX;
-  end;
-// if High(InputData^.X)>150 then
-//   FNit:=500*(1+sqr(round(FNx/3)))
-//                    else
-//   FNit:=1000*(1+sqr(round(FNx/3)));
-end;
+//Procedure TNGausian.BeforeFitness(InputData:Pvector);
+// var i:byte;
+//     Xmin,Xmax,delY,delX:double;
+//begin
+// Xmin:=InputData^.X[MinElemNumber(InputData^.X)];
+// Xmax:=InputData^.X[MaxElemNumber(InputData^.X)];
+// delY:=InputData^.Y[MaxElemNumber(InputData^.Y)]-
+//       InputData^.Y[MinElemNumber(InputData^.Y)];
+// delX:=Xmax-Xmin;
+// for I := 1 to round(FNx/3) do
+//  begin
+//   FXmin[3*i-3]:=0;
+//   FXmax[3*i-3]:=delY;
+//   FXminlim[3*i-3]:=0;
+//   FXmaxlim[3*i-3]:=delY*10;
+//
+//   FXmin[3*i-2]:=Xmin;
+//   FXmax[3*i-2]:=Xmax;
+//   FXminlim[3*i-2]:=Xmin-5*delX;
+//   FXmaxlim[3*i-2]:=Xmax+5*delX;
+//
+//   FXmin[3*i-1]:=delX/10;
+//   FXmax[3*i-1]:=delX;
+//   FXminlim[3*i-1]:=delX/1000;
+//   FXmaxlim[3*i-1]:=10*delX;
+//  end;
+//// if High(InputData^.X)>150 then
+////   FNit:=500*(1+sqr(round(FNx/3)))
+////                    else
+////   FNit:=1000*(1+sqr(round(FNx/3)));
+//end;
 
 Constructor TTunnel.Create;
 begin
@@ -7530,37 +7530,37 @@ begin
 // ReadFromIniFile();
 end;
 
-procedure TPower2.BeforeFitness(InputData: Pvector);
-begin
-  inherited BeforeFitness(InputData);;
-//  FXmode[0]:=cons;
-
-// init
-//  FXvalue[0]:=
-//  exp(1.4313948-0.4722452/InputData^.T/8.625e-5);
-
-
-  // UST3an
-//  FXvalue[0]:=
-//  exp(-1.0807311-0.4093689/InputData^.T/8.625e-5);
-
-
-  // UST1
-//  FXvalue[0]:=
-//  exp(3.7782636-0.5441406/InputData^.T/8.625e-5);
-//  exp(-1.4641207-0.394953/InputData^.T/8.625e-5);
-
-
-    // UST2
-//  FXvalue[0]:=
-//  exp(1.6712534-0.4740671/InputData^.T/8.625e-5);
-
-
-    // UST3
-//  FXvalue[0]:=
-//  exp(-4.9514571-0.283333/InputData^.T/8.625e-5);
-
-end;
+//procedure TPower2.BeforeFitness(InputData: Pvector);
+//begin
+//  inherited BeforeFitness(InputData);;
+////  FXmode[0]:=cons;
+//
+//// init
+////  FXvalue[0]:=
+////  exp(1.4313948-0.4722452/InputData^.T/8.625e-5);
+//
+//
+//  // UST3an
+////  FXvalue[0]:=
+////  exp(-1.0807311-0.4093689/InputData^.T/8.625e-5);
+//
+//
+//  // UST1
+////  FXvalue[0]:=
+////  exp(3.7782636-0.5441406/InputData^.T/8.625e-5);
+////  exp(-1.4641207-0.394953/InputData^.T/8.625e-5);
+//
+//
+//    // UST2
+////  FXvalue[0]:=
+////  exp(1.6712534-0.4740671/InputData^.T/8.625e-5);
+//
+//
+//    // UST3
+////  FXvalue[0]:=
+////  exp(-4.9514571-0.283333/InputData^.T/8.625e-5);
+//
+//end;
 
 Function TPower2.Sum1(Parameters:TArrSingle):double;
 begin
@@ -7795,13 +7795,13 @@ begin
 end;
 
 
-Procedure TFitFunctEvolutionEm.BeforeFitness(InputData:Pvector);
-begin
- inherited BeforeFitness(InputData);
- F2:=2/(FSample as TDiod_Schottky).nu;
- F1:=(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(FVariab[1],FVariab[0])-(FSample as TDiod_Schottky).Vbi(FVariab[0]);
- fkT:=Kb*FVariab[0];
-end;
+//Procedure TFitFunctEvolutionEm.BeforeFitness(InputData:Pvector);
+//begin
+// inherited BeforeFitness(InputData);
+// F2:=2/(FSample as TDiod_Schottky).nu;
+// F1:=(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(FVariab[1],FVariab[0])-(FSample as TDiod_Schottky).Vbi(FVariab[0]);
+// fkT:=Kb*FVariab[0];
+//end;
 
 Procedure TFitFunctEvolutionEm.FIsNotReadyDetermination;
 begin
@@ -7841,24 +7841,24 @@ begin
 // ReadFromIniFile();
 end;
 
-Procedure TFitFunctEvolutionEm.AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle);
-begin
+//Procedure TFitFunctEvolutionEm.AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle);
+//begin
+//// if fEmIsNeeded then
+////  begin
+////   inc(fNAddX);
+//////   SetLength(FXname,FNx+fNAddX);
+//////   FXname[High(FXname)]:='Em';
+////  end;
+// inherited AddParDetermination(InputData,OutputData);
 // if fEmIsNeeded then
 //  begin
-//   inc(fNAddX);
-////   SetLength(FXname,FNx+fNAddX);
-////   FXname[High(FXname)]:='Em';
+//   FXname[High(FXname)-1]:='Em';
+//   OutputData[High(OutputData)-1]:=
+//     0.5*((FSample as TDiod_Schottky).Em(InputData^.X[0],FVariab[1],FVariab[0])+
+//        (FSample as TDiod_Schottky).Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0]));
 //  end;
- inherited AddParDetermination(InputData,OutputData);
- if fEmIsNeeded then
-  begin
-   FXname[High(FXname)-1]:='Em';
-   OutputData[High(OutputData)-1]:=
-     0.5*((FSample as TDiod_Schottky).Em(InputData^.X[0],FVariab[1],FVariab[0])+
-        (FSample as TDiod_Schottky).Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0]));
-  end;
-end;
+//end;
 
 //Procedure TFitFunctEvolutionEm.Fitting (InputData:PVector; var OutputData:TArrSingle;
 //                    Xlog:boolean=False;Ylog:boolean=False);
@@ -8041,12 +8041,12 @@ begin
  Result:=Parameters[1]*exp(Parameters[2]*sqrt(F2*(F1+fX))/fkT)*(1-exp(-fX/fkT));
 end;
 
-Procedure TRevShSCLC2.BeforeFitness(InputData:Pvector);
-begin
- inherited BeforeFitness(InputData);
- Fm1:=1+FVariab[2]/FVariab[0];
- Fm2:=1+FVariab[3]/FVariab[0];
-end;
+//Procedure TRevShSCLC2.BeforeFitness(InputData:Pvector);
+//begin
+// inherited BeforeFitness(InputData);
+// Fm1:=1+FVariab[2]/FVariab[0];
+// Fm2:=1+FVariab[3]/FVariab[0];
+//end;
 
 Constructor TPhonAsTun.Create(FunctionName,FunctionCaption:string;
                      Npar:byte);
@@ -8278,18 +8278,18 @@ begin
 end;
 
 
-Procedure TPhonAsTunAndTE2_kT1.AddParDetermination(InputData:PVector;
-                               var OutputData:TArrSingle);
-begin
- inherited AddParDetermination(InputData,OutputData);
-   OutputData[High(OutputData)-1]:=
-//     FSample.Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]);
-      0.5*((FSample as TDiod_Schottky).Em(1/(InputData^.X[0]*Kb),OutputData[3],FVariab[0])+
-        (FSample as TDiod_Schottky).Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]));
-   OutputData[High(OutputData)-2]:=FVariab[0]/FVariab[1];
-//     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0],FVariab[4])+
-//        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0],FVariab[4]));
-end;
+//Procedure TPhonAsTunAndTE2_kT1.AddParDetermination(InputData:PVector;
+//                               var OutputData:TArrSingle);
+//begin
+// inherited AddParDetermination(InputData,OutputData);
+//   OutputData[High(OutputData)-1]:=
+////     FSample.Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]);
+//      0.5*((FSample as TDiod_Schottky).Em(1/(InputData^.X[0]*Kb),OutputData[3],FVariab[0])+
+//        (FSample as TDiod_Schottky).Em(1/(InputData^.X[High(InputData^.X)]*Kb),OutputData[3],FVariab[0]));
+//   OutputData[High(OutputData)-2]:=FVariab[0]/FVariab[1];
+////     0.5*(FSample.Em(InputData^.X[0],FVariab[1],FVariab[0],FVariab[4])+
+////        FSample.Em(InputData^.X[High(InputData^.X)],FVariab[1],FVariab[0],FVariab[4]));
+//end;
 
 Function TPhonAsTunAndTE2_kT1.Sum2(Parameters:TArrSingle):double;
 begin
@@ -8299,12 +8299,12 @@ Result:=RevZrizFun(fx,2,Parameters[2],
 //  Result:=RevZrizFun(fx,2,Parameters[2],Parameters[3]);
 end;
 
-Procedure TPhonAsTunAndTE2_kT1.BeforeFitness(InputData:Pvector);
-begin
-  inherited BeforeFitness(InputData);
-  FVariab[0]:=FVariab[0]*FVariab[1];
-//  FVariab[0]:=FVariab[0]*0.424;
-end;
+//Procedure TPhonAsTunAndTE2_kT1.BeforeFitness(InputData:Pvector);
+//begin
+//  inherited BeforeFitness(InputData);
+//  FVariab[0]:=FVariab[0]*FVariab[1];
+////  FVariab[0]:=FVariab[0]*0.424;
+//end;
 
 Procedure TPhonAsTunAndTE2_kT1.CreateFooter;
 begin
@@ -8386,16 +8386,16 @@ end;
 
 
 
-Function  FitName(V: PVector; st:string='fit'):string;
-begin
-  if V^.name = '' then
-    Result := st+'.dat'
-  else
-  begin
-    Result := V^.name;
-    Insert(st, Result, Pos('.', Result));
-  end;
-end;
+//Function  FitName(V: PVector; st:string='fit'):string;
+//begin
+//  if V^.name = '' then
+//    Result := st+'.dat'
+//  else
+//  begin
+//    Result := V^.name;
+//    Insert(st, Result, Pos('.', Result));
+//  end;
+//end;
 
 Function FitName(V: TVectorNew; st:string='fit'):string;overload;
 begin
@@ -8409,41 +8409,41 @@ begin
 end;
 
 
-Function Parametr(V: PVector; FunName,ParName:string):double;
-{повертає параметр з іменем ParName,
-який знаходиться в результаті апроксимації даних в V
-за допомогою функції FunName}
- var i,par_number:integer;
-     error:boolean;
-     F:TFitFunction;
-     EP:TArrSingle;
-begin
-  Result:=ErResult;
-  error:=true;
-  for I := 1 to High(FuncName) do
-   if FunName=FuncName[i] then
-    begin
-      error:=False;
-      Break;
-    end;
-  if error then Exit;
-  FunCreate(FunName,F);
-  par_number:=-1;
-  for i := 0 to High(F.Xname) do
-   if F.Xname[i]=ParName then
-    begin
-      par_number:=i;
-      Break;
-    end;
-  if par_number<0 then
-    begin
-      F.Free;
-      Exit;
-    end;
-  F.Fitting(V,EP);
-  Result:=EP[par_number];
-  F.Free;
-end;
+//Function Parametr(V: PVector; FunName,ParName:string):double;
+//{повертає параметр з іменем ParName,
+//який знаходиться в результаті апроксимації даних в V
+//за допомогою функції FunName}
+// var i,par_number:integer;
+//     error:boolean;
+//     F:TFitFunction;
+//     EP:TArrSingle;
+//begin
+//  Result:=ErResult;
+//  error:=true;
+//  for I := 1 to High(FuncName) do
+//   if FunName=FuncName[i] then
+//    begin
+//      error:=False;
+//      Break;
+//    end;
+//  if error then Exit;
+//  FunCreate(FunName,F);
+//  par_number:=-1;
+//  for i := 0 to High(F.Xname) do
+//   if F.Xname[i]=ParName then
+//    begin
+//      par_number:=i;
+//      Break;
+//    end;
+//  if par_number<0 then
+//    begin
+//      F.Free;
+//      Exit;
+//    end;
+//  F.Fitting(V,EP);
+//  Result:=EP[par_number];
+//  F.Free;
+//end;
 
 Function Parametr(V: TVectorNew; FunName,ParName:string):double;overload;
  var i,par_number:integer;
@@ -8523,25 +8523,25 @@ begin
   Str1.Free;
 end;
 
-procedure TCurrentSC.RealToFile(InputData: PVector; var OutputData: TArrSingle;
-  Xlog, Ylog: boolean; suf: string);
- const T0=300;
-var Str1:TStringList;
-    i:integer;
-    AlL:double;
-begin
-  Str1:=TStringList.Create;
-  for I := 0 to High(InputData^.X) do
-    begin
-    AlL:=Silicon.Absorption(FVariab[0],InputData^.X[i])*
-          OutputData[1]*Power(InputData^.X[i]/T0,OutputData[2]);
-    Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
-             FloatToStrF(OutputData[0]*AlL/(1+AlL),ffExponent,4,0)+' '+
-             FloatToStrF(OutputData[1]*Power(InputData^.X[i]/T0,OutputData[2]),ffExponent,4,0));
-    end;
-  Str1.SaveToFile(FitName(InputData,suf));
-  Str1.Free;
-end;
+//procedure TCurrentSC.RealToFile(InputData: PVector; var OutputData: TArrSingle;
+//  Xlog, Ylog: boolean; suf: string);
+// const T0=300;
+//var Str1:TStringList;
+//    i:integer;
+//    AlL:double;
+//begin
+//  Str1:=TStringList.Create;
+//  for I := 0 to High(InputData^.X) do
+//    begin
+//    AlL:=Silicon.Absorption(FVariab[0],InputData^.X[i])*
+//          OutputData[1]*Power(InputData^.X[i]/T0,OutputData[2]);
+//    Str1.Add(FloatToStrF(InputData^.X[i],ffExponent,4,0)+' '+
+//             FloatToStrF(OutputData[0]*AlL/(1+AlL),ffExponent,4,0)+' '+
+//             FloatToStrF(OutputData[1]*Power(InputData^.X[i]/T0,OutputData[2]),ffExponent,4,0));
+//    end;
+//  Str1.SaveToFile(FitName(InputData,suf));
+//  Str1.Free;
+//end;
 
 { TTAU_Fei_FeB }
 
@@ -8763,7 +8763,7 @@ begin
  fHasPicture:=False;
  ReadFromIniFile();
  fVector:=TVectorNew.Create;
- new(FtempVector);
+// new(FtempVector);
 end;
 
 //function TNoiseSmoothing.FinalFunc(var X: double;
@@ -8772,23 +8772,23 @@ end;
 //
 //end;
 
-procedure TNoiseSmoothing.Fitting(InputData: PVector;
-  var OutputData: TArrSingle; Xlog, Ylog: boolean);
-begin
-  FIsNotReadyDetermination;
-  if FIsNotReady then SetValueGR;
-  if FIsNotReady then
-     begin
-     MessageDlg('Approximation is imposible.'+#10+#13+
-                  'Parameters of function are undefined', mtError,[mbOk],0);
-     SetLength(OutputData,FNx);
-     OutputData[0]:=ErResult;
-     Exit;
-     end;
-  BeforeFitness(InputData);
-  SetLength(OutputData,1);
-  OutputData[0]:=1;
-end;
+//procedure TNoiseSmoothing.Fitting(InputData: PVector;
+//  var OutputData: TArrSingle; Xlog, Ylog: boolean);
+//begin
+//  FIsNotReadyDetermination;
+//  if FIsNotReady then SetValueGR;
+//  if FIsNotReady then
+//     begin
+//     MessageDlg('Approximation is imposible.'+#10+#13+
+//                  'Parameters of function are undefined', mtError,[mbOk],0);
+//     SetLength(OutputData,FNx);
+//     OutputData[0]:=ErResult;
+//     Exit;
+//     end;
+//  BeforeFitness(InputData);
+//  SetLength(OutputData,1);
+//  OutputData[0]:=1;
+//end;
 
 procedure TNoiseSmoothing.Fitting(InputData: TVectorNew;
   var OutputData: TArrSingle; Xlog, Ylog: boolean);
@@ -8811,7 +8811,7 @@ end;
 procedure TNoiseSmoothing.Free;
 begin
  fVector.Free;
- dispose(FtempVector);
+// dispose(FtempVector);
  inherited;
 end;
 
@@ -8820,17 +8820,17 @@ begin
  Result:=1;
 end;
 
-procedure TNoiseSmoothing.RealFitting(InputData: PVector;
-  var OutputData: TArrSingle);
-begin
+//procedure TNoiseSmoothing.RealFitting(InputData: PVector;
+//  var OutputData: TArrSingle);
+//begin
+//
+//end;
 
-end;
-
-procedure TNoiseSmoothing.RealToFile(InputData: PVector;
-  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
-begin
-  FtempVector.Write_File(FitName(InputData));
-end;
+//procedure TNoiseSmoothing.RealToFile(InputData: PVector;
+//  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
+//begin
+//  FtempVector.Write_File(FitName(InputData));
+//end;
 
 procedure TNoiseSmoothing.RealFitting(InputData: TVectorNew;
   var OutputData: TArrSingle);
@@ -8856,18 +8856,18 @@ begin
   fVector.WriteToGraph(Series);
 end;
 
-procedure TNoiseSmoothing.RealToGraph(InputData: PVector;
-  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
-  Np: Word);
- var
-     i:integer;
-begin
-  Series.Clear;
-  ImNoiseSmoothedArray(InputData,FtempVector,abs(Round(FVariab[0])));
-  for I := 0 to High(FtempVector^.X) do
-    Series.AddXY(FtempVector^.X[i], FtempVector^.Y[i]);
-//  showmessage(floattostr(ImpulseNoiseSmoothingByNpoint(InputData^.Y)));
-end;
+//procedure TNoiseSmoothing.RealToGraph(InputData: PVector;
+//  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+//  Np: Word);
+// var
+//     i:integer;
+//begin
+//  Series.Clear;
+//  ImNoiseSmoothedArray(InputData,FtempVector,abs(Round(FVariab[0])));
+//  for I := 0 to High(FtempVector^.X) do
+//    Series.AddXY(FtempVector^.X[i], FtempVector^.Y[i]);
+////  showmessage(floattostr(ImpulseNoiseSmoothingByNpoint(InputData^.Y)));
+//end;
 
 
 { TTunReversRs }
@@ -9174,23 +9174,23 @@ begin
 
 end;
 
-procedure TManyArgumentsFitEvolution.BeforeFitness(InputData: Pvector);
- var OpenDialog1:TOpenDialog;
-begin
- inherited BeforeFitness(InputData);
- if fFileName='' then
-  begin
-   OpenDialog1:=TOpenDialog.Create(nil);
-   OpenDialog1.Filter:='Data file (*.dat)|*.dat';
-     if OpenDialog1.Execute() then
-      begin
-        fFileName:=OpenDialog1.FileName;
-        DataReading();
-      end;
-   OpenDialog1.Free;
-  end;
-    InputData.name:=ExtractFileName(fFileName);
-end;
+//procedure TManyArgumentsFitEvolution.BeforeFitness(InputData: Pvector);
+// var OpenDialog1:TOpenDialog;
+//begin
+// inherited BeforeFitness(InputData);
+// if fFileName='' then
+//  begin
+//   OpenDialog1:=TOpenDialog.Create(nil);
+//   OpenDialog1.Filter:='Data file (*.dat)|*.dat';
+//     if OpenDialog1.Execute() then
+//      begin
+//        fFileName:=OpenDialog1.FileName;
+//        DataReading();
+//      end;
+//   OpenDialog1.Free;
+//  end;
+//    InputData.name:=ExtractFileName(fFileName);
+//end;
 
 procedure TManyArgumentsFitEvolution.BeforeFitness(InputData: TVectorNew);
  var OpenDialog1:TOpenDialog;
@@ -9288,41 +9288,41 @@ begin
  Result:=sqrt(Result)/fSL.Count;
 end;
 
-function TManyArgumentsFitEvolution.Deviation(InputData: PVector;
-  OutputData: TArrSingle): double;
- var i:integer;
-     Yfit:double;
-begin
- Result:=ErResult;
+//function TManyArgumentsFitEvolution.Deviation(InputData: PVector;
+//  OutputData: TArrSingle): double;
+// var i:integer;
+//     Yfit:double;
+//begin
+// Result:=ErResult;
+//
+// if OutputData[0]=ErResult then Exit;
+// Result:=0;
+//  for I := 0 to fSL.Count-1 do
+//     begin
+//       fCAN:=i;
+//       Yfit:=Func(OutputData);
+//       if fAllArguments[High(fAllArguments)][fCAN]<>0
+//           then Result:=Result+sqr((fAllArguments[High(fAllArguments)][fCAN]-Yfit)
+//                        /fAllArguments[High(fAllArguments)][fCAN])
+//           else
+//            if Yfit<>0 then
+//             Result:=Result+sqr((fAllArguments[High(fAllArguments)][fCAN]-Yfit)/Yfit);
+//     end;
+// Result:=sqrt(Result)/fSL.Count;
+//end;
 
- if OutputData[0]=ErResult then Exit;
- Result:=0;
-  for I := 0 to fSL.Count-1 do
-     begin
-       fCAN:=i;
-       Yfit:=Func(OutputData);
-       if fAllArguments[High(fAllArguments)][fCAN]<>0
-           then Result:=Result+sqr((fAllArguments[High(fAllArguments)][fCAN]-Yfit)
-                        /fAllArguments[High(fAllArguments)][fCAN])
-           else
-            if Yfit<>0 then
-             Result:=Result+sqr((fAllArguments[High(fAllArguments)][fCAN]-Yfit)/Yfit);
-     end;
- Result:=sqrt(Result)/fSL.Count;
-end;
-
-function TManyArgumentsFitEvolution.FitnessFunc(
-          InputData: Pvector;OutputData: TArrSingle): double;
-  var i:integer;
-begin
-  Result:=0;
-  for I := 0 to fSL.Count-1 do
-     begin
-       fCAN:=i;
-       Result:=Result+sqr(Func(OutputData)
-                       -fAllArguments[High(fAllArguments)][i]);
-     end;
-end;
+//function TManyArgumentsFitEvolution.FitnessFunc(
+//          InputData: Pvector;OutputData: TArrSingle): double;
+//  var i:integer;
+//begin
+//  Result:=0;
+//  for I := 0 to fSL.Count-1 do
+//     begin
+//       fCAN:=i;
+//       Result:=Result+sqr(Func(OutputData)
+//                       -fAllArguments[High(fAllArguments)][i]);
+//     end;
+//end;
 
 function TManyArgumentsFitEvolution.FitnessFunc(InputData: TVectorNew;
   OutputData: TArrSingle): double;
@@ -9352,30 +9352,30 @@ begin
  FVarName[High(FVarName)]:='N_fCol';
 end;
 
-procedure TManyArgumentsFitEvolution.RealToFile(InputData: PVector;
-  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
-var Str1:TStringList;
-    i,j:integer;
-    tempStr:string;
-begin
-  Str1:=TStringList.Create;
-  Str1.Add(ColumnsTitle());
-  for I := 0 to fSL.Count-1 do
-    begin
-     fCAN:=i;
-     tempStr:='';
-     for j := 1 to fArgumentNumber do
-       tempStr:=tempStr+StringDataFromRow(fSL[i],j)+' ';
-     tempStr:=tempStr+StringDataFromRow(fSL[i],abs(round(FVariab[High(FVariab)])){fFunctionColumnInFile})+' ';
-     tempStr:=tempStr+FloatToStrF(Func(OutputData),ffExponent,10,0);
-     str1.Add(tempStr);
-    end;
-  Str1.SaveToFile(AnsiLeftStr(fFileName,Length(fFileName)-4)
-                  +'Fit.dat');
-  Str1.Free;
-
-  AditionalRealToFile(OutputData);
-end;
+//procedure TManyArgumentsFitEvolution.RealToFile(InputData: PVector;
+//  var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
+//var Str1:TStringList;
+//    i,j:integer;
+//    tempStr:string;
+//begin
+//  Str1:=TStringList.Create;
+//  Str1.Add(ColumnsTitle());
+//  for I := 0 to fSL.Count-1 do
+//    begin
+//     fCAN:=i;
+//     tempStr:='';
+//     for j := 1 to fArgumentNumber do
+//       tempStr:=tempStr+StringDataFromRow(fSL[i],j)+' ';
+//     tempStr:=tempStr+StringDataFromRow(fSL[i],abs(round(FVariab[High(FVariab)])){fFunctionColumnInFile})+' ';
+//     tempStr:=tempStr+FloatToStrF(Func(OutputData),ffExponent,10,0);
+//     str1.Add(tempStr);
+//    end;
+//  Str1.SaveToFile(AnsiLeftStr(fFileName,Length(fFileName)-4)
+//                  +'Fit.dat');
+//  Str1.Free;
+//
+//  AditionalRealToFile(OutputData);
+//end;
 
 procedure TManyArgumentsFitEvolution.RealToFile(InputData: TVectorNew;
   var OutputData: TArrSingle; Xlog, Ylog: boolean; suf: string);
@@ -9408,11 +9408,11 @@ procedure TManyArgumentsFitEvolution.RealToGraph(InputData: TVectorNew;
 begin
 end;
 
-procedure TManyArgumentsFitEvolution.RealToGraph(InputData: PVector;
-  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
-  Np: Word);
-begin
-end;
+//procedure TManyArgumentsFitEvolution.RealToGraph(InputData: PVector;
+//  var OutputData: TArrSingle; Series: TLineSeries; Xlog, Ylog: boolean;
+//  Np: Word);
+//begin
+//end;
 
 
 
@@ -9459,64 +9459,64 @@ end;
 
 { TIV_thin }
 
-procedure TIV_thin.AddParDetermination(InputData: PVector;
-                    var OutputData: TArrSingle);
-  const Np=1000;
-  var delI,Pb,Vb:double;
-      i:integer;
-begin
-  inherited AddParDetermination(InputData,OutputData);
-
-
-  OutputData[FNx+1]:=ErResult;
-  OutputData[FNx+2]:=ErResult;
-  OutputData[FNx+3]:=ErResult;
-  OutputData[FNx+4]:=ErResult;
-  OutputData[FNx+5]:=ErResult;
-  OutputData[FNx]:=ErResult;
-
-  if OutputData[7]<Isc_min then Exit;
-  fY:=0;
-  OutputData[8]:=Func(OutputData);
-  OutputData[9]:=-Bisection(CasrtoIV,
-                           [OutputData[0],OutputData[1],
-                            OutputData[2],OutputData[3],
-                            OutputData[4],OutputData[5],
-                            OutputData[6],OutputData[7],
-                            FVariab[0]],
-                            0,-2*OutputData[7]);
-
-    if (OutputData[8]<Voc_min) or
-     (OutputData[9]<Isc_min) or
-     (OutputData[8]=ErResult)and
-     (OutputData[9]=ErResult) then Exit;
-
-  delI:=OutputData[9]/Np;
-  OutputData[13]:=OutputData[9];
-  OutputData[10]:=0;
-  OutputData[12]:=0;
-  for I := 1 to Np do
-   begin
-    fY:=-OutputData[9]+i*delI;
-    Vb:=Func(OutputData);
-    Pb:=-fY*Vb;
-    if Pb<OutputData[10] then Break;
-    OutputData[13]:=-fY;
-    OutputData[12]:=Vb;
-    OutputData[10]:=Pb;
-   end;
-
-  OutputData[11]:=OutputData[10]/(OutputData[9]*OutputData[8]);
-
-
-//   FXname[8]:='Voc';
-//   FXname[9]:='Isc';
-//   FXname[10]:='Pm';
-//   FXname[11]:='FF';
-//   FXname[12]:='Vm';
-//   FXname[13]:='Im';
-
-end;
+//procedure TIV_thin.AddParDetermination(InputData: PVector;
+//                    var OutputData: TArrSingle);
+//  const Np=1000;
+//  var delI,Pb,Vb:double;
+//      i:integer;
+//begin
+//  inherited AddParDetermination(InputData,OutputData);
+//
+//
+//  OutputData[FNx+1]:=ErResult;
+//  OutputData[FNx+2]:=ErResult;
+//  OutputData[FNx+3]:=ErResult;
+//  OutputData[FNx+4]:=ErResult;
+//  OutputData[FNx+5]:=ErResult;
+//  OutputData[FNx]:=ErResult;
+//
+//  if OutputData[7]<Isc_min then Exit;
+//  fY:=0;
+//  OutputData[8]:=Func(OutputData);
+//  OutputData[9]:=-Bisection(CasrtoIV,
+//                           [OutputData[0],OutputData[1],
+//                            OutputData[2],OutputData[3],
+//                            OutputData[4],OutputData[5],
+//                            OutputData[6],OutputData[7],
+//                            FVariab[0]],
+//                            0,-2*OutputData[7]);
+//
+//    if (OutputData[8]<Voc_min) or
+//     (OutputData[9]<Isc_min) or
+//     (OutputData[8]=ErResult)and
+//     (OutputData[9]=ErResult) then Exit;
+//
+//  delI:=OutputData[9]/Np;
+//  OutputData[13]:=OutputData[9];
+//  OutputData[10]:=0;
+//  OutputData[12]:=0;
+//  for I := 1 to Np do
+//   begin
+//    fY:=-OutputData[9]+i*delI;
+//    Vb:=Func(OutputData);
+//    Pb:=-fY*Vb;
+//    if Pb<OutputData[10] then Break;
+//    OutputData[13]:=-fY;
+//    OutputData[12]:=Vb;
+//    OutputData[10]:=Pb;
+//   end;
+//
+//  OutputData[11]:=OutputData[10]/(OutputData[9]*OutputData[8]);
+//
+//
+////   FXname[8]:='Voc';
+////   FXname[9]:='Isc';
+////   FXname[10]:='Pm';
+////   FXname[11]:='FF';
+////   FXname[12]:='Vm';
+////   FXname[13]:='Im';
+//
+//end;
 
 procedure TIV_thin.AddParDetermination(InputData: TVectorNew;
   var OutputData: TArrSingle);
@@ -9624,39 +9624,39 @@ begin
  Result:=sqrt(Result)/InputData.Count;
 end;
 
-function TIV_thin.Deviation (InputData:PVector;OutputData:TArrSingle):double;
- var i:integer;
-//     Xfit:double;
-begin
- Result:=ErResult;
- if OutputData[0]=ErResult then Exit;
- Result:=0;
- for I := 0 to High(InputData^.X) do
-  begin
-   fX:=InputData^.X[i];
-   fY:=InputData^.Y[i];
-   Result:=Result+sqr((Func(OutputData)-fX)/Max(0.01,abs(fX)));
+//function TIV_thin.Deviation (InputData:PVector;OutputData:TArrSingle):double;
+// var i:integer;
+////     Xfit:double;
+//begin
+// Result:=ErResult;
+// if OutputData[0]=ErResult then Exit;
+// Result:=0;
+// for I := 0 to High(InputData^.X) do
+//  begin
+//   fX:=InputData^.X[i];
+//   fY:=InputData^.Y[i];
+//   Result:=Result+sqr((Func(OutputData)-fX)/Max(0.01,abs(fX)));
+//
+//  end;
+// Result:=sqrt(Result)/InputData^.n;
+//end;
 
-  end;
- Result:=sqrt(Result)/InputData^.n;
-end;
-
-function TIV_thin.FitnessFunc(InputData: Pvector;
-               OutputData: TArrSingle): double;
- var i:integer;
-begin
-  Result:=0;
-//  showmessage(floattostr(InputData^.Y[0]));
-  for I := 0 to High(InputData^.X) do
-     begin
-       fX:=InputData^.X[i];
-       fY:=InputData^.Y[i];
-       Result:=Result+sqr(Func(OutputData)-fX);
-//       Result:=Result+sqr((Func(OutputData)-fX)/Max(0.01,abs(fX)));
-
-     end;
-end;
-
+//function TIV_thin.FitnessFunc(InputData: Pvector;
+//               OutputData: TArrSingle): double;
+// var i:integer;
+//begin
+//  Result:=0;
+////  showmessage(floattostr(InputData^.Y[0]));
+//  for I := 0 to High(InputData^.X) do
+//     begin
+//       fX:=InputData^.X[i];
+//       fY:=InputData^.Y[i];
+//       Result:=Result+sqr(Func(OutputData)-fX);
+////       Result:=Result+sqr((Func(OutputData)-fX)/Max(0.01,abs(fX)));
+//
+//     end;
+//end;
+//
 function TIV_thin.FitnessFunc(InputData: TVectorNew;
   OutputData: TArrSingle): double;
  var i:integer;
@@ -9706,30 +9706,30 @@ begin
          FloatToStrF(InputData.Y[Number],ffExponent,4,0);
 end;
 
-procedure TIV_thin.RealToGraph(InputData: PVector; var OutputData: TArrSingle;
-  Series: TLineSeries; Xlog, Ylog: boolean; Np: Word);
-var i:integer;
-begin
-  Series.Clear;
-  for I := 0 to High(InputData^.X) do
-    begin
-    fX:=InputData^.X[i];
-    fY:=InputData^.Y[i];
-    Series.AddXY(RealFunc(OutputData), fy);
-    end;
-end;
+//procedure TIV_thin.RealToGraph(InputData: PVector; var OutputData: TArrSingle;
+//  Series: TLineSeries; Xlog, Ylog: boolean; Np: Word);
+//var i:integer;
+//begin
+//  Series.Clear;
+//  for I := 0 to High(InputData^.X) do
+//    begin
+//    fX:=InputData^.X[i];
+//    fY:=InputData^.Y[i];
+//    Series.AddXY(RealFunc(OutputData), fy);
+//    end;
+//end;
 
-function TIV_thin.StringToFile(InputData: PVector; Number: integer;
-  OutputData: TArrSingle; Xlog, Ylog: boolean): string;
-begin
- fX:=InputData^.X[Number];
- fY:=InputData^.Y[Number];
- Result:=FloatToStrF(InputData^.X[Number],ffExponent,4,0)+' '+
-         FloatToStrF(InputData^.Y[Number],ffExponent,4,0)+' '+
-         FloatToStrF(RealFunc(OutputData),ffExponent,4,0)+' '+
-         FloatToStrF(InputData^.Y[Number],ffExponent,4,0);
-end;
-
+//function TIV_thin.StringToFile(InputData: PVector; Number: integer;
+//  OutputData: TArrSingle; Xlog, Ylog: boolean): string;
+//begin
+// fX:=InputData^.X[Number];
+// fY:=InputData^.Y[Number];
+// Result:=FloatToStrF(InputData^.X[Number],ffExponent,4,0)+' '+
+//         FloatToStrF(InputData^.Y[Number],ffExponent,4,0)+' '+
+//         FloatToStrF(RealFunc(OutputData),ffExponent,4,0)+' '+
+//         FloatToStrF(InputData^.Y[Number],ffExponent,4,0);
+//end;
+//
 
 
 Procedure FunCreate(str:string; var F:TFitFunction; FileName:string='');

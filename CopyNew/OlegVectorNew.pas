@@ -2,19 +2,68 @@
 
 
 interface
- uses IniFiles,SysUtils, StdCtrls,OlegTypeNew, Series;
+ uses IniFiles,SysUtils, StdCtrls,OlegTypeNew, Series, Graphics, TeEngine;
 
 
 type
-
-//    Point=record
-//         X:double;
-//         Y:double;
-//    end;
-
-//    TCoord_type=(cX,cY);
 //
-//    TPoint=array[TCoord_type]of double;
+//  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
+//              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
+//              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
+//
+//
+//{типи функцій, які можна можна побудувати}
+//  TGraph=(fnEmpty,
+//          fnPowerIndex, //залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
+//          fnFowlerNordheim, //ф-я Фаулера-Нордгейма для прикладеної напруги   ln(I/V^2)=f(1/V);
+//          fnFowlerNordheimEm,//ф-я Фаулера-Нордгейма для максимальної напруженості  ln(I/V)=f(1/V^0.5);
+//          fnAbeles, //ф-я Абелеса для прикладеної напруги   ln(I/V)=f(1/V);
+//          fnAbelesEm,//ф-я Абелеса для максимальної напруженості ln(I/V^0.5)=f(1/V^0.5);
+//          fnFrenkelPool, //ф-я Френкеля-Пула для прикладеної напруги ln(I/V)=f(V^0.5);
+//          fnFrenkelPoolEm,//ф-я Френкеля-Пула для максимальної напруженості ln(I/V^0.5)=f(1/V^0.25);
+//          fnReverse,//reverse IV characteristic
+//          fnForward, //Forward I-V-characteristic
+//          fnKaminskii1,//'Kaminski function I
+//          fnKaminskii2, //Kaminski function II
+//          fnGromov1, //Gromov function I
+//          fnGromov2, //Gromov function II
+//          fnCheung, //Cheung function
+//          fnCibils,  //Cibils function
+//          fnWerner, //Werner function
+//          fnForwardRs, //Forward I-V-characteristic with Rs
+//          fnIdeality, //Ideality factor vs voltage
+//          fnExpForwardRs, //Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnExpReverseRs, //Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnH,  //H - function
+//          fnNorde, //Norde"s function
+//          fnFvsV,  //F(V) = V - Va * ln( I )
+//          fnFvsI,  //F(I) = V - Va * ln( I )
+//          fnMikhelA, //Alpha function (Mikhelashvili"s method)
+//          fnMikhelB, //Betta function (Mikhelashvili"s method)
+//          fnMikhelIdeality, //Ideality factor vs voltage (Mikhelashvili"s method)
+//          fnMikhelRs, //Series resistant vs voltage (Mikhelashvili"s method)
+//          fnDLdensity,//Deep level density
+//          fnDLdensityIvanov,//Deep level density (Ivanov method)
+//          fnLee,  //Lee function
+//          fnBohlin, //Bohlin function
+//          fnNeq1, //n=1
+//          fnMikhelashvili, //Mikhelashvili function
+//          fnDiodLSM,  //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, method LSM
+//          fnDiodLambert,  // Lambert function
+//          fnDiodEvolution, //evolution methods
+//          fnReq0,  //Rs=0
+//          fnRvsTpower2, //'A+B*T+C*T^2'
+////          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
+//          fnDiodVerySimple, //I=I0exp(qV/nkT)
+//          fnRectification, //розрахунок коефіцієнта випрямлення
+//          fnTauR,   //рекомбінаційний час по величині струму
+//          fnIgen,    //генераційний струм по величині рекомбінаційного часу
+//          fnTauG,   //генераційний час по величині струму
+//          fnIrec,    //рекомбінаційний струм по величині генераційного часу
+//          fnLdif,    //довжина дифузії по часу релаксації
+//          fnTau     //час релаксації по довжині дифузії
+//          );
+
 
     TFunVector=Function(Coord: TCoord_type): Double of object;
     TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
@@ -123,7 +172,8 @@ type
         трапецій;  вважається, що межі інтегралу простягаються на
         весь діапазон зміни А^.X}
 
-      Constructor Create;
+      Constructor Create;overload;
+      Constructor Create(ExternalVector:TVectorNew);overload;
 
       procedure SetLenVector(Number:integer);
       procedure Clear();
@@ -139,11 +189,12 @@ type
       якщо .Count=0, то запис у файл не відбувається;
       NumberDigit - кількість значущих цифр}
       procedure ReadFromGraph(Series:TCustomSeries);
-      procedure WriteToGraph(Series:TCustomSeries);
-      procedure Copy (TargetVector:TVectorNew);
+      procedure WriteToGraph(Series:TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
+      procedure CopyTo (TargetVector:TVectorNew);
        {копіюються поля з даного вектора в
         уже раніше створений TargetVector}
-
+      procedure CopyFrom (const SourceVector:TVectorNew);
+      {копіюються поля з SourceVector в даний}
       procedure Add(newX,newY:double);overload;
       procedure Add(newXY:double);overload;
       procedure Add(newPoint:TPointDouble);overload;
@@ -320,8 +371,8 @@ var F:TextFile;
 //    i:integer;
     ss, ss1:string;
 begin
-  fName:=NameFile;
   Clear;
+  Self.fName:=NameFile;
   if not(FileExists(NameFile)) then Exit;
   AssignFile(f,NameFile);
   ReadTextFile(F);
@@ -413,12 +464,12 @@ begin
  Str.Free;
 end;
 
-procedure TVectorNew.WriteToGraph(Series: TCustomSeries);
+procedure TVectorNew.WriteToGraph(Series: TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
  var i:integer;
 begin
  Series.Clear;
  for I := 0 to High(Points) do
-   Series.AddXY(Points[i,cX],Points[i,cY]);
+   Series.AddXY(Points[i,cX],Points[i,cY],ALabel,AColor);
 end;
 
 procedure TVectorNew.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
@@ -672,7 +723,7 @@ begin
    Result:=Result+FloaTtoStr(Points[i,Coord])+' ';
 end;
 
-Procedure TVectorNew.Copy (TargetVector:TVectorNew);
+Procedure TVectorNew.CopyTo (TargetVector:TVectorNew);
  var i:integer;
 begin
   TargetVector.SetLenVector(Self.Count);
@@ -708,6 +759,12 @@ begin
  Result^:=CopyYtoArray();
 end;
 
+constructor TVectorNew.Create(ExternalVector: TVectorNew);
+begin
+  Create();
+  CopyFrom(ExternalVector);
+end;
+
 function TVectorNew.CopyXtoPArray():PTArrSingle;
 begin
  new(Result);
@@ -722,6 +779,11 @@ end;
 //     TargetArray^[i]:=Y[i];
 //end;
 //
+
+procedure TVectorNew.CopyFrom(const SourceVector: TVectorNew);
+begin
+ SourceVector.CopyTo(Self);
+end;
 
 Procedure TVectorNew.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
  var i:integer;

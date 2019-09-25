@@ -50,6 +50,7 @@
     </DCCReference>
     <DCCReference Include="OlegApproxNew.pas" />
     <DCCReference Include="OlegDefectsSiNew.pas" />
+    <DCCReference Include="OlegDigitalManipulation.pas" />
     <DCCReference Include="OlegFunctionNew.pas" />
     <DCCReference Include="OlegGraphNew.pas" />
     <DCCReference Include="OlegMaterialSamplesNew.pas" />
@@ -59,9 +60,9 @@
     <DCCReference Include="OlegTests.pas" />
     <DCCReference Include="OlegTypeNew.pas" />
     <DCCReference Include="OlegTypePart2New.pas" />
-    <DCCReference Include="OlegVector.pas" />
     <DCCReference Include="OlegVectorManipulation.pas" />
     <DCCReference Include="OlegVectorNew.pas" />
+    <DCCReference Include="OlegVectorOld.pas" />
     <DCCReference Include="Unit1new.pas">
       <Form>Form1</Form>
     </DCCReference>

@@ -3,7 +3,7 @@ unit OlegTests;
 interface
 
 uses
-  OlegVectorNew, OlegMathNew, OlegVector, OlegTypeNew;
+  OlegVectorNew, OlegMathNew, OlegVectorOld, OlegTypeNew;
 
 procedure VectorEquals(const VectorOld:PVector; const VectorNew:TVectorNew);
 

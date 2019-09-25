@@ -31,7 +31,7 @@ type
 //   TVectorTransform=class(TVectorManipulation)
    TVectorTransform=class(TVectorNew)
     private
-     procedure SetVector(const Value: TVectorNew);
+//     procedure SetVector(const Value: TVectorNew);
      procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word);
      Procedure CopyLimited (Coord:TCoord_type;Target:TVectorNew;Clim1, Clim2:double);
      procedure Branch(Coord:TCoord_type;Target:TVectorNew;
@@ -41,8 +41,8 @@ type
     protected
      Procedure InitTarget(Target:TVectorNew);
     public
-     Constructor Create(ExternalVector:TVectorNew);overload;
-     Constructor Create();overload;
+//     Constructor Create(ExternalVector:TVectorNew);overload;
+//     Constructor Create();overload;
      Procedure CopyLimitedX (Target:TVectorNew;Xmin,Xmax:double);
        {копіюються з даного вектора в Target
         - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
@@ -253,7 +253,7 @@ end;
 
 procedure TVectorManipulation.SetVector(const Value: TVectorNew);
 begin
- Value.Copy(fVector);
+ Value.CopyTo(fVector);
 end;
 
 
@@ -279,7 +279,7 @@ procedure TVectorTransform.Median(Target: TVectorNew);
 begin
   InitTarget(Target);
   if Self.Count<3 then Exit;
-  Self.Copy(Target);
+  Self.CopyTo(Target);
   for i:=1 to Target.HighNumber-1 do
     Target.y[i]:=MedianFiltr(Self.y[i-1],Self.y[i],Self.y[i+1]);;
 end;
@@ -417,16 +417,16 @@ begin
  CopyLimited(cY,Target,Ymin, Ymax);
 end;
 
-constructor TVectorTransform.Create;
-begin
- inherited Create;
-end;
+//constructor TVectorTransform.Create;
+//begin
+// inherited Create;
+//end;
 
-constructor TVectorTransform.Create(ExternalVector: TVectorNew);
-begin
-  Create();
-  SetVector(ExternalVector);
-end;
+//constructor TVectorTransform.Create(ExternalVector: TVectorNew);
+//begin
+//  Create();
+//  SetVector(ExternalVector);
+//end;
 
 function TVectorTransform.DerivateAtPoint(PointNumber: integer): double;
 begin
@@ -459,7 +459,7 @@ var i:integer;
 begin
  InitTarget(Target);
  if Self.Count<3 then Exit;
- Self.Copy(Target);
+ Self.CopyTo(Target);
  for i:=0 to Self.HighNumber do
    Target.Y[i]:=DerivateAtPoint(i);
 end;
@@ -585,7 +585,7 @@ begin
   i_max:=Self.MaxNumber(Coord);
 
  tempVector:=TVectorNew.Create;
- Self.Copy(tempVector);
+ Self.CopyTo(tempVector);
  if i_min=i_max then TempVector.DeletePoint(i_min)
                 else
                  begin
@@ -677,7 +677,7 @@ procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
 begin
  Target:=TVectorNew.Create;
  ProcTarget(Target);
- Target.Copy(Self);
+ Target.CopyTo(Self);
  Target.Free;
 end;
 
@@ -856,10 +856,10 @@ begin
    Branch(cY,Target,false,false);
 end;
 
-procedure TVectorTransform.SetVector(const Value: TVectorNew);
-begin
- Value.Copy(Self);
-end;
+//procedure TVectorTransform.SetVector(const Value: TVectorNew);
+//begin
+// Value.CopyTo(Self);
+//end;
 
 procedure TVectorTransform.Smoothing(Target: TVectorNew);
 const W0=17;W1=66;W2=17;
@@ -868,7 +868,7 @@ var i:integer;
 begin
   InitTarget(Target);
   if Self.Count<3 then Exit;
-  Self.Copy(Target);
+  Self.CopyTo(Target);
   for i:=1 to Target.HighNumber-1 do
       Target.y[i]:=(W0*Self.y[i-1]+W1*Self.y[i]+W2*Self.y[i+1])
                    /(W0+W1+W2);

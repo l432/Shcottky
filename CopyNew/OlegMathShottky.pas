@@ -2,10 +2,68 @@ unit OlegMathShottky;
 
 interface
  uses OlegVectorNew,OlegTypeNew, OlegMaterialSamplesNew, 
-  OlegVectorManipulation;
+  OlegVectorManipulation, StdCtrls, IniFiles;
 
 
 type
+
+
+  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
+              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
+              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
+
+
+{типи функцій, які можна можна побудувати}
+  TGraph=(fnEmpty,
+          fnPowerIndex, //залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
+          fnFowlerNordheim, //ф-я Фаулера-Нордгейма для прикладеної напруги   ln(I/V^2)=f(1/V);
+          fnFowlerNordheimEm,//ф-я Фаулера-Нордгейма для максимальної напруженості  ln(I/V)=f(1/V^0.5);
+          fnAbeles, //ф-я Абелеса для прикладеної напруги   ln(I/V)=f(1/V);
+          fnAbelesEm,//ф-я Абелеса для максимальної напруженості ln(I/V^0.5)=f(1/V^0.5);
+          fnFrenkelPool, //ф-я Френкеля-Пула для прикладеної напруги ln(I/V)=f(V^0.5);
+          fnFrenkelPoolEm,//ф-я Френкеля-Пула для максимальної напруженості ln(I/V^0.5)=f(1/V^0.25);
+          fnReverse,//reverse IV characteristic
+          fnForward, //Forward I-V-characteristic
+          fnKaminskii1,//'Kaminski function I
+          fnKaminskii2, //Kaminski function II
+          fnGromov1, //Gromov function I
+          fnGromov2, //Gromov function II
+          fnCheung, //Cheung function
+          fnCibils,  //Cibils function
+          fnWerner, //Werner function
+          fnForwardRs, //Forward I-V-characteristic with Rs
+          fnIdeality, //Ideality factor vs voltage
+          fnExpForwardRs, //Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs
+          fnExpReverseRs, //Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs
+          fnH,  //H - function
+          fnNorde, //Norde"s function
+          fnFvsV,  //F(V) = V - Va * ln( I )
+          fnFvsI,  //F(I) = V - Va * ln( I )
+          fnMikhelA, //Alpha function (Mikhelashvili"s method)
+          fnMikhelB, //Betta function (Mikhelashvili"s method)
+          fnMikhelIdeality, //Ideality factor vs voltage (Mikhelashvili"s method)
+          fnMikhelRs, //Series resistant vs voltage (Mikhelashvili"s method)
+          fnDLdensity,//Deep level density
+          fnDLdensityIvanov,//Deep level density (Ivanov method)
+          fnLee,  //Lee function
+          fnBohlin, //Bohlin function
+          fnNeq1, //n=1
+          fnMikhelashvili, //Mikhelashvili function
+          fnDiodLSM,  //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, method LSM
+          fnDiodLambert,  // Lambert function
+          fnDiodEvolution, //evolution methods
+          fnReq0,  //Rs=0
+          fnRvsTpower2, //'A+B*T+C*T^2'
+//          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
+          fnDiodVerySimple, //I=I0exp(qV/nkT)
+          fnRectification, //розрахунок коефіцієнта випрямлення
+          fnTauR,   //рекомбінаційний час по величині струму
+          fnIgen,    //генераційний струм по величині рекомбінаційного часу
+          fnTauG,   //генераційний час по величині струму
+          fnIrec,    //рекомбінаційний струм по величині генераційного часу
+          fnLdif,    //довжина дифузії по часу релаксації
+          fnTau     //час релаксації по довжині дифузії
+          );
 
    TVectorShottky=class(TVectorTransform)
     private
@@ -416,8 +474,136 @@ type
       без підготовчих операцій
       fun - кількість зглажувань
       якщо все добре - повертається True}
-
    end;
+
+{тип, для збереження різних параметрів, які використовуються
+ в розрахунках}
+ TGraphParameters=class
+  private
+  public
+   Diapazon:TDiapazon;
+   Rs:double;
+   n:double;
+   Fb:double;
+   Gamma:double;
+    {параметр у функції Норда}
+   Gamma1:double;
+   Gamma2:double;
+    {Gamma1,Gamma2 - коефіцієнти для побудови функцій Норда
+                  у методі Бохліна}
+   Va:double;
+    {напруга, яка використовується для побудови
+     допоміжних функцій у методах Сібілса та Лі}
+   I0:double;
+   Iph:double;
+   Rsh:double;
+   Krec:double;
+   {коефіцієнт випрямлення}
+   Vrect:double;
+  {напруга, при якій відбувається визначення
+   коефіцієнта випрямлення}
+   RA:double;
+   RB:double;
+   RC:double;
+  {RA, RB, RC - змінні для обчислення послідовного опору за залежністю
+      Rs=A+B*T+C*T^2}
+   ForForwardBranch:boolean;
+    {used in M_V_Fun()}
+   NssType:boolean;
+    {used in Nss_Fun()}
+   Iph_Exp:boolean;
+   Iph_Lam:boolean;
+   Iph_DE:boolean;
+  {визначають, чи потрібно підбирати фотострум
+   у формулі I=I0[exp((V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
+  тобто чи освітлена ВАХ апроксимується;
+  Iph_Exp - пряма апроксимація за МНК (fnDiodLSM)
+  Iph_Lam - апроксимація за МНК функції Ламберта (fnDiodLambert)
+  Iph_DE - еволюційний метод(fnDiodEvolution)}
+   Procedure Clear();
+   procedure WriteToIniFile(ConfigFile:TIniFile);
+   procedure ReadFromIniFile(ConfigFile:TIniFile);
+ end;
+
+
+
+Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
+
+Function ConvertStringToTGraph(str:string):TGraph;overload;
+
+Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;overload;
+
+Function GraphName(tg:TGraph):string;
+
+Function GraphHint(tg:TGraph):string;
+
+Function GraphErrorMessage(tg:TGraph):string;
+
+
+const
+
+ GraphLabel:array [TGraph] of string=
+ ('Empty',
+ 'Power index',
+ 'Fowler-Nordheim',
+ 'Fowler-Nordheim (max electric field)',
+ 'Abeles',
+ 'Abeles (max electric field)',
+ 'Frenkel-Pool',
+ 'Frenkel-Pool (max electric field)',
+ 'Reverse',
+ 'Forward',
+ 'I Kaminski',
+ 'II Kaminski',
+ 'I Gromov',
+ 'II Gromov',
+ 'Cheung',
+ 'Cibils',
+ 'Werner',
+ 'Forward I-V characteristic with Rs',
+ 'Ideality factor vs voltage',
+ 'If/[1-exp(-qVf/kT)]',
+ 'Ir/[1-exp(-qVr/kT)]',
+ 'H-function',
+ 'Norde',
+ 'F(V) = V - Va * ln( I )',
+ 'F(I) = V - Va * ln( I )',
+ 'Mikhelashvili Alpha',
+ 'Mikhelashvili Betta',
+ 'Ideality factor vs voltage (Mikhelashvili method)',
+ 'Series resistant vs voltage (Mikhelashvili method)',
+ 'Deep level density',
+ 'Ivanov',
+ 'Lee',
+ 'Bohlin',
+ 'n=1',
+ 'Mikhelashvili',
+ 'Full Diod',
+ 'Lambert Diod',
+ 'Evolution Diod',
+ 'R=0',
+ 'A+B*T+C*T^2',
+// 'I0(exp(qV/nkT)-1)',
+ 'I=I0exp(qV/nkT)',
+ 'Rect.Koef',
+ 'Recombination time',
+ 'Generation current',
+ 'Generation time',
+ 'Recombination current',
+ 'Diffusion length',
+ 'Lifetime'
+ );
+
+
+  cnbb=' can not be built';
+  cnbd=' can not be determined';
+  tIVc='The I-V-characteristic has not point';
+  bfcia=#10'because forward current is absent';
+  rsi=#10'because range is selected improperly or'#10'forward characteristic has a repetitive element';
+
+var
+  GraphParameters:TGraphParameters;
+
 
 implementation
 
@@ -505,10 +691,10 @@ begin
      end;
   {в temp функція ln Aipha = f(ln V)}
   for I := 0 to Target.HighNumber do Target.Y[i]:=temp.DerivateAtPoint(i);
-  Target.Copy(temp);
+  Target.CopyTo(temp);
   temp.Itself(temp.Smoothing);
   temp.Itself(temp.Smoothing);
-  temp.Copy(Target);
+  temp.CopyTo(Target);
   temp.Free;
 
 end;
@@ -681,7 +867,7 @@ begin
      for i:=0 to Target.HighNumber do
         Target.X[i]:=exp(Target.X[i]);
     end;
-  fnFowlerNordheim..fnFrenkelPoolEm: temp.Copy(Target);
+  fnFowlerNordheim..fnFrenkelPoolEm: temp.CopyTo(Target);
  end; // case
 end;
 
@@ -797,14 +983,14 @@ begin
 
   repeat
    Self.CibilsFunDod(tp,Va);
-   tp.Copy(temp);
+   tp.CopyTo(temp);
    {в temp функція F(V)=V-Va*ln(I), побудована
    по всім [додатнім] значенням з Vector}
 
    if tp.Count=0 then Break;
 
    temp.CopyDiapazonPoint(tp,D,Self);
-   tp.Copy(temp2);
+   tp.CopyTo(temp2);
    if temp2.Count=0 then
             begin
              temp.Free;
@@ -890,12 +1076,12 @@ begin
 //  for j:=0 to Target.HighNumber do
 //        Target.Y[j]:=1/Target.Y[j]*Vector.Y[j]/kT;
 
-  Target.Copy(temp);
+  Target.CopyTo(temp);
 //  temp:=TVectorTransform.Create(Target);
   temp.Itself(temp.PositiveX);
   for j:=1 to fun do temp.Itself(temp.Smoothing);
   temp.Derivate(Target);
-  Target.Copy(temp);
+  Target.CopyTo(temp);
 
   temp.CopyLimitedX(Target,temp.X[0]+0.038,temp.X[temp.HighNumber]-0.04);
 
@@ -959,7 +1145,7 @@ begin
   if not(Rnp_Build(Target,fun)) then Exit;
   temp:=TVectorShottky.Create(Target);
   temp.Derivate(Target);
-  Target.Copy(temp);
+  Target.CopyTo(temp);
   for j:=1 to fun do temp.Itself(temp.Smoothing);
   temp.CopyLimitedX(Target,0.038,temp.X[temp.HighNumber]-0.04);
   temp.Free;
@@ -1581,7 +1767,7 @@ begin
  InitTarget(Target);
 
  temp:=TVectorShottky.Create;
- Self.Copy (temp);
+ Self.CopyTo (temp);
  Target.SetLenVector(Self.HighNumber);
  try
   for i:=0 to Target.HighNumber do
@@ -1597,7 +1783,7 @@ begin
   end;
 
   Target.Sorting();
-  Target.Copy(temp);
+  Target.CopyTo(temp);
   temp.N_Begin:=0;
 
   temp.CopyDiapazonPoint(Target,D);
@@ -1715,13 +1901,13 @@ begin
 
   repeat
    Self.LeeFunDod(tp,Va);
-   tp.Copy(temp);
+   tp.CopyTo(temp);
   {в temp функція F(I)=V-Va*ln(I), побудована
   по всім [додатнім] значенням з вектора А}
    if tp.Count=0 then Break;
 
    temp.CopyDiapazonPoint(tp,D,Self);
-   tp.Copy(temp2);
+   tp.CopyTo(temp2);
    if temp2.Count=0 then
             begin
              temp.Free;
@@ -2098,7 +2284,7 @@ begin
   Target.Y[i]:=temp.DerivateAtPoint(i)/Kb/Self.T;
   end;
 {зглажування}
- target.Copy(temp);
+ target.CopyTo(temp);
  temp.Smoothing(Target);
  temp.Free;
 end;
@@ -2133,7 +2319,7 @@ begin
     Target.Y[j]:=sqr(Target.Y[j])/exp(Target.X[j]/2/Kb/Self.T);
   temp:=TVectorTransform.Create(Target);
   for j:=1 to fun do temp.Itself(temp.Smoothing);
-  temp.Copy(Target);
+  temp.CopyTo(Target);
   temp.Free;
   Result:=True;
 end;
@@ -2318,6 +2504,246 @@ begin
   if I0=0 then I0:=1;
   Fb:=DD.Fb(Self.T,I0);
   temp1.Free;
+end;
+
+
+Function ConvertTGraphToTDiapazons(tg:TGraph):TDiapazons;
+begin
+ case tg of
+   fnGromov1:
+    Result:=diGr1;
+   fnGromov2:
+    Result:=diGr2;
+   fnCheung:
+    Result:=diChung;
+   fnWerner:
+    Result:=diWer;
+   fnForwardRs:
+    Result:=diEx;
+   fnExpForwardRs:
+    Result:=diE2F;
+   fnExpReverseRs:
+    Result:=diE2R;
+   fnH:
+    Result:=diHfunc;
+   fnNorde,fnBohlin:
+    Result:=diNord;
+   fnFvsV:
+    Result:=diCib;
+   fnFvsI:
+    Result:=diLee;
+   fnMikhelA,fnMikhelB,
+   fnMikhelIdeality,fnMikhelRs,
+   fnMikhelashvili:
+    Result:=diMikh;
+   fnDLdensity:
+    Result:=diNss;
+   fnDLdensityIvanov:
+    Result:=diIvan;
+   fnDiodLSM:
+    Result:=diExp;
+   fnDiodLambert:
+    Result:=diLam;
+   fnDiodEvolution:
+    Result:=diDE;
+   else Result:=diNon;
+ end;
+end;
+
+Function ConvertStringToTGraph(str:string):TGraph;
+ var  tg:TGraph;
+begin
+  Result:=fnEmpty;
+  for tg := Low(TGraph) to High(TGraph) do
+   if str=GraphLabel[tg] then
+    begin
+     Result:=tg;
+     Exit;
+    end;
+end;
+
+Function ConvertStringToTGraph(ComboBox: TComboBox):TGraph;
+begin
+  Result:=ConvertStringToTGraph(ComboBox.Items[ComboBox.ItemIndex]);
+end;
+
+Function GraphName(tg:TGraph):string;
+const
+    withRs=' vs V characteristic with Rs';
+begin
+  case tg of
+    fnReverse,fnForward:
+      Result:=GraphLabel[tg]+' I-V characteristic';
+    fnForwardRs:
+      Result:='Forward I'+withRs;
+    fnIdeality,fnH,fnFvsV,fnFvsI,
+    fnMikhelIdeality,fnMikhelRs,
+    fnDLdensity:
+      Result:=GraphLabel[tg];
+    fnExpForwardRs:
+      Result:='Forward I/[1-exp(-qV/kT)]'+withRs;
+    fnExpReverseRs:
+      Result:='Reverse I/[1-exp(-qV/kT)]'+withRs;
+    fnDLdensityIvanov:
+      Result:='Deep level density (Ivanov method)';
+    else  Result:=GraphLabel[tg]+' function';
+  end;
+end;
+
+Function GraphHint(tg:TGraph):string;
+begin
+ case tg of
+   fnPowerIndex:
+     Result:='Y = d (ln I)/d (ln V)'#10'X = V';
+   fnFowlerNordheim:
+     Result:='Y = ln (I/V^2)'#10'X = 1/V';
+   fnFowlerNordheimEm:
+     Result:='Y = ln (I/V)'#10'X = 1/V^0.5';
+   fnAbeles:
+     Result:='Y = ln (I/V)'#10'X = 1/V';
+   fnAbelesEm:
+     Result:='Y = ln (I/V^0.5)'#10'X = 1/V^0.5';
+   fnFrenkelPool:
+     Result:='Y = ln (I/V)'#10'X = V^0.5';
+   fnFrenkelPoolEm:
+     Result:='Y = ln (I/V^0.5)'#10'X = V^0.25';
+   fnReverse:
+     Result:='if X<0 then X=abs(X), Y=abs(Y)';
+   fnForward:
+     Result:='X>0 only';
+   fnKaminskii1:
+     Result:='Y = ( I - I0 )^(-1)  int (I dV)'#10'X = ( I + I0 ) / 2';
+   fnKaminskii2:
+     Result:='Y = ln( I / I0 ) / ( I - I0 )'#10'X = ( V - V0 ) / ( I - I0 )';
+   fnGromov1:
+     Result:='Y = V'#10'X = I';
+   fnGromov2:
+     Result:='Y = (V/2) - (kT/e) ln [I/(S Ar T^2)]'#10'X = I';
+   fnCheung:
+     Result:='C ( I )  =  d V / d ( ln I )';
+   fnCibils:
+     Result:='X - arbitrary voltage Va'#10'Y = I0, minimum of function (V-Va*ln(I))';
+   fnWerner:
+     Result:='Y = (dI/dV) / I'#10'X = dI/dV';
+   fnForwardRs:
+     Result:='V replaced by (V - I Rs)';
+   fnIdeality:
+     Result:='n = d ( V ) / d ( ln I ) (k T)^(-1)';
+   fnExpForwardRs:
+     Result:= 'Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)';
+   fnExpReverseRs:
+     Result:='Y = I / [ 1 - exp(-q (V - I Rs) / kT]'#10'X = (V - I Rs)';
+   fnH:
+     Result:='H(I) = V-n (kT/e) ln[I/(S Ar T^2)] = I Rs + n Фb';
+   fnNorde:
+     Result:='F(V) = (V/gamma) - (kT/e) ln [I/(S Ar T^2)]';
+   fnFvsV:
+     Result:='F(V) = V - Va * ln( I )';
+   fnFvsI:
+     Result:='F(I) = V - Va * ln( I )';
+   fnMikhelA:
+     Result:='Y = d(lnI)/d(lnV)'#10'X = V';
+   fnMikhelB:
+     Result:='Y = d(ln Alpha)/d(ln V)'#10'X = V';
+   fnMikhelIdeality:
+     Result:='Y = q V (Alpha - 1) [1 + Betta / (Alpha - 1)] / k T Alpha^2'#10'X = V';
+   fnMikhelRs:
+     Result:='Y = V (1- Betta) / I Alpha^2'#10'X = V';
+   fnDLdensity:
+     Result:='Nss = ep ep0 ( n - 1 ) / ( d e )';
+   fnDLdensityIvanov:
+     Result:='Dit=ep ep0 /d * (q^-2) * d(Vcal-Vexp)/dVs';
+   fnLee:
+     Result:='X - arbitrary voltage Va'#10+
+     'Y = -C/B, where C and B are the coefficienfs of'#10+
+     'function (V-Va*ln(I)) approximation by equation A+B*I+C*ln(I)';
+   fnTauR:
+     Result:='q^2 S^2 ni^4 mu k T / Na I0^2';
+   fnIgen:
+     Result:='S ni^2 / Na * (mu k T / tau)^0.5';
+   fnTauG:
+     Result:='q S ni W / 2 I0';
+   fnIrec:
+     Result:='q S ni W / 2 tau';
+   fnTau:
+     Result:='L^2 / mu k T';
+   fnLdif:
+     Result:='(tau mu k T)^0.5';
+ else
+     Result:='Some error';
+ end;
+end;
+
+Function GraphErrorMessage(tg:TGraph):string;
+begin
+ Result:='';
+ if tg=fnEmpty then Exit
+           else Result:=GraphName(tg)+cnbb;
+ case tg of
+     fnReverse,fnExpReverseRs:
+           Result:=tIVc+#10'with negative voltage';
+      fnForward:  Result:=tIVc+#10'with positive voltage';
+      fnKaminskii1: Result:=Result+rsi;
+      fnKaminskii2: Result:=Result+rsi+#10'or negative current';
+      fnGromov1: Result:=Result+#10'because I-V-characteristic has not point'#10'with positive voltage';
+      fnGromov2,fnCheung,fnWerner,fnH,fnNorde:
+           Result:=Result+bfcia;
+      fnCibils,fnLee:
+           Result:=Result+bfcia+#10'or range is selected improperly';
+      fnForwardRs,fnExpForwardRs:
+           Result:=tIVc+#10'with positive current';
+      fnIdeality: Result:=Result+bfcia+#10'or forward characteristic has a negative current';
+      fnFvsV,fnFvsI:
+           Result:='The function'+cnbb+bfcia;
+      fnMikhelA: Result:=Result+bfcia+#10'or there is no maximum on the curve';
+      fnMikhelB,fnMikhelIdeality,fnMikhelRs:
+           Result:=Result+#10'because impossible to build Alpha function';
+     end;
+end;
+
+
+
+{ TGraphParameters }
+
+procedure TGraphParameters.Clear;
+begin
+   Rs:=ErResult;
+   n:=ErResult;
+   Fb:=ErResult;
+   I0:=ErResult;
+   Iph:=ErResult;
+   Rsh:=ErResult;
+   Krec:=ErResult;
+end;
+
+procedure TGraphParameters.ReadFromIniFile(ConfigFile: TIniFile);
+begin
+ Iph_Exp:=ConfigFile.ReadBool('Approx','Iph_Exp',True);
+ Iph_Lam:=ConfigFile.ReadBool('Approx','Iph_Lam',True);
+ Iph_DE:=ConfigFile.ReadBool('Approx','Iph_DE',True);
+ Gamma:=ConfigFile.ReadFloat('Diapaz','Gamma',2);
+ Gamma1:=ConfigFile.ReadFloat('Diapaz','Gamma1',2);
+ Gamma2:=ConfigFile.ReadFloat('Diapaz','Gamma2',2.5);
+ Va:=ConfigFile.ReadFloat('Diapaz','Va',0.05);
+ Vrect:=ConfigFile.ReadFloat('Diapaz','Vrect',0.12);
+ RA:=ConfigFile.ReadFloat('Resistivity','RA',1);
+ RB:=ConfigFile.ReadFloat('Resistivity','RB',0);
+ RC:=ConfigFile.ReadFloat('Resistivity','RC',0);
+end;
+
+procedure TGraphParameters.WriteToIniFile(ConfigFile: TIniFile);
+begin
+ ConfigFile.WriteBool('Approx','Iph_Exp',Iph_Exp);
+ ConfigFile.WriteBool('Approx','Iph_Lam',Iph_Lam);
+ ConfigFile.WriteBool('Approx','Iph_DE',Iph_DE);
+ ConfigFile.WriteFloat('Diapaz','Gamma',Gamma);
+ ConfigFile.WriteFloat('Diapaz','Gamma1',Gamma1);
+ ConfigFile.WriteFloat('Diapaz','Gamma2',Gamma2);
+ ConfigFile.WriteFloat('Diapaz','Va',Va);
+ ConfigFile.WriteFloat('Diapaz','Vrect',Vrect);
+ ConfigFile.WriteFloat('Resistivity','RA',RA);
+ ConfigFile.WriteFloat('Resistivity','RB',RB);
+ ConfigFile.WriteFloat('Resistivity','RC',RC);
 end;
 
 end.

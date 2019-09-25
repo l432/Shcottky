@@ -3,7 +3,7 @@ unit OlegFunctionNew;
 interface
 
 uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegTypeNew,
- Dialogs, OlegMathNew, StrUtils, Classes, Windows, OlegVector, OlegVectorNew;
+ Dialogs, OlegMathNew, StrUtils, Classes, Windows, {OlegVector, }OlegVectorNew;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -113,7 +113,7 @@ DoubleArrayPointer - вказівник на масив даних (на початковий елемент),
 HighDoubleArray - найбільше значення індексу масиву
 }
 
-Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
+//Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
 Function  ImpulseNoiseSmoothing(const Data:  TVectorNew; ItIsXVector:boolean=False): Double;overload;
 //function TVectorTransform.ImpulseNoiseSmoothing(
 //                   const Coord: TCoord_type): Double;
@@ -129,9 +129,9 @@ Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
 зглажування (див ImpulseNoiseSmoothingByNpoint) Source
 по Npoint точкам}
 
-Procedure ImNoiseSmoothedArray(Source:Pvector;
-                               Target:Pvector;
-                               Npoint:Word=0);overload;
+//Procedure ImNoiseSmoothedArray(Source:Pvector;
+//                               Target:Pvector;
+//                               Npoint:Word=0);overload;
 //procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVectorNew;
 //                            Npoint: Word);
 
@@ -143,8 +143,8 @@ Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
 по Npoint штук на наборі яких розраховується середнє,
 потім середні розбиваються на порції ....}
 
-Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean=False;
-                                       Npoint:Word=0): Double;overload;
+//Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean=False;
+//                                       Npoint:Word=0): Double;overload;
 //function TVectorTransform.ImpulseNoiseSmoothingByNpoint(
 //           const Coord: TCoord_type; Npoint: Word): Double;
 
@@ -733,103 +733,103 @@ begin
 end;
 
 
-Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
- var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
-     Value_min,Value_max,PositivDeviation,Value_Mean:double;
-     temp_Data:PTArrSingle;
-begin
-
-  if Data^.n<1 then
-    begin
-      Result:=ErResult;
-      Exit;
-    end;
-  if Data^.n<5 then
-    begin
-      if ItIsXVector then Result:=Mean(Data^.X)
-                     else Result:=Mean(Data^.Y);
-      Exit;
-    end;
-
-  new(temp_Data);
-  i_min:=0;
-  i_max:=Data^.n-1;
-  if ItIsXVector
-   then
-    begin
-      Value_min:=Data^.X[0];
-      Value_max:=Data^.X[Data^.n-1];
-    end
-   else
-    begin
-      Value_min:=Data^.Y[0];
-      Value_max:=Data^.Y[Data^.n-1];
-    end;
-
-
-  for i := 0 to Data^.n-1 do
-    begin
-      if ItIsXVector
-       then
-        begin
-          if Data^.X[i]>Value_max then
-            begin
-              Value_max:=Data^.X[i];
-              i_max:=i;
-            end;
-          if Data^.X[i]<Value_min then
-            begin
-              Value_min:=Data^.X[i];
-              i_min:=i;
-            end;
-        end
-       else
-        begin
-          if Data^.Y[i]>Value_max then
-            begin
-              Value_max:=Data^.Y[i];
-              i_max:=i;
-            end;
-          if Data^.Y[i]<Value_min then
-            begin
-              Value_min:=Data^.Y[i];
-              i_min:=i;
-            end;
-        end;
-    end;
-
-
-
-  SetLength(temp_Data^,Data^.n-2);
-  j:=0;
-  for i:=0 to Data^.n-1 do
-     if (i<>i_min)and(i<>i_max) then
-      begin
-       if ItIsXVector then temp_Data^[j]:=Data^.X[i]
-                      else temp_Data^[j]:=Data^.Y[i];
-       inc(j);
-      end;
-
- Value_Mean:=Mean(temp_Data^);
- PositivDeviationCount:=0;
- NegativeDeviationCount:=0;
- PositivDeviation:=0;
- for j := 0 to High(temp_Data^) do
-  begin
-   if temp_Data^[j]>Value_Mean then
-    begin
-      inc(PositivDeviationCount);
-      PositivDeviation:=PositivDeviation+(temp_Data^[j]-Value_Mean);
-    end;
-   if temp_Data^[j]<Value_Mean then
-      inc(NegativeDeviationCount);
-  end;
- Result:=Value_Mean+
-        (PositivDeviationCount-NegativeDeviationCount)
-        *PositivDeviation/sqr(High(temp_Data^)+1);
- dispose(temp_Data);
-end;
-
+//Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
+// var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
+//     Value_min,Value_max,PositivDeviation,Value_Mean:double;
+//     temp_Data:PTArrSingle;
+//begin
+//
+//  if Data^.n<1 then
+//    begin
+//      Result:=ErResult;
+//      Exit;
+//    end;
+//  if Data^.n<5 then
+//    begin
+//      if ItIsXVector then Result:=Mean(Data^.X)
+//                     else Result:=Mean(Data^.Y);
+//      Exit;
+//    end;
+//
+//  new(temp_Data);
+//  i_min:=0;
+//  i_max:=Data^.n-1;
+//  if ItIsXVector
+//   then
+//    begin
+//      Value_min:=Data^.X[0];
+//      Value_max:=Data^.X[Data^.n-1];
+//    end
+//   else
+//    begin
+//      Value_min:=Data^.Y[0];
+//      Value_max:=Data^.Y[Data^.n-1];
+//    end;
+//
+//
+//  for i := 0 to Data^.n-1 do
+//    begin
+//      if ItIsXVector
+//       then
+//        begin
+//          if Data^.X[i]>Value_max then
+//            begin
+//              Value_max:=Data^.X[i];
+//              i_max:=i;
+//            end;
+//          if Data^.X[i]<Value_min then
+//            begin
+//              Value_min:=Data^.X[i];
+//              i_min:=i;
+//            end;
+//        end
+//       else
+//        begin
+//          if Data^.Y[i]>Value_max then
+//            begin
+//              Value_max:=Data^.Y[i];
+//              i_max:=i;
+//            end;
+//          if Data^.Y[i]<Value_min then
+//            begin
+//              Value_min:=Data^.Y[i];
+//              i_min:=i;
+//            end;
+//        end;
+//    end;
+//
+//
+//
+//  SetLength(temp_Data^,Data^.n-2);
+//  j:=0;
+//  for i:=0 to Data^.n-1 do
+//     if (i<>i_min)and(i<>i_max) then
+//      begin
+//       if ItIsXVector then temp_Data^[j]:=Data^.X[i]
+//                      else temp_Data^[j]:=Data^.Y[i];
+//       inc(j);
+//      end;
+//
+// Value_Mean:=Mean(temp_Data^);
+// PositivDeviationCount:=0;
+// NegativeDeviationCount:=0;
+// PositivDeviation:=0;
+// for j := 0 to High(temp_Data^) do
+//  begin
+//   if temp_Data^[j]>Value_Mean then
+//    begin
+//      inc(PositivDeviationCount);
+//      PositivDeviation:=PositivDeviation+(temp_Data^[j]-Value_Mean);
+//    end;
+//   if temp_Data^[j]<Value_Mean then
+//      inc(NegativeDeviationCount);
+//  end;
+// Result:=Value_Mean+
+//        (PositivDeviationCount-NegativeDeviationCount)
+//        *PositivDeviation/sqr(High(temp_Data^)+1);
+// dispose(temp_Data);
+//end;
+//
 
 
 
@@ -878,57 +878,57 @@ begin
 end;
 
 
-Procedure ImNoiseSmoothedArray(Source:Pvector;
-                               Target:Pvector;
-                               Npoint:Word=0);overload;
- var TG:PVector;
-     CountTargetElement,i:integer;
-     j:Word;
-begin
-
- Target^.SetLenVector(0);
- if Source^.n<1 then Exit;
-
- if Npoint=0 then Npoint:=Trunc(sqrt(Source^.n+1));
-
- if Npoint=0 then Exit;
-
- CountTargetElement:=Source^.n div Npoint;
- if CountTargetElement=0
-  then
-    begin
-    Target^.Add(ImpulseNoiseSmoothing(Source,True),ImpulseNoiseSmoothing(Source));
-    Exit;
-    end;
-
-
-  Target^.SetLenVector(CountTargetElement);
-
-  new(TG);
-  TG^.SetLenVector(Npoint);
-  for I := 0 to CountTargetElement - 2 do
-   begin
-     for j := 0 to Npoint - 1 do
-       begin
-        TG^.X[j]:=Source^.X[I*Npoint+j];
-        TG^.Y[j]:=Source^.Y[I*Npoint+j];
-       end;
-     Target^.X[I]:=ImpulseNoiseSmoothing(TG,True);
-     Target^.Y[I]:=ImpulseNoiseSmoothing(TG);
-   end;
-
-  I:=Source^.n mod Npoint;
-  TG^.SetLenVector(I+Npoint);
-  for j := 0 to Npoint+I-1 do
-   begin
-    TG^.X[j]:=Source^.X[(CountTargetElement - 1)*Npoint+j];
-    TG^.Y[j]:=Source^.Y[(CountTargetElement - 1)*Npoint+j];
-   end;
-
-  Target^.X[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG,True);
-  Target^.Y[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG);
-  dispose(TG);
-end;
+//Procedure ImNoiseSmoothedArray(Source:Pvector;
+//                               Target:Pvector;
+//                               Npoint:Word=0);overload;
+// var TG:PVector;
+//     CountTargetElement,i:integer;
+//     j:Word;
+//begin
+//
+// Target^.SetLenVector(0);
+// if Source^.n<1 then Exit;
+//
+// if Npoint=0 then Npoint:=Trunc(sqrt(Source^.n+1));
+//
+// if Npoint=0 then Exit;
+//
+// CountTargetElement:=Source^.n div Npoint;
+// if CountTargetElement=0
+//  then
+//    begin
+//    Target^.Add(ImpulseNoiseSmoothing(Source,True),ImpulseNoiseSmoothing(Source));
+//    Exit;
+//    end;
+//
+//
+//  Target^.SetLenVector(CountTargetElement);
+//
+//  new(TG);
+//  TG^.SetLenVector(Npoint);
+//  for I := 0 to CountTargetElement - 2 do
+//   begin
+//     for j := 0 to Npoint - 1 do
+//       begin
+//        TG^.X[j]:=Source^.X[I*Npoint+j];
+//        TG^.Y[j]:=Source^.Y[I*Npoint+j];
+//       end;
+//     Target^.X[I]:=ImpulseNoiseSmoothing(TG,True);
+//     Target^.Y[I]:=ImpulseNoiseSmoothing(TG);
+//   end;
+//
+//  I:=Source^.n mod Npoint;
+//  TG^.SetLenVector(I+Npoint);
+//  for j := 0 to Npoint+I-1 do
+//   begin
+//    TG^.X[j]:=Source^.X[(CountTargetElement - 1)*Npoint+j];
+//    TG^.Y[j]:=Source^.Y[(CountTargetElement - 1)*Npoint+j];
+//   end;
+//
+//  Target^.X[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG,True);
+//  Target^.Y[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG);
+//  dispose(TG);
+//end;
 
 
 Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
@@ -950,27 +950,27 @@ begin
 end;
 
 
-Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean=False;
-                                       Npoint:Word=0): Double;overload;
- var temp:PVector;
-begin
- Result:=ErResult;
- if Data^.n<1 then Exit;
-
- if Npoint=0 then Npoint:=Trunc(sqrt(Data^.n));
-
- if Npoint=0 then Exit;
-
- new(temp);
-
- ImNoiseSmoothedArray(Data, temp, Npoint);
- if temp^.n=1
-  then
-    if ItIsXVector then Result:=temp^.X[0]
-                   else Result:=temp^.Y[0]
-  else Result:=ImpulseNoiseSmoothingByNpoint(temp,ItIsXVector,Npoint);
- dispose(temp);
-end;
+//Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean=False;
+//                                       Npoint:Word=0): Double;overload;
+// var temp:PVector;
+//begin
+// Result:=ErResult;
+// if Data^.n<1 then Exit;
+//
+// if Npoint=0 then Npoint:=Trunc(sqrt(Data^.n));
+//
+// if Npoint=0 then Exit;
+//
+// new(temp);
+//
+// ImNoiseSmoothedArray(Data, temp, Npoint);
+// if temp^.n=1
+//  then
+//    if ItIsXVector then Result:=temp^.X[0]
+//                   else Result:=temp^.Y[0]
+//  else Result:=ImpulseNoiseSmoothingByNpoint(temp,ItIsXVector,Npoint);
+// dispose(temp);
+//end;
 
 
 Function Bisection(const F:TFun; const Parameters:array of double;
