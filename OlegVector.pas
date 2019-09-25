@@ -2,32 +2,80 @@
 
 
 interface
- uses IniFiles,SysUtils, StdCtrls,OlegType;
+ uses IniFiles,SysUtils, StdCtrls,OlegType, Series, Graphics, TeEngine;
 
 
 type
+//
+//  TDiapazons=(diNon,diChung, diMikh, diExp, diEx, diNord, diNss,
+//              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
+//              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
+//
+//
+//{типи функцій, які можна можна побудувати}
+//  TGraph=(fnEmpty,
+//          fnPowerIndex, //залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
+//          fnFowlerNordheim, //ф-я Фаулера-Нордгейма для прикладеної напруги   ln(I/V^2)=f(1/V);
+//          fnFowlerNordheimEm,//ф-я Фаулера-Нордгейма для максимальної напруженості  ln(I/V)=f(1/V^0.5);
+//          fnAbeles, //ф-я Абелеса для прикладеної напруги   ln(I/V)=f(1/V);
+//          fnAbelesEm,//ф-я Абелеса для максимальної напруженості ln(I/V^0.5)=f(1/V^0.5);
+//          fnFrenkelPool, //ф-я Френкеля-Пула для прикладеної напруги ln(I/V)=f(V^0.5);
+//          fnFrenkelPoolEm,//ф-я Френкеля-Пула для максимальної напруженості ln(I/V^0.5)=f(1/V^0.25);
+//          fnReverse,//reverse IV characteristic
+//          fnForward, //Forward I-V-characteristic
+//          fnKaminskii1,//'Kaminski function I
+//          fnKaminskii2, //Kaminski function II
+//          fnGromov1, //Gromov function I
+//          fnGromov2, //Gromov function II
+//          fnCheung, //Cheung function
+//          fnCibils,  //Cibils function
+//          fnWerner, //Werner function
+//          fnForwardRs, //Forward I-V-characteristic with Rs
+//          fnIdeality, //Ideality factor vs voltage
+//          fnExpForwardRs, //Forward I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnExpReverseRs, //Reverse I/[1-exp(-qV/kT)] vs V characteristic with Rs
+//          fnH,  //H - function
+//          fnNorde, //Norde"s function
+//          fnFvsV,  //F(V) = V - Va * ln( I )
+//          fnFvsI,  //F(I) = V - Va * ln( I )
+//          fnMikhelA, //Alpha function (Mikhelashvili"s method)
+//          fnMikhelB, //Betta function (Mikhelashvili"s method)
+//          fnMikhelIdeality, //Ideality factor vs voltage (Mikhelashvili"s method)
+//          fnMikhelRs, //Series resistant vs voltage (Mikhelashvili"s method)
+//          fnDLdensity,//Deep level density
+//          fnDLdensityIvanov,//Deep level density (Ivanov method)
+//          fnLee,  //Lee function
+//          fnBohlin, //Bohlin function
+//          fnNeq1, //n=1
+//          fnMikhelashvili, //Mikhelashvili function
+//          fnDiodLSM,  //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph, method LSM
+//          fnDiodLambert,  // Lambert function
+//          fnDiodEvolution, //evolution methods
+//          fnReq0,  //Rs=0
+//          fnRvsTpower2, //'A+B*T+C*T^2'
+////          fnDiodSimple,//'I0(exp(qV/nkT)-1)'
+//          fnDiodVerySimple, //I=I0exp(qV/nkT)
+//          fnRectification, //розрахунок коефіцієнта випрямлення
+//          fnTauR,   //рекомбінаційний час по величині струму
+//          fnIgen,    //генераційний струм по величині рекомбінаційного часу
+//          fnTauG,   //генераційний час по величині струму
+//          fnIrec,    //рекомбінаційний струм по величині генераційного часу
+//          fnLdif,    //довжина дифузії по часу релаксації
+//          fnTau     //час релаксації по довжині дифузії
+//          );
 
-//    Point=record
-//         X:double;
-//         Y:double;
-//    end;
 
-    TCoord_type=(cX,cY);
+    TFunVector=Function(Coord: TCoord_type): Double of object;
+    TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
+    TFunVectorPointBool=Function(i:integer): boolean of object;
 
-    TPoint=array[TCoord_type]of double;
-
-    VectorNew=class
+    TVector=class
      private
-      Points:array of TPoint;
-//      Points:array of Point;
-//      fX:array of double;
-//      fY:array of double;
+      Points:array of TPointDouble;
       fName:string;
       fT:Extended;
       ftime:string;
-      fSegmentBegin: Cardinal;
-//      function GetX(Index: Integer): double;
-//      function GetY(Index: Integer): double;
+      fSegmentBegin: Integer;
       function GetData(const Number: Integer; Index:Integer): double;
       function GetN: Integer;
       procedure SetT(const Value: Extended);
@@ -36,11 +84,38 @@ type
       procedure PointSet(Number:integer; x,y:double);overload;
        {заповнює координати точки з номером Number,
        але наявність цієї точки в масиві не перевіряється}
-      procedure PointSet(Number:integer; Point:TPoint);overload;
-      function PointGet(Number:integer):TPoint;
+      procedure PointSet(Number:integer; Point:TPointDouble);overload;
+      function PointGet(Number:integer):TPointDouble;
       procedure PointSwap(Number1,Number2:integer);
-      procedure PointCoordSwap(Point:Tpoint);
+      procedure PointCoordSwap(var Point:TPointDouble);
+      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;overload;
       function IsEmptyGet: boolean;
+      procedure ReadTextFile(const F: Text);
+      function CoordToString(Coord:TCoord_type):string;
+      function Stat(Coord:TCoord_type;FunVector:TFunVector;minPointNumber:Integer=1):double;overload;
+      function Stat(Coord:TCoord_type;FunVector:TFunVectorInt;minPointNumber:Integer=1):integer;overload;
+      function MaxValue(Coord:TCoord_type):double;
+      function MinValue(Coord:TCoord_type):double;
+//      function MaxNumber(Coord:TCoord_type):integer;
+//      function MinNumber(Coord:TCoord_type):integer;
+      function Sum(Coord:TCoord_type):double;
+//      function MeanValue(Coord:TCoord_type):double;
+      function StandartDeviation(Coord:TCoord_type):double;
+      function Value (Coord: TCoord_type; CoordValue: Double):double;
+//      function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
+//      {повертає номер точки вектора, координата якого близька до CoordValue:
+//      CoordValue має знаходитися на інтервалі від
+//      Point[Result,Coord] до Point[Result+1,Coord]
+//      якщо не входить в діапазон зміни - повервається -1}
+      function ValueXY (Coord: TCoord_type; CoordValue: Double;i,j:integer):double;
+      function GetInformation(const Index: Integer): double;
+      function GetInformationInt(const Index: Integer): integer;
+      function GetInt_Trap: double;
+      function GetHigh: Integer;
+      function GetSegmentEnd: Integer;
+      procedure DeletePointsByCondition(FunVPB:TFunVectorPointBool);
+      function  FunVPBDeleteErResult(i:integer):boolean;
+      function  FunVPBDeleteZeroY(i:integer):boolean;
      public
 
 
@@ -48,13 +123,11 @@ type
                         read GetData write SetData;
       property Y[const Number: Integer]: double Index ord(cY)
                         read GetData write SetData;
-
-//      property X[Index: Integer]: double read GetX;
-//      property Y[Index: Integer]: double read GetY;
-      property Point[Index:Integer]:TPoint read PointGet;default;
-      property n:Integer read GetN;
+      property Point[Index:Integer]:TPointDouble read PointGet;default;
+      property Count:Integer read GetN;
       {кількість точок,
       в масивaх нумерація від 0 до n-1}
+      property HighNumber:Integer read GetHigh;
       property name:string read fName write fName;
       {назва файлу, звідки завантажені дані}
       property T:Extended read fT write SetT;
@@ -62,25 +135,70 @@ type
       property time:string read ftime write ftime;
       {час створення файлу - година:хвилини
                            - секунди з початку доби}
-//    writeln(FF,Name,' - ',temp,'  :'+inttostr(SecondFromDayBegining(FileDateToDateTime(SR.Time))));
 
-      property N_begin:Cardinal read  fSegmentBegin write fSegmentBegin;
+      property N_begin:Integer read  fSegmentBegin write fSegmentBegin;
      {номер точки з вихідного вектора, яка відповідає
       початковій у цьому}
+      property N_end:Integer read  GetSegmentEnd;
       property IsEmpty:boolean read IsEmptyGet;
+      property MaxX:double Index 1 read GetInformation;
+      {повертається найбільше значення з масиву X}
+      property MaxY:double Index 2 read GetInformation;
+      property MinX:double Index 3 read GetInformation;
+       {повертається найменше значення з масиву Х}
+      property MinY:double Index 4 read GetInformation;
+      property SumX:double Index 5 read GetInformation;
+      property SumY:double Index 6 read GetInformation;
+         {повертаються суми елементів масивів X та Y відповідно}
+      property MeanX:double Index 7 read GetInformation;
+         {повертає середнє арифметичне значень в масиві X}
+      property MeanY:double Index 8 read GetInformation;
+         {повертає середнє арифметичне значень в масиві Y}
+      property StandartDeviationX:double Index 9 read GetInformation;
+      property StandartDeviationY:double Index 10 read GetInformation;
+         {повертає стандартне відхилення значень в масиві Y
+         SD=(sum[(yi-<y>)^2]/(n-1))^0.5}
+       property StandartErrorX:double Index 11 read GetInformation;
+       property StandartErrorY:double Index 12 read GetInformation;
+         {повертає стандартну похибку значень в масиві Y
+         SЕ=SD/n^0.5}
+      property MaxXnumber:integer Index 1 read GetInformationInt;
+      {повертається порядковий номер найбільшого значення з масиву X}
+      property MaxYnumber:integer Index 2 read GetInformationInt;
+      property MinXnumber:integer Index 3 read GetInformationInt;
+      property MinYnumber:integer Index 4 read GetInformationInt;
+      property Int_Trap:double read GetInt_Trap;
+        {повертає результат інтегрування за методом
+        трапецій;  вважається, що межі інтегралу простягаються на
+        весь діапазон зміни А^.X}
 
-      Constructor Create;
-//      function PointGet(Number:integer):TPoint;
+      Constructor Create;overload;
+      Constructor Create(ExternalVector:TVector);overload;
 
       procedure SetLenVector(Number:integer);
       procedure Clear();
          {просто зануляється кількість точок, інших операцій не проводиться}
       procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
       procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+      procedure ReadFromFile (NameFile:string);
+      {читає дані з файлу з коротким ім'ям sfile
+       з файлу comments в тій самій директорії
+       зчитується значення температури в a.T}
+      procedure WriteToFile(NameFile:string; NumberDigit:Byte=4);
+      {записує у файл з іменем sfile дані;
+      якщо .Count=0, то запис у файл не відбувається;
+      NumberDigit - кількість значущих цифр}
+      procedure ReadFromGraph(Series:TCustomSeries);
+      procedure WriteToGraph(Series:TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
+      procedure CopyTo (TargetVector:TVector);
+       {копіюються поля з даного вектора в
+        уже раніше створений TargetVector}
+      procedure CopyFrom (const SourceVector:TVector);
+      {копіюються поля з SourceVector в даний}
       procedure Add(newX,newY:double);overload;
       procedure Add(newXY:double);overload;
-      procedure Add(newPoint:TPoint);overload;
-      procedure Delete(NumberToDelete:integer);
+      procedure Add(newPoint:TPointDouble);overload;
+      procedure DeletePoint(NumberToDelete:integer);
          {видання з масиву точки з номером NumberToDelete}
       procedure DeleteNfirst(Nfirst:integer);
          {видаляє з масиву Nfirst перших точок}
@@ -90,7 +208,9 @@ type
       procedure DeleteDuplicate;
          {видаляються точки, для яких значення абсциси вже зустрічалося}
       procedure DeleteErResult;
-         {видаляються точки, для абсциса чи ордината рівна ErResult}
+         {видаляються точки, для яких абсциса чи ордината рівна ErResult}
+      Procedure DeleteZeroY;
+         {видаляються точки, для яких ордината рівна 0}
       procedure SwapXY;
          {обмінюються знaчення Х та Y}
       function CopyToArray(const Coord:TCoord_type):TArrSingle;
@@ -108,87 +228,39 @@ type
          {заповнюються Х та Y значеннями з масивів}
       procedure CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
          {заповнюються Х та Y значеннями з масивів}
-//         Procedure CopyLimitedX (var Target:VectorNew;Xmin,Xmax:double);
-//         {копіюються з даного вектора в Target
-//         - точки, для яких ордината в діапазоні від Xmin до Xmax включно
-//         - поля Т та name}
+      function XtoString():string;
+      function YtoString():string;
+      {повертається рядок, що містить
+      всі значення відповідної координати}
+      function XYtoString():string;
+      function Xvalue(Yvalue:double):double;
+         {повертає визначає приблизну абсцису точки з
+          ординатою Yvalue}
+      function Yvalue(Xvalue:double):double;
+         {повертає визначає приблизну ординату точки з
+          абсцисою Xvalue}
+      function Krect(Xvalue:double):double;
+      {обчислення коефіцієнту випрямлення при напрузі V;
+      якщо точок в потрібному діапазоні немає -
+      пишиться повідомлення і повертається ErResult}
+      function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
+      {повертає номер точки вектора, координата якого близька до CoordValue:
+      CoordValue має знаходитися на інтервалі від
+      Point[Result,Coord] до Point[Result+1,Coord]
+      якщо не входить в діапазон зміни - повервається -1}
 
-
-//      function MaxX:double;
-//          {повертається найбільше значення з масиву Х}
-//         Function MaxY:double;
-//          {повертається найбільше значення з масиву Y}
-//         Function MinX:double;
-//          {повертається найменше значення з масиву Х}
-//         Function MinY:double;
-//          {повертається найменше значення з масиву Y}
-//         Function MeanY:double;
-//         {повертає середнє арифметичне значень в масиві Y}
-//         Function MeanX:double;
-//         {повертає середнє арифметичне значень в масиві X}
-//         Function StandartDeviationY:double;
-//         {повертає стандартне відхилення значень в масиві Y
-//         SD=(sum[(yi-<y>)^2]/(n-1))^0.5}
-//         Function StandartErrorY:double;
-//         {повертає стандартну похибку значень в масиві Y
-//         SЕ=SD/n^0.5}
-//         Function StandartDeviationX:double;
-//         Function StandartErrorX:double;
-//         Function Xvalue(Yvalue:double):double;
-//         {повертає визначає приблизну абсцису точки з
-//          ординатою Yvalue;
-//          якщо Yvalue не належить діапазону зміни
-//         ординат вектора, то повертається ErResult}
-//         Function Yvalue(Xvalue:double):double;
-//         {повертає визначає приблизну ординату точки з
-//          ординатою Xvalue;
-//          якщо Xvalue не належить діапазону зміни
-//         ординат вектора, то повертається ErResult}
-//         Function SumX:double;
-//         Function SumY:double;
-//         {повертаються суми елементів масивів X та Y відповідно}
-//         Procedure Copy (var Target:VectorNew);
-//         {копіюються поля з даного вектора в Target}
-
-//         Procedure MultiplyY(const A:double);
+      procedure MultiplyY(const A:double);
 //         {Y всіх точок множиться на A}
-//         Procedure PositiveX(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких X більше або рівне нулю;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure PositiveY(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких Y більше або рівне нулю;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure AbsX(var Target:VectorNew);
-//         {заносить в Target точки, для яких X дорівнює модулю Х даного
-//         вектора, а Y таке саме; якщо Х=0, то точка викидається;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure AbsY(var Target:VectorNew);
-//         {заносить в Target точки, для яких Y дорівнює модулю Y даного
-//         вектора, а X таке саме; якщо Y=0, то точка викидається;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure NegativeX(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких X менше нуля;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure NegativeY(var Target:VectorNew);
-//         {заносить в Target ті точки, для яких Y менше нуля;
-//         окрім X, Y та n ніякі інші поля Target не змінюються}
-//         Procedure Write_File(sfile:string; NumberDigit:Byte=4);
-//        {записує у файл з іменем sfile дані з масивів X та Y;
-//        якщо n=0, то запис не відбувається; NumberDigit - кількість значущих цифр}
-//         Procedure Load_File(sfile:string);
-//         {завантажуються дані з файлу sfile;
-//         якщо у файлі не два стовпчика чисел,
-//         то в результаті буде порожній вектор}
-//         Procedure DeltaY(deltaVector:VectorNew);
-//         {від значень Y віднімаються значення deltaVector.Y;
-//          якщо кількості точок різні - ніяких дій не відбувається}
-//         Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);overload;
-//         {Х заповнюється значеннями від Xmin до Xmax з кроком deltaX
-//         Y[i]=Fun(X[i],Parameters)}
-//         Procedure Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer=100);overload;
-//         {як попередня, тільки використовується не крок, а загальна
-//         кількість точок Nstep на заданому інтервалі}
-//         Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
+      procedure DeltaY(deltaVector:TVector);
+         {від значень Y віднімаються значення deltaVector.Y;
+          якщо кількості точок різні - ніяких дій не відбувається}
+      Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);overload;
+         {Х заповнюється значеннями від Xmin до Xmax з кроком deltaX
+         Y[i]=Fun(X[i],Parameters)}
+      Procedure Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer=100);overload;
+         {як попередня, тільки використовується не крок, а загальна
+         кількість точок Nstep на заданому інтервалі}
+      Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
 //         Procedure Decimation(Np:word);
 //         {залишається лише 0-й, Νp-й, 2Np-й.... елементи,
 //          при Np=0 вектор масив не міняється}
@@ -198,16 +270,85 @@ type
 //         NtoDelete - кількість точок, які видаляються
 //         з початку масиву; ця кількість відповідає
 //         тривалості перехідної характеристики фільтра}
+      function MeanValue(Coord:TCoord_type):double;
+      function MaxNumber(Coord:TCoord_type):integer;
+      function MinNumber(Coord:TCoord_type):integer;
+//      function PoinToString(Point:TPointDouble;NumberDigit:Byte=4):string;overload;
+      function PoinToString(PointNumber: Integer;NumberDigit:Byte=4):string;overload;
+      function PointInDiapazon(Diapazon:TDiapazon;PointNumber:integer):boolean;overload;
+      {визначає, чи знаходиться точка з номером PointNumber в межах,
+      що задаються в Diapazon}
+      function PointInDiapazon(Lim:Limits;PointNumber:integer):boolean;overload;
         end;
 
+
+//    TVectorManipulation=class
+//      private
+//       fVector:TVector;
+////       function GetVector: TVector;
+//       procedure SetVector(const Value: TVector);
+//      public
+//       property Vector:TVector read fVector write SetVector;
+//       Constructor Create(ExternalVector:TVector);
+//       procedure Free;
+//    end;
+
+
+
+//   TVectorTransform=class(TVectorManipulation)
+//    private
+//     Procedure InitTarget(var Target:TVector);
+//     Procedure CopyLimited (Coord:TCoord_type;var Target:TVector;Clim1, Clim2:double);
+//     procedure Branch(Coord:TCoord_type;var Target:TVector;const IsPositive:boolean=True);
+//     procedure Module(Coord:TCoord_type;var Target:TVector);
+//    public
+//     Procedure CopyLimitedX (var Target:TVector;Xmin,Xmax:double);
+//       {копіюються з даного вектора в Target
+//        - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
+//         - поля Т та name}
+//     Procedure CopyLimitedY (var Target:TVector;Ymin,Ymax:double);
+//     Procedure PositiveX(var Target:TVector);
+//         {заносить в Target ті точки, для яких X більше або рівне нулю}
+//     procedure PositiveY(var Target:TVector);
+//         {заносить в Target ті точки, для яких Y більше або рівне нулю}
+//     procedure AbsX(var Target:TVector);
+//         {заносить в Target точки, для яких X дорівнює модулю Х даного
+//         вектора, а Y таке саме; якщо Х=0, то точка викидається}
+//     procedure AbsY(var Target:TVector);
+//         {заносить в Target точки, для яких Y дорівнює модулю Y даного
+//         вектора, а X таке саме; якщо Y=0, то точка викидається}
+//     procedure NegativeX(var Target:TVector);
+//         {заносить в Target ті точки, для яких X менше нуля}
+//     procedure NegativeY(var Target:TVector);
+//         {заносить в Target ті точки, для яких Y менше нуля}
+//
+//   end;
 
 
 //Procedure SetLenVector(A:Pvector;n:integer);
 //{встановлюється кількість точок у векторі А}
 
 
+//Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+//{знаходить ординату точки з абсцисою Х3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+//
+//
+//
+//Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
+//{знаходить абсцису точки з ординатою Y3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+
+
+  Function Kv(Argument:double;Parameters:array of double):double;
+
+
 implementation
-uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
+uses OlegMath, Classes, Dialogs, Controls, Math;
 
 
 
@@ -219,13 +360,80 @@ uses OlegMath,OlegGraph, Classes, Dialogs, Controls, Math;
 //  SetLength(A^.Y, A^.n);
 //end;
 //
-Procedure VectorNew.SetLenVector(Number:integer);
+Procedure TVector.SetLenVector(Number:integer);
 {встановлюється кількість точок у векторі А}
 begin
  SetLength(Points, Number);
 end;
 
-procedure VectorNew.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+procedure TVector.ReadFromFile(NameFile: string);
+var F:TextFile;
+//    i:integer;
+    ss, ss1:string;
+begin
+  Clear;
+  Self.fName:=NameFile;
+  if not(FileExists(NameFile)) then Exit;
+  AssignFile(f,NameFile);
+  ReadTextFile(F);
+  if High(Points)<0 then
+    begin
+      DecimalSeparator:=',';
+      ReadTextFile(F);
+      DecimalSeparator:='.';
+    end;
+  if High(Points)<0 then Exit;
+
+ {-------считывание температуры и времени создания, если файла
+ соmments нет или там отсутствует запись
+ про соответствующий файл, то значение будет нулевым}
+  if FileExists('comments') then Ftime:='comments';
+  if FileExists('comments.dat') then Ftime:='comments.dat';
+
+  if Ftime<>'' then
+    begin
+     AssignFile(f,Ftime);
+     Reset(f);
+     while not(Eof(f)) do
+      begin
+       readln(f,ss);
+       ss1:=ss;
+       Delete(ss,AnsiPos(' ',ss),Length(ss)-AnsiPos(' ',ss)+1);
+       if AnsiUpperCase(ss)=AnsiUpperCase(NameFile) then
+         begin
+          if ss1[AnsiPos(':',ss1)-1]=' '
+             then Delete(ss1,1,AnsiPos(':',ss1))
+             else Delete(ss1,1,AnsiPos(':',ss1)-3);
+           ss1:=Trim(ss1);
+           readln(f,ss);
+           Delete(ss,1,2);
+           Delete(ss,AnsiPos(' ',ss),Length(ss)-AnsiPos(' ',ss)+1);
+           break;
+         end;
+      end;
+     {ShowMessage(ss1);}
+     Try
+     fT:=StrToFloat(ss);
+     Ftime:=ss1;
+     Except
+     fT:=0;
+     Ftime:='';
+     End;
+      CloseFile(f);
+   end;
+ Sorting;
+end;
+
+procedure TVector.ReadFromGraph(Series: TCustomSeries);
+ var i:integer;
+begin
+ Clear;
+ SetLenVector(Series.Count);
+ for I := 0 to High(Points) do
+   PointSet(I,Series.XValue[i],Series.YValue[i]);
+end;
+
+procedure TVector.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
  var i:integer;
 begin
   i:=ConfigFile.ReadInteger(Section,Ident+'n',0);
@@ -245,11 +453,30 @@ begin
 //  N_end:=ConfigFile.ReadInteger(Section,Ident+'N_end',n-1);
 end;
 
-procedure VectorNew.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+procedure TVector.WriteToFile(NameFile: string; NumberDigit: Byte);
+ var   Str:TStringList;
+       i:integer;
+begin
+ Str:=TStringList.Create;
+ for I := 0 to High(Points)
+   do  Str.Add(PoinToString(Points[i],NumberDigit));
+ Str.SaveToFile(NameFile);
+ Str.Free;
+end;
+
+procedure TVector.WriteToGraph(Series: TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
+ var i:integer;
+begin
+ Series.Clear;
+ for I := 0 to High(Points) do
+   Series.AddXY(Points[i,cX],Points[i,cY],ALabel,AColor);
+end;
+
+procedure TVector.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
 var
   I: Integer;
 begin
- WriteIniDef(ConfigFile,Section,Ident+'n',n,0);
+ WriteIniDef(ConfigFile,Section,Ident+'n',Count,0);
  WriteIniDef(ConfigFile,Section,Ident+'name',name);
  WriteIniDef(ConfigFile,Section,Ident+'time',time);
  WriteIniDef(ConfigFile,Section,Ident+'T',T);
@@ -262,13 +489,42 @@ begin
   end;
 end;
 
-procedure VectorNew.Add(newX,newY:double);
+function TVector.XtoString: string;
 begin
- Self.SetLenVector(n+1);
+ Result:=CoordToString(cX);
+end;
+
+function TVector.Xvalue(Yvalue: double): double;
+begin
+ Result:=Value(cY,Yvalue);
+end;
+
+function TVector.XYtoString: string;
+ var i:integer;
+begin
+ Result:='';
+ for i:=0 to High(Points) do
+   Result:=Result+'('+PoinToString(Points[i])+')'+#10+#13;
+
+end;
+
+function TVector.YtoString: string;
+begin
+ Result:=CoordToString(cY);
+end;
+
+function TVector.Yvalue(Xvalue: double): double;
+begin
+ Result:=Value(cX,Xvalue);
+end;
+
+procedure TVector.Add(newX,newY:double);
+begin
+ Self.SetLenVector(Count+1);
  PointSet(High(Points),newX,newY);
 end;
 
-procedure VectorNew.Delete(NumberToDelete:integer);
+procedure TVector.DeletePoint(NumberToDelete:integer);
 var
   I: Integer;
 begin
@@ -278,7 +534,29 @@ begin
  Self.SetLenVector(High(Points));
 end;
 
-procedure VectorNew.DeleteNfirst(Nfirst:integer);
+procedure TVector.DeletePointsByCondition(FunVPB: TFunVectorPointBool);
+ var i,Point:integer;
+ label Start;
+begin
+  Point:=0;
+  i:=-1;
+ Start:
+  if i<>-1 then
+     Self.DeletePoint(i);
+  for I := Point to High(Points)-1 do
+    begin
+      if FunVPB(i) then
+            goto Start;
+      Point:=I+1;
+    end;
+end;
+
+procedure TVector.DeleteZeroY;
+begin
+ DeletePointsByCondition(FunVPBDeleteZeroY);
+end;
+
+procedure TVector.DeleteNfirst(Nfirst:integer);
 var
   I: Integer;
 begin
@@ -290,10 +568,10 @@ begin
     end;
   for I := 0 to High(Points)-Nfirst
     do PointSet(i,PointGet(i+Nfirst));
-  Self.SetLenVector(n-Nfirst);
+  Self.SetLenVector(Count-Nfirst);
 end;
 
-Procedure VectorNew.Sorting (Increase:boolean=True);
+Procedure TVector.Sorting (Increase:boolean=True);
 var i,j:integer;
     ChangeNeed:boolean;
 begin
@@ -306,7 +584,42 @@ for I := 0 to High(Points)-1 do
      end;
 end;
 
-Procedure VectorNew.DeleteDuplicate;
+function TVector.StandartDeviation(Coord: TCoord_type): double;
+ var mn,sm:double;
+     i:integer;
+begin
+ mn:=MeanValue(Coord);
+ sm:=0;
+ for I := 0 to High(Points) do
+ sm:=sm+sqr(Points[i,Coord]-mn);
+ Result:=sqrt(sm/High(Points))
+end;
+
+function TVector.Stat(Coord: TCoord_type; FunVector: TFunVectorInt;
+  minPointNumber: Integer): integer;
+begin
+  if Count<minPointNumber
+     then Result:=ErResult
+     else Result:=FunVector(Coord);
+end;
+
+function TVector.Stat(Coord: TCoord_type; FunVector: TFunVector;
+                         minPointNumber: Integer): double;
+begin
+  if Count<minPointNumber
+     then Result:=ErResult
+     else Result:=FunVector(Coord);
+end;
+
+function TVector.Sum(Coord: TCoord_type): double;
+ var i:integer;
+begin
+ Result:=0;
+ for I := 0 to High(Points) do
+   Result:=Result+Points[i,Coord];
+end;
+
+Procedure TVector.DeleteDuplicate;
  var i,j,PointToDelete,Point:integer;
  label Start;
 begin
@@ -314,7 +627,7 @@ begin
   PointToDelete:=-1;
  Start:
   if PointToDelete<>-1 then
-     Self.Delete(PointToDelete);
+     Self.DeletePoint(PointToDelete);
   for I := Point to High(Points)-1 do
     begin
       for j := i+1 to High(Points) do
@@ -327,223 +640,132 @@ begin
     end;
 end;
 
-Procedure VectorNew.DeleteErResult;
- var i,Point:integer;
- label Start;
+Procedure TVector.DeleteErResult;
+// var i,Point:integer;
+// label Start;
+//begin
+//  Point:=0;
+//  i:=-1;
+// Start:
+//  if i<>-1 then
+//     Self.DeletePoint(i);
+//  for I := Point to High(Points)-1 do
+//    begin
+//      if (X[i]=ErResult)or(Y[i]=ErResult) then
+//            goto Start;
+//      Point:=I+1;
+//    end;
 begin
-  Point:=0;
-  i:=-1;
- Start:
-  if i<>-1 then
-     Self.Delete(i);
-  for I := Point to High(Points)-1 do
-    begin
-      if (X[i]=ErResult)or(Y[i]=ErResult) then
-            goto Start;
-      Point:=I+1;
-    end;
+ DeletePointsByCondition(FunVPBDeleteErResult);
 end;
 
-Procedure VectorNew.SwapXY;
+Procedure TVector.SwapXY;
  var i:integer;
 begin
  for I := 0 to High(Points) do PointCoordSwap(Points[i]);
 end;
 
-//Function VectorNew.MaxX:double;
-//begin
-//  if n<1 then
-//    Result:=ErResult
-//         else
-////    Result:=X[MaxElemNumber(X)];
-//    Result:=MaxValue(X);
-//end;
 
-//Function VectorNew.MaxY:double;
-//begin
-//  if n<1 then
-//    Result:=ErResult
-//         else
-//    Result:=Y[MaxElemNumber(Y)];
-//end;
-//
-//Function VectorNew.MinX:double;
-//begin
-//  if n<1 then
-//    Result:=ErResult
-//         else
-//    Result:=X[MinElemNumber(X)];
-//end;
-//
-//Function VectorNew.MinY:double;
-//begin
-//  if n<1 then
-//    Result:=ErResult
-//         else
-//    Result:=Y[MinElemNumber(Y)];
-//end;
-//
-//Function VectorNew.MeanY:double;
-//begin
-//  if n<1 then
-//    Result:=ErResult
-//         else
-//    Result:=Mean(Y);
-//end;
-//
-//Function VectorNew.MeanX:double;
-//begin
-//  if n<1 then
-//    Result:=ErResult
-//         else
-//    Result:=Mean(X);
-//end;
-//
-//Function VectorNew.StandartDeviationY:double;
-//{повертає стандартне відхилення значень в масиві Y
-//SD=(sum[(yi-<y>)^2]/(n-1))^0.5}
-// var mean,sum:double;
-//     i:integer;
-//begin
-//  if n<2 then
-//    Result:=ErResult
-//         else
-//    begin
-//     mean:=MeanY;
-//     sum:=0;
-//     for I := 0 to High(Y) do
-//       sum:=sum+sqr(Y[i]-mean);
-//     Result:=sqrt(sum/(n-1))
-//    end;
-//end;
-//
-//Function VectorNew.StandartErrorY:double;
-//{повертає стандартну похибку значень в масиві Y
-//SЕ=SD/n^0.5}
-//begin
-//  if n<2 then
-//    Result:=ErResult
-//         else
-//    Result:=StandartDeviationY/sqrt(n);
-//end;
-//
-//Function VectorNew.StandartDeviationX:double;
-// var mean,sum:double;
-//     i:integer;
-//begin
-//  if n<2 then
-//    Result:=ErResult
-//         else
-//    begin
-//     mean:=MeanX;
-//     sum:=0;
-//     for I := 0 to High(X) do
-//       sum:=sum+sqr(X[i]-mean);
-//     Result:=sqrt(sum/(n-1))
-//    end;
-//end;
-//
-//Function VectorNew.StandartErrorX:double;
-//begin
-//  if n<2 then
-//    Result:=ErResult
-//         else
-//    Result:=StandartDeviationX/sqrt(n);
-//end;
-//
-//
-//
-//
-//Function VectorNew.SumX:double;
-// var i:integer;
-//begin
-// Result:=0;
-// for I := 0 to High(X) do
-//   Result:=Result+X[i]
-//end;
-//
-//Function VectorNew.SumY:double;
-// var i:integer;
-//begin
-// Result:=0;
-// for I := 0 to High(Y) do
-//   Result:=Result+Y[i]
-//end;
-//
-//Function VectorNew.Xvalue(Yvalue:double):double;
-//var i:integer;
-//begin
-//  i:=1;
-//  Result:=ErResult;
-//  if High(X)<0 then Exit;
-//  repeat
-//   if ((Y[i]-Yvalue)*(Y[i-1]-Yvalue))<=0 then
-//     begin
-//     Result:=X_Y0(X[i],Y[i],X[i-1],Y[i-1],Yvalue);
-//     i:=High(X);
-//     end;
-//   i:=i+1;
-//  until (i>High(X));
-//end;
-//
-//Function VectorNew.Yvalue(Xvalue:double):double;
-// var i:integer;
-//begin
-//  i:=1;
-//  Result:=ErResult;
-//  if High(X)<0 then Exit;
-//  repeat
-//   if ((X[i]-Xvalue)*(X[i-1]-Xvalue))<=0 then
-//     begin
-//     Result:=Y_X0(X[i],Y[i],X[i-1],Y[i-1],Xvalue);
-//     i:=High(X);
-//     end;
-//   i:=i+1;
-//  until (i>High(X));
-//end;
-//
-//
-//Procedure VectorNew.Copy (var Target:VectorNew);
-// var i:integer;
-//begin
-//  Target.SetLenVector(n);
-//  for I := 0 to n-1 do
-//    begin
-//     Target.X[i]:=X[i];
-//     Target.Y[i]:=Y[i];
-//    end;
-//  Target.T:=T;
-//  Target.name:=name;
-//  Target.time:=time;
-//  Target.N_begin:=N_begin;
-//  Target.N_end:=N_end;
-//end;
+function TVector.Value(Coord: TCoord_type; CoordValue: Double): double;
+ var i,number:integer;
+begin
+  i:=1;
+  Result:=ErResult;
+  if (High(Points)<0)
+     or(CoordValue=ErResult) then Exit;
+  repeat
+   if ((Points[i,Coord]-CoordValue)*(Points[i-1,Coord]-CoordValue))<=0 then
+     begin
+      Result:=ValueXY(Coord,CoordValue,i,i-1);
+      Exit;
+     end;
+   i:=i+1;
+  until (i>High(Points));
 
-//Procedure VectorNew.CopyXtoArray(var TargetArray:TArrSingle);
-function VectorNew.CopyToArray(const Coord: TCoord_type): TArrSingle;
+  number:=0;
+  if CoordValue<MinValue(Coord) then number:=MinNumber(Coord);
+  if CoordValue>MaxValue(Coord) then number:=MaxNumber(Coord);
+  if number<High(Points)
+    then Result:=ValueXY(Coord,CoordValue,number,number+1)
+    else Result:=ValueXY(Coord,CoordValue,number,number-1);
+end;
+
+function TVector.ValueNumber(Coord: TCoord_type;
+  CoordValue: Double): integer;
  var i:integer;
 begin
- SetLength(Result,n);
+ for i:=0 to High(Points)-1 do
+   if (CoordValue-Points[i,Coord])*(CoordValue-Points[i+1,Coord])<=0
+    then
+     begin
+     Result:=i;
+     Exit;
+     end;
+ Result:=-1;
+end;
+
+function TVector.ValueXY(Coord: TCoord_type; CoordValue: Double;
+                            i,j:integer): double;
+begin
+  case Coord of
+    cY:Result:=X_Y0(Points[i],Points[j],CoordValue);
+    cX:Result:=Y_X0(Points[i],Points[j],CoordValue);
+    else Result:=ErResult;
+  end;
+end;
+
+
+function TVector.CoordToString(Coord: TCoord_type): string;
+ var i:integer;
+begin
+ Result:='';
+ for i:=0 to High(Points) do
+   Result:=Result+FloaTtoStr(Points[i,Coord])+' ';
+end;
+
+Procedure TVector.CopyTo (TargetVector:TVector);
+ var i:integer;
+begin
+  TargetVector.SetLenVector(Self.Count);
+  for I := 0 to High(Self.Points)
+    do TargetVector.PointSet(I,Self.Points[i]);
+  TargetVector.fT:=Self.fT;
+  TargetVector.fname:=Self.fname;
+  TargetVector.ftime:=Self.ftime;
+  TargetVector.fSegmentBegin:=Self.fSegmentBegin;
+end;
+
+//Procedure VectorNew.CopyXtoArray(var TargetArray:TArrSingle);
+function TVector.CopyToArray(const Coord: TCoord_type): TArrSingle;
+ var i:integer;
+begin
+ SetLength(Result,Count);
  for I := 0 to High(Points) do Result[i]:=Points[i][Coord];
 end;
 
-function VectorNew.CopyXtoArray():TArrSingle;
+function TVector.CopyXtoArray():TArrSingle;
 begin
  Result:=CopyToArray(cX);
 end;
 
-function VectorNew.CopyYtoArray():TArrSingle;
+function TVector.CopyYtoArray():TArrSingle;
 begin
  Result:=CopyToArray(cY);
 end;
 
-function VectorNew.CopyYtoPArray: PTArrSingle;
+function TVector.CopyYtoPArray: PTArrSingle;
 begin
  new(Result);
  Result^:=CopyYtoArray();
 end;
 
-function VectorNew.CopyXtoPArray():PTArrSingle;
+constructor TVector.Create(ExternalVector: TVector);
+begin
+  Create();
+  CopyFrom(ExternalVector);
+end;
+
+function TVector.CopyXtoPArray():PTArrSingle;
 begin
  new(Result);
  Result^:=CopyXtoArray();
@@ -558,7 +780,12 @@ end;
 //end;
 //
 
-Procedure VectorNew.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
+procedure TVector.CopyFrom(const SourceVector: TVector);
+begin
+ SourceVector.CopyTo(Self);
+end;
+
+Procedure TVector.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
  var i:integer;
 begin
  Clear();
@@ -566,99 +793,38 @@ begin
    Add(SourceXArray[i],SourceYArray[i]);
 end;
 
-Procedure VectorNew.CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
+Procedure TVector.CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
 begin
  CopyFromXYArrays(SourceXArray^,SourceYArray^);
 end;
 
+procedure TVector.ReadTextFile(const F: Text);
+var
+  x: Double;
+  y: Double;
+begin
+  Reset(f);
+  while not (eof(f)) do
+  begin
+    try
+      readln(f, x, y);
+      Add(x, y);
+    except
+    end;
+  end;
+  CloseFile(f);
+end;
 
-//Procedure VectorNew.CopyLimitedX (var Target:VectorNew;Xmin,Xmax:double);
-// var i:integer;
-//begin
-//  Target.Clear;
-//  Target.T:=T;
-//  Target.name:=name;
-//  for I := 0 to High(X) do
-//    if (X[i]>=Xmin)and(X[i]<=Xmax) then
-//       Target.Add(X[i],Y[i])
-//end;
-//
-//Procedure VectorNew.MultiplyY(const A:double);
-// var i:integer;
-//begin
-// if A=1 then Exit;
-// for I := 0 to n - 1 do
-//  Y[i]:=Y[i]*A;
-//end;
-//
-//Procedure VectorNew.PositiveX(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if X[i]>=0 then
-//     Target.Add(X[i],Y[i]);
-//end;
-//
-//Procedure VectorNew.PositiveY(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if Y[i]>=0 then
-//     Target.Add(X[i],Y[i]);
-//end;
-//
-//Procedure VectorNew.AbsX(var Target:VectorNew);
-// var i:integer;
-//begin
-// Copy(Target);
-// for I := 0 to n - 1 do
-//     if Target.X[i]=0 then Target.Delete(i)
-//                      else
-//     Target.X[i]:=abs(Target.X[i]);
-//end;
-//
-//Procedure VectorNew.AbsY(var Target:VectorNew);
-// var i:integer;
-//begin
-// Copy(Target);
-// for I := 0 to n - 1 do
-//     if Target.Y[i]=0 then Target.Delete(i)
-//                      else
-//     Target.Y[i]:=abs(Target.Y[i]);
-//end;
-//
-//Procedure VectorNew.NegativeX(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if X[i]<0 then
-//     Target.Add(X[i],Y[i]);
-//end;
-//
-//Procedure VectorNew.NegativeY(var Target:VectorNew);
-// var i:integer;
-//begin
-// Target.SetLenVector(0);
-// for I := 0 to n - 1 do
-//   if Y[i]<0 then
-//     Target.Add(X[i],Y[i]);
-//end;
-//
-//Procedure VectorNew.Write_File(sfile:string; NumberDigit:Byte=4);
-//var i:integer;
-//    Str:TStringList;
-//begin
-//  if n=0 then Exit;
-//  Str:=TStringList.Create;
-//  for I := 0 to High(X) do
-//     Str.Add(FloatToStrF(X[i],ffExponent,NumberDigit,0)+' '+
-//             FloatToStrF(Y[i],ffExponent,NumberDigit,0));
-//  Str.SaveToFile(sfile);
-//  Str.Free;
-//end;
+
+
+Procedure TVector.MultiplyY(const A:double);
+ var i:integer;
+begin
+ if A=1 then Exit;
+ for I := 0 to High(Points) do
+  Points[i,cY]:=Points[i,cY]*A;
+end;
+
 //
 //Procedure VectorNew.Load_File(sfile:string);
 //  var F:TextFile;
@@ -684,67 +850,81 @@ end;
 //   N_end:=n;
 //  end;
 //end;
-//
-//Procedure VectorNew.DeltaY(deltaVector:VectorNew);
-// var i:integer;
-//begin
-// if High(X)<>High(deltaVector.X) then Exit;
-// for i := 0 to High(X) do
-//        Y[i]:=Y[i]-deltaVector.Y[i];
-//end;
 
-procedure VectorNew.Add(newXY: double);
+Procedure TVector.DeltaY(deltaVector:TVector);
+ var i:integer;
+begin
+ if High(Self.Points)<>High(deltaVector.Points) then Exit;
+ for i := 0 to High(Self.Points) do
+        Y[i]:=Y[i]-deltaVector.Y[i];
+end;
+
+
+procedure TVector.Add(newXY: double);
 begin
  self.Add(newXY,newXY);
 end;
 
-procedure VectorNew.Add(newPoint: TPoint);
+procedure TVector.Add(newPoint: TPointDouble);
 begin
- Self.SetLenVector(n+1);
+ Self.SetLenVector(Count+1);
  PointSet(High(Points),newPoint);
 end;
 
-Procedure VectorNew.Clear();
+Procedure TVector.Clear();
 begin
   SetLenVector(0);
+  Fname:='';
+  Ftime:='';
+  fT:=0;
+  fSegmentBegin:=0;
 end;
 
-//Procedure VectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
-// const Nmax=10000;
-// var i:integer;
-//     argument:double;
-//begin
-// i:=0;
-// argument:=Xmin;
-// repeat
-//   inc(i);
-//   argument:=argument+deltaX;
-// until (argument>Xmax)or(i>Nmax);
-// if (i>Nmax) then
-//   begin
-//     Clear();
-//     Exit;
-//   end;
-// SetLenVector(i);
-// for I := 0 to n - 1 do
-//  begin
-//    X[i]:=Xmin+i*deltaX;
-//    Y[i]:=Fun(X[i],Parameters);
-//  end;
-//end;
-//
-//
-//Procedure VectorNew.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
-//begin
-//  if Nstep<1 then Clear()
-//    else if Nstep=1 then Filling(Fun,Xmin,Xmax,Xmax-Xmin+1,Parameters)
-//       else Filling(Fun,Xmin,Xmax,(Xmax-Xmin)/(Nstep-1),Parameters)
-//end;
-//
-//Procedure VectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
-//begin
-// Filling(Fun,Xmin,Xmax,deltaX,[]);
-//end;
+Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
+ const Nmax=10000;
+ var i:integer;
+     argument:double;
+begin
+ i:=0;
+ argument:=Xmin;
+ repeat
+   inc(i);
+   argument:=argument+deltaX;
+ until (argument>Xmax)or(i>Nmax);
+ if (i>Nmax) then
+   begin
+     Clear();
+     Exit;
+   end;
+ SetLenVector(i);
+ for I := 0 to High(Points) do
+  begin
+    X[i]:=Xmin+i*deltaX;
+    Y[i]:=Fun(X[i],Parameters);
+  end;
+end;
+
+Procedure TVector.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
+begin
+  if Nstep<1 then Clear()
+    else if Nstep=1 then Filling(Fun,Xmin,Xmax,Xmax-Xmin+1,Parameters)
+       else Filling(Fun,Xmin,Xmax,(Xmax-Xmin)/(Nstep-1),Parameters)
+end;
+
+Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
+begin
+ Filling(Fun,Xmin,Xmax,deltaX,[]);
+end;
+function TVector.FunVPBDeleteErResult(i: integer): boolean;
+begin
+ Result:=(Points[i][cX]=ErResult)or(Points[i][cY]=ErResult);
+end;
+
+function TVector.FunVPBDeleteZeroY(i: integer): boolean;
+begin
+ Result:=(Points[i][cY]=0);
+end;
+
 //
 //Procedure VectorNew.Decimation(Np:word);
 // {залишається лише 0-й, ?-й, 2N-й.... елементи,
@@ -796,13 +976,13 @@ end;
 //
 { VectorNew }
 
-constructor VectorNew.Create;
+constructor TVector.Create;
 begin
  inherited;
  Clear();
 end;
 
-function VectorNew.GetData(const Number: Integer; Index:Integer): double;
+function TVector.GetData(const Number: Integer; Index:Integer): double;
 begin
  if Number>High(Points)
     then Result:=ErResult
@@ -810,29 +990,164 @@ begin
 
 end;
 
-function VectorNew.GetN: Integer;
+function TVector.GetHigh: Integer;
 begin
-// Result:=High(fX)+1;
+  Result:=High(Points);
+end;
+
+function TVector.GetInformation(const Index: Integer): double;
+begin
+ case Index of
+  1:Result:=Stat(cX,Self.MaxValue);
+  2:Result:=Stat(cY,Self.MaxValue);
+  3:Result:=Stat(cX,Self.MinValue);
+  4:Result:=Stat(cY,Self.MinValue);
+  5:Result:=Stat(cX,Self.Sum);
+  6:Result:=Stat(cY,Self.Sum);
+  7:Result:=Stat(cX,Self.MeanValue);
+  8:Result:=Stat(cY,Self.MeanValue);
+  9:Result:=Stat(cX,Self.StandartDeviation,2);
+  10:Result:=Stat(cY,Self.StandartDeviation,2);
+  11:Result:=Stat(cX,Self.StandartDeviation,2)/sqrt(Count);
+  12:Result:=Stat(cY,Self.StandartDeviation,2)/sqrt(Count);
+  else Result:=ErResult;
+ end;
+end;
+
+function TVector.GetInformationInt(const Index: Integer): Integer;
+begin
+ case Index of
+  1:Result:=Stat(cX,Self.MaxNumber);
+  2:Result:=Stat(cY,Self.MaxNumber);
+  3:Result:=Stat(cX,Self.MinNumber);
+  4:Result:=Stat(cY,Self.MinNumber);
+  else Result:=ErResult;
+ end;
+end;
+
+function TVector.GetInt_Trap: double;
+ var i:integer;
+begin
+  Result:=0;
+  for I := 1 to High(Points) do
+     Result:=Result+(X[i]-X[i-1])*(Y[i]+Y[i-1]);
+  Result:=Result/2;
+end;
+
+function TVector.GetN: Integer;
+begin
  Result:=High(Points)+1;
 end;
 
-function VectorNew.IsEmptyGet: boolean;
+function TVector.GetSegmentEnd: Integer;
+begin
+  Result:=fSegmentBegin+HighNumber;
+end;
+
+function TVector.IsEmptyGet: boolean;
 begin
  Result:=(High(Points)<0);
 end;
 
-procedure VectorNew.PointCoordSwap(Point: Tpoint);
+function TVector.Krect(Xvalue: double): double;
+  var temp1, temp2:double;
 begin
- Swap(Point[cX],Point[cX]);
+   Result:=ErResult;
+   temp1:=Yvalue(Xvalue);
+   temp2:=Yvalue(-Xvalue);
+   if (temp1=ErResult)or(temp2=ErResult) then Exit;
+   if (temp2<>0) then Result:=abs(temp1/temp2);
 end;
 
-function VectorNew.PointGet(Number: integer): TPoint;
+function TVector.MaxNumber(Coord: TCoord_type): integer;
+var
+  I: Integer;
+  tempmax:double;
+begin
+  Result := 0;
+  tempmax := Points[0,Coord];
+  for I := 1 to High(Points) do
+    if tempmax < Points[i,Coord] then
+       begin
+         Result:=i;
+         tempmax := Points[i,Coord];
+       end;
+end;
+
+function TVector.MaxValue(Coord: TCoord_type): double;
+var
+  I: Integer;
+begin
+  Result := Points[0,Coord];
+  for I := 1 to High(Points) do
+    if Result < Points[i,Coord] then
+      Result := Points[i,Coord];
+end;
+
+function TVector.MeanValue(Coord: TCoord_type): double;
+begin
+ Result:=Sum(Coord)/Count;
+end;
+
+function TVector.MinNumber(Coord: TCoord_type): integer;
+var
+  I: Integer;
+  tempmin:double;
+begin
+  Result := 0;
+  tempmin := Points[0,Coord];
+  for I := 1 to High(Points) do
+    if tempmin > Points[i,Coord] then
+       begin
+         Result:=i;
+         tempmin := Points[i,Coord];
+       end;
+end;
+
+function TVector.MinValue(Coord: TCoord_type): double;
+var
+  I: Integer;
+begin
+  Result := Points[0,Coord];
+  for I := 1 to High(Points) do
+    if Result > Points[i,Coord] then
+      Result := Points[i,Coord];
+end;
+
+procedure TVector.PointCoordSwap(var Point: TPointDouble);
+begin
+ Swap(Point[cX],Point[cY]);
+end;
+
+function TVector.PointGet(Number: integer): TPointDouble;
 begin
  Result[cX]:=Points[Number,cX];
  Result[cY]:=Points[Number,cY];
 end;
 
-procedure VectorNew.PointSet(Number: integer; Point: TPoint);
+function TVector.PointInDiapazon(Lim: Limits; PointNumber: integer): boolean;
+begin
+ Result:=Lim.PoinValide(Self[PointNumber]);
+end;
+
+function TVector.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
+begin
+ Result:=Diapazon.PoinValide(Self[PointNumber]);
+end;
+
+function TVector.PoinToString(PointNumber: Integer;
+         NumberDigit: Byte): string;
+begin
+  Result:=PoinToString(Self[PointNumber],NumberDigit);
+end;
+
+function TVector.PoinToString(Point: TPointDouble; NumberDigit: Byte): string;
+begin
+ Result:=FloatToStrF(Point[cX],ffExponent,NumberDigit,0)+' '+
+         FloatToStrF(Point[cY],ffExponent,NumberDigit,0);
+end;
+
+procedure TVector.PointSet(Number: integer; Point: TPointDouble);
 begin
  try
   Points[Number,cX]:=Point[cX];
@@ -841,8 +1156,8 @@ begin
  end;
 end;
 
-procedure VectorNew.PointSwap(Number1, Number2: integer);
- var tempPoint:TPoint;
+procedure TVector.PointSwap(Number1, Number2: integer);
+ var tempPoint:TPointDouble;
 begin
  try
   tempPoint:=PointGet(Number1);
@@ -852,7 +1167,7 @@ begin
  end;
 end;
 
-procedure VectorNew.PointSet(Number: integer; x, y: double);
+procedure TVector.PointSet(Number: integer; x, y: double);
 begin
  try
   Points[Number,cX]:=x;
@@ -877,7 +1192,7 @@ end;
 //   else Result := Points[Index].Y;
 //end;
 
-procedure VectorNew.SetData(const Number: Integer;
+procedure TVector.SetData(const Number: Integer;
                             Index: Integer; const Value: double);
 begin
  if Number>High(Points)
@@ -886,10 +1201,197 @@ begin
 end;
 
 
-procedure VectorNew.SetT(const Value: Extended);
+procedure TVector.SetT(const Value: Extended);
 begin
   if Value>0 then fT := Value
              else fT:=0;
 end;
+
+//{ TVectorManipulation }
+//
+//constructor TVectorManipulation.Create(ExternalVector: TVector);
+//begin
+//  inherited Create;
+//  fVector:=TVector.Create;
+//  SetVector(ExternalVector);
+//end;
+//
+//procedure TVectorManipulation.Free;
+//begin
+// fVector.Free;
+// inherited Free;
+//end;
+//
+////function TVectorManipulation.GetVector: TVector;
+////begin
+////// Result:=TVector.Create;
+////// Result.Clear;
+//// fVector.Copy(Result);
+////end;
+//
+//procedure TVectorManipulation.SetVector(const Value: TVector);
+//begin
+// Value.Copy(fVector);
+//end;
+//
+//
+//{ TVectorTransform }
+//
+//procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVector);
+// var i:integer;
+//begin
+// InitTarget(Target);
+// for I := 0 to High(Vector.Points) do
+//     if Vector.Points[i,Coord]=0
+//       then
+//       else
+//         begin
+//         Target.Add(Vector[i]);
+//         Target.Points[High(Target.Points)][Coord]:=
+//              Abs(Target.Points[High(Target.Points)][Coord]);
+//         end;
+//
+//// Vector.Copy(Target);
+////  for I := 0 to Target.Count-1 do
+////     if Target.Points[i,Coord]=0
+////       then
+////         Target.DeletePoint(i)
+////       else
+////         Target.Points[i][Coord]:=Abs(Target.Points[i][Coord]);
+//end;
+//
+//procedure TVectorTransform.AbsX(var Target: TVector);
+//begin
+//  Module(cX,Target);
+//end;
+//
+//procedure TVectorTransform.AbsY(var Target: TVector);
+//begin
+// Module(cY,Target);
+//end;
+//
+//procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVector;
+//                const IsPositive: boolean);
+//  var i:integer;
+//begin
+// InitTarget(Target);
+// for I := 0 to High(Vector.Points) do
+//   if (IsPositive) then
+//      begin
+//       if(Vector.Points[i,Coord]>=0) then Target.Add(Vector[i])
+//      end          else
+//      if(Vector.Points[i,Coord]<0) then Target.Add(Vector[i]);
+//end;
+//
+//procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
+//           var Target: TVector; Clim1, Clim2: double);
+// var i:integer;
+//     Cmin,Cmax:double;
+//begin
+//  if Clim1>Clim2 then
+//      begin
+//        Cmax:=Clim1;
+//        Cmin:=Clim2;
+//      end        else
+//      begin
+//        Cmax:=Clim2;
+//        Cmin:=Clim1;
+//      end;
+//  InitTarget(Target);
+//  for I := 0 to High(Vector.Points) do
+//    if (Vector.Points[i,Coord]>=Cmin)and(Vector.Points[i,Coord]<=Cmax) then
+//       Target.Add(Vector.Points[i]);
+//end;
+//
+//procedure TVectorTransform.CopyLimitedX(var Target: TVector; Xmin, Xmax: double);
+//begin
+// CopyLimited(cX,Target,Xmin, Xmax);
+//end;
+//
+//procedure TVectorTransform.CopyLimitedY(var Target: TVector; Ymin,
+//  Ymax: double);
+//begin
+// CopyLimited(cY,Target,Ymin, Ymax);
+//end;
+//
+//procedure TVectorTransform.InitTarget(var Target: TVector);
+//begin
+//  try
+//   Target.Clear
+//  except
+//   Target:=TVector.Create;
+//  end;
+//  Target.fT:=fVector.fT;
+//end;
+//
+//procedure TVectorTransform.NegativeX(var Target: TVector);
+//begin
+//  Branch(cX,Target,false);
+//end;
+//
+//procedure TVectorTransform.NegativeY(var Target: TVector);
+//begin
+// Branch(cY,Target,false);
+//end;
+//
+//procedure TVectorTransform.PositiveX(var Target: TVector);
+//begin
+// Branch(cX,Target);
+//end;
+//
+//procedure TVectorTransform.PositiveY(var Target: TVector);
+//begin
+// Branch(cY,Target);
+//end;
+
+
+//Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
+//{знаходить ординату точки з абсцисою Х3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//begin
+// try
+// Result:=(Y2*X1-Y1*X2)/(X1-X2)+X3*(Y1-Y2)/(X1-X2);
+// except
+// Result:=ErResult;
+// end;
+//end;
+//
+//Function Y_X0 (Point1,Point2:TPointDouble;X:double):double;overload;
+//begin
+// Result:=Y_X0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],X)
+//end;
+//
+//
+//Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;
+//{знаходить абсцису точки з ординатою Y3,
+//яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
+//лінійна інтерполяція по двом точкам}
+//begin
+// try
+// Result:=(Y3-(Y2*X1-Y1*X2)/(X1-X2))/(Y1-Y2)*(X1-X2);
+// except
+// Result:=ErResult;
+// end;
+//end;
+//
+//Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
+//begin
+//  Result:=X_Y0(Point1[cX],Point1[cY],Point2[cX],Point2[cY],Y);
+//end;
+
+
+  Function Kv(Argument:double;Parameters:array of double):double;
+  var i:integer;
+  begin
+    Result:=0;
+    if High(Parameters)<0
+      then Result:=Argument*Argument
+      else
+        begin
+          for i:=0 to High(Parameters) do
+           result:=Result+Parameters[i]*Power(Argument,i)
+        end;
+  end;
 
 end.

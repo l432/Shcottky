@@ -1,7 +1,8 @@
 unit OlegMaterialSamples;
 
 interface
-uses IniFiles, TypInfo, OlegType,SysUtils,Dialogs, StdCtrls,OlegFunction,OlegMath;
+uses IniFiles, TypInfo, OlegType,SysUtils,Dialogs, StdCtrls,
+     OlegFunction,OlegMath, OlegVector;
 type
     TMaterialName=(Si,GaAs,InP,H4SiC,GaN,CdTe,CdS,CdSe,CuInSe2,GaTe,GaSe,Ge,Other);
     TMaterialParametersName=(
@@ -371,10 +372,11 @@ var
 Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
 
 Procedure AllSCR(DiodPN:TDiod_PN;
-                 var Vec:PVector;Func:TFunTriple;
+                 Vec:TVector;
+                 Func:TFunTriple;
                  T:double=300;V:double=0;
                  FileName:string='';
-                 Npoint:integer=100);
+                 Npoint:integer=100);overload;
 {в Vec розміщується щось, що розраховується
 в кожній точці ОПЗ діода DiodPN;
 Npoint - кількість відрізків, на які ділиться
@@ -383,6 +385,14 @@ Vec^.Y[i]=Func(Vec^.X[i],T,V)
 Якщо FileName<>'', то отримана залежність
 записується у файл
 }
+
+Procedure AllSCR(DiodPN:TDiod_PN;
+                 Func:TFunTriple;
+                 T:double=300;V:double=0;
+                 FileName:string='';
+                 Npoint:integer=100);overload;
+{фактично, цей варіант лише для запису
+у файл }
 
 
 Function ElectronConcentration(const T:double;
@@ -435,7 +445,7 @@ Function FermiLevelDeterminationSimple(const n:double;const T:double):double;
 implementation
 
 uses
-  Controls, Graphics, Math;
+  Controls, Graphics, Math, OlegVectorManipulation;
 
 procedure TMaterial.SetAbsValue(Index:integer; value: Double);
 begin
@@ -774,18 +784,15 @@ begin
 end;
 
 Procedure AllSCR(DiodPN:TDiod_PN;
-                 var Vec:PVector;Func:TFunTriple;
+//                 var Vec:PVector;
+                 Vec:TVector;
+                 Func:TFunTriple;
                  T:double=300;V:double=0;
                  FileName:string='';
                  Npoint:integer=100);
-// const Npoint=100;
  var i:integer;
-     step,X{,T,V}:double;
-//     Vec:PVector;
+     step,X:double;
 begin
-// new(Vec);
-// T:=300;
-// V:=0.1;
  Vec.Clear;
  step:=DiodPN.Wn(T,V)/Npoint;
  for I := 0 to Npoint do
@@ -799,29 +806,22 @@ begin
     X:=step*i;
     Vec.Add(X,Func(X,T,V));
    end;
- if FileName<>'' then Vec.Write_File(FileName);
-
-// Vec.Clear;
-// step:=DiodPN.Wn(T,V)/Npoint;
-// for I := 0 to Npoint do
-//   begin
-//    X:=-DiodPN.Wn(T,V)+step*i;
-////    Vec.Add(X,sqrt(DiodPN.FLayerP.FMaterial.Nc(T)*DiodPN.FLayerP.FMaterial.Nv(T)*
-////                   exp(-DiodPN.FLayerP.FMaterial.EgT(T)/Kb/T)));
-//    Vec.Add(X,DiodPN.p_SCR(X,T,V));
-//   end;
-// step:=DiodPN.Wp(T,V)/Npoint;
-// for I := 1 to Npoint do
-//   begin
-//    X:=step*i;
-////    Vec.Add(X,sqrt(DiodPN.FLayerP.FMaterial.Nc(T)*DiodPN.FLayerP.FMaterial.Nv(T)*
-////                   exp(-DiodPN.FLayerP.FMaterial.EgT(T)/Kb/T)));
-//    Vec.Add(X,DiodPN.p_SCR(X,T,V));
-//   end;
-// Vec.Write_File('pSCR.dat');
-//
-// Dispose(Vec);
+// if FileName<>'' then Vec.Write_File(FileName);
+ if FileName<>'' then Vec.WriteToFile(FileName);
 end;
+
+
+Procedure AllSCR(DiodPN:TDiod_PN;
+                 Func:TFunTriple;
+                 T:double=300;V:double=0;
+                 FileName:string='';
+                 Npoint:integer=100);overload;
+ var Vec:TVector;
+begin
+ Vec:=TVector.Create;
+ AllSCR(DiodPN,Vec,Func,T,V,FileName,Npoint);
+ Vec.Free;
+end;                 
 
 { TMaterialShow }
 
@@ -1349,15 +1349,26 @@ begin
 end;
 
 function TDiod_PN.I_Shockley(T, V: double): double;
- var Vec:PVector;
+// var Vec:PVector;
+ var Vec:TVector;
 begin
-  new(Vec);
+  Vec:=TVector.Create;
   AllSCR(Self,Vec,R_Shockley,T,V);
 //  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
 //  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
 //  AllSCR(Self,Vec,R_DAP,T,V);
-  Result:=Area*Qelem*Int_Trap(Vec);
-  dispose(Vec);
+  Result:=Area*Qelem*Vec.Int_Trap;
+  Vec.Free;
+
+
+
+//  new(Vec);
+//  AllSCR(Self,Vec,R_Shockley,T,V);
+////  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
+////  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
+////  AllSCR(Self,Vec,R_DAP,T,V);
+//  Result:=Area*Qelem*Int_Trap(Vec);
+//  dispose(Vec);
 end;
 
 
@@ -1811,7 +1822,8 @@ class function Silicon.Green(Lambda: double): double;
                     1430,	2.5E-8,
                     1440,	1.8E-8,
                     1450,	1.2E-8);
- var Vect:PVector;
+ var Vect:TVectorTransform;
+
      i:integer;
 begin
   if Lambda=900 then
@@ -1820,15 +1832,12 @@ begin
      Exit;
    end;
 
-  new(Vect);
-  Vect^.SetLenVector(trunc(High(Si_absorption)/2));
-  for I := 0 to High(Vect^.X) do
-    begin
-     Vect^.X[i]:=Si_absorption[2*i];
-     Vect^.Y[i]:=Si_absorption[2*i+1];
-    end;
-  Result:=Splain3(Vect,Lambda)*100;
-  dispose(Vect);
+  Vect:=TVectorTransform.Create;
+  Vect.SetLenVector(trunc(High(Si_absorption)/2));
+  for I := 0 to Vect.HighNumber
+     do Vect.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
+  Result:=Vect.YvalueSplain3(Lambda)*100;
+  Vect.Free;
 end;
 
 class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;

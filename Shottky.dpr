@@ -2,7 +2,7 @@ program Shottky;
 
 uses
   Forms,
-  Unit1 in 'Unit1.pas' {Form1},
+  Unit1new in 'Unit1new.pas' {Form1},
   OlegGraph in 'OlegGraph.pas',
   OlegType in 'OlegType.pas',
   OlegMath in 'OlegMath.pas',
@@ -18,7 +18,12 @@ uses
   OlegDefectsSi in 'OlegDefectsSi.pas',
   OlegShowTypes in 'OlegShowTypes.pas',
   OlegTypePart2 in 'OlegTypePart2.pas',
-  OlegVector in 'OlegVector.pas';
+  OlegVector in 'OlegVector.pas',
+  OlegVectorOld in 'OlegVectorOld.pas',
+  OlegVectorManipulation in 'OlegVectorManipulation.pas',
+  OlegTests in 'OlegTests.pas',
+  OlegMathShottky in 'OlegMathShottky.pas',
+  OlegDigitalManipulation in 'OlegDigitalManipulation.pas';
 
 {$R *.res}
 
