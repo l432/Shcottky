@@ -3936,12 +3936,18 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
-
+ var Vec:TVectorTransform;
+     SA,SA2:TArrSingle;
 begin
+ Vec:=TVectorTransform.Create;
+ Vec.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
+ if not(Vec.ParabAprox(SA)) then   showmessage('Error');
+ if not(Vec.NPolinomAprox(2,SA2)) then   showmessage('Error2');
+
+ showmessage(ArrayToString(SA)+#10+ArrayToString(SA2))
 
 
-
-showmessage(floattostr(Button(2e-8)));
+//showmessage(floattostr(Button(2e-8)));
 //showmessage(floattostr(Button(1.07e-4)));
 
 

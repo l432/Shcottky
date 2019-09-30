@@ -147,6 +147,8 @@ type
       Procedure SetLengthSys(Number:integer);
       procedure Clear;
       procedure CopyTo(var SE:SysEquation);
+      procedure OutPutX(var OutputData:TArrSingle);
+      procedure InPutF(InputData:TArrSingle);
      end;
     {тип використовується при розв'язку
     системи лінійних рівнянь
@@ -581,6 +583,28 @@ begin
    SE.x[i]:=Self.x[i];
    for j:=0 to N-1 do SE.A[i,j]:=Self.A[i,j];
    end;
+end;
+
+procedure SysEquation.InPutF(InputData: TArrSingle);
+ var i:integer;
+begin
+  try
+    for I := 0 to High(InputData) do
+      f[i]:=InputData[i];
+  finally
+
+  end;
+end;
+
+procedure SysEquation.OutPutX(var OutputData: TArrSingle);
+ var i:integer;
+begin
+  try
+    for I := 0 to High(x) do
+      OutputData[i]:=x[i];
+  finally
+
+  end;
 end;
 
 procedure SysEquation.SetLengthSys(Number: integer);

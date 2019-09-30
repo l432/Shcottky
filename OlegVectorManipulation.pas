@@ -116,6 +116,9 @@ type
      Function ParabAprox (var  OutputData:TArrSingle):boolean;
       {апроксимуються дані  параболічною
       залежністю y=OutputData[0]+OutputData[1]*x+OutputData[2]*x^2}
+     Function NPolinomAprox (N:word;var  OutputData:TArrSingle):boolean;
+      {апроксимуються дані  поліномом N-го ступеня
+      y=OutputData[0]+OutputData[1]*x+OutputData[2]*x^2+...+OutputData[N]*x^N}
      Function IvanovAprox (var  OutputData:TArrSingle;
                            DD: TDiod_Schottky; OutsideTemperature: Double = 555):boolean;
       {апроксимація даних у векторі V параметричною залежністю
@@ -196,6 +199,11 @@ type
       {обчислюється струм короткого замикання}
      function Voc():double;
       {обчислюється напруга холостого ходу}
+     function Pm():double;
+      {обчислюється максимальна вихідна потужність,
+      використовується підхід з роботи
+      ProgPhotov_25_p623-625.pdf
+      для випадку SNR=80 dB}
    end;
 
 
@@ -796,6 +804,50 @@ begin
  Branch(cY,Target,false);
 end;
 
+function TVectorTransform.NPolinomAprox(N:word;
+           var OutputData: TArrSingle): boolean;
+var R:PSysEquation;
+    i,j:integer;
+    SumX,SumXY:TArrSingle;
+    temp:double;
+begin
+  Result:=False;
+  InitArrSingle(OutputData,N+1);
+  if Self.Count<(N+1) then Exit;
+  new(R);
+  R^.SetLengthSys(N+1);
+  R^.Clear;
+  SetLength(SumXY,N+1);
+  for I := 0 to High(SumXY) do SumXY[i]:=0;
+  SetLength(SumX,2*N+1);
+  for I := 0 to High(SumX) do SumX[i]:=0;
+
+  SumX[0]:=Self.Count;
+  SumXY[0]:=Self.SumY;
+  for I := 0 to Self.HighNumber do
+   begin
+    temp:=1;
+    for j := 1 to High(SumX) do
+     begin
+       temp:=temp*X[i];
+       SumX[j]:=SumX[j]+temp;
+       if j<(n+1) then
+        SumXY[j]:=SumXY[j]+Y[i]*temp;
+     end;
+   end;
+
+  R^.InPutF(SumXY);
+  for I := 0 to N do
+    for j := 0 to N do
+       R^.A[i,j]:=SumX[i+j];
+  GausGol(R);
+
+  if R^.N=ErResult then Exit;
+  R^.OutPutX(OutputData);
+  dispose(R);
+  Result:=True;
+end;
+
 function TVectorTransform.ParabAprox(var OutputData: TArrSingle): boolean;
 var Sx,Sy,Sxy,Sx2,Sx3,Sx4,Syx2,pr:double;
     i:integer;
@@ -820,9 +872,69 @@ begin
   OutputData[2]:=(Syx2*(Count*Sx2-Sx*Sx)-Sx3*(Count*Sxy-Sx*Sy)+Sx2*(Sxy*Sx-Sx2*Sy))/pr;
   OutputData[1]:=(Sx4*(Count*Sxy-Sx*Sy)-Syx2*(Count*Sx3-Sx*Sx2)+Sx2*(Sx3*Sy-Sx2*Sxy))/pr;
   OutputData[0]:=(Sx4*(Sy*Sx2-Sx*Sxy)-Sx3*(Sy*Sx3-Sxy*Sx2)+Syx2*(Sx3*Sx-Sx2*Sx2))/pr;
+  Result:=True;
   except
   end;
  end;
+
+end;
+
+function TVectorTransform.Pm: double;
+ var P_V,temp:TVectorTransform;
+     i:integer;
+     Pmax,Vmax,Imax:double;
+     Number_Vmax:integer;
+     outputData:TArrSingle;
+begin
+ Result:=ErResult;
+ P_V:=TVectorTransform.Create();
+ Self.ForwardX(P_V);
+ if P_V.Count<5 then Exit;
+
+ P_V.Sorting();
+ for I := 0 to P_V.HighNumber do
+      P_V.Y[i]:=P_V.Y[i]*P_V.X[i];
+ Pmax:=P_V.MinY;
+ if Pmax>=0 then Exit;
+
+ Number_Vmax:=P_V.ValueNumberPrecise(cY,Pmax);
+ Vmax:=P_V.X[Number_Vmax];
+ Imax:=Pmax/Vmax;
+ temp:=TVectorTransform.Create();
+
+ temp.N_begin:=-1;
+ for i := 0 to Number_Vmax - 1 do
+    if P_V.Y[i]<=Pmax*0.82 then
+     begin
+       if temp.N_begin<0 then  temp.N_begin:=i;
+        Temp.Add(P_V[i]);
+     end;
+
+ for i := Number_Vmax to P_V.HighNumber do
+    if P_V.Y[i]<=Pmax*0.94 then
+        Temp.Add(P_V[i]);
+
+ i:=-1;
+ while temp.Count<5 do
+  begin
+    if i<0 then
+      begin
+        i:=1;
+        temp.N_begin:=temp.N_begin-1;
+        if temp.N_begin>=0 then Temp.Add(P_V[temp.N_begin]);
+      end;
+    if i>0 then
+      begin
+        i:=-1;
+        if (temp.N_begin+temp.Count)<P_V.HighNumber then
+            Temp.Add(P_V[temp.N_begin+temp.Count]);
+      end;
+
+  end;
+ temp.NPolinomAprox(4,outputData);
+
+ P_V.Free;
+ temp.Free;
 end;
 
 procedure TVectorTransform.PositiveX(Target: TVector);

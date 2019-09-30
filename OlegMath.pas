@@ -334,6 +334,12 @@ Function Linear(a,b,x:double):double;overload;
 Function Linear(x:double;data:TArrSingle):double;overload;
 {повертає data[0]+data[1]*x}
 
+Function NPolinom(x:double;N:word;data:TArrSingle):double;overload;
+{повертає data[0]+data[1]*x+...data[N]*x^N}
+
+Function NPolinom(x:double;data:TArrSingle):double;overload;
+{повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)}
+
 //Procedure Diferen (A:Pvector; var B:PVector);
 //procedure TVectorTransform.Derivate(var Target: TVector);
 {в В розміщується похідна від значень, розташованих
@@ -2259,7 +2265,40 @@ begin
   except
   Result:=ErResult;
   end;
-end; 
+end;
+
+
+Function NPolinom(x:double;N:word;data:TArrSingle):double;overload;
+{повертає data[0]+data[1]*x+...data[N]*x^N}
+ var i:integer;
+     temp:double;
+begin
+ if High(data)<=N then Result:=NPolinom(x,data)
+                  else
+ begin
+   Result:=data[0];
+   temp:=1;
+   for I := 1 to N do
+    begin
+     temp:=temp*x;
+     Result:=Result+temp*data[i];
+    end;
+ end;
+end;
+
+Function NPolinom(x:double;data:TArrSingle):double;overload;
+{повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)}
+ var i:integer;
+     temp:double;
+begin
+ Result:=data[0];
+ temp:=1;
+ for I := 1 to High(data) do
+  begin
+   temp:=temp*x;
+   Result:=Result+temp*data[i];
+  end;
+end;
 
 //Procedure Median (A:Pvector; var B:PVector);
 //{в В розміщується результат дії на дані в А

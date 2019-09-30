@@ -244,9 +244,13 @@ type
       якщо точок в потрібному діапазоні немає -
       пишиться повідомлення і повертається ErResult}
       function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
-      {повертає номер точки вектора, координата якого близька до CoordValue:
+      {повертає номер точки вектора, координата якої близька до CoordValue:
       CoordValue має знаходитися на інтервалі від
       Point[Result,Coord] до Point[Result+1,Coord]
+      якщо не входить в діапазон зміни - повервається -1}
+      function ValueNumberPrecise (Coord: TCoord_type; CoordValue: Double):integer;
+      {повертає номер першої точки вектора, координата якої
+      співпадає з CoordValue з точність IsEqual:
       якщо не входить в діапазон зміни - повервається -1}
 
       procedure MultiplyY(const A:double);
@@ -696,6 +700,20 @@ function TVector.ValueNumber(Coord: TCoord_type;
 begin
  for i:=0 to High(Points)-1 do
    if (CoordValue-Points[i,Coord])*(CoordValue-Points[i+1,Coord])<=0
+    then
+     begin
+     Result:=i;
+     Exit;
+     end;
+ Result:=-1;
+end;
+
+function TVector.ValueNumberPrecise(Coord: TCoord_type;
+  CoordValue: Double): integer;
+ var i:integer;
+begin
+ for i:=0 to HighNumber do
+   if IsEqual(CoordValue,Points[i,Coord])
     then
      begin
      Result:=i;
