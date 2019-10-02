@@ -152,6 +152,9 @@ Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
 Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;
                    const eps:double=1e-6):double;
+//Function Bisection(const F:TFun; const Parameters:TArrSingle;
+//                   const Xmax:double=5; const Xmin:double=0;
+//                   const eps:double=1e-6):double;
 {метод ділення навпіл для функції F на інтервалі [Xmin,Xmax]
 eps - відносна точність розв'язку
 (ширина кінцевого інтервалу по відношенню до величини його границь)}
@@ -972,6 +975,10 @@ end;
 // dispose(temp);
 //end;
 
+
+//Function Bisection(const F:TFun; const Parameters:TArrSingle;
+//                   const Xmax:double=5; const Xmin:double=0;
+//                   const eps:double=1e-6):double;
 
 Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;

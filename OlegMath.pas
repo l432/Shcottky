@@ -334,11 +334,17 @@ Function Linear(a,b,x:double):double;overload;
 Function Linear(x:double;data:TArrSingle):double;overload;
 {повертає data[0]+data[1]*x}
 
-Function NPolinom(x:double;N:word;data:TArrSingle):double;overload;
+Function NPolinom(x:double;N:word;data:array of double):double;overload;
 {повертає data[0]+data[1]*x+...data[N]*x^N}
 
-Function NPolinom(x:double;data:TArrSingle):double;overload;
+Function NPolinom(x:double;data:array of double):double;overload;
 {повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)}
+
+
+Function NPolinomMinusX(x:double;data:array of double):double;overload;
+{повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)-x,
+потрібна функція для знаходження екстремума за допомогою
+Bisection}
 
 //Procedure Diferen (A:Pvector; var B:PVector);
 //procedure TVectorTransform.Derivate(var Target: TVector);
@@ -2268,7 +2274,7 @@ begin
 end;
 
 
-Function NPolinom(x:double;N:word;data:TArrSingle):double;overload;
+Function NPolinom(x:double;N:word;data:array of double):double;overload;
 {повертає data[0]+data[1]*x+...data[N]*x^N}
  var i:integer;
      temp:double;
@@ -2286,7 +2292,7 @@ begin
  end;
 end;
 
-Function NPolinom(x:double;data:TArrSingle):double;overload;
+Function NPolinom(x:double;data:array of double):double;overload;
 {повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)}
  var i:integer;
      temp:double;
@@ -2298,6 +2304,11 @@ begin
    temp:=temp*x;
    Result:=Result+temp*data[i];
   end;
+end;
+
+Function NPolinomMinusX(x:double;data:array of double):double;overload;
+begin
+  Result:=NPolinom(x,data)-x;
 end;
 
 //Procedure Median (A:Pvector; var B:PVector);

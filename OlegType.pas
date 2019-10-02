@@ -105,9 +105,14 @@ type
 // end;
 //
 
+  TArrSingle=array of double;
+  PTArrSingle=^TArrSingle;
+  T2DArray=array of array of double;
+
 
   TFunS=Function(x:double):double;
   TFun=Function(Argument:double;Parameters:array of double):double;
+//  TFun=Function(Argument:double;Parameters:TArrSingle):double;
 
   TFunSingle=Function(x:double):double of object;
   TFunDouble=Function(x,y:double):double of object;
@@ -118,9 +123,6 @@ type
   TSimpleEvent = procedure() of object;
   TByteEvent = procedure(B: byte) of object;
 
-  TArrSingle=array of double;
-  PTArrSingle=^TArrSingle;
-  T2DArray=array of array of double;
 
 
   TArrArrSingle=array of TArrSingle;

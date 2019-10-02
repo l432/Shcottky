@@ -3941,11 +3941,14 @@ procedure TForm1.Button1Click(Sender: TObject);
 begin
  Vec:=TVectorTransform.Create;
  Vec.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
- if not(Vec.ParabAprox(SA)) then   showmessage('Error');
- if not(Vec.NPolinomAprox(2,SA2)) then   showmessage('Error2');
+ Vec.Pm;
 
- showmessage(ArrayToString(SA)+#10+ArrayToString(SA2))
+// showmessage(floattostr(NPolinom(2.9,[9,12,-11,2])));
 
+// showmessage(floattostr(Bisection(NPolinom,[9,12,-11,2],
+//                 -1,5)));
+// showmessage(ArrayToString(SA)+#10+ArrayToString(SA2))
+ Vec.Free;
 
 //showmessage(floattostr(Button(2e-8)));
 //showmessage(floattostr(Button(1.07e-4)));

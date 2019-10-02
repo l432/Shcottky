@@ -1,7 +1,7 @@
 unit OlegVectorManipulation;
 
 interface
- uses OlegVector,OlegType, OlegMaterialSamples;
+ uses OlegVector,OlegType, OlegMaterialSamples, OlegFunction;
 
 
 type
@@ -882,9 +882,10 @@ end;
 function TVectorTransform.Pm: double;
  var P_V,temp:TVectorTransform;
      i:integer;
-     Pmax,Vmax,Imax:double;
+     Pmax,Vmax,Imax,Voc:double;
      Number_Vmax:integer;
-     outputData:TArrSingle;
+     outputData,koefDerivate:TArrSingle;
+     FromVectorBegin:boolean;
 begin
  Result:=ErResult;
  P_V:=TVectorTransform.Create();
@@ -899,9 +900,79 @@ begin
 
  Number_Vmax:=P_V.ValueNumberPrecise(cY,Pmax);
  Vmax:=P_V.X[Number_Vmax];
- Imax:=Pmax/Vmax;
+ Imax:=-Pmax/Vmax;
  temp:=TVectorTransform.Create();
 
+// Number_Vmax:=Self.ValueNumberPrecise(cX,Vmax);
+ temp.N_begin:=-1;
+ for i := 0 to Self.HighNumber do
+    if (Self.X[i]>=-0.5*Vmax)and(Self.X[i]<=0.42*Vmax) then
+     begin
+       if temp.N_begin<0 then  temp.N_begin:=i;
+        Temp.Add(Self[i]);
+     end;
+
+ showmessage(temp.XYtoString);
+ FromVectorBegin:=True;
+// FromVectorBegin:=False;
+ while temp.Count<2 do
+  begin
+    if FromVectorBegin then
+      begin
+        if temp.N_begin>0 then
+           begin
+            temp.N_begin:=temp.N_begin-1;
+            temp.Add(Self[temp.N_begin]);
+           end;
+      end                 else
+      begin
+        if (temp.N_begin+temp.Count)<Self.HighNumber then
+            Temp.Add(Self[temp.N_begin+temp.Count]);
+      end;
+   FromVectorBegin:=not(FromVectorBegin);
+  end;
+ temp.Sorting();
+ showmessage(temp.XYtoString);
+ temp.LinAprox(outputData);
+ showmessage('Isc='+floattostr(-outputData[0]));
+
+//----------------------------------------------
+ temp.Clear;
+ temp.N_begin:=-1;
+ for i := 0 to Self.HighNumber do
+    if (Self.Y[i]>=-0.11*Imax)and(Self.Y[i]<=0.33*Imax) then
+     begin
+       if temp.N_begin<0 then  temp.N_begin:=i;
+        Temp.Add(Self[i]);
+     end;
+
+ showmessage(temp.XYtoString);
+ FromVectorBegin:=False;
+ while temp.Count<3 do
+  begin
+    if FromVectorBegin then
+      begin
+        if temp.N_begin>0 then
+           begin
+            temp.N_begin:=temp.N_begin-1;
+            temp.Add(Self[temp.N_begin]);
+           end;
+      end                 else
+      begin
+        if (temp.N_begin+temp.Count)<Self.HighNumber then
+            Temp.Add(Self[temp.N_begin+temp.Count]);
+      end;
+   FromVectorBegin:=not(FromVectorBegin);
+  end;
+ temp.Sorting();
+ showmessage(temp.XYtoString);
+ temp.ParabAprox(outputData);
+ Voc:=Bisection(NPolinom,outputData,
+                 temp.X[0],temp.X[temp.HighNumber]);
+ showmessage('Voc='+floattostr(Voc));
+
+//---------------------------------------
+ temp.Clear;
  temp.N_begin:=-1;
  for i := 0 to Number_Vmax - 1 do
     if P_V.Y[i]<=Pmax*0.82 then
@@ -914,25 +985,42 @@ begin
     if P_V.Y[i]<=Pmax*0.94 then
         Temp.Add(P_V[i]);
 
- i:=-1;
+// showmessage(temp.XYtoString);
+ FromVectorBegin:=True;
+// FromVectorBegin:=False;
  while temp.Count<5 do
   begin
-    if i<0 then
+    if FromVectorBegin then
       begin
-        i:=1;
-        temp.N_begin:=temp.N_begin-1;
-        if temp.N_begin>=0 then Temp.Add(P_V[temp.N_begin]);
-      end;
-    if i>0 then
+        if temp.N_begin>0 then
+           begin
+            temp.N_begin:=temp.N_begin-1;
+            temp.Add(P_V[temp.N_begin]);
+           end;
+      end                 else
       begin
-        i:=-1;
         if (temp.N_begin+temp.Count)<P_V.HighNumber then
             Temp.Add(P_V[temp.N_begin+temp.Count]);
       end;
-
+   FromVectorBegin:=not(FromVectorBegin);
   end;
+ temp.Sorting();
+// showmessage(temp.XYtoString);
+
  temp.NPolinomAprox(4,outputData);
 
+ SetLength(koefDerivate,4);
+ koefDerivate[0]:=outputData[1];
+ koefDerivate[1]:=2*outputData[2];
+ koefDerivate[2]:=3*outputData[3];
+ koefDerivate[3]:=4*outputData[4];
+ Vmax:=Bisection(NPolinom,koefDerivate,
+                 temp.X[0],temp.X[temp.HighNumber]);
+ Result:=-P_V.YvalueSplain3(Vmax);
+ Imax:=-Self.YvalueSplain3(Vmax);
+// showmessage('Vmax='+floattostr(Vmax)
+//             +' Imax='+floattostr(Imax)
+//             +' Pmax='+floattostr(Result));
  P_V.Free;
  temp.Free;
 end;
