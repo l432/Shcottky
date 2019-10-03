@@ -38,6 +38,8 @@ type
            fYMax:double;
            fBr:Char; //'F' коли діапазон для прямої гілки
                      //'R' коли діапазон для зворотньої гілки
+           fStrictEquality:boolean;
+                     {TRUE - в PoinValide строгі рівності}
            procedure SetData(Index:integer; value:double);
            procedure SetDataBr(value:Char);
 
@@ -47,11 +49,14 @@ type
            property XMax:double Index 3 read fXMax write SetData;
            property YMax:double Index 4 read fYMax write SetData;
            property Br:Char read fBr write SetDataBr;
+           property StrictEquality:boolean  read fStrictEquality write fStrictEquality;
            Constructor Create();
            procedure Copy (Souсe:TDiapazon);
            procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
            procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
            function PoinValide(Point:TPointDouble): boolean;
+           procedure SetLimits(const XmMin,XmMax,YmMin,YmMax:double);
+           function ToString:string;
            {визначає, чи задовільняють координати точки Point межам}
          end;
 
@@ -308,6 +313,23 @@ if value='R' then fBr:=value
              else fBr:='F';
 end;
 
+
+procedure TDiapazon.SetLimits(const XmMin, XmMax, YmMin, YmMax: double);
+begin
+ Self.XMin:=XmMin;
+ Self.XMax:=XmMax;
+ Self.YMin:=YmMin;
+ Self.YMax:=ymMax;
+end;
+
+function TDiapazon.ToString: string;
+begin
+ Result:='Xmin='+floattostr(fXMin)
+         +#10+'Xmax='+floattostr(fXMax)
+         +#10+'Ymin='+floattostr(fYMin)
+         +#10+'Ymax='+floattostr(fYMax);
+end;
+
 Procedure TDiapazon.Copy (Souсe:TDiapazon);
            {копіює значення полів з Souсe в даний}
 begin
@@ -326,6 +348,7 @@ begin
  fXMax:=ErResult;
  fYMax:=ErResult;
  fBr:='F';
+ fStrictEquality:=True;
 end;
 
 function TDiapazon.PoinValide(Point: TPointDouble): boolean;
@@ -334,16 +357,34 @@ begin
  bXmax:=false;bYmax:=false;bXmin:=false;bYmin:=false;
 case fBr of
  'F':begin
-    bXmax:=(XMax=ErResult)or(Point[cX]<XMax);
-    bXmin:=(XMin=ErResult)or(Point[cX]>XMin);
-    bYmax:=(YMax=ErResult)or(Point[cY]<YMax);
-    bYmin:=(YMin=ErResult)or(Point[cY]>YMin);
+      if fStrictEquality then
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]<XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]>XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]<YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]>YMin);
+          end            else
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]<=XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]>=XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]<=YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]>=YMin);
+          end;
      end;
  'R':begin
-    bXmax:=(XMax=ErResult)or(Point[cX]>-XMax);
-    bXmin:=(XMin=ErResult)or(Point[cX]<-XMin);
-    bYmax:=(YMax=ErResult)or(Point[cY]>-YMax);
-    bYmin:=(YMin=ErResult)or(Point[cY]<-YMin);
+      if fStrictEquality then
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]>-XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]<-XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]>-YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]<-YMin);
+          end            else
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]>=-XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]<=-XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]>=-YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]<=-YMin);
+          end;
     end;
  end; //case
 // if YminDontUsed then bYmin:=True;

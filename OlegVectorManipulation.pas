@@ -116,9 +116,33 @@ type
      Function ParabAprox (var  OutputData:TArrSingle):boolean;
       {апроксимуються дані  параболічною
       залежністю y=OutputData[0]+OutputData[1]*x+OutputData[2]*x^2}
+     Function PVParareters (var  OutputData:TArrSingle):boolean;
+      {обчислюються фотоелектричні параметри
+      по формі ВАХ
+      Voc - OutputData[0],
+      Isc - OutputData[1],
+      Pm - OutputData[2],
+      Vm - OutputData[3],
+      Im - OutputData[4]}
      Function NPolinomAprox (N:word;var  OutputData:TArrSingle):boolean;
       {апроксимуються дані  поліномом N-го ступеня
       y=OutputData[0]+OutputData[1]*x+OutputData[2]*x^2+...+OutputData[N]*x^N}
+     Function NPolinomZero(N:word):double;
+     {знаходиться нуль поліному N-го ступеня,
+     яким апроксимуються дані;
+     нуль шукається на інтервалі зміни Х,
+     якщо функція немонотонна - можливі проблеми}
+     Function NPolinomA0(N:word):double;
+     {повертається нульовий коефіцієнт
+     поліному N-го ступеня,
+     яким апроксимуються дані - фактично
+     значення функції при х=0}
+     Function NPolinomExtremum(N:word):double;
+     {знаходиться координата екстремуму
+     поліному N-го ступеня,
+     яким апроксимуються дані;
+     шукається на інтервалі зміни Х,
+     якщо функція немонотонна - можливі проблеми}
      Function IvanovAprox (var  OutputData:TArrSingle;
                            DD: TDiod_Schottky; OutsideTemperature: Double = 555):boolean;
       {апроксимація даних у векторі V параметричною залежністю
@@ -183,18 +207,41 @@ type
       {обчислюється кількість локальних
       максимумів у Vector;
       дані мають бути упорядковані по координаті X}
-     Procedure CopyDiapazonPoint(Target:TVector;D:TDiapazon;InitVector:TVector);overload;
+     Procedure CopyDiapazonPoint(Target:TVector;
+                          D:TDiapazon;InitVector:TVector;
+                          RewriteTarget:boolean=True);overload;
       {записує в Target ті точки з Vector, відповідні
       до яких точки у InitVector (вихідному) задовольняють
       умовам D; зрозуміло, що для Vector
       мають бути відомими N_begin;
+      в Target.N_begin номер першої точки, яка підійшла;
+      якщо RewriteTarget=False, то Target
+      попередньо не очищаеться,
+      точки додаються до існуючих,
       Target.N_begin не розраховується}
      Procedure CopyDiapazonPoint(Target:TVector;Lim:Limits;InitVector:TVector);overload;
-     Procedure CopyDiapazonPoint(Target:TVector;D:TDiapazon);overload;
+     Procedure CopyDiapazonPoint(Target:TVector;D:TDiapazon;
+                        RewriteTarget:boolean=True);overload;
       {записує в Target ті точки з Vector, які
       задовольняють умовам D;
       Vector.N_begin має бути 0;
-      Target.N_begin не розраховується}
+      в Target.N_begin номер першої точки, яка підійшла}
+     Procedure Power (Target:TVector);
+       {Target.X[i]=Self.X[i]
+       Target.Y[i]=Self.X[i]*Self.Y[i]
+       для всіх Self.X[i]>=0}
+     Procedure PointSupplement (Target:TVector;
+                                const PointCount:word;
+                                FromVectorBegin:boolean=True);
+      {доповнюється Target точками з Self,
+       щоб Target.Count=PointCount;
+       вибираються почергово точки
+       Self[Target.N_begin-1] та
+       Self[Target.N_begin+Target.Count],
+       при FromVectorBegin=True починаємо
+       з початку вектору;
+       якщо в Self замало точок, то просто повертається
+       менший  Target}
      function Isc():double;
       {обчислюється струм короткого замикання}
      function Voc():double;
@@ -349,47 +396,40 @@ begin
 end;
 
 procedure TVectorTransform.CopyDiapazonPoint(Target: TVector;
-                      D: TDiapazon; InitVector: TVector);
- var i,j:integer;
+                      D: TDiapazon; InitVector: TVector;
+                     RewriteTarget:boolean=True);
+ var i:integer;
 begin
- InitTarget(Target);
+ if RewriteTarget then InitTarget(Target);
  Target.T:=InitVector.T;
- j:=-1;
  for I := 0 to Self.HighNumber do
    if InitVector.PointInDiapazon(D,i+Self.N_begin)
      then
       begin
-      if j<0 then
-         begin
-           j:=0;
-           Target.N_begin:=Target.N_begin+i;
-         end;
+      if Target.Count<1
+         then Target.N_begin:=Target.N_begin+i;
       Target.Add(Self[i]);
       end;
 end;
 
 procedure TVectorTransform.CopyDiapazonPoint(Target: TVector;
-  D: TDiapazon);
+  D: TDiapazon;RewriteTarget:boolean);
 begin
- CopyDiapazonPoint(Target,D,Self);
+ CopyDiapazonPoint(Target,D,Self,RewriteTarget);
 end;
 
 procedure TVectorTransform.CopyDiapazonPoint(Target: TVector;
-  Lim: Limits; InitVector: TVector);
- var i,j:integer;
+        Lim: Limits; InitVector: TVector);
+ var i:integer;
 begin
  InitTarget(Target);
  Target.T:=InitVector.T;
- j:=-1;
  for I := 0 to Self.HighNumber do
    if InitVector.PointInDiapazon(Lim,i+Self.N_begin)
      then
       begin
-      if j<0 then
-         begin
-           j:=0;
-           Target.N_begin:=Target.N_begin+i;
-         end;
+      if Target.Count<1
+         then Target.N_begin:=Target.N_begin+i;
       Target.Add(Self[i]);
       end;
 end;
@@ -804,6 +844,14 @@ begin
  Branch(cY,Target,false);
 end;
 
+function TVectorTransform.NPolinomA0(N: word): double;
+ var outputData:TArrSingle;
+begin
+ if Self.NPolinomAprox(N,outputData)
+   then Result:=outputData[0]
+   else Result:=ErResult;
+end;
+
 function TVectorTransform.NPolinomAprox(N:word;
            var OutputData: TArrSingle): boolean;
 var R:PSysEquation;
@@ -848,6 +896,31 @@ begin
   Result:=True;
 end;
 
+function TVectorTransform.NPolinomExtremum(N: word): double;
+ var outputData:TArrSingle;
+     i:integer;
+begin
+ if Self.NPolinomAprox(N,outputData)
+   then
+    begin
+      for i := 1 to High(outputData) do
+       outputData[i-1]:=i*outputData[i];
+      SetLength(outputData,High(outputData));
+      Result:=Bisection(NPolinom,outputData,
+                 Self.X[0],Self.X[Self.HighNumber])
+    end
+   else Result:=ErResult;
+end;
+
+function TVectorTransform.NPolinomZero(N: word): double;
+ var outputData:TArrSingle;
+begin
+ if Self.NPolinomAprox(N,outputData)
+   then Result:=Bisection(NPolinom,outputData,
+                 Self.X[0],Self.X[Self.HighNumber])
+   else Result:=ErResult;
+end;
+
 function TVectorTransform.ParabAprox(var OutputData: TArrSingle): boolean;
 var Sx,Sy,Sxy,Sx2,Sx3,Sx4,Syx2,pr:double;
     i:integer;
@@ -881,148 +954,81 @@ end;
 
 function TVectorTransform.Pm: double;
  var P_V,temp:TVectorTransform;
-     i:integer;
+     D:TDiapazon;
      Pmax,Vmax,Imax,Voc:double;
      Number_Vmax:integer;
-     outputData,koefDerivate:TArrSingle;
-     FromVectorBegin:boolean;
 begin
  Result:=ErResult;
  P_V:=TVectorTransform.Create();
- Self.ForwardX(P_V);
- if P_V.Count<5 then Exit;
-
- P_V.Sorting();
- for I := 0 to P_V.HighNumber do
-      P_V.Y[i]:=P_V.Y[i]*P_V.X[i];
+ Self.Power(P_V);
  Pmax:=P_V.MinY;
- if Pmax>=0 then Exit;
+
+ if (P_V.Count<5)or(Pmax>=0) then Exit;
 
  Number_Vmax:=P_V.ValueNumberPrecise(cY,Pmax);
  Vmax:=P_V.X[Number_Vmax];
  Imax:=-Pmax/Vmax;
+
+ D:=TDiapazon.Create;
+ D.StrictEquality:=False;
+ D.SetLimits(-0.5*Vmax,0.42*Vmax,Self.MinY,ErResult);
+
  temp:=TVectorTransform.Create();
+ Self.CopyDiapazonPoint(temp,D);
 
-// Number_Vmax:=Self.ValueNumberPrecise(cX,Vmax);
- temp.N_begin:=-1;
- for i := 0 to Self.HighNumber do
-    if (Self.X[i]>=-0.5*Vmax)and(Self.X[i]<=0.42*Vmax) then
-     begin
-       if temp.N_begin<0 then  temp.N_begin:=i;
-        Temp.Add(Self[i]);
-     end;
+ Self.PointSupplement(temp,2);
 
- showmessage(temp.XYtoString);
- FromVectorBegin:=True;
-// FromVectorBegin:=False;
- while temp.Count<2 do
-  begin
-    if FromVectorBegin then
-      begin
-        if temp.N_begin>0 then
-           begin
-            temp.N_begin:=temp.N_begin-1;
-            temp.Add(Self[temp.N_begin]);
-           end;
-      end                 else
-      begin
-        if (temp.N_begin+temp.Count)<Self.HighNumber then
-            Temp.Add(Self[temp.N_begin+temp.Count]);
-      end;
-   FromVectorBegin:=not(FromVectorBegin);
-  end;
- temp.Sorting();
- showmessage(temp.XYtoString);
- temp.LinAprox(outputData);
- showmessage('Isc='+floattostr(-outputData[0]));
-
+ showmessage('Isc='+floattostr(-temp.NPolinomA0(1)));
 //----------------------------------------------
- temp.Clear;
- temp.N_begin:=-1;
- for i := 0 to Self.HighNumber do
-    if (Self.Y[i]>=-0.11*Imax)and(Self.Y[i]<=0.33*Imax) then
-     begin
-       if temp.N_begin<0 then  temp.N_begin:=i;
-        Temp.Add(Self[i]);
-     end;
 
- showmessage(temp.XYtoString);
- FromVectorBegin:=False;
- while temp.Count<3 do
-  begin
-    if FromVectorBegin then
-      begin
-        if temp.N_begin>0 then
-           begin
-            temp.N_begin:=temp.N_begin-1;
-            temp.Add(Self[temp.N_begin]);
-           end;
-      end                 else
-      begin
-        if (temp.N_begin+temp.Count)<Self.HighNumber then
-            Temp.Add(Self[temp.N_begin+temp.Count]);
-      end;
-   FromVectorBegin:=not(FromVectorBegin);
-  end;
- temp.Sorting();
- showmessage(temp.XYtoString);
- temp.ParabAprox(outputData);
- Voc:=Bisection(NPolinom,outputData,
-                 temp.X[0],temp.X[temp.HighNumber]);
+ D.SetLimits(Self.MinX,ErResult,-0.11*Imax,0.33*Imax);
+
+ Self.CopyDiapazonPoint(temp,D);
+ Self.PointSupplement(temp,3,False);
+ Voc:=temp.NPolinomZero(2);
  showmessage('Voc='+floattostr(Voc));
 
 //---------------------------------------
- temp.Clear;
- temp.N_begin:=-1;
- for i := 0 to Number_Vmax - 1 do
-    if P_V.Y[i]<=Pmax*0.82 then
-     begin
-       if temp.N_begin<0 then  temp.N_begin:=i;
-        Temp.Add(P_V[i]);
-     end;
 
- for i := Number_Vmax to P_V.HighNumber do
-    if P_V.Y[i]<=Pmax*0.94 then
-        Temp.Add(P_V[i]);
+ D.SetLimits(P_V.MinX,P_V.X[Number_Vmax - 1],P_V.MinY,Pmax*0.82);
+ P_V.CopyDiapazonPoint(temp,D);
+ D.SetLimits(P_V.X[Number_Vmax],ErResult,P_V.MinY,Pmax*0.94);
+ P_V.CopyDiapazonPoint(temp,D,False);
 
-// showmessage(temp.XYtoString);
- FromVectorBegin:=True;
-// FromVectorBegin:=False;
- while temp.Count<5 do
+ p_V.PointSupplement(temp,5);
+
+ Vmax:=temp.NPolinomExtremum(4);
+ Result:=-P_V.YvalueSplain3(Vmax);
+ Imax:=-Self.YvalueSplain3(Vmax);
+ showmessage('Vmax='+floattostr(Vmax)
+             +' Imax='+floattostr(Imax)
+             +' Pmax='+floattostr(Result));
+ D.Free;
+ P_V.Free;
+ temp.Free;
+end;
+
+procedure TVectorTransform.PointSupplement(Target: TVector;
+   const PointCount: word; FromVectorBegin: boolean);
+begin
+ if Self.Count<PointCount then Exit;
+ while Target.Count<PointCount do
   begin
-    if FromVectorBegin then
+   if FromVectorBegin then
       begin
-        if temp.N_begin>0 then
+        if Target.N_begin>0 then
            begin
-            temp.N_begin:=temp.N_begin-1;
-            temp.Add(P_V[temp.N_begin]);
+            Target.N_begin:=Target.N_begin-1;
+            Target.Add(Self[Target.N_begin]);
            end;
       end                 else
       begin
-        if (temp.N_begin+temp.Count)<P_V.HighNumber then
-            Temp.Add(P_V[temp.N_begin+temp.Count]);
+        if (Target.N_begin+Target.Count)<Self.HighNumber then
+            Target.Add(Self[Target.N_begin+Target.Count]);
       end;
    FromVectorBegin:=not(FromVectorBegin);
   end;
- temp.Sorting();
-// showmessage(temp.XYtoString);
-
- temp.NPolinomAprox(4,outputData);
-
- SetLength(koefDerivate,4);
- koefDerivate[0]:=outputData[1];
- koefDerivate[1]:=2*outputData[2];
- koefDerivate[2]:=3*outputData[3];
- koefDerivate[3]:=4*outputData[4];
- Vmax:=Bisection(NPolinom,koefDerivate,
-                 temp.X[0],temp.X[temp.HighNumber]);
- Result:=-P_V.YvalueSplain3(Vmax);
- Imax:=-Self.YvalueSplain3(Vmax);
-// showmessage('Vmax='+floattostr(Vmax)
-//             +' Imax='+floattostr(Imax)
-//             +' Pmax='+floattostr(Result));
- P_V.Free;
- temp.Free;
+ Target.Sorting();
 end;
 
 procedure TVectorTransform.PositiveX(Target: TVector);
@@ -1034,6 +1040,65 @@ end;
 procedure TVectorTransform.PositiveY(Target: TVector);
 begin
  Branch(cY,Target);
+end;
+
+procedure TVectorTransform.Power(Target: TVector);
+ var i:integer;
+begin
+ InitTarget(Target);
+ Self.ForwardX(Target);
+ Target.Sorting();
+ for I := 0 to Target.HighNumber do
+      Target.Y[i]:=Target.Y[i]*Target.X[i];
+end;
+
+function TVectorTransform.PVParareters(var OutputData: TArrSingle): boolean;
+ var P_V,temp:TVectorTransform;
+     D:TDiapazon;
+     Pmax,Imax:double;
+     Number_Vmax:integer;
+begin
+ Result:=False;
+ InitArrSingle(OutputData,5);
+
+ P_V:=TVectorTransform.Create();
+ Self.Power(P_V);
+ Pmax:=P_V.MinY;
+
+ if (P_V.Count<5)or(Pmax>=0) then Exit;
+
+ Number_Vmax:=P_V.ValueNumberPrecise(cY,Pmax);
+ Imax:=-Pmax/P_V.X[Number_Vmax];
+
+ D:=TDiapazon.Create;
+ D.StrictEquality:=False;
+ D.SetLimits(-0.5*P_V.X[Number_Vmax],0.42*P_V.X[Number_Vmax],
+             Self.MinY,ErResult);
+
+ temp:=TVectorTransform.Create();
+ Self.CopyDiapazonPoint(temp,D);
+ Self.PointSupplement(temp,2);
+ OutputData[1]:=-temp.NPolinomA0(1);
+
+ D.SetLimits(Self.MinX,ErResult,
+            -0.11*Imax,0.33*Imax);
+ Self.CopyDiapazonPoint(temp,D);
+ Self.PointSupplement(temp,3,False);
+ OutputData[0]:=temp.NPolinomZero(2);
+
+ D.SetLimits(P_V.MinX,P_V.X[Number_Vmax - 1],P_V.MinY,Pmax*0.82);
+ P_V.CopyDiapazonPoint(temp,D);
+ D.SetLimits(P_V.X[Number_Vmax],ErResult,P_V.MinY,Pmax*0.94);
+ P_V.CopyDiapazonPoint(temp,D,False);
+ p_V.PointSupplement(temp,5);
+ OutputData[3]:=temp.NPolinomExtremum(4);
+ OutputData[2]:=-P_V.YvalueSplain3(OutputData[3]);
+ OutputData[4]:=-Self.YvalueSplain3(OutputData[3]);
+
+ D.Free;
+ P_V.Free;
+ temp.Free;
+ Result:=True;
 end;
 
 procedure TVectorTransform.ReverseIV(Target: TVector);
