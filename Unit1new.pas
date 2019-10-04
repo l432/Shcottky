@@ -3941,7 +3941,10 @@ procedure TForm1.Button1Click(Sender: TObject);
 begin
  Vec:=TVectorTransform.Create;
  Vec.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
- Vec.Pm;
+ Vec.PVParareters(SA);
+ showmessage(ArrayToString(SA,['Voc','Isc','Pm','Vm','Im']));
+ showmessage(floattostr(Vec.Voc));
+ // Vec.Pm;
 
 // showmessage(floattostr(NPolinom(2.9,[9,12,-11,2])));
 

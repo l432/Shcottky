@@ -7,7 +7,10 @@ uses
 
 procedure VectorEquals(const VectorOld:PVector; const VectorNew:TVector);
 
-function ArrayToString(ArrSingle:TArrSingle):string;
+function ArrayToString(ArrSingle:TArrSingle):string;overload;
+
+function ArrayToString(ArrSingle:TArrSingle;TitelsArr:array of string):string;overload;
+
 
 implementation
 
@@ -41,5 +44,17 @@ begin
   for I := 0 to High(ArrSingle) do
     Result:=Result+floattostr(ArrSingle[i])+' ';
 end;
+
+function ArrayToString(ArrSingle:TArrSingle;TitelsArr:array of string):string;overload;
+ var i:integer;
+begin
+  Result:='';
+  for I := 0 to High(ArrSingle) do
+    begin
+    if i<=High(TitelsArr) then  Result:=Result+TitelsArr[i]+' =';
+    Result:=Result+' '+floattostr(ArrSingle[i])+#10;
+    end;
+end;
+
 
 end.

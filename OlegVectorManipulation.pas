@@ -32,12 +32,14 @@ type
    TVectorTransform=class(TVector)
     private
 //     procedure SetVector(const Value: TVectorNew);
-     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word);
+     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
+                             InitialValue:double=ErResult);
      Procedure CopyLimited (Coord:TCoord_type;Target:TVector;Clim1, Clim2:double);
      procedure Branch(Coord:TCoord_type;Target:TVector;
                       const IsPositive:boolean=True;
                       const IsRigorous:boolean=True);
      procedure Module(Coord:TCoord_type;Target:TVector);
+     function PVParareter(Index:word):double;
     protected
      Procedure InitTarget(Target:TVector);
     public
@@ -685,12 +687,12 @@ begin
 end;
 
 procedure TVectorTransform.InitArrSingle(var OutputData: TArrSingle;
-  NumberOfData: word);
+  NumberOfData: word;InitialValue:double=ErResult);
   var i:word;
 begin
  if High(OutputData)<(NumberOfData-1) then SetLength(OutputData,NumberOfData);
  for i := 0 to High(OutputData)
-    do OutputData[i]:=ErResult;
+    do OutputData[i]:=InitialValue;
 end;
 
 procedure TVectorTransform.InitTarget(Target: TVector);
@@ -707,17 +709,18 @@ begin
 end;
 
 function TVectorTransform.Isc: double;
- var temp, temp2:double;
+// var temp, temp2:double;
 begin
- Result:=0;
- if Self.Count<2 then Exit;
- temp:=Self.Yvalue(0);
- temp2:=Self.Yvalue(0.01);
- if (abs(temp2/temp)>2) then Exit
-             else Result:=-temp;
- if temp=ErResult then
-      Result:=(-Self.Y[1]*Self.X[0]+Self.Y[0]*Self.X[1])
-              /(Self.X[0]-Self.X[1]);
+// Result:=0;
+// if Self.Count<2 then Exit;
+// temp:=Self.Yvalue(0);
+// temp2:=Self.Yvalue(0.01);
+// if (abs(temp2/temp)>2) then Exit
+//             else Result:=-temp;
+// if temp=ErResult then
+//      Result:=(-Self.Y[1]*Self.X[0]+Self.Y[0]*Self.X[1])
+//              /(Self.X[0]-Self.X[1]);
+ Result:=PVParareter(1);
 end;
 
 procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
@@ -953,59 +956,8 @@ begin
 end;
 
 function TVectorTransform.Pm: double;
- var P_V,temp:TVectorTransform;
-     D:TDiapazon;
-     Pmax,Vmax,Imax,Voc:double;
-     Number_Vmax:integer;
 begin
- Result:=ErResult;
- P_V:=TVectorTransform.Create();
- Self.Power(P_V);
- Pmax:=P_V.MinY;
-
- if (P_V.Count<5)or(Pmax>=0) then Exit;
-
- Number_Vmax:=P_V.ValueNumberPrecise(cY,Pmax);
- Vmax:=P_V.X[Number_Vmax];
- Imax:=-Pmax/Vmax;
-
- D:=TDiapazon.Create;
- D.StrictEquality:=False;
- D.SetLimits(-0.5*Vmax,0.42*Vmax,Self.MinY,ErResult);
-
- temp:=TVectorTransform.Create();
- Self.CopyDiapazonPoint(temp,D);
-
- Self.PointSupplement(temp,2);
-
- showmessage('Isc='+floattostr(-temp.NPolinomA0(1)));
-//----------------------------------------------
-
- D.SetLimits(Self.MinX,ErResult,-0.11*Imax,0.33*Imax);
-
- Self.CopyDiapazonPoint(temp,D);
- Self.PointSupplement(temp,3,False);
- Voc:=temp.NPolinomZero(2);
- showmessage('Voc='+floattostr(Voc));
-
-//---------------------------------------
-
- D.SetLimits(P_V.MinX,P_V.X[Number_Vmax - 1],P_V.MinY,Pmax*0.82);
- P_V.CopyDiapazonPoint(temp,D);
- D.SetLimits(P_V.X[Number_Vmax],ErResult,P_V.MinY,Pmax*0.94);
- P_V.CopyDiapazonPoint(temp,D,False);
-
- p_V.PointSupplement(temp,5);
-
- Vmax:=temp.NPolinomExtremum(4);
- Result:=-P_V.YvalueSplain3(Vmax);
- Imax:=-Self.YvalueSplain3(Vmax);
- showmessage('Vmax='+floattostr(Vmax)
-             +' Imax='+floattostr(Imax)
-             +' Pmax='+floattostr(Result));
- D.Free;
- P_V.Free;
- temp.Free;
+ Result:=PVParareter(2);
 end;
 
 procedure TVectorTransform.PointSupplement(Target: TVector;
@@ -1052,6 +1004,17 @@ begin
       Target.Y[i]:=Target.Y[i]*Target.X[i];
 end;
 
+function TVectorTransform.PVParareter(Index: word): double;
+ var outputData:TArrSingle;
+begin
+ if Index>4 then Result:=ErResult
+            else
+     begin
+       PVParareters(outputData);
+       Result:=outputData[Index];
+     end;       
+end;
+
 function TVectorTransform.PVParareters(var OutputData: TArrSingle): boolean;
  var P_V,temp:TVectorTransform;
      D:TDiapazon;
@@ -1059,7 +1022,7 @@ function TVectorTransform.PVParareters(var OutputData: TArrSingle): boolean;
      Number_Vmax:integer;
 begin
  Result:=False;
- InitArrSingle(OutputData,5);
+ InitArrSingle(OutputData,5,0);
 
  P_V:=TVectorTransform.Create();
  Self.Power(P_V);
@@ -1171,13 +1134,14 @@ begin
 end;
 
 function TVectorTransform.Voc: double;
- var temp:double;
+// var temp:double;
 begin
- Result:=0;
- temp:=Self.Xvalue(0);
- if (temp=ErResult)or
-    (temp<=0) then Exit
-              else Result:=temp;
+ Result:=PVParareter(0);
+// Result:=0;
+// temp:=Self.Xvalue(0);
+// if (temp=ErResult)or
+//    (temp<=0) then Exit
+//              else Result:=temp;
 end;
 
 function TVectorTransform.XvalueLinear(YValue: double): double;
