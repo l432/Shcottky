@@ -23,7 +23,8 @@ uses
   OlegVectorManipulation in 'OlegVectorManipulation.pas',
   OlegTests in 'OlegTests.pas',
   OlegMathShottky in 'OlegMathShottky.pas',
-  OlegDigitalManipulation in 'OlegDigitalManipulation.pas';
+  OlegDigitalManipulation in 'OlegDigitalManipulation.pas',
+  OlegApproxNew in 'OlegApproxNew.pas';
 
 {$R *.res}
 

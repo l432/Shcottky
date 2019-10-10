@@ -69,7 +69,7 @@ type
     TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
     TFunVectorPointBool=Function(i:integer): boolean of object;
 
-    TVectorNew=class
+    TVector=class
      private
       Points:array of TPointDouble;
       fName:string;
@@ -173,7 +173,7 @@ type
         весь діапазон зміни А^.X}
 
       Constructor Create;overload;
-      Constructor Create(ExternalVector:TVectorNew);overload;
+      Constructor Create(ExternalVector:TVector);overload;
 
       procedure SetLenVector(Number:integer);
       procedure Clear();
@@ -190,10 +190,10 @@ type
       NumberDigit - кількість значущих цифр}
       procedure ReadFromGraph(Series:TCustomSeries);
       procedure WriteToGraph(Series:TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
-      procedure CopyTo (TargetVector:TVectorNew);
+      procedure CopyTo (TargetVector:TVector);
        {копіюються поля з даного вектора в
         уже раніше створений TargetVector}
-      procedure CopyFrom (const SourceVector:TVectorNew);
+      procedure CopyFrom (const SourceVector:TVector);
       {копіюються поля з SourceVector в даний}
       procedure Add(newX,newY:double);overload;
       procedure Add(newXY:double);overload;
@@ -244,14 +244,18 @@ type
       якщо точок в потрібному діапазоні немає -
       пишиться повідомлення і повертається ErResult}
       function ValueNumber (Coord: TCoord_type; CoordValue: Double):integer;
-      {повертає номер точки вектора, координата якого близька до CoordValue:
+      {повертає номер точки вектора, координата якої близька до CoordValue:
       CoordValue має знаходитися на інтервалі від
       Point[Result,Coord] до Point[Result+1,Coord]
+      якщо не входить в діапазон зміни - повервається -1}
+      function ValueNumberPrecise (Coord: TCoord_type; CoordValue: Double):integer;
+      {повертає номер першої точки вектора, координата якої
+      співпадає з CoordValue з точність IsEqual:
       якщо не входить в діапазон зміни - повервається -1}
 
       procedure MultiplyY(const A:double);
 //         {Y всіх точок множиться на A}
-      procedure DeltaY(deltaVector:TVectorNew);
+      procedure DeltaY(deltaVector:TVector);
          {від значень Y віднімаються значення deltaVector.Y;
           якщо кількості точок різні - ніяких дій не відбувається}
       Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);overload;
@@ -284,12 +288,12 @@ type
 
 //    TVectorManipulation=class
 //      private
-//       fVector:TVectorNew;
-////       function GetVector: TVectorNew;
-//       procedure SetVector(const Value: TVectorNew);
+//       fVector:TVector;
+////       function GetVector: TVector;
+//       procedure SetVector(const Value: TVector);
 //      public
-//       property Vector:TVectorNew read fVector write SetVector;
-//       Constructor Create(ExternalVector:TVectorNew);
+//       property Vector:TVector read fVector write SetVector;
+//       Constructor Create(ExternalVector:TVector);
 //       procedure Free;
 //    end;
 
@@ -297,29 +301,29 @@ type
 
 //   TVectorTransform=class(TVectorManipulation)
 //    private
-//     Procedure InitTarget(var Target:TVectorNew);
-//     Procedure CopyLimited (Coord:TCoord_type;var Target:TVectorNew;Clim1, Clim2:double);
-//     procedure Branch(Coord:TCoord_type;var Target:TVectorNew;const IsPositive:boolean=True);
-//     procedure Module(Coord:TCoord_type;var Target:TVectorNew);
+//     Procedure InitTarget(var Target:TVector);
+//     Procedure CopyLimited (Coord:TCoord_type;var Target:TVector;Clim1, Clim2:double);
+//     procedure Branch(Coord:TCoord_type;var Target:TVector;const IsPositive:boolean=True);
+//     procedure Module(Coord:TCoord_type;var Target:TVector);
 //    public
-//     Procedure CopyLimitedX (var Target:TVectorNew;Xmin,Xmax:double);
+//     Procedure CopyLimitedX (var Target:TVector;Xmin,Xmax:double);
 //       {копіюються з даного вектора в Target
 //        - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
 //         - поля Т та name}
-//     Procedure CopyLimitedY (var Target:TVectorNew;Ymin,Ymax:double);
-//     Procedure PositiveX(var Target:TVectorNew);
+//     Procedure CopyLimitedY (var Target:TVector;Ymin,Ymax:double);
+//     Procedure PositiveX(var Target:TVector);
 //         {заносить в Target ті точки, для яких X більше або рівне нулю}
-//     procedure PositiveY(var Target:TVectorNew);
+//     procedure PositiveY(var Target:TVector);
 //         {заносить в Target ті точки, для яких Y більше або рівне нулю}
-//     procedure AbsX(var Target:TVectorNew);
+//     procedure AbsX(var Target:TVector);
 //         {заносить в Target точки, для яких X дорівнює модулю Х даного
 //         вектора, а Y таке саме; якщо Х=0, то точка викидається}
-//     procedure AbsY(var Target:TVectorNew);
+//     procedure AbsY(var Target:TVector);
 //         {заносить в Target точки, для яких Y дорівнює модулю Y даного
 //         вектора, а X таке саме; якщо Y=0, то точка викидається}
-//     procedure NegativeX(var Target:TVectorNew);
+//     procedure NegativeX(var Target:TVector);
 //         {заносить в Target ті точки, для яких X менше нуля}
-//     procedure NegativeY(var Target:TVectorNew);
+//     procedure NegativeY(var Target:TVector);
 //         {заносить в Target ті точки, для яких Y менше нуля}
 //
 //   end;
@@ -360,13 +364,13 @@ uses OlegMath, Classes, Dialogs, Controls, Math;
 //  SetLength(A^.Y, A^.n);
 //end;
 //
-Procedure TVectorNew.SetLenVector(Number:integer);
+Procedure TVector.SetLenVector(Number:integer);
 {встановлюється кількість точок у векторі А}
 begin
  SetLength(Points, Number);
 end;
 
-procedure TVectorNew.ReadFromFile(NameFile: string);
+procedure TVector.ReadFromFile(NameFile: string);
 var F:TextFile;
 //    i:integer;
     ss, ss1:string;
@@ -424,7 +428,7 @@ begin
  Sorting;
 end;
 
-procedure TVectorNew.ReadFromGraph(Series: TCustomSeries);
+procedure TVector.ReadFromGraph(Series: TCustomSeries);
  var i:integer;
 begin
  Clear;
@@ -433,7 +437,7 @@ begin
    PointSet(I,Series.XValue[i],Series.YValue[i]);
 end;
 
-procedure TVectorNew.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+procedure TVector.ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
  var i:integer;
 begin
   i:=ConfigFile.ReadInteger(Section,Ident+'n',0);
@@ -453,7 +457,7 @@ begin
 //  N_end:=ConfigFile.ReadInteger(Section,Ident+'N_end',n-1);
 end;
 
-procedure TVectorNew.WriteToFile(NameFile: string; NumberDigit: Byte);
+procedure TVector.WriteToFile(NameFile: string; NumberDigit: Byte);
  var   Str:TStringList;
        i:integer;
 begin
@@ -464,7 +468,7 @@ begin
  Str.Free;
 end;
 
-procedure TVectorNew.WriteToGraph(Series: TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
+procedure TVector.WriteToGraph(Series: TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
  var i:integer;
 begin
  Series.Clear;
@@ -472,7 +476,7 @@ begin
    Series.AddXY(Points[i,cX],Points[i,cY],ALabel,AColor);
 end;
 
-procedure TVectorNew.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
+procedure TVector.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
 var
   I: Integer;
 begin
@@ -489,17 +493,17 @@ begin
   end;
 end;
 
-function TVectorNew.XtoString: string;
+function TVector.XtoString: string;
 begin
  Result:=CoordToString(cX);
 end;
 
-function TVectorNew.Xvalue(Yvalue: double): double;
+function TVector.Xvalue(Yvalue: double): double;
 begin
  Result:=Value(cY,Yvalue);
 end;
 
-function TVectorNew.XYtoString: string;
+function TVector.XYtoString: string;
  var i:integer;
 begin
  Result:='';
@@ -508,23 +512,23 @@ begin
 
 end;
 
-function TVectorNew.YtoString: string;
+function TVector.YtoString: string;
 begin
  Result:=CoordToString(cY);
 end;
 
-function TVectorNew.Yvalue(Xvalue: double): double;
+function TVector.Yvalue(Xvalue: double): double;
 begin
  Result:=Value(cX,Xvalue);
 end;
 
-procedure TVectorNew.Add(newX,newY:double);
+procedure TVector.Add(newX,newY:double);
 begin
  Self.SetLenVector(Count+1);
  PointSet(High(Points),newX,newY);
 end;
 
-procedure TVectorNew.DeletePoint(NumberToDelete:integer);
+procedure TVector.DeletePoint(NumberToDelete:integer);
 var
   I: Integer;
 begin
@@ -534,7 +538,7 @@ begin
  Self.SetLenVector(High(Points));
 end;
 
-procedure TVectorNew.DeletePointsByCondition(FunVPB: TFunVectorPointBool);
+procedure TVector.DeletePointsByCondition(FunVPB: TFunVectorPointBool);
  var i,Point:integer;
  label Start;
 begin
@@ -551,12 +555,12 @@ begin
     end;
 end;
 
-procedure TVectorNew.DeleteZeroY;
+procedure TVector.DeleteZeroY;
 begin
  DeletePointsByCondition(FunVPBDeleteZeroY);
 end;
 
-procedure TVectorNew.DeleteNfirst(Nfirst:integer);
+procedure TVector.DeleteNfirst(Nfirst:integer);
 var
   I: Integer;
 begin
@@ -571,7 +575,7 @@ begin
   Self.SetLenVector(Count-Nfirst);
 end;
 
-Procedure TVectorNew.Sorting (Increase:boolean=True);
+Procedure TVector.Sorting (Increase:boolean=True);
 var i,j:integer;
     ChangeNeed:boolean;
 begin
@@ -584,7 +588,7 @@ for I := 0 to High(Points)-1 do
      end;
 end;
 
-function TVectorNew.StandartDeviation(Coord: TCoord_type): double;
+function TVector.StandartDeviation(Coord: TCoord_type): double;
  var mn,sm:double;
      i:integer;
 begin
@@ -595,7 +599,7 @@ begin
  Result:=sqrt(sm/High(Points))
 end;
 
-function TVectorNew.Stat(Coord: TCoord_type; FunVector: TFunVectorInt;
+function TVector.Stat(Coord: TCoord_type; FunVector: TFunVectorInt;
   minPointNumber: Integer): integer;
 begin
   if Count<minPointNumber
@@ -603,7 +607,7 @@ begin
      else Result:=FunVector(Coord);
 end;
 
-function TVectorNew.Stat(Coord: TCoord_type; FunVector: TFunVector;
+function TVector.Stat(Coord: TCoord_type; FunVector: TFunVector;
                          minPointNumber: Integer): double;
 begin
   if Count<minPointNumber
@@ -611,7 +615,7 @@ begin
      else Result:=FunVector(Coord);
 end;
 
-function TVectorNew.Sum(Coord: TCoord_type): double;
+function TVector.Sum(Coord: TCoord_type): double;
  var i:integer;
 begin
  Result:=0;
@@ -619,7 +623,7 @@ begin
    Result:=Result+Points[i,Coord];
 end;
 
-Procedure TVectorNew.DeleteDuplicate;
+Procedure TVector.DeleteDuplicate;
  var i,j,PointToDelete,Point:integer;
  label Start;
 begin
@@ -640,7 +644,7 @@ begin
     end;
 end;
 
-Procedure TVectorNew.DeleteErResult;
+Procedure TVector.DeleteErResult;
 // var i,Point:integer;
 // label Start;
 //begin
@@ -659,14 +663,14 @@ begin
  DeletePointsByCondition(FunVPBDeleteErResult);
 end;
 
-Procedure TVectorNew.SwapXY;
+Procedure TVector.SwapXY;
  var i:integer;
 begin
  for I := 0 to High(Points) do PointCoordSwap(Points[i]);
 end;
 
 
-function TVectorNew.Value(Coord: TCoord_type; CoordValue: Double): double;
+function TVector.Value(Coord: TCoord_type; CoordValue: Double): double;
  var i,number:integer;
 begin
   i:=1;
@@ -690,7 +694,7 @@ begin
     else Result:=ValueXY(Coord,CoordValue,number,number-1);
 end;
 
-function TVectorNew.ValueNumber(Coord: TCoord_type;
+function TVector.ValueNumber(Coord: TCoord_type;
   CoordValue: Double): integer;
  var i:integer;
 begin
@@ -704,7 +708,21 @@ begin
  Result:=-1;
 end;
 
-function TVectorNew.ValueXY(Coord: TCoord_type; CoordValue: Double;
+function TVector.ValueNumberPrecise(Coord: TCoord_type;
+  CoordValue: Double): integer;
+ var i:integer;
+begin
+ for i:=0 to HighNumber do
+   if IsEqual(CoordValue,Points[i,Coord])
+    then
+     begin
+     Result:=i;
+     Exit;
+     end;
+ Result:=-1;
+end;
+
+function TVector.ValueXY(Coord: TCoord_type; CoordValue: Double;
                             i,j:integer): double;
 begin
   case Coord of
@@ -715,7 +733,7 @@ begin
 end;
 
 
-function TVectorNew.CoordToString(Coord: TCoord_type): string;
+function TVector.CoordToString(Coord: TCoord_type): string;
  var i:integer;
 begin
  Result:='';
@@ -723,7 +741,7 @@ begin
    Result:=Result+FloaTtoStr(Points[i,Coord])+' ';
 end;
 
-Procedure TVectorNew.CopyTo (TargetVector:TVectorNew);
+Procedure TVector.CopyTo (TargetVector:TVector);
  var i:integer;
 begin
   TargetVector.SetLenVector(Self.Count);
@@ -736,36 +754,36 @@ begin
 end;
 
 //Procedure VectorNew.CopyXtoArray(var TargetArray:TArrSingle);
-function TVectorNew.CopyToArray(const Coord: TCoord_type): TArrSingle;
+function TVector.CopyToArray(const Coord: TCoord_type): TArrSingle;
  var i:integer;
 begin
  SetLength(Result,Count);
  for I := 0 to High(Points) do Result[i]:=Points[i][Coord];
 end;
 
-function TVectorNew.CopyXtoArray():TArrSingle;
+function TVector.CopyXtoArray():TArrSingle;
 begin
  Result:=CopyToArray(cX);
 end;
 
-function TVectorNew.CopyYtoArray():TArrSingle;
+function TVector.CopyYtoArray():TArrSingle;
 begin
  Result:=CopyToArray(cY);
 end;
 
-function TVectorNew.CopyYtoPArray: PTArrSingle;
+function TVector.CopyYtoPArray: PTArrSingle;
 begin
  new(Result);
  Result^:=CopyYtoArray();
 end;
 
-constructor TVectorNew.Create(ExternalVector: TVectorNew);
+constructor TVector.Create(ExternalVector: TVector);
 begin
   Create();
   CopyFrom(ExternalVector);
 end;
 
-function TVectorNew.CopyXtoPArray():PTArrSingle;
+function TVector.CopyXtoPArray():PTArrSingle;
 begin
  new(Result);
  Result^:=CopyXtoArray();
@@ -780,12 +798,12 @@ end;
 //end;
 //
 
-procedure TVectorNew.CopyFrom(const SourceVector: TVectorNew);
+procedure TVector.CopyFrom(const SourceVector: TVector);
 begin
  SourceVector.CopyTo(Self);
 end;
 
-Procedure TVectorNew.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
+Procedure TVector.CopyFromXYArrays(SourceXArray,SourceYArray:TArrSingle);
  var i:integer;
 begin
  Clear();
@@ -793,12 +811,12 @@ begin
    Add(SourceXArray[i],SourceYArray[i]);
 end;
 
-Procedure TVectorNew.CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
+Procedure TVector.CopyFromXYPArrays(SourceXArray,SourceYArray:PTArrSingle);
 begin
  CopyFromXYArrays(SourceXArray^,SourceYArray^);
 end;
 
-procedure TVectorNew.ReadTextFile(const F: Text);
+procedure TVector.ReadTextFile(const F: Text);
 var
   x: Double;
   y: Double;
@@ -817,7 +835,7 @@ end;
 
 
 
-Procedure TVectorNew.MultiplyY(const A:double);
+Procedure TVector.MultiplyY(const A:double);
  var i:integer;
 begin
  if A=1 then Exit;
@@ -851,7 +869,7 @@ end;
 //  end;
 //end;
 
-Procedure TVectorNew.DeltaY(deltaVector:TVectorNew);
+Procedure TVector.DeltaY(deltaVector:TVector);
  var i:integer;
 begin
  if High(Self.Points)<>High(deltaVector.Points) then Exit;
@@ -860,18 +878,18 @@ begin
 end;
 
 
-procedure TVectorNew.Add(newXY: double);
+procedure TVector.Add(newXY: double);
 begin
  self.Add(newXY,newXY);
 end;
 
-procedure TVectorNew.Add(newPoint: TPointDouble);
+procedure TVector.Add(newPoint: TPointDouble);
 begin
  Self.SetLenVector(Count+1);
  PointSet(High(Points),newPoint);
 end;
 
-Procedure TVectorNew.Clear();
+Procedure TVector.Clear();
 begin
   SetLenVector(0);
   Fname:='';
@@ -880,7 +898,7 @@ begin
   fSegmentBegin:=0;
 end;
 
-Procedure TVectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
+Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
  const Nmax=10000;
  var i:integer;
      argument:double;
@@ -904,23 +922,23 @@ begin
   end;
 end;
 
-Procedure TVectorNew.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
+Procedure TVector.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
 begin
   if Nstep<1 then Clear()
     else if Nstep=1 then Filling(Fun,Xmin,Xmax,Xmax-Xmin+1,Parameters)
        else Filling(Fun,Xmin,Xmax,(Xmax-Xmin)/(Nstep-1),Parameters)
 end;
 
-Procedure TVectorNew.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
+Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
 begin
  Filling(Fun,Xmin,Xmax,deltaX,[]);
 end;
-function TVectorNew.FunVPBDeleteErResult(i: integer): boolean;
+function TVector.FunVPBDeleteErResult(i: integer): boolean;
 begin
  Result:=(Points[i][cX]=ErResult)or(Points[i][cY]=ErResult);
 end;
 
-function TVectorNew.FunVPBDeleteZeroY(i: integer): boolean;
+function TVector.FunVPBDeleteZeroY(i: integer): boolean;
 begin
  Result:=(Points[i][cY]=0);
 end;
@@ -976,13 +994,13 @@ end;
 //
 { VectorNew }
 
-constructor TVectorNew.Create;
+constructor TVector.Create;
 begin
  inherited;
  Clear();
 end;
 
-function TVectorNew.GetData(const Number: Integer; Index:Integer): double;
+function TVector.GetData(const Number: Integer; Index:Integer): double;
 begin
  if Number>High(Points)
     then Result:=ErResult
@@ -990,12 +1008,12 @@ begin
 
 end;
 
-function TVectorNew.GetHigh: Integer;
+function TVector.GetHigh: Integer;
 begin
   Result:=High(Points);
 end;
 
-function TVectorNew.GetInformation(const Index: Integer): double;
+function TVector.GetInformation(const Index: Integer): double;
 begin
  case Index of
   1:Result:=Stat(cX,Self.MaxValue);
@@ -1014,7 +1032,7 @@ begin
  end;
 end;
 
-function TVectorNew.GetInformationInt(const Index: Integer): Integer;
+function TVector.GetInformationInt(const Index: Integer): Integer;
 begin
  case Index of
   1:Result:=Stat(cX,Self.MaxNumber);
@@ -1025,7 +1043,7 @@ begin
  end;
 end;
 
-function TVectorNew.GetInt_Trap: double;
+function TVector.GetInt_Trap: double;
  var i:integer;
 begin
   Result:=0;
@@ -1034,22 +1052,22 @@ begin
   Result:=Result/2;
 end;
 
-function TVectorNew.GetN: Integer;
+function TVector.GetN: Integer;
 begin
  Result:=High(Points)+1;
 end;
 
-function TVectorNew.GetSegmentEnd: Integer;
+function TVector.GetSegmentEnd: Integer;
 begin
   Result:=fSegmentBegin+HighNumber;
 end;
 
-function TVectorNew.IsEmptyGet: boolean;
+function TVector.IsEmptyGet: boolean;
 begin
  Result:=(High(Points)<0);
 end;
 
-function TVectorNew.Krect(Xvalue: double): double;
+function TVector.Krect(Xvalue: double): double;
   var temp1, temp2:double;
 begin
    Result:=ErResult;
@@ -1059,7 +1077,7 @@ begin
    if (temp2<>0) then Result:=abs(temp1/temp2);
 end;
 
-function TVectorNew.MaxNumber(Coord: TCoord_type): integer;
+function TVector.MaxNumber(Coord: TCoord_type): integer;
 var
   I: Integer;
   tempmax:double;
@@ -1074,7 +1092,7 @@ begin
        end;
 end;
 
-function TVectorNew.MaxValue(Coord: TCoord_type): double;
+function TVector.MaxValue(Coord: TCoord_type): double;
 var
   I: Integer;
 begin
@@ -1084,12 +1102,12 @@ begin
       Result := Points[i,Coord];
 end;
 
-function TVectorNew.MeanValue(Coord: TCoord_type): double;
+function TVector.MeanValue(Coord: TCoord_type): double;
 begin
  Result:=Sum(Coord)/Count;
 end;
 
-function TVectorNew.MinNumber(Coord: TCoord_type): integer;
+function TVector.MinNumber(Coord: TCoord_type): integer;
 var
   I: Integer;
   tempmin:double;
@@ -1104,7 +1122,7 @@ begin
        end;
 end;
 
-function TVectorNew.MinValue(Coord: TCoord_type): double;
+function TVector.MinValue(Coord: TCoord_type): double;
 var
   I: Integer;
 begin
@@ -1114,40 +1132,40 @@ begin
       Result := Points[i,Coord];
 end;
 
-procedure TVectorNew.PointCoordSwap(var Point: TPointDouble);
+procedure TVector.PointCoordSwap(var Point: TPointDouble);
 begin
  Swap(Point[cX],Point[cY]);
 end;
 
-function TVectorNew.PointGet(Number: integer): TPointDouble;
+function TVector.PointGet(Number: integer): TPointDouble;
 begin
  Result[cX]:=Points[Number,cX];
  Result[cY]:=Points[Number,cY];
 end;
 
-function TVectorNew.PointInDiapazon(Lim: Limits; PointNumber: integer): boolean;
+function TVector.PointInDiapazon(Lim: Limits; PointNumber: integer): boolean;
 begin
  Result:=Lim.PoinValide(Self[PointNumber]);
 end;
 
-function TVectorNew.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
+function TVector.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
 begin
  Result:=Diapazon.PoinValide(Self[PointNumber]);
 end;
 
-function TVectorNew.PoinToString(PointNumber: Integer;
+function TVector.PoinToString(PointNumber: Integer;
          NumberDigit: Byte): string;
 begin
   Result:=PoinToString(Self[PointNumber],NumberDigit);
 end;
 
-function TVectorNew.PoinToString(Point: TPointDouble; NumberDigit: Byte): string;
+function TVector.PoinToString(Point: TPointDouble; NumberDigit: Byte): string;
 begin
  Result:=FloatToStrF(Point[cX],ffExponent,NumberDigit,0)+' '+
          FloatToStrF(Point[cY],ffExponent,NumberDigit,0);
 end;
 
-procedure TVectorNew.PointSet(Number: integer; Point: TPointDouble);
+procedure TVector.PointSet(Number: integer; Point: TPointDouble);
 begin
  try
   Points[Number,cX]:=Point[cX];
@@ -1156,7 +1174,7 @@ begin
  end;
 end;
 
-procedure TVectorNew.PointSwap(Number1, Number2: integer);
+procedure TVector.PointSwap(Number1, Number2: integer);
  var tempPoint:TPointDouble;
 begin
  try
@@ -1167,7 +1185,7 @@ begin
  end;
 end;
 
-procedure TVectorNew.PointSet(Number: integer; x, y: double);
+procedure TVector.PointSet(Number: integer; x, y: double);
 begin
  try
   Points[Number,cX]:=x;
@@ -1192,7 +1210,7 @@ end;
 //   else Result := Points[Index].Y;
 //end;
 
-procedure TVectorNew.SetData(const Number: Integer;
+procedure TVector.SetData(const Number: Integer;
                             Index: Integer; const Value: double);
 begin
  if Number>High(Points)
@@ -1201,7 +1219,7 @@ begin
 end;
 
 
-procedure TVectorNew.SetT(const Value: Extended);
+procedure TVector.SetT(const Value: Extended);
 begin
   if Value>0 then fT := Value
              else fT:=0;
@@ -1209,10 +1227,10 @@ end;
 
 //{ TVectorManipulation }
 //
-//constructor TVectorManipulation.Create(ExternalVector: TVectorNew);
+//constructor TVectorManipulation.Create(ExternalVector: TVector);
 //begin
 //  inherited Create;
-//  fVector:=TVectorNew.Create;
+//  fVector:=TVector.Create;
 //  SetVector(ExternalVector);
 //end;
 //
@@ -1222,14 +1240,14 @@ end;
 // inherited Free;
 //end;
 //
-////function TVectorManipulation.GetVector: TVectorNew;
+////function TVectorManipulation.GetVector: TVector;
 ////begin
-////// Result:=TVectorNew.Create;
+////// Result:=TVector.Create;
 ////// Result.Clear;
 //// fVector.Copy(Result);
 ////end;
 //
-//procedure TVectorManipulation.SetVector(const Value: TVectorNew);
+//procedure TVectorManipulation.SetVector(const Value: TVector);
 //begin
 // Value.Copy(fVector);
 //end;
@@ -1237,7 +1255,7 @@ end;
 //
 //{ TVectorTransform }
 //
-//procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVectorNew);
+//procedure TVectorTransform.Module(Coord: TCoord_type; var Target: TVector);
 // var i:integer;
 //begin
 // InitTarget(Target);
@@ -1260,17 +1278,17 @@ end;
 ////         Target.Points[i][Coord]:=Abs(Target.Points[i][Coord]);
 //end;
 //
-//procedure TVectorTransform.AbsX(var Target: TVectorNew);
+//procedure TVectorTransform.AbsX(var Target: TVector);
 //begin
 //  Module(cX,Target);
 //end;
 //
-//procedure TVectorTransform.AbsY(var Target: TVectorNew);
+//procedure TVectorTransform.AbsY(var Target: TVector);
 //begin
 // Module(cY,Target);
 //end;
 //
-//procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVectorNew;
+//procedure TVectorTransform.Branch(Coord: TCoord_type; var Target: TVector;
 //                const IsPositive: boolean);
 //  var i:integer;
 //begin
@@ -1284,7 +1302,7 @@ end;
 //end;
 //
 //procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
-//           var Target: TVectorNew; Clim1, Clim2: double);
+//           var Target: TVector; Clim1, Clim2: double);
 // var i:integer;
 //     Cmin,Cmax:double;
 //begin
@@ -1303,43 +1321,43 @@ end;
 //       Target.Add(Vector.Points[i]);
 //end;
 //
-//procedure TVectorTransform.CopyLimitedX(var Target: TVectorNew; Xmin, Xmax: double);
+//procedure TVectorTransform.CopyLimitedX(var Target: TVector; Xmin, Xmax: double);
 //begin
 // CopyLimited(cX,Target,Xmin, Xmax);
 //end;
 //
-//procedure TVectorTransform.CopyLimitedY(var Target: TVectorNew; Ymin,
+//procedure TVectorTransform.CopyLimitedY(var Target: TVector; Ymin,
 //  Ymax: double);
 //begin
 // CopyLimited(cY,Target,Ymin, Ymax);
 //end;
 //
-//procedure TVectorTransform.InitTarget(var Target: TVectorNew);
+//procedure TVectorTransform.InitTarget(var Target: TVector);
 //begin
 //  try
 //   Target.Clear
 //  except
-//   Target:=TVectorNew.Create;
+//   Target:=TVector.Create;
 //  end;
 //  Target.fT:=fVector.fT;
 //end;
 //
-//procedure TVectorTransform.NegativeX(var Target: TVectorNew);
+//procedure TVectorTransform.NegativeX(var Target: TVector);
 //begin
 //  Branch(cX,Target,false);
 //end;
 //
-//procedure TVectorTransform.NegativeY(var Target: TVectorNew);
+//procedure TVectorTransform.NegativeY(var Target: TVector);
 //begin
 // Branch(cY,Target,false);
 //end;
 //
-//procedure TVectorTransform.PositiveX(var Target: TVectorNew);
+//procedure TVectorTransform.PositiveX(var Target: TVector);
 //begin
 // Branch(cX,Target);
 //end;
 //
-//procedure TVectorTransform.PositiveY(var Target: TVectorNew);
+//procedure TVectorTransform.PositiveY(var Target: TVector);
 //begin
 // Branch(cY,Target);
 //end;

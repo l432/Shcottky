@@ -202,7 +202,7 @@ Procedure ToFileFromXYArrays(NameFile:string;
                              NumberDigit:Byte=4);
 
 //Procedure Write_File(sfile:string; A:PVector; NumberDigit:Byte=4);
-//procedure TVectorNew.WriteToFile(NameFile: string; NumberDigit: Byte);
+//procedure TVector.WriteToFile(NameFile: string; NumberDigit: Byte);
 {записує у файл з іменем sfile дані з масиву А;
 якщо A^.n=0, то запис у файл не відбувається;
 NumberDigit - кількість значущих цифр}
@@ -210,7 +210,7 @@ NumberDigit - кількість значущих цифр}
 
 //Procedure Write_File3Column(sfile:string; A:PVector;
 //                           Func:TFunDouble;NumberDigit:Byte=4);overload;
-Procedure Write_File3Column(sfile:string; A:TVectorNew;
+Procedure Write_File3Column(sfile:string; A:TVector;
                            Func:TFunDouble;NumberDigit:Byte=4);//overload;
 {записує у файл з іменем sfile дані з масиву А,
 третя колонка - результат Func(A^.Y[i],A^.X[i])
@@ -222,7 +222,7 @@ NumberDigit - кількість значущих цифр}
 //                              Vector,Vector2:PVector;
 //                              NumberDigit:Byte=4);overload;
 Procedure ToFileFromTwoVector(NameFile:string;
-                              Vector,Vector2:TVectorNew;
+                              Vector,Vector2:TVector;
                               NumberDigit:Byte=4);//overload;
 {записує у файл з іменем NameFile дані з двох векторів
 у чотири колонки;
@@ -246,26 +246,26 @@ NumberDigit - кількість значущих цифр}
 
 
 //Procedure Sorting (var A:PVector;Increase:boolean=True);
-//TVectorNew.Sorting (Increase:boolean=True);
+//TVector.Sorting (Increase:boolean=True);
 {процедура сортування (методом бульбашки)
 даних у масиві А по зростанню (при Increase=True) компоненти А^.Х}
 
 //Procedure IVchar(a:Pvector; var b:Pvector);
-//Procedure TVectorNew.Copy (TargetVector:TVectorNew);
+//Procedure TVector.Copy (TargetVector:TVector);
 {заносить копію з а в b}
 
 //Procedure LogX(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.PositiveX(var Target: TVectorNew);
+//procedure TVectorTransform.PositiveX(var Target: TVector);
 {записує з A в B тільки ті точки, для яких
 координата Х більше нуля}
 
 //Procedure LogY(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.PositiveY(var Target: TVectorNew);
+//procedure TVectorTransform.PositiveY(var Target: TVector);
 {записує з A в B тільки ті точки, для яких
 координата Y більше нуля}
 
 //Procedure ForwardIV(A:Pvector; var B:Pvector);overload;
-//procedure TVectorTransform.PositiveX(var Target: TVectorNew);
+//procedure TVectorTransform.PositiveX(var Target: TVector);
 {записує з A в B тільки ті точки, які відповідають
 прямій ділянці ВАХ (для яких координата X більше нуля)}
 //Procedure ForwardIV(var A:Pvector);overload;
@@ -278,13 +278,13 @@ NumberDigit - кількість значущих цифр}
 {в В розміщується сглажена функція - див. Smoothing}
 
 //Procedure ReverseIV(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.ReverseIV(var Target: TVectorNew);
+//procedure TVectorTransform.ReverseIV(var Target: TVector);
 {записує з A в B тільки ті точки, які відповідають
 зворотній ділянці ВАХ (для яких координата X менше нуля),
 причому записує модуль координат}
 
 //Procedure PidgFun(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.InitTargetToFun(var Target: TVectorNew);
+//procedure TVectorTransform.InitTargetToFun(var Target: TVector);
 {підготовча процедура до побудови багатьох функцій;
 визначає діапазон B^.N_begin та B^.N_end, для
 яких у векторі А значення Х>0.01 та Y>0,
@@ -292,68 +292,68 @@ NumberDigit - кількість значущих цифр}
 саме заповнення масиву В не відбувається}
 
 //Procedure ChungFun(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.ChungFun(var Target: TVectorNew);
+//procedure TVectorTransform.ChungFun(var Target: TVector);
 {записує в B Chung-функцію, побудовану по даним з А}
 
 //Procedure WernerFun(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.WernerFun(var Target: TVectorNew);
+//procedure TVectorTransform.WernerFun(var Target: TVector);
 {записує в B функцію Вернера, побудовану по даним з А}
 
 //Procedure MikhAlpha_Fun(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.MikhAlpha_Fun(var Target: TVectorNew);
+//procedure TVectorTransform.MikhAlpha_Fun(var Target: TVector);
 {записує в B Альфа-функцію (метод Міхелешвілі),
 побудовану по даним з А,
 Alpha=d(ln I)/d(ln V)}
 
 //Procedure MikhBetta_Fun(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.MikhBetta_Fun(var Target: TVectorNew);
+//procedure TVectorTransform.MikhBetta_Fun(var Target: TVector);
 {записує в B Бетта-функцію (метод Міхелешвілі),
 побудовану по даним з А,
 Betta = d(ln Alpha)/d(ln V)
 P.S. в статті ця функція називається Гамма}
 
 //Procedure MikhN_Fun(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.MikhN_Fun(var Target: TVectorNew);
+//procedure TVectorTransform.MikhN_Fun(var Target: TVector);
 {записує в B залежність фактору неідеальності від
 прикладеної напруги, пораховану за методом
 метод Міхелешвілі, за даними векора А;
 n = q V (Alpha - 1) [1 + Betta/(Alpha-1)] / k T Alpha^2}
 
 //Procedure MikhRs_Fun(A:Pvector; var B:Pvector);
-//procedure TVectorTransform.MikhRs_Fun(var Target: TVectorNew);
+//procedure TVectorTransform.MikhRs_Fun(var Target: TVector);
 {записує в B залежність послідовного опору від
 прикладеної напруги, пораховану за методом
 метод Міхелешвілі, за даними векора А;
 Rs = V (1- Betta) / I Alpha^2}
 
 //Procedure HFun(A: PVector; var B: PVector; DD: TDiod_Schottky; N: Double);
-//procedure TVectorTransform.HFun(var Target: TVectorNew; DD: TDiod_Schottky;
+//procedure TVectorTransform.HFun(var Target: TVector; DD: TDiod_Schottky;
 {записує в B H-функцію, побудовану по даним з А:
 DD - діод, N - фактор неідеальності}
 
 //Procedure NordeFun(A: PVector; var B: PVector; DD: TDiod_Schottky; Gam: Double);
-//procedure TVectorTransform.NordeFun(var Target: TVectorNew; DD: TDiod_Schottky;
+//procedure TVectorTransform.NordeFun(var Target: TVector; DD: TDiod_Schottky;
 {записує в B функцію Норда, побудовану по даним з А;
 AA - стала Річардсона, Szr - площа контакту,
 Gam - показник гамма (див формулу)}
 
 //Procedure CibilsFunDod(A:Pvector; var B:Pvector; Va:double);
-//procedure TVectorTransform.CibilsFunDod(var Target: TVectorNew; Va: double);
+//procedure TVectorTransform.CibilsFunDod(var Target: TVector; Va: double);
 {записує в B функцію F(V)=V-Va*ln(I), побудовану по даним з А}
 
 //Procedure CibilsFun(A:Pvector; D:TDiapazon; var B:Pvector);
-//procedure TVectorTransform.CibilsFun(var Target: TVectorNew; D: TDiapazon);
+//procedure TVectorTransform.CibilsFun(var Target: TVector; D: TDiapazon);
 {записує в B функцію Сібілса, побудовану по даним з А;
 діапазон зміни напруги від kT до тих значень,
 при яких функція F(V)=V-Va*ln(I) ще має мінімум,
 крок - 0.001}
 
 //Procedure LeeFunDod(A:Pvector; var B:Pvector; Va:double);
-//procedure TVectorTransform.LeeFunDod(var Target: TVectorNew; Va: double);
+//procedure TVectorTransform.LeeFunDod(var Target: TVector; Va: double);
 {записує в B функцію F(I)=V-Va*ln(I), побудовану по даним з А}
 
 //Procedure LeeFun(A:Pvector; D:TDiapazon; var B:Pvector);
-//procedure TVectorTransform.LeeFun(var Target: TVectorNew; D: TDiapazon);
+//procedure TVectorTransform.LeeFun(var Target: TVector; D: TDiapazon);
 {записує в B функцію Lee, побудовану по даним з А;
 діапазон зміни напруги від kT до подвоєного найбільшого
 позитивного значення напруги у вихідній ВАХ;
@@ -379,7 +379,7 @@ Gam - показник гамма (див формулу)}
 
 //Procedure InVectorToOut(InVector:Pvector;var OutVector:Pvector;
 //                        Func:TFunDouble;TtokT1:boolean=False);
-//procedure TVectorTransform.InVectorToOut(var Target: TVectorNew;
+//procedure TVectorTransform.InVectorToOut(var Target: TVector;
 //                     Func: TFunDouble; TtokT1: boolean);
 {при TtokT1=False OutVector^.X[i]=InVector^.X[i]
  при TtokT1=True  OutVector^.X[i]=1/InVector^.X[i]/Kb
@@ -388,7 +388,7 @@ OutVector^.Y[i]=Func(InVector^.Y[i],InVector^.X[i])}
 
 //Procedure TauFun(InVector:Pvector;var OutVector:Pvector;
 //                 Func:TFunDouble);
-//procedure TVectorTransform.TauFun(var Target: TVectorNew; Func: TFunDouble);
+//procedure TVectorTransform.TauFun(var Target: TVector; Func: TFunDouble);
 {на відміну від попередньої, за значеннями
 в InVector намагається визначити від чого
 залежність (Т чи kT), а вже потім відбуваються перетворення,
@@ -396,33 +396,33 @@ OutVector^.Y[i]=Func(InVector^.Y[i],InVector^.X[i])}
 бути залежність від температури}
 
 //Procedure ForwardIVwithRs(A:Pvector; var B:Pvector; Rs:double);
-//procedure TVectorTransform.ForwardIVwithRs(var Target: TVectorNew; Rs: double);
+//procedure TVectorTransform.ForwardIVwithRs(var Target: TVector; Rs: double);
 {записує в В пряму ділянку ВАХ з А з
 врахуванням величини послідовного опору Rs}
 
 //Procedure Forward2Exp(A:Pvector; var B:Pvector; Rs:double);
-//procedure TVectorTransform.Forward2Exp(var Target: TVectorNew; Rs: double);
+//procedure TVectorTransform.Forward2Exp(var Target: TVector; Rs: double);
 {записує в В залежність величини
 I/[1-exp(-qV/kT)] від напруги з
 врахуванням величини послідовного опору Rs
 для прямої ділянки з А}
 
 //Procedure Reverse2Exp(A:Pvector; var B:Pvector; Rs:double);
-//procedure TVectorTransform.Reverse2Exp(var Target: TVectorNew; Rs: double);
+//procedure TVectorTransform.Reverse2Exp(var Target: TVector; Rs: double);
 {записує в В залежність величини
 I/[1-exp(-qV/kT)] від напруги з
 врахуванням величини послідовного опору Rs
 для зворотньої ділянки з А}
 
 //Procedure N_V_Fun(A:Pvector; var B:Pvector; Rs:double);
-//procedure TVectorTransform.N_V_Fun(var Target: TVectorNew; Rs: double);
+//procedure TVectorTransform.N_V_Fun(var Target: TVector; Rs: double);
 {записує в В залежність коефіцієнту неідеальності
 від напруги використовуючи вираз n=q/kT* d(V)/d(lnI);
 залежність I=I(V), яка знаходиться в А, спочатку
 модифікується з врахуванням величини послідовного опору Rs}
 
 //Procedure M_V_Fun(A:Pvector; var B:Pvector; ForForwardBranch:boolean; tg:TGraph);
-//procedure TVectorTransform.M_V_Fun(var Target: TVectorNew;
+//procedure TVectorTransform.M_V_Fun(var Target: TVector;
 //  ForForwardBranch: boolean; tg: TGraph);
 {по даним у векторі А будує функцію залежно від значення fun:
 fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
@@ -445,7 +445,7 @@ fun=1 - залежність коефіцієнта m=d(ln I)/d(ln V) від н�
 
 
 //Procedure Nss_Fun(A: PVector; var B: PVector; Fb, Rs: Double; DD: TDiod_Schottky; D: TDiapazon; nV: Boolean);
-//procedure TVectorTransform.Nss_Fun(var Target: TVectorNew; Fb, Rs: Double;
+//procedure TVectorTransform.Nss_Fun(var Target: TVector; Fb, Rs: Double;
 //  DD: TDiod_Schottky; D: TDiapazon; nByDerivate: Boolean);
 {записує в В залежність густини станів
 Nss=ep*ep0*(n-1)/q*del від різниці Ес-Ess=(Fb-V/n),
@@ -462,7 +462,7 @@ Fb - висота бар'єру Шотки
 Rs - величина послідовного опору}
 
 //Procedure Dit_Fun(A: PVector; var B: PVector; Rs: Double; DD: TDiod_Schottky; D: TDiapazon);
-//procedure TVectorTransform.Dit_Fun(var Target: TVectorNew; Rs: Double;
+//procedure TVectorTransform.Dit_Fun(var Target: TVector; Rs: Double;
 //  DD: TDiod_Schottky; D: TDiapazon);
 {записує в В залежність густини станів,
 обчислену за методом Іванова,
@@ -511,8 +511,8 @@ eр - діелектрична проникність напівпровідни
 //Procedure A_B_Diapazon(Avuh,A:Pvector;
 //                      var B:Pvector; D:TDiapazon;
 //                      YminDontUsed:boolean=False);overload;
-//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
-//                      D: TDiapazon; InitVector: TVectorNew);
+//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVector;
+//                      D: TDiapazon; InitVector: TVector);
 {записує в В ті точки з вектора А, відповідні
 до яких точки у векторі Avuh (вихідному) задовольняють
 умовам D; зрозуміло, що для вектора А
@@ -525,7 +525,7 @@ B^.N_begin, B^.N_end не розраховуються
 
 //Procedure A_B_Diapazon(A:Pvector; var B:Pvector;
 //                  D:TDiapazon;YminDontUsed:boolean=False);overload;
-//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
+//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVector;
 //  D: TDiapazon);
 {записує в В ті точки з вектора А, які
 задовольняють умовам D;
@@ -536,37 +536,37 @@ B^.N_begin, B^.N_end не розраховуються
 
 
 //Procedure Kam1_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
-//procedure TVectorTransform.Kam1_Fun(var Target: TVectorNew; D: TDiapazon);
+//procedure TVectorTransform.Kam1_Fun(var Target: TVector; D: TDiapazon);
 {записує в B функцію Камінскі першого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
 
 //Procedure Kam2_Fun (A:Pvector; var B:Pvector; D:TDiapazon);
-//procedure TVectorTransform.Kam2_Fun(var Target: TVectorNew; D: TDiapazon);
+//procedure TVectorTransform.Kam2_Fun(var Target: TVector; D: TDiapazon);
 {записує в B функцію Камінскі другого роду
 спираючись на ті точки вектора А, які задовольняють
 умови D}
 
 //Procedure Gr1_Fun (A:Pvector; var B:Pvector);
-//procedure TVectorTransform.Gr1_Fun(var Target: TVectorNew);
+//procedure TVectorTransform.Gr1_Fun(var Target: TVector);
 {записує в B функцію Громова першого роду
 спираючись на точки вектора А}
 
 //Procedure Gr2_Fun (A: PVector; var B: PVector; DD: TDiod_Schottky);
-//procedure TVectorTransform.Gr2_Fun(var Target: TVectorNew; DD: TDiod_Schottky);
+//procedure TVectorTransform.Gr2_Fun(var Target: TVector; DD: TDiod_Schottky);
 {записує в B функцію Громова другого роду
 спираючись на точки вектора А}
 
 //Procedure LimitFun(A, A1:Pvector; var B:Pvector; Lim:Limits);
-//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVectorNew;
-//  Lim: Limits; InitVector: TVectorNew);
+//procedure TVectorTransform.CopyDiapazonPoint(var Target: TVector;
+//  Lim: Limits; InitVector: TVector);
 {записує з А в В тільки ті точки, для яких
 в масиві А1 виконуються умови, розташовані в Lim}
 
 //Function PoinValide(Dp:TDiapazon;
 //                   Original, Secondary:Pvector;
 //                   k:integer; YminDontUsed:boolean=False): boolean;
-//function TVectorNew.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
+//function TVector.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;
 {визначає, чи задовільняють координати точки
 вектора Original, яка відповідає k-ій точці
 вектора Secondary, умовам, записаним в змінній Dp;
@@ -592,7 +592,7 @@ B^.N_begin, B^.N_end не розраховуються
 //Procedure MikhKalk(A: PVector);overload;
 //Procedure MikhKalk(A: PVector; D: TDiapazon; DD: TDiod_Schottky; var Rs: Double; var n: Double; var I0: Double; var Fb: Double);overload;
 //procedure TVectorTransform.CopyLimited(Coord: TCoord_type;
-//           var Target: TVectorNew; Clim1, Clim2: double);
+//           var Target: TVector; Clim1, Clim2: double);
 {на основі даних з вектора А за допомогою
 методу Міхелешвілі визначаються величини
 послідовного опору Rs, коефіцієнта неідеальності n,
@@ -832,7 +832,7 @@ Gamma - параметр гамма,
 то і Rs=ErResult}
 
 //function ChisloY (A:Pvector; X:double):double;
-//function TVectorNew.Yvalue(Xvalue: double): double;
+//function TVector.Yvalue(Xvalue: double): double;
 {визначає приблизну ординату точки з
 абсцисою Х для випадку, коли ця точка
 входила б до функціональної залежності,
@@ -841,7 +841,7 @@ Gamma - параметр гамма,
 абсцис вектора А, то повертається ErResult}
 
 //function ChisloX (A:Pvector; Y:double):double;
-//function TVectorNew.Xvalue(Yvalue: double): double;
+//function TVector.Xvalue(Yvalue: double): double;
 {визначає приблизну абсцису точки з
 ординатою Y для випадку, коли ця точка
 входила б до функціональної залежності,
@@ -850,7 +850,7 @@ Gamma - параметр гамма,
 ординат вектора А, то повертається ErResult}
 
 //function Krect(A:Pvector; V:double):double;
-//function TVectorNew.Krect(Xvalue: double): double;
+//function TVector.Krect(Xvalue: double): double;
 {обчислення коефіцієнту випрямлення
 за даними у векторі А при напрузі V;
 якщо точок в потрібному діапазоні немає -
@@ -897,11 +897,11 @@ Procedure FunctionToFile(sfile:string;Func:TFunDouble;
 
 
 //Procedure VectorToGraph(A:PVector;Series:TCustomSeries);
-//procedure TVectorNew.WriteToGraph(Series: TCustomSeries);
+//procedure TVector.WriteToGraph(Series: TCustomSeries);
 {заносить дані з А в Series}
 
 //Procedure GraphToVector(Series:TCustomSeries;A:PVector);
-//procedure TVectorNew.ReadFromGraph(Series: TCustomSeries);
+//procedure TVector.ReadFromGraph(Series: TCustomSeries);
 {заносить дані з Series в A, заповнюються лише масиви Х та Y координат}
 
 Procedure GraphAverage (Lines: array of TLineSeries; Minus:boolean=False;delX:double=0.002;
@@ -966,7 +966,7 @@ I01*[exp(qVoc/Е1)-1]+I02*[exp(qVoc/Е2)-1]+Voc/Rsh-Iph=0
 //Procedure DataFileWrite(fname:string;Vax:PVector;Param:TArrSingle);
 
 //Procedure GraphCalculation(InVector:Pvector; var OutVector:Pvector;tg:TGraph);
-//procedure TVectorShottky.GraphCalculation(var Target: TVectorNew; tg: TGraph);
+//procedure TVectorShottky.GraphCalculation(var Target: TVector; tg: TGraph);
 
 //Procedure GraphParameterCalculation(InVector:Pvector; tg:TGraph);
 //procedure TVectorShottky.GraphParameterCalculation(tg: TGraph);
@@ -1351,7 +1351,7 @@ end;
 //  Str.Free;
 //end;
 
-Procedure Write_File3Column(sfile:string; A:TVectorNew;
+Procedure Write_File3Column(sfile:string; A:TVector;
                            Func:TFunDouble;NumberDigit:Byte=4);overload;
 var i:integer;
     Str:TStringList;
@@ -1406,7 +1406,7 @@ end;
 //
 
 Procedure ToFileFromTwoVector(NameFile:string;
-                              Vector,Vector2:TVectorNew;
+                              Vector,Vector2:TVector;
                               NumberDigit:Byte=4);overload;
 var i,maxCount,minCount:integer;
     Str:TStringList;
@@ -4276,7 +4276,7 @@ Procedure GraphAverage (Lines: array of TLineSeries;Minus:boolean=False;
 графіків;
 крок між абсцисами сусідніх точок - delX}
 //var VectorArr: array of PVector;
-var VectorArr: array of TVectorNew;
+var VectorArr: array of TVector;
     i:word;
     Xmin,Xmax,x,y:double;
 begin
@@ -4289,7 +4289,7 @@ try
  SetLength(VectorArr,High(Lines));
  for i:= 0 to High(VectorArr) do
    begin
-   VectorArr[i]:=TVectorNew.Create;
+   VectorArr[i]:=TVector.Create;
    VectorArr[i].ReadFromGraph(Lines[i+1]);
    VectorArr[i].Sorting;
    end;

@@ -67,13 +67,13 @@ type
 
    TVectorShottky=class(TVectorTransform)
     private
-     Procedure InitTargetToFun(Target:TVectorNew);
+     Procedure InitTargetToFun(Target:TVector);
       {підготовча процедура до побудови багатьох функцій;
       визначає  Target.N_begin, починаючи з якого
       у Vector значення Х>0.001 та Y>0,
       встановлює необхідний розмір Target;
       саме заповнення Target не відбувається}
-     Procedure RRR(E:double; Target:TVectorNew);
+     Procedure RRR(E:double; Target:TVector);
     {допоміжна функція в Newts при апроксимації,
     фактично в компоненті х вектора B розташовано exp(А^.x/E),
     в компоненті у - [exp(А^.x/E)-1]}
@@ -108,7 +108,7 @@ type
       висоту бар'єру Fb;
       Фактично, це апроксимація за формулою I=I0exp(V/nkT)
       для визначення Fb потрібні параметри діода}
-     Procedure ChungFun(Target:TVectorNew);
+     Procedure ChungFun(Target:TVector);
       {записує в Target Chung-функцію, побудовану по даним з Vector}
      Procedure ChungKalk();overload;
      Procedure ChungKalk(D:TDiapazon; out Rs:double; out n:double);overload;
@@ -117,7 +117,7 @@ type
       обмежень, вказаних в D), визначає величину
       послідовного опору Rs та коефіцієнта неідеальності n}
 
-     Procedure WernerFun(Target:TVectorNew);
+     Procedure WernerFun(Target:TVector);
       {записує в Target функцію Вернера}
      Procedure WernerKalk();overload;
      Procedure WernerKalk(var D:TDiapazon; var Rs:double; var n:double);overload;
@@ -126,19 +126,19 @@ type
       обмежень, вказаних в D), визначає величину
       послідовного опору Rs та коефіцієнта неідеальності n}
 
-     Procedure MikhAlpha_Fun(Target:TVectorNew);
+     Procedure MikhAlpha_Fun(Target:TVector);
       {записує в Target Альфа-функцію (метод Міхелешвілі),
       Alpha=d(ln I)/d(ln V)}
-     Procedure MikhBetta_Fun(Target:TVectorNew);
+     Procedure MikhBetta_Fun(Target:TVector);
       {записує в Target Бетта-функцію (метод Міхелешвілі),
       Betta = d(ln Alpha)/d(ln V)
       P.S. в статті ця функція називається Гамма}
-     Procedure MikhN_Fun(Target:TVectorNew);
+     Procedure MikhN_Fun(Target:TVector);
       {записує в Target залежність фактору неідеальності від
       прикладеної напруги, пораховану за методом
       метод Міхелешвілі;
       n = q V (Alpha - 1) [1 + Betta/(Alpha-1)] / k T Alpha^2}
-     Procedure MikhRs_Fun(Target:TVectorNew);
+     Procedure MikhRs_Fun(Target:TVector);
       {записує в Target залежність послідовного опору від
       прикладеної напруги, пораховану за методом  Міхелешвілі;
       Rs = V (1- Betta) / I Alpha^2}
@@ -153,7 +153,7 @@ type
       лише Rs та I0, решті величин присвоюється значення ErResult;
       якщо неможливо побудувати функцію Громова,
       то і ці величини ErResult}
-     Procedure HFun(Target:TVectorNew; DD: TDiod_Schottky; N: Double);
+     Procedure HFun(Target:TVector; DD: TDiod_Schottky; N: Double);
       {записує в Target H-функцію
       DD - діод, N - фактор неідеальності}
      Procedure HFunKalk();overload;
@@ -164,7 +164,7 @@ type
       послідовного опору Rs та висоти бар'єру Fb;
       для побудови Н-функції потрібні
       N - фактор неідеальності}
-     Procedure NordeFun(Target:TVectorNew; DD: TDiod_Schottky; Gam: Double);
+     Procedure NordeFun(Target:TVector; DD: TDiod_Schottky; Gam: Double);
       {записує в Target функцію Норда;
       Gam - показник гамма (див формулу)}
      Procedure NordDodat(D: TDiapazon; DD: TDiod_Schottky; Gamma: Double;
@@ -201,9 +201,9 @@ type
       AA - стала Річардсона,
       Szr - площа контакту,
       Gamma - параметр гамма}
-     Procedure CibilsFunDod(Target:TVectorNew; Va:double);
+     Procedure CibilsFunDod(Target:TVector; Va:double);
       {записує в Target функцію F(V)=V-Va*ln(I)}
-     Procedure CibilsFun(Target:TVectorNew; D:TDiapazon);
+     Procedure CibilsFun(Target:TVector; D:TDiapazon);
       {записує в Target функцію Сібілса;
       діапазон зміни напруги від kT до тих значень,
       при яких функція F(V)=V-Va*ln(I) ще має мінімум,
@@ -215,9 +215,9 @@ type
       функції Сібілса, визначає величину
       послідовного опору Rs та
       показника ідеальності n}
-     Procedure LeeFunDod(Target:TVectorNew; Va:double);
+     Procedure LeeFunDod(Target:TVector; Va:double);
       {записує в Target функцію F(I)=V-Va*ln(I)}
-     Procedure LeeFun(Target:TVectorNew; D:TDiapazon);
+     Procedure LeeFun(Target:TVector; D:TDiapazon);
       {записує в Target функцію Lee;
       діапазон зміни напруги від kT до подвоєного найбільшого
       позитивного значення напруги у вихідній ВАХ;
@@ -240,33 +240,33 @@ type
       лише Rs, решті величин присвоюється значення ErResult;
       якщо неможливо побудувати функцію Лі,
       то і Rs=ErResult}
-     Procedure InVectorToOut(Target:TVectorNew;
+     Procedure InVectorToOut(Target:TVector;
                               Func:TFunDouble;TtokT1:boolean=False);
       {при TtokT1=False Target.X[i]=Vector.X[i]
        при TtokT1=True  Target.X[i]=1/Vector.X[i]/Kb
 
       Target.Y[i]=Func(Vector^.Y[i],Vector.X[i])}
-     Procedure TauFun(Target:TVectorNew;Func:TFunDouble);
+     Procedure TauFun(Target:TVector;Func:TFunDouble);
       {на відміну від попередньої, за значеннями
       в Vector намагається визначити від чого
       залежність (Т чи kT), а вже потім відбуваються перетворення,
       з врахуванням того, що в  Target завжди має
       бути залежність від температури}
-     Procedure ForwardIVwithRs(Target:TVectorNew; Rs:double);
+     Procedure ForwardIVwithRs(Target:TVector; Rs:double);
       {записує в Target пряму ділянку ВАХ з Vector з
       врахуванням величини послідовного опору Rs}
-     Procedure Forward2Exp(Target:TVectorNew; Rs:double);
+     Procedure Forward2Exp(Target:TVector; Rs:double);
       {записує в Target залежність величини
       I/[1-exp(-qV/kT)] від напруги з
       врахуванням величини послідовного опору Rs
       для прямої ділянки з Vector}
-     Procedure Reverse2Exp(Target:TVectorNew; Rs:double);
-     Procedure N_V_Fun(Target:TVectorNew; Rs:double);
+     Procedure Reverse2Exp(Target:TVector; Rs:double);
+     Procedure N_V_Fun(Target:TVector; Rs:double);
       {записує в Target залежність коефіцієнту неідеальності
       від напруги використовуючи вираз n=q/kT* d(V)/d(lnI);
       залежність I=I(V), яка знаходиться в Vector, спочатку
       модифікується з врахуванням величини послідовного опору Rs}
-     Procedure M_V_Fun(Target:TVectorNew;
+     Procedure M_V_Fun(Target:TVector;
                       ForForwardBranch:boolean; tg:TGraph);
       {залежно від tg будує
        - залежність коефіцієнта m=d(ln I)/d(ln V) від напруги
@@ -285,7 +285,7 @@ type
           ln(I/V^0.5)=f(1/V^0.25);
       якщо ForForwardBranch=true, то будується залежність для прямої гілки,
       якщо ForForwardBranch=false - для зворотньої}
-     Procedure Nss_Fun(Target:TVectorNew;
+     Procedure Nss_Fun(Target:TVector;
                        Fb, Rs: Double; DD: TDiod_Schottky;
                        D: TDiapazon; nByDerivate: Boolean);
       {записує в Target залежність густини станів
@@ -316,7 +316,7 @@ type
       для ВАХ, побудованої з врахуванням Rs
       }
      Procedure IvanovKalk();overload;
-     Procedure Dit_Fun(Target:TVectorNew;
+     Procedure Dit_Fun(Target:TVector;
                       Rs: Double; DD: TDiod_Schottky; D: TDiapazon);
       {записує в Target залежність густини станів,
       обчислену за методом Іванова,
@@ -339,7 +339,7 @@ type
       AA - стала Річардсона
       Szr - площа контакту
       }
-     Procedure Kam1_Fun (Target:TVectorNew; D:TDiapazon);
+     Procedure Kam1_Fun (Target:TVector; D:TDiapazon);
       {записує в Target функцію Камінскі першого роду
       спираючись на ті точки Vector, які задовольняють
       умови D}
@@ -349,7 +349,7 @@ type
       функції Камінські (з врахуванням
       обмежень, вказаних в D), визначає величину
       послідовного опору Rs та коефіцієнта неідеальності n}
-     Procedure Kam2_Fun (Target:TVectorNew; D:TDiapazon);
+     Procedure Kam2_Fun (Target:TVector; D:TDiapazon);
       {записує в Target функцію Камінскі другого роду
       спираючись на ті точки вектора Vector, які задовольняють
       умови D}
@@ -359,7 +359,7 @@ type
       функції Камінські (з врахуванням
       обмежень, вказаних в D), визначає величину
       послідовного опору Rs та коефіцієнта неідеальності n}
-     Procedure Gr1_Fun (Target:TVectorNew);
+     Procedure Gr1_Fun (Target:TVector);
       {записує в Target функцію Громова першого роду}
      Procedure Gr1Kalk ();overload;
      Procedure Gr1Kalk (D:TDiapazon; DD:TDiod_Schottky;
@@ -374,7 +374,7 @@ type
       лише Rs, решті величин присвоюється значення ErResult;
       якщо неможливо побудувати функцію Громова,
       то і Rs=ErResult}
-     Procedure Gr2_Fun (Target:TVectorNew; DD: TDiod_Schottky);
+     Procedure Gr2_Fun (Target:TVector; DD: TDiod_Schottky);
       {записує в Target функцію Громова другого роду}
      Procedure Gr2Kalk ();overload;
      Procedure Gr2Kalk (D:TDiapazon; DD:TDiod_Schottky;
@@ -433,38 +433,38 @@ type
       Rs - послідовний опір,
       Хр   - вектор початкових наближень
       для визначення Fb - параметри діода}
-    Procedure GraphCalculation(Target:TVectorNew;tg:TGraph);
+    Procedure GraphCalculation(Target:TVector;tg:TGraph);
     Procedure GraphParameterCalculation(tg:TGraph);
     Procedure GraphParCalcFitting(tg:TGraph);
-    Function dB_dV_Build(Target:TVectorNew; fun:byte=0):boolean;
+    Function dB_dV_Build(Target:TVector; fun:byte=0):boolean;
       {по даним у Vector будує в Target залежність похідної
       диференційного нахилу ВАХ від напруги (метод Булярського) -
       безпосередньо самі математичні перетворювання
       без підготовчих операцій
       fun - кількість зглажувань
       якщо все добре - повертається True}
-    Function Rnp_Build(Target:TVectorNew; fun:byte=0):boolean;
+    Function Rnp_Build(Target:TVector; fun:byte=0):boolean;
       {по даним у Vector будує в Target залежність
       приведеної швидкості рекомбінації (див. Булярського)
       безпосередньо самі математичні перетворювання
       без підготовчих операцій
       fun - кількість зглажувань
       якщо все добре - повертається True}
-    Function dRnp_dV_Build(Target:TVectorNew; fun:byte=0):boolean;
+    Function dRnp_dV_Build(Target:TVector; fun:byte=0):boolean;
       {по даним у Vector будує в Target  залежність
       похідної приведеної швидкості рекомбінації (див. Булярського)
       безпосередньо самі математичні перетворювання
       без підготовчих операцій
       fun - кількість зглажувань
       якщо все добре - повертається True}
-    Function Rnp2_exp_Build(Target:TVectorNew; fun:byte=0):boolean;
+    Function Rnp2_exp_Build(Target:TVector; fun:byte=0):boolean;
       {по даним у Vector будує в Target залежність
       функції L(V) (див. Булярського, ФТП, 1998, т.32, с.1193)
       безпосередньо самі математичні перетворювання
       без підготовчих операцій
       fun - кількість зглажувань
       якщо все добре - повертається True}
-    Function Gamma_Build(Target:TVectorNew; fun:byte=0):boolean;
+    Function Gamma_Build(Target:TVector; fun:byte=0):boolean;
       {по даним у Vector будує в Target залежність
       функції gamm(V) (див. Булярського, Письма в ЖТФ, 1999, т.25, №5, с.22)
       правильніше - 1/gamma, тому що в теорії положенню
@@ -613,17 +613,17 @@ uses
 
 { TVectorShottky }
 
-procedure TVectorShottky.MikhAlpha_Fun(Target: TVectorNew);
+procedure TVectorShottky.MikhAlpha_Fun(Target: TVector);
  var i:word;
      temp:TVectorShottky;
-//     verytemp:TVectorNew;
+//     verytemp:TVector;
 begin
  InitTargetToFun(Target);
  if Target.Count=0 then Exit;
  temp:=TVectorShottky.Create();
  InitTargetToFun(temp);
 
-// verytemp:=TVectorNew.Create;
+// verytemp:=TVector.Create;
 // InitTargetToFun(verytemp);
 // temp:=TVectorShottky.Create(verytemp);
 // verytemp.Free;
@@ -676,7 +676,7 @@ begin
   until (i>=Target.Count);
 end;
 
-procedure TVectorShottky.MikhBetta_Fun(Target: TVectorNew);
+procedure TVectorShottky.MikhBetta_Fun(Target: TVector);
 var temp:TVectorShottky;
     i:word;
 begin
@@ -771,15 +771,15 @@ begin
   //             +' s');
 end;
 
-procedure TVectorShottky.MikhN_Fun(Target: TVectorNew);
-var bet:TVectorNew;
+procedure TVectorShottky.MikhN_Fun(Target: TVector);
+var bet:TVector;
     i:word;
 begin
   MikhAlpha_Fun(Target);
   if Target.T=0 then Exit;
   if Target.Count=0 then Exit;
 
-  bet:=TVectorNew.Create;
+  bet:=TVector.Create;
   MikhBetta_Fun(bet);
   for I := 0 to Target.HighNumber do
     Target.Y[i]:=Target.X[i]*(Target.Y[i]-1)*(1+bet.Y[i]/(Target.Y[i]-1))/Kb/Target.T/sqr(Target.Y[i]);
@@ -788,20 +788,20 @@ begin
 
 end;
 
-procedure TVectorShottky.MikhRs_Fun(Target: TVectorNew);
-var bet:TVectorNew;
+procedure TVectorShottky.MikhRs_Fun(Target: TVector);
+var bet:TVector;
     i:word;
 begin
   MikhAlpha_Fun(Target);
   if Target.Count=0 then Exit;
-  bet:=TVectorNew.Create;
+  bet:=TVector.Create;
   MikhBetta_Fun(bet);
   for I := 0 to Target.HighNumber do
     Target.Y[i]:=Target.X[i]*(1-bet.Y[i])/Self.Y[i+Target.N_begin]/sqr(Target.Y[i]);
   bet.Free;
 end;
 
-procedure TVectorShottky.M_V_Fun(Target: TVectorNew;
+procedure TVectorShottky.M_V_Fun(Target: TVector;
   ForForwardBranch: boolean; tg: TGraph);
 var temp:TVectorShottky;
     i:integer;
@@ -907,7 +907,7 @@ begin
   I0:=DD.I0(Self.T,Fb);
 end;
 
-procedure TVectorShottky.ChungFun(Target: TVectorNew);
+procedure TVectorShottky.ChungFun(Target: TVector);
  var i:word;
      temp:TVectorShottky;
 begin
@@ -966,10 +966,10 @@ begin
   temp2.Free;
 end;
 
-procedure TVectorShottky.CibilsFun(Target: TVectorNew; D: TDiapazon);
+procedure TVectorShottky.CibilsFun(Target: TVector; D: TDiapazon);
 //залежно від всього діапазону крок зміни Va вибирається адаптивно
 var Va:double;
-    tp:TVectorNew;
+    tp:TVector;
     temp,temp2:TVectorShottky;
 begin
   InitTarget(Target);
@@ -978,7 +978,7 @@ begin
 
   temp:=TVectorShottky.Create;
   temp2:=TVectorShottky.Create;
-  tp:=TVectorNew.Create;
+  tp:=TVector.Create;
 
 
   repeat
@@ -1014,7 +1014,7 @@ begin
   tp.Free;
 end;
 
-procedure TVectorShottky.CibilsFunDod(Target: TVectorNew; Va: double);
+procedure TVectorShottky.CibilsFunDod(Target: TVector; Va: double);
  var i:word;
 begin
  InitTargetToFun(Target);
@@ -1054,7 +1054,7 @@ begin
   temp1.Free;
 end;
 
-function TVectorShottky.dB_dV_Build(Target: TVectorNew; fun: byte): boolean;
+function TVectorShottky.dB_dV_Build(Target: TVector; fun: byte): boolean;
  var temp:TVectorTransform;
      kT:double;
      j:integer;
@@ -1089,7 +1089,7 @@ begin
   Result:=True;
 end;
 
-procedure TVectorShottky.Dit_Fun(Target: TVectorNew; Rs: Double;
+procedure TVectorShottky.Dit_Fun(Target: TVector; Rs: Double;
   DD: TDiod_Schottky; D: TDiapazon);
 var i:integer;
     Vs,Vcal,del,Fb:double;
@@ -1135,7 +1135,7 @@ begin
    end;
 end;
 
-function TVectorShottky.dRnp_dV_Build(Target: TVectorNew;
+function TVectorShottky.dRnp_dV_Build(Target: TVector;
   fun: byte): boolean;
   var j:integer;
       temp:TVectorShottky;
@@ -1205,7 +1205,7 @@ begin
   temp1.Free;
 end;
 
-procedure TVectorShottky.Forward2Exp(Target: TVectorNew; Rs: double);
+procedure TVectorShottky.Forward2Exp(Target: TVector; Rs: double);
  var i:integer;
 begin
  InitTarget(Target);
@@ -1215,7 +1215,7 @@ begin
    Target.Y[i]:=Target.Y[i]/(1-exp(-Target.X[i]/Kb/Target.T));
 end;
 
-procedure TVectorShottky.ForwardIVwithRs(Target: TVectorNew; Rs: double);
+procedure TVectorShottky.ForwardIVwithRs(Target: TVector; Rs: double);
  var i:integer;
      temp:double;
 begin
@@ -1251,7 +1251,7 @@ begin
            GraphParameters.Fb,GraphParameters.I0)
 end;
 
-function TVectorShottky.Gamma_Build(Target: TVectorNew; fun: byte): boolean;
+function TVectorShottky.Gamma_Build(Target: TVector; fun: byte): boolean;
   var j:integer;
       temp:TVectorTransform;
 begin
@@ -1274,7 +1274,7 @@ procedure TVectorShottky.Gr1Kalk(D: TDiapazon; DD: TDiod_Schottky; out Rs, n,
       Dtemp:TDiapazon;
       i,j,Np:integer;
       C:TArrSingle;
-      DDD:TVectorNew;
+      DDD:TVector;
 begin
 
   Rs:=ErResult;
@@ -1294,7 +1294,7 @@ begin
 
   temp1:=TVectorShottky.Create();
   temp2:=TVectorShottky.Create();
-  DDD:=TVectorNew.Create();
+  DDD:=TVector.Create();
   repeat
     Dtemp.Xmin:=0.99999*Self.X[i];
     CopyDiapazonPoint(temp1,Dtemp);
@@ -1374,7 +1374,7 @@ begin
 
 end;
 
-procedure TVectorShottky.Gr1_Fun(Target: TVectorNew);
+procedure TVectorShottky.Gr1_Fun(Target: TVector);
 begin
  InitTarget(Target);
  PositiveX(Target);
@@ -1499,7 +1499,7 @@ begin
   temp2.Free;
 end;
 
-procedure TVectorShottky.Gr2_Fun(Target: TVectorNew; DD: TDiod_Schottky);
+procedure TVectorShottky.Gr2_Fun(Target: TVector; DD: TDiod_Schottky);
  var i:integer;
 begin
  NordeFun(Target,DD,2);
@@ -1509,7 +1509,7 @@ begin
  коли в А знаходиться вихідний файл, для якого А^.N_begin=0}
 end;
 
-procedure TVectorShottky.GraphCalculation(Target: TVectorNew; tg: TGraph);
+procedure TVectorShottky.GraphCalculation(Target: TVector; tg: TGraph);
 begin
  case tg of
   fnPowerIndex,fnFowlerNordheim,
@@ -1628,7 +1628,7 @@ begin
 
 end;
 
-procedure TVectorShottky.HFun(Target: TVectorNew; DD: TDiod_Schottky;
+procedure TVectorShottky.HFun(Target: TVector; DD: TDiod_Schottky;
                                 N: Double);
  var i:word;
 begin
@@ -1687,7 +1687,7 @@ begin
   temp2.Free;
 end;
 
-procedure TVectorShottky.InitTargetToFun(Target: TVectorNew);
+procedure TVectorShottky.InitTargetToFun(Target: TVector);
  var i,j,Nbegin:integer;
 begin
  InitTarget(Target);
@@ -1706,7 +1706,7 @@ begin
   end;
 end;
 
-procedure TVectorShottky.InVectorToOut(Target: TVectorNew;
+procedure TVectorShottky.InVectorToOut(Target: TVector;
                      Func: TFunDouble; TtokT1: boolean);
  var i:integer;
 begin
@@ -1760,7 +1760,7 @@ begin
   temp1.Free;
 end;
 
-procedure TVectorShottky.Kam1_Fun(Target: TVectorNew; D: TDiapazon);
+procedure TVectorShottky.Kam1_Fun(Target: TVector; D: TDiapazon);
  var temp:TVectorShottky;
      i:integer;
 begin
@@ -1819,12 +1819,12 @@ begin
   temp1.Free;
 end;
 
-procedure TVectorShottky.Kam2_Fun(Target: TVectorNew; D: TDiapazon);
-var temp:TVectorNew;
+procedure TVectorShottky.Kam2_Fun(Target: TVector; D: TDiapazon);
+var temp:TVector;
     i,j,k:integer;
 begin
  InitTarget(Target);
- temp:=TVectorNew.Create;
+ temp:=TVector.Create;
  Self.CopyDiapazonPoint(temp,D);
 {в temp ті точки вектора А, які задовольняють D}
 
@@ -1886,9 +1886,9 @@ begin
   temp.Free;
 end;
 
-procedure TVectorShottky.LeeFun(Target: TVectorNew; D: TDiapazon);
+procedure TVectorShottky.LeeFun(Target: TVector; D: TDiapazon);
 var Va:double;
-    tp:TVectorNew;
+    tp:TVector;
     temp,temp2:TVectorShottky;
     GromovKoef:TArrSingle;
 begin
@@ -1897,7 +1897,7 @@ begin
 
   temp:=TVectorShottky.Create;
   temp2:=TVectorShottky.Create;
-  tp:=TVectorNew.Create;
+  tp:=TVector.Create;
 
   repeat
    Self.LeeFunDod(tp,Va);
@@ -1939,7 +1939,7 @@ begin
   tp.Free;
 end;
 
-procedure TVectorShottky.LeeFunDod(Target: TVectorNew; Va: double);
+procedure TVectorShottky.LeeFunDod(Target: TVector; Va: double);
  var i:word;
 begin
  InitTargetToFun(Target);
@@ -1992,7 +1992,7 @@ end;
 procedure TVectorShottky.Newts(Nr: integer; eps: real; Xp: IRE; var Xr: IRE;
   var rez: integer);
 
-    Procedure FuncF (bool:boolean; Nr:integer; b:TVectorNew; X:IRE; var Y:IRE);
+    Procedure FuncF (bool:boolean; Nr:integer; b:TVector; X:IRE; var Y:IRE);
     {допоміжна функція при апроксимації, її явний вигляд
      з'явився після знаходження часткових похідних -
      у векторі Y величина похідних від квадратичної функції
@@ -2012,7 +2012,7 @@ procedure TVectorShottky.Newts(Nr: integer; eps: real; Xp: IRE; var Xr: IRE;
      if bool then Swap(Y[3],Y[2]);
      end;
 
-    Procedure FuncG (bool:boolean;Nr:integer; b:TVectorNew; X:IRE; var Z:IRE2);
+    Procedure FuncG (bool:boolean;Nr:integer; b:TVector; X:IRE; var Z:IRE2);
     {допоміжна функція при апроксимації, її явний вигляд
      з'явився після знаходження часткових похідних -
      створюється матриця (Z), компоненти якої є значеннями
@@ -2050,7 +2050,7 @@ procedure TVectorShottky.Newts(Nr: integer; eps: real; Xp: IRE; var Xr: IRE;
   var Nit,i,j:integer;
       X1,X2,F,F1:IRE;
       G:IRE2;
-      B:TVectorNew;
+      B:TVector;
       a,Rtemp:real;
       bool,bool1:boolean;
   Label Start;
@@ -2058,7 +2058,7 @@ procedure TVectorShottky.Newts(Nr: integer; eps: real; Xp: IRE; var Xr: IRE;
 
   begin
 
-  B:=TVectorNew.Create;
+  B:=TVector.Create;
   B.SetLenVector(Self.Count);
 
   if Nr=1 then Xp[2]:=1e12;
@@ -2191,7 +2191,7 @@ begin
   temp2.Free;
 end;
 
-procedure TVectorShottky.NordeFun(Target: TVectorNew; DD: TDiod_Schottky;
+procedure TVectorShottky.NordeFun(Target: TVector; DD: TDiod_Schottky;
   Gam: Double);
  var i:word;
 begin
@@ -2228,14 +2228,14 @@ begin
        end;
 end;
 
-procedure TVectorShottky.Nss_Fun(Target: TVectorNew; Fb, Rs: Double;
+procedure TVectorShottky.Nss_Fun(Target: TVector; Fb, Rs: Double;
   DD: TDiod_Schottky; D: TDiapazon; nByDerivate: Boolean);
-  var temp:TVectorNew;
+  var temp:TVector;
       i:integer;
 begin
   InitTarget(Target);
   if (Fb=ErResult)then Exit;
-  temp:=TVectorNew.Create;
+  temp:=TVector.Create;
   if nByDerivate then N_V_Fun(temp,Rs)
                  else MikhN_Fun(temp);
 
@@ -2255,7 +2255,7 @@ begin
   temp.Free;
 end;
 
-procedure TVectorShottky.N_V_Fun(Target: TVectorNew; Rs: double);
+procedure TVectorShottky.N_V_Fun(Target: TVector; Rs: double);
 var temp:TVectorShottky;
     i:integer;
 begin
@@ -2289,7 +2289,7 @@ begin
  temp.Free;
 end;
 
-procedure TVectorShottky.Reverse2Exp(Target: TVectorNew; Rs: double);
+procedure TVectorShottky.Reverse2Exp(Target: TVector; Rs: double);
 var i:integer;
      temp:TVectorShottky;
 begin
@@ -2308,7 +2308,7 @@ begin
  temp.Free;
 end;
 
-function TVectorShottky.Rnp2_exp_Build(Target: TVectorNew;
+function TVectorShottky.Rnp2_exp_Build(Target: TVector;
   fun: byte): boolean;
   var j:integer;
       temp:TVectorTransform;
@@ -2324,7 +2324,7 @@ begin
   Result:=True;
 end;
 
-function TVectorShottky.Rnp_Build(Target: TVectorNew; fun: byte): boolean;
+function TVectorShottky.Rnp_Build(Target: TVector; fun: byte): boolean;
   var i:integer;
 begin
   InitTargetToFun(Target);
@@ -2341,7 +2341,7 @@ begin
   end;
 end;
 
-procedure TVectorShottky.RRR(E: double; Target: TVectorNew);
+procedure TVectorShottky.RRR(E: double; Target: TVector);
     var i:integer;
 begin
    InitTarget(Target);
@@ -2353,7 +2353,7 @@ begin
          end;
 end;
 
-procedure TVectorShottky.TauFun(Target: TVectorNew; Func: TFunDouble);
+procedure TVectorShottky.TauFun(Target: TVector; Func: TFunDouble);
  var XisT:boolean;
       i: integer;
      tempV:TVectorShottky;
@@ -2370,7 +2370,7 @@ begin
           end;
 end;
 
-procedure TVectorShottky.WernerFun(Target: TVectorNew);
+procedure TVectorShottky.WernerFun(Target: TVector);
  var i:word;
      temp:TVectorShottky;
 begin

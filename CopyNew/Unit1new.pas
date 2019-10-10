@@ -959,7 +959,7 @@ type
 //procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
 //          Temperature:TLabel; a:PVector);overload;
 procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
-          Temperature:TLabel; a:TVectorNew);//overload;
+          Temperature:TLabel; a:TVector);//overload;
 {процедура виведення на форму данних зі структури а:
 координати самих точок в Sheet, коротку назву файла
 в NameFile, температуру в Temperature}
@@ -967,7 +967,7 @@ procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
 //procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
 //          Graph: TChart; Caption:string; a:PVector);overload;
 procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
-          Graph: TChart; Caption:string; a:TVectorNew);//overload;
+          Graph: TChart; Caption:string; a:TVector);//overload;
 {занесення координат точок в змінні SeriesPoint та SeriesLine,
 і присвоєння заголовку графіка Graph назви з Caption}
 
@@ -977,7 +977,7 @@ procedure NoLog(X,Y:TCheckBox; Graph:TChart);
 осей в лінійний режим}
 
 //procedure MarkerDraw (Graph,Vax:PVector; Point:Integer; F:TForm1);overload;
-procedure MarkerDraw (Graph,Vax:TVectorNew; Point:Integer; F:TForm1);//overload;
+procedure MarkerDraw (Graph,Vax:TVector; Point:Integer; F:TForm1);//overload;
 {процедура малювання вертикального маркера
 в точці з номером Рoint масиву Graph;
 в мітки виводяться номер та координати точки, через
@@ -1169,7 +1169,7 @@ Function DiapFunName(Sender: TObject; var bohlin: Boolean):TDiapazons;
 використовується разом з FormDiapazon}
 
 //Function FuncLimit(A:Pvector; var B:Pvector):boolean;overload;
-Function FuncLimit(A:TVectorTransform; B:TVectorNew):boolean;//overload;
+Function FuncLimit(A:TVectorTransform; B:TVector):boolean;//overload;
 {розміщує в В обмежений набір точок з А відповідно до
 очікуваної згідно з Form1.LabIsc.Caption апроксимації;
 загалом допоміжна функція, використовується, зокрема,
@@ -1177,7 +1177,7 @@ Function FuncLimit(A:TVectorTransform; B:TVectorNew):boolean;//overload;
 
 //Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
 //                    FitName:string;Rbool:boolean);overload;
-Procedure dB_dV_Fun(A:TVectorShottky;B:TVectorNew; fun:byte;
+Procedure dB_dV_Fun(A:TVectorShottky;B:TVector; fun:byte;
                     FitName:string;Rbool:boolean);overload;
 {по даним у векторі А будує залежність похідної
 диференційного нахилу ВАХ від напруги (метод Булярського)
@@ -1188,7 +1188,7 @@ FitName - назва функції, якв буде використовуватись
 для апроксимації}
 
 //Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;overload;
-Function FuncFitting(A:TVectorNew; B:TVectorNew; FitName:string):boolean;//overload;
+Function FuncFitting(A:TVector; B:TVector; FitName:string):boolean;//overload;
 {дані в А апроксимуються відповідно до FitName,
 в В - результат апроксимації при тих же абсцисах,
 при невдачі - результат False}
@@ -1237,11 +1237,11 @@ procedure InputValueToLabel(Name,Hint:string; Format:TFloatFormat;
 //Function Rnp2_exp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
 //Function Gamma_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
 
-Function dB_dV_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;overload;
-Function Rnp_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;overload;
-Function dRnp_dV_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;overload;
-Function Rnp2_exp_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;overload;
-Function Gamma_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;overload;
+Function dB_dV_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
+Function Rnp_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
+Function dRnp_dV_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
+Function Rnp2_exp_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
+Function Gamma_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
 
 const
  DLFunction:array[0..4]of string=
@@ -2598,14 +2598,14 @@ end;
 
 procedure TForm1.XLogCheckClick(Sender: TObject);
 // var temp:PVector;
- var temp:TVectorNew;
+ var temp:TVector;
 begin
  ClearGraphLog(Form1);
  if XLogCheck.Checked then
   begin
 //   new(temp);
 //   LogX(VaxGraph,temp);
-   temp:=TVectorNew.Create;
+   temp:=TVector.Create;
    VaxGraph.PositiveX(temp);
    if temp.IsEmpty then
                 begin
@@ -2635,7 +2635,7 @@ end;
 
 procedure TForm1.YLogCheckClick(Sender: TObject);
 // var temp:PVector;
- var temp:TVectorNew;
+ var temp:TVector;
 begin
  ClearGraphLog(Form1);
  if YLogCheck.Checked then
@@ -2643,7 +2643,7 @@ begin
 //   new(temp);
 //   VaxGraph^.AbsY(temp^);
 //   if temp^.n=0 then
-   temp:=TVectorNew.Create;
+   temp:=TVector.Create;
    VaxGraph.AbsY(temp);
    if temp.IsEmpty then
                 begin
@@ -2885,13 +2885,13 @@ if RBAveSelect.Checked then
 end;
 
 procedure TForm1.ButGLAutoClick(Sender: TObject);
-var tempVector:TVectorNew;
+var tempVector:TVector;
 //var tempVector:PVector;
     i:integer;
 begin
  try
 //  new(tempVector);
-  tempVector:=TVectorNew.Create;
+  tempVector:=TVector.Create;
  except
   Exit;
  end;
@@ -3082,7 +3082,7 @@ Label fin;
 var
 //    aprr,aprr2:Pvector;
 //    Action:TFunCorrection;
-    aprr:TVectorNew;
+    aprr:TVector;
     aprr2:TVectorTransform;
     Action:TFunCorrectionNew;
     EP:TArrSingle;
@@ -3099,7 +3099,7 @@ SaveDialog1.FileName:=copy(VaxFile.name,1,length(VaxFile.name)-4)+'dl.dat';
 //new(aprr);
 //Splain3Vec(VaxGraph,0.05,0.002,aprr);
 //if aprr^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ap.dat',aprr);
-aprr:=TVectorNew.Create;
+aprr:=TVector.Create;
 VaxGraph.Splain3(aprr,0.05,0.002);
 if aprr.Count>0 then
          aprr.WriteToFile(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ap.dat');
@@ -3545,10 +3545,10 @@ Function VectorIsFitting(Vax:TVectorTransform):boolean;
 як для розгляду диференційного коефіцієнту
 нахилу (тобто найчастіше визначаються вмістом D[diDE]);
 Результат в глобальному масиві EvolParam}
- var tempVax:TVectorNew;
+ var tempVax:TVector;
 begin
  Result:=False;
- tempVax:=TVectorNew.Create;
+ tempVax:=TVector.Create;
  try
   if not(FuncLimit(Vax,tempVax)) then Raise Exception.Create('Fault!!!!');
   FitFunction.Fitting(tempVax,EvolParam);
@@ -3570,7 +3570,7 @@ Procedure dB_dU_DataCreate(Vax:TVectorTransform);
 }
 var
     temp:TVectorTransform;
-    temp2:TVectorNew;
+    temp2:TVector;
     Action:TFunCorrectionNew;
     EP:TArrSingle;
     Rs:double;
@@ -3579,7 +3579,7 @@ begin
   Action:= FunCorrectionDefineNew();
 
   temp:=TVectorTransform.Create;
-  temp2:=TVectorNew.Create;
+  temp2:=TVector.Create;
 
   try
   if not(VectorIsFitting(Vax)) then Raise Exception.Create('Fault!!!!');
@@ -3936,12 +3936,24 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
-
+ var Vec:TVectorTransform;
+     SA,SA2:TArrSingle;
 begin
+ Vec:=TVectorTransform.Create;
+ Vec.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
+ Vec.PVParareters(SA);
+ showmessage(ArrayToString(SA,['Voc','Isc','Pm','Vm','Im']));
+ showmessage(floattostr(Vec.Voc));
+ // Vec.Pm;
 
+// showmessage(floattostr(NPolinom(2.9,[9,12,-11,2])));
 
+// showmessage(floattostr(Bisection(NPolinom,[9,12,-11,2],
+//                 -1,5)));
+// showmessage(ArrayToString(SA)+#10+ArrayToString(SA2))
+ Vec.Free;
 
-showmessage(floattostr(Button(2e-8)));
+//showmessage(floattostr(Button(2e-8)));
 //showmessage(floattostr(Button(1.07e-4)));
 
 
@@ -4006,7 +4018,7 @@ var
   ShotName:string;
 //  Vax,Vax2:Pvector;
   Vax:TVectorShottky;
-  Vax2:TVectorNew;
+  Vax2:TVector;
   Rs,n:double;
   i,j:integer;
   T_bool:boolean;
@@ -4439,7 +4451,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //      if (LDateFun.Caption=FunctionPhotoDDiod)
 //           then  A_B_Diapazon(Vax,Vax2,D[diDE],True)
 //           else  A_B_Diapazon(Vax,Vax2,D[diDE]);
-      Vax2:=TVectorNew.Create;
+      Vax2:=TVector.Create;
       Vax.CopyDiapazonPoint(Vax2,D[diDE]);
 
       FitFunction.Fitting(Vax2,EvolParam);
@@ -4523,7 +4535,7 @@ var
   ShotName:string;
 //  Vax, tempVax:Pvector;
   Vax:TVectorShottky;
-  tempVax:TVectorNew;
+  tempVax:TVector;
   j:integer;
   T_bool:boolean;
   Inform:TStringList;
@@ -4541,7 +4553,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 //    new(Vax);
 //    new(tempVax);
     Vax:=TVectorShottky.Create;
-    tempVax:=TVectorNew.Create;
+    tempVax:=TVector.Create;
     Inform:=TStringlist.Create;
 
 {створюються потрібні директорії}
@@ -5460,7 +5472,7 @@ end;
 //end;
 
 procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
-          Temperature:TLabel; a:TVectorNew);
+          Temperature:TLabel; a:TVector);
 var i:integer;
 begin
   Sheet.Visible:=True;
@@ -5503,7 +5515,7 @@ end;
 //end;
 
 procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
-          Graph: TChart; Caption:string; a:TVectorNew);
+          Graph: TChart; Caption:string; a:TVector);
 begin
  Graph.LeftAxis.Automatic:=true;
  Graph.BottomAxis.Automatic:=true;
@@ -5545,7 +5557,7 @@ end;
 //  F.LabelMarYGr.Caption:='Y='+FloatToStrF(Graph^.Y[Point],ffExponent,3,2);
 //end;
 
-procedure MarkerDraw (Graph,Vax:TVectorNew; Point:Integer; F:TForm1);overload;
+procedure MarkerDraw (Graph,Vax:TVector; Point:Integer; F:TForm1);overload;
 begin
   F.Series3.Clear;
   F.Series3.AddXY(VaxGraph.X[Point],F.Series2.MinYValue);
@@ -6914,7 +6926,7 @@ end;
 //  Result:=True;
 //end;
 
-Function FuncFitting(A:TVectorNew; B:TVectorNew; FitName:string):boolean;
+Function FuncFitting(A:TVector; B:TVector; FitName:string):boolean;
  var j:integer;
 begin
   Result:=False;
@@ -7042,11 +7054,11 @@ Function RsRshIphModification(A:TVectorTransform;FitName:string):boolean;overloa
 фотоструму}
  var j:integer;
      EP:TArrSingle;
-     Alim:TVectorNew;
+     Alim:TVector;
      Rs,temp:double;
 begin
   Result:=False;
-  Alim:=TVectorNew.Create;
+  Alim:=TVector.Create;
   if not(FuncLimit(A,Alim)) then
      begin
      Alim.Free;
@@ -7212,7 +7224,7 @@ end;
 //end;
 
 
-Function dB_dV_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;
+Function dB_dV_Build(A:TVector; B:TVector; fun:byte):boolean;
  var temp:TVectorShottky;
 begin
  temp:=TVectorShottky.Create(A);
@@ -7220,7 +7232,7 @@ begin
  temp.Free;
 end;
 
-Function Rnp_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;
+Function Rnp_Build(A:TVector; B:TVector; fun:byte):boolean;
  var temp:TVectorShottky;
 begin
  temp:=TVectorShottky.Create(A);
@@ -7228,7 +7240,7 @@ begin
  temp.Free;
 end;
 
-Function dRnp_dV_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;
+Function dRnp_dV_Build(A:TVector; B:TVector; fun:byte):boolean;
  var temp:TVectorShottky;
 begin
  temp:=TVectorShottky.Create(A);
@@ -7236,7 +7248,7 @@ begin
  temp.Free;
 end;
 
-Function Rnp2_exp_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;
+Function Rnp2_exp_Build(A:TVector; B:TVector; fun:byte):boolean;
  var temp:TVectorShottky;
 begin
  temp:=TVectorShottky.Create(A);
@@ -7244,7 +7256,7 @@ begin
  temp.Free;
 end;
 
-Function Gamma_Build(A:TVectorNew; B:TVectorNew; fun:byte):boolean;
+Function Gamma_Build(A:TVector; B:TVector; fun:byte):boolean;
  var temp:TVectorShottky;
 begin
  temp:=TVectorShottky.Create(A);
@@ -7286,7 +7298,7 @@ end;
 
 
 
-Function FuncLimit(A:TVectorTransform; B:TVectorNew):boolean;
+Function FuncLimit(A:TVectorTransform; B:TVector):boolean;
 var   // Light:boolean;
        Diap:TDiapazon;
 begin
@@ -7387,22 +7399,22 @@ end;
 //end;
 //
 
-Procedure dB_dV_Fun(A:TVectorShottky;B:TVectorNew; fun:byte;
+Procedure dB_dV_Fun(A:TVectorShottky;B:TVector; fun:byte;
                     FitName:string;Rbool:boolean);overload;
-   Procedure Rs_Modification(InitPoint:TVectorNew; FunctionPoint:TVectorNew;
+   Procedure Rs_Modification(InitPoint:TVector; FunctionPoint:TVector;
                              Action:TFunCorrectionNew);
         {модифікація точок, отриманих з InitPoint в FunctionPoint
         за допомогою Action, яка полягає в тому, що враховується значення
         послідовного та шунтуючого опорів }
-      var A_apr,B_apr:TVectorNew;
+      var A_apr,B_apr:TVector;
     begin
-      A_apr:=TVectorNew.Create;
+      A_apr:=TVector.Create;
        if not(FuncFitting(InitPoint,A_apr,FitName)) then
          begin
            A_apr.Free;
            Exit;
          end;
-      B_apr:=TVectorNew.Create;
+      B_apr:=TVector.Create;
       if not(Action(A_apr,B_apr,fun)) then
          begin
          A_apr.Free;
@@ -7414,7 +7426,7 @@ Procedure dB_dV_Fun(A:TVectorShottky;B:TVectorNew; fun:byte;
       B_apr.Free;
     end;
 
-   Procedure BaseAdd(A:TVectorNew);
+   Procedure BaseAdd(A:TVector);
     var Atemp:TVectorTransform;
         i:integer;
    begin

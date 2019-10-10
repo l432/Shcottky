@@ -114,7 +114,7 @@ HighDoubleArray - найбільше значення індексу масиву
 }
 
 //Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
-Function  ImpulseNoiseSmoothing(const Data:  TVectorNew; ItIsXVector:boolean=False): Double;overload;
+Function  ImpulseNoiseSmoothing(const Data:  TVector; ItIsXVector:boolean=False): Double;overload;
 //function TVectorTransform.ImpulseNoiseSmoothing(
 //                   const Coord: TCoord_type): Double;
 
@@ -132,7 +132,7 @@ Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
 //Procedure ImNoiseSmoothedArray(Source:Pvector;
 //                               Target:Pvector;
 //                               Npoint:Word=0);overload;
-//procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVectorNew;
+//procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVector;
 //                            Npoint: Word);
 
 Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
@@ -152,6 +152,9 @@ Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
 Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;
                    const eps:double=1e-6):double;
+//Function Bisection(const F:TFun; const Parameters:TArrSingle;
+//                   const Xmax:double=5; const Xmin:double=0;
+//                   const eps:double=1e-6):double;
 {метод ділення навпіл для функції F на інтервалі [Xmin,Xmax]
 eps - відносна точність розв'язку
 (ширина кінцевого інтервалу по відношенню до величини його границь)}
@@ -322,9 +325,9 @@ procedure IVC(Func:TFunDouble;
               Vmax:double=0.6;
               delV:double=0.01);
  Var V:double;
-     Vax:TVectorNew;
+     Vax:TVector;
 begin
- Vax:=TVectorNew.Create;
+ Vax:=TVector.Create;
  V:=Vmin;
  repeat
    Vax.Add(V,Func(T,V));
@@ -723,7 +726,7 @@ begin
         *PositivDeviation/sqr(High(Data^)-1);
 end;
 
-Function  ImpulseNoiseSmoothing(const Data:  TVectorNew; ItIsXVector:boolean=False): Double;overload;
+Function  ImpulseNoiseSmoothing(const Data:  TVector; ItIsXVector:boolean=False): Double;overload;
  var temp:PTArrSingle;
 begin
  if ItIsXVector then temp:=Data.CopyXtoPArray
@@ -972,6 +975,10 @@ end;
 // dispose(temp);
 //end;
 
+
+//Function Bisection(const F:TFun; const Parameters:TArrSingle;
+//                   const Xmax:double=5; const Xmin:double=0;
+//                   const eps:double=1e-6):double;
 
 Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;

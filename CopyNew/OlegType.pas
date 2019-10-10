@@ -38,6 +38,8 @@ type
            fYMax:double;
            fBr:Char; //'F' коли діапазон для прямої гілки
                      //'R' коли діапазон для зворотньої гілки
+           fStrictEquality:boolean;
+                     {TRUE - в PoinValide строгі рівності}
            procedure SetData(Index:integer; value:double);
            procedure SetDataBr(value:Char);
 
@@ -47,11 +49,14 @@ type
            property XMax:double Index 3 read fXMax write SetData;
            property YMax:double Index 4 read fYMax write SetData;
            property Br:Char read fBr write SetDataBr;
+           property StrictEquality:boolean  read fStrictEquality write fStrictEquality;
            Constructor Create();
            procedure Copy (Souсe:TDiapazon);
            procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
            procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
            function PoinValide(Point:TPointDouble): boolean;
+           procedure SetLimits(const XmMin,XmMax,YmMin,YmMax:double);
+           function ToString:string;
            {визначає, чи задовільняють координати точки Point межам}
          end;
 
@@ -105,9 +110,14 @@ type
 // end;
 //
 
+  TArrSingle=array of double;
+  PTArrSingle=^TArrSingle;
+  T2DArray=array of array of double;
+
 
   TFunS=Function(x:double):double;
   TFun=Function(Argument:double;Parameters:array of double):double;
+//  TFun=Function(Argument:double;Parameters:TArrSingle):double;
 
   TFunSingle=Function(x:double):double of object;
   TFunDouble=Function(x,y:double):double of object;
@@ -118,9 +128,6 @@ type
   TSimpleEvent = procedure() of object;
   TByteEvent = procedure(B: byte) of object;
 
-  TArrSingle=array of double;
-  PTArrSingle=^TArrSingle;
-  T2DArray=array of array of double;
 
 
   TArrArrSingle=array of TArrSingle;
@@ -147,6 +154,8 @@ type
       Procedure SetLengthSys(Number:integer);
       procedure Clear;
       procedure CopyTo(var SE:SysEquation);
+      procedure OutPutX(var OutputData:TArrSingle);
+      procedure InPutF(InputData:TArrSingle);
      end;
     {тип використовується при розв'язку
     системи лінійних рівнянь
@@ -304,6 +313,23 @@ if value='R' then fBr:=value
              else fBr:='F';
 end;
 
+
+procedure TDiapazon.SetLimits(const XmMin, XmMax, YmMin, YmMax: double);
+begin
+ Self.XMin:=XmMin;
+ Self.XMax:=XmMax;
+ Self.YMin:=YmMin;
+ Self.YMax:=ymMax;
+end;
+
+function TDiapazon.ToString: string;
+begin
+ Result:='Xmin='+floattostr(fXMin)
+         +#10+'Xmax='+floattostr(fXMax)
+         +#10+'Ymin='+floattostr(fYMin)
+         +#10+'Ymax='+floattostr(fYMax);
+end;
+
 Procedure TDiapazon.Copy (Souсe:TDiapazon);
            {копіює значення полів з Souсe в даний}
 begin
@@ -322,6 +348,7 @@ begin
  fXMax:=ErResult;
  fYMax:=ErResult;
  fBr:='F';
+ fStrictEquality:=True;
 end;
 
 function TDiapazon.PoinValide(Point: TPointDouble): boolean;
@@ -330,16 +357,34 @@ begin
  bXmax:=false;bYmax:=false;bXmin:=false;bYmin:=false;
 case fBr of
  'F':begin
-    bXmax:=(XMax=ErResult)or(Point[cX]<XMax);
-    bXmin:=(XMin=ErResult)or(Point[cX]>XMin);
-    bYmax:=(YMax=ErResult)or(Point[cY]<YMax);
-    bYmin:=(YMin=ErResult)or(Point[cY]>YMin);
+      if fStrictEquality then
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]<XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]>XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]<YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]>YMin);
+          end            else
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]<=XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]>=XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]<=YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]>=YMin);
+          end;
      end;
  'R':begin
-    bXmax:=(XMax=ErResult)or(Point[cX]>-XMax);
-    bXmin:=(XMin=ErResult)or(Point[cX]<-XMin);
-    bYmax:=(YMax=ErResult)or(Point[cY]>-YMax);
-    bYmin:=(YMin=ErResult)or(Point[cY]<-YMin);
+      if fStrictEquality then
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]>-XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]<-XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]>-YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]<-YMin);
+          end            else
+          begin
+            bXmax:=(XMax=ErResult)or(Point[cX]>=-XMax);
+            bXmin:=(XMin=ErResult)or(Point[cX]<=-XMin);
+            bYmax:=(YMax=ErResult)or(Point[cY]>=-YMax);
+            bYmin:=(YMin=ErResult)or(Point[cY]<=-YMin);
+          end;
     end;
  end; //case
 // if YminDontUsed then bYmin:=True;
@@ -581,6 +626,28 @@ begin
    SE.x[i]:=Self.x[i];
    for j:=0 to N-1 do SE.A[i,j]:=Self.A[i,j];
    end;
+end;
+
+procedure SysEquation.InPutF(InputData: TArrSingle);
+ var i:integer;
+begin
+  try
+    for I := 0 to High(InputData) do
+      f[i]:=InputData[i];
+  finally
+
+  end;
+end;
+
+procedure SysEquation.OutPutX(var OutputData: TArrSingle);
+ var i:integer;
+begin
+  try
+    for I := 0 to High(x) do
+      OutputData[i]:=x[i];
+  finally
+
+  end;
 end;
 
 procedure SysEquation.SetLengthSys(Number: integer);

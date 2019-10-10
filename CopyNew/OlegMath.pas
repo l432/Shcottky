@@ -7,7 +7,7 @@ Type
 //     FunBool=Function(V:PVector;n0,Rs0,I00,Rsh0:double):boolean;
      TFun_IV=Function(Argument:double;Parameters:array of double;Key:double):double;
 //     TFunCorrection=Function (A:Pvector; var B:Pvector; fun:byte=0):boolean;
-     TFunCorrectionNew=Function (A:TVectorNew; B:TVectorNew; fun:byte=0):boolean;
+     TFunCorrectionNew=Function (A:TVector; B:TVector; fun:byte=0):boolean;
      {функція для перетворення даних в Pvector, зокрема використовується в диференціальних
      методах аналізу ВАХ}
 
@@ -310,7 +310,7 @@ Param - в даному випадку не використовується,
 //Arhiv
 
 //Procedure Smoothing (A:Pvector; var B:PVector);
-//procedure TVectorTransform.Smoothing(var Target: TVectorNew);
+//procedure TVectorTransform.Smoothing(var Target: TVector);
 {в В розміщується сглажена функція даних в А;
 а саме проводиться усереднення по трьом точкам,
 причому усереднення з ваговими коефіцієнтами,
@@ -320,7 +320,7 @@ Param - в даному випадку не використовується,
 
 
 //Procedure Median (A:Pvector; var B:PVector);
-//procedure TVectorTransform.Median(var Target: TVectorNew);
+//procedure TVectorTransform.Median(var Target: TVector);
 {в В розміщується результат дії на дані в А
 медіанного трьохточкового фільтра;
 якщо у вихідному масиві кількість точок менша трьох,
@@ -334,8 +334,20 @@ Function Linear(a,b,x:double):double;overload;
 Function Linear(x:double;data:TArrSingle):double;overload;
 {повертає data[0]+data[1]*x}
 
+Function NPolinom(x:double;N:word;data:array of double):double;overload;
+{повертає data[0]+data[1]*x+...data[N]*x^N}
+
+Function NPolinom(x:double;data:array of double):double;overload;
+{повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)}
+
+
+Function NPolinomMinusX(x:double;data:array of double):double;overload;
+{повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)-x,
+потрібна функція для знаходження екстремума за допомогою
+Bisection}
+
 //Procedure Diferen (A:Pvector; var B:PVector);
-//procedure TVectorTransform.Derivate(var Target: TVectorNew);
+//procedure TVectorTransform.Derivate(var Target: TVector);
 {в В розміщується похідна від значень, розташованих
 у векторі А;
 якщо у вихідному масиві кількість точок менша трьох,
@@ -355,7 +367,7 @@ Function Linear(x:double;data:TArrSingle):double;overload;
 Result=Ai+Bi(X-Xi)+Ci(X-Xi)^2+Di(X-Xi)^3 при Xi-1<=X<=Xi}
 
 //Procedure Splain3Vec(V:Pvector; beg:double; step:double; var Rez:Pvector);
-//procedure TVectorTransform.Splain3(var Target:TVectorNew;beg:double; step:double);
+//procedure TVectorTransform.Splain3(var Target:TVector;beg:double; step:double);
 {розраховується інтерполяція даних у векторі V з
 використанням кубічних сплайнів, починаючи з точки з координатою
 beg і з кроком step;
@@ -364,7 +376,7 @@ beg і з кроком step;
 абсциси V, то в результуючому векторі довжина нульова}
 
 //Function Int_Trap(A:Pvector):double;overload;
-//TVectorNew.Int_Trap
+//TVector.Int_Trap
 {повертає результат інтегрування за методом
 трапецій по даним з масиву А;
 вважається, що межі інтегралу простягаються на
@@ -2259,7 +2271,45 @@ begin
   except
   Result:=ErResult;
   end;
-end; 
+end;
+
+
+Function NPolinom(x:double;N:word;data:array of double):double;overload;
+{повертає data[0]+data[1]*x+...data[N]*x^N}
+ var i:integer;
+     temp:double;
+begin
+ if High(data)<=N then Result:=NPolinom(x,data)
+                  else
+ begin
+   Result:=data[0];
+   temp:=1;
+   for I := 1 to N do
+    begin
+     temp:=temp*x;
+     Result:=Result+temp*data[i];
+    end;
+ end;
+end;
+
+Function NPolinom(x:double;data:array of double):double;overload;
+{повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)}
+ var i:integer;
+     temp:double;
+begin
+ Result:=data[0];
+ temp:=1;
+ for I := 1 to High(data) do
+  begin
+   temp:=temp*x;
+   Result:=Result+temp*data[i];
+  end;
+end;
+
+Function NPolinomMinusX(x:double;data:array of double):double;overload;
+begin
+  Result:=NPolinom(x,data)-x;
+end;
 
 //Procedure Median (A:Pvector; var B:PVector);
 //{в В розміщується результат дії на дані в А
@@ -2291,7 +2341,7 @@ end;
 //end;
 
 //Procedure Diferen (A:Pvector; var B:PVector);
-////procedure TVectorTransform.Diferen(var Target: TVectorNew);
+////procedure TVectorTransform.Diferen(var Target: TVector);
 //{в В розміщується похідна від значень, розташованих
 //у векторі А;
 //якщо у вихідному масиві кількість точок менша трьох,
@@ -2503,9 +2553,9 @@ end;
 
 Function Int_Trap(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double):double;
 //var Vec:PVector;
-var Vec:TVectorNew;
+var Vec:TVector;
 begin
-  Vec:=TVectorNew.Create;
+  Vec:=TVector.Create;
   Vec.Filling(Fun,Xmin,Xmax,deltaX,Parameters);
   Result:=Vec.Int_Trap;
   Vec.Free;
@@ -2516,9 +2566,9 @@ begin
 end;
 
 Function Int_Trap(Fun:TFun;Xmin,Xmax:double;Parameters:array of double;Npoint:integer):double;
-var Vec:TVectorNew;
+var Vec:TVector;
 begin
-  Vec:=TVectorNew.Create;
+  Vec:=TVector.Create;
   Vec.Filling(Fun,Xmin,Xmax,Parameters,Npoint);
   Result:=Vec.Int_Trap;
   Vec.Free;

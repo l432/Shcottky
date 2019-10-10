@@ -372,7 +372,7 @@ var
 Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
 
 Procedure AllSCR(DiodPN:TDiod_PN;
-                 Vec:TVectorNew;
+                 Vec:TVector;
                  Func:TFunTriple;
                  T:double=300;V:double=0;
                  FileName:string='';
@@ -785,7 +785,7 @@ end;
 
 Procedure AllSCR(DiodPN:TDiod_PN;
 //                 var Vec:PVector;
-                 Vec:TVectorNew;
+                 Vec:TVector;
                  Func:TFunTriple;
                  T:double=300;V:double=0;
                  FileName:string='';
@@ -816,9 +816,9 @@ Procedure AllSCR(DiodPN:TDiod_PN;
                  T:double=300;V:double=0;
                  FileName:string='';
                  Npoint:integer=100);overload;
- var Vec:TVectorNew;
+ var Vec:TVector;
 begin
- Vec:=TVectorNew.Create;
+ Vec:=TVector.Create;
  AllSCR(DiodPN,Vec,Func,T,V,FileName,Npoint);
  Vec.Free;
 end;                 
@@ -1350,9 +1350,9 @@ end;
 
 function TDiod_PN.I_Shockley(T, V: double): double;
 // var Vec:PVector;
- var Vec:TVectorNew;
+ var Vec:TVector;
 begin
-  Vec:=TVectorNew.Create;
+  Vec:=TVector.Create;
   AllSCR(Self,Vec,R_Shockley,T,V);
 //  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
 //  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');

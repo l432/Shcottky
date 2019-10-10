@@ -12,7 +12,7 @@ type
   віконного фільтра}
 
 
-  TVDigitalManipulation=class(TVectorNew)
+  TVDigitalManipulation=class(TVector)
    private
      fA,fB:TArrSingle;
      {масиви для коефіцієнтів фільтрування}
