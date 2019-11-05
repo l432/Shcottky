@@ -3938,19 +3938,26 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
  var Vec:TVectorTransform;
      SA,SA2:TArrSingle;
+     T,i:integer;
 begin
+ showmessage(floattostr(Pi));
  Vec:=TVectorTransform.Create;
- Vec.ReadFromFile('D:\Oleg\Shottky_Program\Shcottky\CopyNew\Data\data.dat');
- Vec.PVParareters(SA);
- showmessage(ArrayToString(SA,['Voc','Isc','Pm','Vm','Im']));
- showmessage(floattostr(Vec.Voc));
- // Vec.Pm;
+ T:=270;
+ for i := 0 to 25 do
+   begin
+     Vec.Add(T,Silicon.Brad(T));
+     T:=T+5;
+   end;
+ Vec.WriteToFile('Brad.dat',8);
+ Vec.Clear;
+  T:=270;
+ for i := 0 to 25 do
+   begin
+     Vec.Add(T,Silicon.Nv(T));
+     T:=T+5;
+   end;
+ Vec.WriteToFile('Nv.dat',8);
 
-// showmessage(floattostr(NPolinom(2.9,[9,12,-11,2])));
-
-// showmessage(floattostr(Bisection(NPolinom,[9,12,-11,2],
-//                 -1,5)));
-// showmessage(ArrayToString(SA)+#10+ArrayToString(SA2))
  Vec.Free;
 
 //showmessage(floattostr(Button(2e-8)));

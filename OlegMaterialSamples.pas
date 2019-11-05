@@ -157,6 +157,12 @@ type
       class function Vth_n(T:double=300):double;
       class function Vth_p(T:double=300):double;
      {теплова швидкість електронів та дірок}
+      class function MinorityN(majority:double;T:double=300):double;
+      {концентрація неосновних носіїв }
+      class function Brad(T:double=300):double;
+      {коефіцієнт міжзонної випромінювальної рекомбінації,
+      []=м3/с}
+
     end;
 
     TMaterialLayer=class
@@ -483,10 +489,9 @@ function TMaterial.Vth_n(T: double): double;
 begin
  if Name='Si' then
       begin
-       Result:=sqrt(8*Qelem*Kb*T/m0/Pi/0.28);
+       Result:=Silicon.Vth_n(T);
        Exit;
       end;
- {J.Appl.Phys., 67, p2944}
  if Me=ErResult then Result:=ErResult
                 else Result:=sqrt(3*Qelem*Kb*T/m0/Me)
 end;
@@ -495,10 +500,9 @@ function TMaterial.Vth_p(T: double): double;
 begin
  if Name='Si' then
       begin
-       Result:=sqrt(8*Qelem*Kb*T/m0/Pi/0.41);
+       Result:=Silicon.Vth_p(T);
        Exit;
       end;
- {J.Appl.Phys., 67, p2944}
  if Mh=ErResult then Result:=ErResult
                 else Result:=sqrt(3*Qelem*Kb*T/m0/Mh)
 end;
@@ -531,7 +535,8 @@ function TMaterial.Ei(T: double): double;
 begin
  if Name='Si' then
       begin
-       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
+       Result:=Silicon.Ei(T);
+//       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
        Exit;
       end;
  if (Eg0=ErResult)or
@@ -560,10 +565,9 @@ function TMaterial.Nc(T:double):double;
 begin
  if Name='Si' then
       begin
-       Result:=2.86e25*Power(T/300.0,1.58);
+       Result:=Silicon.Nc(T);
        Exit;
       end;
- {J.Appl.Phys., 67, p2944}
  if Me=ErResult then Result:=ErResult
                 else Result:=2.5e25*Me*(T/300.0)*sqrt(Me*T/300.0);
 end;
@@ -572,10 +576,9 @@ function TMaterial.Nv(T: double): double;
 begin
  if Name='Si' then
       begin
-       Result:=3.1e25*Power(T/300.0,1.85);
+       Result:=Silicon.Nv(T);
        Exit;
       end;
- {J.Appl.Phys., 67, p2944}
  if Mh=ErResult then Result:=ErResult
                 else Result:=2.5e25*Mh*(T/300.0)*sqrt(Mh*T/300.0);
 end;
@@ -584,7 +587,7 @@ function TMaterial.n_i(T: double): double;
 begin
  if Name='Si' then
       begin
-       Result:=1.64e21*Power(T,1.706)*exp(-EgT(T)/2/T/Kb);
+       Result:=Silicon.n_i(T);
        Exit;
       end;
  Result:=ErResult;
@@ -1678,6 +1681,14 @@ begin
 //  Result:=Result/Result300*GreenAbs;
 end;
 
+class function Silicon.Brad(T: double): double;
+begin
+ Result:=(-1336.5550952225+22.4496406414*T-0.148937976*sqr(T)
+        +4.9057776424E-4*Power(T,3)-8.0347065425E-7*Power(T,4)
+        +5.2400039351E-10*Power(T,5))*1e-9;
+{APPLIED PHYSICS LETTERS 104, 112105 (2014), Nguyen}
+end;
+
 class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
 begin
  Result:=mu_n(T,Ndoping)*Kb*T;
@@ -1689,8 +1700,26 @@ begin
 end;
 
 class function Silicon.Eg(T: double=300): double;
+ const Eg0=1.1701;
+       Alpha=3.23e-4;
+       Tetta=446;
+       Delta2=0.2601;
+ var gamma,ksi:double;
 begin
- Result:=TMaterial.VarshniFull(Eg0_Si,T)
+ if T=0 then
+    begin
+    Result:=ErResult;
+    Exit;
+    end;
+ gamma:=(1-3*Delta2)/(exp(Tetta/T)-1);
+ ksi:=2*T/Tetta;
+ Result:=Eg0-Alpha*Tetta*(gamma
+    +3*Delta2/2*(Power((1+sqr(Pi*ksi)/3/(1+Delta2)
+       +(3*Delta2-1)/4*Power(ksi,3)
+       +8/3*Power(ksi,4)+Power(ksi,6)),1/6)-1));
+//PHYSICAL REVIEW B 66, 085201 (2002), Passler
+
+// Result:=TMaterial.VarshniFull(Eg0_Si,T)
 end;
 
 class function Silicon.Ei(T: double): double;
@@ -1840,6 +1869,11 @@ begin
   Vect.Free;
 end;
 
+class function Silicon.MinorityN(majority, T: double): double;
+begin
+ Result:=sqr(n_i(T))/majority;
+end;
+
 class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;
  var  mu_min,mu_0,Nref,Alpha:double;
 begin
@@ -1862,19 +1896,29 @@ end;
 
 class function Silicon.Nc(T: double): double;
 begin
-  Result:=2.86e25*Power(T/300.0,1.58);
+  Result:=4.83e21*(1.094-1.312e-5*T
+     +6.753e-7*sqr(T)-4.609e-10*Power(T,3))
+     *Power(T,1.5);
+  {J.Appl.Phys,115,093705 (2014), Couderc}
+//  Result:=2.86e25*Power(T/300.0,1.58);
  {J.Appl.Phys., 67, p2944}
 end;
 
 class function Silicon.Nv(T: double): double;
 begin
- Result:=3.1e25*Power(T/300.0,1.85);
+  Result:=4.83e21*(0.3426+3.376e-3*T
+     -4.689e-6*sqr(T)+2.525e-9*Power(T,3))
+     *Power(T,1.5);
+  {J.Appl.Phys,115,093705 (2014), Couderc}
+// Result:=3.1e25*Power(T/300.0,1.85);
  {J.Appl.Phys., 67, p2944}
 end;
 
 class function Silicon.n_i(T: double): double;
 begin
- Result:=1.64e21*Power(T,1.706)*exp(-Eg(T)/2/T/Kb);
+ Result:=1.541e21*Power(T,1.712)*exp(-Eg(T)/2/T/Kb);
+ {J.Appl.Phys,115,093705 (2014), Couderc}
+// Result:=1.64e21*Power(T,1.706)*exp(-Eg(T)/2/T/Kb);
 end;
 
 class function Silicon.Rajkanan(Ephoton, T: double): double;
