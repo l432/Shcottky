@@ -1685,7 +1685,7 @@ class function Silicon.Brad(T: double): double;
 begin
  Result:=(-1336.5550952225+22.4496406414*T-0.148937976*sqr(T)
         +4.9057776424E-4*Power(T,3)-8.0347065425E-7*Power(T,4)
-        +5.2400039351E-10*Power(T,5))*1e-9;
+        +5.2400039351E-10*Power(T,5))*1e-21;
 {APPLIED PHYSICS LETTERS 104, 112105 (2014), Nguyen}
 end;
 

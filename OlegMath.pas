@@ -613,6 +613,10 @@ Function arcTanh(x:double):Double;
 
 Function CasrtoIV(I:double;Parameters:array of double):double;
 
+Function ThermallyActivated(A0,Eact,T:double):double;
+
+Function ThermallyPower(A0,PowerLaw,T:double):double;
+
 
 implementation
 
@@ -3511,5 +3515,18 @@ begin
          +log10(temp21*Parameters[3])/temp20;
 
 end;
+
+Function ThermallyActivated(A0,Eact,T:double):double;
+begin
+ if T>0 then Result:=A0*exp(-Eact/T/Kb)
+        else Result:=ErResult;
+end;
+
+Function ThermallyPower(A0,PowerLaw,T:double):double;
+begin
+ if T>0 then Result:=A0*Power(T,PowerLaw)
+        else Result:=ErResult;
+end;
+
 
 end.

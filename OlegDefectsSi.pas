@@ -2,11 +2,12 @@ unit OlegDefectsSi;
 
 interface
 
-uses OlegMaterialSamples,OlegType,Math;
+uses OlegMaterialSamples,OlegType,Math,OlegMath;
 
 type
-  TDefectName=(Fei,FeB);
+  TDefectName=(Fei,FeB_ac,Fe_don);
 
+  TDefectType=(tDonor,tAcceptor);
 
   TDefectParametersName=(
     nSn,
@@ -18,14 +19,19 @@ type
     Name:string;
     Parameters:array[TDefectParametersName]of double;
     ToValenceBand:boolean;
+    DefectType:TDefectType;
     end;
 
 const
   Defects:array [TDefectName] of TDefectParameters=
 
-   ((Name:'Fe_i';   Parameters: (3.6e-19,  7e-21,  0.394); ToValenceBand:True),
-    (Name:'FeB';    Parameters: (2.5e-19,  5.5e-19, 0.26);  ToValenceBand:False)
+   ((Name:'Fe_i';   Parameters: (3.6e-19,  7e-21,  0.394); ToValenceBand:True; DefectType:tDonor ),
+    (Name:'FeB_ac'; Parameters: (2.5e-19,  5.5e-19, 0.26); ToValenceBand:False;DefectType:tAcceptor),
+    (Name:'FeB_don';Parameters: (4e-17,    2e-18,   0.10); ToValenceBand:True; DefectType:tDonor)
     );
+
+ DefectType_Label:array[TDefectType]of string=
+   ('0/+','-/0');
 
 
 type
@@ -35,16 +41,19 @@ type
     FParameters:TDefectParameters;
     FMaterial:TMaterial;
     FNd: double;
+    fDefectName:TDefectName;
     procedure SetNd(const Value: double);
+    function GetDefectType: string;
 
   public
     Constructor Create(DefectName:TDefectName);
     Procedure Free;
     property Name:string read FParameters.Name;
-    property Sn:double read FParameters.Parameters[nSn];
-    property Sp:double read FParameters.Parameters[nSp];
+//    property Sn:double read FParameters.Parameters[nSn];
+//    property Sp:double read FParameters.Parameters[nSp];
     property Et:double read FParameters.Parameters[nEt];
     property ToValenceBand:boolean read FParameters.ToValenceBand;
+    property DefectType:string read GetDefectType;
     property Nd:double read FNd write SetNd;
     function TAUn0(T:double=300):double;
     function TAUp0(T:double=300):double;
@@ -52,6 +61,9 @@ type
    {Ndop - рівень легування; delN - нерівноважні носії}
     function n1(T:double=300):double;
     function p1(T:double=300):double;
+    function Sn(T:double=300):double;
+    function Sp(T:double=300):double;
+    {поперечні перерізи захоплення електронів та дірок}
   end;
 
 Function Fe_i_eq(MaterialLayer:TMaterialLayer;
@@ -71,7 +83,8 @@ implementation
 constructor TDefect.Create(DefectName: TDefectName);
 begin
   inherited Create;
-  FParameters:=Defects[DefectName];
+  fDefectName:=DefectName;
+  FParameters:=Defects[fDefectName];
   FMaterial:=TMaterial.Create(Si);
 end;
 
@@ -79,6 +92,11 @@ procedure TDefect.Free;
 begin
  FMaterial.Free;
  inherited Free;
+end;
+
+function TDefect.GetDefectType: string;
+begin
+ Result:=DefectType_Label[FParameters.DefectType];
 end;
 
 function TDefect.n1(T: double): double;
@@ -100,6 +118,26 @@ end;
 procedure TDefect.SetNd(const Value: double);
 begin
   FNd := abs(Value);
+end;
+
+function TDefect.Sn(T: double): double;
+begin
+  case fDefectName of
+    Fei: Result:=ThermallyPower(3.47e-15,-1.48,T);
+    FeB_ac: Result:=ThermallyPower(5.1e-13,-2.5,T);
+    Fe_don: Result:=FParameters.Parameters[nSn];
+    else Result:=ErResult;
+  end;
+end;
+
+function TDefect.Sp(T: double): double;
+begin
+  case fDefectName of
+    Fei: Result:=ThermallyActivated(4.54e-20,0.05,T);
+    FeB_ac: Result:=ThermallyActivated(3.32e-14,0.262,T);
+    Fe_don: Result:=FParameters.Parameters[nSp];
+    else Result:=ErResult;
+  end;
 end;
 
 function TDefect.TAUn0(T: double=300): double;

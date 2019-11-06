@@ -8559,7 +8559,7 @@ begin
  FVarManualDefinedOnly[0]:=True;
  FVarManualDefinedOnly[1]:=True;
  fFei:=TDefect.Create(Fei);
- fFeB:=TDefect.Create(FeB);
+ fFeB:=TDefect.Create(FeB_ac);
 // fHasPicture:=False;
  CreateFooter();
 end;
