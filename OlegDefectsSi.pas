@@ -5,7 +5,11 @@ interface
 uses OlegMaterialSamples,OlegType,Math,OlegMath;
 
 type
-  TDefectName=(Fei,FeB_ac,Fe_don);
+  TDefectName=(Fei,
+               FeB_ac,
+               Fe_don,
+               FeB_ort_ac,
+               FeB_ort_don);
 
   TDefectType=(tDonor,tAcceptor);
 
@@ -26,8 +30,10 @@ const
   Defects:array [TDefectName] of TDefectParameters=
 
    ((Name:'Fe_i';   Parameters: (3.6e-19,  7e-21,  0.394); ToValenceBand:True; DefectType:tDonor ),
-    (Name:'FeB_ac'; Parameters: (2.5e-19,  5.5e-19, 0.26); ToValenceBand:False;DefectType:tAcceptor),
-    (Name:'FeB_don';Parameters: (4e-17,    2e-18,   0.10); ToValenceBand:True; DefectType:tDonor)
+    (Name:'FeB_ac'; Parameters: (2.5e-19,  5.5e-19, 0.262); ToValenceBand:False;DefectType:tAcceptor),
+    (Name:'FeB_don';Parameters: (4e-17,    2e-18,   0.10); ToValenceBand:True; DefectType:tDonor),
+    (Name:'FeB_ort_ac'; Parameters: (3e-19,  1.4e-19, 0.43); ToValenceBand:False;DefectType:tAcceptor),
+    (Name:'FeB_ort_don';Parameters: (3e-19,  1.4e-19, 0.07); ToValenceBand:True; DefectType:tDonor)
     );
 
  DefectType_Label:array[TDefectType]of string=
@@ -125,8 +131,8 @@ begin
   case fDefectName of
     Fei: Result:=ThermallyPower(3.47e-15,-1.48,T);
     FeB_ac: Result:=ThermallyPower(5.1e-13,-2.5,T);
-    Fe_don: Result:=FParameters.Parameters[nSn];
-    else Result:=ErResult;
+//    Fe_don: Result:=FParameters.Parameters[nSn];
+    else Result:=FParameters.Parameters[nSn];
   end;
 end;
 
@@ -135,8 +141,8 @@ begin
   case fDefectName of
     Fei: Result:=ThermallyActivated(4.54e-20,0.05,T);
     FeB_ac: Result:=ThermallyActivated(3.32e-14,0.262,T);
-    Fe_don: Result:=FParameters.Parameters[nSp];
-    else Result:=ErResult;
+//    Fe_don: Result:=FParameters.Parameters[nSp];
+    else Result:=FParameters.Parameters[nSp];
   end;
 end;
 

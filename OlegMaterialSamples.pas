@@ -24,6 +24,16 @@ const
   VarshB_Si=7.021e-4;
   VarshA_Si=1108;
   Eg0_Si=1.169;
+  mu_n_N=1486;
+  mu_p_N=520;
+  mu_n_C=71.987;
+  mu_p_C=49.637;
+  Nref_n=9.2e16;
+  Nref_p=2.23e17;
+  al_n=0.711;
+  al_p=0.719;
+
+
 
 
   Materials:array [TMaterialName] of TMaterialParameters=
@@ -447,6 +457,28 @@ Parameters[1] - температура}
 Function FermiLevelDeterminationSimple(const n:double;const T:double):double;
 {обчислюється значення рівня Фермі в електронному напівпровіднику
 по значенням концентрації та температури}
+
+Function Pklaas(m:double=0.25;T: Double=300; Ndoping: Double=1e21):double;
+{параметр Р з теорії KLAASSEN
+(Solid-State  Electronics, 35, pp.953-95(1992),)
+m - відношення ефективної маси носія до маси спокою,
+за замовчуванням - для електрона в Si,
+Ndoping - рівень легування, []=cm-3}
+
+Function Gklaas(P:double;m:double=0.25;T: Double=300):double;
+{функція G з теорії KLAASSEN
+(Solid-State  Electronics, 35, pp.953-95(1992),)}
+
+Function Fklaas(P:double;m1:double=0.25;m2: Double=0.58):double;
+{функція F з теорії KLAASSEN
+(Solid-State  Electronics, 35, pp.953-95(1992),)
+m1 - відношення ефективної маси носія,
+   який розсіюється, до маси спокою,
+за замовчуванням - для електрона в Si,
+m1 - відношення ефективної маси іншого носія до маси спокою,
+за замовчуванням - для дірки в Si,
+}
+
 
 implementation
 
@@ -2100,5 +2132,35 @@ begin
                  Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4);
 end;
 
+Function Pklaas(m:double=0.25;T: Double=300; Ndoping: Double=1e21):double;
+begin
+  Result:=1.36e20/(Ndoping+Silicon.MinorityN(Ndoping,T))*m
+          *sqr(T/300);
+end;
+
+Function Gklaas(P:double;m:double=0.25;T: Double=300):double;
+ const s1=0.89233;
+       s2=0.41372;
+       s3=0.19778;
+       s4=0.28227;
+       s5=0.005978;
+       s6=1.80618;
+       s7=0.72169;
+begin
+ Result:=1-s1/Power(s2+Power((T/300/m),s4)*P,s3)
+        +s5/Power(Power(m*300/T,s7)*P,s6);
+end;
+
+Function Fklaas(P:double;m1:double=0.25;m2: Double=0.58):double;
+ const r1=0.7643;
+       r2=2.2999;
+       r3=6.5502;
+       r4=2.3670;
+       r5=-0.01552;
+       r6=0.6478;
+begin
+ Result:=(r1*Power(P,r6)+r2+r3*m1/m2)
+        /(Power(P,r6)+r4+r5*m1/m2);
+end;
 
 end.
