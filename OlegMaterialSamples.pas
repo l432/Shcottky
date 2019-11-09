@@ -24,14 +24,6 @@ const
   VarshB_Si=7.021e-4;
   VarshA_Si=1108;
   Eg0_Si=1.169;
-  mu_n_N=1486;
-  mu_p_N=520;
-  mu_n_C=71.987;
-  mu_p_C=49.637;
-  Nref_n=9.2e16;
-  Nref_p=2.23e17;
-  al_n=0.711;
-  al_p=0.719;
 
 
 
@@ -143,12 +135,23 @@ type
        [Lambda]=нм, [Result]=1/м}
       public
       class function Eg(T:double=300):double;
+      class function Meff_e(T:double=300):double;
+      class function Meff_h(T:double=300):double;
       class function A(A0,T,n:double):double;
       {функція A=A0*(T/300)^n}
-      class function mu_n(T: Double=300; Ndoping: Double=1e21):double;
-      class function mu_p(T: Double=300; Ndoping: Double=1e21):double;
+//      class function mu_n(T: Double=300; Ndoping: Double=1e21):double;
+//      class function mu_p(T: Double=300; Ndoping: Double=1e21):double;
       {рухливості електронів та дірок за формулами з книги
       Schroder, p.503,
+      Ndoping - концентрація легуючої домішки,
+      []=м^-3
+      [Result]=м^2/(В с}
+      class function mu_n(T: Double=300; Ndoping: Double=1e21;itIsMajority:Boolean=True):double;
+      class function mu_p(T: Double=300; Ndoping: Double=1e21;itIsMajority:Boolean=True):double;
+      {рухливості електронів та дірок за теорією KLAASSEN
+      (Solid-State  Electronics, 35, pp.953-95(1992),
+      викоритовувались ще формули з книги
+      "Properties of Crystalline Silicon"
       Ndoping - концентрація легуючої домішки,
       []=м^-3
       [Result]=м^2/(В с}
@@ -172,7 +175,18 @@ type
       class function Brad(T:double=300):double;
       {коефіцієнт міжзонної випромінювальної рекомбінації,
       []=м3/с}
-
+      class function Cn_Auger(n:double;T:double=300):double;
+      {коефіцієнт Оже-рекомбінації електронів,
+      []=м6/с
+      n - рівноважна концентрація електронів, []=1/m^3}
+      class function Cp_Auger(p:double;T:double=300):double;
+      {коефіцієнт Оже-рекомбінації дірок,
+      []=м6/с
+      p - рівноважна концентрація дірок, []=1/m^3}
+      class function BGN(Ndoping: Double=1e21; itIsDonor:Boolean=True):double;
+      {звуження забороненої зони,
+      []=eV,
+      {Ndoping]=1/m^3}
     end;
 
     TMaterialLayer=class
@@ -458,18 +472,19 @@ Function FermiLevelDeterminationSimple(const n:double;const T:double):double;
 {обчислюється значення рівня Фермі в електронному напівпровіднику
 по значенням концентрації та температури}
 
-Function Pklaas(m:double=0.25;T: Double=300; Ndoping: Double=1e21):double;
+Function Pklaas(T:double=300;Ndoping: Double=1e21;
+          itIsMajority:Boolean=True; itIsElectron: Boolean=True):double;
 {параметр Р з теорії KLAASSEN
 (Solid-State  Electronics, 35, pp.953-95(1992),)
 m - відношення ефективної маси носія до маси спокою,
 за замовчуванням - для електрона в Si,
 Ndoping - рівень легування, []=cm-3}
 
-Function Gklaas(P:double;m:double=0.25;T: Double=300):double;
+Function Gklaas(P:double;T: Double=300; itIsElectron: Boolean=True):double;
 {функція G з теорії KLAASSEN
 (Solid-State  Electronics, 35, pp.953-95(1992),)}
 
-Function Fklaas(P:double;m1:double=0.25;m2: Double=0.58):double;
+Function Fklaas(P:double;T: Double=300; itIsElectron: Boolean=True):double;
 {функція F з теорії KLAASSEN
 (Solid-State  Electronics, 35, pp.953-95(1992),)
 m1 - відношення ефективної маси носія,
@@ -1713,12 +1728,43 @@ begin
 //  Result:=Result/Result300*GreenAbs;
 end;
 
+class function Silicon.BGN(Ndoping: Double; itIsDonor:Boolean): double;
+begin
+  if Ndoping<1e20 then
+    begin
+    Result:=0;
+    Exit;
+    end;
+  if  itIsDonor then Result:=4.2e-5*Power(Ln(Ndoping/1e20),3)
+                else Result:=4.72e-5*Power(Ln(Ndoping/1e20),3);
+ {Di Yana and Andres Cuevas,
+ JOURNAL OF APPLIED PHYSICS 116, 194505 (2014)}
+
+//  Result:=6.92e-3*(Ln(Ndoping/1.3e17)+sqrt(0.5+sqr(Ln(Ndoping/1.3e17))));
+end;
+
 class function Silicon.Brad(T: double): double;
 begin
  Result:=(-1336.5550952225+22.4496406414*T-0.148937976*sqr(T)
         +4.9057776424E-4*Power(T,3)-8.0347065425E-7*Power(T,4)
         +5.2400039351E-10*Power(T,5))*1e-21;
 {APPLIED PHYSICS LETTERS 104, 112105 (2014), Nguyen}
+end;
+
+class function Silicon.Cn_Auger(n, T: double): double;
+begin
+ Result:=2.8e-43*(1+(ThermallyPower(235548,-1.5013,T)-1)*
+                    (1-tanh(Power(n/5e22,0.34))));
+
+ {J. Appl. Phys. 82, p.4938 (1997)}
+end;
+
+class function Silicon.Cp_Auger(p, T: double): double;
+begin
+  Result:=(7.91e-44-4.13e-47*T+3.59e-49*sqr(T))
+        *(1+(ThermallyPower(564812,-1.6546,T)-1)*
+                    (1-tanh(Power(p/5e22,0.29))));
+ {J. Appl. Phys. 82, p.4938 (1997)}
 end;
 
 class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
@@ -1901,30 +1947,124 @@ begin
   Vect.Free;
 end;
 
+class function Silicon.Meff_e(T: double): double;
+begin
+ Result:=NPolinom(T,6,[1.06270,-1.61708e-4,6.83008e-6,
+                       -3.32013e-8,8.04032e-11,
+                       -9.66067e-14,4.54649e-17])/Power(6,2/3);
+{Handbook of semiconductor silicon technology,
+W.C.O'Mara,R.B.Herring,L.P.Hant,1990}
+// Result:=0.25;
+end;
+
+class function Silicon.Meff_h(T: double): double;
+begin
+ Result:=NPolinom(T,6,[0.590525,-5.23548e-4,1.85678e-5,
+                       -9.67212e-8,2.30049e-10,
+                       -2.59673e-13,1.11997e-16]);
+{Handbook of semiconductor silicon technology,
+W.C.O'Mara,R.B.Herring,L.P.Hant,1990}
+//  Result:=0.58;
+end;
+
 class function Silicon.MinorityN(majority, T: double): double;
 begin
  Result:=sqr(n_i(T))/majority;
 end;
 
-class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;
- var  mu_min,mu_0,Nref,Alpha:double;
+//class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;
+// var  mu_min,mu_0,Nref,Alpha:double;
+//begin
+// mu_min:=A(92e-4,T,-0.57);
+// mu_0:=A(0.1268,T,-2.33);
+// Nref:=A(1.3e23,T,2.4);
+// Alpha:=A(0.91,T,-0.146);
+// Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
+//end;
+
+class function Silicon.mu_n(T, Ndoping: Double;itIsMajority:Boolean): double;
+ const mu_max=0.1414;
+       mu_min=0.00685;
+       Nref=9.2e22;
+       al=0.711;
+ var mu_L,mu_DA,
+     Pp,p,n,N_D,N_A,
+     Nsc,Neff:double;
 begin
- mu_min:=A(92e-4,T,-0.57);
- mu_0:=A(0.1268,T,-2.33);
- Nref:=A(1.3e23,T,2.4);
- Alpha:=A(0.91,T,-0.146);
- Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
+ mu_L:=ThermallyPower(mu_max,2.25,300/T);
+ if itIsMajority then
+   begin
+    n:=Ndoping;
+    p:=Silicon.MinorityN(Ndoping,T);
+    N_D:=Ndoping;
+    N_A:=0;
+   end
+                 else
+   begin
+    n:=Silicon.MinorityN(Ndoping,T);
+    p:=Ndoping;
+    N_D:=0;
+    N_A:=Ndoping;
+   end;
+
+ Pp:=Pklaas(T, Ndoping, itIsMajority, True);
+
+ Neff:=N_D+N_A*Gklaas(Pp,T,True)+p/Fklaas(Pp,T,True);
+ Nsc:=N_D+N_A+p;
+
+ mu_DA:=sqr(mu_max)/(mu_max-mu_min)*Nsc/Neff
+         *Power(Nref/Nsc,al)
+         *Power(T/300,3*al-1.5)
+         +mu_max*mu_min/(mu_max-mu_min)*(n+p)/Neff*sqrt(300/T);
+ Result:=1/(1/mu_L+1/mu_DA);
 end;
 
-class function Silicon.mu_p(T: Double=300; Ndoping: Double=1e21): double;
- var  mu_min,mu_0,Nref,Alpha:double;
+class function Silicon.mu_p(T, Ndoping: Double; itIsMajority: Boolean): double;
+ const mu_max=0.04705;
+       mu_min=0.00449;
+       Nref=2.23e23;
+       al=0.719;
+ var mu_L,mu_DA,
+     Pp,p,n,N_D,N_A,
+     Nsc,Neff:double;
 begin
- mu_min:=A(54.3e-4,T,-0.57);
- mu_0:=A(0.04069,T,-2.23);
- Nref:=A(2.35e23,T,2.4);
- Alpha:=A(0.88,T,-0.146);
- Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
+ mu_L:=ThermallyPower(mu_max,2.25,300/T);
+ if itIsMajority then
+   begin
+    p:=Ndoping;
+    n:=Silicon.MinorityN(Ndoping,T);
+    N_A:=Ndoping;
+    N_D:=0;
+   end
+                 else
+   begin
+    p:=Silicon.MinorityN(Ndoping,T);
+    n:=Ndoping;
+    N_A:=0;
+    N_D:=Ndoping;
+   end;
+
+ Pp:=Pklaas(T, Ndoping, itIsMajority, False);
+
+ Neff:=N_A+N_D*Gklaas(Pp,T,False)+n/Fklaas(Pp,T,False);
+ Nsc:=N_A+N_D+n;
+
+ mu_DA:=sqr(mu_max)/(mu_max-mu_min)*Nsc/Neff
+         *Power(Nref/Nsc,al)
+         *Power(T/300,3*al-1.5)
+         +mu_max*mu_min/(mu_max-mu_min)*(n+p)/Neff*sqrt(300/T);
+ Result:=1/(1/mu_L+1/mu_DA);
 end;
+
+//class function Silicon.mu_p(T: Double=300; Ndoping: Double=1e21): double;
+// var  mu_min,mu_0,Nref,Alpha:double;
+//begin
+// mu_min:=A(54.3e-4,T,-0.57);
+// mu_0:=A(0.04069,T,-2.23);
+// Nref:=A(2.35e23,T,2.4);
+// Alpha:=A(0.88,T,-0.146);
+// Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
+//end;
 
 class function Silicon.Nc(T: double): double;
 begin
@@ -2132,13 +2272,31 @@ begin
                  Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4);
 end;
 
-Function Pklaas(m:double=0.25;T: Double=300; Ndoping: Double=1e21):double;
+Function Pklaas(T, Ndoping: Double; itIsMajority, itIsElectron: Boolean):double;
+ var Z,Pbh,Pcw:double;
 begin
-  Result:=1.36e20/(Ndoping+Silicon.MinorityN(Ndoping,T))*m
-          *sqr(T/300);
+
+  Pbh:=1.36e26/(Ndoping+Silicon.MinorityN(Ndoping,T))*sqr(T/300);
+  if itIsElectron then
+       Pbh:=Pbh*Silicon.Meff_e(T)
+                  else
+       Pbh:=Pbh*Silicon.Meff_h(T);
+  Pbh:=3.83/Pbh;
+
+  if itIsMajority then
+   begin
+    if itIsElectron then
+       Z:=1+1/(0.21+sqr(4e26/Ndoping))
+                  else
+       Z:=1+1/(0.5+sqr(7.2e26/Ndoping));
+    Pcw:=3.97e19*Power(Power(T/300/Z,3)/Ndoping,2/3);
+    Pcw:=2.46/Pcw;
+   end            else
+   Pcw:=0;
+   Result:=1/(Pbh+Pcw);
 end;
 
-Function Gklaas(P:double;m:double=0.25;T: Double=300):double;
+Function Gklaas(P:double;T: Double=300; itIsElectron: Boolean=True):double;
  const s1=0.89233;
        s2=0.41372;
        s3=0.19778;
@@ -2146,21 +2304,28 @@ Function Gklaas(P:double;m:double=0.25;T: Double=300):double;
        s5=0.005978;
        s6=1.80618;
        s7=0.72169;
+ var m:double;
 begin
+ if itIsElectron then m:=Silicon.Meff_e(T)
+                 else m:=Silicon.Meff_h(T);
+
  Result:=1-s1/Power(s2+Power((T/300/m),s4)*P,s3)
-        +s5/Power(Power(m*300/T,s7)*P,s6);
+           +s5/Power(Power(m*300/T,s7)*P,s6);
 end;
 
-Function Fklaas(P:double;m1:double=0.25;m2: Double=0.58):double;
+Function Fklaas(P:double; T: Double=300; itIsElectron: Boolean=True):double;
  const r1=0.7643;
        r2=2.2999;
        r3=6.5502;
        r4=2.3670;
        r5=-0.01552;
        r6=0.6478;
+ var m12:double;
 begin
- Result:=(r1*Power(P,r6)+r2+r3*m1/m2)
-        /(Power(P,r6)+r4+r5*m1/m2);
+ if itIsElectron then m12:=Silicon.Meff_e(T)/Silicon.Meff_h(T)
+                 else m12:=Silicon.Meff_h(T)/Silicon.Meff_e(T);
+ Result:=(r1*Power(P,r6)+r2+r3*m12)
+        /(Power(P,r6)+r4+r5*m12);
 end;
 
 end.

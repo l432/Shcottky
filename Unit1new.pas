@@ -3937,26 +3937,28 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
  var Vec:TVectorTransform;
-     SA,SA2:TArrSingle;
+//     SA,SA2:TArrSingle;
      T,i:integer;
+     Nb:double;
 begin
+// Silicon.mu_n();
  showmessage(floattostr(Pi));
+//
  Vec:=TVectorTransform.Create;
+ Nb:=1e18;
+ for i := 0 to 8 do
+   begin
+     Vec.Add(Nb*Power(10,i),Silicon.mu_p(300,Nb*Power(10,i),True));
+   end;
+ Vec.WriteToFile('mu_Np.dat',8);
+ Vec.Clear;
  T:=270;
  for i := 0 to 25 do
    begin
-     Vec.Add(T,Silicon.Brad(T));
+     Vec.Add(T,Silicon.mu_p(T,1e21,True));
      T:=T+5;
    end;
- Vec.WriteToFile('Brad.dat',8);
- Vec.Clear;
-  T:=270;
- for i := 0 to 25 do
-   begin
-     Vec.Add(T,Silicon.Nv(T));
-     T:=T+5;
-   end;
- Vec.WriteToFile('Nv.dat',8);
+ Vec.WriteToFile('mu_Tp.dat',8);
 
  Vec.Free;
 

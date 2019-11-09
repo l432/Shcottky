@@ -7,7 +7,7 @@ uses OlegMaterialSamples,OlegType,Math,OlegMath;
 type
   TDefectName=(Fei,
                FeB_ac,
-               Fe_don,
+               FeB_don,
                FeB_ort_ac,
                FeB_ort_don);
 
