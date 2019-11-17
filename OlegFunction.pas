@@ -349,9 +349,7 @@ end;
 Function Acronym(str:string):string;
 begin
   Result:='';
-  Result:=Trim(Result);
-//  if AnsiEndsStr(' ',str) then Delete(str, Length(str), 1);
-//  if AnsiStartsStr(' ',str) then Delete(str, 1, 1);
+  str:=Trim(str);
   if Length(str)<1 then Exit;
   Result:=str[1];
   while AnsiContainsStr(str,' ') do
