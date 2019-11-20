@@ -63,6 +63,12 @@ Function FloatDataFromRow(str:string;Number:word):double;
 (нумерація починається з 1);
 якщо там не число - то повертається ErResult}
 
+Function SubstringNumberFromRow(substring,row:string):integer;
+{визначається номер частини substring з рядка row,
+нумерація починається з одиниці,
+якщо частина відсутня повертається нуль}
+
+
 Function  DeleteStringDataFromRow(str:string;Number:word):string;
 {повертає рядок з видаленою частиною (відділеною пробілами - див.
 попередні) з номером Number}
@@ -382,6 +388,34 @@ begin
    Result:=Copy(Result, 1, AnsiPos (' ', Result)-1);
 end;
 
+Function SubstringNumberFromRow(substring,row:string):integer;
+ var tempstr:string;
+     i:integer;
+begin
+  Result:=0;
+  tempstr:=SomeSpaceToOne(row);
+  i:=1;
+  repeat
+   if AnsiPos (' ', tempstr)>0 then
+    begin
+      if substring=Copy(tempstr, 1, AnsiPos (' ', tempstr)-1) then
+        begin
+          Result:=i;
+          Break;
+        end;
+      Delete(tempstr, 1, AnsiPos (' ', tempstr));
+    end   else
+    begin
+      if substring=tempstr then
+        begin
+          Result:=i;
+          Break;
+        end;
+      tempstr:='';
+    end;
+    inc(i);
+  until tempstr='';
+end;
 
 Function  DeleteStringDataFromRow(str:string;Number:word):string;
 {повертає рядок з видаленою частиною (відділеною пробілами - див.
