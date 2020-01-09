@@ -42,8 +42,12 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
 
   TObjectArray=class
     private
+     function GetHighIndex:integer;
+     function ObjectGet(Number:integer):TSimpleFreeAndAiniObject;
     public
      ObjectArray:array of TSimpleFreeAndAiniObject;
+     property SFIObject[Index:Integer]:TSimpleFreeAndAiniObject read ObjectGet;default;
+     property HighIndex:integer read GetHighIndex;
      Constructor Create();overload;
      Constructor Create(InitArray:array of TSimpleFreeAndAiniObject);overload;
      procedure Add(AddedArray:array of TSimpleFreeAndAiniObject);overload;
@@ -103,11 +107,21 @@ begin
   Add(InitArray);
 end;
 
+function TObjectArray.GetHighIndex: integer;
+begin
+ Result:=High(ObjectArray);
+end;
+
 procedure TObjectArray.ObjectFree;
  var i:integer;
 begin
  for i:=0 to High(ObjectArray) do
    ObjectArray[i].Free
+end;
+
+function TObjectArray.ObjectGet(Number: integer): TSimpleFreeAndAiniObject;
+begin
+ Result:=ObjectArray[Number];
 end;
 
 procedure TObjectArray.ReadFromIniFile(ConfigFile:TIniFile);
