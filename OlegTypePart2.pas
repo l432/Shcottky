@@ -16,9 +16,10 @@ end;
 TSimpleFreeAndAiniObject=class(TInterfacedObject)
   protected
   public
-   procedure Free;virtual;
+   procedure Free;//virtual;
    procedure ReadFromIniFile(ConfigFile: TIniFile);virtual;
    procedure WriteToIniFile(ConfigFile: TIniFile);virtual;
+//   destructor Destroy;override;
   end;
 
 //TNamedInterfacedObject=class(TInterfacedObject)
@@ -28,6 +29,8 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
    function GetName:string;
   public
    property Name:string read GetName;
+//   destructor Destroy;override;
+//   procedure Free; override;
   end;
 
 //  TObjectArray=class
@@ -63,9 +66,20 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
 implementation
 
 uses
-  Math, Dialogs, SysUtils;
+  Math, Dialogs, SysUtils, OlegFunction;
 
 { TNamedDevice }
+
+//destructor TNamedInterfacedObject.Destroy;
+//begin
+////  HelpForMe(Name);
+//  inherited;
+//end;
+
+//procedure TNamedInterfacedObject.Free;
+//begin
+// inherited;
+//end;
 
 function TNamedInterfacedObject.GetName: string;
 begin
@@ -75,10 +89,23 @@ end;
 
 { TSimpleFreeAndAiniObject }
 
+//destructor TSimpleFreeAndAiniObject.Destroy;
+//begin
+//// HelpForMe(inttostr(MilliSecond));
+//// sleep(1);
+//// inherited;
+//end;
+
 procedure TSimpleFreeAndAiniObject.Free;
 begin
-
+//  inherited;
 end;
+
+//destructor TSimpleFreeAndAiniObject.Destroy;
+//begin
+//
+////  inherited;
+//end;
 
 procedure TSimpleFreeAndAiniObject.ReadFromIniFile(ConfigFile: TIniFile);
 begin
@@ -116,6 +143,7 @@ procedure TObjectArray.ObjectFree;
  var i:integer;
 begin
  for i:=0 to High(ObjectArray) do
+//   FreeAndNil(ObjectArray[i])
    ObjectArray[i].Free
 end;
 

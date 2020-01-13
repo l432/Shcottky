@@ -39,7 +39,8 @@ type
    public
     property HookParameterClick:TSimpleEvent read fHookParameterClick write fHookParameterClick;
     property ColorChangeWithParameter:boolean read FColorChangeWithParameter write FColorChangeWithParameter;
-    property IniNameSalt:string write fIniNameSalt;
+    property IniNameSalt:string read fIniNameSalt write fIniNameSalt;
+
     Constructor Create(STD:TStaticText;
                        STC:TLabel;
                        ParametrCaption:string;
@@ -49,7 +50,7 @@ type
                        WT:string);overload;
     procedure ReadFromIniFile(ConfigFile:TIniFile);override;
     procedure WriteToIniFile(ConfigFile:TIniFile);override;
-//    procedure Free;overload;
+//    procedure Free;//overload;
     procedure ColorToActive(Value:boolean);
     procedure SetName(Name:string);
     procedure ForUseInShowObject(NamedObject:IName;
@@ -140,6 +141,7 @@ type
                        InitValue:integer
     );overload;
     property Data:integer read GetData write SetData;
+//    procedure Free;
   end;  //   TIntegerParameterShow=class (TParameterShow)
 
 
@@ -279,6 +281,7 @@ constructor TIntegerParameterShow.Create(STD: TStaticText; STC: TLabel;
 begin
   Create(STD,STC,ParametrCaption,ParametrCaption+WindowTextFooter,InitValue);
 end;
+
 
 function TIntegerParameterShow.GetData: integer;
 begin
