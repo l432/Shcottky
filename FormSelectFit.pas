@@ -130,7 +130,7 @@ begin
  if CB.Items[i]=Form1.SButFit.Caption then
      begin
        CB.Selected[i]:=True;
-       ApproxHide(Form1);
+       Form1.ApproxHide;
      end;
 end;
 

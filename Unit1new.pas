@@ -849,6 +849,9 @@ type
     RB_Irec: TRadioButton;
     RB_Ldif: TRadioButton;
     RB_Tau: TRadioButton;
+    SButFitNew: TSpeedButton;
+    ButFitSelectNew: TButton;
+    ButFitOptionNew: TButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -945,6 +948,7 @@ type
     procedure CBDateFunClick(Sender: TObject);
     procedure CBDLFunctionClick(Sender: TObject);
     procedure ButSaveClick(Sender: TObject);
+    procedure ButFitSelectNewClick(Sender: TObject);
   private
     { Private declarations }
     function GraphType (Sender: TObject):TGraph;
@@ -952,7 +956,9 @@ type
    будується залежно від назви об'єкта Sender}
     procedure CBoxGLShowClickAve(Sender: TObject);
   public
-    { Public declarations }
+    procedure ApproxHide;
+    {прибирається апроксимаційна крива,
+     відповідна кнопка переводиться в ненатиснутий стан}
   end;
 
 
@@ -990,9 +996,9 @@ procedure MarkerHide(F:TForm1);
 з графіку, очищення міток та переведення їх та
 повзунка з кнопкою в неактивний режим}
 
-procedure ApproxHide(Form1:TForm1);
-{прибирається апроксимаційна крива,
-відповідна кнопка переводиться в ненатиснутий стан}
+//procedure ApproxHide(Form1:TForm1);
+//{прибирається апроксимаційна крива,
+//відповідна кнопка переводиться в ненатиснутий стан}
 
 procedure LimitSetup(Lim:Limits; Min, Max:TRadioGroup;
                      LMin, LMax:TLabel);
@@ -1293,7 +1299,7 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit;
+uses ApprWindows, FormSelectFit, FormSelectFitNew;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -2671,6 +2677,12 @@ begin
   end;
 end;
 
+procedure TForm1.ApproxHide;
+begin
+  SButFit.Down:=False;
+  Series4.Active:=False;
+end;
+
 procedure TForm1.BApprClearClick(Sender: TObject);
 begin
  MemoAppr.Clear;
@@ -2787,7 +2799,7 @@ begin
      then
        begin
        SButFit.Caption:=str;
-       ApproxHide(Form1);
+       ApproxHide();
        end;
    if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
      then
@@ -2799,6 +2811,31 @@ begin
                then ButFitOption.Enabled:=not(str='None');
             if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
                then ButDateOption.Enabled:=not(str='None');
+  end;
+end;
+
+procedure TForm1.ButFitSelectNewClick(Sender: TObject);
+ var str:string;
+begin
+ if FormSFNew.ShowModal=mrOk then
+  begin
+//   str:=FormSF.CB.Items[FormSF.CB.ItemIndex];
+   if (Sender is TButton)and((Sender as TButton).Name='ButFitSelectNew')
+     then
+       begin
+       SButFitNew.Caption:=str;
+       ApproxHide;
+       end;
+//   if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
+//     then
+//       begin
+//       LDateFun.Caption:=str;
+//       CBDateFun.Checked:=False;
+//       end;
+//             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
+//               then ButFitOption.Enabled:=not(str='None');
+//            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
+//               then ButDateOption.Enabled:=not(str='None');
   end;
 end;
 
@@ -5599,14 +5636,14 @@ begin
 
 end;
 
-procedure ApproxHide(Form1:TForm1);
-{прибирається апроксимаційна крива,
-відповідна кнопка переводиться в ненатиснутий стан}
-begin
-//  Form1.CBoxAppr.Checked:=False;
-  Form1.SButFit.Down:=False;
-  Form1.Series4.Active:=False;
-end;
+//procedure ApproxHide(Form1:TForm1);
+//{прибирається апроксимаційна крива,
+//відповідна кнопка переводиться в ненатиснутий стан}
+//begin
+////  Form1.CBoxAppr.Checked:=False;
+//  Form1.SButFit.Down:=False;
+//  Form1.Series4.Active:=False;
+//end;
 
 
 procedure LimitSetup(Lim:Limits; Min, Max:TRadioGroup;
@@ -5649,7 +5686,7 @@ if High(GausLines)<0 then
     GaussLinesToGrid;
   end;
 if Form1.SpButLimit.Down then Form1.SpButLimit.Down:=False;
-ApproxHide(Form1);
+Form1.ApproxHide;
 end;
 
 procedure ClearGraphLog(Form1:TForm1);
@@ -5666,7 +5703,7 @@ if Form1.SpButLimit.Down then
 //                IVChar(VaxTempLim, VaxGraph);
                 VaxTempLim.CopyTo(VaxGraph);
                 end;
-ApproxHide(Form1);
+Form1.ApproxHide;
 end;
 
 

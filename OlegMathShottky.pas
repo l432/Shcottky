@@ -1282,7 +1282,7 @@ begin
   Fb:=ErResult;
   I0:=ErResult;
   Dtemp:=TDiapazon.Create;
-  Dtemp.Copy(D);
+  Dtemp.CopyFrom(D);
 
     i:=0;
     repeat

@@ -51,13 +51,18 @@ type
            property Br:Char read fBr write SetDataBr;
            property StrictEquality:boolean  read fStrictEquality write fStrictEquality;
            Constructor Create();
-           procedure Copy (Souсe:TDiapazon);
+           procedure CopyFrom (Souсe:TDiapazon);
            procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
            procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
            function PoinValide(Point:TPointDouble): boolean;
+           {визначає, чи задовільняють координати точки Point межам}
            procedure SetLimits(const XmMin,XmMax,YmMin,YmMax:double);
            function ToString:string;
-           {визначає, чи задовільняють координати точки Point межам}
+           procedure Crear;
+           class function XminCaption:string;
+           class function XmaxCaption:string;
+           class function YminCaption:string;
+           class function YmaxCaption:string;
          end;
 
 //{тип, для збереження різних параметрів, які використовуються
@@ -296,14 +301,18 @@ uses OlegMath, Classes, Dialogs, Controls, Math;
 procedure TDiapazon.SetData(Index:integer; value:double);
 begin
 case Index of
- 1: if {(value<-0.005)or}(value=ErResult) then fXMin:=0//-0.005//0.001
-                else fXMin:=value;
- 2: if {(value<0)or}(value=ErResult)  then fYMin:=0
-                else fYMin:=value;
- 3: if (value<=fXmin)and(fXMin<>ErResult) then fXMax:=ErResult
-                      else fXMax:=value;
- 4: if (value<=fYmin)and(fYMin<>ErResult) then fYMax:=ErResult
-                      else fYMax:=value;
+// 1: if {(value<-0.005)or}(value=ErResult) then fXMin:=0//-0.005//0.001
+//                else fXMin:=value;
+// 2: if {(value<0)or}(value=ErResult)  then fYMin:=0
+//                else fYMin:=value;
+// 3: if (value<=fXmin)and(fXMin<>ErResult) then fXMax:=ErResult
+//                      else fXMax:=value;
+// 4: if (value<=fYmin)and(fYMin<>ErResult) then fYMax:=ErResult
+//                      else fYMax:=value;
+ 1: if (Value=ErResult)or((fXMax<>ErResult)and(Value<fXMax)) then fXMin:=Value;
+ 2: if (Value=ErResult)or((fYMax<>ErResult)and(Value<fYMax)) then fYMin:=Value;
+ 3: if (Value=ErResult)or((fXMin<>ErResult)and(Value>fXMin)) then fXMax:=value;
+ 4: if (Value=ErResult)or((fYMin<>ErResult)and(Value>fYMin)) then fYMax:=value;
  end;
 end;
 
@@ -316,10 +325,14 @@ end;
 
 procedure TDiapazon.SetLimits(const XmMin, XmMax, YmMin, YmMax: double);
 begin
- Self.XMin:=XmMin;
- Self.XMax:=XmMax;
- Self.YMin:=YmMin;
- Self.YMax:=ymMax;
+ if ((XmMin=ErResult)or(XmMax=ErResult)or(XmMax>XmMin))
+    and((YmMin=ErResult)or(YmMax=ErResult)or(YmMax>YmMin)) then
+ begin
+   Self.fXMin:=XmMin;
+   Self.fXMax:=XmMax;
+   Self.fYMin:=YmMin;
+   Self.fYMax:=YmMax;
+ end;
 end;
 
 function TDiapazon.ToString: string;
@@ -330,7 +343,7 @@ begin
          +#10+'Ymax='+floattostr(fYMax);
 end;
 
-Procedure TDiapazon.Copy (Souсe:TDiapazon);
+Procedure TDiapazon.CopyFrom (Souсe:TDiapazon);
            {копіює значення полів з Souсe в даний}
 begin
 XMin:=Souсe.Xmin;
@@ -338,6 +351,14 @@ YMin:=Souсe.Ymin;
 XMax:=Souсe.Xmax;
 YMax:=Souсe.Ymax;
 Br:=Souсe.Br;
+end;
+
+procedure TDiapazon.Crear;
+begin
+ fXMin:=ErResult;
+ fYMin:=ErResult;
+ fXMax:=ErResult;
+ fYMax:=ErResult;
 end;
 
 constructor TDiapazon.Create;
@@ -412,6 +433,26 @@ begin
  ConfigFile.WriteString(Section,Ident+'Br',Br);
 end;
 
+
+class function TDiapazon.XmaxCaption: string;
+begin
+ Result:='Xmax';
+end;
+
+class function TDiapazon.XminCaption: string;
+begin
+ Result:='Xmin';
+end;
+
+class function TDiapazon.YmaxCaption: string;
+begin
+ Result:='Ymax';
+end;
+
+class function TDiapazon.YminCaption: string;
+begin
+ Result:='Ymin';
+end;
 
 function Curve3.GetData(Index:integer):double;
 begin

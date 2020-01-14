@@ -23,7 +23,10 @@ uses
   OlegVectorManipulation in 'OlegVectorManipulation.pas',
   OlegTests in 'OlegTests.pas',
   OlegMathShottky in 'OlegMathShottky.pas',
-  OlegDigitalManipulation in 'OlegDigitalManipulation.pas';
+  OlegDigitalManipulation in 'OlegDigitalManipulation.pas',
+  OApproxNew in 'OApproxNew.pas',
+  FormSelectFitNew in 'FormSelectFitNew.pas' {FormSFNew},
+  OApproxCaption in 'OApproxCaption.pas';
 
 {$R *.res}
 
@@ -32,5 +35,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormSF, FormSF);
+  Application.CreateForm(TFormSFNew, FormSFNew);
   Application.Run;
 end.
