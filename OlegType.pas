@@ -28,6 +28,12 @@ type
   TCoord_type=(cX,cY);
   TPointDouble=array[TCoord_type]of double;
 
+  TDiapazonLimits=(dlXMin,dlYMin,dlXMax,dlYMax);
+
+const
+  DiapazonLimitNames:array[TDiapazonLimits]of string=
+    ('Xmin','Ymin','Xmax','Ymax');
+type
 
 {}  TDiapazon=class //(TObject)// тип для збереження тих меж, в яких
                            // відбуваються апроксимації різних функцій
@@ -58,11 +64,13 @@ type
            {визначає, чи задовільняють координати точки Point межам}
            procedure SetLimits(const XmMin,XmMax,YmMin,YmMax:double);
            function ToString:string;
-           procedure Crear;
-           class function XminCaption:string;
-           class function XmaxCaption:string;
-           class function YminCaption:string;
-           class function YmaxCaption:string;
+           procedure Clear;
+           class function LimitCaption(DL:TDiapazonLimits):string;
+           function LimitValue(DL:TDiapazonLimits):double;
+//           class function XminCaption:string;
+//           class function XmaxCaption:string;
+//           class function YminCaption:string;
+//           class function YmaxCaption:string;
          end;
 
 //{тип, для збереження різних параметрів, які використовуються
@@ -353,7 +361,7 @@ YMax:=Souсe.Ymax;
 Br:=Souсe.Br;
 end;
 
-procedure TDiapazon.Crear;
+procedure TDiapazon.Clear;
 begin
  fXMin:=ErResult;
  fYMin:=ErResult;
@@ -370,6 +378,21 @@ begin
  fYMax:=ErResult;
  fBr:='F';
  fStrictEquality:=True;
+end;
+
+class function TDiapazon.LimitCaption(DL: TDiapazonLimits): string;
+begin
+ Result:=DiapazonLimitNames[DL];
+end;
+
+function TDiapazon.LimitValue(DL: TDiapazonLimits): double;
+begin
+ case DL of
+  dlXMin:Result:=fXMin;
+  dlYMin:Result:=fYMin;
+  dlXMax:Result:=fXMax;
+  dlYMax:Result:=fYMax;
+ end;
 end;
 
 function TDiapazon.PoinValide(Point: TPointDouble): boolean;
@@ -434,25 +457,25 @@ begin
 end;
 
 
-class function TDiapazon.XmaxCaption: string;
-begin
- Result:='Xmax';
-end;
-
-class function TDiapazon.XminCaption: string;
-begin
- Result:='Xmin';
-end;
-
-class function TDiapazon.YmaxCaption: string;
-begin
- Result:='Ymax';
-end;
-
-class function TDiapazon.YminCaption: string;
-begin
- Result:='Ymin';
-end;
+//class function TDiapazon.XmaxCaption: string;
+//begin
+// Result:='Xmax';
+//end;
+//
+//class function TDiapazon.XminCaption: string;
+//begin
+// Result:='Xmin';
+//end;
+//
+//class function TDiapazon.YmaxCaption: string;
+//begin
+// Result:='Ymax';
+//end;
+//
+//class function TDiapazon.YminCaption: string;
+//begin
+// Result:='Ymin';
+//end;
 
 function Curve3.GetData(Index:integer):double;
 begin

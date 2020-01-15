@@ -4,12 +4,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls, FrameButtons;
+  Dialogs, ExtCtrls, StdCtrls, ComCtrls, FrameButtons, OlegApprox;
 
-const MarginLeft=20;
-      MarginRight=30;
-      Marginbetween=20;
-      MarginTop=20;
+const //MarginLeft=20;
+      //MarginRight=30;
+      //Marginbetween=20;
+      //MarginTop=20;
       ImgHeight=300;
       ImgWidth=500;
 
@@ -20,10 +20,13 @@ type
     ImgFSF: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure TVFormSFClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     procedure TreeFilling;
     { Private declarations }
   public
+    SelectedString:string;
     { Public declarations }
   end;
 
@@ -34,7 +37,7 @@ var
 implementation
 
 uses
-  OApproxCaption;
+  OApproxCaption, OApproxNew, OApproxShow;
 
 {$R *.dfm}
 
@@ -64,6 +67,7 @@ begin
  LFormSF.Font.Size:=12;
  LFormSF.Font.Style:=[fsBold];
  LFormSF.Caption:='None';
+ LFormSF.AutoSize:=True;
  LFormSF.Width:=ImgFSF.Width-20;
 
  TVFormSF.Top:=MarginTop;
@@ -91,6 +95,21 @@ begin
  Buttons.Free;
 end;
 
+procedure TFormSFNew.FormShow(Sender: TObject);
+var Node : TTreeNode;
+begin
+Node := TVFormSF.Items.GetFirstNode;
+while (Node <> nil) do begin
+         if Node.Text = SelectedString then
+           begin
+            Node.Selected:=True;
+            TVFormSF.SetFocus;
+            Exit;
+           end;
+         Node := Node.GetNext;
+         end; // while
+end;
+
 procedure TFormSFNew.TreeFilling;
  var i:TFitFuncCategory;
      node: TTreeNode;
@@ -106,23 +125,31 @@ begin
      TVFormSF.Items.AddChild(node,FitFuncNames[i,j]);
    inc(i);
   end;
-
  TVFormSF.Items.EndUpdate;
-//   CB.Items.Add(FuncName[i]);
+end;
 
-//var j : integer;
-//      Node : TTreeNode;
-//begin
-//Result:=nil;
-//j:=0;
-//Node := Tree.Items.GetFirstNode;
-//while (Node <> nil) do begin
-//         if Node.Text = … then begin
-//            Result := Node;
-//            Exit;
-//            end;
-//         Node := Node.GetNext;
-//         end; // while
+procedure TFormSFNew.TVFormSFClick(Sender: TObject);
+var F:TFitFunctionNew;
+begin
+ SelectedString:=TVFormSF.Selected.Text;
+ F:=FitFunctionFabrica(SelectedString);
+ if  Assigned(F) then
+  begin
+  if F.HasPicture then
+   begin
+    PictLoadScale(ImgFSF,F.PictureName);
+    ImgFSF.Visible:=True;
+   end            else //if F.HasPicture then
+    ImgFSF.Visible:=False;
+  LFormSF.Width:=ImgFSF.Width-20;
+  LFormSF.Caption:=F.Caption;
+  F.Free;
+  end             else  // if  Assigned(F) then
+  begin
+    ImgFSF.Visible:=False;
+    LFormSF.Caption:='None';
+    SelectedString:='None';
+  end;
 end;
 
 end.

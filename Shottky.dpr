@@ -26,7 +26,8 @@ uses
   OlegDigitalManipulation in 'OlegDigitalManipulation.pas',
   OApproxNew in 'OApproxNew.pas',
   FormSelectFitNew in 'FormSelectFitNew.pas' {FormSFNew},
-  OApproxCaption in 'OApproxCaption.pas';
+  OApproxCaption in 'OApproxCaption.pas',
+  OApproxShow in 'OApproxShow.pas';
 
 {$R *.res}
 

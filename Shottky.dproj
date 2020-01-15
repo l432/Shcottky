@@ -53,6 +53,7 @@
     </DCCReference>
     <DCCReference Include="OApproxCaption.pas" />
     <DCCReference Include="OApproxNew.pas" />
+    <DCCReference Include="OApproxShow.pas" />
     <DCCReference Include="OlegApprox.pas" />
     <DCCReference Include="OlegDefectsSi.pas" />
     <DCCReference Include="OlegDigitalManipulation.pas" />

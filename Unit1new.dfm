@@ -18,7 +18,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
@@ -4946,7 +4946,7 @@ object Form1: TForm1
           Font.Name = 'Arial'
           Font.Style = [fsBold]
           ParentFont = False
-          OnClick = SButFitClick
+          OnClick = SButFitNewClick
         end
         object MemoAppr: TMemo
           Left = 3
@@ -5006,7 +5006,7 @@ object Form1: TForm1
           Caption = 'Option'
           Enabled = False
           TabOrder = 5
-          OnClick = ButFitOptionClick
+          OnClick = ButFitOptionNewClick
         end
       end
       object Graph: TChart

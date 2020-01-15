@@ -20,7 +20,7 @@ type
   базовий клас, для збереження параметрів різних типів
   див. нащадків}
    private
-    STData:TStaticText; //величина параметру
+//    STData:TStaticText; //величина параметру
     fParametrCaption:string;//назва параметру
 //    STCaption:TLabel; //назва параметру
     fWindowCaption:string; //назва віконця зміни параметра
@@ -28,14 +28,16 @@ type
     FColorChangeWithParameter: boolean;
     fIniNameSalt:string;//добавка до імені, з яким зберігаються дані в ini.файлі
     fHookParameterClick: TSimpleEvent;
-    function StringToExpectedStringConvertion(str:string):string;virtual;abstract;
-    {перетворення str в рядок, де число
-    у потрібному форматі,
-    можливі помилки не відловлюються, див. ParameterClick}
     procedure ParameterClick(Sender: TObject);virtual;
     function ReadStringValueFromIniFile(ConfigFile:TIniFile;NameIni:string):string;virtual;abstract;
     //повертає символьне представлення значення змінної
     procedure WriteNumberToIniFile(ConfigFile:TIniFile;NameIni:string);virtual;abstract;
+   protected
+    STData:TStaticText; //величина параметру
+    function StringToExpectedStringConvertion(str:string):string;virtual;abstract;
+    {перетворення str в рядок, де число
+    у потрібному форматі,
+    можливі помилки не відловлюються, див. ParameterClick}
    public
     property HookParameterClick:TSimpleEvent read fHookParameterClick write fHookParameterClick;
     property ColorChangeWithParameter:boolean read FColorChangeWithParameter write FColorChangeWithParameter;
@@ -78,15 +80,16 @@ type
   TDoubleParameterShow=class (TParameterShowNew)
    private
     FDefaulValue:double;
-    fDigitNumber:byte;
-    function StringToExpectedStringConvertion(str:string):string;override;
-    function GetData:double;
-    procedure SetData(value:double);
+    procedure SetData(value:double);virtual;
     procedure SetDefaulValue(const Value: double);
-    function ValueToString(Value:double):string;
     function ReadStringValueFromIniFile(ConfigFile:TIniFile;NameIni:string):string;override;
     procedure WriteNumberToIniFile(ConfigFile:TIniFile;NameIni:string);override;
     procedure CreateFooter(DN: Byte; InitValue: Double);
+   protected
+    fDigitNumber:byte;
+    function ValueToString(Value:double):string;virtual;
+    function GetData:double;virtual;
+    function StringToExpectedStringConvertion(str:string):string;override;
    public
     property DefaulValue:double read FDefaulValue write SetDefaulValue;
     Constructor Create(STD:TStaticText;

@@ -8,7 +8,7 @@ uses
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
   OlegTests, OlegVector, OlegMathShottky,
-  OlegVectorManipulation;
+  OlegVectorManipulation,OApproxCaption;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -949,6 +949,8 @@ type
     procedure CBDLFunctionClick(Sender: TObject);
     procedure ButSaveClick(Sender: TObject);
     procedure ButFitSelectNewClick(Sender: TObject);
+    procedure ButFitOptionNewClick(Sender: TObject);
+    procedure SButFitNewClick(Sender: TObject);
   private
     { Private declarations }
     function GraphType (Sender: TObject):TGraph;
@@ -1299,7 +1301,7 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit, FormSelectFitNew;
+uses ApprWindows, FormSelectFit, FormSelectFitNew, OApproxNew;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -2425,6 +2427,41 @@ end;
 
 procedure TForm1.SButFitClick(Sender: TObject);
 begin
+// if SButFit.Down then
+//  begin
+//
+//  if   SButFit.Caption='None' then Exit;
+//  FunCreate(SButFit.Caption,FitFunction);
+//
+//  if (SButFit.Caption='Linear')or
+//     (SButFit.Caption=FunctionOhmLaw)or
+//   (SButFit.Caption='Quadratic') then
+//       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
+//                                 else
+//       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4);
+//
+//   if EvolParam[0]=ErResult then Exit;
+//   Series4.Active:=True;
+//   if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
+//   if ((SButFit.Caption<>'Smoothing')and
+//       (SButFit.Caption<>'Median filtr')and
+//       (SButFit.Caption<>'Derivative')and
+//       (SButFit.Caption<>'Noise Smoothing'))
+//       then
+//        begin
+//         MemoAppr.Lines.Add('');
+//         MemoAppr.Lines.Add(VaxFile.name);
+//         MemoAppr.Lines.Add(SButFit.Caption);
+//        end;
+//
+//   FitFunction.DataToStrings(EvolParam,MemoAppr.Lines);
+//  FitFunction.Free;
+//  end  //if SButFit.Down then
+//   else Series4.Active:=False;
+end;
+
+procedure TForm1.SButFitNewClick(Sender: TObject);
+begin
  if SButFit.Down then
   begin
 
@@ -2456,6 +2493,7 @@ begin
   FitFunction.Free;
   end  //if SButFit.Down then
    else Series4.Active:=False;
+
 end;
 
 procedure TForm1.SEGaussChange(Sender: TObject);
@@ -2771,7 +2809,7 @@ begin
 end;
 
 procedure TForm1.ButFitOptionClick(Sender: TObject);
-var 
+var
     str:string;
 begin
 str:='None';
@@ -2787,6 +2825,26 @@ if  not(Assigned(FitFunction)) then Exit;
 
 FitFunction.SetValueGR;
 FitFunction.Free;
+end;
+
+procedure TForm1.ButFitOptionNewClick(Sender: TObject);
+var
+    str:string;
+begin
+str:='None';
+if (Sender is TButton)and((Sender as TButton).Name='ButFitOptionNew')
+     then  str:=SButFitNew.Caption;
+//if (Sender is TButton)and((Sender as TButton).Name='ButLDFitOption')
+//     then  str:=LabIsc.Caption;
+//if (Sender is TButton)and((Sender as TButton).Name='ButDateOption')
+//     then  str:=LDateFun.Caption;
+
+FitFunctionNew:=FitFunctionFabrica(str);
+if  not(Assigned(FitFunctionNew)) then Exit;
+
+FitFunctionNew.SetParametersGR;
+FitFunctionNew.Free;
+
 end;
 
 procedure TForm1.ButFitSelectClick(Sender: TObject);
@@ -2815,7 +2873,6 @@ begin
 end;
 
 procedure TForm1.ButFitSelectNewClick(Sender: TObject);
- var str:string;
 begin
  if FormSFNew.ShowModal=mrOk then
   begin
@@ -2823,7 +2880,8 @@ begin
    if (Sender is TButton)and((Sender as TButton).Name='ButFitSelectNew')
      then
        begin
-       SButFitNew.Caption:=str;
+       SButFitNew.Caption:=FormSFNew.SelectedString;
+       ButFitOptionNew.Enabled:=(SButFitNew.Caption<>'None');
        ApproxHide;
        end;
 //   if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
@@ -2832,8 +2890,7 @@ begin
 //       LDateFun.Caption:=str;
 //       CBDateFun.Checked:=False;
 //       end;
-//             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
-//               then ButFitOption.Enabled:=not(str='None');
+
 //            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
 //               then ButDateOption.Enabled:=not(str='None');
   end;

@@ -75,7 +75,10 @@ function ReadEvType(const Section, Ident: string): TEvolutionType; virtual;
 procedure WriteEvType(const Section, Ident: string; Value: TEvolutionType); virtual;
 end;
 
-
+TParameterShow=class
+  public
+   procedure Show;virtual;abstract;
+end;
 
 TFitFunctionNew=class(TObject)
 {найпростіший клас для апроксимацій,
@@ -87,19 +90,25 @@ private
 // FXname:TArrStr; // імена змінних
  fHasPicture:boolean;//наявність картинки
  fDataToFit:TVectorTransform; //дані для апроксимації
- fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
+ ftempVector: TVectorTransform;//допоміжний векторж
+// fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
  fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
  fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
  fConfigFile:TOIniFile;//для роботи з .ini-файлом
 // fFileHeading:string;
 // {назви колонок у файлі з результатами апроксимації,
 // що утворюється впроцедурі FittingGraphFile}
+ fFFParameterShow:TParameterShow;
  procedure DataContainerCreate;virtual;
  procedure DipazonCreate;virtual;
+ procedure ParameterShowCreate;virtual;
  procedure DataContainerDestroy;virtual;
  procedure DiapazonDestroy;virtual;
- procedure RealFitting;virtual;abstract;
-    procedure DataPreraration(InputData: TVector);
+ procedure ParameterShowDestroy;virtual;
+ procedure RealFitting;virtual;//abstract;
+ procedure DataPreraration(InputData: TVector);overload;
+ procedure DataPreraration(InputFileName:string);overload;
+ function FittingBegin:boolean;
 //// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
 ////              Series: TLineSeries;
 ////              Xlog,Ylog:boolean; Np:Word); overload;virtual;abstract;
@@ -120,6 +129,7 @@ private
 // інтерполяції; використовується в RealToFile}
 // Procedure PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
 protected
+ fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
  Procedure ReadFromIniFile;virtual;
  {зчитує дані з ini-файла, в цьому класі - fDiapazon}
  Procedure WriteToIniFile;virtual;
@@ -132,9 +142,10 @@ public
  property ResultsIsReady:boolean read fResultsIsReady;
 // property Xname:TArrStr read FXname;
  property HasPicture:boolean read fHasPicture;
+ property Diapazon:TDiapazon read fDiapazon;
  Constructor Create(FunctionName,FunctionCaption:string);
  destructor Destroy;override;
-// procedure SetValueGR;virtual;
+ procedure SetParametersGR;virtual;
 // Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
 //     Xlog:boolean=False;Ylog:boolean=False):double; virtual;abstract;
 // {обчислюються значення апроксимуючої функції в
@@ -147,7 +158,8 @@ public
 // Ylog = True - ординати у логарифмічному масштабі}
 //// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
 ////             Xlog:boolean=False;Ylog:boolean=False);overload;virtual;abstract;
- Procedure Fitting (InputData:TVector);//virtual;abstract;
+ Procedure Fitting (InputData:TVector);overload;//virtual;abstract;
+ Procedure Fitting (InputFileName:string);overload;//virtual;abstract;
  {фактично, обгортка для процедури RealFitting,
  де дійсно відбувається апроксимація;
  ця процедура лише виловлює помилки,
@@ -1589,8 +1601,8 @@ public
 //end; //TTAU_Fei_FeB=class (TFitFunctEvolution)
 //
 //
-//var
-// FitFunction:TFitFunction;
+var
+ FitFunctionNew:TFitFunctionNew;
 // EvolParam:TArrSingle;
 //{масив з double, використовується в еволюційних процедурах}
 //
@@ -1634,7 +1646,7 @@ public
 implementation
 
 uses
-  SysUtils, Forms, Dialogs;
+  SysUtils, Forms, Dialogs, OApproxShow;
 
 { TOIniFileNew }
 
@@ -1685,6 +1697,7 @@ begin
  DipazonCreate;
  fConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
  ReadFromIniFile;
+ ParameterShowCreate;
 
 // fDataToFit:TVector; //дані для апроксимації
 // fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
@@ -1694,19 +1707,35 @@ end;
 procedure TFitFunctionNew.DataContainerCreate;
 begin
   fDataToFit:=TVectorTransform.Create;
+  ftempVector:=TVectorTransform.Create;
   FittingData:=TVector.Create;
 end;
 
 procedure TFitFunctionNew.DataContainerDestroy;
 begin
   fDataToFit.Free;
+  ftempVector.Free;
   FittingData.Free;
+end;
+
+procedure TFitFunctionNew.DataPreraration(InputData: TVector);
+begin
+  ftempVector.CopyFrom(InputData);
+  ftempVector.N_Begin := 0;
+  ftempVector.CopyDiapazonPoint(fDataToFit, fDiapazon);
+end;
+
+procedure TFitFunctionNew.DataPreraration(InputFileName: string);
+begin
+  ftempVector.ReadFromFile(InputFileName);
+  ftempVector.CopyDiapazonPoint(fDataToFit, fDiapazon);
 end;
 
 destructor TFitFunctionNew.Destroy;
 begin
   DataContainerDestroy;
   DiapazonDestroy;
+  ParameterShowDestroy;
   fConfigFile.Free;
   inherited;
 end;
@@ -1719,38 +1748,21 @@ end;
 procedure TFitFunctionNew.DipazonCreate;
 begin
  fDiapazon:=TDiapazon.Create;
- fDiapazon.Crear;
+ fDiapazon.Clear;
+end;
+
+procedure TFitFunctionNew.Fitting(InputFileName: string);
+begin
+ DataPreraration(InputFileName);
+ if FittingBegin then RealFitting;
 end;
 
 procedure TFitFunctionNew.Fitting(InputData: TVector);
 begin
- fResultsIsReady:=false;
- FittingData.Clear;
- if not(fIsReadyToFit) then
-     begin
-       MessageDlg('To tune options, please',mtWarning, [mbOk], 0);
-//       showmessage('To tune options, please');
-       Exit;
-     end;
  DataPreraration(InputData);
- if fDataToFit.IsEmpty then
-    begin
-       MessageDlg('No data to fit',mtWarning, [mbOk], 0);
-       Exit;
-    end;
- RealFitting;
+ if FittingBegin then RealFitting;
 end;
 
-procedure TFitFunctionNew.DataPreraration(InputData: TVector);
-var
-  tempVector: TVectorTransform;
-begin
-  tempVector := TVectorTransform.Create;
-  tempVector.CopyFrom(InputData);
-  tempVector.N_Begin := 0;
-  tempVector.CopyDiapazonPoint(fDataToFit, fDiapazon);
-  tempVector.Free;
-end;
 
 procedure TFitFunctionNew.ReadFromIniFile;
 begin
@@ -1758,9 +1770,48 @@ begin
 end;
 
 
+procedure TFitFunctionNew.RealFitting;
+begin
+
+end;
+
+procedure TFitFunctionNew.SetParametersGR;
+begin
+ fFFParameterShow.Show;
+end;
+
 procedure TFitFunctionNew.WriteToIniFile;
 begin
  fDiapazon.WriteToIniFile(fConfigFile,FName,'DiapazonFit');
+end;
+
+function TFitFunctionNew.FittingBegin: boolean;
+begin
+ fResultsIsReady:=false;
+ FittingData.Clear;
+ Result:=False;
+ if fDataToFit.IsEmpty then
+    begin
+       MessageDlg('No data to fit',mtWarning, [mbOk], 0);
+       Exit;
+    end;
+ if not(fIsReadyToFit) then
+     begin
+       MessageDlg('To tune options, please',mtWarning, [mbOk], 0);
+//       showmessage('To tune options, please');
+       Exit;
+     end;
+ Result:=True;
+end;
+
+procedure TFitFunctionNew.ParameterShowCreate;
+begin
+ fFFParameterShow:=TFitFunctionParameterShow.Create(Self);
+end;
+
+procedure TFitFunctionNew.ParameterShowDestroy;
+begin
+ fFFParameterShow.Free;
 end;
 
 end.
