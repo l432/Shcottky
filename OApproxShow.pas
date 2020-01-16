@@ -3,78 +3,15 @@ unit OApproxShow;
 interface
 
 uses
-  OlegShowTypes, OlegType, StdCtrls, Forms, FrameButtons, OApproxNew;
+  OlegShowTypes, OlegType, StdCtrls, Forms, FrameButtons,
+  OApproxNew, ExtCtrls, OlegApprox, OlegFunction;
 
 const MarginLeft=20;
       MarginRight=30;
       Marginbetween=20;
       MarginTop=20;
 
-//Function SelectFromVariants(Variants:TStringList;
-//                            Index:ShortInt;
-//                            WindowsCaption:string='Select'):ShortInt;
-//{показує модальне вікно, де вибір радіо-кнопок,
-//підписаних відповідно до вмісту Variants;
-//при натиснутій "Ok" повертає
-//індекс вибраного вваріанту, інакше -1}
-//
-//var Form:TForm;
-//    ButOk,ButCancel: TButton;
-//    RG:TRadioGroup;
-//    i:integer;
-//begin
-// Result:=-1;
-//
-// Form:=TForm.Create(Application);
-// Form.Position:=poMainFormCenter;
-// Form.AutoScroll:=True;
-// Form.BorderIcons:=[biSystemMenu];
-// Form.ParentFont:=True;
-// Form.Font.Style:=[fsBold];
-// Form.Font.Height:=-16;
-// Form.Caption:=WindowsCaption;
-// Form.Color:=clMoneyGreen;
-// RG:=TRadioGroup.Create(Form);
-// RG.Parent:=Form;
-// RG.Items:=Variants;
-// if (Index>=0)and(Index<Variants.Count) then
-//   RG.ItemIndex:=Index;
-//
-// if RG.Items.Count>8 then  RG.Columns:=3
-//                     else  RG.Columns:=2;
-// RG.Width:=RG.Columns*200+20;
-// RG.Height:=Ceil(RG.Items.Count/RG.Columns)*50+20;
-// Form.Width:=RG.Width;
-// Form.Height:=RG.Height+100;
-//  RG.Align:=alTop;
-//
-// ButOk:=TButton.Create(Form);
-// ButOk.Parent:=Form;
-// ButOk.ParentFont:=True;
-// ButOk.Height:=30;
-// ButOk.Width:=79;
-// ButOk.Caption:='Ok';
-// ButOk.ModalResult:=mrOk;
-// ButOk.Top:=RG.Height+10;
-// ButOk.Left:=round((Form.Width-2*ButOk.Width)/3.0);
-//
-// ButCancel:=TButton.Create(Form);
-// ButCancel.Parent:=Form;
-// ButCancel.ParentFont:=True;
-// ButCancel.Height:=30;
-// ButCancel.Width:=79;
-// ButCancel.Caption:='Cancel';
-// ButCancel.ModalResult:=mrCancel;
-// ButCancel.Top:=RG.Height+10;
-// ButCancel.Left:=2*ButOk.Left+ButOk.Width;
-//
-//  if Form.ShowModal=mrOk then Result:=RG.ItemIndex;
-// for I := Form.ComponentCount-1 downto 0 do
-//     Form.Components[i].Free;
-// Form.Hide;
-// Form.Release;
-//end;
-
+      NoLimit='No';
 
 
 type
@@ -104,6 +41,11 @@ type
    fForm:TForm;
    fButtons:TFrBut;
    fDiapazoneGB:TDiapazoneGroupBox;
+   fImg:TImage;
+   Procedure PictureToForm(maxWidth,maxHeight,Top,Left:integer);
+   procedure CreateForm;
+    procedure DiapazonToForm(Top,Left: Integer);
+    procedure ButtonsToForm(Top,Left: Integer);
   public
    Procedure Show();override;
    Constructor Create(FF:TFitFunctionNew);
@@ -119,24 +61,40 @@ uses
 
 function TDiapazonDoubleParameterShow.GetData: double;
 begin
-  if STData.Caption='No' then Result:=ErResult
-                         else
-     Result:=StrToFloat(STData.Caption);
+  if STData.Caption=NoLimit
+    then Result:=ErResult
+    else Result:=StrToFloat(STData.Caption);
 end;
 
 function TDiapazonDoubleParameterShow.StringToExpectedStringConvertion(
   str: string): string;
+var  temp:double;
 begin
-  if (str='') or (str='555') then Result:='No'
-                             else
-      Result:=ValueToString(StrToFloat(str));
+  if str='555' then
+    begin
+    Result:=NoLimit;
+    Exit;
+    end;
+  try
+    try
+    temp:=StrToFloat(str);
+    except
+     temp:=ErResult;
+    end;
+    Result:=ValueToString(temp);
+//    Result:=ValueToString(StrToFloat(str));
+  except
+    Result:=NoLimit;
+  end;
 end;
 
 function TDiapazonDoubleParameterShow.ValueToString(Value: double): string;
 begin
- if Value=ErResult then Result:='No'
-                   else
-     Result:=FloatToStrF(Value,ffGeneral,fDigitNumber,fDigitNumber-1)
+ if Value=ErResult
+   then Result:=NoLimit
+   else
+    Result:=FloatToStrF(Value,ffGeneral,
+                fDigitNumber,fDigitNumber-1)
 end;
 
 { TDiapazoneGroupBox }
@@ -221,40 +179,77 @@ begin
   inherited;
 end;
 
+procedure TFitFunctionParameterShow.ButtonsToForm(Top,Left: Integer);
+begin
+  fButtons := TFrBut.Create(fForm);
+  fButtons.Parent := fForm;
+  fButtons.Left := Left;
+  fButtons.Top := Top;
+end;
+
+procedure TFitFunctionParameterShow.DiapazonToForm(Top,Left: Integer);
+begin
+  fDiapazoneGB := TDiapazoneGroupBox.Create(fFF.Diapazon);
+  fDiapazoneGB.GB.Parent := fForm;
+  fDiapazoneGB.GB.Top:=Top;
+  fDiapazoneGB.GB.Left:=Left;
+end;
+
+procedure TFitFunctionParameterShow.CreateForm;
+begin
+  fForm := TForm.Create(Application);
+  fForm.Position := poMainFormCenter;
+  fForm.AutoScroll := True;
+  fForm.BorderIcons := [biSystemMenu];
+  fForm.ParentFont := True;
+  fForm.Font.Style := [fsBold];
+  // fForm.Font.Height:=-16;
+  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
+  fForm.Color := clMoneyGreen;
+end;
+
+procedure TFitFunctionParameterShow.PictureToForm(
+               maxWidth, maxHeight, Top, Left: integer);
+begin
+ if fFF.HasPicture then
+  begin
+   fImg:=TImage.Create(fForm);
+//   fImg.Name:='Image';
+   fImg.Parent:=fForm;
+   fImg.Top:=Top;
+   fImg.Left:=Left;
+   fImg.Height:=maxHeight;
+   fImg.Width:=maxWidth;
+   fImg.Stretch:=True;
+   PictLoadScale(fImg,fFF.PictureName);
+  end;
+end;
+
 procedure TFitFunctionParameterShow.Show;
 begin
- fForm:=TForm.Create(Application);
- fForm.Position:=poMainFormCenter;
- fForm.AutoScroll:=True;
- fForm.BorderIcons:=[biSystemMenu];
- fForm.ParentFont:=True;
- fForm.Font.Style:=[fsBold];
-// fForm.Font.Height:=-16;
- fForm.Caption:='Parameters of '+fFF.Name+' function';
- fForm.Color:=clMoneyGreen;
+ CreateForm;
+ DiapazonToForm(10,460);
+ PictureToForm(450,fDiapazoneGB.GB.Height,10,10);
+ ButtonsToForm(fDiapazoneGB.GB.Top
+               + fDiapazoneGB.GB.Height
+               + MarginTop,10);
 
- fDiapazoneGB:=TDiapazoneGroupBox.Create(fFF.Diapazon);
- fDiapazoneGB.GB.Parent:=fForm;
-
-// fDiapazoneGB.GB.Align:=alTop;
-
- fButtons:=TFrBut.Create(fForm);
- fButtons.Parent:=fForm;
- fButtons.Left:=50;
- fButtons.Top:=fDiapazoneGB.GB.Top+fDiapazoneGB.GB.Height+MarginTop;
-
- fForm.Width:=max(fDiapazoneGB.GB.Width,fButtons.Width)+MarginLeft;
+ fForm.Width:=max(fDiapazoneGB.GB.Left+fDiapazoneGB.GB.Width,fButtons.Width)+2*MarginLeft;
  fForm.Height:=fButtons.Top+fButtons.Height+MarginTop+50;
 
  if fForm.ShowModal=mrOk then
    begin
-   fDiapazoneGB.UpDate;
+     fDiapazoneGB.UpDate;
+//     GRFieldFormExchange(Form,False);
+     fFF.IsReadyToFitDetermination;
+     if fFF.IsReadyToFit then  fFF.WriteToIniFile;
    end;
 
  fButtons.Parent:=nil;
  fButtons.Free;
  fDiapazoneGB.GB.Parent:=nil;
  fDiapazoneGB.Free;
+ ElementsFromForm(fForm);
 
  fForm.Hide;
  fForm.Release;

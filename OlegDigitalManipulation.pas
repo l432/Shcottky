@@ -104,9 +104,9 @@ type
   {див.вище, частота зрізу 0.075 частоти Найквіста,
    полюсів 6,
    перехідна - близько 190 відліків}
-  Procedure LP_FIR_SimpleWindow(NotOdd_N:byte;
-                                FrequencyFactor:double;
-                                ToDeleteTrancient:boolean=false);
+//  Procedure LP_FIR_SimpleWindow(NotOdd_N:byte;
+//                                FrequencyFactor:double;
+//                                ToDeleteTrancient:boolean=false);
    {віконний фільтр нижніх частот зі скінченною імпульсною
     характеристикою (FIR - finite impulse responce);
     використовується прямокутне вікно;
@@ -276,11 +276,11 @@ begin
   FIR_WindowFiltr(ChebyshevWindow,NotOdd_N,FrequencyFactor,ToDeleteTrancient);
 end;
 
-procedure TVDigitalManipulation.LP_FIR_SimpleWindow(NotOdd_N: byte;
-  FrequencyFactor: double; ToDeleteTrancient: boolean);
-begin
-
-end;
+//procedure TVDigitalManipulation.LP_FIR_SimpleWindow(NotOdd_N: byte;
+//  FrequencyFactor: double; ToDeleteTrancient: boolean);
+//begin
+//
+//end;
 
 procedure TVDigitalManipulation.LP_IIR_Chebyshev(A, B: array of double;
                           NormKoef: double;

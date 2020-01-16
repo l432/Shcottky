@@ -2,7 +2,8 @@
 
 
 interface
- uses IniFiles,SysUtils, StdCtrls,OlegType, Series, Graphics, TeEngine;
+ uses IniFiles,SysUtils, StdCtrls,OlegType, Series,
+    Graphics, TeEngine;
 
 
 type

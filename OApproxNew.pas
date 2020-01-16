@@ -3,7 +3,8 @@ unit OApproxNew;
 interface
 
 uses
-  IniFiles, OlegApprox, OlegVector, OlegType, OlegVectorManipulation;
+  IniFiles, OlegApprox, OlegVector, OlegType,
+  OlegVectorManipulation, TeEngine;
 
 //uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
 //      Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
@@ -86,18 +87,17 @@ TFitFunctionNew=class(TObject)
 private
  FName:string;//ім'я функції
  FCaption:string; // опис функції
- FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
-// FXname:TArrStr; // імена змінних
- fHasPicture:boolean;//наявність картинки
- fDataToFit:TVectorTransform; //дані для апроксимації
+// FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
+// fHasPicture:boolean;//наявність картинки
+// fDataToFit:TVectorTransform; //дані для апроксимації
  ftempVector: TVectorTransform;//допоміжний векторж
-// fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
+ fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
  fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
  fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
  fConfigFile:TOIniFile;//для роботи з .ini-файлом
-// fFileHeading:string;
-// {назви колонок у файлі з результатами апроксимації,
-// що утворюється впроцедурі FittingGraphFile}
+ fFileHeading:string;
+ {назви колонок у файлі з результатами апроксимації,
+ що утворюється впроцедурі FittingToGraphAndFile}
  fFFParameterShow:TParameterShow;
  procedure DataContainerCreate;virtual;
  procedure DipazonCreate;virtual;
@@ -105,35 +105,19 @@ private
  procedure DataContainerDestroy;virtual;
  procedure DiapazonDestroy;virtual;
  procedure ParameterShowDestroy;virtual;
- procedure RealFitting;virtual;//abstract;
+// procedure RealFitting;virtual;//abstract;
  procedure DataPreraration(InputData: TVector);overload;
  procedure DataPreraration(InputFileName:string);overload;
  function FittingBegin:boolean;
-//// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog,Ylog:boolean; Np:Word); overload;virtual;abstract;
-// Procedure RealToGraph (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog,Ylog:boolean; Np:Word); {overload;}virtual;abstract;
-// {див. FittingGraph}
-//// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-////              Xlog,Ylog:boolean; suf:string);overload;virtual;//abstract;
-// Procedure RealToFile (InputData:TVector; var OutputData:TArrSingle;
-//              Xlog,Ylog:boolean; suf:string);{overload;}virtual;//abstract;
-// {див. FittingGraphFile}
-//// Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
-////              Xlog,Ylog:boolean):string;overload;virtual;
-// Function StringToFile(InputData:TVector;Number:integer; OutputData:TArrSingle;
-//              Xlog,Ylog:boolean):string;{overload;}virtual;
-// {створюється рядок, який вноситься у файл з результатами
-// інтерполяції; використовується в RealToFile}
-// Procedure PictureToForm(Form:TForm;maxWidth,maxHeight,Top,Left:integer);
+ Procedure RealToGraph (Series: TChartSeries);virtual;
+ Procedure RealToFile (suf:string;NumberDigit: Byte=4);{overload;}virtual;
 protected
- fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
+ fHasPicture:boolean;//наявність картинки
+ fDataToFit:TVectorTransform; //дані для апроксимації
+ FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
+ procedure RealFitting;virtual;//abstract;
  Procedure ReadFromIniFile;virtual;
  {зчитує дані з ini-файла, в цьому класі - fDiapazon}
- Procedure WriteToIniFile;virtual;
- {записує дані в ini-файл, в цьому класі - для fDiapazon}
 public
  FittingData:TVector;
  property Name:string read FName;
@@ -142,116 +126,28 @@ public
  property ResultsIsReady:boolean read fResultsIsReady;
 // property Xname:TArrStr read FXname;
  property HasPicture:boolean read fHasPicture;
+ property IsReadyToFit:boolean read fIsReadyToFit;
  property Diapazon:TDiapazon read fDiapazon;
  Constructor Create(FunctionName,FunctionCaption:string);
  destructor Destroy;override;
  procedure SetParametersGR;virtual;
-// Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
-//     Xlog:boolean=False;Ylog:boolean=False):double; virtual;abstract;
-// {обчислюються значення апроксимуючої функції в
-// точці з абсцисою Х, найчастіше значення співпадає
-// з тим, що повертає Func при Fparam[0]=X,
-// крім того, дозволяє
-// обчислювати значення, якщо здійснювалась апроксимація
-// даних, представлених у логарифмічному масштабі
-// Xlog = True - абсциси у у логарифмічному масштабі,
-// Ylog = True - ординати у логарифмічному масштабі}
-//// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-////             Xlog:boolean=False;Ylog:boolean=False);overload;virtual;abstract;
+ Procedure IsReadyToFitDetermination;virtual;
+ {по значенням полів визначається, чи готові дані до
+ апроксимації}
+ Procedure WriteToIniFile;virtual;
+ {записує дані в ini-файл, в цьому класі - для fDiapazon}
  Procedure Fitting (InputData:TVector);overload;//virtual;abstract;
  Procedure Fitting (InputFileName:string);overload;//virtual;abstract;
- {фактично, обгортка для процедури RealFitting,
- де дійсно відбувається апроксимація;
- ця процедура лише виловлює помилки,
- і при невдалому процесі показується повідомлення,
- в OutputData[0] - ErResult;
- загалом розмір OutputData  після процедури співпадає з
- кількістю шуканих параметрів;
- останні змінні дозволяють апроксимувати дані,
- представлені у векторі InputData у логарифмічному масштабі
- Xlog = True - абсциси у у логарифмічному масштабі,
- Ylog = True - ординати у логарифмічному масштабі}
-//// Procedure FittingGraph (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog:boolean=False;Ylog:boolean=False;
-////              Np:Word=150);overload;virtual;
-// Procedure FittingGraph (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150);{overload;}virtual;
-// {апроксимація і дані вносяться в Series -
-// щоб можна було побудувати графік
-// Np - кількість точок на графіку,
-// Xlog,Ylog див. Fitting
-// фактично це обгортка для RealToGraph, яка
-// у нащадках може мінятися}
-//// Procedure FittingGraphFile (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog:boolean=False;Ylog:boolean=False;
-////              Np:Word=150; suf:string='fit');overload;virtual;
-// Procedure FittingGraphFile (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog:boolean=False;Ylog:boolean=False;
-//              Np:Word=150; suf:string='fit');{overload;}virtual;
-// {апроксимація, дані вносяться в Series, крім
-// того апроксимуюча крива заноситься в файл -
-// третім стопчиком;
-// назва файлу -- V^.name + suf,
-// Xlog,Ylog див. Fitting,
-// фактично це обгортка для RealToFile, яка
-// у нащадках може мінятися}
-//// Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
-////                            D:TDiapazon);overload;virtual;abstract;
-// Procedure FittingDiapazon (InputData:TVector; var OutputData:TArrSingle;
-//                            D:TDiapazon);{overload;}virtual;abstract;
-//{апроксимуються дані у векторі V відповідно до обмежень
-// в D, отримані параметри розміщуються в OutputData}
-// Procedure DataToStrings(DeterminedParameters:TArrSingle;
-//                         OutStrings:TStrings);virtual;abstract;
-// {в OutStrings додаються рядки, які містять
-// назви всіх визначених величин та їх значення,
-// які розташовані в DeterminedParameters}
- end;   // TFitFunc=class
-//
-////--------------------------------------------------------------------
-//TFitWithoutParameteres=class (TFitFunction)
-//private
-//  FErrorMessage:string; //виводиться при помилці
-////  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog,Ylog:boolean; Np:Word); override;
-//  Procedure RealToGraph (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog,Ylog:boolean; Np:Word); override;
-////  Function StringToFile(InputData:PVector;Number:integer; OutputData:TArrSingle;
-////              Xlog,Ylog:boolean):string;override;
-//  Function StringToFile(InputData:TVector;Number:integer; OutputData:TArrSingle;
-//              Xlog,Ylog:boolean):string;override;
-//protected
-// fVector:TVector;//результати операції саме тут розміщуються
-//public
-//// FtempVector:PVector;  //результати операції саме тут розміщуються
-// Constructor Create(FunctionName:string);
-// Procedure Free;
-//// procedure RealTransform(InputData:PVector);overload;
-// procedure RealTransform(InputData:TVector);{overload;}
-//  {cаме тут в FtempVector вноситься перетворений потрібним чином InputData}
-// Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
-//                     Xlog:boolean=False;Ylog:boolean=False):double;override;
-//// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-////                    Xlog:boolean=False;Ylog:boolean=False);override;
-// Procedure Fitting (InputData:TVector; var OutputData:TArrSingle;
-//                    Xlog:boolean=False;Ylog:boolean=False);override;
-//// Procedure FittingDiapazon (InputData:PVector;
-////                   var OutputData:TArrSingle;D:TDiapazon);override;
-// Procedure FittingDiapazon (InputData:TVector;
-//                   var OutputData:TArrSingle;D:TDiapazon);override;
-//// Function Deviation (InputData:PVector):double;override;
-// Procedure DataToStrings(DeterminedParameters:TArrSingle;
-//                         OutStrings:TStrings);override;
-//end;  //TFitWithoutParameteres=class (TFitFunction)
-//
-////--------------------------------------------------------------------
+ Procedure FittingToGraphAndFile(InputData:TVector;
+              Series: TChartSeries; suf:string='fit');virtual;
+ end;   // TFitFunctionNew=class
+
+//--------------------------------------------------------------------
+
+
+
+
+
 //TFitFunctionSimple=class (TFitFunction)
 //{абстрактний клас для функцій, де визначаються параметри}
 //private
@@ -1646,7 +1542,7 @@ var
 implementation
 
 uses
-  SysUtils, Forms, Dialogs, OApproxShow;
+  SysUtils, Forms, Dialogs, OApproxShow, Classes;
 
 { TOIniFileNew }
 
@@ -1692,11 +1588,12 @@ begin
  FPictureName:=FName+'Fig';
  fIsReadyToFit:=False;
  fResultsIsReady:=False;
- // fFileHeading:='';
+ fFileHeading:='X Y Yfit';
  DataContainerCreate;
  DipazonCreate;
  fConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
  ReadFromIniFile;
+ IsReadyToFitDetermination;
  ParameterShowCreate;
 
 // fDataToFit:TVector; //дані для апроксимації
@@ -1748,7 +1645,12 @@ end;
 procedure TFitFunctionNew.DipazonCreate;
 begin
  fDiapazon:=TDiapazon.Create;
- fDiapazon.Clear;
+// fDiapazon.Clear;
+end;
+
+procedure TFitFunctionNew.IsReadyToFitDetermination;
+begin
+ fIsReadyToFit:=True;
 end;
 
 procedure TFitFunctionNew.Fitting(InputFileName: string);
@@ -1772,7 +1674,26 @@ end;
 
 procedure TFitFunctionNew.RealFitting;
 begin
+  fResultsIsReady:=True;
+end;
 
+procedure TFitFunctionNew.RealToFile(suf: string; NumberDigit: Byte);
+ var Str1:TStringList;
+    i:integer;
+begin
+  Str1:=TStringList.Create;
+  if fFileHeading<>'' then Str1.Add(fFileHeading);
+  for I := 0 to fDataToFit.HighNumber do
+    Str1.Add(fDataToFit.PoinToString(i,NumberDigit)
+             +' '
+             +FloatToStrF(FittingData.Y[i],ffExponent,NumberDigit,0));
+  Str1.SaveToFile(FitName(fDataToFit,suf));
+  Str1.Free;
+end;
+
+procedure TFitFunctionNew.RealToGraph(Series: TChartSeries);
+begin
+ FittingData.WriteToGraph(Series);
 end;
 
 procedure TFitFunctionNew.SetParametersGR;
@@ -1797,11 +1718,24 @@ begin
     end;
  if not(fIsReadyToFit) then
      begin
-       MessageDlg('To tune options, please',mtWarning, [mbOk], 0);
-//       showmessage('To tune options, please');
-       Exit;
+       SetParametersGR;
+       if not(fIsReadyToFit) then
+         begin
+          MessageDlg('Fitting is imposible.'+#10+#13+
+            'To tune options, please',mtWarning, [mbOk], 0);
+          Exit;
+         end;
      end;
  Result:=True;
+end;
+
+procedure TFitFunctionNew.FittingToGraphAndFile(InputData: TVector;
+                    Series: TChartSeries; suf: string);
+begin
+  Fitting(InputData);
+  if not(fResultsIsReady) then Exit;
+  RealToGraph(Series);
+  RealToFile(suf);
 end;
 
 procedure TFitFunctionNew.ParameterShowCreate;

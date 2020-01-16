@@ -10,8 +10,8 @@ const //MarginLeft=20;
       //MarginRight=30;
       //Marginbetween=20;
       //MarginTop=20;
-      ImgHeight=300;
-      ImgWidth=500;
+      ImgHeightNew=700;
+      ImgWidthNew=700;
 
 type
   TFormSFNew = class(TForm)
@@ -25,6 +25,7 @@ type
   private
     procedure TreeFilling;
     { Private declarations }
+    procedure SizeInit;
   public
     SelectedString:string;
     { Public declarations }
@@ -57,8 +58,6 @@ begin
  ImgFSF.Top:=50;
  ImgFSF.Left:=MarginLeft;
  ImgFSF.Stretch:=True;
- ImgFSF.Height:=ImgHeight;
- ImgFSF.Width:=ImgWidth;
 
  LFormSF.Top:=ImgFSF.Top+ImgFSF.Height+Marginbetween;
  LFormSF.Left:=MarginLeft+10;
@@ -68,7 +67,8 @@ begin
  LFormSF.Font.Style:=[fsBold];
  LFormSF.Caption:='None';
  LFormSF.AutoSize:=True;
- LFormSF.Width:=ImgFSF.Width-20;
+
+ SizeInit;
 
  TVFormSF.Top:=MarginTop;
  TVFormSF.Left:=ImgFSF.Left+ImgFSF.Width+Marginbetween;
@@ -110,6 +110,13 @@ while (Node <> nil) do begin
          end; // while
 end;
 
+procedure TFormSFNew.SizeInit;
+begin
+ ImgFSF.Height:=ImgHeightNew;
+ ImgFSF.Width:=ImgWidthNew;
+ LFormSF.Width:=ImgFSF.Width-20;
+end;
+
 procedure TFormSFNew.TreeFilling;
  var i:TFitFuncCategory;
      node: TTreeNode;
@@ -135,6 +142,7 @@ begin
  F:=FitFunctionFabrica(SelectedString);
  if  Assigned(F) then
   begin
+  SizeInit;
   if F.HasPicture then
    begin
     PictLoadScale(ImgFSF,F.PictureName);

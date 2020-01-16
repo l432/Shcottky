@@ -23,22 +23,37 @@ Function FitFunctionFabrica(str:string; FileName:string=''):TFitFunctionNew;
 
 implementation
 
+uses
+  FitTransform;
+
 
 Function FitFunctionFabrica(str:string; FileName:string=''):TFitFunctionNew;
 {створює F того чи іншого типу залежно
 від значення str}
+  var i:TTransformFunction;
 begin
    Result:=nil;
-   if str='Sample' then Result:=TFitFunctionNew.Create(str,'Some sample function');
-
+   if str='Sample' then
+     begin
+     Result:=TFitFunctionNew.Create(str,'Some sample function');
+     Exit;
+     end;
+   for I := Low(TTransformFunction)
+                to High(TTransformFunction) do
+      if str=TransformFunctionNames[i] then
+        begin
+          Result:=TFitTransform.Create(str);
+          Exit;
+        end;
 end;
 
 
 initialization
- SetLength(FitFuncNames[ffc_trans],3);
- FitFuncNames[ffc_trans,0]:='Smoothing';
- FitFuncNames[ffc_trans,1]:='Median filtr';
- FitFuncNames[ffc_trans,2]:='Sample';
+ SetLength(FitFuncNames[ffc_trans],ord(High(TTransformFunction))+1);
+ FitFuncNames[ffc_trans,ord(tfSmooth)]:=TransformFunctionNames[tfSmooth];
+ FitFuncNames[ffc_trans,ord(tfDeriv)]:=TransformFunctionNames[tfDeriv];
+ FitFuncNames[ffc_trans,ord(tfMedian)]:=TransformFunctionNames[tfMedian];
+
 
  SetLength(FitFuncNames[ffc_simple],1);
  FitFuncNames[ffc_simple,0]:='Linear';

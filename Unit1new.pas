@@ -8,7 +8,7 @@ uses
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
   OlegTests, OlegVector, OlegMathShottky,
-  OlegVectorManipulation,OApproxCaption;
+  OlegVectorManipulation,OApproxCaption, FitTransform;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -2427,41 +2427,6 @@ end;
 
 procedure TForm1.SButFitClick(Sender: TObject);
 begin
-// if SButFit.Down then
-//  begin
-//
-//  if   SButFit.Caption='None' then Exit;
-//  FunCreate(SButFit.Caption,FitFunction);
-//
-//  if (SButFit.Caption='Linear')or
-//     (SButFit.Caption=FunctionOhmLaw)or
-//   (SButFit.Caption='Quadratic') then
-//       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
-//                                 else
-//       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4);
-//
-//   if EvolParam[0]=ErResult then Exit;
-//   Series4.Active:=True;
-//   if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//   if ((SButFit.Caption<>'Smoothing')and
-//       (SButFit.Caption<>'Median filtr')and
-//       (SButFit.Caption<>'Derivative')and
-//       (SButFit.Caption<>'Noise Smoothing'))
-//       then
-//        begin
-//         MemoAppr.Lines.Add('');
-//         MemoAppr.Lines.Add(VaxFile.name);
-//         MemoAppr.Lines.Add(SButFit.Caption);
-//        end;
-//
-//   FitFunction.DataToStrings(EvolParam,MemoAppr.Lines);
-//  FitFunction.Free;
-//  end  //if SButFit.Down then
-//   else Series4.Active:=False;
-end;
-
-procedure TForm1.SButFitNewClick(Sender: TObject);
-begin
  if SButFit.Down then
   begin
 
@@ -2493,7 +2458,41 @@ begin
   FitFunction.Free;
   end  //if SButFit.Down then
    else Series4.Active:=False;
+end;
 
+procedure TForm1.SButFitNewClick(Sender: TObject);
+begin
+ if SButFitNew.Down then
+  begin
+    if   SButFitNew.Caption='None' then Exit;
+    FitFunctionNew:=FitFunctionFabrica(SButFitNew.Caption);
+
+//    if (SButFit.Caption='Linear')or
+//       (SButFit.Caption=FunctionOhmLaw)or
+//     (SButFit.Caption='Quadratic') then
+//         FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
+//                                   else
+         FitFunctionNew.FittingToGraphAndFile(VaxGraph,Series4);
+
+     if not(FitFunctionNew.ResultsIsReady) then Exit;
+     Series4.Active:=True;
+     if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
+     if not(FitFunctionNew is TFitTransform) then
+//     if ((SButFit.Caption<>'Smoothing')and
+//         (SButFit.Caption<>'Median filtr')and
+//         (SButFit.Caption<>'Derivative')and
+//         (SButFit.Caption<>'Noise Smoothing'))
+//         then
+          begin
+           MemoAppr.Lines.Add('');
+           MemoAppr.Lines.Add(VaxFile.name);
+           MemoAppr.Lines.Add(SButFit.Caption);
+          end;
+
+//     FitFunction.DataToStrings(EvolParam,MemoAppr.Lines);
+    FitFunctionNew.Free;
+  end  //if SButFit.Down then
+   else Series4.Active:=False;
 end;
 
 procedure TForm1.SEGaussChange(Sender: TObject);
