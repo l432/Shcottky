@@ -16,7 +16,7 @@ var
   FitFuncNames:array[TFitFuncCategory]of array of string;
 
 
-Function FitFunctionFabrica(str:string; FileName:string=''):TFitFunctionNew;
+Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
 {створює F того чи іншого типу залежно
 від значення str}
 
@@ -27,7 +27,7 @@ uses
   FitTransform;
 
 
-Function FitFunctionFabrica(str:string; FileName:string=''):TFitFunctionNew;
+Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
 {створює F того чи іншого типу залежно
 від значення str}
   var i:TTransformFunction;

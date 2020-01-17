@@ -139,7 +139,7 @@ procedure TFormSFNew.TVFormSFClick(Sender: TObject);
 var F:TFitFunctionNew;
 begin
  SelectedString:=TVFormSF.Selected.Text;
- F:=FitFunctionFabrica(SelectedString);
+ F:=FitFunctionFactory(SelectedString);
  if  Assigned(F) then
   begin
   SizeInit;

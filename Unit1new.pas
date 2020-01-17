@@ -2465,7 +2465,7 @@ begin
  if SButFitNew.Down then
   begin
     if   SButFitNew.Caption='None' then Exit;
-    FitFunctionNew:=FitFunctionFabrica(SButFitNew.Caption);
+    FitFunctionNew:=FitFunctionFactory(SButFitNew.Caption);
 
 //    if (SButFit.Caption='Linear')or
 //       (SButFit.Caption=FunctionOhmLaw)or
@@ -2838,7 +2838,7 @@ if (Sender is TButton)and((Sender as TButton).Name='ButFitOptionNew')
 //if (Sender is TButton)and((Sender as TButton).Name='ButDateOption')
 //     then  str:=LDateFun.Caption;
 
-FitFunctionNew:=FitFunctionFabrica(str);
+FitFunctionNew:=FitFunctionFactory(str);
 if  not(Assigned(FitFunctionNew)) then Exit;
 
 FitFunctionNew.SetParametersGR;

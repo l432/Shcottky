@@ -35,27 +35,24 @@ type
     destructor Destroy;override;
  end;
 
- TFitFunctionParameterShow=class(TParameterShow)
+ TFFParameterShowBase=class(TFFParameterShow)
   private
    fFF:TFitFunctionNew;
-   fForm:TForm;
-   fButtons:TFrBut;
    fDiapazoneGB:TDiapazoneGroupBox;
    fImg:TImage;
-   Procedure PictureToForm(maxWidth,maxHeight,Top,Left:integer);
-   procedure CreateForm;
-    procedure DiapazonToForm(Top,Left: Integer);
-    procedure ButtonsToForm(Top,Left: Integer);
   public
-   Procedure Show();override;
+   procedure FormPrepare(Form:TForm);override;
+   procedure UpDate;override;
+   procedure FormClear;override;
    Constructor Create(FF:TFitFunctionNew);
-   destructor Destroy;override;
  end;
+
+
 
 implementation
 
 uses
-  SysUtils, Graphics, Controls, Math;
+  SysUtils, Graphics, Controls, Math, Classes;
 
 { TDiapazonDoubleParameterShow }
 
@@ -168,92 +165,130 @@ end;
 
 { TFitFunctionParameterShow }
 
-constructor TFitFunctionParameterShow.Create(FF: TFitFunctionNew);
+constructor TFFParameterShowBase.Create(FF: TFitFunctionNew);
 begin
  fFF:=FF;
 end;
 
-destructor TFitFunctionParameterShow.Destroy;
+//destructor TFitFunctionParameterShow.Destroy;
+//begin
+////  fFF:=nil;
+//  inherited;
+//end;
+
+//procedure TFitFunctionParameterShow.ButtonsToForm(Top,Left: Integer);
+//begin
+//  fButtons := TFrBut.Create(fForm);
+//  fButtons.Parent := fForm;
+//  fButtons.Left := Left;
+//  fButtons.Top := Top;
+//end;
+
+//procedure TFitFunctionParameterShow.DiapazonToForm(Top,Left: Integer);
+//begin
+//  fDiapazoneGB := TDiapazoneGroupBox.Create(fFF.Diapazon);
+//  fDiapazoneGB.GB.Parent := fFF.Form;
+//  fDiapazoneGB.GB.Top:=Top;
+//  fDiapazoneGB.GB.Left:=Left;
+//end;
+
+procedure TFFParameterShowBase.FormClear;
 begin
-//  fFF:=nil;
-  inherited;
+ fDiapazoneGB.GB.Parent:=nil;
+ fDiapazoneGB.Free;
 end;
 
-procedure TFitFunctionParameterShow.ButtonsToForm(Top,Left: Integer);
+procedure TFFParameterShowBase.FormPrepare(Form:TForm);
 begin
-  fButtons := TFrBut.Create(fForm);
-  fButtons.Parent := fForm;
-  fButtons.Left := Left;
-  fButtons.Top := Top;
-end;
+ fDiapazoneGB := TDiapazoneGroupBox.Create(fFF.Diapazon);
+ fDiapazoneGB.GB.Parent := Form;
+ fDiapazoneGB.GB.Top:=10;
+ fDiapazoneGB.GB.Left:=460;
 
-procedure TFitFunctionParameterShow.DiapazonToForm(Top,Left: Integer);
-begin
-  fDiapazoneGB := TDiapazoneGroupBox.Create(fFF.Diapazon);
-  fDiapazoneGB.GB.Parent := fForm;
-  fDiapazoneGB.GB.Top:=Top;
-  fDiapazoneGB.GB.Left:=Left;
-end;
-
-procedure TFitFunctionParameterShow.CreateForm;
-begin
-  fForm := TForm.Create(Application);
-  fForm.Position := poMainFormCenter;
-  fForm.AutoScroll := True;
-  fForm.BorderIcons := [biSystemMenu];
-  fForm.ParentFont := True;
-  fForm.Font.Style := [fsBold];
-  // fForm.Font.Height:=-16;
-  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
-  fForm.Color := clMoneyGreen;
-end;
-
-procedure TFitFunctionParameterShow.PictureToForm(
-               maxWidth, maxHeight, Top, Left: integer);
-begin
  if fFF.HasPicture then
   begin
-   fImg:=TImage.Create(fForm);
+   fImg:=TImage.Create(Form);
 //   fImg.Name:='Image';
-   fImg.Parent:=fForm;
-   fImg.Top:=Top;
-   fImg.Left:=Left;
-   fImg.Height:=maxHeight;
-   fImg.Width:=maxWidth;
+   fImg.Parent:=Form;
+   fImg.Top:=10;
+   fImg.Left:=10;
+   fImg.Height:=fDiapazoneGB.GB.Height;
+   fImg.Width:=450;
    fImg.Stretch:=True;
    PictLoadScale(fImg,fFF.PictureName);
   end;
+
+
+ Form.Width:=fDiapazoneGB.GB.Left+fDiapazoneGB.GB.Width;
+ Form.Height:=10+max(fDiapazoneGB.GB.Height,fImg.Height);
 end;
 
-procedure TFitFunctionParameterShow.Show;
+//procedure TFitFunctionParameterShow.CreateForm;
+//begin
+//  fForm := TForm.Create(Application);
+//  fForm.Position := poMainFormCenter;
+//  fForm.AutoScroll := True;
+//  fForm.BorderIcons := [biSystemMenu];
+//  fForm.ParentFont := True;
+//  fForm.Font.Style := [fsBold];
+//  // fForm.Font.Height:=-16;
+//  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
+//  fForm.Color := clLtGray;
+//end;
+
+//procedure TFitFunctionParameterShow.PictureToForm(
+//               maxWidth, maxHeight, Top, Left: integer);
+//begin
+// if fFF.HasPicture then
+//  begin
+//   fImg:=TImage.Create(fFF.Form);
+////   fImg.Name:='Image';
+//   fImg.Parent:=fFF.Form;
+//   fImg.Top:=Top;
+//   fImg.Left:=Left;
+//   fImg.Height:=maxHeight;
+//   fImg.Width:=maxWidth;
+//   fImg.Stretch:=True;
+//   PictLoadScale(fImg,fFF.PictureName);
+//  end;
+//end;
+
+//procedure TFitFunctionParameterShow.Show;
+//begin
+// CreateForm;
+// DiapazonToForm(10,460);
+// PictureToForm(450,fDiapazoneGB.GB.Height,10,10);
+//// ButtonsToForm(fDiapazoneGB.GB.Top
+////               + fDiapazoneGB.GB.Height
+////               + MarginTop,10);
+//
+// fForm.Width:=max(fDiapazoneGB.GB.Left+fDiapazoneGB.GB.Width,fButtons.Width)+2*MarginLeft;
+// fForm.Height:=fButtons.Top+fButtons.Height+MarginTop+50;
+//
+// if fForm.ShowModal=mrOk then
+//   begin
+//     fDiapazoneGB.UpDate;
+////     GRFieldFormExchange(Form,False);
+//     fFF.IsReadyToFitDetermination;
+//     if fFF.IsReadyToFit then  fFF.WriteToIniFile;
+//   end;
+//
+// fButtons.Parent:=nil;
+// fButtons.Free;
+// fDiapazoneGB.GB.Parent:=nil;
+// fDiapazoneGB.Free;
+// ElementsFromForm(fForm);
+//
+// fForm.Hide;
+// fForm.Release;
+//
+//end;
+
+procedure TFFParameterShowBase.UpDate;
 begin
- CreateForm;
- DiapazonToForm(10,460);
- PictureToForm(450,fDiapazoneGB.GB.Height,10,10);
- ButtonsToForm(fDiapazoneGB.GB.Top
-               + fDiapazoneGB.GB.Height
-               + MarginTop,10);
-
- fForm.Width:=max(fDiapazoneGB.GB.Left+fDiapazoneGB.GB.Width,fButtons.Width)+2*MarginLeft;
- fForm.Height:=fButtons.Top+fButtons.Height+MarginTop+50;
-
- if fForm.ShowModal=mrOk then
-   begin
-     fDiapazoneGB.UpDate;
-//     GRFieldFormExchange(Form,False);
-     fFF.IsReadyToFitDetermination;
-     if fFF.IsReadyToFit then  fFF.WriteToIniFile;
-   end;
-
- fButtons.Parent:=nil;
- fButtons.Free;
- fDiapazoneGB.GB.Parent:=nil;
- fDiapazoneGB.Free;
- ElementsFromForm(fForm);
-
- fForm.Hide;
- fForm.Release;
-
+ fDiapazoneGB.UpDate;
 end;
+
+
 
 end.

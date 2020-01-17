@@ -28,7 +28,8 @@ uses
   FormSelectFitNew in 'FormSelectFitNew.pas' {FormSFNew},
   OApproxCaption in 'OApproxCaption.pas',
   OApproxShow in 'OApproxShow.pas',
-  FitTransform in 'FitTransform.pas';
+  FitTransform in 'FitTransform.pas',
+  FitVariable in 'FitVariable.pas';
 
 {$R *.res}
 

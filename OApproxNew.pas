@@ -4,7 +4,8 @@ interface
 
 uses
   IniFiles, OlegApprox, OlegVector, OlegType,
-  OlegVectorManipulation, TeEngine;
+  OlegVectorManipulation, TeEngine, OlegTypePart2,
+  Forms, FrameButtons, OlegFunction;
 
 //uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
 //      Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
@@ -76,9 +77,31 @@ function ReadEvType(const Section, Ident: string): TEvolutionType; virtual;
 procedure WriteEvType(const Section, Ident: string; Value: TEvolutionType); virtual;
 end;
 
-TParameterShow=class
+TFFParameterShow=class
+  protected
+//   fForm:TForm;
+//   fButtons:TFrBut;
+  public
+   procedure FormPrepare(Form:TForm);virtual;abstract;
+   procedure UpDate;virtual;abstract;
+   procedure FormClear;virtual;abstract;
+end;
+
+TFFWindowShow=class
+  protected
+   fPS:TFFParameterShow;
+   fForm:TForm;
+   fButtons:TFrBut;
   public
    procedure Show;virtual;abstract;
+   constructor Create(PS:TFFParameterShow);
+end;
+
+TFFReadWrite=class
+ private
+ public
+  Procedure WriteToIniFile;virtual;abstract;
+  Procedure ReadFromIniFile;virtual;abstract;
 end;
 
 TFitFunctionNew=class(TObject)
@@ -94,16 +117,19 @@ private
  fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
  fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
  fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
- fConfigFile:TOIniFile;//для роботи з .ini-файлом
+ fConfigFile:TOIniFileNew;//для роботи з .ini-файлом
  fFileHeading:string;
  {назви колонок у файлі з результатами апроксимації,
  що утворюється впроцедурі FittingToGraphAndFile}
- fFFParameterShow:TParameterShow;
+ fPShow:TFFParameterShow;
+ fWShow:TFFWindowShow;
+ fReadWrite:TFFReadWrite;
  procedure DataContainerCreate;virtual;
  procedure DipazonCreate;virtual;
- procedure ParameterShowCreate;virtual;
+ function ParameterShowCreate:TFFParameterShow;virtual;
+ function ReadWriteCreate:TFFReadWrite;virtual;
  procedure DataContainerDestroy;virtual;
- procedure DiapazonDestroy;virtual;
+ procedure DiapazonDestroy;//virtual;
  procedure ParameterShowDestroy;virtual;
 // procedure RealFitting;virtual;//abstract;
  procedure DataPreraration(InputData: TVector);overload;
@@ -116,7 +142,7 @@ protected
  fDataToFit:TVectorTransform; //дані для апроксимації
  FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
  procedure RealFitting;virtual;//abstract;
- Procedure ReadFromIniFile;virtual;
+// Procedure ReadFromIniFile;virtual;
  {зчитує дані з ini-файла, в цьому класі - fDiapazon}
 public
  FittingData:TVector;
@@ -128,13 +154,14 @@ public
  property HasPicture:boolean read fHasPicture;
  property IsReadyToFit:boolean read fIsReadyToFit;
  property Diapazon:TDiapazon read fDiapazon;
+ property ConfigFile:TOIniFileNew read fConfigFile;
  Constructor Create(FunctionName,FunctionCaption:string);
  destructor Destroy;override;
  procedure SetParametersGR;virtual;
  Procedure IsReadyToFitDetermination;virtual;
  {по значенням полів визначається, чи готові дані до
  апроксимації}
- Procedure WriteToIniFile;virtual;
+// Procedure WriteToIniFile;virtual;
  {записує дані в ini-файл, в цьому класі - для fDiapazon}
  Procedure Fitting (InputData:TVector);overload;//virtual;abstract;
  Procedure Fitting (InputFileName:string);overload;//virtual;abstract;
@@ -144,8 +171,24 @@ public
 
 //--------------------------------------------------------------------
 
+TFFWindowShowBase=class(TFFWindowShow)
+ private
+  fFF:TFitFunctionNew;
+  procedure CreateForm;
+ public
+  constructor Create(FF:TFitFunctionNew);
+  procedure Show;override;
+end;
 
-
+TFFReadWriteBase=class(TFFReadWrite)
+ protected
+  fFF:TFitFunctionNew;
+ public
+  property FF:TFitFunctionNew read fFF;
+  constructor Create(FF:TFitFunctionNew);
+  Procedure WriteToIniFile;override;
+  Procedure ReadFromIniFile;override;
+end;
 
 
 //TFitFunctionSimple=class (TFitFunction)
@@ -1542,7 +1585,7 @@ var
 implementation
 
 uses
-  SysUtils, Forms, Dialogs, OApproxShow, Classes;
+  SysUtils, Dialogs, OApproxShow, Classes, Graphics, Math, Controls;
 
 { TOIniFileNew }
 
@@ -1589,17 +1632,25 @@ begin
  fIsReadyToFit:=False;
  fResultsIsReady:=False;
  fFileHeading:='X Y Yfit';
+
  DataContainerCreate;
  DipazonCreate;
- fConfigFile:=TOIniFile.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
- ReadFromIniFile;
+
+ fConfigFile:=TOIniFileNew.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
+ fReadWrite:=ReadWriteCreate;
+ fReadWrite.ReadFromIniFile;
  IsReadyToFitDetermination;
- ParameterShowCreate;
+
+ fPShow:=ParameterShowCreate;
+ fWShow:=TFFWindowShowBase.Create(Self);
+
 
 // fDataToFit:TVector; //дані для апроксимації
 // fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
 
 end;
+
+
 
 procedure TFitFunctionNew.DataContainerCreate;
 begin
@@ -1633,6 +1684,7 @@ begin
   DataContainerDestroy;
   DiapazonDestroy;
   ParameterShowDestroy;
+  fReadWrite.Free;
   fConfigFile.Free;
   inherited;
 end;
@@ -1666,11 +1718,16 @@ begin
 end;
 
 
-procedure TFitFunctionNew.ReadFromIniFile;
-begin
-  fDiapazon.ReadFromIniFile(fConfigFile,FName,'DiapazonFit');
-end;
+//procedure TFitFunctionNew.ReadFromIniFile;
+//begin
+//  fDiapazon.ReadFromIniFile(fConfigFile,FName,'DiapazonFit');
+//end;
 
+
+function TFitFunctionNew.ReadWriteCreate: TFFReadWrite;
+begin
+ Result:=TFFReadWriteBase.Create(Self);
+end;
 
 procedure TFitFunctionNew.RealFitting;
 begin
@@ -1698,13 +1755,13 @@ end;
 
 procedure TFitFunctionNew.SetParametersGR;
 begin
- fFFParameterShow.Show;
+ fWShow.Show;
 end;
 
-procedure TFitFunctionNew.WriteToIniFile;
-begin
- fDiapazon.WriteToIniFile(fConfigFile,FName,'DiapazonFit');
-end;
+//procedure TFitFunctionNew.WriteToIniFile;
+//begin
+// fDiapazon.WriteToIniFile(fConfigFile,FName,'DiapazonFit');
+//end;
 
 function TFitFunctionNew.FittingBegin: boolean;
 begin
@@ -1738,14 +1795,91 @@ begin
   RealToFile(suf);
 end;
 
-procedure TFitFunctionNew.ParameterShowCreate;
+function TFitFunctionNew.ParameterShowCreate:TFFParameterShow;
 begin
- fFFParameterShow:=TFitFunctionParameterShow.Create(Self);
+ Result:=TFFParameterShowBase.Create(Self);
 end;
 
 procedure TFitFunctionNew.ParameterShowDestroy;
 begin
- fFFParameterShow.Free;
+ fWShow.Free;
+ fPShow.Free;
+end;
+
+
+{ TWindowShow }
+
+constructor TFFWindowShow.Create(PS: TFFParameterShow);
+begin
+  fPS:=PS;
+end;
+
+
+{ TWindowShowBase }
+
+constructor TFFWindowShowBase.Create(FF: TFitFunctionNew);
+begin
+ fFF:=FF;
+ inherited Create(fFF.fPShow);
+end;
+
+procedure TFFWindowShowBase.CreateForm;
+begin
+  fForm := TForm.Create(Application);
+  fForm.Position := poMainFormCenter;
+  fForm.AutoScroll := True;
+  fForm.BorderIcons := [biSystemMenu];
+  fForm.ParentFont := True;
+  fForm.Font.Style := [fsBold];
+  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
+  fForm.Color := clLtGray;
+end;
+
+procedure TFFWindowShowBase.Show;
+begin
+ CreateForm;
+ fPS.FormPrepare(fForm);
+
+ fButtons := TFrBut.Create(fForm);
+ fButtons.Parent := fForm;
+ fButtons.Left := 10;
+ fButtons.Top := fForm.Height+MarginTop;
+
+ fForm.Width:=max(fForm.Width,fButtons.Width)+MarginLeft;
+ fForm.Height:=fButtons.Top+fButtons.Height+MarginTop+10;
+
+ if fForm.ShowModal=mrOk then
+   begin
+     fPS.UpDate;
+     fFF.IsReadyToFitDetermination;
+     if fFF.IsReadyToFit then  fFF.fReadWrite.WriteToIniFile;
+   end;
+
+ fPS.FormClear;
+ fButtons.Parent:=nil;
+ fButtons.Free;
+ ElementsFromForm(fForm);
+
+ fForm.Hide;
+ fForm.Release;
+
+end;
+
+{ TFFReadWriteBase }
+
+constructor TFFReadWriteBase.Create(FF: TFitFunctionNew);
+begin
+  fFF:=FF;
+end;
+
+procedure TFFReadWriteBase.ReadFromIniFile;
+begin
+  fFF.Diapazon.ReadFromIniFile(FFF.fConfigFile,fFF.FName,'DiapazonFit');
+end;
+
+procedure TFFReadWriteBase.WriteToIniFile;
+begin
+  fFF.Diapazon.WriteToIniFile(fFF.fConfigFile,fFF.FName,'DiapazonFit');
 end;
 
 end.
