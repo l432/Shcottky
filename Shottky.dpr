@@ -29,7 +29,8 @@ uses
   OApproxCaption in 'OApproxCaption.pas',
   OApproxShow in 'OApproxShow.pas',
   FitTransform in 'FitTransform.pas',
-  FitVariable in 'FitVariable.pas';
+  FitVariable in 'FitVariable.pas',
+  FitDigital in 'FitDigital.pas';
 
 {$R *.res}
 

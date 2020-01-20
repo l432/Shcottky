@@ -2486,7 +2486,7 @@ begin
           begin
            MemoAppr.Lines.Add('');
            MemoAppr.Lines.Add(VaxFile.name);
-           MemoAppr.Lines.Add(SButFit.Caption);
+           MemoAppr.Lines.Add(SButFitNew.Caption);
           end;
 
 //     FitFunction.DataToStrings(EvolParam,MemoAppr.Lines);

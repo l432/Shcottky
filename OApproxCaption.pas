@@ -6,11 +6,12 @@ uses
   OApproxNew;
 
 type
-  TFitFuncCategory=(ffc_none,ffc_trans,ffc_simple);
+  TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
+                   ffc_simple);
 
 const
   FitFuncCategoryNames:array[TFitFuncCategory]of string=
-           ('None','Transform','Simple');
+           ('None','Transform','Digital filter','Simple');
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;
@@ -24,7 +25,7 @@ Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
 implementation
 
 uses
-  FitTransform;
+  FitTransform, FitDigital;
 
 
 Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
@@ -45,6 +46,11 @@ begin
           Result:=TFitTransform.Create(str);
           Exit;
         end;
+   if str='LP IIR Chebyshev' then
+     begin
+     Result:=TFFLP_IIR_Chebyshev.Create;
+     Exit;
+     end;
 end;
 
 
@@ -54,6 +60,8 @@ initialization
  FitFuncNames[ffc_trans,ord(tfDeriv)]:=TransformFunctionNames[tfDeriv];
  FitFuncNames[ffc_trans,ord(tfMedian)]:=TransformFunctionNames[tfMedian];
 
+ SetLength(FitFuncNames[ffc_digital],1);
+ FitFuncNames[ffc_digital,0]:='LP IIR Chebyshev';
 
  SetLength(FitFuncNames[ffc_simple],1);
  FitFuncNames[ffc_simple,0]:='Linear';

@@ -10,8 +10,8 @@ const //MarginLeft=20;
       //MarginRight=30;
       //Marginbetween=20;
       //MarginTop=20;
-      ImgHeightNew=700;
-      ImgWidthNew=700;
+      ImgHeightNew=500;
+      ImgWidthNew=500;
 
 type
   TFormSFNew = class(TForm)

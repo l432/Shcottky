@@ -21,7 +21,7 @@ TVarBool=class
   property Value:boolean read fValue write fValue;
   property Name:string read fName;
   property Description:string read fDescription write fDescription;
-  constructor Create(FF:TFitFunctionNew);
+  constructor Create(FF:TFitFunctionNew;Description:string);
   procedure ReadFromIniFile;
   procedure WriteToIniFile;
 end;
@@ -36,26 +36,18 @@ end;
     destructor Destroy;override;
  end;
 
-  TDecBoolVarPShow=class(TFFParameterShow)
+  TDecBoolVarParameter=class(TFFParameter)
    private
     fBoolVarCB:TBoolVarCheckBox;
-    fFFPShow:TFFParameterShow;
+    fVB:TVarBool;
+    fFFParameter:TFFParameter;
    public
-    constructor Create(FFPShow:TFFParameterShow;
-                       VB:TVarBool);
+    constructor Create(VB:TVarBool;
+                       FFParam:TFFParameter);
     procedure FormPrepare(Form:TForm);override;
     procedure UpDate;override;
     procedure FormClear;override;
     destructor Destroy;override;
- end;
-
- TDecBoolVarReadWrite=class(TFFReadWrite)
-  private
-   fReadWrite:TFFReadWrite;
-   fVB:TVarBool;
-  public
-    constructor Create(ReadWrite:TFFReadWrite;
-                       VB:TVarBool);
     Procedure WriteToIniFile;override;
     Procedure ReadFromIniFile;override;
  end;
@@ -67,10 +59,10 @@ uses
 
 { TVarBool }
 
-constructor TVarBool.Create(FF: TFitFunctionNew);
+constructor TVarBool.Create(FF: TFitFunctionNew;Description:string);
 begin
  fFF:=FF;
- fDescription:='';
+ fDescription:=Description;
  fName:='VarBool';
 end;
 
@@ -91,6 +83,8 @@ constructor TBoolVarCheckBox.Create(VarBool: TVarBool);
 begin
   fVarBool:=VarBool;
   CB:=TCheckBox.Create(nil);
+//  CB.WordWrap:=True;
+  CB.Width:=130;
   CB.Caption:=fVarBool.Description;
   CB.Enabled:=True;
   CB.Checked:=fVarBool.Value;
@@ -112,62 +106,59 @@ end;
 
 { TDecorBoolVar }
 
-constructor TDecBoolVarPShow.Create(FFPShow:TFFParameterShow;
-                                VB:TVarBool);
+constructor TDecBoolVarParameter.Create(VB:TVarBool;
+                       FFParam:TFFParameter);
 begin
- fFFPShow:=FFPShow;
- fBoolVarCB := TBoolVarCheckBox.Create(VB);
+ fFFParameter:=FFParam;
+// fBoolVarCB := TBoolVarCheckBox.Create(VB);
+ fVB:=VB;
 end;
 
-destructor TDecBoolVarPShow.Destroy;
+destructor TDecBoolVarParameter.Destroy;
 begin
- fBoolVarCB.Free;
-  inherited;
+// fBoolVarCB.Free;
+ inherited;
 end;
 
-procedure TDecBoolVarPShow.FormClear;
+procedure TDecBoolVarParameter.FormClear;
 begin
  fBoolVarCB.CB.Parent:=nil;
- fFFPShow.FormClear;
+ fBoolVarCB.Free;
+ fFFParameter.FormClear;
 end;
 
-procedure TDecBoolVarPShow.FormPrepare(Form:TForm);
+procedure TDecBoolVarParameter.FormPrepare(Form:TForm);
 begin
-  fFFPShow.FormPrepare(Form);
-  fBoolVarCB.CB.Parent := Form;
-  fBoolVarCB.CB.Top:=Form.Height+MarginTop;
-  fBoolVarCB.CB.Left:=MarginLeft;
-  Form.Height:=fBoolVarCB.CB.Top+fBoolVarCB.CB.Height;
-  Form.Width:=max(Form.Width,
-                fBoolVarCB.CB.Left+fBoolVarCB.CB.Width);
+  fFFParameter.FormPrepare(Form);
+  fBoolVarCB := TBoolVarCheckBox.Create(fVB);
+//  fBoolVarCB.CB.Parent := Form;
+  AddControlToForm(fBoolVarCB.CB,Form);
+
+
+//  fBoolVarCB.CB.Top:=Form.Height+MarginTop;
+//  fBoolVarCB.CB.Left:=MarginLeft;
+//  Form.Height:=fBoolVarCB.CB.Top+fBoolVarCB.CB.Height;
+//  Form.Width:=max(Form.Width,
+//                fBoolVarCB.CB.Left+fBoolVarCB.CB.Width);
 end;
 
-procedure TDecBoolVarPShow.UpDate;
+procedure TDecBoolVarParameter.ReadFromIniFile;
 begin
-  fFFPShow.UpDate;
-  fBoolVarCB.UpDate;
-end;
-
-{ TDecBoolVarReadWrite }
-
-constructor TDecBoolVarReadWrite.Create(ReadWrite: TFFReadWrite;
-                                        VB: TVarBool);
-begin
-  fReadWrite:=ReadWrite;
-  fVB:=VB;
-//  fFF:=ReadWrite.FF;
-end;
-
-procedure TDecBoolVarReadWrite.ReadFromIniFile;
-begin
-  fReadWrite.ReadFromIniFile;
+  fFFParameter.ReadFromIniFile;
   fVB.ReadFromIniFile;
 end;
 
-procedure TDecBoolVarReadWrite.WriteToIniFile;
+procedure TDecBoolVarParameter.UpDate;
 begin
-  fReadWrite.WriteToIniFile;
-  fVB.WriteToIniFile;
+  fFFParameter.UpDate;
+  fBoolVarCB.UpDate;
 end;
+
+procedure TDecBoolVarParameter.WriteToIniFile;
+begin
+ fFFParameter.WriteToIniFile;
+ fVB.WriteToIniFile;
+end;
+
 
 end.

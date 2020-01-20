@@ -4,7 +4,7 @@ interface
 
 uses
   OlegShowTypes, OlegType, StdCtrls, Forms, FrameButtons,
-  OApproxNew, ExtCtrls, OlegApprox, OlegFunction;
+  OApproxNew, ExtCtrls, OlegApprox, OlegFunction, Controls;
 
 const MarginLeft=20;
       MarginRight=30;
@@ -35,24 +35,28 @@ type
     destructor Destroy;override;
  end;
 
- TFFParameterShowBase=class(TFFParameterShow)
+ TFFParameterBase=class(TFFParameter)
   private
    fFF:TFitFunctionNew;
    fDiapazoneGB:TDiapazoneGroupBox;
    fImg:TImage;
   public
+   property FF:TFitFunctionNew read fFF;
    procedure FormPrepare(Form:TForm);override;
    procedure UpDate;override;
    procedure FormClear;override;
    Constructor Create(FF:TFitFunctionNew);
+   Procedure WriteToIniFile;override;
+   Procedure ReadFromIniFile;override;
  end;
 
-
+Procedure AddControlToForm(Control:TControl;
+                           Form:TForm);
 
 implementation
 
 uses
-  SysUtils, Graphics, Controls, Math, Classes;
+  SysUtils, Graphics, Math, Classes;
 
 { TDiapazonDoubleParameterShow }
 
@@ -165,7 +169,7 @@ end;
 
 { TFitFunctionParameterShow }
 
-constructor TFFParameterShowBase.Create(FF: TFitFunctionNew);
+constructor TFFParameterBase.Create(FF: TFitFunctionNew);
 begin
  fFF:=FF;
 end;
@@ -192,13 +196,13 @@ end;
 //  fDiapazoneGB.GB.Left:=Left;
 //end;
 
-procedure TFFParameterShowBase.FormClear;
+procedure TFFParameterBase.FormClear;
 begin
  fDiapazoneGB.GB.Parent:=nil;
  fDiapazoneGB.Free;
 end;
 
-procedure TFFParameterShowBase.FormPrepare(Form:TForm);
+procedure TFFParameterBase.FormPrepare(Form:TForm);
 begin
  fDiapazoneGB := TDiapazoneGroupBox.Create(fFF.Diapazon);
  fDiapazoneGB.GB.Parent := Form;
@@ -220,7 +224,12 @@ begin
 
 
  Form.Width:=fDiapazoneGB.GB.Left+fDiapazoneGB.GB.Width;
- Form.Height:=10+max(fDiapazoneGB.GB.Height,fImg.Height);
+ Form.Height:=10+fDiapazoneGB.GB.Height;
+end;
+
+procedure TFFParameterBase.ReadFromIniFile;
+begin
+  fFF.Diapazon.ReadFromIniFile(FFF.ConfigFile,fFF.Name,'DiapazonFit');
 end;
 
 //procedure TFitFunctionParameterShow.CreateForm;
@@ -284,11 +293,28 @@ end;
 //
 //end;
 
-procedure TFFParameterShowBase.UpDate;
+procedure TFFParameterBase.UpDate;
 begin
  fDiapazoneGB.UpDate;
 end;
 
 
+
+procedure TFFParameterBase.WriteToIniFile;
+begin
+  fFF.Diapazon.WriteToIniFile(fFF.ConfigFile,fFF.Name,'DiapazonFit');
+end;
+
+Procedure AddControlToForm(Control:TControl;
+                           Form:TForm);
+ begin
+ Control.Parent := Form;
+ Control.Top:=Form.Height+MarginTop;
+ Control.Left:=MarginLeft;
+ Form.Height:=Control.Top+Control.Height;
+ Form.Width:=max(Form.Width,
+                Control.Left+Control.Width);
+
+ end;                           
 
 end.

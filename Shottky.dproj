@@ -33,6 +33,7 @@
     <DCCReference Include="ApprWindows.pas">
       <Form>App</Form>
     </DCCReference>
+    <DCCReference Include="FitDigital.pas" />
     <DCCReference Include="FitTransform.pas" />
     <DCCReference Include="FitVariable.pas" />
     <DCCReference Include="FormSelectFit.pas">
