@@ -1831,8 +1831,8 @@ begin
  fButtons.Left := 10;
  fButtons.Top := fForm.Height+MarginTop;
 
- fForm.Width:=max(fForm.Width,fButtons.Width)+MarginLeft;
- fForm.Height:=fButtons.Top+fButtons.Height+MarginTop+10;
+ fForm.Width:=max(fForm.Width,fButtons.Width)+MarginLeft+10;
+ fForm.Height:=fButtons.Top+fButtons.Height+2*MarginTop+10;
 
  if fForm.ShowModal=mrOk then
    begin

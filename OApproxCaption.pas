@@ -51,17 +51,24 @@ begin
      Result:=TFFLP_IIR_Chebyshev.Create;
      Exit;
      end;
+   if str='Moving Average Filter' then
+     begin
+     Result:=TFFMovingAverageFilter.Create;
+     Exit;
+     end;
 end;
 
 
 initialization
- SetLength(FitFuncNames[ffc_trans],ord(High(TTransformFunction))+1);
+ SetLength(FitFuncNames[ffc_trans],ord(High(TTransformFunction))+2);
  FitFuncNames[ffc_trans,ord(tfSmooth)]:=TransformFunctionNames[tfSmooth];
  FitFuncNames[ffc_trans,ord(tfDeriv)]:=TransformFunctionNames[tfDeriv];
  FitFuncNames[ffc_trans,ord(tfMedian)]:=TransformFunctionNames[tfMedian];
+ FitFuncNames[ffc_trans,3]:='Moving Average Filter';
 
  SetLength(FitFuncNames[ffc_digital],1);
  FitFuncNames[ffc_digital,0]:='LP IIR Chebyshev';
+// FitFuncNames[ffc_digital,1]:='Moving Average Filter';
 
  SetLength(FitFuncNames[ffc_simple],1);
  FitFuncNames[ffc_simple,0]:='Linear';

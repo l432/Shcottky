@@ -7,17 +7,17 @@ uses
 
 type
 
- TTransformFunction=(tfSmooth,tfDeriv,tfMedian);
+ TTransformFunction=(tfDeriv,tfMedian,tfSmooth);
 
 const
 
  TransformFunctionNames:array[TTransformFunction]of string=
-   ('Smoothing','Derivative','Median filter');
+   ('Derivative','Median filter','Smoothing');
 
  TransformFunctionDescriptions:array[TTransformFunction]of string=
-   ('3-point averaging, the weighting coefficient are determined by Gaussian distribution with 60% dispersion',
-   'Derivative, which is calculated as derivative of 3-poin Lagrange polynomial',
-   '3-point median filtering');
+   ('Derivative, which is calculated as derivative of 3-poin Lagrange polynomial',
+   '3-point median filtering',
+   '3-point averaging, the weighting coefficient are determined by Gaussian distribution with 60% dispersion');
 
 type
 

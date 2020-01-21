@@ -3,7 +3,8 @@ unit FitDigital;
 interface
 
 uses
-  OApproxNew, StdCtrls, FitVariable, ExtCtrls, Forms, OlegApprox;
+  OApproxNew, StdCtrls, FitVariable, ExtCtrls, Forms, OlegApprox, 
+  OlegDigitalManipulation;
 
 type
  TLP_IIR_Chebyshev=(ch_p2f01,ch_p2f025,ch_p2f45,
@@ -51,10 +52,11 @@ end;
  end;
 
 
-TFFLP_IIR_Chebyshev=class(TFitFunctionNew)
+TFFDigitalFiltr=class(TFitFunctionNew)
  private
   fToDeleteTrancient:TVarBool;
-  fType:TLP_IIR_ChebyshevType;
+  VDigMan:TVDigitalManipulation;
+  procedure DigitalFiltering;virtual;abstract;
  protected
   procedure DipazonCreate;override;
   procedure DiapazonDestroy;override;
@@ -62,14 +64,37 @@ TFFLP_IIR_Chebyshev=class(TFitFunctionNew)
   function ParameterCreate:TFFParameter;override;
   Procedure RealToFile (suf:string;NumberDigit: Byte=4);override;
  public
+end;
+
+TFFLP_IIR_Chebyshev=class(TFFDigitalFiltr)
+ private
+  fType:TLP_IIR_ChebyshevType;
+  procedure DigitalFiltering;override;
+ protected
+  procedure DipazonCreate;override;
+  procedure DiapazonDestroy;override;
+  function ParameterCreate:TFFParameter;override;
+ public
  constructor Create;
+end;
+
+TFFMovingAverageFilter=class(TFFDigitalFiltr)
+ private
+  fIntParameters:TVarIntArray;
+  procedure DigitalFiltering;override;
+ protected
+  procedure DipazonCreate;override;
+  procedure DiapazonDestroy;override;
+  function ParameterCreate:TFFParameter;override;
+ public
+  constructor Create;
 end;
 
 
 implementation
 
 uses
-  OApproxShow, Math, OlegDigitalManipulation;
+  OApproxShow, Math;
 
 { TIIR_ChebyshevGroupBox }
 
@@ -261,32 +286,12 @@ end;
 
 procedure TFFLP_IIR_Chebyshev.DiapazonDestroy;
 begin
- fToDeleteTrancient.Free;
  fType.Free;
  inherited;
 end;
 
-procedure TFFLP_IIR_Chebyshev.DipazonCreate;
+procedure TFFLP_IIR_Chebyshev.DigitalFiltering;
 begin
-  inherited;
-  fToDeleteTrancient:=TVarBool.Create(Self,'To Delete Trancient');
-  fType:=TLP_IIR_ChebyshevType.Create(Self);
-end;
-
-function TFFLP_IIR_Chebyshev.ParameterCreate: TFFParameter;
-begin
-// Result:=TDecBoolVarParameter.Create(fToDeleteTrancient,
-//               inherited ParameterCreate);
-
- Result:=TDecIIR_ChebyshevParameter.Create(fType,
-           TDecBoolVarParameter.Create(fToDeleteTrancient,
-               inherited ParameterCreate));
-end;
-
-procedure TFFLP_IIR_Chebyshev.RealFitting;
- var VDigMan:TVDigitalManipulation;
-begin
- VDigMan:=TVDigitalManipulation.Create(fDataToFit);
  case fType.LPType of
   ch_p2f01:VDigMan.LP_IIR_Chebyshev001p2(fToDeleteTrancient.Value);
   ch_p2f025:VDigMan.LP_IIR_Chebyshev0025p2(fToDeleteTrancient.Value);
@@ -296,11 +301,90 @@ begin
   ch_p6f075:VDigMan.LP_IIR_Chebyshev0075p6(fToDeleteTrancient.Value);
   ch_p6f45:VDigMan.LP_IIR_Chebyshev045p6(fToDeleteTrancient.Value);
  end;
- VDigMan.CopyTo(FittingData);
+end;
+
+procedure TFFLP_IIR_Chebyshev.DipazonCreate;
+begin
+  inherited;
+  fType:=TLP_IIR_ChebyshevType.Create(Self);
+end;
+
+function TFFLP_IIR_Chebyshev.ParameterCreate: TFFParameter;
+begin
+ Result:=TDecIIR_ChebyshevParameter.Create(fType,
+               inherited ParameterCreate);
+// Result:=TDecIIR_ChebyshevParameter.Create(fType,
+//           TDecBoolVarParameter.Create(fToDeleteTrancient,
+//               inherited ParameterCreate));
+end;
+
+
+{ TMovingAverageFilter }
+
+constructor TFFMovingAverageFilter.Create;
+begin
+ inherited Create('Moving Average Filter',
+   'Moving Average Filter');
+end;
+
+procedure TFFMovingAverageFilter.DiapazonDestroy;
+begin
+ fIntParameters.Free;
  inherited;
 end;
 
-procedure TFFLP_IIR_Chebyshev.RealToFile(suf: string; NumberDigit: Byte);
+procedure TFFMovingAverageFilter.DigitalFiltering;
+begin
+ VDigMan.MovingAverageFilter(fIntParameters.Parametr[0].Value,
+                             fToDeleteTrancient.Value);
+end;
+
+procedure TFFMovingAverageFilter.DipazonCreate;
+begin
+  inherited;
+  fIntParameters:=TVarIntArray.Create(Self,'Np',2);
+  fIntParameters.ParametrByName['Np'].Limits.SetLimits(2);
+  fIntParameters.ParametrByName['Np'].Description:='Points for averaging';
+end;
+
+function TFFMovingAverageFilter.ParameterCreate: TFFParameter;
+begin
+ Result:=TDeVarIntArrayParameter.Create(fIntParameters,
+                         inherited ParameterCreate);
+end;
+
+
+{ TFFDigitalFiltr }
+
+procedure TFFDigitalFiltr.DiapazonDestroy;
+begin
+ fToDeleteTrancient.Free;
+ VDigMan.Free;
+ inherited;
+end;
+
+procedure TFFDigitalFiltr.DipazonCreate;
+begin
+  inherited;
+  fToDeleteTrancient:=TVarBool.Create(Self,'To Delete Trancient');
+  VDigMan:=TVDigitalManipulation.Create;
+end;
+
+function TFFDigitalFiltr.ParameterCreate: TFFParameter;
+begin
+ Result:=TDecBoolVarParameter.Create(fToDeleteTrancient,
+               inherited ParameterCreate);
+end;
+
+procedure TFFDigitalFiltr.RealFitting;
+begin
+ VDigMan.CopyFrom(fDataToFit);
+ DigitalFiltering;
+ VDigMan.CopyTo(FittingData);
+ if not(FittingData.IsEmpty) then inherited RealFitting;
+end;
+
+procedure TFFDigitalFiltr.RealToFile(suf: string; NumberDigit: Byte);
 begin
  if fToDeleteTrancient.Value then
      FittingData.WriteToFile(FitName(fDataToFit,suf),NumberDigit)

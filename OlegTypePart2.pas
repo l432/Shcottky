@@ -33,6 +33,15 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
 //   procedure Free; override;
   end;
 
+TNamedObject=class(TObject)
+  private
+   fName:string;
+   function GetName:string;
+  public
+   property Name:string read GetName;
+   Constructor Create(Nm:string);
+end;  
+
 //  TObjectArray=class
 //    private
 //    public
@@ -184,5 +193,18 @@ end;
 //  for I := 0 to High(SecondArray) do
 //    InitArray[High(InitArray)-High(SecondArray)+i]:=SecondArray[i];
 //end;
+
+{ TNamedObject }
+
+constructor TNamedObject.Create(Nm: string);
+begin
+ inherited Create;
+ fName:=Nm;
+end;
+
+function TNamedObject.GetName: string;
+begin
+   Result:=fName;
+end;
 
 end.

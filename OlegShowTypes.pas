@@ -32,17 +32,19 @@ type
     function ReadStringValueFromIniFile(ConfigFile:TIniFile;NameIni:string):string;virtual;abstract;
     //повертає символьне представлення значення змінної
     procedure WriteNumberToIniFile(ConfigFile:TIniFile;NameIni:string);virtual;abstract;
+    function WindowText:string;virtual;
    protected
     STData:TStaticText; //величина параметру
     function StringToExpectedStringConvertion(str:string):string;virtual;abstract;
     {перетворення str в рядок, де число
     у потрібному форматі,
     можливі помилки не відловлюються, див. ParameterClick}
+    procedure AdditionalCreate;virtual;
    public
     property HookParameterClick:TSimpleEvent read fHookParameterClick write fHookParameterClick;
     property ColorChangeWithParameter:boolean read FColorChangeWithParameter write FColorChangeWithParameter;
     property IniNameSalt:string read fIniNameSalt write fIniNameSalt;
-
+    property ParametrCaption:string read fParametrCaption write fParametrCaption;
     Constructor Create(STD:TStaticText;
                        STC:TLabel;
                        ParametrCaption:string;
@@ -63,6 +65,36 @@ type
                                  ActiveColor:boolean=false);overload;
   end;  //   TParameterShow=class (TNamedInterfacedObject)
 
+  TLimits=class
+   private
+    fLowLimit:double;
+    fHighLimit:double;
+   public
+    property LowLimit:double read fLowLimit;
+    property HighLimit:double read fHighLimit;
+    constructor Create(LowLimit:double=ErResult;HighLimit:double=ErResult);
+    procedure SetLimits(LowLimit:double=ErResult;HighLimit:double=ErResult);
+    function NumberIsCorrect(Number:double):boolean;
+  end;
+
+  TLimitedParameterShow=class(TParameterShowNew)
+  {для відображення параметрів, які можуть змінюватися лише
+  в певних межах}
+   private
+    fLimits:TLimits;
+    function LimitsDescription:string;
+    function WindowText:string;override;
+   protected
+    function StringToExpectedStringConvertion(str:string):string;override;
+    function ValueToString(Value:double):string;virtual;abstract;
+    function StringToValue(str:string):double;virtual;abstract;
+    procedure AdditionalCreate;override;
+   public
+    property Limits:TLimits read fLimits write fLimits;
+    destructor Destroy;override;
+  end;
+
+
   TParameterShowArray=class
    private
     fParameterShowArray:array of TParameterShowNew;
@@ -77,7 +109,8 @@ type
     property Count:integer read GetCount;
   end;
 
-  TDoubleParameterShow=class (TParameterShowNew)
+//  TDoubleParameterShow=class (TParameterShowNew)
+  TDoubleParameterShow=class (TLimitedParameterShow)
    private
     FDefaulValue:double;
     procedure SetData(value:double);virtual;
@@ -87,9 +120,11 @@ type
     procedure CreateFooter(DN: Byte; InitValue: Double);
    protected
     fDigitNumber:byte;
-    function ValueToString(Value:double):string;virtual;
+//    function ValueToString(Value:double):string;virtual;
+    function ValueToString(Value:double):string;override;
+    function StringToValue(str:string):double;override;
     function GetData:double;virtual;
-    function StringToExpectedStringConvertion(str:string):string;override;
+//    function StringToExpectedStringConvertion(str:string):string;override;
    public
     property DefaulValue:double read FDefaulValue write SetDefaulValue;
     Constructor Create(STD:TStaticText;
@@ -119,18 +154,25 @@ type
     property Data:double read GetData write SetData;
   end;  //   TDoubleParameterShow=class (TParameterShow)
 
-  TIntegerParameterShow=class (TParameterShowNew)
+//  TIntegerParameterShow=class (TParameterShowNew)
+  TIntegerParameterShow=class (TLimitedParameterShow)
    private
     fIsPositive:boolean;
+    fIsNoOdd:boolean;
     FDefaulValue:integer;
-    function StringToExpectedStringConvertion(str:string):string;override;
     function GetData:integer;
-    procedure SetData(value:integer);
+//    procedure SetData(value:integer);
     procedure SetDefaulValue(const Value: integer);
     function ReadStringValueFromIniFile(ConfigFile:TIniFile;NameIni:string):string;override;
     procedure WriteNumberToIniFile(ConfigFile:TIniFile;NameIni:string);override;
+   protected
+    function ValueToString(Value:double):string;override;
+    function StringToValue(str:string):double;override;
+
+//    function StringToExpectedStringConvertion(str:string):string;override;
    public
     property IsPositive:boolean read fIsPositive write fIsPositive;
+    property IsNoOdd:boolean read fIsNoOdd write fIsNoOdd;
     property DefaulValue:integer read FDefaulValue write SetDefaulValue;
     Constructor Create(STD:TStaticText;
                        STC:TLabel;
@@ -143,7 +185,7 @@ type
                        ParametrCaption:string;
                        InitValue:integer
     );overload;
-    property Data:integer read GetData write SetData;
+    property Data:integer read GetData;// write SetData;
 //    procedure Free;
   end;  //   TIntegerParameterShow=class (TParameterShow)
 
@@ -151,13 +193,14 @@ type
   TStringParameterShow=class (TParameterShowNew)
    private
     fDataVariants:TStringList;
-    function StringToExpectedStringConvertion(str:string):string;override;
     function GetData:ShortInt;
     procedure SetData(value:ShortInt);
     procedure ParameterClick(Sender: TObject);override;
     function ReadStringValueFromIniFile(ConfigFile:TIniFile;NameIni:string):string;override;
     procedure WriteNumberToIniFile(ConfigFile:TIniFile;NameIni:string);override;
     procedure CreateFooter(DataVariants: TStringList);
+   protected
+    function StringToExpectedStringConvertion(str:string):string;override;
    public
     Constructor Create(STD:TStaticText;
                        STC:TLabel;
@@ -174,7 +217,7 @@ type
 implementation
 
 uses
-  SysUtils, Controls, Dialogs, Graphics;
+  SysUtils, Controls, Dialogs, Graphics, Math;
 
 Constructor TDoubleParameterShow.Create(STD:TStaticText;
                        STC:TLabel;
@@ -189,6 +232,7 @@ begin
 //  fDigitNumber:=DN;
 //  STData.Caption:=ValueToString(InitValue);
 //  DefaulValue:=InitValue;
+
 end;
 
 constructor TDoubleParameterShow.Create(STD: TStaticText;
@@ -251,19 +295,20 @@ begin
   FDefaulValue := Value;
 end;
 
-function TDoubleParameterShow.StringToExpectedStringConvertion(
-  str: string): string;
+//function TDoubleParameterShow.StringToExpectedStringConvertion(
+//  str: string): string;
+//begin
+// Result:=ValueToString(StrToFloat(str));
+//end;
+
+function TDoubleParameterShow.StringToValue(str: string): double;
 begin
- Result:=ValueToString(StrToFloat(str));
+ Result:=StrToFloat(str);
 end;
 
 function TDoubleParameterShow.ValueToString(Value:double):string;
 begin
-//  if (Frac(Value)=0)and(Int(Value/Power(10,fDigitNumber+1))=0)
-//    then Result:=FloatToStrF(Value,ffGeneral,fDigitNumber,fDigitNumber-1)
-//    then
-    Result:=FloatToStrF(Value,ffGeneral,fDigitNumber,fDigitNumber-1)
-//    else Result:=FloatToStrF(Value,ffExponent,fDigitNumber,fDigitNumber-1);
+  Result:=FloatToStrF(Value,ffGeneral,fDigitNumber,fDigitNumber-1)
 end;
 
 
@@ -277,6 +322,8 @@ begin
   STData.Caption:=IntToStr(InitValue);
   DefaulValue:=InitValue;
   fIsPositive:=false;
+  fIsNoOdd:=false;
+  fLimits:=TLimits.Create()
 end;
 
 constructor TIntegerParameterShow.Create(STD: TStaticText; STC: TLabel;
@@ -301,15 +348,15 @@ begin
    Result:=IntToStr(ConfigFile.ReadInteger(fName,NameIni,DefaulValue));
 end;
 
-procedure TIntegerParameterShow.SetData(value: integer);
-begin
-  try
-    if fIsPositive then  STData.Caption:=IntToStr(abs(value))
-                   else  STData.Caption:=IntToStr(value);
-  finally
-
-  end;
-end;
+//procedure TIntegerParameterShow.SetData(value: integer);
+//begin
+//  try
+//    if fIsPositive then  STData.Caption:=IntToStr(abs(value))
+//                   else  STData.Caption:=IntToStr(value);
+//  finally
+//
+//  end;
+//end;
 
 procedure TIntegerParameterShow.SetDefaulValue(const Value: integer);
 begin
@@ -317,10 +364,22 @@ begin
                 else FDefaulValue := Value;
 end;
 
-function TIntegerParameterShow.StringToExpectedStringConvertion(str: string): string;
+//function TIntegerParameterShow.StringToExpectedStringConvertion(str: string): string;
+//begin
+// if fIsPositive then Result:=IntToStr(abs(StrToInt(str)))
+//                else Result:=IntToStr(StrToInt(str));
+//end;
+
+function TIntegerParameterShow.StringToValue(str: string): double;
 begin
- if fIsPositive then Result:=IntToStr(abs(StrToInt(str)))
-                else Result:=IntToStr(StrToInt(str));
+ if fIsPositive then Result:=abs(StrToInt(str))
+                else Result:=StrToInt(str);
+ if (fIsNoOdd)and(Odd(Round(Result))) then Result:=result+1;
+end;
+
+function TIntegerParameterShow.ValueToString(Value: double): string;
+begin
+  Result:=IntToStr(Round(Value));
 end;
 
 procedure TIntegerParameterShow.WriteNumberToIniFile(ConfigFile: TIniFile;
@@ -369,6 +428,7 @@ begin
   fColorChangeWithParameter:=False;
   fIniNameSalt:='';
   HookParameterClick:=TSimpleClass.EmptyProcedure;
+  AdditionalCreate;
 end;
 
 procedure TParameterShowNew.ForUseInShowObject(NamedObject: TNamedInterfacedObject;
@@ -388,7 +448,7 @@ end;
 procedure TParameterShowNew.ParameterClick(Sender: TObject);
 begin
    try
-    STData.Caption:=StringToExpectedStringConvertion(InputBox(fWindowCaption,fWindowText,STData.Caption));
+    STData.Caption:=StringToExpectedStringConvertion(InputBox(fWindowCaption,WindowText,STData.Caption));
     if ColorChangeWithParameter then ColorToActive(false);
     HookParameterClick;
   finally
@@ -409,10 +469,20 @@ begin
  fName:=Name;
 end;
 
+function TParameterShowNew.WindowText: string;
+begin
+ Result:=fWindowText;
+end;
+
 procedure TParameterShowNew.WriteToIniFile(ConfigFile: TIniFile);
 begin
  if Name='' then Exit;
  WriteNumberToIniFile(ConfigFile,fParametrCaption+fIniNameSalt);
+end;
+
+procedure TParameterShowNew.AdditionalCreate;
+begin
+
 end;
 
 procedure TParameterShowNew.ColorToActive(Value: boolean);
@@ -546,5 +616,95 @@ begin
    fParameterShowArray[i].WriteToIniFile(ConfigFile);
 end;
 
+
+{ TLimitedParameterShow }
+
+procedure TLimitedParameterShow.AdditionalCreate;
+begin
+  inherited;
+  fLimits:=TLimits.Create();
+end;
+
+destructor TLimitedParameterShow.Destroy;
+begin
+  fLimits.Free;
+  inherited;
+end;
+
+function TLimitedParameterShow.LimitsDescription: string;
+begin
+ if (Limits.LowLimit=ErResult)and(Limits.HighLimit=ErResult) then
+    begin
+    Result:='';
+    Exit;
+    end;
+ Result:=','+#10+'number must be ';
+ if (Limits.LowLimit<>ErResult)and(Limits.HighLimit<>ErResult) then
+    begin
+      Result:=Result
+       +'in range ['
+       +FloatToStrF(Limits.LowLimit,ffGeneral,3,2)
+       +', '
+       +FloatToStrF(Limits.HighLimit,ffGeneral,3,2)
+       +']';
+       Exit;
+    end;
+ if (Limits.LowLimit<>ErResult)
+  then Result:=Result
+       +'no less than '
+       +FloatToStrF(Limits.LowLimit,ffGeneral,3,2)
+  else Result:=Result
+       +'no more than '
+       +FloatToStrF(Limits.HighLimit,ffGeneral,3,2);
+end;
+
+
+function TLimitedParameterShow.StringToExpectedStringConvertion(
+                             str: string): string;
+  var temp:double;
+begin
+ Result:=STData.Caption;
+ try
+   temp:=StringToValue(str);
+   if Limits.NumberIsCorrect(temp) then
+     Result:=ValueToString(temp);
+ finally
+
+ end;
+
+end;
+
+function TLimitedParameterShow.WindowText: string;
+begin
+ Result:=fWindowText+LimitsDescription;
+end;
+
+{ TLimits }
+
+constructor TLimits.Create(LowLimit, HighLimit: double);
+begin
+ inherited Create;
+ SetLimits(LowLimit, HighLimit);
+end;
+
+function TLimits.NumberIsCorrect(Number: double): boolean;
+begin
+ Result:=True;
+ if fLowLimit<>ErResult then Result:=(Result and (Number>=fLowLimit));
+ if fHighLimit<>ErResult then Result:=(Result and (Number<=fHighLimit));
+end;
+
+procedure TLimits.SetLimits(LowLimit, HighLimit: double);
+begin
+ if (LowLimit=ErResult)or(HighLimit=ErResult) then
+   begin
+     fLowLimit:=LowLimit;
+     fHighLimit:=HighLimit;
+   end                                         else
+   begin
+     fLowLimit:=min(LowLimit, HighLimit);
+     fHighLimit:=max(LowLimit, HighLimit);
+   end;
+end;
 
 end.

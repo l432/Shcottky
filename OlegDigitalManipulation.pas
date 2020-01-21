@@ -423,6 +423,9 @@ begin
 
  SetDeleteTrancientNumber(ToDeleteTrancient,Np);
  DigitalFiltr();
+ if not(ToDeleteTrancient) then
+  for I := 0 to Np - 2 do
+    Y[i]:=Y[i]*Np/(i+1)
 end;
 
 function TVDigitalManipulation.NormForFIR: double;
