@@ -36,6 +36,7 @@
     <DCCReference Include="FitDigital.pas" />
     <DCCReference Include="FitTransform.pas" />
     <DCCReference Include="FitVariable.pas" />
+    <DCCReference Include="FitVariableShow.pas" />
     <DCCReference Include="FormSelectFit.pas">
       <Form>FormSF</Form>
     </DCCReference>

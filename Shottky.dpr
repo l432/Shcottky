@@ -30,7 +30,8 @@ uses
   OApproxShow in 'OApproxShow.pas',
   FitTransform in 'FitTransform.pas',
   FitVariable in 'FitVariable.pas',
-  FitDigital in 'FitDigital.pas';
+  FitDigital in 'FitDigital.pas',
+  FitVariableShow in 'FitVariableShow.pas';
 
 {$R *.res}
 

@@ -11,6 +11,7 @@ const MarginLeft=20;
       Marginbetween=20;
       MarginTop=20;
 
+
       NoLimit='No';
 
 
@@ -48,7 +49,11 @@ type
    Constructor Create(FF:TFitFunctionNew);
    Procedure WriteToIniFile;override;
    Procedure ReadFromIniFile;override;
+   function IsReadyToFitDetermination:boolean;override;
  end;
+
+
+
 
 Procedure AddControlToForm(Control:TControl;
                            Form:TForm);
@@ -56,7 +61,7 @@ Procedure AddControlToForm(Control:TControl;
 implementation
 
 uses
-  SysUtils, Graphics, Math, Classes;
+  SysUtils, Graphics, Math;
 
 { TDiapazonDoubleParameterShow }
 
@@ -227,6 +232,11 @@ begin
  Form.Height:=10+fDiapazoneGB.GB.Height;
 end;
 
+function TFFParameterBase.IsReadyToFitDetermination:boolean;
+begin
+ Result:=True;
+end;
+
 procedure TFFParameterBase.ReadFromIniFile;
 begin
   fFF.Diapazon.ReadFromIniFile(FFF.ConfigFile,fFF.Name,'DiapazonFit');
@@ -302,6 +312,7 @@ end;
 
 procedure TFFParameterBase.WriteToIniFile;
 begin
+  fFF.ConfigFile.EraseSection(fFF.Name);
   fFF.Diapazon.WriteToIniFile(fFF.ConfigFile,fFF.Name,'DiapazonFit');
 end;
 
@@ -316,5 +327,6 @@ Procedure AddControlToForm(Control:TControl;
                 Control.Left+Control.Width);
 
  end;                           
+
 
 end.

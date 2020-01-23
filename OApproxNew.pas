@@ -85,6 +85,7 @@ TFFParameter=class
    procedure FormClear;virtual;abstract;
    Procedure WriteToIniFile;virtual;abstract;
    Procedure ReadFromIniFile;virtual;abstract;
+   function IsReadyToFitDetermination:boolean;virtual;abstract;
 end;
 
 TFFWindowShow=class
@@ -150,7 +151,7 @@ public
  Constructor Create(FunctionName,FunctionCaption:string);
  destructor Destroy;override;
  procedure SetParametersGR;virtual;
- Procedure IsReadyToFitDetermination;virtual;
+ Procedure IsReadyToFitDetermination;//virtual;
  {по значенням полів визначається, чи готові дані до
  апроксимації}
 // Procedure WriteToIniFile;virtual;
@@ -1693,7 +1694,8 @@ end;
 
 procedure TFitFunctionNew.IsReadyToFitDetermination;
 begin
- fIsReadyToFit:=True;
+ fIsReadyToFit:=fParameter.IsReadyToFitDetermination;
+// fIsReadyToFit:=True;
 end;
 
 procedure TFitFunctionNew.Fitting(InputFileName: string);

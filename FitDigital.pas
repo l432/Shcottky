@@ -49,6 +49,7 @@ end;
     procedure FormClear;override;
     Procedure WriteToIniFile;override;
     Procedure ReadFromIniFile;override;
+    function IsReadyToFitDetermination:boolean;override;
  end;
 
 
@@ -94,7 +95,7 @@ end;
 implementation
 
 uses
-  OApproxShow, Math;
+  OApproxShow, Math, Graphics, FitVariableShow;
 
 { TIIR_ChebyshevGroupBox }
 
@@ -254,6 +255,11 @@ begin
 //                fIIR_ChebyshevGB.GB.Left+fIIR_ChebyshevGB.GB.Width);
 end;
 
+function TDecIIR_ChebyshevParameter.IsReadyToFitDetermination: boolean;
+begin
+ Result:=fFFParameter.IsReadyToFitDetermination;
+end;
+
 procedure TDecIIR_ChebyshevParameter.ReadFromIniFile;
 begin
   fFFParameter.ReadFromIniFile;
@@ -335,21 +341,24 @@ end;
 
 procedure TFFMovingAverageFilter.DigitalFiltering;
 begin
- VDigMan.MovingAverageFilter(fIntParameters.Parametr[0].Value,
+ VDigMan.MovingAverageFilter(fIntParameters[0],
                              fToDeleteTrancient.Value);
 end;
 
 procedure TFFMovingAverageFilter.DipazonCreate;
 begin
   inherited;
-  fIntParameters:=TVarIntArray.Create(Self,'Np',2);
+  fIntParameters:=TVarIntArray.Create(Self,'Np');
+  fIntParameters[0]:=2;
   fIntParameters.ParametrByName['Np'].Limits.SetLimits(2);
   fIntParameters.ParametrByName['Np'].Description:='Points for averaging';
 end;
 
 function TFFMovingAverageFilter.ParameterCreate: TFFParameter;
 begin
- Result:=TDeVarIntArrayParameter.Create(fIntParameters,
+// Result:=TDeVarIntArrayParameter.Create(fIntParameters,
+//                         inherited ParameterCreate);
+ Result:=TDecVarNumberArrayParameter.Create(fIntParameters,
                          inherited ParameterCreate);
 end;
 
@@ -391,5 +400,7 @@ begin
                              else
      Inherited  RealToFile(suf,NumberDigit);
 end;
+
+
 
 end.

@@ -454,10 +454,14 @@ end;
 
 procedure TDiapazon.WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
 begin
- ConfigFile.WriteFloat(Section,Ident+'XMin',fXmin);
- ConfigFile.WriteFloat(Section,Ident+'YMin',fYmin);
- ConfigFile.WriteFloat(Section,Ident+'XMax',fXmax);
- ConfigFile.WriteFloat(Section,Ident+'Ymax',fYmax);
+// ConfigFile.WriteFloat(Section,Ident+'XMin',fXmin);
+// ConfigFile.WriteFloat(Section,Ident+'YMin',fYmin);
+// ConfigFile.WriteFloat(Section,Ident+'XMax',fXmax);
+// ConfigFile.WriteFloat(Section,Ident+'Ymax',fYmax);
+ WriteIniDef(ConfigFile,Section, Ident+'XMin',fXmin);
+ WriteIniDef(ConfigFile,Section, Ident+'YMin',fYMin);
+ WriteIniDef(ConfigFile,Section, Ident+'XMax',fXMax);
+ WriteIniDef(ConfigFile,Section, Ident+'Ymax',fYmax);
  ConfigFile.WriteString(Section,Ident+'Br',fBr);
 end;
 
