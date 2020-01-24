@@ -79,7 +79,7 @@ type
       медіанного трьохточкового фільтра;
       якщо у вихідному масиві кількість точок менша трьох,
       то у результуючому буде нульова кількість}
-     Procedure Splain3(Target:TVector;beg:double; step:double);
+     Procedure Splain3(Target:TVector;beg:double; step:double);overload;
       {в Target результат апроксимації даних
       з використанням кубічних сплайнів,
       починаючи з точки з координатою
@@ -87,6 +87,9 @@ type
       якщо початок вибрано неправильно
       (не потрапляє в діапазон зміни абсциси вектора),
       то в результуючому векторі довжина нульова}
+     Procedure Splain3(Target:TVector;Nstep: Integer=100);overload;
+      {використовується не крок, а загальна кількість точок Nstep
+       на інтервалі зміни абсциси Vector}
      Function YvalueSplain3(Xvalue:double):double;
     {функція розрахунку значення функції в точці Xvalue використовуючи
      кубічні сплайни, побудовані на основі набору даних в масиві V
@@ -265,7 +268,7 @@ Function Kub(x:double;
              SplainCoef:TSplainCoef):double;overload;
 
 Procedure SplainCoefCalculate(V:TVector;var SplainCoef:TSplainCoefArray);
-{розраховуються кокфіцієнтів сплайцнів для апроксимації даних в Vector}
+{розраховуються коєфіцієнти сплайнів для апроксимації даних в Vector}
 
 Function DerivateLagr(x:double;Point1,Point2,Point3:TPointDouble):double;overload;
   {допоміжна функція для знаходження похідної -
@@ -1101,6 +1104,13 @@ begin
   Target.y[0]:=(W1*Self.y[0]+W2*Self.y[1])/(W1+W2);
   Target.y[Self.HighNumber]:=(W1*Self.y[Self.HighNumber]
                      +W0*Self.y[Self.HighNumber-1])/(W1+W0);
+end;
+
+procedure TVectorTransform.Splain3(Target: TVector; Nstep: Integer);
+begin
+   if Nstep<1 then InitTarget(Target)
+    else if Nstep=1 then Splain3(Target,Self.MinX,Self.MaxX-Self.MinX+1)
+       else Splain3(Target,Self.MinX,(Self.MaxX-Self.MinX)/(Nstep-1))
 end;
 
 procedure TVectorTransform.Splain3(Target:TVector;beg:double; step:double);

@@ -74,7 +74,7 @@ begin
    Exit;
   end;
 
- inherited;
+ fResultsIsReady:=True;
 end;
 
 end.

@@ -58,6 +58,9 @@ type
     function LP_Simple(i:word):double;
     function HP_Simple(i:word):double;
     function Blackman(i:word):double;
+    function Hamming (i:word):double;
+    function Hann (i:word):double;
+    function Bartlett (i:word):double;
     function ChebyshevWindow(i:word):double;
     procedure LP_IIR_Chebyshev(A,B:array of double;
                                NormKoef:double;
@@ -104,9 +107,9 @@ type
   {див.вище, частота зрізу 0.075 частоти Найквіста,
    полюсів 6,
    перехідна - близько 190 відліків}
-//  Procedure LP_FIR_SimpleWindow(NotOdd_N:byte;
-//                                FrequencyFactor:double;
-//                                ToDeleteTrancient:boolean=false);
+  Procedure LP_FIR_SimpleWindow(NotOdd_N:byte;
+                                FrequencyFactor:double;
+                                ToDeleteTrancient:boolean=false);
    {віконний фільтр нижніх частот зі скінченною імпульсною
     характеристикою (FIR - finite impulse responce);
     використовується прямокутне вікно;
@@ -117,7 +120,19 @@ type
                                 FrequencyFactor:double;
                                 ToDeleteTrancient:boolean=false);
  {вікно Блекмена}
-  Procedure LP_FIR_Chebyshev(NotOdd_N:byte;
+  Procedure LP_FIR_Hamming(NotOdd_N:byte;
+                                FrequencyFactor:double;
+                                ToDeleteTrancient:boolean=false);
+ {вікно Хемінга}
+  Procedure LP_FIR_Hann(NotOdd_N:byte;
+                                FrequencyFactor:double;
+                                ToDeleteTrancient:boolean=false);
+ {вікно Ханна (Хенінга)}
+  Procedure LP_FIR_Bartlett(NotOdd_N:byte;
+                                FrequencyFactor:double;
+                                ToDeleteTrancient:boolean=false);
+ {вікно Бартлета (трикутне)}
+ Procedure LP_FIR_Chebyshev(NotOdd_N:byte;
                              FrequencyFactor:double;
                              ToDeleteTrancient:boolean=false;
                              Atten:double=60);
@@ -176,10 +191,17 @@ begin
  Self.DeleteNfirst(NtoDelete);
 end;
 
+function TVDigitalManipulation.Bartlett(i: word): double;
+begin
+ if i<=(fNotOdd_N-1)/2 then  Result:=2*i/(fNotOdd_N-1)
+                       else  Result:=2-2*i/(fNotOdd_N-1);
+end;
+
 function TVDigitalManipulation.Blackman(i: word): double;
 begin
  Result:=LP_Simple(i)*
-        (0.42-0.5*cos(2*Pi*i/(fNotOdd_N-1))+0.08*cos(4*Pi*i/(fNotOdd_N-1)));
+      (0.42-0.5*cos(2*Pi*i/(fNotOdd_N-1))
+        +0.08*cos(4*Pi*i/(fNotOdd_N-1)));
 end;
 
 function TVDigitalManipulation.ChebyshevWindow(i: word): double;
@@ -247,6 +269,18 @@ begin
  DigitalFiltr();
 end;
 
+function TVDigitalManipulation.Hamming(i: word): double;
+begin
+ Result:=LP_Simple(i)*
+      (0.53836-0.46164*cos(2*Pi*i/(fNotOdd_N-1)));
+end;
+
+function TVDigitalManipulation.Hann(i: word): double;
+begin
+ Result:=LP_Simple(i)*
+       0.5*(1-cos(2*Pi*i/(fNotOdd_N-1)));
+end;
+
 procedure TVDigitalManipulation.HP_FIR_SimpleWindow(NotOdd_N: byte;
   FrequencyFactor: double; ToDeleteTrancient: boolean);
 begin
@@ -256,7 +290,18 @@ end;
 
 function TVDigitalManipulation.HP_Simple(i: word): double;
 begin
- Result:=cos(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
+  if i=round((fNotOdd_N-1)/2.0) then Result:=0
+                                else
+     Result:=cos(2*Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))
+              /(Pi*(i-(fNotOdd_N-1)/2.0));
+
+end;
+
+procedure TVDigitalManipulation.LP_FIR_Bartlett(NotOdd_N: byte;
+  FrequencyFactor: double; ToDeleteTrancient: boolean);
+begin
+  FIR_WindowFiltr(Bartlett,NotOdd_N,
+      FrequencyFactor,ToDeleteTrancient);
 end;
 
 procedure TVDigitalManipulation.LP_FIR_Blackman(NotOdd_N: byte;
@@ -276,11 +321,26 @@ begin
   FIR_WindowFiltr(ChebyshevWindow,NotOdd_N,FrequencyFactor,ToDeleteTrancient);
 end;
 
-//procedure TVDigitalManipulation.LP_FIR_SimpleWindow(NotOdd_N: byte;
-//  FrequencyFactor: double; ToDeleteTrancient: boolean);
-//begin
-//
-//end;
+procedure TVDigitalManipulation.LP_FIR_Hamming(NotOdd_N: byte;
+  FrequencyFactor: double; ToDeleteTrancient: boolean);
+begin
+   FIR_WindowFiltr(Hamming,NotOdd_N,
+      FrequencyFactor,ToDeleteTrancient);
+end;
+
+procedure TVDigitalManipulation.LP_FIR_Hann(NotOdd_N: byte;
+  FrequencyFactor: double; ToDeleteTrancient: boolean);
+begin
+   FIR_WindowFiltr(Hann,NotOdd_N,
+      FrequencyFactor,ToDeleteTrancient);
+end;
+
+procedure TVDigitalManipulation.LP_FIR_SimpleWindow(NotOdd_N: byte;
+  FrequencyFactor: double; ToDeleteTrancient: boolean);
+begin
+  FIR_WindowFiltr(LP_Simple,NotOdd_N,
+      FrequencyFactor,ToDeleteTrancient);
+end;
 
 procedure TVDigitalManipulation.LP_IIR_Chebyshev(A, B: array of double;
                           NormKoef: double;
@@ -366,7 +426,10 @@ end;
 
 function TVDigitalManipulation.LP_Simple(i: word): double;
 begin
- Result:=sin(Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))/(Pi*(i-(fNotOdd_N-1)/2.0));
+  if i=round((fNotOdd_N-1)/2.0) then Result:=2*Pi*fFreqFact
+                                else
+   Result:=sin(2*Pi*fFreqFact*(i-(fNotOdd_N-1)/2.0))
+           /(Pi*(i-(fNotOdd_N-1)/2.0));
 end;
 
 procedure TVDigitalManipulation.LP_UniformIIRfilter(

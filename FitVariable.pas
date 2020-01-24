@@ -77,7 +77,7 @@ TVarDouble=class(TVarNumber)
   Value:Double;
   property ManualValue:double read fValue write fValue;
   property AutoDeterm:boolean read fAutoDeterm write fAutoDeterm;
-  property ManualDetermOnly:boolean read fManualDetermOnly;
+  property ManualDetermOnly:boolean read fManualDetermOnly write fManualDetermOnly;
   constructor Create(Nm:string;FF:TFitFunctionNew);
   procedure ReadFromIniFile;override;
   procedure WriteToIniFile;override;
@@ -630,7 +630,7 @@ constructor TVarDouble.Create(Nm: string; FF: TFitFunctionNew);
 begin
  inherited Create(Nm,FF);
  fAutoDeterm:=False;
- fManualDetermOnly:=False;
+ fManualDetermOnly:=True;
 end;
 
 procedure TVarDouble.ReadFromIniFile;

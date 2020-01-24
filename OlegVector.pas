@@ -185,7 +185,8 @@ type
       {читає дані з файлу з коротким ім'ям sfile
        з файлу comments в тій самій директорії
        зчитується значення температури в a.T}
-      procedure WriteToFile(NameFile:string; NumberDigit:Byte=4);
+      procedure WriteToFile(NameFile:string; NumberDigit:Byte=4;
+                           Header:string='');
       {записує у файл з іменем sfile дані;
       якщо .Count=0, то запис у файл не відбувається;
       NumberDigit - кількість значущих цифр}
@@ -266,15 +267,6 @@ type
          {як попередня, тільки використовується не крок, а загальна
          кількість точок Nstep на заданому інтервалі}
       Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
-//         Procedure Decimation(Np:word);
-//         {залишається лише 0-й, Νp-й, 2Np-й.... елементи,
-//          при Np=0 вектор масив не міняється}
-//         Procedure DigitalFiltr(a,b:TArrSingle;NtoDelete:word=0);
-//         {змінюються масив Y на Ynew:
-//         Ynew[k]=a[0]*Y[k]+a[1]*Y[k-1]+...b[0]*Ynew[k-1]+b[1]*Ynew[k-2]...
-//         NtoDelete - кількість точок, які видаляються
-//         з початку масиву; ця кількість відповідає
-//         тривалості перехідної характеристики фільтра}
       function MeanValue(Coord:TCoord_type):double;
       function MaxNumber(Coord:TCoord_type):integer;
       function MinNumber(Coord:TCoord_type):integer;
@@ -458,11 +450,13 @@ begin
 //  N_end:=ConfigFile.ReadInteger(Section,Ident+'N_end',n-1);
 end;
 
-procedure TVector.WriteToFile(NameFile: string; NumberDigit: Byte);
+procedure TVector.WriteToFile(NameFile: string; NumberDigit: Byte;
+                             Header:string);
  var   Str:TStringList;
        i:integer;
 begin
  Str:=TStringList.Create;
+ if Header<>'' then Str.Add(Header);
  for I := 0 to High(Points)
    do  Str.Add(PoinToString(Points[i],NumberDigit));
  Str.SaveToFile(NameFile);
@@ -899,7 +893,8 @@ begin
   fSegmentBegin:=0;
 end;
 
-Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double;Parameters:array of double);
+Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,
+           deltaX:double;Parameters:array of double);
  const Nmax=10000;
  var i:integer;
      argument:double;
@@ -923,7 +918,8 @@ begin
   end;
 end;
 
-Procedure TVector.Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer);
+Procedure TVector.Filling(Fun: TFun; Xmin, Xmax: Double;
+      Parameters: array of Double; Nstep: Integer);
 begin
   if Nstep<1 then Clear()
     else if Nstep=1 then Filling(Fun,Xmin,Xmax,Xmax-Xmin+1,Parameters)

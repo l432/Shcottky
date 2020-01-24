@@ -107,12 +107,11 @@ private
 // FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
 // fHasPicture:boolean;//наявність картинки
 // fDataToFit:TVectorTransform; //дані для апроксимації
+ fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
  ftempVector: TVectorTransform;//допоміжний векторж
  fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
- fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
- fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
  fConfigFile:TOIniFileNew;//для роботи з .ini-файлом
- fFileHeading:string;
+ fFileHeader:string;
  {назви колонок у файлі з результатами апроксимації,
  що утворюється впроцедурі FittingToGraphAndFile}
  fParameter:TFFParameter;
@@ -127,16 +126,17 @@ private
  function FittingBegin:boolean;
  Procedure RealToGraph (Series: TChartSeries);virtual;
 protected
+ fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
  fHasPicture:boolean;//наявність картинки
  fDataToFit:TVectorTransform; //дані для апроксимації
  FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
  procedure DipazonCreate;virtual;
  procedure DiapazonDestroy;virtual;
  function ParameterCreate:TFFParameter;virtual;
- procedure RealFitting;virtual;//abstract;
+ procedure RealFitting;virtual;abstract;
 // Procedure ReadFromIniFile;virtual;
  {зчитує дані з ini-файла, в цьому класі - fDiapazon}
- Procedure RealToFile (suf:string;NumberDigit: Byte=4);virtual;
+ Procedure RealToFile (suf:string;NumberDigit: Byte=8);virtual;
 public
  FittingData:TVector;
  property Name:string read FName;
@@ -160,6 +160,11 @@ public
  Procedure Fitting (InputFileName:string);overload;//virtual;abstract;
  Procedure FittingToGraphAndFile(InputData:TVector;
               Series: TChartSeries; suf:string='fit');virtual;
+ Function FinalFunc(X:double):double; virtual;
+ {обчислюються значення апроксимуючої функції в
+ точці з абсцисою Х;
+ при ResultsIsReady=False повертає ErResult}
+
  end;   // TFitFunctionNew=class
 
 //--------------------------------------------------------------------
@@ -173,15 +178,6 @@ TFFWindowShowBase=class(TFFWindowShow)
   procedure Show;override;
 end;
 
-//TFFReadWriteBase=class(TFFReadWrite)
-// protected
-//  fFF:TFitFunctionNew;
-// public
-//  property FF:TFitFunctionNew read fFF;
-//  constructor Create(FF:TFitFunctionNew);
-//  Procedure WriteToIniFile;override;
-//  Procedure ReadFromIniFile;override;
-//end;
 
 
 //TFitFunctionSimple=class (TFitFunction)
@@ -1624,7 +1620,7 @@ begin
  FPictureName:=FName+'Fig';
  fIsReadyToFit:=False;
  fResultsIsReady:=False;
- fFileHeading:='X Y Yfit';
+ fFileHeader:='X Y Yfit';
 
  DataContainerCreate;
  DipazonCreate;
@@ -1698,6 +1694,12 @@ begin
 // fIsReadyToFit:=True;
 end;
 
+function TFitFunctionNew.FinalFunc(X: double): double;
+begin
+ Result:=ErResult;
+ if fResultsIsReady then FittingData.Yvalue(X);
+end;
+
 procedure TFitFunctionNew.Fitting(InputFileName: string);
 begin
  DataPreraration(InputFileName);
@@ -1717,17 +1719,17 @@ end;
 //end;
 
 
-procedure TFitFunctionNew.RealFitting;
-begin
-  fResultsIsReady:=True;
-end;
+//procedure TFitFunctionNew.RealFitting;
+//begin
+//  fResultsIsReady:=True;
+//end;
 
 procedure TFitFunctionNew.RealToFile(suf: string; NumberDigit: Byte);
  var Str1:TStringList;
     i:integer;
 begin
   Str1:=TStringList.Create;
-  if fFileHeading<>'' then Str1.Add(fFileHeading);
+  if fFileHeader<>'' then Str1.Add(fFileHeader);
   for I := 0 to fDataToFit.HighNumber do
     Str1.Add(fDataToFit.PoinToString(i,NumberDigit)
              +' '
@@ -1852,5 +1854,7 @@ begin
  fForm.Release;
 
 end;
+
+
 
 end.

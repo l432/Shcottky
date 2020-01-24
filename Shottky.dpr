@@ -31,7 +31,8 @@ uses
   FitTransform in 'FitTransform.pas',
   FitVariable in 'FitVariable.pas',
   FitDigital in 'FitDigital.pas',
-  FitVariableShow in 'FitVariableShow.pas';
+  FitVariableShow in 'FitVariableShow.pas',
+  OApproxNew2 in 'OApproxNew2.pas';
 
 {$R *.res}
 

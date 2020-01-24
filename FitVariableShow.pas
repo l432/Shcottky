@@ -380,7 +380,7 @@ begin
  if fVarDouble.ManualDetermOnly then
     begin
       fCheckBox.Checked:=False;
-      fCheckBox.Enabled:=True;
+      fCheckBox.Enabled:=False;
     end;
 end;
 
@@ -406,7 +406,7 @@ begin
  fCheckBox.Height:=Form.Canvas.TextHeight(fCheckBox.Caption);
 
  fSText.Top:=fLabel.Top;
- fStext.Left:=fLabel.Left+fLabel.Width+MarginFrame;
+ fStext.Left:=fLabel.Left+fLabel.Width+2*MarginFrame;
 
  fCheckBox.Top:=fLabel.Top+fLabel.Height+MarginFrame;
  fCheckBox.Left:=Round((fStext.Left+fStext.Width-fCheckBox.Width)/2);
@@ -479,10 +479,12 @@ begin
 end;
 
 procedure TVarNumberArrayFrame.FrameLocate(Form: TForm);
- var i: Integer;
+ var i, MaxLeft, MaxTop  : Integer;
 begin
   Frame.Top := Form.Height + MarginTop;
   Frame.Left := MarginLeft;
+
+  MaxLeft:=0;MaxTop:=0;
   if (fSubFrames[0]<>nil)
      and ((fSubFrames[0] is TIntFrame)
           or(fSubFrames[0] is TDoubleFrame))
@@ -491,17 +493,20 @@ begin
       for i := Form.ComponentCount - 1 downto 0 do
         if ((Form.Components[i].Name = BoolCheckBoxName)
             or(Form.Components[i].Name = IntFrameName)
-            or(Form.Components[i].Name = IntFrameName))
-           and (((Form.Components[i] as TWinControl).Left
-                 + (Form.Components[i] as TWinControl).Width) < (Form.Width / 2)) then
-        begin
-          Frame.Left := max(Frame.Left,
-                         ((Form.Components[i] as TWinControl).Left
-                           + (Form.Components[i] as TCheckBox).Width)
-                           + MarginBetween);
-          Frame.Top := min(Frame.Top,
-                          (Form.Components[i] as TWinControl).Top);
-        end;
+            or(Form.Components[i].Name = DoubleFrameName))
+           and ((Form.Components[i] as TWinControl).Top>MaxTop) then
+             begin
+               MaxTop:=(Form.Components[i] as TWinControl).Top;
+               MaxLeft:=(Form.Components[i] as TWinControl).Left
+                      +(Form.Components[i] as TWinControl).Width;
+             end;
+        if MaxLeft<(Form.Width / 2) then
+         begin
+           Frame.Left := max(Frame.Left,
+                            (MaxLeft + MarginBetween));
+           Frame.Top := MaxTop;
+         end;
+
      except
      end;
 end;
