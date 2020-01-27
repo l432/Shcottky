@@ -35,15 +35,17 @@ procedure FitFuncNames_digital_Filling;
 implementation
 
 uses
-  FitTransform, FitDigital;
+  FitTransform, FitDigital, OApproxNew2;
 
 procedure FitFuncNames_trans_Filling;
   var i:TTransformFunction;
 begin
- SetLength(FitFuncNames[ffc_trans],ord(High(TTransformFunction))+2);
+ SetLength(FitFuncNames[ffc_trans],ord(High(TTransformFunction))+4);
   for I := Low(TTransformFunction) to High(TTransformFunction) do
    FitFuncNames[ffc_trans,ord(I)]:=TransformFunctionNames[i];
- FitFuncNames[ffc_trans,High(FitFuncNames[ffc_trans])]:='Moving Average Filter';
+ FitFuncNames[ffc_trans,High(FitFuncNames[ffc_trans])-2]:='Moving Average Filter';
+ FitFuncNames[ffc_trans,High(FitFuncNames[ffc_trans])-1]:='Noise Smoothing';
+ FitFuncNames[ffc_trans,High(FitFuncNames[ffc_trans])]:='Cubic splines';
 end;
 
 procedure FitFuncNames_digital_Filling;
@@ -136,6 +138,19 @@ begin
      Result:=TFFLP_FIR_ChebyshevWindow.Create;
      Exit;
      end;
+
+ if str='Noise Smoothing' then
+     begin
+     Result:=TFFNoiseSmoothing.Create;
+     Exit;
+     end;
+
+ if str='Cubic splines' then
+     begin
+     Result:=TFFSplain.Create;
+     Exit;
+     end;
+
 
 end;
 

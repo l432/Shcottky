@@ -691,7 +691,8 @@ procedure TVectorTransform.InitArrSingle(var OutputData: TArrSingle;
   NumberOfData: word;InitialValue:double=ErResult);
   var i:word;
 begin
- if High(OutputData)<(NumberOfData-1) then SetLength(OutputData,NumberOfData);
+ if High(OutputData)<(NumberOfData-1)
+      then SetLength(OutputData,NumberOfData);
  for i := 0 to High(OutputData)
     do OutputData[i]:=InitialValue;
 end;
@@ -1108,7 +1109,7 @@ end;
 
 procedure TVectorTransform.Splain3(Target: TVector; Nstep: Integer);
 begin
-   if Nstep<1 then InitTarget(Target)
+   if Nstep<1 then CopyTo(Target)
     else if Nstep=1 then Splain3(Target,Self.MinX,Self.MaxX-Self.MinX+1)
        else Splain3(Target,Self.MinX,(Self.MaxX-Self.MinX)/(Nstep-1))
 end;

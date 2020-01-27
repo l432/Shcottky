@@ -1704,12 +1704,17 @@ procedure TFitFunctionNew.Fitting(InputFileName: string);
 begin
  DataPreraration(InputFileName);
  if FittingBegin then RealFitting;
+ if not(FittingData.IsEmpty) then fResultsIsReady:=True; 
 end;
 
 procedure TFitFunctionNew.Fitting(InputData: TVector);
 begin
  DataPreraration(InputData);
  if FittingBegin then RealFitting;
+ if not(FittingData.IsEmpty)
+      then fResultsIsReady:=True
+      else
+   MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 end;
 
 

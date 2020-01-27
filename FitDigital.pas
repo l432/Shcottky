@@ -482,7 +482,7 @@ begin
  VDigMan.CopyFrom(fDataToFit);
  DigitalFiltering;
  VDigMan.CopyTo(FittingData);
- if not(FittingData.IsEmpty) then fResultsIsReady:=True;
+// if not(FittingData.IsEmpty) then fResultsIsReady:=True;
 end;
 
 procedure TFFDigitalFiltr.RealToFile(suf: string; NumberDigit: Byte);
@@ -707,5 +707,6 @@ begin
 //(fFreqFactor.ParametrByName['A'] as TVarDouble).ManualDetermOnly :=True;
 
 end;
+
 
 end.

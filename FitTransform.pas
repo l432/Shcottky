@@ -54,7 +54,6 @@ begin
           Break;
 
         end;
-
  fHasPicture:=True;
 end;
 
@@ -66,15 +65,15 @@ begin
        then fDataToFit.Derivate(FittingData);
  if Name=TransformFunctionNames[tfMedian]
        then fDataToFit.Median(FittingData);
- if FittingData.IsEmpty then
-  begin
-   MessageDlg('The '+Name+' Is Imposible,'+#10+
-              'the points" quantity is very low',
-               mtError, [mbOK], 0);
-   Exit;
-  end;
-
- fResultsIsReady:=True;
+// if FittingData.IsEmpty then
+//  begin
+//   MessageDlg('The '+Name+' Is Imposible,'+#10+
+//              'the points" quantity is very low',
+//               mtError, [mbOK], 0);
+//   Exit;
+//  end;
+//
+// fResultsIsReady:=True;
 end;
 
 end.

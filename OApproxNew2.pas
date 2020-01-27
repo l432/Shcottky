@@ -3,9 +3,10 @@ unit OApproxNew2;
 interface
 
 uses
-  OApproxNew, FitVariable;
+  OApproxNew, FitVariable, OlegApprox;
 
 type
+
 TFitFunctionWithArbitraryArgument =class(TFitFunctionNew)
   {абстрактний клас для випадку, коли апроксимуюча
   функція може бути розрахована у будь-якій точці...ну практично}
@@ -13,17 +14,51 @@ TFitFunctionWithArbitraryArgument =class(TFitFunctionNew)
   fIntVars:TVarIntArray;
   {в цьому класі міститиме лише один параметр, Npoint
   кількість точок у фітуючій залежності;
-  якщо = 0, то стільки ж, як у вхідних даних}
+  якщо = 0, то стільки ж, як у вхідних даних;
+  деякі класи, як то TFFNoiseSmoothing можуть перевизначати
+  призначення параметру}
  protected
-  procedure RealFitting;override;
   Procedure RealToFile (suf:string;NumberDigit: Byte=8);override;
+  procedure FileFilling(suf:string;NumberDigit: Byte=8);virtual;
   procedure DipazonCreate;override;
   procedure DiapazonDestroy;override;
   function ParameterCreate:TFFParameter;override;
-  procedure  FittingCalculation;virtual;abstract;
-  procedure FittingDataFilling;virtual;abstract;
-  procedure FileFilling;virtual;abstract;
+ end;
+
+TFFNoiseSmoothing=class(TFitFunctionWithArbitraryArgument)
+ protected
+  procedure RealFitting;override;
+  procedure DipazonCreate;override;
+ public
+ constructor Create;
 end;
+
+TFFSplain=class(TFitFunctionWithArbitraryArgument)
+ protected
+  procedure RealFitting;override;
+ public
+ constructor Create;
+end;
+
+
+//TFitFunctionWithArbitraryArgument =class(TFitFunctionNew)
+//  {абстрактний клас для випадку, коли апроксимуюча
+//  функція може бути розрахована у будь-якій точці...ну практично}
+// private
+//  fIntVars:TVarIntArray;
+// protected
+//  procedure RealFitting;override;
+//  Procedure RealToFile (suf:string;NumberDigit: Byte=8);override;
+//  procedure DipazonCreate;override;
+//  procedure DiapazonDestroy;override;
+//  function ParameterCreate:TFFParameter;override;
+//  procedure  FittingCalculation;virtual;abstract;
+//  procedure FittingDataFilling;virtual;abstract;
+//  procedure FileFilling;virtual;abstract;
+//end;
+
+
+
 
 //
 //type
@@ -118,6 +153,44 @@ implementation
 uses
   FitVariableShow;
 
+
+{ TFFSplain }
+
+
+
+constructor TFFSplain.Create;
+begin
+  inherited Create('Splain','Approximation by cubic splines');
+end;
+
+procedure TFFSplain.RealFitting;
+begin
+ fDataToFit.Splain3(FittingData,fIntVars[0]);
+end;
+
+
+
+{ TNoiseSmoothingNew }
+
+constructor TFFNoiseSmoothing.Create;
+begin
+ inherited Create('NoiseSmoothing','Noise Smoothing on Np point');
+end;
+
+procedure TFFNoiseSmoothing.DipazonCreate;
+begin
+  inherited;
+  fIntVars.ParametrByName['Npoint'].Description:=
+        'Number of smoothing poins';
+end;
+
+
+procedure TFFNoiseSmoothing.RealFitting;
+begin
+ fDataToFit.ImNoiseSmoothedArray(FittingData,fIntVars[0]);
+end;
+
+
 { TFitFunctionWithArbitraryArgument }
 
 procedure TFitFunctionWithArbitraryArgument.DiapazonDestroy;
@@ -130,10 +203,14 @@ procedure TFitFunctionWithArbitraryArgument.DipazonCreate;
 begin
   inherited;
   fIntVars:=TVarIntArray.Create(Self,'Npoint');
-  fIntVars[0]:=0;
   fIntVars.ParametrByName['Npoint'].Limits.SetLimits(0);
   fIntVars.ParametrByName['Npoint'].Description:=
         'Fitting poin number (0 - as in init date)';
+end;
+
+procedure TFitFunctionWithArbitraryArgument.FileFilling(suf:string;NumberDigit: Byte=8);
+begin
+  FittingData.WriteToFile(FitName(FittingData,suf),NumberDigit);
 end;
 
 function TFitFunctionWithArbitraryArgument.ParameterCreate: TFFParameter;
@@ -142,17 +219,11 @@ begin
                          inherited ParameterCreate);
 end;
 
-procedure TFitFunctionWithArbitraryArgument.RealFitting;
-begin
- FittingCalculation;
- FittingDataFilling;
- if not(FittingData.IsEmpty) then fResultsIsReady:=True;
-end;
 
 procedure TFitFunctionWithArbitraryArgument.RealToFile(suf: string;
   NumberDigit: Byte);
 begin
-  if fIntVars[0]<>0 then FileFilling
+  if fIntVars[0]<>0 then FileFilling(suf,NumberDigit)
                     else Inherited  RealToFile(suf,NumberDigit);
 end;
 

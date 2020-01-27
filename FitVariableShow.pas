@@ -500,12 +500,12 @@ begin
                MaxLeft:=(Form.Components[i] as TWinControl).Left
                       +(Form.Components[i] as TWinControl).Width;
              end;
-        if MaxLeft<(Form.Width / 2) then
-         begin
-           Frame.Left := max(Frame.Left,
-                            (MaxLeft + MarginBetween));
-           Frame.Top := MaxTop;
-         end;
+      if (MaxLeft<(Form.Width / 2))and(MaxLeft>0) then
+       begin
+         Frame.Left := max(Frame.Left,
+                          (MaxLeft + MarginBetween));
+         Frame.Top := MaxTop;
+       end;
 
      except
      end;

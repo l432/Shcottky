@@ -11,6 +11,42 @@ const
 
 type
 
+TFFDParam=class(TNamedObject)
+{базовий клас для параметрів, які
+визначаються в результаті апроксимації}
+ private
+  fValue:Double;
+ public
+  property Value:Double read fValue write fValue;
+end;
+
+
+TDParamArray=class
+  private
+   fParams:array of TFFDParam;
+//   function GetParameterByName(str:string):TFFDParam;
+
+//   function GetParametr(index:integer):TVarNumber;
+//   function GetLimits(index:integer):TLimits;
+//   function GetValueIsPresent(index:integer):boolean;virtual;abstract;
+//   function GetHighIndex:integer;
+  public
+   OutputData:TArrSingle;
+//   property ParametrByName[str:string]:TFFDParam read GetParameterByName;
+
+//   property Parametr[index:integer]:TVarNumber read GetParametr;
+//   property Limits[index:integer]:TLimits read GetLimits;
+//   property HighIndex:integer read GetHighIndex;
+//   property ValueIsPresent[index:integer]:boolean read GetValueIsPresent;
+  constructor Create(const Names: array of string);
+//   destructor Destroy;override;
+//   procedure Add(FF:TFitFunctionNew; const Name:string);overload;virtual;abstract;
+//   procedure Add(FF:TFitFunctionNew;const Names:array of string);overload;virtual;abstract;
+//   procedure ReadFromIniFile;
+//   procedure WriteToIniFile;
+end;
+
+
 TFFVar=class(TNamedObject)
 {базовий класс для змінних}
  private
@@ -339,12 +375,12 @@ end;
 
 procedure TVarInteger.ReadFromIniFile;
 begin
- fValue:=fFF.ConfigFile.ReadInteger(fFF.Name,Name,ErResult);
+ fValue:=fFF.ConfigFile.ReadInteger(fFF.Name,Name,0);
 end;
 
 procedure TVarInteger.WriteToIniFile;
 begin
-  WriteIniDef(fFF.ConfigFile,fFF.Name, Name,fValue);
+  WriteIniDef(fFF.ConfigFile,fFF.Name, Name,fValue,0);
 //  fFF.ConfigFile.WriteInteger(fFF.Name,Name,fValue);
 end;
 
@@ -773,6 +809,18 @@ procedure TVarDoubArray.SetValue(index: integer; Value: Double);
 begin
  if InRange(index,0,High(fVars))
        then (fVars[index] as TVarDouble).ManualValue:=Value;
+end;
+
+{ TDParamArray }
+
+constructor TDParamArray.Create(const Names: array of string);
+ var i:integer;
+begin
+  inherited Create;
+  SetLength(fParams,High(Names)+1);
+  for I := 0 to High(Names)
+        do fParams[i]:=TFFDParam.Create(Names[i]);
+  SetLength(OutputData,High(Names)+1);
 end;
 
 end.
