@@ -331,7 +331,7 @@ Function MedianFiltr(a,b,c:double):double;
 
 Function Linear(a,b,x:double):double;overload;
 {повертає a+b*x}
-Function Linear(x:double;data:TArrSingle):double;overload;
+Function Linear(x:double;data:array of double):double;overload;
 {повертає data[0]+data[1]*x}
 
 Function NPolinom(x:double;N:word;data:array of double):double;overload;
@@ -576,6 +576,8 @@ Function Rs_T(T:double):double;
 Function Fb_T(T:double):double;
 Function n_T(T:double):double;
 
+Function Gromov(x:double;data:array of double):double;
+{повертає data[0]+data[1]*x+data[2]*ln(x)}
 
 Function GromovDistance(Xa,Ya,C0,C1,C2:double):double;
 {відстань від точки (Ха,Ya) до кривої С0+C1*x+C2*ln(x)}
@@ -2268,7 +2270,7 @@ begin
   Result:=a+b*x;
 end;
 
-Function Linear(x:double;data:TArrSingle):double;
+Function Linear(x:double;data:array of double):double;
 begin
   try
   Result:=data[0]+data[1]*x;
@@ -3338,6 +3340,12 @@ Result:=1+35/T;
 //Result:=1.5;
 end;
 
+
+Function Gromov(x:double;data:array of double):double;
+{повертає data[0]+data[1]*x+data[2]*ln(x)}
+begin
+  Result:= data[0]+data[1]*x+data[2]*ln(x);
+end;
 
 Function GromovDistance(Xa,Ya,C0,C1,C2:double):double;
 {відстань від точки (Ха,Ya) до кривої С0+C1*x+C2*ln(x)}

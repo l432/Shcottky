@@ -2477,19 +2477,19 @@ begin
      if not(FitFunctionNew.ResultsIsReady) then Exit;
      Series4.Active:=True;
      if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-     if not(FitFunctionNew is TFitTransform) then
+//     if not(FitFunctionNew is TFitTransform) then
 //     if ((SButFit.Caption<>'Smoothing')and
 //         (SButFit.Caption<>'Median filtr')and
 //         (SButFit.Caption<>'Derivative')and
 //         (SButFit.Caption<>'Noise Smoothing'))
 //         then
-          begin
+//          begin
            MemoAppr.Lines.Add('');
-           MemoAppr.Lines.Add(VaxFile.name);
+//           MemoAppr.Lines.Add(VaxFile.name);
            MemoAppr.Lines.Add(SButFitNew.Caption);
-          end;
+//          end;
 
-//     FitFunction.DataToStrings(EvolParam,MemoAppr.Lines);
+    FitFunctionNew.DataToStrings(MemoAppr.Lines);
     FitFunctionNew.Free;
   end  //if SButFit.Down then
    else Series4.Active:=False;

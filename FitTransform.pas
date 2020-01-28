@@ -24,9 +24,11 @@ type
 TFitTransform=class (TFitFunctionNew)
 {базовий для операцій простих перетворень вихідної функції}
 private
+ fTTF:TTransformFunction;
 //  FErrorMessage:string; //виводиться при помилці
 protected
  procedure RealFitting;override;
+ procedure NamesDefine;override;
 public
  Constructor Create(FunctionName:string);
 end;  //TFitTransform=class (TFitFunctionNew)
@@ -35,45 +37,48 @@ end;  //TFitTransform=class (TFitFunctionNew)
 
 implementation
 
-uses
-  Dialogs;
 
 { TFitTransform }
 
 constructor TFitTransform.Create(FunctionName: string);
  var i:TTransformFunction;
 begin
+
  for I := Low(TTransformFunction)
     to High(TTransformFunction) do
-      if FunctionName=TransformFunctionNames[i] then
+      if FunctionName=TransformFunctionNames[i] then 
         begin
-          inherited Create(TransformFunctionNames[i],
-                         TransformFunctionDescriptions[i]);
-          if i=tfMedian then
-                fPictureName:='MedianFig';
+          fTTF:=i;
           Break;
-
         end;
+
+ inherited Create;
+ if fTTF=tfMedian then
+                fPictureName:='MedianFig';
+
+
  fHasPicture:=True;
+end;
+
+procedure TFitTransform.NamesDefine;
+begin
+ SetNameCaption(TransformFunctionNames[fTTF],
+          TransformFunctionDescriptions[fTTF]);
 end;
 
 procedure TFitTransform.RealFitting;
 begin
- if Name=TransformFunctionNames[tfSmooth]
-       then fDataToFit.Smoothing(FittingData);
- if Name=TransformFunctionNames[tfDeriv]
-       then fDataToFit.Derivate(FittingData);
- if Name=TransformFunctionNames[tfMedian]
-       then fDataToFit.Median(FittingData);
-// if FittingData.IsEmpty then
-//  begin
-//   MessageDlg('The '+Name+' Is Imposible,'+#10+
-//              'the points" quantity is very low',
-//               mtError, [mbOK], 0);
-//   Exit;
-//  end;
-//
-// fResultsIsReady:=True;
+ case fTTF of
+  tfSmooth:fDataToFit.Smoothing(FittingData);
+  tfDeriv:fDataToFit.Derivate(FittingData);
+  tfMedian:fDataToFit.Median(FittingData);
+ end;
+// if Name=TransformFunctionNames[tfSmooth]
+//       then fDataToFit.Smoothing(FittingData);
+// if Name=TransformFunctionNames[tfDeriv]
+//       then fDataToFit.Derivate(FittingData);
+// if Name=TransformFunctionNames[tfMedian]
+//       then fDataToFit.Median(FittingData);
 end;
 
 end.

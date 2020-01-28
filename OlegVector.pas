@@ -82,10 +82,6 @@ type
       procedure SetT(const Value: Extended);
       procedure SetData(const Number: Integer; Index: Integer;
                         const Value: double);
-      procedure PointSet(Number:integer; x,y:double);overload;
-       {заповнює координати точки з номером Number,
-       але наявність цієї точки в масиві не перевіряється}
-      procedure PointSet(Number:integer; Point:TPointDouble);overload;
       function PointGet(Number:integer):TPointDouble;
       procedure PointSwap(Number1,Number2:integer);
       procedure PointCoordSwap(var Point:TPointDouble);
@@ -117,6 +113,12 @@ type
       procedure DeletePointsByCondition(FunVPB:TFunVectorPointBool);
       function  FunVPBDeleteErResult(i:integer):boolean;
       function  FunVPBDeleteZeroY(i:integer):boolean;
+     protected
+      procedure PointSet(Number:integer; x,y:double);overload;
+       {заповнює координати точки з номером Number,
+       але наявність цієї точки в масиві не перевіряється}
+      procedure PointSet(Number:integer; Point:TPointDouble);overload;
+
      public
 
 
@@ -264,6 +266,9 @@ type
          {Х заповнюється значеннями від Xmin до Xmax з кроком deltaX
          Y[i]=Fun(X[i],Parameters)}
       Procedure Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer=100);overload;
+         {як попередня, тільки використовується не крок, а загальна
+         кількість точок Nstep на заданому інтервалі}
+      Procedure Filling(Fun: TFunSingle; Xmin, Xmax: Double; Nstep: Integer=100);overload;
          {як попередня, тільки використовується не крок, а загальна
          кількість точок Nstep на заданому інтервалі}
       Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
@@ -930,6 +935,34 @@ Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,deltaX:double);
 begin
  Filling(Fun,Xmin,Xmax,deltaX,[]);
 end;
+
+
+procedure TVector.Filling(Fun: TFunSingle; Xmin, Xmax: Double; Nstep: Integer);
+ const Nmax=10000;
+ var i:integer;
+     deltaX:double;
+begin
+ if (Nstep<1)or(Nstep>Nmax) then
+    begin
+    Clear();
+    Exit;
+    end;
+ if Nstep=1 then
+    begin
+    SetLenVector(2);
+    Add(Xmin,Fun(Xmin));
+    Add(Xmax,Fun(Xmax));
+    Exit;
+    end;
+ deltaX:=(Xmax-Xmin)/(Nstep-1);
+ SetLenVector(Nstep);
+ for I := 0 to High(Points) do
+  begin
+    X[i]:=Xmin+i*deltaX;
+    Y[i]:=Fun(X[i]);
+  end;
+end;
+
 function TVector.FunVPBDeleteErResult(i: integer): boolean;
 begin
  Result:=(Points[i][cX]=ErResult)or(Points[i][cY]=ErResult);

@@ -233,6 +233,12 @@ type
        {Target.X[i]=Self.X[i]
        Target.Y[i]=Self.X[i]*Self.Y[i]
        для всіх Self.X[i]>=0}
+     Procedure ToFill(Target:TVector;Func:TFun;Parameters:array of double);overload;
+      {Target.X[i]=Self.X[i];
+       Target.Y[i]=Func(Self.X[i],Parameters)}
+     Procedure ToFill(Target:TVector;Func:TFunSingle);overload;
+      {Target.X[i]=Self.X[i];
+       Target.Y[i]=Func(Self.X[i])}
      Procedure PointSupplement (Target:TVector;
                                 const PointCount:word;
                                 FromVectorBegin:boolean=True);
@@ -533,8 +539,9 @@ begin
   InitArrSingle(OutputData,3);
 
   for I:=0 to Self.HighNumber do
-    if Self.X[i]<0 then Exit;
+    if Self.X[i]<=0 then Exit;
 
+  try
   new(R);
   R^.SetLengthSys(3);
   R^.Clear;
@@ -556,12 +563,21 @@ begin
   R^.A[2,1]:=R^.A[1,2];
 
   GausGol(R);
-  if R^.N=ErResult then Exit;
+
+  if R^.N=ErResult then
+    begin
+    dispose(R);
+    Exit;
+    end;
 
   OutputData[0]:=R^.x[0];
   OutputData[1]:=R^.x[1];
   OutputData[2]:=R^.x[2];
-  dispose(R);
+
+  finally
+   dispose(R);
+  end;
+  
   Result:=True;
 end;
 
@@ -1112,6 +1128,23 @@ begin
    if Nstep<1 then CopyTo(Target)
     else if Nstep=1 then Splain3(Target,Self.MinX,Self.MaxX-Self.MinX+1)
        else Splain3(Target,Self.MinX,(Self.MaxX-Self.MinX)/(Nstep-1))
+end;
+
+procedure TVectorTransform.ToFill(Target: TVector; Func: TFunSingle);
+ var i:integer;
+begin
+ InitTarget(Target);
+  for I := 0 to Self.HighNumber
+    do Target.Add(Self.X[i],Func(Self.X[i]));
+end;
+
+procedure TVectorTransform.ToFill(Target: TVector; Func: TFun;
+                 Parameters: array of double);
+ var i:integer;
+begin
+ InitTarget(Target);
+  for I := 0 to Self.HighNumber
+    do Target.Add(Self.X[i],Func(Self.X[i],Parameters));
 end;
 
 procedure TVectorTransform.Splain3(Target:TVector;beg:double; step:double);

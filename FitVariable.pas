@@ -23,8 +23,15 @@ end;
 
 TDParamArray=class
   private
+   fFF:TFitFunctionNew;
    fParams:array of TFFDParam;
-//   function GetParameterByName(str:string):TFFDParam;
+   fMainParamHighIndex:integer;
+    procedure MainParamCreate(const MainParamNames: array of string);virtual;
+    procedure AddParamCreate(const AddParamNames: array of string);
+    procedure LastParamCreate;
+   {індекс останного параметра, який безпосередньо визначається
+   з апроксимації (MainParam)}
+   function GetParameterByName(str:string):TFFDParam;
 
 //   function GetParametr(index:integer):TVarNumber;
 //   function GetLimits(index:integer):TLimits;
@@ -32,14 +39,20 @@ TDParamArray=class
 //   function GetHighIndex:integer;
   public
    OutputData:TArrSingle;
-//   property ParametrByName[str:string]:TFFDParam read GetParameterByName;
+   property ParametrByName[str:string]:TFFDParam read GetParameterByName;
 
 //   property Parametr[index:integer]:TVarNumber read GetParametr;
 //   property Limits[index:integer]:TLimits read GetLimits;
 //   property HighIndex:integer read GetHighIndex;
 //   property ValueIsPresent[index:integer]:boolean read GetValueIsPresent;
-  constructor Create(const Names: array of string);
-//   destructor Destroy;override;
+   constructor Create(FF:TFitFunctionNew;
+                      const MainParamNames: array of string);overload;
+   constructor Create(FF:TFitFunctionNew;
+                      const MainParamNames: array of string;
+                     const AddParamNames: array of string);overload;
+   destructor Destroy;override;
+   procedure OutputDataCoordinate;
+   Procedure DataToStrings(OutStrings:TStrings);
 //   procedure Add(FF:TFitFunctionNew; const Name:string);overload;virtual;abstract;
 //   procedure Add(FF:TFitFunctionNew;const Names:array of string);overload;virtual;abstract;
 //   procedure ReadFromIniFile;
@@ -240,7 +253,7 @@ end;
 implementation
 
 uses
-  Math, Graphics;
+  Math, Graphics, SysUtils;
 
 { TVarBool }
 
@@ -813,14 +826,82 @@ end;
 
 { TDParamArray }
 
-constructor TDParamArray.Create(const Names: array of string);
- var i:integer;
+constructor TDParamArray.Create(FF:TFitFunctionNew;
+                               const MainParamNames: array of string);
 begin
   inherited Create;
-  SetLength(fParams,High(Names)+1);
-  for I := 0 to High(Names)
-        do fParams[i]:=TFFDParam.Create(Names[i]);
-  SetLength(OutputData,High(Names)+1);
+  fFF:=FF;
+  MainParamCreate(MainParamNames);
+  LastParamCreate;
+end;
+
+procedure TDParamArray.AddParamCreate(const AddParamNames: array of string);
+ var i: Integer;
+begin
+  SetLength(fParams, fMainParamHighIndex + High(AddParamNames)+2);
+  for I := 0 to High(AddParamNames)+1 do
+    fParams[i+fMainParamHighIndex] := TFFDParam.Create(AddParamNames[i]);
+end;
+
+constructor TDParamArray.Create(FF:TFitFunctionNew;
+                               const MainParamNames: array of string;
+                              const AddParamNames: array of string);
+begin
+  inherited Create;
+  fFF:=FF;
+  MainParamCreate(MainParamNames);
+  AddParamCreate(AddParamNames);
+  LastParamCreate;
+end;
+
+procedure TDParamArray.DataToStrings(OutStrings: TStrings);
+ var i:integer;
+begin
+ for I := 0 to High(fParams) do
+  OutStrings.Add(fParams[i].Name+'='+FloatToStrF(OutputData[i],ffExponent,fFF.DigitNumber,0));
+end;
+
+destructor TDParamArray.Destroy;
+ var I:integer;
+begin
+  for I := 0 to High(fParams) do fParams[i].Free;
+  inherited;
+end;
+
+function TDParamArray.GetParameterByName(str: string): TFFDParam;
+ var I:integer;
+begin
+  for I := 0 to High(fParams) do
+    if fParams[i].Name=str then
+      begin
+        Result:=fParams[i];
+        Exit;
+      end;
+  Result:=nil;
+end;
+
+procedure TDParamArray.LastParamCreate;
+begin
+ SetLength(fParams,High(fParams)+2);
+ fParams[High(fParams)]:=TFFDParam.Create('dev');
+ SetLength(OutputData,High(fParams)+1);
+end;
+
+procedure TDParamArray.MainParamCreate(const MainParamNames: array of string);
+var
+  i: Integer;
+begin
+  fMainParamHighIndex := High(MainParamNames);
+  SetLength(fParams, fMainParamHighIndex + 1);
+  for I := 0 to fMainParamHighIndex do
+    fParams[i] := TFFDParam.Create(MainParamNames[i]);
+end;
+
+procedure TDParamArray.OutputDataCoordinate;
+ var I:integer;
+begin
+  for I := 0 to High(fParams)
+     do OutputData[i]:=fParams[i].Value;
 end;
 
 end.

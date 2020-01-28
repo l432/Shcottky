@@ -161,7 +161,7 @@ type
     fIsNoOdd:boolean;
     FDefaulValue:integer;
     function GetData:integer;
-//    procedure SetData(value:integer);
+    procedure SetData(value:integer);
     procedure SetDefaulValue(const Value: integer);
     function ReadStringValueFromIniFile(ConfigFile:TIniFile;NameIni:string):string;override;
     procedure WriteNumberToIniFile(ConfigFile:TIniFile;NameIni:string);override;
@@ -185,7 +185,7 @@ type
                        ParametrCaption:string;
                        InitValue:integer
     );overload;
-    property Data:integer read GetData;// write SetData;
+    property Data:integer read GetData write SetData;
 //    procedure Free;
   end;  //   TIntegerParameterShow=class (TParameterShow)
 
@@ -348,15 +348,16 @@ begin
    Result:=IntToStr(ConfigFile.ReadInteger(fName,NameIni,DefaulValue));
 end;
 
-//procedure TIntegerParameterShow.SetData(value: integer);
-//begin
-//  try
-//    if fIsPositive then  STData.Caption:=IntToStr(abs(value))
-//                   else  STData.Caption:=IntToStr(value);
-//  finally
-//
-//  end;
-//end;
+procedure TIntegerParameterShow.SetData(value: integer);
+begin
+  if Limits.NumberIsCorrect(value) then
+  try
+    if fIsPositive then  STData.Caption:=IntToStr(abs(value))
+                   else  STData.Caption:=IntToStr(value);
+  finally
+
+  end;
+end;
 
 procedure TIntegerParameterShow.SetDefaulValue(const Value: integer);
 begin

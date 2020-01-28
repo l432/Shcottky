@@ -114,7 +114,7 @@ procedure TFormSFNew.SizeInit;
 begin
  ImgFSF.Height:=ImgHeightNew;
  ImgFSF.Width:=ImgWidthNew;
- LFormSF.Width:=ImgFSF.Width-20;
+ LFormSF.Width:=ImgWidthNew-20;
 end;
 
 procedure TFormSFNew.TreeFilling;
@@ -140,8 +140,10 @@ var F:TFitFunctionNew;
 begin
  SelectedString:=TVFormSF.Selected.Text;
  F:=FitFunctionFactory(SelectedString);
+
  if  Assigned(F) then
   begin
+//   showmessage(F.ClassName);
   SizeInit;
   if F.HasPicture then
    begin
@@ -149,7 +151,7 @@ begin
     ImgFSF.Visible:=True;
    end            else //if F.HasPicture then
     ImgFSF.Visible:=False;
-  LFormSF.Width:=ImgFSF.Width-20;
+  LFormSF.Width:=ImgWidthNew-20;
   LFormSF.Caption:=F.Caption;
   F.Free;
   end             else  // if  Assigned(F) then

@@ -66,11 +66,12 @@ TFFDigitalFiltr=class(TFitFunctionNew)
   VDigMan:TVDigitalManipulation;
   procedure DigitalFiltering;virtual;abstract;
  protected
-  procedure DipazonCreate;override;
-  procedure DiapazonDestroy;override;
+  procedure AccessorialDataCreate;override;
+  procedure AccessorialDataDestroy;override;
   procedure RealFitting;override;
   function ParameterCreate:TFFParameter;override;
-  Procedure RealToFile (suf:string;NumberDigit: Byte=4);override;
+  Procedure RealToFile;override;
+  procedure Tuning;override;
  public
 end;
 
@@ -79,11 +80,12 @@ TFFLP_IIR_Chebyshev=class(TFFDigitalFiltr)
   fType:TLP_IIR_ChebyshevType;
   procedure DigitalFiltering;override;
  protected
-  procedure DipazonCreate;override;
-  procedure DiapazonDestroy;override;
+  procedure AccessorialDataCreate;override;
+  procedure AccessorialDataDestroy;override;
   function ParameterCreate:TFFParameter;override;
+  procedure NamesDefine;override;
  public
- constructor Create;
+// constructor Create;
 end;
 
 TFFMovingAverageFilter=class(TFFDigitalFiltr)
@@ -91,19 +93,20 @@ TFFMovingAverageFilter=class(TFFDigitalFiltr)
   fIntParameters:TVarIntArray;
   procedure DigitalFiltering;override;
  protected
-  procedure DipazonCreate;override;
-  procedure DiapazonDestroy;override;
+  procedure AccessorialDataCreate;override;
+  procedure AccessorialDataDestroy;override;
   function ParameterCreate:TFFParameter;override;
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFLP_UniformBase=class(TFFDigitalFiltr)
  private
   fFreqFactor:TVarDoubArray;
  protected
-  procedure DipazonCreate;override;
-  procedure DiapazonDestroy;override;
+  procedure AccessorialDataCreate;override;
+  procedure AccessorialDataDestroy;override;
   function ParameterCreate:TFFParameter;override;
  public
 end;
@@ -112,8 +115,9 @@ TFFLP_UniformIIRFilter=class(TFFLP_UniformBase)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 
@@ -121,16 +125,17 @@ TFFLP_UniformIIRFilter4k=class(TFFLP_UniformBase)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFFIR_Base=class(TFFLP_UniformBase)
  private
   fOrder:TVarIntArray;
  protected
-  procedure DipazonCreate;override;
-  procedure DiapazonDestroy;override;
+  procedure AccessorialDataCreate;override;
+  procedure AccessorialDataDestroy;override;
   function ParameterCreate:TFFParameter;override;
  public
 end;
@@ -139,64 +144,71 @@ TFFLP_FIR_Blackman=class(TFFFIR_Base)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFHP_FIR_SimpleWindow=class(TFFFIR_Base)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFLP_FIR_SimpleWindow=class(TFFFIR_Base)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFLP_FIR_HammingWindow=class(TFFFIR_Base)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFLP_FIR_HannWindow=class(TFFFIR_Base)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFLP_FIR_BartlettWindow=class(TFFFIR_Base)
  private
   procedure DigitalFiltering;override;
  protected
+  procedure NamesDefine;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 TFFLP_FIR_ChebyshevWindow=class(TFFFIR_Base)
  private
   procedure DigitalFiltering;override;
  protected
-  procedure DipazonCreate;override;
+  procedure NamesDefine;override;
+  procedure AccessorialDataCreate;override;
  public
-  constructor Create;
+//  constructor Create;
 end;
 
 
 implementation
 
 uses
-  OApproxShow, Math, Graphics, FitVariableShow;
+  OApproxShow, Math, Graphics, FitVariableShow, Dialogs;
 
 { TIIR_ChebyshevGroupBox }
 
@@ -375,20 +387,19 @@ end;
 
 { TFFLP_IIR_Chebyshev }
 
-constructor TFFLP_IIR_Chebyshev.Create;
-begin
- inherited Create('LP_IIR_Chebyshev',
-   FD_LP+'first order Chebyshev filter '+FD_IIR+
-   ', irregularity of amplitude-frequency '
-   +'characteristic is 0.5% in the transmission band; '+FD_CutOff);
+//constructor TFFLP_IIR_Chebyshev.Create;
+//begin
+// inherited Create;
+//
+//
+//end;
 
-end;
-
-procedure TFFLP_IIR_Chebyshev.DiapazonDestroy;
+procedure TFFLP_IIR_Chebyshev.AccessorialDataDestroy;
 begin
  fType.Free;
  inherited;
 end;
+
 
 procedure TFFLP_IIR_Chebyshev.DigitalFiltering;
 begin
@@ -403,7 +414,15 @@ begin
  end;
 end;
 
-procedure TFFLP_IIR_Chebyshev.DipazonCreate;
+procedure TFFLP_IIR_Chebyshev.NamesDefine;
+begin
+ SetNameCaption('LP_IIR_Chebyshev',
+   FD_LP+'first order Chebyshev filter '+FD_IIR+
+   ', irregularity of amplitude-frequency '
+   +'characteristic is 0.5% in the transmission band; '+FD_CutOff);
+end;
+
+procedure TFFLP_IIR_Chebyshev.AccessorialDataCreate;
 begin
   inherited;
   fType:=TLP_IIR_ChebyshevType.Create(Self);
@@ -413,21 +432,18 @@ function TFFLP_IIR_Chebyshev.ParameterCreate: TFFParameter;
 begin
  Result:=TDecIIR_ChebyshevParameter.Create(fType,
                inherited ParameterCreate);
-// Result:=TDecIIR_ChebyshevParameter.Create(fType,
-//           TDecBoolVarParameter.Create(fToDeleteTrancient,
-//               inherited ParameterCreate));
 end;
 
 
 { TMovingAverageFilter }
 
-constructor TFFMovingAverageFilter.Create;
-begin
- inherited Create('MovAverFilter',
-   'Moving Average Filter');
-end;
+//constructor TFFMovingAverageFilter.Create;
+//begin
+// inherited Create;
+//
+//end;
 
-procedure TFFMovingAverageFilter.DiapazonDestroy;
+procedure TFFMovingAverageFilter.AccessorialDataDestroy;
 begin
  fIntParameters.Free;
  inherited;
@@ -439,7 +455,13 @@ begin
                              fToDeleteTrancient.Value);
 end;
 
-procedure TFFMovingAverageFilter.DipazonCreate;
+procedure TFFMovingAverageFilter.NamesDefine;
+begin
+ SetNameCaption('MovAverFilter',
+   'Moving Average Filter');
+end;
+
+procedure TFFMovingAverageFilter.AccessorialDataCreate;
 begin
   inherited;
   fIntParameters:=TVarIntArray.Create(Self,'Np');
@@ -457,14 +479,14 @@ end;
 
 { TFFDigitalFiltr }
 
-procedure TFFDigitalFiltr.DiapazonDestroy;
+procedure TFFDigitalFiltr.AccessorialDataDestroy;
 begin
  fToDeleteTrancient.Free;
  VDigMan.Free;
  inherited;
 end;
 
-procedure TFFDigitalFiltr.DipazonCreate;
+procedure TFFDigitalFiltr.AccessorialDataCreate;
 begin
   inherited;
   fToDeleteTrancient:=TVarBool.Create(Self,'To Delete Trancient');
@@ -485,27 +507,33 @@ begin
 // if not(FittingData.IsEmpty) then fResultsIsReady:=True;
 end;
 
-procedure TFFDigitalFiltr.RealToFile(suf: string; NumberDigit: Byte);
+procedure TFFDigitalFiltr.RealToFile;
 begin
  if fToDeleteTrancient.Value then
-     FittingData.WriteToFile(FitName(fDataToFit,suf),NumberDigit,'X Yfit')
+     FittingData.WriteToFile(FitName(fDataToFit,FileSuffix),DigitNumber,'X Yfit')
                              else
-     Inherited  RealToFile(suf,NumberDigit);
+     Inherited  RealToFile;
 end;
 
 
+
+procedure TFFDigitalFiltr.Tuning;
+begin
+  inherited;
+  fHasPicture:=False;
+end;
 
 { TFFLP_UniformIIRFilter }
 
 
 
-procedure TFFLP_UniformBase.DiapazonDestroy;
+procedure TFFLP_UniformBase.AccessorialDataDestroy;
 begin
  fFreqFactor.Free;
  inherited;
 end;
 
-procedure TFFLP_UniformBase.DipazonCreate;
+procedure TFFLP_UniformBase.AccessorialDataCreate;
 begin
   inherited;
   fFreqFactor:=TVarDoubArray.Create(Self,'Fcut');
@@ -524,13 +552,14 @@ end;
 
 { TFFLP_UniformIIRFilter }
 
-constructor TFFLP_UniformIIRFilter.Create;
-begin
- inherited Create('LP_Uniform ',
-   FD_LP+'uniform recursive '
-   +'filter (exponential averaging) '+FD_IIR
-   +', 1 cascade; '+FD_CutOff);
-end;
+//constructor TFFLP_UniformIIRFilter.Create;
+//begin
+// inherited Create;
+// SetNameCaption('LP_Uniform ',
+//   FD_LP+'uniform recursive '
+//   +'filter (exponential averaging) '+FD_IIR
+//   +', 1 cascade; '+FD_CutOff);
+//end;
 
 procedure TFFLP_UniformIIRFilter.DigitalFiltering;
 begin
@@ -538,15 +567,24 @@ begin
                              fToDeleteTrancient.Value);
 end;
 
-{ TFFLP_UniformIIRFilter4k }
-
-constructor TFFLP_UniformIIRFilter4k.Create;
+procedure TFFLP_UniformIIRFilter.NamesDefine;
 begin
- inherited Create('LP_Uniform4k',
+ SetNameCaption('LP_Uniform ',
    FD_LP+'uniform recursive '
    +'filter (exponential averaging) '+FD_IIR
-   +', 4 cascade; '+FD_CutOff);
+   +', 1 cascade; '+FD_CutOff);
 end;
+
+{ TFFLP_UniformIIRFilter4k }
+
+//constructor TFFLP_UniformIIRFilter4k.Create;
+//begin
+// inherited Create;
+// SetNameCaption('LP_Uniform4k',
+//   FD_LP+'uniform recursive '
+//   +'filter (exponential averaging) '+FD_IIR
+//   +', 4 cascade; '+FD_CutOff);
+//end;
 
 procedure TFFLP_UniformIIRFilter4k.DigitalFiltering;
 begin
@@ -556,13 +594,13 @@ end;
 
 { TFFFIR_Base }
 
-procedure TFFFIR_Base.DiapazonDestroy;
+procedure TFFFIR_Base.AccessorialDataDestroy;
 begin
  fOrder.Free;
  inherited;
 end;
 
-procedure TFFFIR_Base.DipazonCreate;
+procedure TFFFIR_Base.AccessorialDataCreate;
 begin
   inherited;
   fFreqFactor.ParametrByName['Fcut'].Limits.SetLimits(0,1);
@@ -585,12 +623,13 @@ end;
 
 { TFFLP_FIR_Blackman }
 
-constructor TFFLP_FIR_Blackman.Create;
-begin
- inherited Create('FIR_Blackman',
-   FD_LP+'filter '+FD_FIR
-   +' and Blackman window; '+FD_CutOff);
-end;
+//constructor TFFLP_FIR_Blackman.Create;
+//begin
+// inherited Create;
+// SetNameCaption('FIR_Blackman',
+//   FD_LP+'filter '+FD_FIR
+//   +' and Blackman window; '+FD_CutOff);
+//end;
 
 procedure TFFLP_FIR_Blackman.DigitalFiltering;
 begin
@@ -601,12 +640,13 @@ end;
 
 { TFFHP_FIR_SimpleWindow }
 
-constructor TFFHP_FIR_SimpleWindow.Create;
-begin
- inherited Create('HP_FIR_Window',
-   FD_HP+'filter '+ FD_FIR
-   +' and rectangular window; '+FD_CutOff);
-end;
+//constructor TFFHP_FIR_SimpleWindow.Create;
+//begin
+// inherited Create;
+// SetNameCaption('HP_FIR_Window',
+//   FD_HP+'filter '+ FD_FIR
+//   +' and rectangular window; '+FD_CutOff);
+//end;
 
 procedure TFFHP_FIR_SimpleWindow.DigitalFiltering;
 begin
@@ -617,12 +657,14 @@ end;
 
 { TFFLP_FIR_SimpleWindow }
 
-constructor TFFLP_FIR_SimpleWindow.Create;
-begin
- inherited Create('LP_FIR_Window',
-   FD_LP+'filter '+ FD_FIR
-   +' and rectangular window; '+FD_CutOff);
-end;
+//constructor TFFLP_FIR_SimpleWindow.Create;
+//begin
+// inherited Create;
+// SetNameCaption('LP_FIR_Window',
+//   FD_LP+'filter '+ FD_FIR
+//   +' and rectangular window; '+FD_CutOff);
+//end;
+
 
 procedure TFFLP_FIR_SimpleWindow.DigitalFiltering;
 begin
@@ -633,12 +675,14 @@ end;
 
 { TFFLP_FIR_HammingWindow }
 
-constructor TFFLP_FIR_HammingWindow.Create;
-begin
- inherited Create('FIR_Hamming',
-   FD_LP+'filter '+ FD_FIR
-   +' and Hamming window; '+FD_CutOff);
-end;
+//constructor TFFLP_FIR_HammingWindow.Create;
+//begin
+// inherited Create;
+// SetNameCaption('FIR_Hamming',
+//   FD_LP+'filter '+ FD_FIR
+//   +' and Hamming window; '+FD_CutOff);
+//end;
+
 
 procedure TFFLP_FIR_HammingWindow.DigitalFiltering;
 begin
@@ -649,12 +693,13 @@ end;
 
 { TFFLP_FIR_HannWindow }
 
-constructor TFFLP_FIR_HannWindow.Create;
-begin
- inherited Create('FIR_Hann',
-   FD_LP+'filter '+ FD_FIR
-   +' and Hann window; '+FD_CutOff);
-end;
+//constructor TFFLP_FIR_HannWindow.Create;
+//begin
+// inherited Create;
+// SetNameCaption('FIR_Hann',
+//   FD_LP+'filter '+ FD_FIR
+//   +' and Hann window; '+FD_CutOff);
+//end;
 
 procedure TFFLP_FIR_HannWindow.DigitalFiltering;
 begin
@@ -665,12 +710,13 @@ end;
 
 { TFFLP_FIR_BartlettWindow }
 
-constructor TFFLP_FIR_BartlettWindow.Create;
-begin
- inherited Create('FIR_Bartlett',
-   FD_LP+'filter '+ FD_FIR
-   +' and Bartlett (triangular) window; '+FD_CutOff);
-end;
+//constructor TFFLP_FIR_BartlettWindow.Create;
+//begin
+// inherited Create;
+// SetNameCaption('FIR_Bartlett',
+//   FD_LP+'filter '+ FD_FIR
+//   +' and Bartlett (triangular) window; '+FD_CutOff);
+//end;
 
 procedure TFFLP_FIR_BartlettWindow.DigitalFiltering;
 begin
@@ -681,13 +727,14 @@ end;
 
 { TFFLP_FIR_ChebyshevWindow }
 
-constructor TFFLP_FIR_ChebyshevWindow.Create;
-begin
- inherited Create('FIR_Chebyshev',
-   FD_LP+'filter '+ FD_FIR
-   +' and Chebyshev window, '
-   +'level of minor lobe can be tuned; '+FD_CutOff);
-end;
+//constructor TFFLP_FIR_ChebyshevWindow.Create;
+//begin
+// inherited Create;
+// SetNameCaption('FIR_Chebyshev',
+//   FD_LP+'filter '+ FD_FIR
+//   +' and Chebyshev window, '
+//   +'level of minor lobe can be tuned; '+FD_CutOff);
+//end;
 
 procedure TFFLP_FIR_ChebyshevWindow.DigitalFiltering;
 begin
@@ -697,7 +744,15 @@ begin
                          fFreqFactor[1]);
 end;
 
-procedure TFFLP_FIR_ChebyshevWindow.DipazonCreate;
+procedure TFFLP_FIR_ChebyshevWindow.NamesDefine;
+begin
+ SetNameCaption('FIR_Chebyshev',
+   FD_LP+'filter '+ FD_FIR
+   +' and Chebyshev window, '
+   +'level of minor lobe can be tuned; '+FD_CutOff);
+end;
+
+procedure TFFLP_FIR_ChebyshevWindow.AccessorialDataCreate;
 begin
  inherited;
  fFreqFactor.Add(Self,'A');
@@ -708,5 +763,55 @@ begin
 
 end;
 
+
+procedure TFFLP_UniformIIRFilter4k.NamesDefine;
+begin
+ SetNameCaption('LP_Uniform4k',
+   FD_LP+'uniform recursive '
+   +'filter (exponential averaging) '+FD_IIR
+   +', 4 cascade; '+FD_CutOff);
+end;
+
+procedure TFFLP_FIR_Blackman.NamesDefine;
+begin
+ SetNameCaption('FIR_Blackman',
+   FD_LP+'filter '+FD_FIR
+   +' and Blackman window; '+FD_CutOff);
+end;
+
+procedure TFFHP_FIR_SimpleWindow.NamesDefine;
+begin
+ SetNameCaption('HP_FIR_Window',
+   FD_HP+'filter '+ FD_FIR
+   +' and rectangular window; '+FD_CutOff);
+end;
+
+procedure TFFLP_FIR_SimpleWindow.NamesDefine;
+begin
+ SetNameCaption('LP_FIR_Window',
+   FD_LP+'filter '+ FD_FIR
+   +' and rectangular window; '+FD_CutOff);
+end;
+
+procedure TFFLP_FIR_HammingWindow.NamesDefine;
+begin
+ SetNameCaption('FIR_Hamming',
+   FD_LP+'filter '+ FD_FIR
+   +' and Hamming window; '+FD_CutOff);
+end;
+
+procedure TFFLP_FIR_HannWindow.NamesDefine;
+begin
+ SetNameCaption('FIR_Hann',
+   FD_LP+'filter '+ FD_FIR
+   +' and Hann window; '+FD_CutOff);
+end;
+
+procedure TFFLP_FIR_BartlettWindow.NamesDefine;
+begin
+ SetNameCaption('FIR_Bartlett',
+   FD_LP+'filter '+ FD_FIR
+   +' and Bartlett (triangular) window; '+FD_CutOff);
+end;
 
 end.

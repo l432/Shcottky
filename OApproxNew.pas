@@ -5,7 +5,7 @@ interface
 uses
   IniFiles, OlegApprox, OlegVector, OlegType,
   OlegVectorManipulation, TeEngine, OlegTypePart2,
-  Forms, FrameButtons, OlegFunction;
+  Forms, FrameButtons, OlegFunction, Classes;
 
 //uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
 //      Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
@@ -104,7 +104,7 @@ TFitFunctionNew=class(TObject)
 private
  FName:string;//ім'я функції
  FCaption:string; // опис функції
-// FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
+// FPictureName:string;//ім'я  рисунку в ресурсах, за замовчуванням FName+'Fig';
 // fHasPicture:boolean;//наявність картинки
 // fDataToFit:TVectorTransform; //дані для апроксимації
  fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
@@ -116,6 +116,10 @@ private
  що утворюється впроцедурі FittingToGraphAndFile}
  fParameter:TFFParameter;
  fWShow:TFFWindowShow;
+ fDigitNumber:byte;
+ //кількість цифр, які виводяться при записі даних, за замовчуванням 8
+ fFileSuffix:string;
+ //те, що додається до імені файла при записі результатів, за замовчуванням 'fit'
  procedure DataContainerCreate;virtual;
  procedure DataContainerDestroy;virtual;
 
@@ -130,13 +134,15 @@ protected
  fHasPicture:boolean;//наявність картинки
  fDataToFit:TVectorTransform; //дані для апроксимації
  FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
- procedure DipazonCreate;virtual;
- procedure DiapazonDestroy;virtual;
+ procedure AccessorialDataCreate;virtual;
+ procedure AccessorialDataDestroy;virtual;
  function ParameterCreate:TFFParameter;virtual;
  procedure RealFitting;virtual;abstract;
-// Procedure ReadFromIniFile;virtual;
- {зчитує дані з ini-файла, в цьому класі - fDiapazon}
- Procedure RealToFile (suf:string;NumberDigit: Byte=8);virtual;
+ Procedure RealToFile;virtual;
+ procedure SetNameCaption(FunctionName,FunctionCaption:string);
+ procedure NamesDefine;virtual;abstract;
+ procedure Tuning;virtual;
+ function RealFinalFunc(X:double):double;virtual;
 public
  FittingData:TVector;
  property Name:string read FName;
@@ -148,7 +154,10 @@ public
  property IsReadyToFit:boolean read fIsReadyToFit;
  property Diapazon:TDiapazon read fDiapazon;
  property ConfigFile:TOIniFileNew read fConfigFile;
- Constructor Create(FunctionName,FunctionCaption:string);
+ property DigitNumber:byte read fDigitNumber write fDigitNumber;
+ property FileSuffix:string read fFileSuffix write fFileSuffix;
+// Constructor Create(FunctionName,FunctionCaption:string);//overload;
+ Constructor Create;//virtual;//overload;
  destructor Destroy;override;
  procedure SetParametersGR;virtual;
  Procedure IsReadyToFitDetermination;//virtual;
@@ -159,12 +168,14 @@ public
  Procedure Fitting (InputData:TVector);overload;//virtual;abstract;
  Procedure Fitting (InputFileName:string);overload;//virtual;abstract;
  Procedure FittingToGraphAndFile(InputData:TVector;
-              Series: TChartSeries; suf:string='fit');virtual;
- Function FinalFunc(X:double):double; virtual;
+              Series: TChartSeries);virtual;
+ Function FinalFunc(X:double):double;
  {обчислюються значення апроксимуючої функції в
  точці з абсцисою Х;
  при ResultsIsReady=False повертає ErResult}
-
+ Procedure DataToStrings(OutStrings:TStrings);virtual;
+ {виводиться в OutStrings результати апроксимації...
+ щонайменше назву вихідного файлу та апроксимуючої функції}
  end;   // TFitFunctionNew=class
 
 //--------------------------------------------------------------------
@@ -179,102 +190,6 @@ TFFWindowShowBase=class(TFFWindowShow)
 end;
 
 
-
-//TFitFunctionSimple=class (TFitFunction)
-//{абстрактний клас для функцій, де визначаються параметри}
-//private
-//  FNx:byte;//кількість параметрів, які визначаються
-//  fX:double; //змінна Х, яка використовується для розрахунку функцій
-//  fYminDontUsed:boolean;
-// {використовується в FittingDiapazon,
-// для тих нащадків, де не потрібно враховувати
-// обмеження на мінімальне значення ординати
-// (ВАХ освітлених елементів),
-// необхідно встановити в Create в True}
-// Constructor Create(FunctionName,FunctionCaption:string;N:byte);
-// Function Func(Parameters:TArrSingle):double; virtual;abstract;
-//  {апроксимуюча функція... точніше та, яка використовується
-//  при побудові цільової функції;
-//  вона не завжди   співпадає з апроксимуючою -
-//  наприклад як для Diod  задля економії часу}
-// Function RealFunc(Parameters:TArrSingle):double; virtual;
-//  {а ось це - апроксимуюча функція,
-//  за умовчанням співпадає з Func}
-//// Procedure RealFitting (InputData:PVector;
-////         var OutputData:TArrSingle); overload;virtual;abstract;
-// Procedure RealFitting (InputData:TVector;
-//         var OutputData:TArrSingle); overload;virtual;abstract;
-// {апроксимуються дані у векторі InputData, отримані параметри
-// розміщуються в OutputData;}
-//// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog,Ylog:boolean; Np:Word); override;
-// Procedure RealToGraph (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog,Ylog:boolean; Np:Word); override;
-//// Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
-////              Xlog,Ylog:boolean):string;override;
-// Function StringToFile(InputData:TVector;Number:integer;OutputData:TArrSingle;
-//              Xlog,Ylog:boolean):string;override;
-//
-//public
-// Function FinalFunc(X:double;DeterminedParameters:TArrSingle;
-//                     Xlog:boolean=False;Ylog:boolean=False):double; override;
-// {обчислюються значення апроксимуючої функції в
-// точці з абсцисою Х, найчастіше значення співпадає
-// з тим, що повертає Func при fX=X,
-// крім того, дозволяє
-// обчислювати значення, якщо здійснювалась апроксимація
-// даних, представлених у логарифмічному масштабі
-// Xlog = True - абсциси у у логарифмічному масштабі,
-// Ylog = True - ординати у логарифмічному масштабі
-//}
-//// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-////                    Xlog:boolean=False;Ylog:boolean=False);override;
-// Procedure Fitting (InputData:TVector; var OutputData:TArrSingle;
-//                    Xlog:boolean=False;Ylog:boolean=False);override;
-//// Procedure FittingDiapazon (InputData:PVector; var OutputData:TArrSingle;
-////                            D:TDiapazon);override;
-// Procedure FittingDiapazon (InputData:TVector; var OutputData:TArrSingle;
-//                            D:TDiapazon);override;
-//// Function Deviation (InputData:PVector):double;overload;
-// Function Deviation (InputData:TVector):double;overload;
-// {повертає середнеє квадратичне відносне
-// відхилення апроксимації даних у InputData
-// від самих даних}
-//// Function Deviation (InputData:PVector;OutputData:TArrSingle):double;overload;virtual;
-// Function Deviation (InputData:TVector;OutputData:TArrSingle):double;overload;virtual;
-// Procedure DataToStrings(DeterminedParameters:TArrSingle;
-//                         OutStrings:TStrings);override;
-//end;   // TFitFunc=class
-//
-////--------------------------------------------------------------------
-//TLinear=class (TFitFunctionSimple)
-//private
-////  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
-//  Procedure RealFitting (InputData:TVector; var OutputData:TArrSingle);override;
-//  Function Func(Parameters:TArrSingle):double; override;
-//public
-//  Constructor Create;
-//end; // TLinear=class (TFitFunction)
-//
-//TOhmLaw=class (TFitFunctionSimple)
-//private
-////  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
-//  Procedure RealFitting (InputData:TVector; var OutputData:TArrSingle);override;
-//  Function Func(Parameters:TArrSingle):double; override;
-//public
-//  Constructor Create;
-//end; // TOhmLaw=class (TFitFunctionSimple)
-//
-//TQuadratic=class (TFitFunctionSimple)
-//private
-////  Procedure RealFitting (InputData:PVector; var OutputData:TArrSingle);override;
-//  Procedure RealFitting (InputData:TVector; var OutputData:TArrSingle);override;
-//  Function Func(Parameters:TArrSingle):double; override;
-//public
-//  Constructor Create;
-//end; // TQuadratic=class (TFitFunction)
 //
 //TGromov=class (TFitFunctionSimple)
 //private
@@ -1574,7 +1489,7 @@ var
 implementation
 
 uses
-  SysUtils, Dialogs, OApproxShow, Classes, Graphics, Math, Controls;
+  SysUtils, Dialogs, OApproxShow, Graphics, Math, Controls;
 
 { TOIniFileNew }
 
@@ -1610,20 +1525,24 @@ end;
 
 { TFitFunctionNew }
 
-constructor TFitFunctionNew.Create(FunctionName, FunctionCaption: string);
+//constructor TFitFunctionNew.Create(FunctionName, FunctionCaption: string);
+constructor TFitFunctionNew.Create;
 begin
  inherited Create;
  DecimalSeparator:='.';
- FName:=FunctionName;
- FCaption:=FunctionCaption;
- fHasPicture:=False;
+ NamesDefine;
+// FName:=FunctionName;
+// FCaption:=FunctionCaption;
+ fDigitNumber:=8;
+ fFileSuffix:='fit';
+ fHasPicture:=True;
  FPictureName:=FName+'Fig';
  fIsReadyToFit:=False;
  fResultsIsReady:=False;
  fFileHeader:='X Y Yfit';
 
  DataContainerCreate;
- DipazonCreate;
+ AccessorialDataCreate;
 
  fConfigFile:=TOIniFileNew.Create(ExtractFilePath(Application.ExeName)+'Shottky.ini');
 
@@ -1632,7 +1551,7 @@ begin
  fParameter.ReadFromIniFile;
  IsReadyToFitDetermination;
 
-
+ Tuning;
 
 // fDataToFit:TVector; //дані для апроксимації
 // fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
@@ -1668,21 +1587,31 @@ begin
   ftempVector.CopyDiapazonPoint(fDataToFit, fDiapazon);
 end;
 
+procedure TFitFunctionNew.DataToStrings(OutStrings: TStrings);
+begin
+ OutStrings.Add(fDataToFit.name);
+end;
+
 destructor TFitFunctionNew.Destroy;
 begin
   DataContainerDestroy;
-  DiapazonDestroy;
+  AccessorialDataDestroy;
   ParameterDestroy;
   fConfigFile.Free;
   inherited;
 end;
 
-procedure TFitFunctionNew.DiapazonDestroy;
+procedure TFitFunctionNew.AccessorialDataDestroy;
 begin
  fDiapazon.Free;
 end;
 
-procedure TFitFunctionNew.DipazonCreate;
+//constructor TFitFunctionNew.Create;
+//begin
+// Create('','');
+//end;
+
+procedure TFitFunctionNew.AccessorialDataCreate;
 begin
  fDiapazon:=TDiapazon.Create;
 // fDiapazon.Clear;
@@ -1696,8 +1625,8 @@ end;
 
 function TFitFunctionNew.FinalFunc(X: double): double;
 begin
- Result:=ErResult;
- if fResultsIsReady then FittingData.Yvalue(X);
+ if fResultsIsReady then Result:=RealFinalFunc(X)
+                    else Result:=ErResult;
 end;
 
 procedure TFitFunctionNew.Fitting(InputFileName: string);
@@ -1729,17 +1658,22 @@ end;
 //  fResultsIsReady:=True;
 //end;
 
-procedure TFitFunctionNew.RealToFile(suf: string; NumberDigit: Byte);
+function TFitFunctionNew.RealFinalFunc(X: double): double;
+begin
+ Result:=FittingData.Yvalue(X);
+end;
+
+procedure TFitFunctionNew.RealToFile;
  var Str1:TStringList;
     i:integer;
 begin
   Str1:=TStringList.Create;
   if fFileHeader<>'' then Str1.Add(fFileHeader);
   for I := 0 to fDataToFit.HighNumber do
-    Str1.Add(fDataToFit.PoinToString(i,NumberDigit)
+    Str1.Add(fDataToFit.PoinToString(i,DigitNumber)
              +' '
-             +FloatToStrF(FittingData.Y[i],ffExponent,NumberDigit,0));
-  Str1.SaveToFile(FitName(fDataToFit,suf));
+             +FloatToStrF(FittingData.Y[i],ffExponent,DigitNumber,0));
+  Str1.SaveToFile(FitName(fDataToFit,FileSuffix));
   Str1.Free;
 end;
 
@@ -1748,9 +1682,20 @@ begin
  FittingData.WriteToGraph(Series);
 end;
 
+procedure TFitFunctionNew.SetNameCaption(FunctionName, FunctionCaption: string);
+begin
+ FName:=FunctionName;
+ FCaption:=FunctionCaption;
+end;
+
 procedure TFitFunctionNew.SetParametersGR;
 begin
  fWShow.Show;
+end;
+
+procedure TFitFunctionNew.Tuning;
+begin
+
 end;
 
 //procedure TFitFunctionNew.WriteToIniFile;
@@ -1782,12 +1727,12 @@ begin
 end;
 
 procedure TFitFunctionNew.FittingToGraphAndFile(InputData: TVector;
-                    Series: TChartSeries; suf: string);
+                    Series: TChartSeries);
 begin
   Fitting(InputData);
   if not(fResultsIsReady) then Exit;
   RealToGraph(Series);
-  RealToFile(suf);
+  RealToFile;
 end;
 
 function TFitFunctionNew.ParameterCreate:TFFParameter;
