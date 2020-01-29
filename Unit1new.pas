@@ -1301,7 +1301,7 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit, FormSelectFitNew, OApproxNew;
+uses ApprWindows, FormSelectFit, FormSelectFitNew, OApproxNew, FitSimple;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -2464,9 +2464,12 @@ procedure TForm1.SButFitNewClick(Sender: TObject);
 begin
  if SButFitNew.Down then
   begin
-    if   SButFitNew.Caption='None' then Exit;
+//    if   SButFitNew.Caption='None' then Exit;
     FitFunctionNew:=FitFunctionFactory(SButFitNew.Caption);
-
+    if FitFunctionNew=nil then Exit;
+    if (FitFunctionNew is TFFSimpleLogEnable) then
+        (FitFunctionNew as TFFSimpleLogEnable).SetAxisScale(XLogCheck.Checked,
+                                                            YLogCheck.Checked);
 //    if (SButFit.Caption='Linear')or
 //       (SButFit.Caption=FunctionOhmLaw)or
 //     (SButFit.Caption='Quadratic') then

@@ -3,7 +3,7 @@ unit OApproxCaption;
 interface
 
 uses
-  OApproxNew, FitDigital, OApproxNew2;
+  OApproxNew, FitDigital, FitSimple;
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,

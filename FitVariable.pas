@@ -130,7 +130,7 @@ TVarDouble=class(TVarNumber)
   constructor Create(Nm:string;FF:TFitFunctionNew);
   procedure ReadFromIniFile;override;
   procedure WriteToIniFile;override;
-  procedure SetValue;
+  procedure UpDataValue;
 end;
 
 
@@ -167,6 +167,7 @@ TVarNumberArray=class
    function GetParametr(index:integer):TVarNumber;
    function GetLimits(index:integer):TLimits;
    function GetValueIsPresent(index:integer):boolean;virtual;abstract;
+   function GetAllValuesIsPresent:boolean;virtual;abstract;
    function GetHighIndex:integer;
   public
    property ParametrByName[str:string]:TVarNumber read GetParameterByName;
@@ -174,6 +175,7 @@ TVarNumberArray=class
    property Limits[index:integer]:TLimits read GetLimits;
    property HighIndex:integer read GetHighIndex;
    property ValueIsPresent[index:integer]:boolean read GetValueIsPresent;
+   property AllValuesIsPresent:boolean read GetAllValuesIsPresent;
    destructor Destroy;override;
    procedure Add(FF:TFitFunctionNew; const Name:string);overload;virtual;abstract;
    procedure Add(FF:TFitFunctionNew;const Names:array of string);overload;virtual;abstract;
@@ -188,6 +190,7 @@ TVarIntArray=class(TVarNumberArray)
    procedure SetValue(index: integer; Value: integer);
    function GetIsNoOdd(index:integer):boolean;
    function GetValueIsPresent(index:integer):boolean;override;
+   function GetAllValuesIsPresent:boolean;override;
   public
    property Value[index:integer]:integer read GetValue write SetValue;default;
    property IsNoOdd[index:integer]:boolean read GetIsNoOdd;
@@ -205,6 +208,7 @@ TVarDoubArray=class(TVarNumberArray)
    procedure SetValue(index: integer; Value: Double);
    procedure SetAutoDeterm(index: integer; Value: boolean);
    function GetValueIsPresent(index:integer):boolean;override;
+   function GetAllValuesIsPresent:boolean;override;
   public
    property Value[index:integer]:double read GetValue write SetValue;default;
    property AutoDeterm[index:integer]:boolean read GetAutoDeterm write SetAutoDeterm;
@@ -215,40 +219,6 @@ TVarDoubArray=class(TVarNumberArray)
    procedure Add(FF:TFitFunctionNew;const Names:array of string);overload;override;
 end;
 
-// TVarIntArrayGroupBox=class
-//   private
-//    fVarIntArray:TVarIntArray;
-//    fLabels:array of TLabel;
-//    fSTexts:array of TStaticText;
-//    fIPShow:array of TIntegerParameterShow;
-//    function ColumnNumberDetermination:byte;
-//    function MaxLabelCaptionDetermination:string;
-//    function MaxSTextCaptionDetermination:string;
-//   public
-//    Frame:TFrame;
-//    property MaxLabelCaption:string read MaxLabelCaptionDetermination;
-//    property MaxSTextCaption:string read MaxSTextCaptionDetermination;
-//    procedure UpDate;
-//    constructor Create(VarIntArray:TVarIntArray);
-//    destructor Destroy;override;
-//    procedure SizeDetermination(MaxLabelWidth: Integer; MaxSTextWidth: Byte);
-// end;
-//
-//  TDeVarIntArrayParameter=class(TFFParameter)
-//   private
-//    fVarIntArrayGroupBox:TVarIntArrayGroupBox;
-//    fVarIntArray:TVarIntArray;
-//    fFFParameter:TFFParameter;
-//   public
-//    constructor Create(VarIntArray:TVarIntArray;
-//                       FFParam:TFFParameter);
-//    procedure FormPrepare(Form:TForm);override;
-//    procedure UpDate;override;
-//    procedure FormClear;override;
-//    Procedure WriteToIniFile;override;
-//    Procedure ReadFromIniFile;override;
-//    function IsReadyToFitDetermination:boolean;override;
-// end;
 
 implementation
 
@@ -460,6 +430,14 @@ end;
 //          then Result:=fVarIntegers[index]
 //          else Result:=nil;
 //end;
+
+function TVarIntArray.GetAllValuesIsPresent: boolean;
+ var i:integer;
+begin
+ Result:=True;
+  for I := 0 to HighIndex do
+   Result:=Result and (Self[i]<>ErResult);
+end;
 
 function TVarIntArray.GetIsNoOdd(index: integer): boolean;
 begin
@@ -680,6 +658,7 @@ begin
  inherited Create(Nm,FF);
  fAutoDeterm:=False;
  fManualDetermOnly:=True;
+ Value:=ErResult;
 end;
 
 procedure TVarDouble.ReadFromIniFile;
@@ -687,10 +666,10 @@ begin
  fValue:=fFF.ConfigFile.ReadFloat(fFF.Name,'Var'+Name+'Val',ErResult);
  fAutoDeterm:=fFF.ConfigFile.ReadBool(fFF.Name,'Var'+Name+'Val',False);
  if fManualDetermOnly then fAutoDeterm:=False;
- SetValue;
+ UpDataValue;
 end;
 
-procedure TVarDouble.SetValue;
+procedure TVarDouble.UpDataValue;
 begin
  if not(fAutoDeterm) then Value:=fValue;
 end;
@@ -784,6 +763,14 @@ begin
   SetLength(fVars,High(Names)+1);
   for I := 0 to High(Names)
         do fVars[i]:=TVarDouble.Create(Names[i],FF);
+end;
+
+function TVarDoubArray.GetAllValuesIsPresent: boolean;
+ var i:integer;
+begin
+ Result:=True;
+  for I := 0 to HighIndex do
+   Result:=Result and (Self[i]<>ErResult);
 end;
 
 function TVarDoubArray.GetAutoDeterm(index: integer): boolean;

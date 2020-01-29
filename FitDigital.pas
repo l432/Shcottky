@@ -71,7 +71,7 @@ TFFDigitalFiltr=class(TFitFunctionNew)
   procedure RealFitting;override;
   function ParameterCreate:TFFParameter;override;
   Procedure RealToFile;override;
-  procedure Tuning;override;
+  procedure TuningAfterReadFromIni;override;
  public
 end;
 
@@ -517,7 +517,7 @@ end;
 
 
 
-procedure TFFDigitalFiltr.Tuning;
+procedure TFFDigitalFiltr.TuningAfterReadFromIni;
 begin
   inherited;
   fHasPicture:=False;

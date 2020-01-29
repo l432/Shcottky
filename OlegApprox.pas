@@ -8367,6 +8367,7 @@ var
   scaleX: double;
   scale: double;
 begin
+  try
   Img.Picture.Bitmap.LoadFromResourceName(hInstance,ResName);
   if Img.Picture.Width > Img.Width then
     scaleX := Img.Width / Img.Picture.Width
@@ -8382,6 +8383,9 @@ begin
     scale := scaleY;
   Img.Height := Round(Img.Picture.Height * scale);
   Img.Width := Round(Img.Picture.Width * scale);
+  finally
+
+  end;
 end;
 
 

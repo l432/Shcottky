@@ -108,7 +108,6 @@ private
 // fHasPicture:boolean;//наявність картинки
 // fDataToFit:TVectorTransform; //дані для апроксимації
  fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
- ftempVector: TVectorTransform;//допоміжний векторж
  fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
  fConfigFile:TOIniFileNew;//для роботи з .ini-файлом
  fFileHeader:string;
@@ -125,15 +124,14 @@ private
 
  procedure ParameterDestroy;virtual;
 // procedure RealFitting;virtual;//abstract;
- procedure DataPreraration(InputData: TVector);overload;
  procedure DataPreraration(InputFileName:string);overload;
  function FittingBegin:boolean;
- Procedure RealToGraph (Series: TChartSeries);virtual;
 protected
  fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
  fHasPicture:boolean;//наявність картинки
  fDataToFit:TVectorTransform; //дані для апроксимації
  FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
+ ftempVector: TVectorTransform;//допоміжний векторж
  procedure AccessorialDataCreate;virtual;
  procedure AccessorialDataDestroy;virtual;
  function ParameterCreate:TFFParameter;virtual;
@@ -141,8 +139,12 @@ protected
  Procedure RealToFile;virtual;
  procedure SetNameCaption(FunctionName,FunctionCaption:string);
  procedure NamesDefine;virtual;abstract;
- procedure Tuning;virtual;
+ procedure TuningAfterReadFromIni;virtual;
+ procedure TuningBeforeAccessorialDataCreate;virtual;
  function RealFinalFunc(X:double):double;virtual;
+ procedure DataPreraration(InputData: TVector);overload;virtual;
+ procedure RealToGraph (Series: TChartSeries);virtual;
+ procedure VariousPreparationBeforeFitting;virtual;
 public
  FittingData:TVector;
  property Name:string read FName;
@@ -190,16 +192,7 @@ TFFWindowShowBase=class(TFFWindowShow)
 end;
 
 
-//
-//TGromov=class (TFitFunctionSimple)
-//private
-////  Procedure RealFitting (InputData:PVector;var OutputData:TArrSingle);override;
-//  Procedure RealFitting (InputData:TVector;var OutputData:TArrSingle);override;
-//  Function Func(Parameters:TArrSingle):double; override;
-//public
-//  Constructor Create;
-//end; // TGromov=class (TFitFunction)
-//
+
 ////-----------------------------------------------
 //TFitVariabSet=class(TFitFunctionSimple)
 //{для функцій, де потрібно більше величин ніж лише Х та Y}
@@ -287,37 +280,7 @@ end;
 // procedure SetValueGR;override;
 // {показ форми для керування параметрами апроксимації}
 //end;   // TFitVariabSet=class(TFitFunctionSimple)
-////---------------------------------------------
-//TNoiseSmoothing=class(TFitVariabSet)
-//// FtempVector:PVector;
-// Function Func(Parameters:TArrSingle):double; override;
-//// Procedure RealFitting (InputData:PVector;
-////         var OutputData:TArrSingle); override;
-// Procedure RealFitting (InputData:TVector;
-//         var OutputData:TArrSingle); override;
-//// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-////                    Xlog:boolean=False;Ylog:boolean=False);override;
-// Procedure Fitting (InputData:TVector; var OutputData:TArrSingle;
-//                    Xlog:boolean=False;Ylog:boolean=False);override;
-//// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog,Ylog:boolean; Np:Word);override;
-// Procedure RealToGraph (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog,Ylog:boolean; Np:Word);override;
-//// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-////              Xlog,Ylog:boolean; suf:string);override;
-// Procedure RealToFile (InputData:TVector; var OutputData:TArrSingle;
-//              Xlog,Ylog:boolean; suf:string);override;
-//protected
-// fVector:TVector;
-//public
-//Constructor Create;
-//Procedure Free;
-////Function FinalFunc(var X:double;DeterminedParameters:TArrSingle):double; override;
-//
-//end;
-//
+
 //
 //
 ////------------------------------------
@@ -1540,6 +1503,7 @@ begin
  fIsReadyToFit:=False;
  fResultsIsReady:=False;
  fFileHeader:='X Y Yfit';
+ TuningBeforeAccessorialDataCreate;
 
  DataContainerCreate;
  AccessorialDataCreate;
@@ -1551,7 +1515,7 @@ begin
  fParameter.ReadFromIniFile;
  IsReadyToFitDetermination;
 
- Tuning;
+ TuningAfterReadFromIni;
 
 // fDataToFit:TVector; //дані для апроксимації
 // fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
@@ -1693,9 +1657,19 @@ begin
  fWShow.Show;
 end;
 
-procedure TFitFunctionNew.Tuning;
+procedure TFitFunctionNew.TuningAfterReadFromIni;
 begin
 
+end;
+
+procedure TFitFunctionNew.TuningBeforeAccessorialDataCreate;
+begin
+
+end;
+
+procedure TFitFunctionNew.VariousPreparationBeforeFitting;
+begin
+ IsReadyToFitDetermination;
 end;
 
 //procedure TFitFunctionNew.WriteToIniFile;
@@ -1705,6 +1679,7 @@ end;
 
 function TFitFunctionNew.FittingBegin: boolean;
 begin
+ VariousPreparationBeforeFitting;
  fResultsIsReady:=false;
  FittingData.Clear;
  Result:=False;

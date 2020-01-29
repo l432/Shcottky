@@ -34,6 +34,8 @@
       <Form>App</Form>
     </DCCReference>
     <DCCReference Include="FitDigital.pas" />
+    <DCCReference Include="FitMaterial.pas" />
+    <DCCReference Include="FitSimple.pas" />
     <DCCReference Include="FitTransform.pas" />
     <DCCReference Include="FitVariable.pas" />
     <DCCReference Include="FitVariableShow.pas" />
@@ -55,9 +57,9 @@
     <DCCReference Include="FrParam.pas">
       <Form>FrParamP</Form>
     </DCCReference>
+    <DCCReference Include="OApprox3.pas" />
     <DCCReference Include="OApproxCaption.pas" />
     <DCCReference Include="OApproxNew.pas" />
-    <DCCReference Include="OApproxNew2.pas" />
     <DCCReference Include="OApproxShow.pas" />
     <DCCReference Include="OlegApprox.pas" />
     <DCCReference Include="OlegDefectsSi.pas" />

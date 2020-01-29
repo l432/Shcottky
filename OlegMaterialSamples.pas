@@ -56,13 +56,14 @@ type
     TMaterial=class
      private
       FParameters:TMaterialParameters;
+      fMaterialName:TMaterialName;
      procedure SetAbsValue(Index:integer; value:double);
      procedure SetEpsValue (value:double);
 
      public
      Constructor Create(MaterialName:TMaterialName);
      procedure ChangeMaterial(value:TMaterialName);
-
+     property MaterialName:TMaterialName read fMaterialName;
      property Name:string read FParameters.Name;
      property Eg0:double Index 1 read FParameters.Parameters[nEg0] write SetAbsValue;
      property Eps:double read FParameters.Parameters[nEps] write SetEpsValue;
@@ -252,7 +253,8 @@ type
 
      public
      Constructor Create;
-     Procedure Free;
+     destructor Destroy;override;
+//     Procedure Free;
      property Eps_i:double read FEps_i write SetEps;
      property Thick_i:double read FThick_i write SetThick;
      property Semiconductor:TMaterialLayer read FSemiconductor write SetMaterialLayer;
@@ -568,6 +570,7 @@ end;
 
 procedure TMaterial.ChangeMaterial(value:TMaterialName);
 begin
+ fMaterialName:=value;
  FParameters:=Materials[value];
 end;
 
@@ -1053,11 +1056,11 @@ begin
  FSemiconductor:=TMaterialLayer.Create;
 end;
 
-procedure TDiod_Schottky.Free;
-begin
- FSemiconductor.Free;
- inherited Free;
-end;
+//procedure TDiod_Schottky.Free;
+//begin
+// FSemiconductor.Free;
+// inherited Free;
+//end;
 
 procedure TDiod_Schottky.ReadFromIniFile(ConfigFile: TIniFile);
 begin
@@ -1105,6 +1108,12 @@ function TDiod_Schottky.Vbi(T: double): double;
      Result:=ErResult;
    end;
   end;
+
+destructor TDiod_Schottky.Destroy;
+begin
+  FSemiconductor.Free;
+  inherited;
+end;
 
 function TDiod_Schottky.Em(T, Fb0, Vrev, C1: double): double;
 {максимальне значення електричного поля}

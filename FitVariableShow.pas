@@ -12,7 +12,7 @@ const MarginFrame=2;
 type
 
  TNumberFrame=class
-   private
+   protected
     fLabel:TLabel;
     fSText:TStaticText;
    public
@@ -60,22 +60,6 @@ type
     constructor Create(VarNumberArray:TVarNumberArray);
     destructor Destroy;override;
     procedure SizeAndLocationDetermination(Form: TForm);
- end;
-
-
- TVarIntArrayFrame=class(TVarNumberArrayFrame)
-//   private
-////    fIntFrames:array of TIntFrame;
-////    procedure SubFramesResize(Form: TForm);
-////    function ColumnNumberDetermination:byte;
-////    procedure SubFramesLocate;
-//    procedure FrameLocate(Form: TForm);override;
-//   public
-////    Frame:TFrame;
-////    procedure DateUpdate;
-//    constructor Create(VarIntArray:TVarIntArray);
-////    destructor Destroy;override;
-////    procedure SizeAndLocationDetermination(Form: TForm);
  end;
 
   TDecVarNumberArrayParameter=class(TFFParameter)
@@ -320,12 +304,12 @@ begin
 end;
 
 function TDecVarNumberArrayParameter.IsReadyToFitDetermination: boolean;
- var i:integer;
+// var i:integer;
 begin
  Result:=fFFParameter.IsReadyToFitDetermination;
-
- for I := 0 to fVarArray.HighIndex do
-   Result:=Result and fVarArray.ValueIsPresent[i];
+ Result:=Result and fVarArray.AllValuesIsPresent;
+// for I := 0 to fVarArray.HighIndex do
+//   Result:=Result and fVarArray.ValueIsPresent[i];
 end;
 
 procedure TDecVarNumberArrayParameter.ReadFromIniFile;
@@ -387,7 +371,7 @@ end;
 procedure TDoubleFrame.DateUpdate;
 begin
   fVarDouble.ManualValue:=fDPShow.Data;
-  fVarDouble.SetValue;
+  fVarDouble.UpDataValue;
 end;
 
 destructor TDoubleFrame.Destroy;

@@ -32,7 +32,9 @@ uses
   FitVariable in 'FitVariable.pas',
   FitDigital in 'FitDigital.pas',
   FitVariableShow in 'FitVariableShow.pas',
-  OApproxNew2 in 'OApproxNew2.pas';
+  FitSimple in 'FitSimple.pas',
+  OApprox3 in 'OApprox3.pas',
+  FitMaterial in 'FitMaterial.pas';
 
 {$R *.res}
 

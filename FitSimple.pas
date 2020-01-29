@@ -1,9 +1,10 @@
-unit OApproxNew2;
+unit FitSimple;
 
 interface
 
 uses
-  OApproxNew, FitVariable, OlegApprox, Classes, OlegType, OlegMath;
+  OApproxNew, FitVariable, OlegApprox, Classes, OlegType, OlegMath, OlegVector, 
+  TeEngine;
 
 type
 
@@ -30,7 +31,7 @@ TFFNoiseSmoothing=class(TFitFunctionWithArbitraryArgument)
   procedure RealFitting;override;
   procedure AccessorialDataCreate;override;
   procedure NamesDefine;override;
-  procedure Tuning;override;
+  procedure TuningAfterReadFromIni;override;
  public
 // constructor Create;
 end;
@@ -39,7 +40,7 @@ TFFSplain=class(TFitFunctionWithArbitraryArgument)
  protected
   procedure RealFitting;override;
   procedure NamesDefine;override;
-  procedure Tuning;override;
+  procedure TuningAfterReadFromIni;override;
  public
 //  constructor Create;
 end;
@@ -60,45 +61,52 @@ TFFSimple=class (TFitFunctionWithArbitraryArgument)
   procedure AddParamDetermination;
   function Deviation:double;
  public
-
-//  constructor Create(FunctionName,FunctionCaption:string;
-//                     const MainParamNames: array of string);overload;
-//  constructor Create(FunctionName,FunctionCaption:string;
-//                     const MainParamNames: array of string;
-//                     const AddParamNames: array of string);overload;
-//  destructor Destroy;override;
   Procedure DataToStrings(OutStrings:TStrings);override;
-//  Function FinalFunc(X:double):double; override;
 end;
 
-TFFLinear=class (TFFSimple)
+
+TFFSimpleLogEnable=class (TFFSimple)
+  {функція, яка дозволяє апроксимувати
+  дані, представлені у логарифмічному масштабі}
+ private
+  fXlog: boolean;
+  fYlog: boolean;
+ protected
+  procedure DataPreraration(InputData: TVector);override;
+  procedure RealToGraph (Series: TChartSeries);override;
+  procedure TuningAfterReadFromIni;override;
+ public
+  procedure SetAxisScale(Xlog:boolean=False;Ylog:boolean=False);
+end;
+
+TFFLinear=class (TFFSimpleLogEnable)
  protected
   procedure ParametersCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
 public
-end; // TFFLinear=class (TFFSimple)
+end; // TFFLinear=class (TFFSimpleLogEnable)
 
 
-TFFOhmLaw=class (TFFSimple)
+TFFOhmLaw=class (TFFSimpleLogEnable)
  protected
   procedure ParametersCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
 public
-end; // TFFOhmLaw=class (TFFSimple)
+end; // TFFOhmLaw=class (TFFSimpleLogEnable)
 
 
-TFFQuadratic=class (TFFSimple)
+TFFQuadratic=class (TFFSimpleLogEnable)
  protected
   procedure ParametersCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
 public
-end; // TFFQuadratic=class (TFitFunctionSimple)
+end; // TFFQuadratic=class (TFFSimpleLogEnable)
 
 TFFGromov=class (TFFSimple)
  protected
@@ -114,7 +122,7 @@ TFFPolinom=class (TFFSimple)
   procedure ParametersCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
-  procedure Tuning;override;
+  procedure TuningAfterReadFromIni;override;
   function RealFinalFunc(X:double):double;override;
 public
 end; //TFFPolinom=class (TFFSimple)
@@ -269,7 +277,7 @@ end; //TFFPolinom=class (TFFSimple)
 implementation
 
 uses
-  FitVariableShow, Graphics, Dialogs, SysUtils;
+  FitVariableShow, Graphics, Dialogs, SysUtils, Math;
 
 
 { TFFSplain }
@@ -294,7 +302,7 @@ end;
 
 
 
-procedure TFFSplain.Tuning;
+procedure TFFSplain.TuningAfterReadFromIni;
 begin
   inherited;
   fHasPicture:=False;
@@ -327,7 +335,7 @@ begin
 end;
 
 
-procedure TFFNoiseSmoothing.Tuning;
+procedure TFFNoiseSmoothing.TuningAfterReadFromIni;
 begin
   inherited;
   fHasPicture:=False;
@@ -591,7 +599,7 @@ begin
  Result:=NPolinom(X,fIntVars[1],fDParamArray.OutputData);
 end;
 
-procedure TFFPolinom.Tuning;
+procedure TFFPolinom.TuningAfterReadFromIni;
  var Names:array of string;
      i:integer;
 begin
@@ -600,6 +608,53 @@ begin
   SetLength(Names,(fIntVars.ParametrByName['N'] as TVarInteger).Value+1);
   for I := 0 to High(Names) do Names[i]:='A'+inttostr(i);
   fDParamArray:=TDParamArray.Create(Self,Names);
+end;
+
+{ TFFSimpleLogEnable }
+
+procedure TFFSimpleLogEnable.DataPreraration(InputData: TVector);
+ var i:integer;
+begin
+ inherited DataPreraration(InputData);
+ try
+  for i := 0 to fDataToFit.HighNumber do
+   begin
+     if fXLog then fDataToFit.X[i]:=Log10(fDataToFit.X[i]);
+     if fYLog then fDataToFit.Y[i]:=Log10(fDataToFit.Y[i]);
+   end;
+ except
+  fDataToFit.Free;
+ end;
+
+end;
+
+procedure TFFSimpleLogEnable.RealToGraph(Series: TChartSeries);
+ var i:integer;
+begin
+ FittingData.CopyTo(ftempVector);
+ try
+  for i := 0 to ftempVector.HighNumber do
+   begin
+     if fXLog then ftempVector.X[i]:=exp(ftempVector.X[i]*ln(10));
+     if fYLog then ftempVector.Y[i]:=exp(ftempVector.Y[i]*ln(10));
+   end;
+ except
+  ftempVector.Free;
+ end;
+  ftempVector.WriteToGraph(Series);
+end;
+
+procedure TFFSimpleLogEnable.SetAxisScale(Xlog, Ylog: boolean);
+begin
+  fXlog:=Xlog;
+  fYlog:=Ylog;
+end;
+
+procedure TFFSimpleLogEnable.TuningAfterReadFromIni;
+begin
+  inherited;
+  fXlog:=False;
+  fYlog:=False;
 end;
 
 end.
