@@ -32,8 +32,6 @@ type
    TVectorTransform=class(TVector)
     private
 //     procedure SetVector(const Value: TVectorNew);
-     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
-                             InitialValue:double=ErResult);
      Procedure CopyLimited (Coord:TCoord_type;Target:TVector;Clim1, Clim2:double);
      procedure Branch(Coord:TCoord_type;Target:TVector;
                       const IsPositive:boolean=True;
@@ -41,6 +39,8 @@ type
      procedure Module(Coord:TCoord_type;Target:TVector);
      function PVParareter(Index:word):double;
     protected
+     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
+                             InitialValue:double=ErResult);
      Procedure InitTarget(Target:TVector);
     public
 //     Constructor Create(ExternalVector:TVectorNew);overload;
@@ -239,6 +239,7 @@ type
      Procedure ToFill(Target:TVector;Func:TFunSingle);overload;
       {Target.X[i]=Self.X[i];
        Target.Y[i]=Func(Self.X[i])}
+     Procedure ToFill(Target:TVector;Func:TFunPoint);overload;
      Procedure PointSupplement (Target:TVector;
                                 const PointCount:word;
                                 FromVectorBegin:boolean=True);
@@ -801,8 +802,8 @@ begin
   except
     Exit;
   end;
-  OutputData[0]:=a/sqrt(2*Qelem*DD.Semiconductor.Nd*DD.Semiconductor.Material.Eps/Eps0);
-  OutputData[1]:=sqr(b);
+  OutputData[1]:=a/sqrt(2*Qelem*DD.Semiconductor.Nd*DD.Semiconductor.Material.Eps/Eps0);
+  OutputData[0]:=sqr(b);
   Result:=True;
 end;
 
@@ -1346,6 +1347,14 @@ end;
 Function DerivateTwoPoint(Point1,Point2:TPointDouble):double;
 begin
   Result:=(Point2[cY]-Point1[cY])/(Point2[cX]-Point1[cX])
+end;
+
+procedure TVectorTransform.ToFill(Target: TVector; Func: TFunPoint);
+ var i:integer;
+begin
+  InitTarget(Target);
+  for I := 0 to Self.HighNumber
+    do Target.Add(Func(Self.X[i]));
 end;
 
 end.

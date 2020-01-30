@@ -3,9 +3,10 @@ unit FitVariableShow;
 interface
 
 uses
-  Forms, StdCtrls, Classes, OlegShowTypes, FitVariable, OApproxNew;
+  Forms, StdCtrls, Classes, OlegShowTypes, FitVariable, OApproxNew, 
+  OApproxShow;
 
-const MarginFrame=2;
+const
       IntFrameName='IntegerFrame';
       DoubleFrameName='DoubleFrame';
 
@@ -15,6 +16,7 @@ type
    protected
     fLabel:TLabel;
     fSText:TStaticText;
+    fOrientation:TOrientation;
    public
     Frame:TFrame;
     constructor Create(AOwner: TComponent);//override;
@@ -82,7 +84,7 @@ type
 implementation
 
 uses
-  Graphics, Math, OApproxShow, OlegType, Unit1new, Dialogs, SysUtils, Controls;
+  Graphics, Math, OlegType, Unit1new, Dialogs, SysUtils, Controls;
 
 
 { TNumberFrame }
@@ -100,6 +102,8 @@ begin
  fLabel.WordWrap:=False;
  fLabel.Font.Color:=clMaroon;
  fLabel.Font.Style:=[fsBold];
+
+ fOrientation:=oRow;
 end;
 
 destructor TNumberFrame.Destroy;
@@ -120,6 +124,14 @@ begin
  fSText.Height:=Form.Canvas.TextHeight(fSText.Caption);
  fLabel.Top:=MarginFrame;
  fLabel.Left:=MarginFrame;
+
+ RelativeLocation(fLabel,fSText,fOrientation);
+
+// if fOneRow then
+//  begin
+//     fSText.Top:=fLabel.Top;
+//     fStext.Left:=fLabel.Left+fLabel.Width+2*MarginFrame;
+//  end;
 end;
 
 { TIntFrame }
@@ -127,6 +139,8 @@ end;
 constructor TIntFrame.Create(AOwner: TComponent; VarInteger: TVarInteger);
 begin
  inherited  Create(AOwner);
+ fOrientation:=oCol;
+
  fVarInteger:=VarInteger;
  fIPShow:=TIntegerParameterShow.Create(fSText,fLabel,
            fVarInteger.Description,fVarInteger.Value);
@@ -143,16 +157,16 @@ end;
 
 procedure TIntFrame.SizeDetermination(Form: TForm);
 begin
- inherited;
-// fLabel.Top:=MarginFrame;
-// fLabel.Left:=MarginFrame;
- fSText.Top:=fLabel.Top+fLabel.Height+MarginFrame;
- fStext.Left:=fLabel.Left+Round((fLabel.Width-fStext.Width)/2);
- if fStext.Left<1 then
-  begin
-   fLabel.Left:=fLabel.Left+abs(fStext.Left)+MarginFrame;
-   fStext.Left:=fStext.Left+abs(fStext.Left)+MarginFrame;
-  end;
+ inherited SizeDetermination(Form);
+
+// fSText.Top:=fLabel.Top+fLabel.Height+MarginFrame;
+// fStext.Left:=fLabel.Left+Round((fLabel.Width-fStext.Width)/2);
+// if fStext.Left<fLabel.Left then
+//  begin
+//   fLabel.Left:=2*fLabel.Left-fStext.Left;
+//   fStext.Left:=fStext.Left+abs(fStext.Left)+MarginFrame;
+//  end;
+
  Frame.Width:=max(fLabel.Left+fLabel.Width,
                  fSText.Left+fSText.Width)+MarginFrame;
  Frame.Height:=fSText.Top+fSText.Height+MarginFrame;
@@ -342,7 +356,7 @@ constructor TDoubleFrame.Create(AOwner: TComponent; VarDouble: TVarDouble);
 begin
  inherited  Create(AOwner);
  fLabel.Font.Color:=clNavy;
- fLabel.Font.Style:=[fsBold];
+// fLabel.Font.Style:=[fsBold];
 
  fCheckBox:=TCheckBox.Create(Frame);
  fCheckBox.Parent:=Frame;
@@ -371,6 +385,7 @@ end;
 procedure TDoubleFrame.DateUpdate;
 begin
   fVarDouble.ManualValue:=fDPShow.Data;
+  fVarDouble.AutoDeterm:=fCheckBox.Checked;
   fVarDouble.UpDataValue;
 end;
 

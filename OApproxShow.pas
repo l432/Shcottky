@@ -10,7 +10,7 @@ const MarginLeft=20;
       MarginRight=30;
       Marginbetween=20;
       MarginTop=20;
-
+      MarginFrame=2;
 
       NoLimit='No';
 
@@ -53,7 +53,15 @@ type
  end;
 
 
+ TOrientation=(oCol,oRow);
+ {як розташовувати елементи
+ oCol - один під одним
+ oRow - в один рядок}
 
+procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
+                           Orientation:TOrientation=oRow);
+{розташовує ControlSecond відносно ControlFirst відповідно
+до Orientation}
 
 Procedure AddControlToForm(Control:TControl;
                            Form:TForm);
@@ -316,6 +324,39 @@ begin
   fFF.Diapazon.WriteToIniFile(fFF.ConfigFile,fFF.Name,'DiapazonFit');
 end;
 
+
+
+
+procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
+                           Orientation:TOrientation=oRow);
+ var tempInt:integer;
+ begin
+   if Orientation=oRow then
+    begin
+     ControlSecond.Left:=ControlFirst.Left+ControlFirst.Width+4*MarginFrame;
+     ControlSecond.Top:=ControlFirst.Top+Round((ControlFirst.Height-ControlSecond.Height)/2);
+     if ControlSecond.Top>ControlFirst.Top then
+      begin
+       tempInt:=ControlFirst.Top;
+       ControlFirst.Left:=2*ControlFirst.Top-ControlSecond.Top;
+       ControlSecond.Top:=tempInt;
+      end;
+
+    end                else
+    begin
+     ControlSecond.Top:=ControlFirst.Top+ControlFirst.Height+MarginFrame;
+     ControlSecond.Left:=ControlFirst.Left+Round((ControlFirst.Width-ControlSecond.Width)/2);
+     if ControlSecond.Left<ControlFirst.Left then
+      begin
+       tempInt:=ControlFirst.Left;
+       ControlFirst.Left:=2*ControlFirst.Left-ControlSecond.Left;
+       ControlSecond.Left:=tempInt;
+      end;
+    end;
+ end;
+
+
+
 Procedure AddControlToForm(Control:TControl;
                            Form:TForm);
  begin
@@ -326,7 +367,7 @@ Procedure AddControlToForm(Control:TControl;
  Form.Width:=max(Form.Width,
                 Control.Left+Control.Width);
 
- end;                           
+ end;
 
 
 end.

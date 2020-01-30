@@ -26,25 +26,15 @@ TDParamArray=class
    fFF:TFitFunctionNew;
    fParams:array of TFFDParam;
    fMainParamHighIndex:integer;
-    procedure MainParamCreate(const MainParamNames: array of string);virtual;
-    procedure AddParamCreate(const AddParamNames: array of string);
-    procedure LastParamCreate;
    {індекс останного параметра, який безпосередньо визначається
    з апроксимації (MainParam)}
+   procedure MainParamCreate(const MainParamNames: array of string);virtual;
+   procedure AddParamCreate(const AddParamNames: array of string);
+   procedure LastParamCreate;
    function GetParameterByName(str:string):TFFDParam;
-
-//   function GetParametr(index:integer):TVarNumber;
-//   function GetLimits(index:integer):TLimits;
-//   function GetValueIsPresent(index:integer):boolean;virtual;abstract;
-//   function GetHighIndex:integer;
   public
    OutputData:TArrSingle;
    property ParametrByName[str:string]:TFFDParam read GetParameterByName;
-
-//   property Parametr[index:integer]:TVarNumber read GetParametr;
-//   property Limits[index:integer]:TLimits read GetLimits;
-//   property HighIndex:integer read GetHighIndex;
-//   property ValueIsPresent[index:integer]:boolean read GetValueIsPresent;
    constructor Create(FF:TFitFunctionNew;
                       const MainParamNames: array of string);overload;
    constructor Create(FF:TFitFunctionNew;
@@ -53,10 +43,6 @@ TDParamArray=class
    destructor Destroy;override;
    procedure OutputDataCoordinate;
    Procedure DataToStrings(OutStrings:TStrings);
-//   procedure Add(FF:TFitFunctionNew; const Name:string);overload;virtual;abstract;
-//   procedure Add(FF:TFitFunctionNew;const Names:array of string);overload;virtual;abstract;
-//   procedure ReadFromIniFile;
-//   procedure WriteToIniFile;
 end;
 
 
@@ -664,7 +650,7 @@ end;
 procedure TVarDouble.ReadFromIniFile;
 begin
  fValue:=fFF.ConfigFile.ReadFloat(fFF.Name,'Var'+Name+'Val',ErResult);
- fAutoDeterm:=fFF.ConfigFile.ReadBool(fFF.Name,'Var'+Name+'Val',False);
+ fAutoDeterm:=fFF.ConfigFile.ReadBool(fFF.Name,'Var'+Name+'Auto',False);
  if fManualDetermOnly then fAutoDeterm:=False;
  UpDataValue;
 end;
@@ -770,7 +756,8 @@ function TVarDoubArray.GetAllValuesIsPresent: boolean;
 begin
  Result:=True;
   for I := 0 to HighIndex do
-   Result:=Result and (Self[i]<>ErResult);
+   Result:=Result
+   and ((Parametr[i] as TVarDouble).AutoDeterm or (Self[i]<>ErResult));
 end;
 
 function TVarDoubArray.GetAutoDeterm(index: integer): boolean;

@@ -3,17 +3,17 @@ unit OApproxCaption;
 interface
 
 uses
-  OApproxNew, FitDigital, FitSimple;
+  OApproxNew, FitDigital, FitSimple, OApprox3;
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
-                   ffc_simple);
+                   ffc_simple,ffc_schottky);
 
   TFitFunctionNew_Class=class of TFitFunctionNew;
 
 const
   FitFuncCategoryNames:array[TFitFuncCategory]of string=
-           ('None','Transform','Digital filter','Simple');
+           ('None','Transform','Digital filter','Simple','Schottky diod');
 
   DFNumber=9;
 
@@ -39,6 +39,14 @@ const
    (TFFLinear,TFFOhmLaw,TFFQuadratic,TFFGromov,
    TFFPolinom);
 
+  SchDNumber=1;
+
+  SchDNames:array[0..SchDNumber] of string=
+   ('Exponent','Ivanov method');
+   SchDClasses:array[0..SchDNumber]of TFitFunctionNew_Class=
+   (TFFExponent,TFFIvanov);
+
+
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;
 
@@ -51,11 +59,21 @@ Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
 procedure FitFuncNames_trans_Filling;
 procedure FitFuncNames_digital_Filling;
 procedure FitFuncNames_simple_Filling;
+procedure FitFuncNames_schottky_Filling;
 
 implementation
 
 uses
   FitTransform;
+
+procedure FitFuncNames_schottky_Filling;
+  var i:integer;
+ begin
+   SetLength(FitFuncNames[ffc_schottky],Length(SchDNames));
+   for I := 0 to High(FitFuncNames[ffc_schottky]) do
+    FitFuncNames[ffc_schottky,i]:=
+       SchDNames[i+Low(SchDNames)];
+ end;
 
 
 procedure FitFuncNames_simple_Filling;
@@ -120,6 +138,13 @@ begin
        begin
 //         Result:=TFitFunctionNew_Class(SFClasses[j]).Create;
          Result:=SFClasses[j].Create;
+         Exit;
+       end;
+
+   for j := 0 to SchDNumber do
+      if str=SchDNames[j] then
+       begin
+         Result:=SchDClasses[j].Create;
          Exit;
        end;
 
@@ -214,6 +239,7 @@ initialization
  FitFuncNames_trans_Filling;
  FitFuncNames_digital_Filling;
  FitFuncNames_simple_Filling;
+ FitFuncNames_schottky_Filling;
 
 // SetLength(FitFuncNames[ffc_simple],1);
 // FitFuncNames[ffc_simple,0]:='Linear';

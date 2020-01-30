@@ -108,6 +108,12 @@ type
       висоту бар'єру Fb;
       Фактично, це апроксимація за формулою I=I0exp(V/nkT)
       для визначення Fb потрібні параметри діода}
+     function ExKalkFit(DD:TDiod_Schottky;
+                       OutputData:TArrSingle;
+                       OutsideTemperature:double=ErResult):boolean;overload;
+      {як попередня, при успішній апроксимації результати розміщуються в масив
+      [I0, n, Fb], температура береться з даних самого вектора}
+
      Procedure ChungFun(Target:TVector);
       {записує в Target Chung-функцію, побудовану по даним з Vector}
      Procedure ChungKalk();overload;
@@ -2468,6 +2474,14 @@ begin
   temp2.Free;
 end;
 
+function TVectorShottky.ExKalkFit(DD: TDiod_Schottky;
+  OutputData: TArrSingle;OutsideTemperature:double=ErResult): boolean;
+begin
+ InitArrSingle(OutputData,3);
+ ExKalk(DD,OutputData[1],OutputData[0],OutputData[2],OutsideTemperature);
+ Result:=(OutputData[0]<>ErResult);
+end;
+
 procedure TVectorShottky.ExpKalk(D: TDiapazon; Rs: Double; DD: TDiod_Schottky;
         Xp: IRE; var n, I0, Fb: Double);
   var temp1:TVectorShottky;
@@ -2700,7 +2714,6 @@ begin
            Result:=Result+#10'because impossible to build Alpha function';
      end;
 end;
-
 
 
 { TGraphParameters }

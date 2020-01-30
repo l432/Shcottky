@@ -13,14 +13,31 @@ IName = interface
   property Name:string read GetName;
 end;
 
-TSimpleFreeAndAiniObject=class(TInterfacedObject)
+//TSimpleFreeAndAiniObject=class(TInterfacedObject)
+//  protected
+//  public
+//   procedure Free;//virtual;
+//   procedure ReadFromIniFile(ConfigFile: TIniFile);virtual;
+//   procedure WriteToIniFile(ConfigFile: TIniFile);virtual;
+////   destructor Destroy;override;
+//  end;
+
+
+{як варіан позбавлення від проблеми знищення інтерфейсу-змінної
+при виході з процедури - див.https://habr.com/ru/post/181107/
+є ще інший варіант(??? а може й ні) https://habr.com/ru/post/219685/}
+TSimpleFreeAndAiniObject=class(TObject)
   protected
+    function _AddRef: Integer; stdcall;
+    function _Release: Integer; stdcall;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
   public
    procedure Free;//virtual;
    procedure ReadFromIniFile(ConfigFile: TIniFile);virtual;
    procedure WriteToIniFile(ConfigFile: TIniFile);virtual;
 //   destructor Destroy;override;
   end;
+
 
 //TNamedInterfacedObject=class(TInterfacedObject)
 TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
@@ -105,6 +122,8 @@ end;
 //// inherited;
 //end;
 
+
+
 procedure TSimpleFreeAndAiniObject.Free;
 begin
 //  inherited;
@@ -116,6 +135,25 @@ end;
 ////  inherited;
 //end;
 
+function TSimpleFreeAndAiniObject.QueryInterface(const IID: TGUID;
+  out Obj): HResult;
+begin
+  if GetInterface(IID, Obj) then
+    Result := 0
+  else
+    Result := E_NOINTERFACE;
+end;
+
+function TSimpleFreeAndAiniObject._AddRef: Integer;
+begin
+   Result := -1;
+end;
+
+function TSimpleFreeAndAiniObject._Release: Integer;
+begin
+    Result := -1;
+end;
+
 procedure TSimpleFreeAndAiniObject.ReadFromIniFile(ConfigFile: TIniFile);
 begin
 
@@ -125,6 +163,8 @@ procedure TSimpleFreeAndAiniObject.WriteToIniFile(ConfigFile: TIniFile);
 begin
 
 end;
+
+
 
 Constructor TObjectArray.Create();
 begin

@@ -71,10 +71,11 @@ Function X_Y0 (X1,Y1,X2,Y2,Y3:double):double;overload;
 лінійна інтерполяція по двом точкам}
 Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
 
-
-
 procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
 {додаються всі елементи з AddedArray в кінець InitArray}
+
+function SqrRelativeDifference(Double1,Double2:double):double;
+{повертає квадрат відносної різниці двох чисел}
 
 //Function Poh(A:PVector; k:integer):double;
 //function TVectorTransform.DerivateAtPoint(PointNumber: integer): double;
@@ -345,6 +346,8 @@ Function NPolinomMinusX(x:double;data:array of double):double;overload;
 {повертає data[0]+data[1]*x+...data[High(data)]*x^High(data)-x,
 потрібна функція для знаходження екстремума за допомогою
 Bisection}
+
+
 
 //Procedure Diferen (A:Pvector; var B:PVector);
 //procedure TVectorTransform.Derivate(var Target: TVector);
@@ -741,6 +744,18 @@ begin
   SetLength(InitArray,High(InitArray)+High(AddedArray)+2);
   for I := 0 to High(AddedArray) do
    InitArray[High(InitArray)-High(AddedArray)+i]:=AddedArray[i];
+end;
+
+function SqrRelativeDifference(Double1,Double2:double):double;
+{повертає квадрат відносної різниці двох чисел}
+begin
+  Result:=0;
+  if Double1<>0 then
+     Result:=Result+sqr((Double1-Double2)/Double1)
+                else
+     if Double2<>0 then
+        Result:=Result+sqr((Double1-Double2)/Double2)
+                   else Result:=0;
 end;
 
 //Function Poh (A:PVector; k:integer):double;

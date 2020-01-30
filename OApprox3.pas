@@ -3,7 +3,7 @@ unit OApprox3;
 interface
 
 uses
-  FitSimple, FitVariable, OApproxNew;
+  FitSimple, FitVariable, OApproxNew, FitMaterial, OlegType, OlegMath;
 
 type
 TFFVariabSet =class(TFFSimple)
@@ -27,10 +27,43 @@ TFFVariabSet =class(TFFSimple)
   не задаються в ручному режимі}
  end;
 
+TFFVariabSetSchottky=class (TFFVariabSet)
+ private
+  fSchottky:TDSchottkyFit;
+ protected
+  procedure AccessorialDataCreate;override;
+  procedure AccessorialDataDestroy;override;
+  function ParameterCreate:TFFParameter;override;
+
+end;
+
+
+TFFExponent=class (TFFVariabSetSchottky)
+ protected
+  procedure ParametersCreate;override;
+  function FittingCalculation:boolean;override;
+  procedure NamesDefine;override;
+  function RealFinalFunc(X:double):double;override;
+public
+end; //TFFExponent=class (TFFVariabSetSchottky)
+
+
+TFFIvanov=class (TFFVariabSetSchottky)
+ protected
+  procedure FittingDataFilling;override;
+  function Deviation:double;override;
+  function IvanovFun(X:double):TPointDouble;
+  procedure ParametersCreate;override;
+  function FittingCalculation:boolean;override;
+  procedure NamesDefine;override;
+public
+end; //TFFExponent=class (TFFVariabSetSchottky)
+
+
 implementation
 
 uses
-  FitVariableShow, SysUtils, OlegType;
+  FitVariableShow, SysUtils, OlegMathShottky;
 
 { TFFVariabSet }
 
@@ -41,6 +74,7 @@ begin
   if fTemperatureIsRequired then
       begin
        fDoubVars.Add(Self,'T');
+       (fDoubVars.ParametrByName['T'] as TVarDouble).ManualDetermOnly:=False;
        fDoubVars.ParametrByName['T'].Limits.SetLimits(0.1);
        fDoubVars.ParametrByName['T'].Description:=
          'Temperature';
@@ -48,6 +82,7 @@ begin
   if fVoltageIsRequired then
       begin
        fDoubVars.Add(Self,'V');
+       (fDoubVars.ParametrByName['V'] as TVarDouble).ManualDetermOnly:=False;
        fDoubVars.ParametrByName['V'].Description:=
          'Voltage';
       end;
@@ -100,5 +135,102 @@ begin
   AutoDoubVarsDetermination;
   inherited;
 end;
+
+{ TFFExponent }
+
+function TFFExponent.FittingCalculation: boolean;
+begin
+ ftempVector.CopyFrom(fDataToFit);
+ Result:=ftempVector.ExKalkFit(fSchottky,fDParamArray.OutputData,fDoubVars[0]);
+end;
+
+procedure TFFExponent.NamesDefine;
+begin
+   SetNameCaption('Exponent',
+      'Linear least-squares fitting of semi-log plot');
+end;
+
+procedure TFFExponent.ParametersCreate;
+begin
+ fDParamArray:=TDParamArray.Create(Self,['Io','n','Fb']);
+end;
+
+function TFFExponent.RealFinalFunc(X: double): double;
+begin
+ Result:=fDParamArray.OutputData[0]
+       *exp(X/(fDParamArray.OutputData[1]*Kb
+               *(fDoubVars.ParametrByName['T'] as TVarDouble).Value));
+end;
+
+{ TFFVariabSetSchottky }
+
+procedure TFFVariabSetSchottky.AccessorialDataCreate;
+begin
+  inherited;
+  fSchottky:=TDSchottkyFit.Create(Self);
+end;
+
+procedure TFFVariabSetSchottky.AccessorialDataDestroy;
+begin
+  fSchottky.Free;
+  inherited;
+end;
+
+function TFFVariabSetSchottky.ParameterCreate: TFFParameter;
+begin
+  Result:=TDecDSchottkyParameter.Create(fSchottky,
+                         inherited ParameterCreate);
+end;
+
+{ TFFIvanov }
+
+function TFFIvanov.Deviation: double;
+ var i:integer;
+begin
+  Result:=0;
+  fDataToFit.ToFill(FittingData,IvanovFun);
+  for I := 0 to fDataToFit.HighNumber
+   do Result:=Result+SqrRelativeDifference(fDataToFit.Y[i],FittingData.Y[i]);
+ Result:=sqrt(Result)/fDataToFit.Count;
+end;
+
+function TFFIvanov.FittingCalculation: boolean;
+begin
+ ftempVector.CopyFrom(fDataToFit);
+ Result:=ftempVector.IvanovAprox(fDParamArray.OutputData,fSchottky,fDoubVars[0]);
+end;
+
+procedure TFFIvanov.FittingDataFilling;
+begin
+ if fIntVars[0]<>0 then
+     begin
+     FittingData.T:=fDataToFit.T;
+     FittingData.name:=fDataToFit.name;
+     FittingData.Filling(IvanovFun,fDataToFit.MinX,fDataToFit.MaxX,fIntVars[0])
+     end;
+end;
+
+function TFFIvanov.IvanovFun(X: double): TPointDouble;
+// var Vd,x0:double;
+begin
+//  x0:=X;
+  Result[cX]:=X+fDParamArray.OutputData[1]
+               *sqrt(2*Qelem*fSchottky.Semiconductor.Nd
+                     *fSchottky.Semiconductor.Material.Eps/Eps0)
+               *(sqrt(fDParamArray.OutputData[0])-sqrt(fDParamArray.OutputData[0]-X));
+  Result[cY]:=fSchottky.I0(fDoubVars[0],fDParamArray.OutputData[0])*exp(X/Kb/fDoubVars[0]);
+end;
+
+procedure TFFIvanov.NamesDefine;
+begin
+   SetNameCaption('Ivanov',
+      'I-V fitting for dielectric layer width d determination, Ivanov method');
+end;
+
+procedure TFFIvanov.ParametersCreate;
+begin
+ fDParamArray:=TDParamArray.Create(Self,['Fb','d/ep']);
+end;
+
 
 end.

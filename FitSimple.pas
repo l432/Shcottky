@@ -11,14 +11,13 @@ type
 TFitFunctionWithArbitraryArgument =class(TFitFunctionNew)
   {абстрактний клас для випадку, коли апроксимуюча
   функція може бути розрахована у будь-якій точці...ну практично}
- private
+  protected
   fIntVars:TVarIntArray;
   {в цьому класі міститиме лише один параметр, Npoint
   кількість точок у фітуючій залежності;
   якщо = 0, то стільки ж, як у вхідних даних;
   деякі класи, як то TFFNoiseSmoothing можуть перевизначати
   призначення параметру}
- protected
   Procedure RealToFile;override;
   procedure FileFilling;virtual;
   procedure AccessorialDataCreate;override;
@@ -48,18 +47,16 @@ end;
 
 TFFSimple=class (TFitFunctionWithArbitraryArgument)
 {базовий клас для функцій, де визначаються параметри}
- private
-  fDParamArray:TDParamArray;
  protected
-//  fFun:TFun;
+  fDParamArray:TDParamArray;
   procedure AccessorialDataCreate;override;
   procedure ParametersCreate;virtual;abstract;
   procedure AccessorialDataDestroy;override;
   procedure RealFitting;override;
   function FittingCalculation:boolean;virtual;abstract;
-  procedure FittingDataFilling;
+  procedure FittingDataFilling;virtual;
   procedure AddParamDetermination;
-  function Deviation:double;
+  function Deviation:double;virtual;
  public
   Procedure DataToStrings(OutStrings:TStrings);override;
 end;
@@ -420,14 +417,16 @@ function TFFSimple.Deviation: double;
 begin
   Result:=0;
   fDataToFit.ToFill(FittingData,RealFinalFunc);
-  for I := 0 to fDataToFit.HighNumber do
-   begin
-    if fDataToFit.Y[i]<>0 then
-         Result:=Result+sqr((fDataToFit.Y[i]-FittingData.Y[i])/fDataToFit.Y[i])
-                            else
-         if FittingData.Y[i]<>0 then
-                  Result:=Result+sqr((fDataToFit.Y[i]-FittingData.Y[i])/FittingData.Y[i])
-   end;
+  for I := 0 to fDataToFit.HighNumber
+     do Result:=Result+SqrRelativeDifference(fDataToFit.Y[i],FittingData.Y[i]);
+//   do
+//   begin
+//    if fDataToFit.Y[i]<>0 then
+//         Result:=Result+sqr((fDataToFit.Y[i]-FittingData.Y[i])/fDataToFit.Y[i])
+//                            else
+//         if FittingData.Y[i]<>0 then
+//                  Result:=Result+sqr((fDataToFit.Y[i]-FittingData.Y[i])/FittingData.Y[i])
+//   end;
  Result:=sqrt(Result)/fDataToFit.Count;
 end;
 

@@ -268,6 +268,9 @@ type
       Procedure Filling(Fun: TFun; Xmin, Xmax: Double; Parameters: array of Double; Nstep: Integer=100);overload;
          {як попередня, тільки використовується не крок, а загальна
          кількість точок Nstep на заданому інтервалі}
+      Procedure Filling(Fun: TFunPoint; Xmin, Xmax: Double; Nstep: Integer=100);overload;
+         {як попередня, тільки використовується не крок, а загальна
+         кількість точок Nstep на заданому інтервалі}
       Procedure Filling(Fun: TFunSingle; Xmin, Xmax: Double; Nstep: Integer=100);overload;
          {як попередня, тільки використовується не крок, а загальна
          кількість точок Nstep на заданому інтервалі}
@@ -961,6 +964,30 @@ begin
     X[i]:=Xmin+i*deltaX;
     Y[i]:=Fun(X[i]);
   end;
+end;
+
+procedure TVector.Filling(Fun: TFunPoint; Xmin, Xmax: Double;
+                           Nstep: Integer);
+ const Nmax=10000;
+ var i:integer;
+     deltaX:double;
+begin
+ if (Nstep<1)or(Nstep>Nmax) then
+    begin
+    Clear();
+    Exit;
+    end;
+ if Nstep=1 then
+    begin
+    SetLenVector(2);
+    PointSet(0,Fun(Xmin));
+    PointSet(1,Fun(Xmax));
+    Exit;
+    end;
+ deltaX:=(Xmax-Xmin)/(Nstep-1);
+ SetLenVector(Nstep);
+ for I := 0 to High(Points)
+   do PointSet(i,Fun(Xmin+i*deltaX));
 end;
 
 function TVector.FunVPBDeleteErResult(i: integer): boolean;

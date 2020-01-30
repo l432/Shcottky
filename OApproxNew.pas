@@ -5,7 +5,7 @@ interface
 uses
   IniFiles, OlegApprox, OlegVector, OlegType,
   OlegVectorManipulation, TeEngine, OlegTypePart2,
-  Forms, FrameButtons, OlegFunction, Classes;
+  Forms, FrameButtons, OlegFunction, Classes, OlegMathShottky;
 
 //uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
 //      Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
@@ -131,7 +131,7 @@ protected
  fHasPicture:boolean;//наявність картинки
  fDataToFit:TVectorTransform; //дані для апроксимації
  FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
- ftempVector: TVectorTransform;//допоміжний векторж
+ ftempVector: TVectorShottky;//допоміжний векторж
  procedure AccessorialDataCreate;virtual;
  procedure AccessorialDataDestroy;virtual;
  function ParameterCreate:TFFParameter;virtual;
@@ -193,132 +193,6 @@ end;
 
 
 
-////-----------------------------------------------
-//TFitVariabSet=class(TFitFunctionSimple)
-//{для функцій, де потрібно більше величин ніж лише Х та Y}
-//private
-// FVarNum:byte; //кількість додаткових (крім X та Y) величин, які потрібні для розрахунку функції
-// FVariab:TArrSingle;
-// {величини, які потрібні для розрахунку функції}
-// FVarName:array of string;  //імена додаткових величин
-// FVarBool:array of boolean;
-// {якщо True, то значення відповідної додаткової
-// величини відповідає  введеному значенню, а не
-// визначається програмно - наприклад,
-// температура береться не з парметрів Pvector}
-// FVarManualDefinedOnly:array of boolean;
-// {якщо True, то відповідна величина
-// може визначатися лише завдяки зовнішньому введенню;
-// за умовчанням False, міняються величини лише
-// в Create}
-// FVarValue:TArrSingle;
-// {ці значення додаткових величин,
-// вони зберігаються в .ini-файлі}
-// FIsNotReady:boolean;
-//{показує, чи всі дані присутні і, отже, чи функція готова
-// для використання}
-// FConfigFile:TOIniFile;//для роботи з .ini-файлом
-// Constructor Create(FunctionName,FunctionCaption:string;
-//                     Npar,Nvar:byte);
-// Procedure FIsNotReadyDetermination;virtual;
-// {по значенням полів визначається, чи готові дані до
-// апроксимації}
-// Procedure ReadFromIniFile;virtual;
-// {зчитує дані з ini-файла, обгортка для RealReadFromIniFile}
-// Procedure RealReadFromIniFile;virtual;
-// {безпосередньо зчитує дані з ini-файла, в цьому класі - FVarValue, FVarBool}
-// Procedure WriteToIniFile;virtual;
-// {записує дані в ini-файл, обгортка для RealWriteToIniFile}
-// Procedure RealWriteToIniFile;virtual;
-// {безпосередньо записує дані в ini-файл, в цьому класі - FVarValue, FVarBool}
-//// Procedure BeforeFitness(InputData:Pvector);overload;virtual;
-// Procedure BeforeFitness(InputData:TVector);{overload;}virtual;
-// {виконується перед початком апроксимації,
-// полягає у заповненні полів потрібними
-// значеннями}
-// Procedure WriteIniDefFit(const Ident: string;Value:double);overload;
-// {записує дані в секцію з ім'ям FName використовуючи FConfigFile}
-// Procedure WriteIniDefFit(const Ident: string;Value:integer);overload;
-// Procedure WriteIniDefFit(const Ident: string;Value:Boolean);overload;
-// Procedure WriteIniDefFit(const Ident: string; var Value:TVar_Rand);overload;
-// Procedure  ReadIniDefFit(const Ident: string; var Value:double);overload;
-// {зчитує  дані з секції з ім'ям FName використовуючи FConfigFile}
-// Procedure  ReadIniDefFit(const Ident: string; var Value:integer);overload;
-// Procedure  ReadIniDefFit(const Ident: string; var Value:boolean);overload;
-// Procedure ReadIniDefFit(const Ident: string; var Value:TVar_Rand);overload;
-// Procedure GRFormPrepare(Form:TForm);
-//  {початкове створення форми для керування параметрами}
-// Procedure GRElementsToForm(Form:TForm);
-// {виведення різноманітних елементів на форму
-//  для керування параметрами, фактично -
-//  обгортка для інших функцій} virtual;
-// Function  GrVariabLeftDefine(Form: TForm):integer;
-// Function GrVariabTopDefine(Form: TForm):integer;
-// {залежно від того, що є на формі,
-// визначається положення, де будуть виводитися
-// елементи в наступній процедурі}
-// Procedure GRVariabToForm(Form:TForm);
-// {виводяться в стовпчик елементи, пов'язані
-// з додатковими величинами}
-// Procedure GRFieldFormExchange(Form:TForm;ToForm:boolean);
-// {при ToForm=True заповнення значень елементів на формі
-//  для керування параметрами,
-//  при ToForm=False зчитування значень звідти;
-//  фактично -  обгортка для GRRealSetValue}
-// Procedure GRRealSetValue(Component:TComponent;ToForm:boolean);virtual;
-// {заповнюється/зчитуються значення компонента Component}
-// Procedure GRSetValueVariab(Component:TComponent;ToForm:boolean);
-// {якщо Component зв'язаний з додатковими
-// величинами, то заповнюються/зчитуються його значення}
-// Procedure GRButtonsToForm(Form:TForm);
-// {На форму виводяться кнопки Ok, Cancel}
-//public
-//// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-////                    Xlog:boolean=False;Ylog:boolean=False);override;
-// Procedure Fitting (InputData:TVector; var OutputData:TArrSingle;
-//                    Xlog:boolean=False;Ylog:boolean=False);override;
-// procedure SetValueGR;override;
-// {показ форми для керування параметрами апроксимації}
-//end;   // TFitVariabSet=class(TFitFunctionSimple)
-
-//
-//
-////------------------------------------
-//TFitTemperatureIsUsed=class(TFitVariabSet)
-//{для функцій, де використовується температура}
-//private
-// fTemperatureIsRequired:boolean;
-// {якщо у функції температура не використовується,
-// необхідно для спадкоємців у Сreate поставити цю змінну в False}
-// Constructor Create(FunctionName,FunctionCaption:string;
-//                     Npar,Nvar:byte);
-//// Procedure BeforeFitness(InputData:Pvector);override;
-// Procedure BeforeFitness(InputData:TVector);override;
-// procedure SetT(const Value: double);
-// Function GetT():double;
-//public
-// property T:double read GetT write SetT;
-//end; //TFitTemperature=class(TFitVariabSet)
-//
-////----------------------------------------------
-//TFitVoltageIsUsed=class(TFitTemperatureIsUsed)
-//{для функцій, де потрібна напруга, яку можна
-//визначити з назви файлу}
-//private
-// fVoltageIsRequired:boolean;
-// {щоб використовувати можливість
-// автоматичного заповнення значення FVariab[0] напругою
-// потрібно цю змінну для спадкоємців у Сreate
-// поставити цю змінну в True}
-// Constructor Create(FunctionName,FunctionCaption:string;
-//                     Npar,Nvar:byte);
-//// Procedure BeforeFitness(InputData:Pvector);override;
-// Procedure BeforeFitness(InputData:TVector);override;
-//// Function DetermineVoltage(InputData:Pvector):double;overload;
-// Function DetermineVoltage(InputData:TVector):double;//overload;
-//public
-//end; //TFitVoltageIsUsed=class(TFitTemperatureIsUsed)
-//
 ////----------------------------------------------
 //TFitSumFunction=class(TFitVoltageIsUsed)
 //{для функцій, які є сумою двох інших і
@@ -343,51 +217,8 @@ end;
 //
 ////----------------------------------------------
 //
-//TFitSampleIsUsed=class(TFitSumFunction)
-//{для функцій, де використовується параметри зразка}
-//private
-// fSampleIsRequired:boolean;
-// {якщо у функції дані про зразок не використовується,
-// необхідно для спадкоємців у Сreate поставити цю змінну в False}
-// FSample: TDiodMaterial;
-//// FSample:TDiod_Schottky;
-// Constructor Create(FunctionName,FunctionCaption:string;
-//                     Npar,Nvar:byte);
-// Procedure FIsNotReadyDetermination;override;
-//public
-//end; //TFitSampleIsUsed=class(TFitSumFunction)
-//
-////----------------------------------------------
-//TExponent=class (TFitSampleIsUsed)
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//// Procedure RealFitting (InputData:PVector;
-////               var OutputData:TArrSingle); override;
-// Procedure RealFitting (InputData:TVector;
-//               var OutputData:TArrSingle); override;
-//public
-// Constructor Create;
-//end; // TDiod=class (TFitSampleIsUsed)
-//
-//TIvanov=class (TFitSampleIsUsed)
-//private
-//  Function Func(Parameters:TArrSingle):double; override;
-////  Procedure RealFitting (InputData:PVector;
-////         var OutputData:TArrSingle); override;
-//  Procedure RealFitting (InputData:TVector;
-//         var OutputData:TArrSingle); override;
-//  Procedure FIsNotReadyDetermination;override;
-////  Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog,Ylog:boolean; Np:Word);override;
-//  Procedure RealToGraph (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog,Ylog:boolean; Np:Word);override;
-//public
-// Constructor Create;
-// Function FinalFunc(var X:double;DeterminedParameters:TArrSingle):double; reintroduce; overload;
-//end; // TIvanov=class (TFitSampleIsUsed)
-//
+
+
 ////-----------------------------------------------
 //TFitIteration=class (TFitSampleIsUsed)
 //{при апроксимації використовується
@@ -1527,7 +1358,7 @@ end;
 procedure TFitFunctionNew.DataContainerCreate;
 begin
   fDataToFit:=TVectorTransform.Create;
-  ftempVector:=TVectorTransform.Create;
+  ftempVector:=TVectorShottky.Create;
   FittingData:=TVector.Create;
 end;
 
@@ -1610,17 +1441,6 @@ begin
    MessageDlg('Approximation unseccessful', mtError,[mbOk],0);
 end;
 
-
-//procedure TFitFunctionNew.ReadFromIniFile;
-//begin
-//  fDiapazon.ReadFromIniFile(fConfigFile,FName,'DiapazonFit');
-//end;
-
-
-//procedure TFitFunctionNew.RealFitting;
-//begin
-//  fResultsIsReady:=True;
-//end;
 
 function TFitFunctionNew.RealFinalFunc(X: double): double;
 begin

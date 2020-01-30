@@ -18,14 +18,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 120
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -5393,10 +5393,16 @@ object Form1: TForm1
           Width = 33
           Height = 57
           Caption = 'Min'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
           ItemIndex = 0
           Items.Strings = (
             'X'
             'Y')
+          ParentFont = False
           TabOrder = 0
           OnClick = RdGrMinClick
         end

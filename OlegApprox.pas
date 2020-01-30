@@ -2785,7 +2785,7 @@ procedure TIvanov.RealFitting(InputData: TVector;
 begin
  temp:=TVectorTransform.Create(InputData);
  temp.IvanovAprox(OutputData,(FSample as TDiod_Schottky),FVariab[0]);
- Swap(OutputData[1],OutputData[0]);
+// Swap(OutputData[1],OutputData[0]);
  temp.Free;
 end;
 

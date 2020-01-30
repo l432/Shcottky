@@ -52,12 +52,13 @@ type
     Constructor Create(STD:TStaticText;
                        ParametrCaption:string;
                        WT:string);overload;
+    destructor Destroy;override;
     procedure ReadFromIniFile(ConfigFile:TIniFile);override;
     procedure WriteToIniFile(ConfigFile:TIniFile);override;
 //    procedure Free;//overload;
     procedure ColorToActive(Value:boolean);
     procedure SetName(Name:string);
-    procedure ForUseInShowObject(NamedObject:IName;
+    procedure ForUseInShowObject(const NamedObject:IName;
                                  ColorChanging:boolean=true;
                                  ActiveColor:boolean=false);overload;
     procedure ForUseInShowObject(NamedObject:TNamedInterfacedObject;
@@ -255,6 +256,7 @@ begin
   fDigitNumber := DN;
   STData.Caption := ValueToString(InitValue);
   DefaulValue := InitValue;
+  fLimits:=TLimits.Create();
 end;
 
 constructor TDoubleParameterShow.Create(STD: TStaticText; ParametrCaption,
@@ -405,7 +407,7 @@ begin
 end;
 
 
-procedure TParameterShowNew.ForUseInShowObject(NamedObject: IName;
+procedure TParameterShowNew.ForUseInShowObject(const NamedObject: IName;
                                          ColorChanging:boolean=true;
                                          ActiveColor:boolean=false);
 begin
@@ -430,6 +432,12 @@ begin
   fIniNameSalt:='';
   HookParameterClick:=TSimpleClass.EmptyProcedure;
   AdditionalCreate;
+end;
+
+destructor TParameterShowNew.Destroy;
+begin
+//  HelpForMe('kk'+fParametrCaption);
+  inherited;
 end;
 
 procedure TParameterShowNew.ForUseInShowObject(NamedObject: TNamedInterfacedObject;
