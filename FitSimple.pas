@@ -4,7 +4,7 @@ interface
 
 uses
   OApproxNew, FitVariable, OlegApprox, Classes, OlegType, OlegMath, OlegVector, 
-  TeEngine;
+  TeEngine, FitIteration;
 
 type
 
@@ -50,7 +50,7 @@ TFFSimple=class (TFitFunctionWithArbitraryArgument)
  protected
   fDParamArray:TDParamArray;
   procedure AccessorialDataCreate;override;
-  procedure ParametersCreate;virtual;abstract;
+  procedure ParamArrayCreate;virtual;abstract;
   procedure AccessorialDataDestroy;override;
   procedure RealFitting;override;
   function FittingCalculation:boolean;virtual;abstract;
@@ -78,7 +78,7 @@ end;
 
 TFFLinear=class (TFFSimpleLogEnable)
  protected
-  procedure ParametersCreate;override;
+  procedure ParamArrayCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -88,7 +88,7 @@ end; // TFFLinear=class (TFFSimpleLogEnable)
 
 TFFOhmLaw=class (TFFSimpleLogEnable)
  protected
-  procedure ParametersCreate;override;
+  procedure ParamArrayCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -98,7 +98,7 @@ end; // TFFOhmLaw=class (TFFSimpleLogEnable)
 
 TFFQuadratic=class (TFFSimpleLogEnable)
  protected
-  procedure ParametersCreate;override;
+  procedure ParamArrayCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -107,7 +107,7 @@ end; // TFFQuadratic=class (TFFSimpleLogEnable)
 
 TFFGromov=class (TFFSimple)
  protected
-  procedure ParametersCreate;override;
+  procedure ParamArrayCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -116,7 +116,7 @@ end; //TFFGromov=class (TFFSimple)
 
 TFFPolinom=class (TFFSimple)
  protected
-  procedure ParametersCreate;override;
+  procedure ParamArrayCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   procedure TuningAfterReadFromIni;override;
@@ -392,7 +392,7 @@ end;
 procedure TFFSimple.AccessorialDataCreate;
 begin
   inherited;
-  ParametersCreate;
+  ParamArrayCreate;
 end;
 
 procedure TFFSimple.AccessorialDataDestroy;
@@ -484,7 +484,7 @@ begin
                   'Linear fitting, least-squares method');
 end;
 
-procedure TFFLinear.ParametersCreate;
+procedure TFFLinear.ParamArrayCreate;
 begin
  fDParamArray:=TDParamArray.Create(Self,['A','B']);
 end;
@@ -515,7 +515,7 @@ begin
                   'Fitting by Ohm law, least-squares method');
 end;
 
-procedure TFFOhmLaw.ParametersCreate;
+procedure TFFOhmLaw.ParamArrayCreate;
 begin
   fDParamArray:=TDParamArray.Create(Self,['R']);
 end;
@@ -538,7 +538,7 @@ begin
                   'Fitting by quadratic function, least-squares method');
 end;
 
-procedure TFFQuadratic.ParametersCreate;
+procedure TFFQuadratic.ParamArrayCreate;
 begin
    fDParamArray:=TDParamArray.Create(Self,['A','B','C']);
 end;
@@ -562,7 +562,7 @@ begin
       'Least-squares fitting,  which is used in Gromov and Lee methods');
 end;
 
-procedure TFFGromov.ParametersCreate;
+procedure TFFGromov.ParamArrayCreate;
 begin
  fDParamArray:=TDParamArray.Create(Self,['A','B','C']);
 end;
@@ -585,7 +585,7 @@ begin
       'Polynomial least-squares fitting, N is degree of polynomial function');
 end;
 
-procedure TFFPolinom.ParametersCreate;
+procedure TFFPolinom.ParamArrayCreate;
 begin
   fIntVars.Add(Self,'N');
   fIntVars.ParametrByName['N'].Limits.SetLimits(0);

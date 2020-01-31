@@ -4,7 +4,7 @@ interface
 
 uses
   Forms, StdCtrls, Classes, OlegShowTypes, FitVariable, OApproxNew, 
-  OApproxShow;
+  OApproxShow, ExtCtrls, OlegType;
 
 const
       IntFrameName='IntegerFrame';
@@ -33,6 +33,18 @@ type
     constructor Create(AOwner: TComponent;VarInteger:TVarInteger);
     destructor Destroy;override;
     procedure SizeDetermination (Form: TForm);override;
+    procedure DateUpdate;override;
+ end;
+
+  TSimpleDoubleFrame=class(TNumberFrame)
+   protected
+    fDPShow:TDoubleParameterShow;
+   public
+    property DPShow:TDoubleParameterShow read fDPShow;
+    constructor Create(AOwner: TComponent;
+                       const LabelCaption:string='None';
+                       InitValue:double=ErResult);
+    destructor Destroy;override;
     procedure DateUpdate;override;
  end;
 
@@ -84,7 +96,7 @@ type
 implementation
 
 uses
-  Graphics, Math, OlegType, Unit1new, Dialogs, SysUtils, Controls;
+  Graphics, Math, Unit1new, Dialogs, SysUtils, Controls, Windows;
 
 
 { TNumberFrame }
@@ -93,6 +105,7 @@ constructor TNumberFrame.Create(AOwner: TComponent);
 begin
  inherited Create;
  Frame:=TFrame.Create(AOwner);
+
  fLabel:=TLabel.Create(Frame);
  fLabel.AutoSize:=True;
  fLabel.Parent:=Frame;
@@ -126,6 +139,13 @@ begin
  fLabel.Left:=MarginFrame;
 
  RelativeLocation(fLabel,fSText,fOrientation);
+
+ if fOrientation=oCol then
+       Frame.Width:=max(fStext.Left+fStext.Width,
+                 fLabel.Left+fLabel.Width)+MarginFrame
+                      else
+      Frame.Width:=fStext.Left+fStext.Width+MarginFrame;
+ Frame.Height:=fStext.Top+fStext.Height+MarginFrame;
 
 // if fOneRow then
 //  begin
@@ -404,8 +424,8 @@ begin
  fCheckBox.Width:=Form.Canvas.TextWidth(fCheckBox.Caption)+20;
  fCheckBox.Height:=Form.Canvas.TextHeight(fCheckBox.Caption);
 
- fSText.Top:=fLabel.Top;
- fStext.Left:=fLabel.Left+fLabel.Width+2*MarginFrame;
+// fSText.Top:=fLabel.Top;
+// fStext.Left:=fLabel.Left+fLabel.Width+2*MarginFrame;
 
  fCheckBox.Top:=fLabel.Top+fLabel.Height+MarginFrame;
  fCheckBox.Left:=Round((fStext.Left+fStext.Width-fCheckBox.Width)/2);
@@ -558,5 +578,36 @@ begin
     fSubFrames[i].Frame.Height := MaxHeight;
   end;
 end;
+
+
+{ TSimpleDoubleFrame }
+
+constructor TSimpleDoubleFrame.Create(AOwner: TComponent;
+                       const LabelCaption:string='None';
+                       InitValue:double=ErResult);
+begin
+  inherited Create(AOwner);
+  fLabel.Font.Color:=clNavy;
+  fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
+           LabelCaption,InitValue);
+end;
+
+procedure TSimpleDoubleFrame.DateUpdate;
+begin
+
+end;
+
+destructor TSimpleDoubleFrame.Destroy;
+begin
+  fDPShow.Free;
+  inherited;
+end;
+
+//procedure TSimpleDoubleFrame.DPShowCreate(const LabelCaption:string='None';
+//                                       InitValue:double=ErResult);
+//begin
+// fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
+//           LabelCaption,InitValue);
+//end;
 
 end.

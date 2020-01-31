@@ -39,8 +39,8 @@ type
      procedure Module(Coord:TCoord_type;Target:TVector);
      function PVParareter(Index:word):double;
     protected
-     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
-                             InitialValue:double=ErResult);
+//     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
+//                             InitialValue:double=ErResult);
      Procedure InitTarget(Target:TVector);
     public
 //     Constructor Create(ExternalVector:TVectorNew);overload;
@@ -704,15 +704,15 @@ begin
 
 end;
 
-procedure TVectorTransform.InitArrSingle(var OutputData: TArrSingle;
-  NumberOfData: word;InitialValue:double=ErResult);
-  var i:word;
-begin
- if High(OutputData)<(NumberOfData-1)
-      then SetLength(OutputData,NumberOfData);
- for i := 0 to High(OutputData)
-    do OutputData[i]:=InitialValue;
-end;
+//procedure TVectorTransform.InitArrSingle(var OutputData: TArrSingle;
+//  NumberOfData: word;InitialValue:double=ErResult);
+//  var i:word;
+//begin
+// if High(OutputData)<(NumberOfData-1)
+//      then SetLength(OutputData,NumberOfData);
+// for i := 0 to High(OutputData)
+//    do OutputData[i]:=InitialValue;
+//end;
 
 procedure TVectorTransform.InitTarget(Target: TVector);
 begin

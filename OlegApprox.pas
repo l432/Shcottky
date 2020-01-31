@@ -412,6 +412,8 @@ public
  {показ форми для керування параметрами апроксимації}
 end;   // TFitVariabSet=class(TFitFunctionSimple)
 //---------------------------------------------
+
+
 TNoiseSmoothing=class(TFitVariabSet)
 // FtempVector:PVector;
  Function Func(Parameters:TArrSingle):double; override;

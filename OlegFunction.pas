@@ -21,7 +21,8 @@ Procedure GraphSum (Lines: array of TLineSeries);
 передбачається, що у цих всіх інших кількість
 точок та їх абсциси однакові}
 
-Procedure ElementsFromForm(Form:TForm);
+//Procedure ElementsFromForm(Form:TForm);
+Procedure ElementsFromForm(WinControl:TWinControl);
 {забирає всі елементи з форми}
 
 
@@ -208,6 +209,12 @@ function SecondFromDayBegining:integer;overload;
 function SecondFromDayBegining(ttime: TDateTime):integer;overload;
 
 
+procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
+                             InitialValue:double=ErResult);
+{забезпечую, щоб в OutputData було не менше
+NumberOfData елементів та призначає цим
+елементам значення InitialValue}
+
 implementation
 
 uses
@@ -280,11 +287,14 @@ end; //try
 end;
 
 
-Procedure ElementsFromForm(Form:TForm);
+//Procedure ElementsFromForm(Form:TForm);
+Procedure ElementsFromForm(WinControl:TWinControl);
 var i:integer;
 begin
-   for I := Form.ComponentCount-1 downto 0 do
-     Form.Components[i].Free;
+   for I := WinControl.ComponentCount-1 downto 0 do
+     WinControl.Components[i].Free;
+//   for I := Form.ComponentCount-1 downto 0 do
+//     Form.Components[i].Free;
 end;
 
 
@@ -1286,6 +1296,17 @@ function SecondFromDayBegining(ttime: TDateTime):integer;
 begin
  DecodeTime(ttime,Hour,Min,Sec,MSec);
  Result:=Sec+60*Min+60*60*Hour;
+end;
+
+
+procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
+                             InitialValue:double=ErResult);
+  var i:word;
+begin
+ if High(OutputData)<(NumberOfData-1)
+      then SetLength(OutputData,NumberOfData);
+ for i := 0 to (NumberOfData-1)
+    do OutputData[i]:=InitialValue;
 end;
 
 end.

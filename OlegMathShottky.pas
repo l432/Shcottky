@@ -2,7 +2,7 @@ unit OlegMathShottky;
 
 interface
  uses OlegVector,OlegType, OlegMaterialSamples, 
-  OlegVectorManipulation, StdCtrls, IniFiles;
+  OlegVectorManipulation, StdCtrls, IniFiles, OlegFunction;
 
 
 type

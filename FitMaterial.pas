@@ -67,15 +67,12 @@ end;
     procedure DateUpdate;override;
  end;
 
-  TDAreaFrame=class(TNumberFrame)
+  TDAreaFrame=class(TSimpleDoubleFrame)
    private
     fDiod:TDiodMaterial;
-    fAreaShow:TDoubleParameterShow;
+   protected
    public
-//    Frame:TFrame;
     constructor Create(AOwner: TComponent;Schottky:TDiodMaterial);
-    destructor Destroy;override;
-    procedure SizeDetermination (Form: TForm);override;
     procedure DateUpdate;override;
   end;
 
@@ -294,9 +291,6 @@ begin
  Frame.Height:=max(MaterialFrame.Frame.Top+MaterialFrame.Frame.Height,
                    RG.Top+RG.Height)+MarginFrame;
 
-// Frame.Width:=fLabel.Left+fLabel.Width+MarginFrame;
-// Frame.Height:=RG.Top+RG.Height+MarginFrame;
-
 end;
 
 { TDSchottkyFit }
@@ -344,34 +338,28 @@ end;
 constructor TDAreaFrame.Create(AOwner: TComponent;
                            Schottky: TDiodMaterial);
 begin
- inherited Create(AOwner);
+ inherited Create(AOwner,'Area',Schottky.Area);
  fLabel.Font.Color:=clPurple;
 
  fDiod:=Schottky;
  fOrientation:=oCol;
- fAreaShow:=TDoubleParameterShow.Create(fSText,fLabel,
-           'Area',fDiod.Area);
- fAreaShow.Limits.SetLimits(0);
+
+// DPShowCreate('Area',fDiod.Area);
 end;
 
 procedure TDAreaFrame.DateUpdate;
 begin
- fDiod.Area:=fAreaShow.Data;
+ fDiod.Area:=fDPShow.Data;
 end;
 
-destructor TDAreaFrame.Destroy;
-begin
-  fAreaShow.Free;
-  inherited;
-end;
 
-procedure TDAreaFrame.SizeDetermination(Form: TForm);
-begin
- inherited SizeDetermination(Form);
- Frame.Width:=max(fLabel.Left+fLabel.Width,
-                 fSText.Left+fSText.Width)+MarginFrame;
- Frame.Height:=fSText.Top+fSText.Height+MarginFrame;
-end;
+//procedure TDAreaFrame.DPShowCreate;
+//begin
+// fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
+//           'Area',fDiod.Area);
+// fDPShow.Limits.SetLimits(0);
+//end;
+
 
 { TTDSchottkyGroupBox }
 

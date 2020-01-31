@@ -40,7 +40,7 @@ end;
 
 TFFExponent=class (TFFVariabSetSchottky)
  protected
-  procedure ParametersCreate;override;
+  procedure ParamArrayCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -53,7 +53,7 @@ TFFIvanov=class (TFFVariabSetSchottky)
   procedure FittingDataFilling;override;
   function Deviation:double;override;
   function IvanovFun(X:double):TPointDouble;
-  procedure ParametersCreate;override;
+  procedure ParamArrayCreate;override;
   function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
 public
@@ -63,7 +63,7 @@ end; //TFFExponent=class (TFFVariabSetSchottky)
 implementation
 
 uses
-  FitVariableShow, SysUtils, OlegMathShottky;
+  FitVariableShow, SysUtils, OlegMathShottky, FitIteration;
 
 { TFFVariabSet }
 
@@ -150,7 +150,7 @@ begin
       'Linear least-squares fitting of semi-log plot');
 end;
 
-procedure TFFExponent.ParametersCreate;
+procedure TFFExponent.ParamArrayCreate;
 begin
  fDParamArray:=TDParamArray.Create(Self,['Io','n','Fb']);
 end;
@@ -227,7 +227,7 @@ begin
       'I-V fitting for dielectric layer width d determination, Ivanov method');
 end;
 
-procedure TFFIvanov.ParametersCreate;
+procedure TFFIvanov.ParamArrayCreate;
 begin
  fDParamArray:=TDParamArray.Create(Self,['Fb','d/ep']);
 end;

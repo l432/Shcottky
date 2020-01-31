@@ -34,6 +34,8 @@
       <Form>App</Form>
     </DCCReference>
     <DCCReference Include="FitDigital.pas" />
+    <DCCReference Include="FitIteration.pas" />
+    <DCCReference Include="FitIterationShow.pas" />
     <DCCReference Include="FitMaterial.pas" />
     <DCCReference Include="FitSimple.pas" />
     <DCCReference Include="FitTransform.pas" />

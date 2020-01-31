@@ -34,7 +34,9 @@ uses
   FitVariableShow in 'FitVariableShow.pas',
   FitSimple in 'FitSimple.pas',
   OApprox3 in 'OApprox3.pas',
-  FitMaterial in 'FitMaterial.pas';
+  FitMaterial in 'FitMaterial.pas',
+  FitIteration in 'FitIteration.pas',
+  FitIterationShow in 'FitIterationShow.pas';
 
 {$R *.res}
 

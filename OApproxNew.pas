@@ -88,13 +88,26 @@ TFFParameter=class
    function IsReadyToFitDetermination:boolean;virtual;abstract;
 end;
 
-TFFWindowShow=class
+TWindowShow=class
   protected
-   fPS:TFFParameter;
    fForm:TForm;
    fButtons:TFrBut;
+   procedure CreateForm;
+   procedure UpDate;virtual;
+   procedure AdditionalFormClear;virtual;
+   procedure AdditionalFormPrepare;virtual;
   public
-   procedure Show;virtual;abstract;
+   procedure Show;
+ end;
+
+
+TFFWindowShow=class(TWindowShow)
+  protected
+   fPS:TFFParameter;
+//   fForm:TForm;
+//   fButtons:TFrBut;
+  public
+//   procedure Show;virtual;abstract;
    constructor Create(PS:TFFParameter);
 end;
 
@@ -185,10 +198,14 @@ public
 TFFWindowShowBase=class(TFFWindowShow)
  private
   fFF:TFitFunctionNew;
-  procedure CreateForm;
+ protected
+  procedure UpDate;override;
+  procedure AdditionalFormClear;override;
+  procedure AdditionalFormPrepare;override;
+//  procedure CreateForm;
  public
   constructor Create(FF:TFitFunctionNew);
-  procedure Show;override;
+//  procedure Show;override;
 end;
 
 
@@ -1546,11 +1563,25 @@ end;
 
 constructor TFFWindowShow.Create(PS: TFFParameter);
 begin
+  inherited Create;
   fPS:=PS;
 end;
 
 
 { TWindowShowBase }
+
+procedure TFFWindowShowBase.AdditionalFormClear;
+begin
+  inherited;
+  fPS.FormClear;
+end;
+
+procedure TFFWindowShowBase.AdditionalFormPrepare;
+begin
+ inherited;
+ fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
+ fPS.FormPrepare(fForm);
+end;
 
 constructor TFFWindowShowBase.Create(FF: TFitFunctionNew);
 begin
@@ -1558,7 +1589,71 @@ begin
  inherited Create(fFF.fParameter);
 end;
 
-procedure TFFWindowShowBase.CreateForm;
+//procedure TFFWindowShowBase.CreateForm;
+//begin
+////  inherited
+////  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
+//
+//  fForm := TForm.Create(Application);
+//  fForm.Position := poMainFormCenter;
+//  fForm.AutoScroll := True;
+//  fForm.BorderIcons := [biSystemMenu];
+//  fForm.ParentFont := True;
+//  fForm.Font.Style := [fsBold];
+//  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
+//  fForm.Color := clLtGray;
+//end;
+
+//procedure TFFWindowShowBase.Show;
+//begin
+// CreateForm;
+// fPS.FormPrepare(fForm);
+//
+// fButtons := TFrBut.Create(fForm);
+// fButtons.Parent := fForm;
+// fButtons.Left := 10;
+// fButtons.Top := fForm.Height+MarginTop;
+//
+// fForm.Width:=max(fForm.Width,fButtons.Width)+MarginLeft+10;
+// fForm.Height:=fButtons.Top+fButtons.Height+2*MarginTop+10;
+//
+// if fForm.ShowModal=mrOk then
+//   begin
+//     fPS.UpDate;
+//     fFF.IsReadyToFitDetermination;
+//     if fFF.IsReadyToFit then  fFF.fParameter.WriteToIniFile;
+//   end;
+//
+// fPS.FormClear;
+// fButtons.Parent:=nil;
+// fButtons.Free;
+// ElementsFromForm(fForm);
+//
+// fForm.Hide;
+// fForm.Release;
+//
+//end;
+
+
+
+
+
+procedure TFFWindowShowBase.UpDate;
+begin
+  inherited;
+  fPS.UpDate;
+  fFF.IsReadyToFitDetermination;
+  if fFF.IsReadyToFit then  fFF.fParameter.WriteToIniFile;
+end;
+
+{ TWindowShow }
+
+procedure TWindowShow.AdditionalFormPrepare;
+begin
+
+end;
+
+procedure TWindowShow.CreateForm;
 begin
   fForm := TForm.Create(Application);
   fForm.Position := poMainFormCenter;
@@ -1566,40 +1661,43 @@ begin
   fForm.BorderIcons := [biSystemMenu];
   fForm.ParentFont := True;
   fForm.Font.Style := [fsBold];
-  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
+  fForm.Caption := 'Some Captions';
   fForm.Color := clLtGray;
+
+  AdditionalFormPrepare;
+
+  fButtons := TFrBut.Create(fForm);
+  fButtons.Parent := fForm;
+  fButtons.Left := 10;
+  fButtons.Top := fForm.Height+MarginTop;
+
+  fForm.Width:=max(fForm.Width,fButtons.Width)+MarginLeft+10;
+  fForm.Height:=fButtons.Top+fButtons.Height+2*MarginTop+10;
 end;
 
-procedure TFFWindowShowBase.Show;
+procedure TWindowShow.UpDate;
+begin
+
+end;
+
+procedure TWindowShow.AdditionalFormClear;
+begin
+
+end;
+
+procedure TWindowShow.Show;
 begin
  CreateForm;
- fPS.FormPrepare(fForm);
 
- fButtons := TFrBut.Create(fForm);
- fButtons.Parent := fForm;
- fButtons.Left := 10;
- fButtons.Top := fForm.Height+MarginTop;
+ if fForm.ShowModal=mrOk then UpDate;
 
- fForm.Width:=max(fForm.Width,fButtons.Width)+MarginLeft+10;
- fForm.Height:=fButtons.Top+fButtons.Height+2*MarginTop+10;
-
- if fForm.ShowModal=mrOk then
-   begin
-     fPS.UpDate;
-     fFF.IsReadyToFitDetermination;
-     if fFF.IsReadyToFit then  fFF.fParameter.WriteToIniFile;
-   end;
-
- fPS.FormClear;
+ AdditionalFormClear;
  fButtons.Parent:=nil;
  fButtons.Free;
  ElementsFromForm(fForm);
 
  fForm.Hide;
  fForm.Release;
-
 end;
-
-
 
 end.
