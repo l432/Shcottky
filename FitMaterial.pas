@@ -349,7 +349,7 @@ end;
 
 procedure TDAreaFrame.DateUpdate;
 begin
- fDiod.Area:=fDPShow.Data;
+ fDiod.Area:=(fPShow as TDoubleParameterShow).Data;
 end;
 
 

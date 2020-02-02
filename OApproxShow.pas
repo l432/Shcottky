@@ -4,7 +4,7 @@ interface
 
 uses
   OlegShowTypes, OlegType, StdCtrls, Forms, FrameButtons,
-  OApproxNew, ExtCtrls, OlegApprox, OlegFunction, Controls;
+  OApproxNew, ExtCtrls, OlegApprox, OlegFunction, Controls, Graphics;
 
 const MarginLeft=20;
       MarginRight=30;
@@ -66,10 +66,12 @@ procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
 Procedure AddControlToForm(Control:TControl;
                            Form:TForm);
 
+procedure ResizeLabel(Lab:TLabel;Canvas: TCanvas);
+
 implementation
 
 uses
-  SysUtils, Graphics, Math;
+  SysUtils, Math;
 
 { TDiapazonDoubleParameterShow }
 
@@ -369,5 +371,10 @@ Procedure AddControlToForm(Control:TControl;
 
  end;
 
+procedure ResizeLabel(Lab:TLabel;Canvas: TCanvas);
+begin
+  Lab.Width:=Canvas.TextWidth(Lab.Caption);
+  Lab.Height:=Canvas.TextHeight(Lab.Caption);
+end; 
 
 end.

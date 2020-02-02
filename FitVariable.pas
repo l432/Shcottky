@@ -777,6 +777,7 @@ end;
 
 constructor TNamedAndDescripObject.Create(Nm: string);
 begin
+  inherited Create(Nm);
   fDescription:=Nm;
 end;
 

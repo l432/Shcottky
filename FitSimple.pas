@@ -55,7 +55,7 @@ TFFSimple=class (TFitFunctionWithArbitraryArgument)
   procedure RealFitting;override;
   function FittingCalculation:boolean;virtual;abstract;
   procedure FittingDataFilling;virtual;
-  procedure AddParamDetermination;
+  procedure AdditionalParamDetermination;
   function Deviation:double;virtual;
  public
   Procedure DataToStrings(OutStrings:TStrings);override;
@@ -401,7 +401,7 @@ begin
   inherited;
 end;
 
-procedure TFFSimple.AddParamDetermination;
+procedure TFFSimple.AdditionalParamDetermination;
 begin
  fDParamArray.OutputData[High(fDParamArray.OutputData)]:=Deviation;
 end;
@@ -453,7 +453,7 @@ procedure TFFSimple.RealFitting;
 begin
  if FittingCalculation then
   begin
-  AddParamDetermination;
+  AdditionalParamDetermination;
   FittingDataFilling;
   end;
 end;

@@ -25,6 +25,8 @@ TFFVariabSet =class(TFFSimple)
   procedure AutoDoubVarsDetermination;virtual;
   {визначення дійсних параметрів, які
   не задаються в ручному режимі}
+ public
+  property DoubVars:TVarDoubArray read fDoubVars;
  end;
 
 TFFVariabSetSchottky=class (TFFVariabSet)

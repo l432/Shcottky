@@ -20,7 +20,7 @@ end;
 TDParamArray=class
   private
    fFF:TFitFunctionNew;
-   fParams:array of TFFDParam;
+//   fParams:array of TFFDParam;
    fMainParamHighIndex:integer;
    {індекс останного параметра, який безпосередньо визначається
    з апроксимації (MainParam)}
@@ -29,8 +29,10 @@ TDParamArray=class
    procedure LastParamCreate;
    function GetParameterByName(str:string):TFFDParam;
   public
+   fParams:array of TFFDParam;
    OutputData:TArrSingle;
    property ParametrByName[str:string]:TFFDParam read GetParameterByName;
+   property MainParamHighIndex:integer read fMainParamHighIndex;
    constructor Create(FF:TFitFunctionNew;
                       const MainParamNames: array of string);overload;
    constructor Create(FF:TFitFunctionNew;
@@ -64,12 +66,10 @@ end;
 
 
 TFFParamIteration=class(TFFDParam)
-{параметри, які
-визначаються в результаті
+{параметри, які визначаються в результаті
 ітераційного процесу}
  private
 //  fValue:Double;
-
  public
   fCPDeter:TConstParDetermination;
   IsConstant:boolean;
@@ -80,13 +80,29 @@ TFFParamIteration=class(TFFDParam)
   procedure WriteToIniFile(ConfigFile:TIniFile;
                            const Section:string);
   procedure ReadFromIniFile(ConfigFile:TIniFile;
-                           const Section:string);  
+                           const Section:string);
 end;
+
+TDParamsIteration=class(TDParamArray)
+  private
+   fNit:integer;//кількість ітерацій
+   fAccurancy:double;
+  {величина, пов'язана з критерієм
+   припинення ітераційного процесу}
+   procedure MainParamCreate(const MainParamNames: array of string);override;
+  public
+   property Nit:integer read fNit write fNit;
+   property Accurancy:double read fAccurancy write fAccurancy;
+   procedure WriteToIniFile;
+   procedure ReadFromIniFile;
+   function IsReadyToFitDetermination:boolean;
+end;
+
 
 implementation
 
 uses
-  SysUtils, OlegFunction, OlegMath;
+  SysUtils, OlegFunction, OlegMath, OApprox3;
 
 { TDParamArray }
 
@@ -264,6 +280,49 @@ procedure TFFParamIteration.WriteToIniFile(ConfigFile: TIniFile;
 begin
   fCPDeter.WriteToIniFile(ConfigFile,Section);
   WriteIniDef(ConfigFile,Section,Name+'_IsConstant',not(IsConstant));
+end;
+
+{ TDParamIterationArray }
+
+function TDParamsIteration.IsReadyToFitDetermination: boolean;
+  var I:integer;
+begin
+ Result:=True;
+ Result:=Result and (fAccurancy<>ErResult)
+         and (fNit<>ErResult) and (fNit>0);
+ for I := 0 to fMainParamHighIndex do
+  if (fParams[i] as TFFParamIteration).IsConstant
+    then Result:=Result and ((fParams[i] as TFFParamIteration).Value<>ErResult);
+end;
+
+procedure TDParamsIteration.MainParamCreate(
+         const MainParamNames: array of string);
+ var i: Integer;
+begin
+  fMainParamHighIndex := High(MainParamNames);
+  SetLength(fParams, fMainParamHighIndex + 1);
+  for I := 0 to fMainParamHighIndex do
+    fParams[i] := TFFParamIteration.Create(MainParamNames[i],
+                               (fFF as TFFVariabSet).DoubVars);
+
+end;
+
+procedure TDParamsIteration.ReadFromIniFile;
+ var I:integer;
+begin
+  for I := 0 to fMainParamHighIndex
+    do (fParams[i] as TFFParamIteration).ReadFromIniFile(fFF.ConfigFile,fFF.Name);
+  fAccurancy:=fFF.ConfigFile.ReadFloat(fFF.Name,'Accurancy',1e-8);
+  fNit:=fFF.ConfigFile.ReadInteger(fFF.Name,'Nit',1000);
+end;
+
+procedure TDParamsIteration.WriteToIniFile;
+ var I:integer;
+begin
+  for I := 0 to fMainParamHighIndex
+    do (fParams[i] as TFFParamIteration).WriteToIniFile(fFF.ConfigFile,fFF.Name);
+  WriteIniDef(fFF.ConfigFile,fFF.Name,'Accurancy',fAccurancy);
+  WriteIniDef(fFF.ConfigFile,fFF.Name,'Nit',fNit);
 end;
 
 end.

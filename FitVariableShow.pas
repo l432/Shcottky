@@ -25,6 +25,40 @@ type
     procedure DateUpdate;virtual;abstract;
  end;
 
+  TSimpleNumberFrame=class(TNumberFrame)
+   protected
+    fPShow:TLimitedParameterShow;
+   public
+    property PShow:TLimitedParameterShow read fPShow;
+    destructor Destroy;override;
+    procedure DateUpdate;override;
+ end;
+
+
+  TSimpleIntFrame=class(TSimpleNumberFrame)
+   protected
+//    fIPShow:TIntegerParameterShow;
+   public
+//    property IPShow:TIntegerParameterShow read fIPShow;
+    constructor Create(AOwner: TComponent;
+                       const LabelCaption:string='None';
+                       InitValue:Integer=0);
+//    destructor Destroy;override;
+//    procedure DateUpdate;override;
+ end;
+
+  TSimpleDoubleFrame=class(TSimpleNumberFrame)
+   protected
+//    fDPShow:TDoubleParameterShow;
+   public
+//    property DPShow:TDoubleParameterShow read fDPShow;
+    constructor Create(AOwner: TComponent;
+                       const LabelCaption:string='None';
+                       InitValue:double=ErResult);
+//    destructor Destroy;override;
+//    procedure DateUpdate;override;
+ end;
+
  TIntFrame=class(TNumberFrame)
    private
     fIPShow:TIntegerParameterShow;
@@ -32,21 +66,11 @@ type
    public
     constructor Create(AOwner: TComponent;VarInteger:TVarInteger);
     destructor Destroy;override;
-    procedure SizeDetermination (Form: TForm);override;
+//    procedure SizeDetermination (Form: TForm);override;
     procedure DateUpdate;override;
  end;
 
-  TSimpleDoubleFrame=class(TNumberFrame)
-   protected
-    fDPShow:TDoubleParameterShow;
-   public
-    property DPShow:TDoubleParameterShow read fDPShow;
-    constructor Create(AOwner: TComponent;
-                       const LabelCaption:string='None';
-                       InitValue:double=ErResult);
-    destructor Destroy;override;
-    procedure DateUpdate;override;
- end;
+
 
  TDoubleFrame=class(TNumberFrame)
    private
@@ -67,7 +91,7 @@ type
     procedure SubFramesResize(Form: TForm);
     function ColumnNumberDetermination:byte;
     procedure SubFramesLocate;
-    procedure FrameLocate(Form: TForm);virtual;
+    procedure FrameLocate(Form: TForm);//virtual;
    public
     Frame:TFrame;
     procedure DateUpdate;
@@ -175,22 +199,22 @@ begin
   inherited;
 end;
 
-procedure TIntFrame.SizeDetermination(Form: TForm);
-begin
- inherited SizeDetermination(Form);
-
-// fSText.Top:=fLabel.Top+fLabel.Height+MarginFrame;
-// fStext.Left:=fLabel.Left+Round((fLabel.Width-fStext.Width)/2);
-// if fStext.Left<fLabel.Left then
-//  begin
-//   fLabel.Left:=2*fLabel.Left-fStext.Left;
-//   fStext.Left:=fStext.Left+abs(fStext.Left)+MarginFrame;
-//  end;
-
- Frame.Width:=max(fLabel.Left+fLabel.Width,
-                 fSText.Left+fSText.Width)+MarginFrame;
- Frame.Height:=fSText.Top+fSText.Height+MarginFrame;
-end;
+//procedure TIntFrame.SizeDetermination(Form: TForm);
+//begin
+// inherited SizeDetermination(Form);
+//
+//// fSText.Top:=fLabel.Top+fLabel.Height+MarginFrame;
+//// fStext.Left:=fLabel.Left+Round((fLabel.Width-fStext.Width)/2);
+//// if fStext.Left<fLabel.Left then
+////  begin
+////   fLabel.Left:=2*fLabel.Left-fStext.Left;
+////   fStext.Left:=fStext.Left+abs(fStext.Left)+MarginFrame;
+////  end;
+//
+// Frame.Width:=max(fLabel.Left+fLabel.Width,
+//                 fSText.Left+fSText.Width)+MarginFrame;
+// Frame.Height:=fSText.Top+fSText.Height+MarginFrame;
+//end;
 
 procedure TIntFrame.DateUpdate;
 begin
@@ -588,20 +612,20 @@ constructor TSimpleDoubleFrame.Create(AOwner: TComponent;
 begin
   inherited Create(AOwner);
   fLabel.Font.Color:=clNavy;
-  fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
+  fPShow:=TDoubleParameterShow.Create(fSText,fLabel,
            LabelCaption,InitValue);
 end;
 
-procedure TSimpleDoubleFrame.DateUpdate;
-begin
-
-end;
-
-destructor TSimpleDoubleFrame.Destroy;
-begin
-  fDPShow.Free;
-  inherited;
-end;
+//procedure TSimpleDoubleFrame.DateUpdate;
+//begin
+//
+//end;
+//
+//destructor TSimpleDoubleFrame.Destroy;
+//begin
+//  fDPShow.Free;
+//  inherited;
+//end;
 
 //procedure TSimpleDoubleFrame.DPShowCreate(const LabelCaption:string='None';
 //                                       InitValue:double=ErResult);
@@ -609,5 +633,39 @@ end;
 // fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
 //           LabelCaption,InitValue);
 //end;
+
+{ TSimpleIntFrame }
+
+constructor TSimpleIntFrame.Create(AOwner: TComponent;
+  const LabelCaption: string; InitValue: Integer);
+begin
+  inherited Create(AOwner);
+  fPShow:=TDoubleParameterShow.Create(fSText,fLabel,
+           LabelCaption,InitValue);
+end;
+
+//procedure TSimpleIntFrame.DateUpdate;
+//begin
+//
+//end;
+//
+//destructor TSimpleIntFrame.Destroy;
+//begin
+//  fIPShow.Free;
+//  inherited;
+//end;
+
+{ TSimpleNumberFrame }
+
+procedure TSimpleNumberFrame.DateUpdate;
+begin
+
+end;
+
+destructor TSimpleNumberFrame.Destroy;
+begin
+  fPShow.Free;
+  inherited;
+end;
 
 end.
