@@ -94,7 +94,8 @@ end;
 implementation
 
 uses
-  Windows, OApproxShow, Math, Graphics, Controls, OlegShowTypes;
+  Windows, OApproxShow, Math, Graphics, Controls, OlegShowTypes, Dialogs, 
+  SysUtils;
 
 
 { TConstParDetWindowShow }
@@ -174,7 +175,9 @@ begin
  for I := 0 to High(fFrames) do
   begin
   fFrames[i]:=TSimpleDoubleFrame.Create(fForm,
-         fConstParDet.CoefNames[i]+':',fConstParDet.Coefficients[i]);
+         fConstParDet.CoefNames[i]+'=',fConstParDet.Coefficients[i]);
+  fFrames[i].Lab.Font.Size:=10;
+
   fFrames[i].SizeDetermination(fForm);
   end;
 
@@ -215,7 +218,7 @@ procedure TFFParamIterationFrame.ButClick(Sender: TObject);
 begin
  WindowShow:=TConstParDetWindowShow.Create(fPIteration.fCPDeter);
  WindowShow.Show;
- WindowShow.Free;
+// WindowShow.Free;
 end;
 
 constructor TFFParamIterationFrame.Create(AOwner: TComponent;
@@ -240,15 +243,15 @@ begin
  fLabelName.Font.Color:=clRed;
  fLabelName.Font.Style:=[fsBold];
  fLabelName.Caption:=fPIteration.Description;
- fLabelName.Top:=MarginTop;
- fLabelName.Left:=MarginLeft;
+ fLabelName.Top:=3*MarginFrame;
+ fLabelName.Left:=4*MarginFrame;
 
  fGBoxMode:=TGroupBox.Create(Frame);
  fGBoxMode.Parent:=fPanel;
  fGBoxMode.Caption:='Mode';
 
  RButtonsCreate;
- fRButtons[High(fRButtons)].Checked:=fPIteration.IsConstant;
+
 
 
  fButton:= TButton.Create(Frame);
@@ -257,6 +260,9 @@ begin
  fButton.Height:=20;
  fButton.Width:=20;
  fButton.OnClick:=ButClick;
+
+ fRButtons[0].Checked:=not(fPIteration.IsConstant);
+ fRButtons[High(fRButtons)].Checked:=fPIteration.IsConstant;
  RBClick(nil);
 
 end;
@@ -264,6 +270,7 @@ end;
 procedure TFFParamIterationFrame.DateUpdate;
 begin
  fPIteration.IsConstant:=fRButtons[High(fRButtons)].Checked;
+ fPIteration.UpDate;
 end;
 
 destructor TFFParamIterationFrame.Destroy;
@@ -287,10 +294,10 @@ end;
 procedure TFFParamIterationFrame.RButtonsCreate;
  var i:integer;
 begin
- SetLength(fRButtons,High(fRBNames));
+ SetLength(fRButtons,High(fRBNames)+1);
  for I := 0 to High(fRButtons) do
   begin
-   fRButtons[i]:= TRadioButton.Create(Frame);
+   fRButtons[i]:= TRadioButton.Create(fGBoxMode);
    fRButtons[i].Parent:=fGBoxMode;
    fRButtons[i].Caption:=fRBNames[i];
    fRButtons[i].Alignment:=taRightJustify;
@@ -306,24 +313,27 @@ begin
   ResizeLabel(fLabelName,Form.Canvas);
   for I := 0 to High(fRButtons) do
     begin
-    fRButtons[i].Width:=Form.Canvas.TextWidth(fRButtons[i].Caption)+35;
-    fRButtons[i].Left:=MarginFrame;
-    fRButtons[i].Top:=2*MarginFrame+i*(fRButtons[0].Height+2*MarginFrame);
+    fRButtons[i].Width:=Form.Canvas.TextWidth(fRButtons[i].Caption)+20;
+    fRButtons[i].Top:=Marginbetween+i*(fRButtons[0].Height+2*MarginFrame);
+    fRButtons[i].Left:=2*MarginFrame;
     end;
 
-//  for I := 1 to High(fRButtons)
-//    do RelativeLocation(fRButtons[i],fRButtons[i-1],oCol);
-
   fButton.Top:=fRButtons[High(fRButtons)].Top;
-  fButton.Left:=fRButtons[High(fRButtons)].Left+2*MarginFrame;
+  fButton.Left:=fRButtons[High(fRButtons)].Left
+          +fRButtons[High(fRButtons)].Width+2*MarginFrame;
 
-  fGBoxMode.Width:=fButton.Left+fButton.Width+MarginFrame;
+
+  fGBoxMode.Width:=fButton.Left+fButton.Width+2*MarginFrame;
   fGBoxMode.Height:=fRButtons[High(fRButtons)].Top
-                    +fRButtons[High(fRButtons)].Width+2*MarginFrame;
+                    +fRButtons[High(fRButtons)].Height+2*MarginFrame;
 
   RelativeLocation(fLabelName,fGBoxMode,oRow);
-  Frame.Width:=fGBoxMode.Left+fGBoxMode.Width+MarginLeft;
-  Frame.Height:=fGBoxMode.Top+fGBoxMode.Height+MarginTop;
+
+  fPanel.Width:=fGBoxMode.Left+fGBoxMode.Width+2*MarginFrame;
+  fPanel.Height:=fGBoxMode.Top+fGBoxMode.Height+2*MarginFrame;
+
+  Frame.Width:=fPanel.Width;
+  Frame.Height:=fPanel.Height;
 
 end;
 
@@ -345,6 +355,8 @@ constructor TParamIterationArrayFrame.Create(AOwner: TComponent;
 begin
   inherited Create;
   Frame:=TFrame.Create(AOwner);
+//  Frame.Color:=clMaroon;
+
   SetLength(fSubFrames,PIteration.MainParamHighIndex+1);
   for I := 0 to High(fSubFrames) do
      begin
@@ -380,9 +392,9 @@ begin
  SubFramesLocate;
  FrameLocate(Form);
 
- Frame.Parent:=Form;
- Form.Height:=max(Frame.Top+Frame.Height,Form.Height);
- Form.Width:=max(Form.Width,Frame.Left+Frame.Width);
+// Frame.Parent:=Form;
+// Form.Height:=max(Frame.Top+Frame.Height,Form.Height);
+// Form.Width:=max(Form.Width,Frame.Left+Frame.Width);
 end;
 
 procedure TParamIterationArrayFrame.SubFramesLocate;
@@ -419,6 +431,9 @@ begin
   begin
     fSubFrames[i].Frame.Width := MaxWidth;
     fSubFrames[i].Frame.Height := MaxHeight;
+    fSubFrames[i].fPanel.Width := MaxWidth;
+    fSubFrames[i].fPanel.Height := MaxHeight;
+
   end;
 end;
 
@@ -433,10 +448,10 @@ begin
   fPIteration:=PIteration;
   fPIArrayFrame:=TParamIterationArrayFrame.Create(GB,PIteration);
   fPIArrayFrame.Frame.Parent:=GB;
-  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations',PIteration.Nit);
+  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
   fSIFrame.PShow.Limits.SetLimits(0);
   fSIFrame.Frame.Parent:=GB;
-  fSDFrame:=TSimpleDoubleFrame.Create(GB,'Accuracy',PIteration.Accurancy);
+  fSDFrame:=TSimpleDoubleFrame.Create(GB,'Accuracy:',PIteration.Accurancy);
   fSDFrame.PShow.Limits.SetLimits(0);
   fSDFrame.Frame.Parent:=GB;
 end;
@@ -464,14 +479,16 @@ begin
  fPIArrayFrame.SizeAndLocationDetermination(Form);
 
  fSIFrame.Frame.Top:=MarginTop;
- fSIFrame.Frame.Left:=MarginLeft;
+ fSIFrame.Frame.Left:=3*MarginFrame;
  RelativeLocation(fSIFrame.Frame,fSDFrame.Frame,oRow);
+
  fPIArrayFrame.Frame.Top:=fSIFrame.Frame.Top+fSIFrame.Frame.Height+Marginbetween;
  fPIArrayFrame.Frame.Left:=fSIFrame.Frame.Left;
+// showmessage(inttostr( fPIArrayFrame.Frame.Top));
 
  GB.Width:=max(fSDFrame.Frame.Left+fSDFrame.Frame.Width,
-               fPIArrayFrame.Frame.Left+fPIArrayFrame.Frame.Width)+MarginRight;
- GB.Height:=fPIArrayFrame.Frame.Top+fPIArrayFrame.Frame.Height+MarginTop;
+               fPIArrayFrame.Frame.Left+fPIArrayFrame.Frame.Width)+3*MarginFrame;
+ GB.Height:=fPIArrayFrame.Frame.Top+fPIArrayFrame.Frame.Height+2*MarginFrame;
 end;
 
 { TDecParamsIteration }
@@ -494,7 +511,9 @@ procedure TDecParamsIteration.FormPrepare(Form: TForm);
 begin
   fFFParameter.FormPrepare(Form);
   fGB := TDParamsIterationGroupBox.Create(fPIteration);
+  fGB.GB.Parent:=Form;
   fGB.SizeDetermination(Form);
+  AddControlToForm(fGB.GB,Form);
   Form.InsertComponent(fGB.GB);
 end;
 

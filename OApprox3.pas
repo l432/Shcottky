@@ -62,16 +62,32 @@ public
 end; //TFFExponent=class (TFFVariabSetSchottky)
 
 
+TFFIteration =class(TFFVariabSet)
+ protected
+  function ParameterCreate:TFFParameter;override;
+end;
+
+
+TFFDiodLSM=class (TFFIteration)
+ private
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+//  function FittingCalculation:boolean;override;
+  procedure NamesDefine;override;
+//  function RealFinalFunc(X:double):double;override;
+end; // TFFDiodLSM=class (TFFIteration)
+
 implementation
 
 uses
-  FitVariableShow, SysUtils, OlegMathShottky, FitIteration;
+  FitVariableShow, SysUtils, OlegMathShottky, FitIteration, FitIterationShow;
 
 { TFFVariabSet }
 
 procedure TFFVariabSet.AccessorialDataCreate;
 begin
-  inherited;
+//  inherited;
   fDoubVars:=TVarDoubArray.Create(Self,[]);
   if fTemperatureIsRequired then
       begin
@@ -89,6 +105,7 @@ begin
          'Voltage';
       end;
   AddDoubleVars;
+  inherited;
 end;
 
 procedure TFFVariabSet.AccessorialDataDestroy;
@@ -234,5 +251,34 @@ begin
  fDParamArray:=TDParamArray.Create(Self,['Fb','d/ep']);
 end;
 
+
+{ TFFIteration }
+
+function TFFIteration.ParameterCreate: TFFParameter;
+begin
+  Result:=TDecParamsIteration.Create((fDParamArray as TDParamsIteration),
+                         inherited ParameterCreate);
+end;
+
+
+
+{ TFFDiodLSM }
+
+procedure TFFDiodLSM.NamesDefine;
+begin
+ SetNameCaption('DiodLSMa',
+      'Diod function, least-squares fitting');
+end;
+
+procedure TFFDiodLSM.ParamArrayCreate;
+begin
+  fDParamArray:=TDParamsIteration.Create(Self,['n','Rs','Io','Rsh']);
+end;
+
+procedure TFFDiodLSM.TuningBeforeAccessorialDataCreate;
+begin
+  inherited;
+  FPictureName:='DiodLSM'+'Fig';
+end;
 
 end.

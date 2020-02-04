@@ -222,7 +222,7 @@ begin
  fDiapazoneGB := TDiapazoneGroupBox.Create(fFF.Diapazon);
  fDiapazoneGB.GB.Parent := Form;
  fDiapazoneGB.GB.Top:=10;
- fDiapazoneGB.GB.Left:=460;
+ fDiapazoneGB.GB.Left:=470;
 
  if fFF.HasPicture then
   begin
@@ -335,19 +335,21 @@ procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
  begin
    if Orientation=oRow then
     begin
-     ControlSecond.Left:=ControlFirst.Left+ControlFirst.Width+4*MarginFrame;
-     ControlSecond.Top:=ControlFirst.Top+Round((ControlFirst.Height-ControlSecond.Height)/2);
-     if ControlSecond.Top>ControlFirst.Top then
+     ControlSecond.Left:=ControlFirst.Left+ControlFirst.Width+2*MarginFrame;
+     ControlSecond.Top:=ControlFirst.Top
+                       +Round((ControlFirst.Height-ControlSecond.Height)/2);
+     if ControlSecond.Top<ControlFirst.Top then
       begin
        tempInt:=ControlFirst.Top;
-       ControlFirst.Left:=2*ControlFirst.Top-ControlSecond.Top;
+       ControlFirst.Top:=2*ControlFirst.Top-ControlSecond.Top;
        ControlSecond.Top:=tempInt;
       end;
 
     end                else
     begin
-     ControlSecond.Top:=ControlFirst.Top+ControlFirst.Height+MarginFrame;
-     ControlSecond.Left:=ControlFirst.Left+Round((ControlFirst.Width-ControlSecond.Width)/2);
+     ControlSecond.Top:=ControlFirst.Top+ControlFirst.Height+2*MarginFrame;
+     ControlSecond.Left:=ControlFirst.Left
+                         +Round((ControlFirst.Width-ControlSecond.Width)/2);
      if ControlSecond.Left<ControlFirst.Left then
       begin
        tempInt:=ControlFirst.Left;

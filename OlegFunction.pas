@@ -54,6 +54,8 @@ Function SomeSpaceToOne(str:string):string;
 Function Acronym(str:string):string;
 {створюється аббревіатура рядка}
 
+
+
 Function StringDataFromRow(str:string;Number:word):string;
 {вважається, що частини рядка відділені один від одного пробілами;
 повертається частина з номером Number (нумерація починається з 1)}
@@ -64,11 +66,14 @@ Function FloatDataFromRow(str:string;Number:word):double;
 (нумерація починається з 1);
 якщо там не число - то повертається ErResult}
 
+Function NumberOfSubstringInRow(row:string):integer;
+{визначається частин у рядку row, відділених
+пробілами}
+
 Function SubstringNumberFromRow(substring,row:string):integer;
 {визначається номер частини substring з рядка row,
 нумерація починається з одиниці,
 якщо частина відсутня повертається нуль}
-
 
 Function  DeleteStringDataFromRow(str:string;Number:word):string;
 {повертає рядок з видаленою частиною (відділеною пробілами - див.
@@ -383,9 +388,7 @@ Function StringDataFromRow(str:string;Number:word):string;
 begin
   Result:='';
   if Number<1 then Exit;
-
   Result:=SomeSpaceToOne(str);
-//  if AnsiStartsStr(' ',Result) then Delete(Result, 1, 1);
   for I := 1 to Number-1 do
    if AnsiPos (' ', Result)>0 then
        Delete(Result, 1, AnsiPos (' ', Result))
@@ -397,6 +400,24 @@ begin
   if AnsiPos (' ', Result)>0 then
    Result:=Copy(Result, 1, AnsiPos (' ', Result)-1);
 end;
+
+
+Function NumberOfSubstringInRow(row:string):integer;
+{визначається частин у рядку row, відділених
+пробілами}
+ var tempstr:string;
+//     i:integer;
+begin
+  tempstr:=SomeSpaceToOne(row);
+  if tempstr='' then Result:=0
+                else Result:=1;
+  while AnsiPos (' ', tempstr)>0 do
+     begin
+      Delete(tempstr, 1, AnsiPos (' ', tempstr));
+      inc(Result);
+     end;
+end;
+
 
 Function SubstringNumberFromRow(substring,row:string):integer;
  var tempstr:string;
@@ -414,7 +435,7 @@ begin
           Break;
         end;
       Delete(tempstr, 1, AnsiPos (' ', tempstr));
-    end   else
+    end                       else
     begin
       if substring=tempstr then
         begin

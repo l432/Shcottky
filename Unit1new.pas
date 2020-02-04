@@ -4037,26 +4037,28 @@ procedure TForm1.Button1Click(Sender: TObject);
      T,i:integer;
      Nb:double;
 begin
-// Silicon.mu_n();
- showmessage(floattostr(Pi));
-//
- Vec:=TVectorTransform.Create;
- Nb:=1e18;
- for i := 0 to 8 do
-   begin
-     Vec.Add(Nb*Power(10,i),Silicon.mu_p(300,Nb*Power(10,i),True));
-   end;
- Vec.WriteToFile('mu_Np.dat',8);
- Vec.Clear;
- T:=270;
- for i := 0 to 25 do
-   begin
-     Vec.Add(T,Silicon.mu_p(T,1e21,True));
-     T:=T+5;
-   end;
- Vec.WriteToFile('mu_Tp.dat',8);
 
- Vec.Free;
+ showmessage(inttostr(NumberOfSubstringInRow('Fe T nFsrh nFBsrh dnsrh nF nFB dn')));
+// Silicon.mu_n();
+// showmessage(floattostr(Pi));
+////
+// Vec:=TVectorTransform.Create;
+// Nb:=1e18;
+// for i := 0 to 8 do
+//   begin
+//     Vec.Add(Nb*Power(10,i),Silicon.mu_p(300,Nb*Power(10,i),True));
+//   end;
+// Vec.WriteToFile('mu_Np.dat',8);
+// Vec.Clear;
+// T:=270;
+// for i := 0 to 25 do
+//   begin
+//     Vec.Add(T,Silicon.mu_p(T,1e21,True));
+//     T:=T+5;
+//   end;
+// Vec.WriteToFile('mu_Tp.dat',8);
+//
+// Vec.Free;
 
 //showmessage(floattostr(Button(2e-8)));
 //showmessage(floattostr(Button(1.07e-4)));

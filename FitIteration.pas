@@ -232,7 +232,7 @@ begin
 // Coefficients[1]:=ConfigFile.ReadFloat(Section,Prefix+'B',0);
 // Coefficients[2]:=ConfigFile.ReadFloat(Section,Prefix+'C',0);
  fIndex:=ConfigFile.ReadInteger(Section,Name+'_tt',-1);
- fIsNotReverse:=ConfigFile.ReadBool(Section,Name+'_Reverse',True);
+ fIsNotReverse:=ConfigFile.ReadBool(Section,Name+'_Reverse',False);
 end;
 
 procedure TConstParDetermination.WriteToIniFile(ConfigFile: TIniFile;
@@ -267,7 +267,7 @@ procedure TFFParamIteration.ReadFromIniFile(ConfigFile: TIniFile;
   const Section: string);
 begin
   fCPDeter.ReadFromIniFile(ConfigFile,Section);
-  IsConstant:=not(ConfigFile.ReadBool(Section,Name+'_IsConstant',True));
+  IsConstant:=ConfigFile.ReadBool(Section,Name+'_IsConstant',False);
 end;
 
 procedure TFFParamIteration.UpDate;
@@ -279,7 +279,7 @@ procedure TFFParamIteration.WriteToIniFile(ConfigFile: TIniFile;
   const Section: string);
 begin
   fCPDeter.WriteToIniFile(ConfigFile,Section);
-  WriteIniDef(ConfigFile,Section,Name+'_IsConstant',not(IsConstant));
+  WriteIniDef(ConfigFile,Section,Name+'_IsConstant',IsConstant);
 end;
 
 { TDParamIterationArray }

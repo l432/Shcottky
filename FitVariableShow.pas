@@ -19,6 +19,7 @@ type
     fOrientation:TOrientation;
    public
     Frame:TFrame;
+    property Lab:TLabel read fLabel;
     constructor Create(AOwner: TComponent);//override;
     destructor Destroy;override;
     procedure SizeDetermination (Form: TForm);virtual;
@@ -136,7 +137,10 @@ begin
  fSText:=TStaticText.Create(Frame);
  fSText.AutoSize:=True;
  fSText.Parent:=Frame;
+ fSText.ParentFont:=True;
+
  fLabel.WordWrap:=False;
+ fLabel.ParentFont:=True;
  fLabel.Font.Color:=clMaroon;
  fLabel.Font.Style:=[fsBold];
 
@@ -640,7 +644,7 @@ constructor TSimpleIntFrame.Create(AOwner: TComponent;
   const LabelCaption: string; InitValue: Integer);
 begin
   inherited Create(AOwner);
-  fPShow:=TDoubleParameterShow.Create(fSText,fLabel,
+  fPShow:=TIntegerParameterShow.Create(fSText,fLabel,
            LabelCaption,InitValue);
 end;
 

@@ -7,13 +7,14 @@ uses
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
-                   ffc_simple,ffc_schottky);
+                   ffc_simple,ffc_schottky,ffc_diod);
 
   TFitFunctionNew_Class=class of TFitFunctionNew;
 
 const
   FitFuncCategoryNames:array[TFitFuncCategory]of string=
-           ('None','Transform','Digital filter','Simple','Schottky diod');
+           ('None','Transform','Digital filter','Simple',
+           'Schottky diod','n-p diod');
 
   DFNumber=9;
 
@@ -46,6 +47,11 @@ const
    SchDClasses:array[0..SchDNumber]of TFitFunctionNew_Class=
    (TFFExponent,TFFIvanov);
 
+  DiodNumber=0;
+  DiodNames:array[0..DiodNumber] of string=
+   ('Diod, LSM');
+  DiodClasses:array[0..DiodNumber]of TFitFunctionNew_Class=
+   (TFFDiodLSM);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;
@@ -60,11 +66,22 @@ procedure FitFuncNames_trans_Filling;
 procedure FitFuncNames_digital_Filling;
 procedure FitFuncNames_simple_Filling;
 procedure FitFuncNames_schottky_Filling;
+procedure FitFuncNames_diod_Filling;
 
 implementation
 
 uses
   FitTransform;
+
+procedure FitFuncNames_diod_Filling;
+  var i:integer;
+ begin
+   SetLength(FitFuncNames[ffc_diod],Length(DiodNames));
+   for I := 0 to High(FitFuncNames[ffc_diod]) do
+    FitFuncNames[ffc_diod,i]:=
+       DiodNames[i+Low(DiodNames)];
+ end;
+
 
 procedure FitFuncNames_schottky_Filling;
   var i:integer;
@@ -148,6 +165,12 @@ begin
          Exit;
        end;
 
+   for j := 0 to DiodNumber do
+      if str=DiodNames[j] then
+       begin
+         Result:=DiodClasses[j].Create;
+         Exit;
+       end;
 
    if str='Moving Average Filter' then
      begin
@@ -240,6 +263,7 @@ initialization
  FitFuncNames_digital_Filling;
  FitFuncNames_simple_Filling;
  FitFuncNames_schottky_Filling;
+ FitFuncNames_diod_Filling;
 
 // SetLength(FitFuncNames[ffc_simple],1);
 // FitFuncNames[ffc_simple,0]:='Linear';
