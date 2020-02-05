@@ -32,7 +32,7 @@ TSimpleFreeAndAiniObject=class(TObject)
     function _Release: Integer; stdcall;
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
   public
-   procedure Free;//virtual;
+//   procedure Free;//virtual;
    procedure ReadFromIniFile(ConfigFile: TIniFile);virtual;
    procedure WriteToIniFile(ConfigFile: TIniFile);virtual;
 //   destructor Destroy;override;
@@ -124,10 +124,10 @@ end;
 
 
 
-procedure TSimpleFreeAndAiniObject.Free;
-begin
-//  inherited;
-end;
+//procedure TSimpleFreeAndAiniObject.Free;
+//begin
+////  inherited;
+//end;
 
 //destructor TSimpleFreeAndAiniObject.Destroy;
 //begin

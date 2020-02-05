@@ -256,7 +256,7 @@ begin
   fDigitNumber := DN;
   STData.Caption := ValueToString(InitValue);
   DefaulValue := InitValue;
-  fLimits:=TLimits.Create();
+//  fLimits:=TLimits.Create();
 end;
 
 constructor TDoubleParameterShow.Create(STD: TStaticText; ParametrCaption,
@@ -325,7 +325,7 @@ begin
   DefaulValue:=InitValue;
   fIsPositive:=false;
   fIsNoOdd:=false;
-  fLimits:=TLimits.Create()
+//  fLimits:=TLimits.Create()
 end;
 
 constructor TIntegerParameterShow.Create(STD: TStaticText; STC: TLabel;
@@ -334,6 +334,11 @@ begin
   Create(STD,STC,ParametrCaption,ParametrCaption+WindowTextFooter,InitValue);
 end;
 
+
+//procedure TIntegerParameterShow.Free;
+//begin
+//
+//end;
 
 function TIntegerParameterShow.GetData: integer;
 begin
