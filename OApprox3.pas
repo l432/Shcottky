@@ -75,7 +75,7 @@ TFFIteration =class(TFFVariabSet)
  private
   fFittingAgent:TFittingAgent;
   fWindowAgent:TWindowIterationAbstract;
-  procedure FittingAgentCreate;
+  procedure FittingAgentCreate;virtual;abstract;
   procedure WindowAgentCreate;
  protected
   function ParameterCreate:TFFParameter;override;
@@ -271,19 +271,20 @@ end;
 
 { TFFIteration }
 
-procedure TFFIteration.FittingAgentCreate;
-begin
- fFittingAgent:=TFittingAgent.Create;
-end;
+//procedure TFFIteration.FittingAgentCreate;
+//begin
+// fFittingAgent:=TFittingAgent.Create;
+//end;
 
 function TFFIteration.FittingCalculation: boolean;
 begin
- Result:=False;
+// Result:=False;
  FittingAgentCreate;
  WindowAgentCreate;
  try
   fWindowAgent.Show;
   try
+   fFittingAgent.IsDone:=False;
    fFittingAgent.StartAction;
        repeat
         fFittingAgent.IterationAction;
@@ -298,15 +299,16 @@ begin
          end;
 
        until (fFittingAgent.ToStop
-            or(fFittingAgent.CurrentIteration>(fDParamArray as TDParamsIteration).Nit)
+            or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsIteration).Nit)
             or not(fWindowAgent.Form.Visible));
-   Result:=fFittingAgent.EndAction;
+   fFittingAgent.EndAction;
 
   finally
    fWindowAgent.Hide;
   end;
  finally
   fWindowAgent.Free;
+  Result:=fFittingAgent.IsDone;
   fFittingAgent.Free;
  end;
 

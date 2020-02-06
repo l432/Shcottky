@@ -643,8 +643,7 @@ begin
    begin
     fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Left:=maxLabelWidth+fLabels[0].Left;
     fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Top:=fLabels[i].Top;
-    if (fFF.DParamArray.fParams[i] as TFFParamIteration).IsConstant
-      then
+    if fFF.DParamArray.fParams[i].IsConstant then
        begin
        fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Font.Color:=clGreen;
        fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption:=floattostrf(fFF.DParamArray.fParams[i].Value,ffExponent,4,2)
@@ -664,7 +663,7 @@ procedure TWindowIterationShow.UpDate;
      str:string;
 begin
    for I := 0 to fFF.DParamArray.MainParamHighIndex do
-    if not((fFF.DParamArray.fParams[i] as TFFParamIteration).IsConstant) then
+    if not(fFF.DParamArray.fParams[i].IsConstant) then
      begin
        str:=floattostrf(fFF.DParamArray.fParams[i].Value,ffExponent,4,2);
        if str=fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption
