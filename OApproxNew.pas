@@ -160,6 +160,7 @@ protected
  procedure VariousPreparationBeforeFitting;virtual;
 public
  FittingData:TVector;
+ property DataToFit:TVectorTransform read fDataToFit;
  property Name:string read FName;
  property PictureName:string read FPictureName;
  property Caption:string read FCaption;

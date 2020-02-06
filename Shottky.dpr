@@ -36,7 +36,8 @@ uses
   OApprox3 in 'OApprox3.pas',
   FitMaterial in 'FitMaterial.pas',
   FitIteration in 'FitIteration.pas',
-  FitIterationShow in 'FitIterationShow.pas';
+  FitIterationShow in 'FitIterationShow.pas',
+  HighResolutionTimer in 'HighResolutionTimer.pas';
 
 {$R *.res}
 

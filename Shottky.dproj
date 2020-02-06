@@ -59,6 +59,7 @@
     <DCCReference Include="FrParam.pas">
       <Form>FrParamP</Form>
     </DCCReference>
+    <DCCReference Include="HighResolutionTimer.pas" />
     <DCCReference Include="OApprox3.pas" />
     <DCCReference Include="OApproxCaption.pas" />
     <DCCReference Include="OApproxNew.pas" />

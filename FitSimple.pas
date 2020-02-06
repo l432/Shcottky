@@ -58,6 +58,7 @@ TFFSimple=class (TFitFunctionWithArbitraryArgument)
   procedure AdditionalParamDetermination;
   function Deviation:double;virtual;
  public
+  property DParamArray:TDParamArray read fDParamArray; 
   Procedure DataToStrings(OutStrings:TStrings);override;
 end;
 

@@ -4,7 +4,7 @@ interface
 
 uses
   OApproxNew, ExtCtrls, FitVariableShow, StdCtrls, FitIteration, Forms, 
-  Classes, OlegFunction;
+  Classes, OlegFunction, FitSimple, OApprox3;
 
 type
 
@@ -91,11 +91,26 @@ end;
  end;
 
 
+TWindowIterationShow=class(TWindowIterationAbstract)
+  private
+   fFF:TFFIteration;
+//   Form:TForm;
+   fButton: TButton;
+   fLabels:array of TLabel;
+   procedure ButClick(Sender: TObject);
+   procedure LabelAction(Lab:TLabel;Srt:string);
+  public
+   constructor Create(FFSimple:TFFIteration);
+   procedure Show;override;
+   procedure UpDate;override;
+   procedure Hide;override;
+ end;
+
 implementation
 
 uses
   Windows, OApproxShow, Math, Graphics, Controls, OlegShowTypes, Dialogs, 
-  SysUtils;
+  SysUtils, OlegMath;
 
 
 { TConstParDetWindowShow }
@@ -539,6 +554,128 @@ procedure TDecParamsIteration.WriteToIniFile;
 begin
  fFFParameter.WriteToIniFile;
  fPIteration.WriteToIniFile;
+end;
+
+{ TWindowIterationShow }
+
+procedure TWindowIterationShow.ButClick(Sender: TObject);
+begin
+ Form.Hide;
+end;
+
+constructor TWindowIterationShow.Create(FFSimple: TFFIteration);
+begin
+ inherited Create;
+ fFF:=FFSimple;
+end;
+
+procedure TWindowIterationShow.Hide;
+begin
+ ElementsFromForm(Form);
+ Form.Hide;
+ Form.Release;
+end;
+
+procedure TWindowIterationShow.LabelAction(Lab: TLabel; Srt: string);
+begin
+  Lab.Caption:=Srt;
+  Lab.Left:=MarginLeft;
+  ResizeLabel(Lab, Form.Canvas);
+end;
+
+procedure TWindowIterationShow.Show;
+ var i,maxLabelWidth,SampleHeigth:integer;
+begin
+  Form := TForm.Create(Application);
+  Form.Position := poMainFormCenter;
+  Form.AutoSize := True;
+  Form.BorderIcons := [];
+
+  Form.Font.Name:='Tahoma';
+  Form.Font.Height:=-16;
+  Form.Font.Style := [fsBold];
+  Form.Caption:=fFF.FittingAgent.Description;
+  if fFF.DataToFit.name<>''
+     then Form.Caption:=Form.Caption
+                     +', '+fFF.DataToFit.name;
+  Form.Color := clAqua;
+
+  fButton:= TButton.Create(Form);
+  fButton.Parent:=Form;
+  fButton.Caption:='Stop';
+  fButton.Height:=32;
+  fButton.Width:=89;
+  fButton.OnClick:=ButClick;
+
+  SetLength(fLabels,2*(fFF.DParamArray.MainParamHighIndex+1)+4);
+  for I := 0 to High(fLabels) do
+   begin
+     fLabels[i]:=TLabel.Create(Form);
+     fLabels[i].Parent:=Form;
+     fLabels[i].AutoSize:=True;
+   end;
+
+  LabelAction(fLabels[High(fLabels)-3],'Total number of iterations');
+  LabelAction(fLabels[High(fLabels)-2],'Number of performed iterations');
+  SampleHeigth:=round(0.5*fLabels[High(fLabels)-3].Height);
+
+  fLabels[High(fLabels)-3].Top:=SampleHeigth;
+  fLabels[High(fLabels)-2].Top:=fLabels[High(fLabels)-3].Top;
+
+  fLabels[High(fLabels)-1].Caption:=IntToStr((fFF.DParamArray as TDParamsIteration).Nit);
+  fLabels[High(fLabels)-1].Left:=max(fLabels[High(fLabels)-3].Width,
+                                     fLabels[High(fLabels)-2].Width)
+                                 +fLabels[High(fLabels)-3].Left;
+  fLabels[High(fLabels)].Left:=fLabels[High(fLabels)-1].Left;
+  fLabels[High(fLabels)-1].Top:=2*SampleHeigth;
+  fLabels[High(fLabels)].Top:=fLabels[High(fLabels)-1].Top;
+
+  maxLabelWidth:=0;
+  for I := 0 to fFF.DParamArray.MainParamHighIndex do
+   begin
+    LabelAction(fLabels[i],
+       fFF.DParamArray.fParams[i].Description+' = ');
+    maxLabelWidth:=max(maxLabelWidth,fLabels[i].Width);
+    fLabels[i].Top:=7*SampleHeigth+i*3*SampleHeigth;
+   end;
+
+  for I := 0 to fFF.DParamArray.MainParamHighIndex do
+   begin
+    fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Left:=maxLabelWidth+fLabels[0].Left;
+    fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Top:=fLabels[i].Top;
+    if (fFF.DParamArray.fParams[i] as TFFParamIteration).IsConstant
+      then
+       begin
+       fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Font.Color:=clGreen;
+       fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption:=floattostrf(fFF.DParamArray.fParams[i].Value,ffExponent,4,2)
+       end;
+   end;
+  UpDate;
+
+  fButton.Top:=fLabels[0].Top;
+  fButton.Left:=fLabels[fFF.DParamArray.MainParamHighIndex+1].Left
+              +fLabels[fFF.DParamArray.MainParamHighIndex+1].Width
+              +30;
+  Form.Show;
+end;
+
+procedure TWindowIterationShow.UpDate;
+ var i:byte;
+     str:string;
+begin
+   for I := 0 to fFF.DParamArray.MainParamHighIndex do
+    if not((fFF.DParamArray.fParams[i] as TFFParamIteration).IsConstant) then
+     begin
+       str:=floattostrf(fFF.DParamArray.fParams[i].Value,ffExponent,4,2);
+       if str=fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption
+         then fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Font.Color:=clBlack
+         else
+           begin
+           fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Font.Color:=clRed;
+           fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption:=str;
+           end;
+     end;
+  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIteration);
 end;
 
 end.

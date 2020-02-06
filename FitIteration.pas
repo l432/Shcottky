@@ -70,9 +70,12 @@ TFFParamIteration=class(TFFDParam)
 ітераційного процесу}
  private
 //  fValue:Double;
+  fIsConstant:boolean;
+  function GetIsConstant: boolean;
+  procedure SetIsConstant(const Value: boolean);
  public
   fCPDeter:TConstParDetermination;
-  IsConstant:boolean;
+  property IsConstant:boolean read GetIsConstant write SetIsConstant;
 //  property Value:Double read fValue write fValue;
   procedure UpDate;
   constructor Create(Nm:string;VarArray:TVarDoubArray);
@@ -96,7 +99,21 @@ TDParamsIteration=class(TDParamArray)
    procedure WriteToIniFile;
    procedure ReadFromIniFile;
    function IsReadyToFitDetermination:boolean;
+   procedure UpDate;
 end;
+
+
+TFittingAgent=class
+{той, що вміє проводити ітераційний процес}
+ public
+  Description:string;
+  CurrentIteration:integer;
+  ToStop:boolean;
+  procedure StartAction;virtual;abstract;
+  procedure IterationAction;virtual;abstract;
+  function EndAction:boolean;virtual;abstract;
+end;
+
 
 
 implementation
@@ -263,11 +280,21 @@ begin
  inherited;
 end;
 
+function TFFParamIteration.GetIsConstant: boolean;
+begin
+ Result:=fIsConstant;
+end;
+
 procedure TFFParamIteration.ReadFromIniFile(ConfigFile: TIniFile;
   const Section: string);
 begin
   fCPDeter.ReadFromIniFile(ConfigFile,Section);
   IsConstant:=ConfigFile.ReadBool(Section,Name+'_IsConstant',False);
+end;
+
+procedure TFFParamIteration.SetIsConstant(const Value: boolean);
+begin
+  fIsConstant:=Value;
 end;
 
 procedure TFFParamIteration.UpDate;
@@ -314,6 +341,13 @@ begin
     do (fParams[i] as TFFParamIteration).ReadFromIniFile(fFF.ConfigFile,fFF.Name);
   fAccurancy:=fFF.ConfigFile.ReadFloat(fFF.Name,'Accurancy',1e-8);
   fNit:=fFF.ConfigFile.ReadInteger(fFF.Name,'Nit',1000);
+end;
+
+procedure TDParamsIteration.UpDate;
+ var i:integer;
+begin
+ for I := 0 to MainParamHighIndex do
+    (fParams[i] as TFFParamIteration).UpDate;
 end;
 
 procedure TDParamsIteration.WriteToIniFile;

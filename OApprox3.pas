@@ -3,7 +3,8 @@ unit OApprox3;
 interface
 
 uses
-  FitSimple, FitVariable, OApproxNew, FitMaterial, OlegType, OlegMath;
+  FitSimple, FitVariable, OApproxNew, FitMaterial, OlegType,
+  OlegMath, FitIteration, Forms;
 
 type
 TFFVariabSet =class(TFFSimple)
@@ -62,9 +63,26 @@ public
 end; //TFFExponent=class (TFFVariabSetSchottky)
 
 
+TWindowIterationAbstract=class
+  public
+   Form:TForm;
+   procedure Show;virtual;abstract;
+   procedure UpDate;virtual;abstract;
+   procedure Hide;virtual;abstract;
+ end;
+
 TFFIteration =class(TFFVariabSet)
+ private
+  fFittingAgent:TFittingAgent;
+  fWindowAgent:TWindowIterationAbstract;
+  procedure FittingAgentCreate;
+  procedure WindowAgentCreate;
  protected
   function ParameterCreate:TFFParameter;override;
+  function FittingCalculation:boolean;override;
+  procedure VariousPreparationBeforeFitting;override;
+ public
+  property FittingAgent:TFittingAgent read fFittingAgent;
 end;
 
 
@@ -73,15 +91,14 @@ TFFDiodLSM=class (TFFIteration)
  protected
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
-//  function FittingCalculation:boolean;override;
   procedure NamesDefine;override;
-//  function RealFinalFunc(X:double):double;override;
 end; // TFFDiodLSM=class (TFFIteration)
 
 implementation
 
 uses
-  FitVariableShow, SysUtils, OlegMathShottky, FitIteration, FitIterationShow;
+  FitVariableShow, SysUtils, OlegMathShottky, FitIterationShow, 
+  HighResolutionTimer;
 
 { TFFVariabSet }
 
@@ -254,6 +271,47 @@ end;
 
 { TFFIteration }
 
+procedure TFFIteration.FittingAgentCreate;
+begin
+ fFittingAgent:=TFittingAgent.Create;
+end;
+
+function TFFIteration.FittingCalculation: boolean;
+begin
+ Result:=False;
+ FittingAgentCreate;
+ WindowAgentCreate;
+ try
+  fWindowAgent.Show;
+  try
+   fFittingAgent.StartAction;
+       repeat
+        fFittingAgent.IterationAction;
+        Timer.StartTimer;
+
+        if ((fFittingAgent.CurrentIteration mod 25)=0)
+           or(Timer.ReadTimer>15000) then
+           begin
+            fWindowAgent.UpDate;
+            Application.ProcessMessages;
+            Timer.StartTimer;
+         end;
+
+       until (fFittingAgent.ToStop
+            or(fFittingAgent.CurrentIteration>(fDParamArray as TDParamsIteration).Nit)
+            or not(fWindowAgent.Form.Visible));
+   Result:=fFittingAgent.EndAction;
+
+  finally
+   fWindowAgent.Hide;
+  end;
+ finally
+  fWindowAgent.Free;
+  fFittingAgent.Free;
+ end;
+
+end;
+
 function TFFIteration.ParameterCreate: TFFParameter;
 begin
   Result:=TDecParamsIteration.Create((fDParamArray as TDParamsIteration),
@@ -261,6 +319,17 @@ begin
 end;
 
 
+
+procedure TFFIteration.VariousPreparationBeforeFitting;
+begin
+  (fDParamArray as TDParamsIteration).UpDate;
+  inherited;
+end;
+
+procedure TFFIteration.WindowAgentCreate;
+begin
+  fWindowAgent:=TWindowIterationShow.Create(Self);
+end;
 
 { TFFDiodLSM }
 
