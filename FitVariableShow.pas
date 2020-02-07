@@ -199,6 +199,7 @@ end;
 destructor TIntFrame.Destroy;
 begin
   fVarInteger:=nil;
+  fIPShow.Limits:=nil;
   fIPShow.Free;
   inherited;
 end;
@@ -442,6 +443,7 @@ begin
  fVarDouble:=nil;
  fCheckBox.Parent:=nil;
  fCheckBox.Free;
+ fDPShow.Limits:=nil;
  fDPShow.Free;
  inherited;
 end;

@@ -259,6 +259,8 @@ type
 
       procedure MultiplyY(const A:double);
 //         {Y всіх точок множиться на A}
+      procedure AdditionY(const A:double);
+//         {до Y всіх точок додається A}
       procedure DeltaY(deltaVector:TVector);
          {від значень Y віднімаються значення deltaVector.Y;
           якщо кількості точок різні - ніяких дій не відбувається}
@@ -890,6 +892,14 @@ procedure TVector.Add(newPoint: TPointDouble);
 begin
  Self.SetLenVector(Count+1);
  PointSet(High(Points),newPoint);
+end;
+
+procedure TVector.AdditionY(const A: double);
+ var i:integer;
+begin
+ if A=0 then Exit;
+ for I := 0 to High(Points) do
+  Points[i,cY]:=Points[i,cY]+A;
 end;
 
 Procedure TVector.Clear();

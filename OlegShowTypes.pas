@@ -76,6 +76,7 @@ type
     constructor Create(LowLimit:double=ErResult;HighLimit:double=ErResult);
     procedure SetLimits(LowLimit:double=ErResult;HighLimit:double=ErResult);
     function NumberIsCorrect(Number:double):boolean;
+//    destructor Destroy;override;
   end;
 
   TLimitedParameterShow=class(TParameterShowNew)
@@ -700,6 +701,12 @@ begin
  inherited Create;
  SetLimits(LowLimit, HighLimit);
 end;
+
+//destructor TLimits.Destroy;
+//begin
+//
+//  inherited;
+//end;
 
 function TLimits.NumberIsCorrect(Number: double): boolean;
 begin

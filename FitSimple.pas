@@ -55,10 +55,10 @@ TFFSimple=class (TFitFunctionWithArbitraryArgument)
   procedure RealFitting;override;
   function FittingCalculation:boolean;virtual;abstract;
   procedure FittingDataFilling;virtual;
-  procedure AdditionalParamDetermination;
+  procedure AdditionalParamDetermination;virtual;
   function Deviation:double;virtual;
  public
-  property DParamArray:TDParamArray read fDParamArray; 
+  property DParamArray:TDParamArray read fDParamArray;
   Procedure DataToStrings(OutStrings:TStrings);override;
 end;
 
@@ -343,7 +343,8 @@ end;
 
 procedure TFitFunctionWithArbitraryArgument.AccessorialDataDestroy;
 begin
- fIntVars.Free;
+ FreeAndNil(fIntVars);
+// fIntVars.Free;
  inherited;
 end;
 
@@ -404,7 +405,8 @@ end;
 
 procedure TFFSimple.AdditionalParamDetermination;
 begin
- fDParamArray.OutputData[High(fDParamArray.OutputData)]:=Deviation;
+ fDParamArray.ParametrByName['dev'].Value:=Deviation;
+ fDParamArray.OutputDataCoordinate;
 end;
 
 procedure TFFSimple.DataToStrings(OutStrings: TStrings);

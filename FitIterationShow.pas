@@ -200,7 +200,7 @@ begin
  for I := 1 to High(fFrames) do
   begin
     fFrames[i].Frame.Parent:=fForm;
-    RelativeLocation(fFrames[i-1].Frame,fFrames[i].Frame);
+    RelativeLocation(fFrames[i-1].Frame,fFrames[i].Frame,oRow,15);
   end;
 
 end;
@@ -588,7 +588,7 @@ procedure TWindowIterationShow.Show;
 begin
   Form := TForm.Create(Application);
   Form.Position := poMainFormCenter;
-  Form.AutoSize := True;
+//  Form.AutoSize := True;
   Form.BorderIcons := [];
 
   Form.Font.Name:='Tahoma';
@@ -620,15 +620,16 @@ begin
   SampleHeigth:=round(0.5*fLabels[High(fLabels)-3].Height);
 
   fLabels[High(fLabels)-3].Top:=SampleHeigth;
-  fLabels[High(fLabels)-2].Top:=fLabels[High(fLabels)-3].Top;
+  fLabels[High(fLabels)-2].Top:=fLabels[High(fLabels)-3].Top+3*SampleHeigth;
 
   fLabels[High(fLabels)-1].Caption:=IntToStr((fFF.DParamArray as TDParamsIteration).Nit);
   fLabels[High(fLabels)-1].Left:=max(fLabels[High(fLabels)-3].Width,
                                      fLabels[High(fLabels)-2].Width)
-                                 +fLabels[High(fLabels)-3].Left;
+                                 +fLabels[High(fLabels)-3].Left
+                                 +Marginbetween;
   fLabels[High(fLabels)].Left:=fLabels[High(fLabels)-1].Left;
-  fLabels[High(fLabels)-1].Top:=2*SampleHeigth;
-  fLabels[High(fLabels)].Top:=fLabels[High(fLabels)-1].Top;
+  fLabels[High(fLabels)-1].Top:=fLabels[High(fLabels)-3].Top;
+  fLabels[High(fLabels)].Top:=fLabels[High(fLabels)-2].Top;
 
   maxLabelWidth:=0;
   for I := 0 to fFF.DParamArray.MainParamHighIndex do
@@ -655,6 +656,13 @@ begin
   fButton.Left:=fLabels[fFF.DParamArray.MainParamHighIndex+1].Left
               +fLabels[fFF.DParamArray.MainParamHighIndex+1].Width
               +30;
+  Form.Width:=max(fLabels[High(fLabels)-1].Left+fLabels[High(fLabels)-1].Width,
+                  fButton.Left+fButton.Width)
+                  +MarginRight;
+  Form.Height:=fLabels[fFF.DParamArray.MainParamHighIndex].Top
+              +fLabels[fFF.DParamArray.MainParamHighIndex].Height
+              +2*MarginTop;
+
   Form.Show;
 end;
 

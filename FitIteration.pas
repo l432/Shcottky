@@ -32,10 +32,14 @@ TDParamArray=class
    procedure AddParamCreate(const AddParamNames: array of string);
    procedure LastParamCreate;
    function GetParameterByName(str:string):TFFDParam;
+   function GetValue(index:integer):double;
+   function GetParameter(index:integer):TFFDParam;
   public
    fParams:array of TFFDParam;
    OutputData:TArrSingle;
+   property Value[index:integer]:double read GetValue;default;
    property ParametrByName[str:string]:TFFDParam read GetParameterByName;
+   property Parametr[index:integer]:TFFDParam read GetParameter;
    property MainParamHighIndex:integer read fMainParamHighIndex;
    constructor Create(FF:TFitFunctionNew;
                       const MainParamNames: array of string);overload;
@@ -113,15 +117,15 @@ TFittingAgent=class
   fDescription:string;
   fCurrentIteration:integer;
   fToStop:boolean;
-  fIsDone:boolean;
+//  fIsDone:boolean;
  public
   property Description:string read fDescription;
   property CurrentIteration:integer read fCurrentIteration;
-  property IsDone:boolean read fIsDone write fIsDone;
+//  property IsDone:boolean read fIsDone write fIsDone;
   property ToStop:boolean read fToStop;
   procedure StartAction;virtual;
   procedure IterationAction;virtual;abstract;
-  procedure EndAction;virtual;abstract;
+//  procedure EndAction;virtual;abstract;
 end;
 
 TFittingAgentLSM=class(TFittingAgent)
@@ -129,26 +133,56 @@ TFittingAgentLSM=class(TFittingAgent)
   fPIteration:TDParamsIteration;
   fDataToFit:TVectorTransform;
   ftempVector: TVectorTransform;
-  fDoubVars:TVarDoubArray;
+  fT:double;
   X2,derivX:TArrSingle;
-  Procedure InitialApproximation;
-  procedure RshInitDetermine;//Function IA_Determine3(Vector1,Vector2:TVector):double;
+  Sum1,Sum2{,al}:double;
+  Procedure InitialApproximation;virtual;
+  procedure RshInitDetermine(InitVector:TVectorTransform);//Function IA_Determine3(Vector1,Vector2:TVector):double;
   Procedure nRsIoInitDetermine;//IA_Determine012
   procedure SetParameterValue(ParametrName:string;Value:double);
+  Function SquareFormIsCalculated:boolean;
+  Function Secant(num:word;a,b,F:double):double;
+  {обчислюється оптимальне значення параметра al
+  в методі поординатного спуску;
+  використовується метод дихотомії;
+  а та b задають початковий відрізок, де шукається розв'язок}
+  Function SquareFormDerivate(num:byte;al,F:double):double;virtual;
+  {розраховується значення похідної квадратичної форми,
+  функція використовується при  покоординатному спуску і обчислюється
+  похідна по al, яка описує зміну  того чи іншого параметра апроксимації
+  Param = Param - al*F, де  Param залежить від num
+  F - значення похідної квадритичної форми по Param при al = 0
+  (те, що повертає функція SquareFormIsCalculated в RezF)}
+ Function ParamIsBad:boolean;virtual;
+  {перевіряє чи параметри можна використовувати для
+  апроксимації даних в InputData функцією I0(exp(q(V-IRs)/nkT)-1)+(V-IRs)/Rsh
+  IA[0] - n, IA[1] - Rs, IA[2] - I0, IA[3] - Rsh}
+ Function ParamCorectIsDone:boolean;{overload;}virtual;
+{коректуються величини в IA, щоб їх можна було використовувати для
+апроксимації InputData, якщо таки не вдалося -
+повертається False}
+
  public
   constructor Create(PIteration:TDParamsIteration;DataToFit,tempVector: TVectorTransform;
-                     DoubVars:TVarDoubArray);
+                     T:double);
+//                     DoubVars:TVarDoubArray);
   procedure StartAction;override;
-//  procedure IterationAction;override;
+  procedure IterationAction;override;
 //  procedure EndAction;override;
 end;
 
+
+TFittingAgentPhotoDiodLSM=class(TFittingAgentLSM)
+ private
+  Procedure InitialApproximation;override;
+
+end;
 
 
 implementation
 
 uses
-  SysUtils, OlegFunction, OlegMath, OApprox3;
+  SysUtils, OlegFunction, OlegMath, OApprox3, Math;
 
 { TDParamArray }
 
@@ -165,8 +199,8 @@ procedure TDParamArray.AddParamCreate(const AddParamNames: array of string);
  var i: Integer;
 begin
   SetLength(fParams, fMainParamHighIndex + High(AddParamNames)+2);
-  for I := 0 to High(AddParamNames)+1 do
-    fParams[i+fMainParamHighIndex] := TFFDParam.Create(AddParamNames[i]);
+  for I := 0 to High(AddParamNames) do
+    fParams[i+fMainParamHighIndex+1] := TFFDParam.Create(AddParamNames[i]);
 end;
 
 constructor TDParamArray.Create(FF:TFitFunctionNew;
@@ -194,6 +228,11 @@ begin
   inherited;
 end;
 
+function TDParamArray.GetParameter(index: integer): TFFDParam;
+begin
+ Result:=fParams[index];
+end;
+
 function TDParamArray.GetParameterByName(str: string): TFFDParam;
  var I:integer;
 begin
@@ -204,6 +243,11 @@ begin
         Exit;
       end;
   Result:=nil;
+end;
+
+function TDParamArray.GetValue(index: integer): double;
+begin
+  Result:=fParams[index].Value;
 end;
 
 procedure TDParamArray.LastParamCreate;
@@ -360,7 +404,6 @@ begin
   for I := 0 to fMainParamHighIndex do
     fParams[i] := TFFParamIteration.Create(MainParamNames[i],
                                (fFF as TFFVariabSet).DoubVars);
-
 end;
 
 procedure TDParamsIteration.ReadFromIniFile;
@@ -400,27 +443,63 @@ end;
 
 constructor TFittingAgentLSM.Create(PIteration: TDParamsIteration;
                                     DataToFit,tempVector: TVectorTransform;
-                                    DoubVars:TVarDoubArray);
+                                    T:double);
+//                                    DoubVars:TVarDoubArray);
 begin
  inherited Create;
  fPIteration:=PIteration;
  fDataToFit:=DataToFit;
  ftempVector:=tempVector;
- fDoubVars:=DoubVars;
+// fDoubVars:=DoubVars;
+ fT:=T;
  fDescription:='Coordinate gradient descent';
 end;
 
 procedure TFittingAgentLSM.InitialApproximation;
  var i:integer;
 begin
- RshInitDetermine;
+ SetParameterValue('n',ErResult);
 
+ RshInitDetermine(fDataToFit);
  ftempVector.SetLenVector(fDataToFit.Count);
  for I := 0 to ftempVector.HighNumber do
     ftempVector.Y[i]:=(fDataToFit.Y[i]-fDataToFit.X[i]
                 /fPIteration.ParametrByName['Rsh'].Value);
   {в temp - ВАХ з врахуванням Rsh0}
   nRsIoInitDetermine;
+
+end;
+
+procedure TFittingAgentLSM.IterationAction;
+ var i:integer;
+     al:double;
+begin
+  fToStop:=True;
+  if not(odd(fCurrentIteration)) then
+     begin
+      for I := 0 to High(X2) do X2[i]:=fPIteration[i];
+      Sum2:=Sum1;
+     end;
+
+   for I := 0 to fPIteration.MainParamHighIndex do
+       begin
+         if fPIteration.fParams[i].IsConstant then Continue;
+         if derivX[i]=0 then Continue;
+         if abs(fPIteration[i]/100/derivX[i])>1e100
+                        then Continue;
+         al:=Secant(i,0,0.1*abs(fPIteration[i]/derivX[i]),derivX[i]);
+         if abs(al*derivX[i]/fPIteration[i])>2 then Continue;
+         fPIteration.fParams[i].Value:=fPIteration.fParams[i].Value-al*derivX[i];
+         if not(ParamCorectIsDone) then
+              Raise Exception.Create('Fault! not ParamCorectIsDone');
+
+         fToStop:=fToStop
+                  and (abs((X2[i]-fPIteration[i])/fPIteration[i])<fPIteration.fAccurancy);
+
+         if not(SquareFormIsCalculated) then
+            Raise Exception.Create('Fault! not SquareFormIsCalculated');
+       end;
+    Inc(fCurrentIteration);
 end;
 
 procedure TFittingAgentLSM.nRsIoInitDetermine;
@@ -439,7 +518,7 @@ begin
   ftempVector.LinAprox(OutputData);
 
   OutputData[0]:=exp(OutputData[0]);
-  OutputData[1]:=1/(Kb*fDoubVars[0]*OutputData[1]);
+  OutputData[1]:=1/(Kb*fT*OutputData[1]);
 
   {I00 та n0 в результаті лінійної апроксимації залежності
   ln(I) від напруги, береться ВАХ з врахуванням Rsh0}
@@ -470,18 +549,94 @@ begin
   temp2.Free;
 end;
 
-procedure TFittingAgentLSM.RshInitDetermine;
+function TFittingAgentLSM.ParamCorectIsDone: boolean;
+begin
+  Result:=False;
+  if fPIteration[1]<0.0001 then fPIteration.fParams[1].Value:=0.0001;
+  if (fPIteration[3]<=0) or (fPIteration[3]>1e12)
+      then fPIteration.fParams[3].Value:=1e12;
+  while (ParamIsBad)and(fPIteration[0]<1000) do
+     fPIteration.fParams[0].Value:=fPIteration[0]*2;
+  while (ParamIsBad)and(fPIteration[2]>1e-15) do
+     fPIteration.fParams[2].Value:=fPIteration[2]/1.5;
+  if  ParamIsBad then Exit;
+  Result:=true;
+end;
+
+function TFittingAgentLSM.ParamIsBad: boolean;
+ var bt:double;
+     i:integer;
+begin
+  Result:=True;
+  if fPIteration[0]<=0 then Exit;
+  bt:=2/Kb/fT/fPIteration[0];
+  if fPIteration[1]<0 then Exit;
+  if (fPIteration[2]<0) or (fPIteration[2]>1) then Exit;
+  if fPIteration[3]<=1e-4 then Exit;
+  for I := 0 to fDataToFit.HighNumber do
+    if bt*(fDataToFit.X[i]-fPIteration[1]*fDataToFit.Y[i])>700
+          then Exit;
+  Result:=False;
+end;
+
+procedure TFittingAgentLSM.RshInitDetermine(InitVector:TVectorTransform);
+ var tVector:TVectorTransform;
 begin
  if fPIteration.ParametrByName['Rsh'].IsConstant then Exit;
- fDataToFit.Derivate(ftempVector);
+ tVector:=TVectorTransform.Create;
+
+ fDataToFit.Derivate(tVector);
    {фактично, в ftempVector залеженість оберненого опору від напруги}
- if ftempVector.Count<3 then Raise Exception.Create('Fault in RshInitDetermine');
-  
- fPIteration.ParametrByName['Rsh'].Value:=(ftempVector.X[1]/ftempVector.y[2]
-                                           -ftempVector.X[2]/ftempVector.y[1])
-                                           /(ftempVector.X[1]-ftempVector.X[2]);
+ if tVector.Count<3 then
+    Raise Exception.Create('Fault in RshInitDetermine');
+
+ fPIteration.ParametrByName['Rsh'].Value:=(tVector.X[1]/tVector.y[2]
+                                           -tVector.X[2]/tVector.y[1])
+                                           /(tVector.X[1]-tVector.X[2]);
   {Rsh0 - по початковим двом значенням опору проводиться пряма і визначається очікуване
         значення при нульовій напрузі}
+  tVector.Free;
+end;
+
+function TFittingAgentLSM.Secant(num: word; a, b, F: double): double;
+  var i:integer;
+      c,Fb,Fa:double;
+begin
+  Result:=0;
+    Fa:=SquareFormDerivate(num,a,F);
+    if Fa=ErResult then Exit;
+    if Fa=0 then
+               begin
+                  Result:=a;
+                  Exit;
+                end;
+    repeat
+      Fb:=SquareFormDerivate(num,b,F);
+      if Fb=0 then
+                begin
+                  Result:=b;
+                  Exit;
+                end;
+      if Fb=ErResult then Break
+                     else
+                       begin
+                       if Fb*Fa<=0 then Break
+                                  else b:=2*b
+                       end;
+    until false;
+    i:=0;
+    repeat
+      inc(i);
+      c:=(a+b)/2;
+      Fb:=SquareFormDerivate(num,c,F);
+      Fa:=SquareFormDerivate(num,a,F);
+      if (Fb*Fa<=0) or (Fb=ErResult)
+        then b:=c
+        else a:=c;
+    until (i>1e5)or(abs((b-a)/c)<1e-2);
+    if (i>1e5) then Exit;
+    Result:=c;
+
 end;
 
 procedure TFittingAgentLSM.SetParameterValue(ParametrName: string;
@@ -491,50 +646,123 @@ begin
       fPIteration.ParametrByName[ParametrName].Value:=Value;
 end;
 
+function TFittingAgentLSM.SquareFormDerivate(num: byte; al, F: double): double;
+  var i:integer;
+     Zi,Rez,nkT,vi,ei,eiI0,
+     n,Rs,I0,Rsh,Iph:double;
+begin
+ Result:=ErResult;
+ if ParamIsBad then  Exit;
+ n:=fPIteration[0];
+ Rs:=fPIteration[1];
+ I0:=fPIteration[2];
+ Rsh:=fPIteration[3];
+ Iph:=0;
+ if fPIteration.MainParamHighIndex>3 then Iph:=fPIteration[4];
+ try
+  case num of
+   0:n:=n-al*F;
+   1:Rs:=Rs-al*F;
+   2:I0:=I0-al*F;
+   3:Rsh:=Rsh-al*F;
+   4:Iph:=Iph-al*F;
+  end;//case
+  nkT:=n*Kb*fT;
+  Rez:=0;
+  for I := 0 to fDataToFit.HighNumber do
+   begin
+     vi:=(fDataToFit.X[i]-fDataToFit.Y[i]*Rs);
+     ei:=exp(vi/nkT);
+     Zi:=I0*(ei-1)+vi/Rsh-fDataToFit.Y[i];
+     if fPIteration.MainParamHighIndex>3 then Zi:=Zi-Iph;
+     eiI0:=ei*I0/nkT;
+
+     case num of
+       0:Rez:=Rez+Zi/abs(fDataToFit.Y[i])*eiI0*vi;
+       1:Rez:=Rez+Zi*(eiI0+1/Rsh);
+       2:Rez:=Rez+Zi/abs(fDataToFit.Y[i])*(1-ei);
+       3:Rez:=Rez+Zi/abs(fDataToFit.Y[i])*vi/Rsh/Rsh;
+       4:Rez:=Rez-ZI/abs(fDataToFit.Y[i]);
+     end; //case
+   end;
+   Rez:=2*F*Rez;
+   if num=0 then Rez:=Rez/n;
+  Result:=Rez;
+ except
+ end;//try
+
+end;
+
+function TFittingAgentLSM.SquareFormIsCalculated: boolean;
+ var   Zi,ZIi,nkT,vi,ei,eiI0:double;
+       i:integer;
+begin
+// ['n','Rs','Io','Rsh']
+
+ nkT:=fPIteration[0]*Kb*fT;
+ InitArrSingle(derivX,fPIteration.MainParamHighIndex+1,0);
+ Sum1:=0;
+
+ try
+  for I := 0 to fDataToFit.HighNumber do
+     begin
+       vi:=(fDataToFit.X[i]-fDataToFit.Y[i]
+                           *fPIteration[1]);
+       ei:=exp(vi/nkT);
+       Zi:=fPIteration[2]
+          *(ei-1)+vi/fPIteration[3]
+          -fDataToFit.Y[i];
+       if fPIteration.MainParamHighIndex=4
+          then Zi:=Zi-fPIteration[4];
+       ZIi:=Zi/abs(fDataToFit.Y[i]);
+       eiI0:=ei*fPIteration[2]/nkT;
+       Sum1:=Sum1+ZIi*Zi;
+       derivX[0]:=derivX[0]-ZIi*eiI0*vi;
+       derivX[1]:=derivX[1]-Zi*(eiI0+1/fPIteration[3]);
+       derivX[2]:=derivX[2]+ZIi*(ei-1);
+       derivX[3]:=derivX[3]-ZIi*vi;
+       if fPIteration.MainParamHighIndex=4
+          then derivX[4]:=derivX[4]-ZIi;
+     end;
+  for I := 0 to High(derivX) do derivX[i]:=derivX[i]*2;
+  derivX[0]:=derivX[0]/fPIteration[0];
+  derivX[3]:=derivX[3]/sqr(fPIteration[3]);
+  Result:=True;
+ except
+  Result:=False;
+ end;
+end;
+
 procedure TFittingAgentLSM.StartAction;
+// var i:integer;
 begin
   inherited StartAction;
   SetLength(X2,fPIteration.MainParamHighIndex+1);
-  SetLength(derivX,fPIteration.MainParamHighIndex+1);
   InitialApproximation;
 
+  if fPIteration.ParametrByName['Rs'].Value<0
+     then SetParameterValue('Rs',1);
 
-//procedure TFitFunctLSM.TrueFitting(InputData: TVector;
-//  var OutputData: TArrSingle);
-// var X,X2,derivX:TArrSingle;
-//     bool:boolean;
-//     Nitt,i:integer;
-//     Sum1,Sum2,al:double;
-//begin
-//  SetLength(X,fNx);
-//  SetLength(derivX,fNx);
-//  SetLength(X2,fNx);
-//  InitialApproximation(InputData,X);
-//  if X[1]<0 then X[1]:=1;
-//  if X[0]=ErResult then
-//                  begin
-//                    IterWindowClear();
-//                    Exit;
-//                  end;
-//  if not(ParamCorectIsDone(InputData,X)) then
-//                  begin
-//                    IterWindowClear();
-//                    Exit;
-//                  end;
-//  Nitt:=0;
-//  Sum2:=1;
+  if (fPIteration.ParametrByName['Rsh'].Value>=1e12)
+      or(fPIteration.ParametrByName['Rsh'].Value<=0)
+      then SetParameterValue('Rsh',1e12);
 
-//  repeat
-//   if Nitt<1 then
-//      if not(SquareFormIsCalculated(InputData,X,derivX,Sum1)) then
-//                  begin
-//                    IterWindowClear();
-//                    Exit;
-//                  end;
-//
-//   bool:=true;
-//   if not(odd(Nitt)) then for I := 0 to High(X) do X2[i]:=X[i];
-//   if not(odd(Nitt))or (Nitt=0) then Sum2:=Sum1;
+  if fPIteration.ParametrByName['n'].Value<=0
+     then SetParameterValue('n',1);
+
+  if fPIteration.ParametrByName['n'].Value=ErResult
+     then Raise Exception.Create('Fault, n=ErResult');
+
+//    for I := 0 to fPIteration.MainParamHighIndex do
+//    HelpForMe(inttostr(i)+'0_'+floattostr(fPIteration[i]));
+
+  if not(SquareFormIsCalculated)
+    then Raise Exception.Create('Fault in SquareFormIsCalculated');
+  Sum2:=Sum1;
+
+
+//    for I := 0 to fPIteration.MainParamHighIndex do
+//    HelpForMe(inttostr(i)+'0_'+floattostr(fPIteration[i]));
 end;
 
 { TFFDParam }
@@ -547,6 +775,25 @@ end;
 procedure TFFDParam.SetIsConstant(const Value: boolean);
 begin
 
+end;
+
+{ TFittingAgentPhotoDiodLSM }
+
+procedure TFittingAgentPhotoDiodLSM.InitialApproximation;
+ var i:integer;
+begin
+ SetParameterValue('n',ErResult);
+ if (fDataToFit.Voc<=0.002) then Exit;
+ SetParameterValue('Iph',fDataToFit.Isc);
+ if fPIteration.ParametrByName['Iph'].Value<=1e-8 then Exit;
+ fDataToFit.CopyTo(ftempVector);
+ ftempVector.AdditionY(fPIteration.ParametrByName['Iph'].Value);
+ RshInitDetermine(ftempVector);
+ for I := 0 to ftempVector.HighNumber do
+    ftempVector.Y[i]:=(ftempVector.Y[i]-ftempVector.X[i]
+                /fPIteration[3]);
+  {в temp - ВАХ з врахуванням Rsh0}
+  nRsIoInitDetermine;
 end;
 
 end.

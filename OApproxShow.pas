@@ -59,9 +59,11 @@ type
  oRow - в один рядок}
 
 procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
-                           Orientation:TOrientation=oRow);
+                           Orientation:TOrientation=oRow;
+                           Margin:integer=MarginFrame);
 {розташовує ControlSecond відносно ControlFirst відповідно
-до Orientation}
+до Orientation;
+Margin - відстань мід об'єктами}
 
 Procedure AddControlToForm(Control:TControl;
                            Form:TForm);
@@ -330,12 +332,13 @@ end;
 
 
 procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
-                           Orientation:TOrientation=oRow);
+                           Orientation:TOrientation=oRow;
+                           Margin:integer=MarginFrame);
  var tempInt:integer;
  begin
    if Orientation=oRow then
     begin
-     ControlSecond.Left:=ControlFirst.Left+ControlFirst.Width+2*MarginFrame;
+     ControlSecond.Left:=ControlFirst.Left+ControlFirst.Width+2*Margin;
      ControlSecond.Top:=ControlFirst.Top
                        +Round((ControlFirst.Height-ControlSecond.Height)/2);
      if ControlSecond.Top<ControlFirst.Top then
@@ -347,7 +350,7 @@ procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
 
     end                else
     begin
-     ControlSecond.Top:=ControlFirst.Top+ControlFirst.Height+2*MarginFrame;
+     ControlSecond.Top:=ControlFirst.Top+ControlFirst.Height+2*Margin;
      ControlSecond.Left:=ControlFirst.Left
                          +Round((ControlFirst.Width-ControlSecond.Width)/2);
      if ControlSecond.Left<ControlFirst.Left then

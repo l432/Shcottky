@@ -607,6 +607,7 @@ end;
 
 destructor TVarNumber.Destroy;
 begin
+//  FreeAndNil(fLimits);
   fLimits.Free;
   inherited;
 end;

@@ -3111,8 +3111,10 @@ begin
   begin
     Labels[i]:=TLabel.Create(fIterWindow);
     Labels[i].Name:='Lb'+IntToStr(i)+FXname[i];
+    Labels[i].Caption:='0';
     Labels[i+FNx]:=TLabel.Create(fIterWindow);
     Labels[i+FNx].Name:='Lb'+IntToStr(i)+FXname[i]+'n';
+    Labels[i+FNx].Caption:='0';
     Labels[i].Parent:=fIterWindow;
     Labels[i+FNx].Parent:=fIterWindow;
     Labels[i].Left:=24;
@@ -3966,6 +3968,10 @@ begin
   SetLength(derivX,fNx);
   SetLength(X2,fNx);
   InitialApproximation(InputData,X);
+
+//  for I := 0 to High(X) do
+//    HelpForMe(inttostr(i)+'_'+floattostr(X[i]));
+
   if X[1]<0 then X[1]:=1;
   if X[0]=ErResult then
                   begin
@@ -3977,8 +3983,12 @@ begin
                     IterWindowClear();
                     Exit;
                   end;
+
   Nitt:=0;
   Sum2:=1;
+
+//  for I := 0 to High(X) do
+//    HelpForMe(inttostr(i)+'_'+floattostr(X[i]));
 
   repeat
    if Nitt<1 then
@@ -3992,26 +4002,36 @@ begin
    if not(odd(Nitt)) then for I := 0 to High(X) do X2[i]:=X[i];
    if not(odd(Nitt))or (Nitt=0) then Sum2:=Sum1;
 
+//  for I := 0 to High(X) do
+//    HelpForMe(inttostr(i)+'d_'+floattostr(derivX[i]));
+
    for I := 0 to High(X) do
        begin
          if FXmode[i]=cons then Continue;
          if derivX[i]=0 then Continue;
          if abs(X[i]/100/derivX[i])>1e100 then Continue;
+
          al:=Secant(i,0,0.1*abs(X[i]/derivX[i]),derivX[i],InputData,X);
          if abs(al*derivX[i]/X[i])>2 then Continue;
+//         HelpForMe(inttostr(i));
          X[i]:=X[i]-al*derivX[i];
          if not(ParamCorectIsDone(InputData,X)) then
                   begin
                     IterWindowClear();
                     Exit;
                   end;
-         bool:=(bool)and(abs((X2[i]-X[i])/X[i])<fAccurancy);
+//         if Nitt=0 then bool:=False
+//                   else
+            bool:=(bool)and(abs((X2[i]-X[i])/X[i])<fAccurancy);
          if not(SquareFormIsCalculated(InputData,X,derivX,Sum1)) then
             begin
               IterWindowClear();
               Exit;
             end;
        end;
+
+//   for I := 0 to High(X) do
+//    HelpForMe(inttostr(i)+'_'+floattostr(X[i]));
 
     if (Nitt mod 25)=0 then
        begin
@@ -4025,7 +4045,8 @@ begin
          end;
         Application.ProcessMessages;
        end;
-
+//      HelpForMe(booltostr(bool));
+//    HelpForMe(floattostr(sum2)+'_'+floattostr(sum1));
     Inc(Nitt);
   until (abs((sum2-sum1)/sum1)<fAccurancy) or
         bool or
@@ -9802,7 +9823,8 @@ begin
   if str='Ideal. Factor vs T & N_B' then F:=Tn_FeBNew.Create(FileName);
   if str='Ideal. Factor vs T' then F:=TnFeBPart.Create;
   if str='IV thin SC' then F:=TIV_thin.Create;
-//  if str='None' then F:=TnFeBPart.Create;
+
+//  if str='None' then F:=TDiodLSM.Create;
 end;
 
 end.

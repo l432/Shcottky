@@ -129,11 +129,12 @@ Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
       j:integer;
 begin
    Result:=nil;
-//   if str='Sample' then
+//   if str='None' then
 //     begin
-//     Result:=TFitFunctionNew.Create(str,'Some sample function');
-//     Exit;
+//     Result:=TFFDiodLSM.Create;
+//       Exit;
 //     end;
+
    for I := Low(TTransformFunction)
                 to High(TTransformFunction) do
       if str=TransformFunctionNames[i] then
