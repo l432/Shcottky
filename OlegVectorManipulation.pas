@@ -128,7 +128,8 @@ type
       Isc - OutputData[1],
       Pm - OutputData[2],
       Vm - OutputData[3],
-      Im - OutputData[4]}
+      Im - OutputData[4],
+      FF - OutputData[5]}
      Function NPolinomAprox (N:word;var  OutputData:TArrSingle):boolean;
       {апроксимуються дані  поліномом N-го ступеня
       y=OutputData[0]+OutputData[1]*x+OutputData[2]*x^2+...+OutputData[N]*x^N}
@@ -1041,7 +1042,7 @@ function TVectorTransform.PVParareters(var OutputData: TArrSingle): boolean;
      Number_Vmax:integer;
 begin
  Result:=False;
- InitArrSingle(OutputData,5,0);
+ InitArrSingle(OutputData,6,0);
 
  P_V:=TVectorTransform.Create();
  Self.Power(P_V);
@@ -1076,6 +1077,9 @@ begin
  OutputData[3]:=temp.NPolinomExtremum(4);
  OutputData[2]:=-P_V.YvalueSplain3(OutputData[3]);
  OutputData[4]:=-Self.YvalueSplain3(OutputData[3]);
+ if (OutputData[0]>Voc_min)
+    and (OutputData[1]>Isc_min)
+      then OutputData[5]:=OutputData[2]/OutputData[0]/OutputData[1];
 
  D.Free;
  P_V.Free;

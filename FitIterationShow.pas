@@ -31,7 +31,7 @@ TConstParDetWindowShow=class(TWindowShow)
     fRButtons: array of TRadioButton;
     fRBNames:array of string;
     fButton: TButton;
-    fPIteration:TFFParamIteration;
+    fPIteration:TFFParamGradient;
     procedure RBNamesDefine;virtual;
     procedure RButtonsCreate;
     procedure RBClick(Sender: TObject);
@@ -39,7 +39,7 @@ TConstParDetWindowShow=class(TWindowShow)
    public
     Frame:TFrame;
     constructor Create(AOwner: TComponent;
-                PIteration:TFFParamIteration);
+                PIteration:TFFParamGradient);
     destructor Destroy;override;
     procedure SizeDetermination (Form: TForm);
     procedure DateUpdate;
@@ -55,7 +55,7 @@ TConstParDetWindowShow=class(TWindowShow)
   public
    Frame:TFrame;
    procedure DateUpdate;
-   constructor Create(AOwner: TComponent;PIteration:TDParamsIteration);
+   constructor Create(AOwner: TComponent;PIteration:TDParamsGradient);
    destructor Destroy;override;
    procedure SizeAndLocationDetermination(Form: TForm);
 end;
@@ -65,10 +65,10 @@ end;
    fPIArrayFrame:TParamIterationArrayFrame;
    fSIFrame:TSimpleIntFrame;
    fSDFrame:TSimpleDoubleFrame;
-   fPIteration:TDParamsIteration;
+   fPIteration:TDParamsGradient;
   public
    GB:TGroupBox;
-   constructor Create(PIteration:TDParamsIteration);
+   constructor Create(PIteration:TDParamsGradient);
    destructor Destroy;override;
    procedure SizeDetermination (Form: TForm);virtual;
    procedure DateUpdate;virtual;
@@ -77,10 +77,10 @@ end;
   TDecParamsIteration=class(TFFParameter)
    private
     fGB:TDParamsIterationGroupBox;
-    fPIteration:TDParamsIteration;
+    fPIteration:TDParamsGradient;
     fFFParameter:TFFParameter;
    public
-    constructor Create(PIteration:TDParamsIteration;
+    constructor Create(PIteration:TDParamsGradient;
                        FFParam:TFFParameter);
     procedure FormPrepare(Form:TForm);override;
     procedure UpDate;override;
@@ -237,7 +237,7 @@ begin
 end;
 
 constructor TFFParamIterationFrame.Create(AOwner: TComponent;
-                                 PIteration:TFFParamIteration);
+                                 PIteration:TFFParamGradient);
 begin
  inherited Create;
  fPIteration:=PIteration;
@@ -365,7 +365,7 @@ begin
 end;
 
 constructor TParamIterationArrayFrame.Create(AOwner: TComponent;
-                                 PIteration: TDParamsIteration);
+                                 PIteration: TDParamsGradient);
  var i:integer;
 begin
   inherited Create;
@@ -376,7 +376,7 @@ begin
   for I := 0 to High(fSubFrames) do
      begin
        fSubFrames[i]:=TFFParamIterationFrame.Create(Frame,
-                       (PIteration.fParams[i] as TFFParamIteration));
+                       (PIteration.fParams[i] as TFFParamGradient));
        fSubFrames[i].Frame.Parent:=Frame;
      end;
 end;
@@ -454,7 +454,7 @@ end;
 
 { TDParamsIterationGroupBox }
 
-constructor TDParamsIterationGroupBox.Create(PIteration: TDParamsIteration);
+constructor TDParamsIterationGroupBox.Create(PIteration: TDParamsGradient);
 begin
   inherited Create;
   GB:=TGroupBox.Create(nil);
@@ -508,7 +508,7 @@ end;
 
 { TDecParamsIteration }
 
-constructor TDecParamsIteration.Create(PIteration: TDParamsIteration;
+constructor TDecParamsIteration.Create(PIteration: TDParamsGradient;
    FFParam: TFFParameter);
 begin
  fFFParameter:=FFParam;
@@ -592,7 +592,7 @@ begin
   Form.BorderIcons := [];
 
   Form.Font.Name:='Tahoma';
-  Form.Font.Height:=-16;
+  Form.Font.Height:=-round(Screen.PixelsPerInch/6.0);
   Form.Font.Style := [fsBold];
   Form.Caption:=fFF.FittingAgent.Description;
   if fFF.DataToFit.name<>''
@@ -613,6 +613,7 @@ begin
      fLabels[i]:=TLabel.Create(Form);
      fLabels[i].Parent:=Form;
      fLabels[i].AutoSize:=True;
+//     Form.Font.Style := [fsBold];
    end;
 
   LabelAction(fLabels[High(fLabels)-3],'Total number of iterations');
@@ -622,7 +623,7 @@ begin
   fLabels[High(fLabels)-3].Top:=SampleHeigth;
   fLabels[High(fLabels)-2].Top:=fLabels[High(fLabels)-3].Top+3*SampleHeigth;
 
-  fLabels[High(fLabels)-1].Caption:=IntToStr((fFF.DParamArray as TDParamsIteration).Nit);
+  fLabels[High(fLabels)-1].Caption:=IntToStr((fFF.DParamArray as TDParamsGradient).Nit);
   fLabels[High(fLabels)-1].Left:=max(fLabels[High(fLabels)-3].Width,
                                      fLabels[High(fLabels)-2].Width)
                                  +fLabels[High(fLabels)-3].Left
@@ -661,7 +662,7 @@ begin
                   +MarginRight;
   Form.Height:=fLabels[fFF.DParamArray.MainParamHighIndex].Top
               +fLabels[fFF.DParamArray.MainParamHighIndex].Height
-              +2*MarginTop;
+              +3*MarginTop;
 
   Form.Show;
 end;

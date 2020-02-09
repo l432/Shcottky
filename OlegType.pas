@@ -12,6 +12,8 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       m0=9.11e-31; {маса електрону []=кг}
       ErResult=555;
       DoubleConstantSection='DoubleConstant';
+      Voc_min=0.0002;
+      Isc_min=1e-11;
 var   StartValue,EndValue,Freq:Int64;
 
 //QueryPerformanceCounter(StartValue);

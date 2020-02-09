@@ -52,15 +52,15 @@ uses
 //
 //
 type
-//
-//  TVar_Rand=(lin,logar,cons);
-//  {для змінних, які використовуються у еволюційних методах,
-//  norm - еволюціонує значення змінної
-//  logar - еволюціонує значення логарифму змінної
-//  сons - змінна залишається сталою}
-//  TArrVar_Rand=array of TVar_Rand;
-//  PTArrVar_Rand=^TArrVar_Rand;
-//
+
+  TVar_RandNew=(vr_lin,vr_log,vr_const);
+  {для змінних, які використовуються у еволюційних методах,
+  norm - еволюціонує значення змінної
+  logar - еволюціонує значення логарифму змінної
+  сons - змінна залишається сталою}
+  TArrVar_Rand=array of TVar_Rand;
+  PTArrVar_Rand=^TArrVar_Rand;
+
 //  TEvolutionType= //еволюційний метод, який використовується для апроксимації
 //    (TDE, //differential evolution
 //     TMABC, // modified artificial bee colony
@@ -71,10 +71,10 @@ type
 //
 TOIniFileNew=class (TIniFile)
 public
-function ReadRand(const Section, Ident: string): TVar_Rand; virtual;
-procedure WriteRand(const Section, Ident: string; Value: TVar_Rand); virtual;
-function ReadEvType(const Section, Ident: string): TEvolutionType; virtual;
-procedure WriteEvType(const Section, Ident: string; Value: TEvolutionType); virtual;
+  function ReadRand(const Section, Ident: string): TVar_RandNew; virtual;
+  procedure WriteRand(const Section, Ident: string; Value: TVar_RandNew); virtual;
+  function ReadEvType(const Section, Ident: string): TEvolutionType; virtual;
+  procedure WriteEvType(const Section, Ident: string; Value: TEvolutionType); virtual;
 end;
 
 TFFParameter=class
@@ -236,98 +236,6 @@ end;
 ////----------------------------------------------
 //
 
-
-////--------------------------------------------------------
-//TFitAdditionParam=class (TFitIteration)
-//{є додаткові параметри, які також
-//визначаються в пезультаті апроксимації,
-// наприклад, для ВАХ діода при
-// освітленні це будуть
-// Voc, Isc, FF та Pm}
-//private
-// fNAddX:byte;//кількість додаткових параметрів
-// fIsDiod:boolean;
-// fIsPhotoDiod:boolean;
-// {якщо якась з двох попередніх величин True,
-// то при обчисленні додаткових параметрів
-// використовується стандартна функція
-// для діода чи діода при освітленні в рамках
-// однодіодної моделі}
-// Constructor Create(FunctionName,FunctionCaption:string;
-//                     Npar,Nvar,NaddX:byte);
-// Procedure CreateFooter;virtual;
-//// procedure AddParDetermination(InputData:PVector;
-////                               var OutputData:TArrSingle); overload;virtual;
-// procedure AddParDetermination(InputData:TVector;
-//                               var OutputData:TArrSingle); {overload;}virtual;
-//{розраховуються додаткові параметри}
-//public
-//// Procedure Fitting (InputData:PVector; var OutputData:TArrSingle;
-////                    Xlog:boolean=False;Ylog:boolean=False);override;
-// Procedure Fitting (InputData:TVector; var OutputData:TArrSingle;
-//                    Xlog:boolean=False;Ylog:boolean=False);override;
-//end;
-//
-////---------------------------------------------
-//
-//TPhotoDiodLSM=class (TFitFunctLSM)
-//private
-//// Procedure InitialApproximation(InputData:PVector;var IA:TArrSingle);override;
-// Procedure InitialApproximation(InputData:TVector;var IA:TArrSingle);override;
-//{Param = n  при num = 0; Rs при 1; I0 при 2; Rsh при 3; Iph при 4}
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TPhotoDiodLSM=class (TFitFunctLSM)
-//
-//TDiodLam=class (TFitFunctLSM)
-//private
-//// Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
-// Function ParamIsBad(InputData:TVector; IA:TArrSingle):boolean;override;
-// {перевіряє чи параметри можна використовувати для
-// апроксимації даних в InputData функцією Ламверта,
-// IA[0] - n, IA[1] - Rs, IA[2] - I0, IA[3] - Rsh}
-//// Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-////             var RezF:TArrSingle; var RezSum:double):boolean;override;
-// Function SquareFormIsCalculated(InputData:TVector; X:TArrSingle;
-//             var RezF:TArrSingle; var RezSum:double):boolean;override;
-//// Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-////                     X:TArrSingle):double;overload;override;
-// Function SquareFormDerivate(InputData:TVector;num:byte;al,F:double;
-//                     X:TArrSingle):double;overload;override;
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TDiodLam=class (TFitFunctLSM)
-//
-//TPhotoDiodLam=class (TFitFunctLSM)
-//private
-//// Procedure InitialApproximation(InputData:PVector;var  IA:TArrSingle);override;
-// Procedure InitialApproximation(InputData:TVector;var  IA:TArrSingle);override;
-//// Function ParamCorectIsDone(InputData:PVector;var IA:TArrSingle):boolean;override;
-// Function ParamCorectIsDone(InputData:TVector;var IA:TArrSingle):boolean;override;
-//// Function ParamIsBad(InputData:PVector; IA:TArrSingle):boolean;override;
-// Function ParamIsBad(InputData:TVector; IA:TArrSingle):boolean;override;
-// {перевіряє чи параметри можна використовувати для
-// апроксимації ВАХ при освітленні в InputData функцію Ламверта,
-//  A[0] - n, IA[1] - Rs, IA[2] - Isc, IA[3] - Rsh, IA[3] - Voc}
-//// Function SquareFormIsCalculated(InputData:PVector; X:TArrSingle;
-////             var RezF:TArrSingle; var RezSum:double):boolean;override;
-// Function SquareFormIsCalculated(InputData:TVector; X:TArrSingle;
-//             var RezF:TArrSingle; var RezSum:double):boolean;override;
-//{X[0] - n, X[1] - Rs, X[2] -  Rsh, X[3] -  Isc, X[4] - Voc;
-//RezF[0] - похідна по n, RezF[1] - по Rs, RezF[3] - по Rsh}
-//// Function SquareFormDerivate(InputData:Pvector;num:byte;al,F:double;
-////                     X:TArrSingle):double;override;
-// Function SquareFormDerivate(InputData:TVector;num:byte;al,F:double;
-//                     X:TArrSingle):double;override;
-// Procedure EndFitting(FinalResult:TArrSingle;
-//              var OutputData:TArrSingle);override;
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TPhotoDiodLam=class (TFitFunctLSM)
-//
 ////---------------------------------------------
 //TFitFunctEvolution=class (TFitAdditionParam)
 //{для функцій, де апроксимація відбувається
@@ -1137,12 +1045,12 @@ begin
   end;
 end;
 
-function TOIniFileNew.ReadRand(const Section, Ident: string): TVar_Rand;
+function TOIniFileNew.ReadRand(const Section, Ident: string): TVar_RandNew;
 begin
   try
-    Result:=TVar_Rand(ReadInteger(Section, Ident,2));
+    Result:=TVar_RandNew(ReadInteger(Section, Ident,2));
   except
-    Result:=TVar_Rand(2);
+    Result:=TVar_RandNew(2);
   end;
 end;
 
@@ -1153,7 +1061,7 @@ begin
 end;
 
 procedure TOIniFileNew.WriteRand(const Section, Ident: string;
-                                 Value: TVar_Rand);
+                                 Value: TVar_RandNew);
 begin
   WriteInteger(Section, Ident,ord(Value));
 end;

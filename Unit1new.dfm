@@ -18,7 +18,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 120
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
@@ -4855,6 +4855,10 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = 'File operation'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object DirLabel: TLabel
         Left = 664
         Top = 62
@@ -5477,7 +5481,7 @@ object Form1: TForm1
           Height = 22
           Style = csDropDownList
           DropDownCount = 21
-          ItemHeight = 14
+          ItemHeight = 0
           TabOrder = 0
           OnChange = CBKalkChange
         end
@@ -5892,7 +5896,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 0
               OnChange = ComboBoxRSChange
             end
@@ -5912,7 +5916,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
                 OnChange = ComboBoxRSChange
               end
@@ -5941,7 +5945,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
                 OnChange = ComboBoxNChange
               end
@@ -5954,7 +5958,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComboBoxNChange
             end
@@ -5974,7 +5978,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 0
               OnChange = ComboBoxNssRsChange
             end
@@ -5993,7 +5997,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
                 OnChange = ComboBoxNssFbChange
               end
@@ -6045,7 +6049,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 0
               OnChange = ComboBoxNssFbChange
             end

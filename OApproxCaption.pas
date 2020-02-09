@@ -47,11 +47,11 @@ const
    SchDClasses:array[0..SchDNumber]of TFitFunctionNew_Class=
    (TFFExponent,TFFIvanov);
 
-  DiodNumber=0;
+  DiodNumber=3;
   DiodNames:array[0..DiodNumber] of string=
-   ('Diod, LSM');
+   ('Diode, LSM','Diode, Lambert','PhotoDiode, LSM','PhotoDiode, Lambert');
   DiodClasses:array[0..DiodNumber]of TFitFunctionNew_Class=
-   (TFFDiodLSM);
+   (TFFDiodLSM,TFFDiodLam,TFFPhotoDiodLSM,TFFPhotoDiodLam);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;

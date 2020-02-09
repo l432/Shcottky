@@ -3992,11 +3992,14 @@ begin
 
   repeat
    if Nitt<1 then
+      begin
       if not(SquareFormIsCalculated(InputData,X,derivX,Sum1)) then
                   begin
                     IterWindowClear();
                     Exit;
                   end;
+//      HelpForMe('sum10'+floattostr(Sum1));
+      end;
 
    bool:=true;
    if not(odd(Nitt)) then for I := 0 to High(X) do X2[i]:=X[i];
@@ -4942,6 +4945,7 @@ end;
 
 Procedure TPhotoDiodLam.EndFitting(FinalResult:TArrSingle;
               var OutputData:TArrSingle);
+// var i:integer;
 begin
  inherited EndFitting(FinalResult,OutputData);
  OutputData[2]:=(FinalResult[2]+(FinalResult[1]*FinalResult[2]-FinalResult[4])/FinalResult[3])*
@@ -4949,6 +4953,9 @@ begin
               (1-exp((FinalResult[1]*FinalResult[2]-FinalResult[4])/FinalResult[0]/Kb/FVariab[0]));
  OutputData[4]:= OutputData[2]*(exp(FinalResult[4]/FinalResult[0]/Kb/FVariab[0])-1)+
                 FinalResult[4]/FinalResult[3];
+
+// for I := 0 to High(OutputData) do HelpForMe(inttostr(i)+'0_'+floattostr(OutputData[i]))
+
 end;
 
 Function TPhotoDiodLam.Func(Parameters:TArrSingle):double;
@@ -4974,6 +4981,7 @@ begin
    FXmode[4]:=cons;
 
    IA[3]:=IA_Determine3(InputData,temp);
+//     HelpForMe('Rsh0'+floattostr(IA[3]));
 
    {n та Rs0 - як нахил та вільних член лінійної апроксимації
     щонайбільше семи останніх точок залежності dV/dI від kT/q(Isc+I-V/Rsh);}
@@ -4999,6 +5007,7 @@ begin
     IA[0]:=outputData[1];
     if FXmode[1]=cons then IA[1]:=FXvalue[1];
     if FXmode[0]=cons then IA[0]:=FXvalue[0];
+
     ttemp.Free;
     temp.Free;
 end;

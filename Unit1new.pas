@@ -4032,13 +4032,13 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
- var Vec:TVectorTransform;
+// var Vec:TVectorTransform;
 //     SA,SA2:TArrSingle;
-     T,i:integer;
-     Nb:double;
+//     T,i:integer;
+//     Nb:double;
 begin
 
- showmessage(inttostr(NumberOfSubstringInRow('Fe T nFsrh nFBsrh dnsrh nF nFB dn')));
+ showmessage(inttostr(Screen.PixelsPerInch));
 // Silicon.mu_n();
 // showmessage(floattostr(Pi));
 ////

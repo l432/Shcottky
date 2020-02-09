@@ -4,7 +4,7 @@ interface
 
 uses
   FitSimple, FitVariable, OApproxNew, FitMaterial, OlegType,
-  OlegMath, FitIteration, Forms;
+  OlegMath, FitIteration, Forms, OlegFunction;
 
 type
 TFFVariabSet =class(TFFSimple)
@@ -113,23 +113,44 @@ TFFDiodLSM=class (TFFIterationLSM)
   procedure AccessorialDataCreate;override;
   procedure AccessorialDataDestroy;override;
   function ParameterCreate:TFFParameter;override;
-  procedure TuningBeforeAccessorialDataCreate;override;
+//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
   procedure AdditionalParamDetermination;override;
 end; // TFFDiodLSM=class (TFFIterationLSMSchottky)
 
-//TFFTPhotoDiodLSM=class (TFFIterationLSM)
-// private
-//  procedure FittingAgentCreate;override;
-// protected
+TFFPhotoDiodLSM=class (TFFIterationLSM)
+ private
+  procedure FittingAgentCreate;override;
+ protected
 //  procedure TuningBeforeAccessorialDataCreate;override;
-//  procedure ParamArrayCreate;override;
-//  procedure NamesDefine;override;
-//  function RealFinalFunc(X:double):double;override;
-//  procedure AdditionalParamDetermination;override;
-//end; // TFFTPhotoDiodLSM=class (TFFIterationLSM)
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  function RealFinalFunc(X:double):double;override;
+  procedure AdditionalParamDetermination;override;
+end; // TFFTPhotoDiodLSM=class (TFFIterationLSM)
+
+
+TFFDiodLam=class (TFFDiodLSM)
+ private
+  procedure FittingAgentCreate;override;
+ protected
+//  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure NamesDefine;override;
+  function RealFinalFunc(X:double):double;override;
+end;
+
+TFFPhotoDiodLam=class (TFFIterationLSM)
+ private
+  procedure FittingAgentCreate;override;
+ protected
+//  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  function RealFinalFunc(X:double):double;override;
+  procedure AdditionalParamDetermination;override;
+end; // TFFTPhotoDiodLSM=class (TFFIterationLSM)
 
 implementation
 
@@ -337,7 +358,7 @@ begin
          end;
 
        until (fFittingAgent.ToStop
-            or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsIteration).Nit)
+            or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsGradient).Nit)
             or not(fWindowAgent.Form.Visible));
    if fWindowAgent.Form.Visible then
     begin
@@ -365,7 +386,7 @@ end;
 procedure TFFIteration.VariousPreparationBeforeFitting;
 begin
   inherited VariousPreparationBeforeFitting;
-  (fDParamArray as TDParamsIteration).UpDate;
+  (fDParamArray as TDParamsGradient).UpDate;
 end;
 
 procedure TFFIteration.WindowAgentCreate;
@@ -396,20 +417,20 @@ end;
 
 procedure TFFDiodLSM.FittingAgentCreate;
 begin
- fFittingAgent:=TFittingAgentLSM.Create((fDParamArray as TDParamsIteration),
+ fFittingAgent:=TFittingAgentLSM.Create((fDParamArray as TDParamsGradient),
                                         fDataToFit,ftempVector,
                                         (fDoubVars.ParametrByName['T'] as TVarDouble).Value);
 end;
 
 procedure TFFDiodLSM.NamesDefine;
 begin
- SetNameCaption('DiodLSMa',
-      'Diod function, least-squares fitting');
+ SetNameCaption('DiodLSM',
+      'One-diode model, gradient descent least-squares fitting');
 end;
 
 procedure TFFDiodLSM.ParamArrayCreate;
 begin
-  fDParamArray:=TDParamsIteration.Create(Self,
+  fDParamArray:=TDParamsGradient.Create(Self,
                  ['n','Rs','Io','Rsh'],
                  ['Fb']);
 end;
@@ -429,17 +450,17 @@ begin
                             fDParamArray.OutputData[3]);
 end;
 
-procedure TFFDiodLSM.TuningBeforeAccessorialDataCreate;
-begin
-  inherited;
-  FPictureName:='DiodLSM'+'Fig';
-end;
+//procedure TFFDiodLSM.TuningBeforeAccessorialDataCreate;
+//begin
+//  inherited;
+//  FPictureName:='DiodLSM'+'Fig';
+//end;
 
 { TFFIterationLSM }
 
 function TFFIterationLSM.ParameterCreate: TFFParameter;
 begin
-  Result:=TDecParamsIteration.Create((fDParamArray as TDParamsIteration),
+  Result:=TDecParamsIteration.Create((fDParamArray as TDParamsGradient),
                          inherited ParameterCreate);
 end;
 
@@ -468,6 +489,138 @@ end;
 //begin
 //   Result:=TDecDSchottkyParameter.Create(fSchottky,
 //                         inherited ParameterCreate);
+//end;
+
+{ TFFTPhotoDiodLSM }
+
+procedure TFFPhotoDiodLSM.AdditionalParamDetermination;
+begin
+ PVparameteres(fDataToFit,fDParamArray);
+ inherited;
+end;
+
+procedure TFFPhotoDiodLSM.FittingAgentCreate;
+begin
+ fFittingAgent:=TFittingAgentPhotoDiodLSM.Create((fDParamArray as TDParamsGradient),
+                                        fDataToFit,ftempVector,
+                                        (fDoubVars.ParametrByName['T'] as TVarDouble).Value);
+end;
+
+procedure TFFPhotoDiodLSM.NamesDefine;
+begin
+ SetNameCaption('PhotoDiodLSM',
+      'One-diode model, illumination, gradient descent least-squares fitting');
+end;
+
+procedure TFFPhotoDiodLSM.ParamArrayCreate;
+begin
+  fDParamArray:=TDParamsGradient.Create(Self,
+                 ['n','Rs','Io','Rsh','Iph'],
+                 ['Voc','Isc','FF','Pm','Vm','Im']);
+end;
+
+function TFFPhotoDiodLSM.RealFinalFunc(X: double): double;
+begin
+ Result:=Full_IV(IV_Diod,X,[fDParamArray.OutputData[0]
+                            *Kb*(fDoubVars.ParametrByName['T'] as TVarDouble).Value,
+                            fDParamArray.OutputData[1],
+                            fDParamArray.OutputData[2]],
+                            fDParamArray.OutputData[3],
+                            fDParamArray.OutputData[4]);
+end;
+
+//procedure TFFPhotoDiodLSM.TuningBeforeAccessorialDataCreate;
+//begin
+//  inherited;
+//  FPictureName:='PhotoDiodLSMFig';
+//end;
+
+{ TFFDiodLam }
+
+procedure TFFDiodLam.FittingAgentCreate;
+begin
+ fFittingAgent:=TFittingAgentDiodLam.Create((fDParamArray as TDParamsGradient),
+                                        fDataToFit,ftempVector,
+                                        (fDoubVars.ParametrByName['T'] as TVarDouble).Value);
+end;
+
+procedure TFFDiodLam.NamesDefine;
+begin
+  SetNameCaption('DiodLam',
+      'One-diode description by Lambert function, gradient descent least-squares fitting');
+end;
+
+function TFFDiodLam.RealFinalFunc(X: double): double;
+begin
+  Result:=LambertAprShot(X,fDParamArray.OutputData[0]*
+                        Kb*(fDoubVars.ParametrByName['T'] as TVarDouble).Value,
+                        fDParamArray.OutputData[1],
+                        fDParamArray.OutputData[2],
+                        fDParamArray.OutputData[3]);
+end;
+
+//procedure TFFDiodLam.TuningBeforeAccessorialDataCreate;
+//begin
+//  inherited;
+//  FPictureName:='DiodLamFig';
+//end;
+
+{ TFFPhotoDiodLam }
+
+procedure TFFPhotoDiodLam.AdditionalParamDetermination;
+begin
+ PVparameteres(fDataToFit,fDParamArray);
+ fDParamArray.SetValueByName('Io',(fDParamArray.ParametrByName['Isc'].Value
+      +(fDParamArray.ParametrByName['Rs'].Value*fDParamArray.ParametrByName['Isc'].Value
+        -fDParamArray.ParametrByName['Voc'].Value)/fDParamArray.ParametrByName['Rsh'].Value)
+        *exp(-fDParamArray.ParametrByName['Voc'].Value/fDParamArray.ParametrByName['n'].Value
+        /Kb/(fDoubVars.ParametrByName['T'] as TVarDouble).Value)
+        /(1-exp((fDParamArray.ParametrByName['Rs'].Value
+          *fDParamArray.ParametrByName['Isc'].Value-fDParamArray.ParametrByName['Voc'].Value)
+          /fDParamArray.ParametrByName['n'].Value/Kb/(fDoubVars.ParametrByName['T'] as TVarDouble).Value)));
+
+ fDParamArray.SetValueByName('Iph',fDParamArray.ParametrByName['Io'].Value
+       *(exp(fDParamArray.ParametrByName['Voc'].Value/fDParamArray.ParametrByName['n'].Value
+       /Kb/(fDoubVars.ParametrByName['T'] as TVarDouble).Value)-1)
+       +fDParamArray.ParametrByName['Voc'].Value/fDParamArray.ParametrByName['Rsh'].Value);
+ fDParamArray.OutputDataCoordinate;
+ inherited AdditionalParamDetermination;
+end;
+
+procedure TFFPhotoDiodLam.FittingAgentCreate;
+begin
+ fFittingAgent:=TFittingAgentPhotoDiodLam.Create((fDParamArray as TDParamsGradient),
+                                        fDataToFit,ftempVector,
+                                        (fDoubVars.ParametrByName['T'] as TVarDouble).Value);
+end;
+
+procedure TFFPhotoDiodLam.NamesDefine;
+begin
+ SetNameCaption('PhotoDiodLam',
+      'One-diode description by Lambert function, illumination, gradient descent least-squares fitting');
+end;
+
+procedure TFFPhotoDiodLam.ParamArrayCreate;
+begin
+  fDParamArray:=TDParamsGradient.Create(Self,
+                 ['n','Rs','Rsh'],
+                 ['Io','Iph','Voc','Isc','FF','Pm','Vm','Im']);
+end;
+
+function TFFPhotoDiodLam.RealFinalFunc(X: double): double;
+begin
+  Result:=LambertLightAprShot(X,fDParamArray.OutputData[0]
+                          *Kb*(fDoubVars.ParametrByName['T'] as TVarDouble).Value,
+                          fDParamArray.OutputData[1],
+                          fDParamArray.OutputData[3],
+                          fDParamArray.OutputData[2],
+                          fDParamArray.OutputData[4]);
+end;
+
+//procedure TFFPhotoDiodLam.TuningBeforeAccessorialDataCreate;
+//begin
+//  inherited;
+//  FPictureName:='PhotoDiodLamFig';
 //end;
 
 end.
