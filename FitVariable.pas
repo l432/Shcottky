@@ -685,6 +685,7 @@ procedure TVarNumberArray.ReadFromIniFile;
  var I:integer;
 begin
   for I := 0 to High(fVars) do fVars[i].ReadFromIniFile;
+
 end;
 
 procedure TVarNumberArray.WriteToIniFile;

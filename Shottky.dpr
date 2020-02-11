@@ -33,11 +33,12 @@ uses
   FitDigital in 'FitDigital.pas',
   FitVariableShow in 'FitVariableShow.pas',
   FitSimple in 'FitSimple.pas',
-  OApprox3 in 'OApprox3.pas',
+  FitGradient in 'FitGradient.pas',
   FitMaterial in 'FitMaterial.pas',
   FitIteration in 'FitIteration.pas',
   FitIterationShow in 'FitIterationShow.pas',
-  HighResolutionTimer in 'HighResolutionTimer.pas';
+  HighResolutionTimer in 'HighResolutionTimer.pas',
+  OApproxFunction in 'OApproxFunction.pas';
 
 {$R *.res}
 

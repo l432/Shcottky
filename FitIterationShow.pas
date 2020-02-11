@@ -4,7 +4,7 @@ interface
 
 uses
   OApproxNew, ExtCtrls, FitVariableShow, StdCtrls, FitIteration, Forms, 
-  Classes, OlegFunction, FitSimple, OApprox3;
+  Classes, OlegFunction, FitSimple, FitGradient;
 
 type
 
@@ -24,6 +24,17 @@ TConstParDetWindowShow=class(TWindowShow)
  end;
 
  TFFParamIterationFrame=class
+  private
+    procedure RButtonsInitCheck;virtual;abstract;
+    procedure GBoxModeResize(Form: TForm);
+    procedure FrameResize;
+    procedure ElementsRelativeLocation;virtual;
+    procedure ElementsResize(Form: TForm);virtual;
+    procedure GBoxModeCreate;
+    procedure LabelNameCreate;
+    procedure PanelCreate;
+    procedure ButtonCreate;
+    procedure ElementsCreate;virtual;
    protected
     fLabelName:TLabel;
     fPanel: TPanel;
@@ -31,18 +42,67 @@ TConstParDetWindowShow=class(TWindowShow)
     fRButtons: array of TRadioButton;
     fRBNames:array of string;
     fButton: TButton;
-    fPIteration:TFFParamGradient;
-    procedure RBNamesDefine;virtual;
+    fPIteration:TFFParamIteration;
+    procedure RBNamesDefine;virtual;abstract;
     procedure RButtonsCreate;
-    procedure RBClick(Sender: TObject);
+    procedure RBClick(Sender: TObject);virtual;
     procedure ButClick(Sender: TObject);
    public
     Frame:TFrame;
     constructor Create(AOwner: TComponent;
-                PIteration:TFFParamGradient);
+                PIteration:TFFParamIteration);
     destructor Destroy;override;
     procedure SizeDetermination (Form: TForm);
-    procedure DateUpdate;
+    procedure DateUpdate;virtual;abstract;
+ end;
+
+
+ TFFParamGradientFrame=class(TFFParamIterationFrame)
+  private
+    procedure RButtonsInitCheck;override;
+//    procedure GBoxResize(Form: TForm);
+//    procedure FrameResize;
+//    procedure ElementsRelativeLocation;
+   protected
+//    fLabelName:TLabel;
+//    fPanel: TPanel;
+//    fGBoxMode: TGroupBox;
+//    fRButtons: array of TRadioButton;
+//    fRBNames:array of string;
+//    fButton: TButton;
+//    fPIteration:TFFParamGradient;
+    procedure RBNamesDefine;override;
+//    procedure RButtonsCreate;
+//    procedure RBClick(Sender: TObject);
+//    procedure ButClick(Sender: TObject);
+   public
+//    Frame:TFrame;
+//    constructor Create(AOwner: TComponent;
+//                PIteration:TFFParamGradient);
+//    destructor Destroy;override;
+//    procedure SizeDetermination (Form: TForm);
+    procedure DateUpdate;override;
+ end;
+
+TFFParamHeuristicFrame=class(TFFParamIterationFrame)
+  private
+    fGBoxLimit: TGroupBox;
+    fLEmin: TLabeledEdit;
+    fLEmax: TLabeledEdit;
+    procedure RButtonsInitCheck;override;
+    procedure minInKeyPress(Sender: TObject; var Key: Char);
+    procedure ElementsRelativeLocation;override;
+    procedure ElementsResize(Form: TForm);override;
+    procedure ElementsCreate;override;
+    procedure GBoxLimitCreate;
+    procedure LEsCreate;
+  protected
+    procedure RBNamesDefine;override;
+    procedure RBClick(Sender: TObject);override;
+  public
+//    constructor Create(AOwner: TComponent;
+//                PIteration:TFFParamHeuristic);
+    procedure DateUpdate;override;
  end;
 
  TParamIterationArrayFrame=class
@@ -55,32 +115,81 @@ TConstParDetWindowShow=class(TWindowShow)
   public
    Frame:TFrame;
    procedure DateUpdate;
-   constructor Create(AOwner: TComponent;PIteration:TDParamsGradient);
+   constructor Create(AOwner: TComponent;PIteration:TDParamsIteration);
    destructor Destroy;override;
    procedure SizeAndLocationDetermination(Form: TForm);
 end;
+
+// TParamIterationArrayFrame=class
+//  private
+//   fSubFrames:array of TFFParamGradientFrame;
+//   procedure SubFramesResize(Form: TForm);
+//   function ColumnNumberDetermination:byte;
+//   procedure SubFramesLocate;
+//   procedure FrameLocate(Form: TForm);
+//  public
+//   Frame:TFrame;
+//   procedure DateUpdate;
+//   constructor Create(AOwner: TComponent;PIteration:TDParamsGradient);
+//   destructor Destroy;override;
+//   procedure SizeAndLocationDetermination(Form: TForm);
+//end;
 
   TDParamsIterationGroupBox=class
   private
    fPIArrayFrame:TParamIterationArrayFrame;
    fSIFrame:TSimpleIntFrame;
    fSDFrame:TSimpleDoubleFrame;
-   fPIteration:TDParamsGradient;
+   fPIteration:TDParamsIteration;
   public
    GB:TGroupBox;
-   constructor Create(PIteration:TDParamsGradient);
+   constructor Create(PIteration:TDParamsIteration);
    destructor Destroy;override;
-   procedure SizeDetermination (Form: TForm);virtual;
+   procedure SizeDetermination (Form: TForm);virtual;abstract;
    procedure DateUpdate;virtual;
  end;
+
+  TDParamsGradientGroupBox=class(TDParamsIterationGroupBox)
+  private
+//   fPIArrayFrame:TParamIterationArrayFrame;
+//   fSIFrame:TSimpleIntFrame;
+//   fSDFrame:TSimpleDoubleFrame;
+//   fPIteration:TDParamsGradient;
+  public
+//   GB:TGroupBox;
+//   constructor Create(PIteration:TDParamsGradient);
+//   destructor Destroy;override;
+   procedure SizeDetermination (Form: TForm);override;
+//   procedure DateUpdate;virtual;
+ end;
+
+  TDParamsHeuristicGroupBox=class(TDParamsIterationGroupBox)
+  private
+   fEvTypeFrame:TSimpleStringFrame;
+   fSLEvType:TStringList;
+//   fPIArrayFrame:TParamIterationArrayFrame;
+//   fSIFrame:TSimpleIntFrame;
+//   fSDFrame:TSimpleDoubleFrame;
+//   fPIteration:TDParamsGradient;
+  public
+//   GB:TGroupBox;
+   constructor Create(PIteration:TDParamsHeuristic);
+   destructor Destroy;override;
+   procedure SizeDetermination (Form: TForm);override;
+   procedure DateUpdate;override;
+ end;
+
 
   TDecParamsIteration=class(TFFParameter)
    private
     fGB:TDParamsIterationGroupBox;
-    fPIteration:TDParamsGradient;
+//    fGB:TDParamsGradientGroupBox;
+//    fPIteration:TDParamsGradient;
+    fPIteration:TDParamsIteration;
     fFFParameter:TFFParameter;
    public
-    constructor Create(PIteration:TDParamsGradient;
+//    constructor Create(PIteration:TDParamsGradient;
+    constructor Create(PIteration:TDParamsIteration;
                        FFParam:TFFParameter);
     procedure FormPrepare(Form:TForm);override;
     procedure UpDate;override;
@@ -110,7 +219,7 @@ implementation
 
 uses
   Windows, OApproxShow, Math, Graphics, Controls, OlegShowTypes, Dialogs, 
-  SysUtils, OlegMath;
+  SysUtils, OlegMath, Messages;
 
 
 { TConstParDetWindowShow }
@@ -228,129 +337,139 @@ end;
 
 { TTFFParamIterationFrame }
 
-procedure TFFParamIterationFrame.ButClick(Sender: TObject);
- var WindowShow:TConstParDetWindowShow;
-begin
- WindowShow:=TConstParDetWindowShow.Create(fPIteration.fCPDeter);
- WindowShow.Show;
-// WindowShow.Free;
-end;
+//procedure TFFParamGradientFrame.ButClick(Sender: TObject);
+// var WindowShow:TConstParDetWindowShow;
+//begin
+// WindowShow:=TConstParDetWindowShow.Create(fPIteration.fCPDeter);
+// WindowShow.Show;
+//// WindowShow.Free;
+//end;
+//
+//constructor TFFParamGradientFrame.Create(AOwner: TComponent;
+//                                 PIteration:TFFParamGradient);
+//begin
+// inherited Create;
+// fPIteration:=PIteration;
+// RBNamesDefine;
+//
+// Frame:=TFrame.Create(AOwner);
+//
+// fPanel:=TPanel.Create(Frame);
+// fPanel.Parent:=Frame;
+// fPanel.Top:=0;
+// fPanel.Left:=0;
+// fPanel.BevelWidth:=3;
+//
+// fLabelName:=TLabel.Create(Frame);
+// fLabelName.AutoSize:=True;
+// fLabelName.Parent:=fPanel;
+// fLabelName.WordWrap:=False;
+// fLabelName.Font.Color:=clRed;
+// fLabelName.Font.Style:=[fsBold];
+// fLabelName.Caption:=fPIteration.Description;
+// fLabelName.Top:=3*MarginFrame;
+// fLabelName.Left:=4*MarginFrame;
+//
+// fGBoxMode:=TGroupBox.Create(Frame);
+// fGBoxMode.Parent:=fPanel;
+// fGBoxMode.Caption:='Mode';
+//
+// RButtonsCreate;
+//
+//
+//
+// fButton:= TButton.Create(Frame);
+// fButton.Parent:=fGBoxMode;
+// fButton.Caption:='?';
+// fButton.Height:=20;
+// fButton.Width:=20;
+// fButton.OnClick:=ButClick;
+//
+// RButtonsInitCheck;
+// RBClick(nil);
+//end;
 
-constructor TFFParamIterationFrame.Create(AOwner: TComponent;
-                                 PIteration:TFFParamGradient);
-begin
- inherited Create;
- fPIteration:=PIteration;
- RBNamesDefine;
-
- Frame:=TFrame.Create(AOwner);
-
- fPanel:=TPanel.Create(Frame);
- fPanel.Parent:=Frame;
- fPanel.Top:=0;
- fPanel.Left:=0;
- fPanel.BevelWidth:=3;
-
- fLabelName:=TLabel.Create(Frame);
- fLabelName.AutoSize:=True;
- fLabelName.Parent:=fPanel;
- fLabelName.WordWrap:=False;
- fLabelName.Font.Color:=clRed;
- fLabelName.Font.Style:=[fsBold];
- fLabelName.Caption:=fPIteration.Description;
- fLabelName.Top:=3*MarginFrame;
- fLabelName.Left:=4*MarginFrame;
-
- fGBoxMode:=TGroupBox.Create(Frame);
- fGBoxMode.Parent:=fPanel;
- fGBoxMode.Caption:='Mode';
-
- RButtonsCreate;
-
-
-
- fButton:= TButton.Create(Frame);
- fButton.Parent:=fGBoxMode;
- fButton.Caption:='?';
- fButton.Height:=20;
- fButton.Width:=20;
- fButton.OnClick:=ButClick;
-
- fRButtons[0].Checked:=not(fPIteration.IsConstant);
- fRButtons[High(fRButtons)].Checked:=fPIteration.IsConstant;
- RBClick(nil);
-
-end;
-
-procedure TFFParamIterationFrame.DateUpdate;
+procedure TFFParamGradientFrame.DateUpdate;
 begin
  fPIteration.IsConstant:=fRButtons[High(fRButtons)].Checked;
  fPIteration.UpDate;
 end;
 
-destructor TFFParamIterationFrame.Destroy;
+//procedure TFFParamGradientFrame.ElementsRelativeLocation;
+//begin
+//  RelativeLocation(fLabelName, fGBoxMode, oRow);
+//end;
+//
+//procedure TFFParamGradientFrame.FrameResize;
+//begin
+//  fPanel.Width := fGBoxMode.Left + fGBoxMode.Width + 2 * MarginFrame;
+//  fPanel.Height := fGBoxMode.Top + fGBoxMode.Height + 2 * MarginFrame;
+//  Frame.Width := fPanel.Width;
+//  Frame.Height := fPanel.Height;
+//end;
+//
+//procedure TFFParamGradientFrame.GBoxResize(Form: TForm);
+//var
+//  i: Integer;
+//begin
+//  for I := 0 to High(fRButtons) do
+//  begin
+//    fRButtons[i].Width := Form.Canvas.TextWidth(fRButtons[i].Caption) + 20;
+//    fRButtons[i].Top := Marginbetween + i * (fRButtons[0].Height + 2 * MarginFrame);
+//    fRButtons[i].Left := 2 * MarginFrame;
+//  end;
+//  fButton.Top := fRButtons[High(fRButtons)].Top;
+//  fButton.Left := fRButtons[High(fRButtons)].Left + fRButtons[High(fRButtons)].Width + 2 * MarginFrame;
+//  fGBoxMode.Width := fButton.Left + fButton.Width + 2 * MarginFrame;
+//  fGBoxMode.Height := fRButtons[High(fRButtons)].Top + fRButtons[High(fRButtons)].Height + 2 * MarginFrame;
+//end;
+
+procedure TFFParamGradientFrame.RButtonsInitCheck;
 begin
- ElementsFromForm(fPanel);
- inherited;
+  fRButtons[0].Checked := not (fPIteration.IsConstant);
+  fRButtons[High(fRButtons)].Checked := fPIteration.IsConstant;
 end;
 
-procedure TFFParamIterationFrame.RBClick(Sender: TObject);
-begin
- fButton.Enabled:=fRButtons[High(fRButtons)].Checked;
-end;
+//destructor TFFParamGradientFrame.Destroy;
+//begin
+// ElementsFromForm(fPanel);
+// inherited;
+//end;
+//
+//procedure TFFParamGradientFrame.RBClick(Sender: TObject);
+//begin
+// fButton.Enabled:=fRButtons[High(fRButtons)].Checked;
+//end;
 
-procedure TFFParamIterationFrame.RBNamesDefine;
+procedure TFFParamGradientFrame.RBNamesDefine;
 begin
  SetLength(fRBNames,2);
  fRBNames[0]:='Variable';
  fRBNames[1]:='Constant';
 end;
 
-procedure TFFParamIterationFrame.RButtonsCreate;
- var i:integer;
-begin
- SetLength(fRButtons,High(fRBNames)+1);
- for I := 0 to High(fRButtons) do
-  begin
-   fRButtons[i]:= TRadioButton.Create(fGBoxMode);
-   fRButtons[i].Parent:=fGBoxMode;
-   fRButtons[i].Caption:=fRBNames[i];
-   fRButtons[i].Alignment:=taRightJustify;
-   fRButtons[i].OnClick:=RBClick;
-  end;
-
-end;
-
-procedure TFFParamIterationFrame.SizeDetermination(Form: TForm);
-  var i:integer;
-begin
-
-  ResizeLabel(fLabelName,Form.Canvas);
-  for I := 0 to High(fRButtons) do
-    begin
-    fRButtons[i].Width:=Form.Canvas.TextWidth(fRButtons[i].Caption)+20;
-    fRButtons[i].Top:=Marginbetween+i*(fRButtons[0].Height+2*MarginFrame);
-    fRButtons[i].Left:=2*MarginFrame;
-    end;
-
-  fButton.Top:=fRButtons[High(fRButtons)].Top;
-  fButton.Left:=fRButtons[High(fRButtons)].Left
-          +fRButtons[High(fRButtons)].Width+2*MarginFrame;
-
-
-  fGBoxMode.Width:=fButton.Left+fButton.Width+2*MarginFrame;
-  fGBoxMode.Height:=fRButtons[High(fRButtons)].Top
-                    +fRButtons[High(fRButtons)].Height+2*MarginFrame;
-
-  RelativeLocation(fLabelName,fGBoxMode,oRow);
-
-  fPanel.Width:=fGBoxMode.Left+fGBoxMode.Width+2*MarginFrame;
-  fPanel.Height:=fGBoxMode.Top+fGBoxMode.Height+2*MarginFrame;
-
-  Frame.Width:=fPanel.Width;
-  Frame.Height:=fPanel.Height;
-
-end;
+//procedure TFFParamGradientFrame.RButtonsCreate;
+// var i:integer;
+//begin
+// SetLength(fRButtons,High(fRBNames)+1);
+// for I := 0 to High(fRButtons) do
+//  begin
+//   fRButtons[i]:= TRadioButton.Create(fGBoxMode);
+//   fRButtons[i].Parent:=fGBoxMode;
+//   fRButtons[i].Caption:=fRBNames[i];
+//   fRButtons[i].Alignment:=taRightJustify;
+//   fRButtons[i].OnClick:=RBClick;
+//  end;
+//
+//end;
+//
+//procedure TFFParamGradientFrame.SizeDetermination(Form: TForm);
+//begin
+//  ResizeLabel(fLabelName,Form.Canvas);
+//  GBoxResize(Form);
+//  ElementsRelativeLocation;
+//  FrameResize;
+//end;
 
 { TParamIterationArrayFrame }
 
@@ -365,7 +484,8 @@ begin
 end;
 
 constructor TParamIterationArrayFrame.Create(AOwner: TComponent;
-                                 PIteration: TDParamsGradient);
+                                 PIteration: TDParamsIteration);
+//                                 PIteration: TDParamsGradient);
  var i:integer;
 begin
   inherited Create;
@@ -373,12 +493,27 @@ begin
 //  Frame.Color:=clMaroon;
 
   SetLength(fSubFrames,PIteration.MainParamHighIndex+1);
-  for I := 0 to High(fSubFrames) do
-     begin
-       fSubFrames[i]:=TFFParamIterationFrame.Create(Frame,
-                       (PIteration.fParams[i] as TFFParamGradient));
-       fSubFrames[i].Frame.Parent:=Frame;
-     end;
+  if (PIteration is TDParamsGradient) then
+    for I := 0 to High(fSubFrames) do
+       begin
+         fSubFrames[i]:=TFFParamGradientFrame.Create(Frame,
+                         (PIteration.fParams[i] as TFFParamGradient));
+         fSubFrames[i].Frame.Parent:=Frame;
+       end;
+  if (PIteration is TDParamsHeuristic) then
+    for I := 0 to High(fSubFrames) do
+       begin
+         fSubFrames[i]:=TFFParamHeuristicFrame.Create(Frame,
+                         (PIteration.fParams[i] as TFFParamHeuristic));
+         fSubFrames[i].Frame.Parent:=Frame;
+       end;
+
+//    for I := 0 to High(fSubFrames) do
+//       begin
+//         fSubFrames[i]:=TFFParamGradientFrame.Create(Frame,
+//                         (PIteration.fParams[i] as TFFParamGradient));
+//         fSubFrames[i].Frame.Parent:=Frame;
+//       end;
 end;
 
 procedure TParamIterationArrayFrame.DateUpdate;
@@ -454,40 +589,42 @@ end;
 
 { TDParamsIterationGroupBox }
 
-constructor TDParamsIterationGroupBox.Create(PIteration: TDParamsGradient);
-begin
-  inherited Create;
-  GB:=TGroupBox.Create(nil);
-  GB.Caption:='Coordinate gradient descent parameters';
+//constructor TDParamsGradientGroupBox.Create(PIteration: TDParamsGradient);
+//begin
+//  inherited Create;
+//  GB:=TGroupBox.Create(nil);
+//  GB.Caption:='Coordinate gradient descent parameters';
+//
+//  fPIteration:=PIteration;
+//
+//  fPIArrayFrame:=TParamIterationArrayFrame.Create(GB,PIteration);
+//  fPIArrayFrame.Frame.Parent:=GB;
+//  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
+//  fSIFrame.PShow.Limits.SetLimits(0);
+//  fSIFrame.Frame.Parent:=GB;
+//
+//  fSDFrame:=TSimpleDoubleFrame.Create(GB,'Accuracy:',PIteration.Accurancy);
+//  fSDFrame.PShow.Limits.SetLimits(0);
+//  fSDFrame.Frame.Parent:=GB;
+//end;
+//
+//procedure TDParamsGradientGroupBox.DateUpdate;
+//begin
+// fPIArrayFrame.DateUpdate;
+// fPIteration.Accurancy:=(fSDFrame.PShow as TDoubleParameterShow).Data;
+// fPIteration.Nit:=(fSIFrame.PShow as TIntegerParameterShow).Data;
+//end;
+//
+//destructor TDParamsGradientGroupBox.Destroy;
+//begin
+//  fSDFrame.Free;
+//  fSIFrame.Free;
+//  fPIArrayFrame.Free;
+//  GB.Free;
+//  inherited;
+//end;
 
-  fPIteration:=PIteration;
-  fPIArrayFrame:=TParamIterationArrayFrame.Create(GB,PIteration);
-  fPIArrayFrame.Frame.Parent:=GB;
-  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
-  fSIFrame.PShow.Limits.SetLimits(0);
-  fSIFrame.Frame.Parent:=GB;
-  fSDFrame:=TSimpleDoubleFrame.Create(GB,'Accuracy:',PIteration.Accurancy);
-  fSDFrame.PShow.Limits.SetLimits(0);
-  fSDFrame.Frame.Parent:=GB;
-end;
-
-procedure TDParamsIterationGroupBox.DateUpdate;
-begin
- fPIArrayFrame.DateUpdate;
- fPIteration.Accurancy:=(fSDFrame.PShow as TDoubleParameterShow).Data;
- fPIteration.Nit:=(fSIFrame.PShow as TIntegerParameterShow).Data;
-end;
-
-destructor TDParamsIterationGroupBox.Destroy;
-begin
-  fSDFrame.Free;
-  fSIFrame.Free;
-  fPIArrayFrame.Free;
-  GB.Free;
-  inherited;
-end;
-
-procedure TDParamsIterationGroupBox.SizeDetermination(Form: TForm);
+procedure TDParamsGradientGroupBox.SizeDetermination(Form: TForm);
 begin
  fSIFrame.SizeDetermination(Form);
  fSDFrame.SizeDetermination(Form);
@@ -499,16 +636,64 @@ begin
 
  fPIArrayFrame.Frame.Top:=fSIFrame.Frame.Top+fSIFrame.Frame.Height+Marginbetween;
  fPIArrayFrame.Frame.Left:=fSIFrame.Frame.Left;
-// showmessage(inttostr( fPIArrayFrame.Frame.Top));
 
  GB.Width:=max(fSDFrame.Frame.Left+fSDFrame.Frame.Width,
                fPIArrayFrame.Frame.Left+fPIArrayFrame.Frame.Width)+3*MarginFrame;
  GB.Height:=fPIArrayFrame.Frame.Top+fPIArrayFrame.Frame.Height+2*MarginFrame;
 end;
 
+{ TDParamsIterationGroupBox }
+
+constructor TDParamsIterationGroupBox.Create(PIteration: TDParamsIteration);
+begin
+  inherited Create;
+  GB:=TGroupBox.Create(nil);
+  if (PIteration is TDParamsGradient)
+   then GB.Caption:='Coordinate gradient descent parameters'
+   else GB.Caption:='Meta heuristic fitting parameters';
+//  GB.ParentColor:=False;
+//  GB.Color:=RGB(222,254,233);
+
+  fPIteration:=PIteration;
+
+  fPIArrayFrame:=TParamIterationArrayFrame.Create(GB,PIteration);
+  fPIArrayFrame.Frame.Parent:=GB;
+  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
+  fSIFrame.PShow.Limits.SetLimits(0);
+  fSIFrame.Frame.Parent:=GB;
+
+  if (fPIteration is TDParamsGradient)
+   then fSDFrame:=TSimpleDoubleFrame.Create(GB,'Accuracy:',(fPIteration as TDParamsGradient).Accurancy);
+  if (fPIteration is TDParamsHeuristic)
+   then fSDFrame:=TSimpleDoubleFrame.Create(GB,'Weight value:',(fPIteration as TDParamsHeuristic).RegWeight);
+  fSDFrame.PShow.Limits.SetLimits(0,1);
+  fSDFrame.Frame.Parent:=GB;
+
+end;
+
+procedure TDParamsIterationGroupBox.DateUpdate;
+begin
+ fPIArrayFrame.DateUpdate;
+ fPIteration.Nit:=(fSIFrame.PShow as TIntegerParameterShow).Data;
+  if (fPIteration is TDParamsGradient)
+   then (fPIteration as TDParamsGradient).Accurancy:=(fSDFrame.PShow as TDoubleParameterShow).Data;
+  if (fPIteration is TDParamsHeuristic)
+   then (fPIteration as TDParamsHeuristic).RegWeight:=(fSDFrame.PShow as TDoubleParameterShow).Data;
+end;
+
+destructor TDParamsIterationGroupBox.Destroy;
+begin
+  fSDFrame.Free;
+  fSIFrame.Free;
+  fPIArrayFrame.Free;
+  GB.Free;
+  inherited;
+end;
+
 { TDecParamsIteration }
 
-constructor TDecParamsIteration.Create(PIteration: TDParamsGradient;
+//constructor TDecParamsIteration.Create(PIteration: TDParamsGradient;
+constructor TDecParamsIteration.Create(PIteration:TDParamsIteration;
    FFParam: TFFParameter);
 begin
  fFFParameter:=FFParam;
@@ -525,7 +710,11 @@ end;
 procedure TDecParamsIteration.FormPrepare(Form: TForm);
 begin
   fFFParameter.FormPrepare(Form);
-  fGB := TDParamsIterationGroupBox.Create(fPIteration);
+  if (fPIteration is TDParamsGradient) then
+    fGB := TDParamsGradientGroupBox.Create(fPIteration);
+  if (fPIteration is TDParamsHeuristic) then
+    fGB := TDParamsHeuristicGroupBox.Create(fPIteration as TDParamsHeuristic);
+
   fGB.GB.Parent:=Form;
   fGB.SizeDetermination(Form);
   AddControlToForm(fGB.GB,Form);
@@ -684,6 +873,338 @@ begin
            end;
      end;
   fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIteration);
+end;
+
+{ TFFParamIterationFrame }
+
+procedure TFFParamIterationFrame.ButClick(Sender: TObject);
+ var WindowShow:TConstParDetWindowShow;
+begin
+ WindowShow:=TConstParDetWindowShow.Create(fPIteration.fCPDeter);
+ WindowShow.Show;
+end;
+
+constructor TFFParamIterationFrame.Create(AOwner: TComponent;
+  PIteration: TFFParamIteration);
+begin
+ inherited Create;
+ fPIteration:=PIteration;
+ RBNamesDefine;
+
+ Frame:=TFrame.Create(AOwner);
+ ElementsCreate;
+ RButtonsInitCheck;
+ RBClick(nil);
+end;
+
+destructor TFFParamIterationFrame.Destroy;
+begin
+ ElementsFromForm(fPanel);
+ inherited;
+end;
+
+procedure TFFParamIterationFrame.ElementsRelativeLocation;
+begin
+  RelativeLocation(fLabelName, fGBoxMode, oRow);
+end;
+
+procedure TFFParamIterationFrame.FrameResize;
+begin
+  fPanel.Width := fGBoxMode.Left + fGBoxMode.Width + 2 * MarginFrame;
+  fPanel.Height := fGBoxMode.Top + fGBoxMode.Height + 2 * MarginFrame;
+  Frame.Width := fPanel.Width;
+  Frame.Height := fPanel.Height;
+end;
+
+procedure TFFParamIterationFrame.GBoxModeResize(Form: TForm);
+var
+  i: Integer;
+begin
+  for I := 0 to High(fRButtons) do
+  begin
+    fRButtons[i].Width := Form.Canvas.TextWidth(fRButtons[i].Caption) + 20;
+    fRButtons[i].Top := Marginbetween + i*(fRButtons[0].Height + 2*MarginFrame);
+    fRButtons[i].Left := 2 * MarginFrame;
+  end;
+  fButton.Top:=fRButtons[High(fRButtons)].Top;
+  fButton.Left:=fRButtons[High(fRButtons)].Left
+                +fRButtons[High(fRButtons)].Width +2*MarginFrame;
+  fGBoxMode.Width:=fButton.Left+fButton.Width+2*MarginFrame;
+  fGBoxMode.Height:=fRButtons[High(fRButtons)].Top
+                    +fRButtons[High(fRButtons)].Height+2*MarginFrame;
+end;
+
+procedure TFFParamIterationFrame.RBClick(Sender: TObject);
+begin
+ fButton.Enabled:=fRButtons[High(fRButtons)].Checked;
+end;
+
+procedure TFFParamIterationFrame.RButtonsCreate;
+ var i:integer;
+begin
+ SetLength(fRButtons,High(fRBNames)+1);
+ for I := 0 to High(fRButtons) do
+  begin
+   fRButtons[i]:= TRadioButton.Create(fGBoxMode);
+   fRButtons[i].Parent:=fGBoxMode;
+   fRButtons[i].Caption:=fRBNames[i];
+   fRButtons[i].Alignment:=taRightJustify;
+   fRButtons[i].OnClick:=RBClick;
+  end;
+end;
+
+procedure TFFParamIterationFrame.SizeDetermination(Form: TForm);
+begin
+  ElementsResize(Form);
+  ElementsRelativeLocation;
+  FrameResize;
+end;
+
+procedure TFFParamIterationFrame.ElementsCreate;
+begin
+  PanelCreate;
+  LabelNameCreate;
+  GBoxModeCreate;
+  RButtonsCreate;
+  ButtonCreate;
+end;
+
+procedure TFFParamIterationFrame.ButtonCreate;
+begin
+  fButton := TButton.Create(Frame);
+  fButton.Parent := fGBoxMode;
+  fButton.Caption := '?';
+  fButton.Height := 20;
+  fButton.Width := 20;
+  fButton.OnClick := ButClick;
+end;
+
+procedure TFFParamIterationFrame.PanelCreate;
+begin
+  fPanel := TPanel.Create(Frame);
+  // fPanel.ParentColor:=False;
+  // fPanel.Color:=RGB(222,254,233);
+  fPanel.Parent := Frame;
+  fPanel.Top := 0;
+  fPanel.Left := 0;
+  fPanel.BevelWidth := 3;
+end;
+
+procedure TFFParamIterationFrame.LabelNameCreate;
+begin
+  fLabelName := TLabel.Create(Frame);
+  fLabelName.AutoSize := True;
+  fLabelName.Parent := fPanel;
+  fLabelName.WordWrap := False;
+  fLabelName.Font.Color := clRed;
+  fLabelName.Font.Style := [fsBold];
+  fLabelName.Caption := fPIteration.Description;
+  fLabelName.Top := 3 * MarginFrame;
+  fLabelName.Left := 4 * MarginFrame;
+end;
+
+procedure TFFParamIterationFrame.GBoxModeCreate;
+begin
+  fGBoxMode := TGroupBox.Create(Frame);
+  fGBoxMode.Parent := fPanel;
+  fGBoxMode.Caption := 'Mode';
+end;
+
+procedure TFFParamIterationFrame.ElementsResize(Form: TForm);
+begin
+  ResizeLabel(fLabelName, Form.Canvas);
+  GBoxModeResize(Form);
+end;
+
+{ TFFParamHeuristicFrame }
+
+//constructor TFFParamHeuristicFrame.Create(AOwner: TComponent;
+//  PIteration: TFFParamHeuristic);
+//begin
+// inherited Create(AOwner,PIteration);
+// GBoxLimitCreate;
+// LEsCreate;
+//end;
+
+procedure TFFParamHeuristicFrame.DateUpdate;
+  var i:TVar_RandNew;
+      temp:double;
+begin
+ for I := Low(TVar_RandNew) to High(TVar_RandNew) do
+  if fRButtons[ord(i)].Checked
+   then
+    begin
+     (fPIteration as TFFParamHeuristic).Mode:=i;
+     Break;
+    end;
+//  showmessage(fPIteration.Name+inttostr(ord((fPIteration as TFFParamHeuristic).Mode)));
+
+ try
+  temp:=StrToFloat(fLEmin.Text);
+  (fPIteration as TFFParamHeuristic).fMinLim:=temp;
+ finally
+ end;
+ try
+  temp:=StrToFloat(fLEmax.Text);
+  (fPIteration as TFFParamHeuristic).fMaxLim:=temp;
+ finally
+ end;
+ (fPIteration as TFFParamHeuristic).ToCorrectData;
+ fPIteration.UpDate;
+end;
+
+procedure TFFParamHeuristicFrame.LEsCreate;
+begin
+  fLEmin := TLabeledEdit.Create(fGBoxLimit);
+  fLEmin.Parent := fGBoxLimit;
+  fLEmin.LabelPosition := lpLeft;
+  fLEmin.EditLabel.Caption := 'min';
+  fLEmin.Text := FloatToStrF((fPIteration as TFFParamHeuristic).fMinLim, ffGeneral, 4, 2);
+  fLEmin.OnKeyPress := minInKeyPress;
+  fLEmax := TLabeledEdit.Create(fGBoxLimit);
+  fLEmax.Parent := fGBoxLimit;
+  fLEmax.LabelPosition := lpLeft;
+  fLEmax.EditLabel.Caption := 'max';
+  fLEmax.Text := FloatToStrF((fPIteration as TFFParamHeuristic).fMaxLim, ffGeneral, 4, 2);
+  fLEmax.OnKeyPress := minInKeyPress;
+end;
+
+procedure TFFParamHeuristicFrame.GBoxLimitCreate;
+begin
+  fGBoxLimit := TGroupBox.Create(Frame);
+  fGBoxLimit.Parent := fPanel;
+  fGBoxLimit.Caption := 'Limit values';
+end;
+
+procedure TFFParamHeuristicFrame.ElementsCreate;
+begin
+ inherited;
+ GBoxLimitCreate;
+ LEsCreate;
+end;
+
+procedure TFFParamHeuristicFrame.ElementsRelativeLocation;
+begin
+  RelativeLocation(fLabelName, fGBoxLimit, oRow, 5);
+  RelativeLocation(fGBoxLimit, fGBoxMode, oRow, 4);
+end;
+
+procedure TFFParamHeuristicFrame.ElementsResize(Form: TForm);
+begin
+ inherited;
+ ResizeLabel(fLabelName, Form.Canvas);
+ GBoxModeResize(Form);
+
+ fLEmin.EditLabel.Width:=Form.Canvas.TextWidth(fLEmax.EditLabel.Caption);
+ fLEmin.EditLabel.Height:=Form.Canvas.TextHeight(fLEmax.EditLabel.Caption);
+ fLEmax.EditLabel.Width:=fLEmin.EditLabel.Width;
+ fLEmax.EditLabel.Height:=fLEmin.EditLabel.Height;
+
+ fLEmin.Width:=Form.Canvas.TextWidth('8.888e-88')+5;
+ fLEmax.Width:=fLEmin.Width;
+
+ fLEmin.Height:=Form.Canvas.TextHeight('8.888e-88')+5;
+ fLEmax.Height:=fLEmin.Height;
+ fLEmin.Top:=Marginbetween;
+ fLEmin.Left:=10+fLEmin.EditLabel.Width;
+ RelativeLocation(fLEmin, fLEmax, oCol, 5);
+
+ fGBoxLimit.Width:=fLEmax.Left+fLEmax.Width+3*MarginFrame;
+ fGBoxLimit.Height:=fLEmax.Top+fLEmax.Height+5*MarginFrame;
+
+end;
+
+procedure TFFParamHeuristicFrame.minInKeyPress(Sender: TObject; var Key: Char);
+begin
+if Key=#13 then
+    begin
+    PostMessage( Frame.Handle, WM_NEXTDLGCTL, 0, 0);
+    Key:=#0;
+    end;
+if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
+ then Key:=#0;
+end;
+
+procedure TFFParamHeuristicFrame.RBClick(Sender: TObject);
+begin
+  inherited;
+//  fGBoxLimit.Enabled:=not(fRButtons[High(fRButtons)].Checked);
+  fLEmin.Enabled:=not(fRButtons[High(fRButtons)].Checked);
+  fLEmax.Enabled:=not(fRButtons[High(fRButtons)].Checked);
+end;
+
+procedure TFFParamHeuristicFrame.RBNamesDefine;
+ var i:TVar_RandNew;
+begin
+ SetLength(fRBNames,Length(Var_RandNames));
+ for I := Low(TVar_RandNew) to High(TVar_RandNew)
+  do fRBNames[ord(i)]:=Var_RandNames[i];
+end;
+
+procedure TFFParamHeuristicFrame.RButtonsInitCheck;
+ var i:TVar_RandNew;
+begin
+  for I := Low(TVar_RandNew) to High(TVar_RandNew)
+   do  fRButtons[ord(i)].Checked := ((fPIteration as TFFParamHeuristic).Mode = TVar_RandNew(i));
+end;
+
+{ TDParamsHeuristicGroupBox }
+
+constructor TDParamsHeuristicGroupBox.Create(PIteration: TDParamsHeuristic);
+begin
+ inherited Create(PIteration);
+ fSIFrame.Orientation:=oCol;
+
+ fSLEvType:=TStringList.Create;
+ StringArrayToStringList(EvTypeNames,fSLEvType);
+ fEvTypeFrame:=TSimpleStringFrame.Create(GB,fSLEvType,'Method name:');
+ fEvTypeFrame.Frame.Parent:=GB;
+ fEvTypeFrame.SPShow.Data:=ord((fPIteration as TDParamsHeuristic).EvType);
+
+//    fEvTypeFrame:TSimpleStringFrame;
+//   fSLEvType:TStringList;
+//   fPIArrayFrame:=TParamIterationArrayFrame.Create(GB,PIteration);
+//  fPIArrayFrame.Frame.Parent:=GB;
+//  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
+//  fSIFrame.PShow.Limits.SetLimits(0);
+//  fSIFrame.Frame.Parent:=GB;
+end;
+
+procedure TDParamsHeuristicGroupBox.DateUpdate;
+begin
+  inherited DateUpdate;
+  (fPIteration as TDParamsHeuristic).EvType:=TEvolutionTypeNew(fEvTypeFrame.SPShow.Data);
+end;
+
+destructor TDParamsHeuristicGroupBox.Destroy;
+begin
+  fEvTypeFrame.Free;
+  fSLEvType.Free;
+  inherited;
+end;
+
+procedure TDParamsHeuristicGroupBox.SizeDetermination(Form: TForm);
+begin
+ fSIFrame.SizeDetermination(Form);
+ fSDFrame.SizeDetermination(Form);
+ fPIArrayFrame.SizeAndLocationDetermination(Form);
+ fEvTypeFrame.SizeDetermination(Form);
+
+
+ fSIFrame.Frame.Top:=MarginTop;
+ fSIFrame.Frame.Left:=2*MarginFrame;
+
+ RelativeLocation(fSIFrame.Frame,fEvTypeFrame.Frame,oRow,5);
+
+// RelativeLocation(fSIFrame.Frame,fSDFrame.Frame,oRow);
+
+ fPIArrayFrame.Frame.Top:=fSIFrame.Frame.Top+fSIFrame.Frame.Height+Marginbetween;
+ fPIArrayFrame.Frame.Left:=fSIFrame.Frame.Left;
+
+// GB.Width:=max(fSDFrame.Frame.Left+fSDFrame.Frame.Width,
+ GB.Width:=max(0,
+               fPIArrayFrame.Frame.Left+fPIArrayFrame.Frame.Width)+3*MarginFrame;
+ GB.Height:=fPIArrayFrame.Frame.Top+fPIArrayFrame.Frame.Height+2*MarginFrame;
 end;
 
 end.

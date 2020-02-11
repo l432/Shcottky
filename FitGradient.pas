@@ -1,4 +1,4 @@
-unit OApprox3;
+unit FitGradient;
 
 interface
 
@@ -74,22 +74,23 @@ TFFIteration =class(TFFVariabSet)
  private
   fFittingAgent:TFittingAgent;
   fWindowAgent:TWindowIterationAbstract;
-  procedure FittingAgentCreate;virtual;abstract;
   procedure WindowAgentCreate;
  protected
+  procedure FittingAgentCreate;virtual;abstract;
   function FittingCalculation:boolean;override;
   procedure VariousPreparationBeforeFitting;override;
+  function ParameterCreate:TFFParameter;override;
  public
   property FittingAgent:TFittingAgent read fFittingAgent;
 end;
 
 
-TFFIterationLSM =class(TFFIteration)
- private
-//  procedure FittingAgentCreate;virtual;abstract;
- protected
-  function ParameterCreate:TFFParameter;override;
-end;
+//TFFIterationLSM =class(TFFIteration)
+// private
+////  procedure FittingAgentCreate;virtual;abstract;
+// protected
+//  function ParameterCreate:TFFParameter;override;
+//end;
 
 //TFFIterationLSMSchottky=class (TFFIterationLSM)
 //{для функцій, які апроксимуються
@@ -105,11 +106,11 @@ end;
 
 
 //TFFDiodLSM=class (TFFIterationLSMSchottky)
-TFFDiodLSM=class (TFFIterationLSM)
+TFFDiodLSM=class (TFFIteration)
  private
   fSchottky:TDSchottkyFit;
-  procedure FittingAgentCreate;override;
  protected
+  procedure FittingAgentCreate;override;
   procedure AccessorialDataCreate;override;
   procedure AccessorialDataDestroy;override;
   function ParameterCreate:TFFParameter;override;
@@ -120,11 +121,9 @@ TFFDiodLSM=class (TFFIterationLSM)
   procedure AdditionalParamDetermination;override;
 end; // TFFDiodLSM=class (TFFIterationLSMSchottky)
 
-TFFPhotoDiodLSM=class (TFFIterationLSM)
- private
-  procedure FittingAgentCreate;override;
+TFFPhotoDiodLSM=class (TFFIteration)
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure FittingAgentCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -133,19 +132,17 @@ end; // TFFTPhotoDiodLSM=class (TFFIterationLSM)
 
 
 TFFDiodLam=class (TFFDiodLSM)
- private
-  procedure FittingAgentCreate;override;
  protected
 //  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure FittingAgentCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
 end;
 
-TFFPhotoDiodLam=class (TFFIterationLSM)
- private
-  procedure FittingAgentCreate;override;
+TFFPhotoDiodLam=class (TFFIteration)
  protected
 //  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure FittingAgentCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -383,10 +380,16 @@ end;
 
 
 
+function TFFIteration.ParameterCreate: TFFParameter;
+begin
+  Result:=TDecParamsIteration.Create((fDParamArray as TDParamsIteration),
+                         inherited ParameterCreate);
+end;
+
 procedure TFFIteration.VariousPreparationBeforeFitting;
 begin
   inherited VariousPreparationBeforeFitting;
-  (fDParamArray as TDParamsGradient).UpDate;
+  (fDParamArray as TDParamsIteration).UpDate;
 end;
 
 procedure TFFIteration.WindowAgentCreate;
@@ -458,11 +461,11 @@ end;
 
 { TFFIterationLSM }
 
-function TFFIterationLSM.ParameterCreate: TFFParameter;
-begin
-  Result:=TDecParamsIteration.Create((fDParamArray as TDParamsGradient),
-                         inherited ParameterCreate);
-end;
+//function TFFIterationLSM.ParameterCreate: TFFParameter;
+//begin
+//  Result:=TDecParamsIteration.Create((fDParamArray as TDParamsIteration),
+//                         inherited ParameterCreate);
+//end;
 
 //{ TFFIterationLSMSchottky }
 //

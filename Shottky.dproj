@@ -34,6 +34,7 @@
       <Form>App</Form>
     </DCCReference>
     <DCCReference Include="FitDigital.pas" />
+    <DCCReference Include="FitGradient.pas" />
     <DCCReference Include="FitIteration.pas" />
     <DCCReference Include="FitIterationShow.pas" />
     <DCCReference Include="FitMaterial.pas" />
@@ -60,8 +61,8 @@
       <Form>FrParamP</Form>
     </DCCReference>
     <DCCReference Include="HighResolutionTimer.pas" />
-    <DCCReference Include="OApprox3.pas" />
     <DCCReference Include="OApproxCaption.pas" />
+    <DCCReference Include="OApproxFunction.pas" />
     <DCCReference Include="OApproxNew.pas" />
     <DCCReference Include="OApproxShow.pas" />
     <DCCReference Include="OlegApprox.pas" />

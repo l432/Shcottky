@@ -58,23 +58,45 @@ type
   norm - еволюціонує значення змінної
   logar - еволюціонує значення логарифму змінної
   сons - змінна залишається сталою}
-  TArrVar_Rand=array of TVar_Rand;
-  PTArrVar_Rand=^TArrVar_Rand;
+//  TArrVar_Rand=array of TVar_Rand;
+//  PTArrVar_Rand=^TArrVar_Rand;
 
-//  TEvolutionType= //еволюційний метод, який використовується для апроксимації
-//    (TDE, //differential evolution
-//     TMABC, // modified artificial bee colony
-//     TTLBO,  //teaching learning based optimization algorithm
-//     TPSO    // particle swarm optimization
-//     );
-//  {}
-//
+  TEvolutionTypeNew= //еволюційний метод, який використовується для апроксимації
+    (etDE, //differential evolution
+     etMABC, // modified artificial bee colony
+     etTLBO,  //teaching learning based optimization algorithm
+     etPSO    // particle swarm optimization
+     );
+  {}
+  TFitnessType=
+   (ftSR,//the sum of squared residuals звичайна квадратична форма
+    ftRSR,//the sum relative of squared residuals квадратична форма з відносних величин
+    ftAR,//сума модулів різниць
+    ftRAR//сума модулів відносних різниць
+   );
+
+  TRegulationType=(rtL1,rtL2);
+
+const
+ Var_RandNames:array[TVar_RandNew]of string=
+           ('Normal','Logarithmic','Constant');
+
+
+ EvTypeNames:array[TEvolutionTypeNew]of string=
+         ('DE','MABC','TLBO','PSO');
+
+type
+
 TOIniFileNew=class (TIniFile)
 public
   function ReadRand(const Section, Ident: string): TVar_RandNew; virtual;
   procedure WriteRand(const Section, Ident: string; Value: TVar_RandNew); virtual;
-  function ReadEvType(const Section, Ident: string): TEvolutionType; virtual;
-  procedure WriteEvType(const Section, Ident: string; Value: TEvolutionType); virtual;
+  function ReadEvType(const Section, Ident: string): TEvolutionTypeNew; virtual;
+  procedure WriteEvType(const Section, Ident: string; Value: TEvolutionTypeNew); virtual;
+  function ReadFitType(const Section, Ident: string): TFitnessType; virtual;
+  procedure WriteFitType(const Section, Ident: string; Value: TFitnessType); virtual;
+  function ReadRegType(const Section, Ident: string): TRegulationType; virtual;
+  procedure WriteRegType(const Section, Ident: string; Value: TRegulationType); virtual;
 end;
 
 TFFParameter=class
@@ -1036,32 +1058,63 @@ uses
 
 { TOIniFileNew }
 
-function TOIniFileNew.ReadEvType(const Section, Ident: string): TEvolutionType;
+function TOIniFileNew.ReadEvType(const Section, Ident: string): TEvolutionTypeNew;
 begin
   try
-    Result:=TEvolutionType(ReadInteger(Section, Ident,0));
+    Result:=TEvolutionTypeNew(ReadInteger(Section, Ident,0));
   except
-    Result:=TEvolutionType(0);
+    Result:=TEvolutionTypeNew(0);
+  end;
+end;
+
+function TOIniFileNew.ReadFitType(const Section, Ident: string): TFitnessType;
+begin
+  try
+    Result:=TFitnessType(ReadInteger(Section, Ident,1));
+  except
+    Result:=TFitnessType(1);
   end;
 end;
 
 function TOIniFileNew.ReadRand(const Section, Ident: string): TVar_RandNew;
 begin
   try
-    Result:=TVar_RandNew(ReadInteger(Section, Ident,2));
+    Result:=TVar_RandNew(ReadInteger(Section, Ident,0));
   except
-    Result:=TVar_RandNew(2);
+    Result:=TVar_RandNew(0);
+  end;
+end;
+
+function TOIniFileNew.ReadRegType(const Section,
+  Ident: string): TRegulationType;
+begin
+  try
+    Result:=TRegulationType(ReadInteger(Section, Ident,0));
+  except
+    Result:=TRegulationType(0);
   end;
 end;
 
 procedure TOIniFileNew.WriteEvType(const Section, Ident: string;
-  Value: TEvolutionType);
+  Value: TEvolutionTypeNew);
+begin
+ WriteInteger(Section, Ident,ord(Value));
+end;
+
+procedure TOIniFileNew.WriteFitType(const Section, Ident: string;
+  Value: TFitnessType);
 begin
  WriteInteger(Section, Ident,ord(Value));
 end;
 
 procedure TOIniFileNew.WriteRand(const Section, Ident: string;
                                  Value: TVar_RandNew);
+begin
+  WriteInteger(Section, Ident,ord(Value));
+end;
+
+procedure TOIniFileNew.WriteRegType(const Section, Ident: string;
+  Value: TRegulationType);
 begin
   WriteInteger(Section, Ident,ord(Value));
 end;

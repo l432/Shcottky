@@ -220,6 +220,9 @@ procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
 NumberOfData елементів та призначає цим
 елементам значення InitialValue}
 
+procedure StringArrayToStringList(const Arr:array of string;
+                                  StringList:TStringList);
+
 implementation
 
 uses
@@ -1328,6 +1331,14 @@ begin
       then SetLength(OutputData,NumberOfData);
  for i := 0 to (NumberOfData-1)
     do OutputData[i]:=InitialValue;
+end;
+
+procedure StringArrayToStringList(const Arr:array of string;
+                                  StringList:TStringList);
+ var i:integer;
+begin
+ StringList.Clear;
+ for I := Low(Arr) to High(Arr) do StringList.Add(Arr[i]);
 end;
 
 end.

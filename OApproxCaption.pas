@@ -3,7 +3,7 @@ unit OApproxCaption;
 interface
 
 uses
-  OApproxNew, FitDigital, FitSimple, OApprox3;
+  OApproxNew, FitDigital, FitSimple, FitGradient, OApproxFunction;
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
@@ -47,11 +47,11 @@ const
    SchDClasses:array[0..SchDNumber]of TFitFunctionNew_Class=
    (TFFExponent,TFFIvanov);
 
-  DiodNumber=3;
+  DiodNumber=4;
   DiodNames:array[0..DiodNumber] of string=
-   ('Diode, LSM','Diode, Lambert','PhotoDiode, LSM','PhotoDiode, Lambert');
+   ('Diode','Diode, LSM','Diode, Lambert','PhotoDiode, LSM','PhotoDiode, Lambert');
   DiodClasses:array[0..DiodNumber]of TFitFunctionNew_Class=
-   (TFFDiodLSM,TFFDiodLam,TFFPhotoDiodLSM,TFFPhotoDiodLam);
+   (TFFDiod,TFFDiodLSM,TFFDiodLam,TFFPhotoDiodLSM,TFFPhotoDiodLam);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;

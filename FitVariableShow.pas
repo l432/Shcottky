@@ -20,11 +20,26 @@ type
    public
     Frame:TFrame;
     property Lab:TLabel read fLabel;
+    property Orientation:TOrientation read fOrientation write fOrientation;
     constructor Create(AOwner: TComponent);//override;
     destructor Destroy;override;
     procedure SizeDetermination (Form: TForm);virtual;
     procedure DateUpdate;virtual;abstract;
  end;
+
+  TSimpleStringFrame=class(TNumberFrame)
+   protected
+//    fDataVariants: TStringList;
+    fSPShow:TStringParameterShow;
+   public
+    property SPShow:TStringParameterShow read fSPShow;
+    constructor Create(AOwner: TComponent;
+                       DataVariants: TStringList;
+                       const LabelCaption:string='None');
+    destructor Destroy;override;
+    procedure DateUpdate;override;
+ end;
+
 
   TSimpleNumberFrame=class(TNumberFrame)
    protected
@@ -378,6 +393,12 @@ end;
 procedure TDecVarNumberArrayParameter.ReadFromIniFile;
 begin
  fFFParameter.ReadFromIniFile;
+ if (fVarArray is TVarDoubArray)
+     and(fVarArray.ParametrByName['T']<>nil)
+     and  ((fVarArray.ParametrByName['T'] as TVarDouble).Value=ErResult)
+      then (fVarArray.ParametrByName['T'] as TVarDouble).AutoDeterm:=True;
+
+
  fVarArray.ReadFromIniFile;
 end;
 
@@ -671,6 +692,31 @@ end;
 destructor TSimpleNumberFrame.Destroy;
 begin
   fPShow.Free;
+  inherited;
+end;
+
+{ TSimpleStringFrame }
+
+constructor TSimpleStringFrame.Create(AOwner: TComponent;
+  DataVariants: TStringList; const LabelCaption: string);
+begin
+  inherited Create(AOwner);
+//  fDataVariants:=DataVariants;
+  fSPShow:=TStringParameterShow.Create(fSText,fLabel,
+           LabelCaption,DataVariants);
+ fLabel.Font.Color:=clBlue;
+ fOrientation:=oCol;
+end;
+
+procedure TSimpleStringFrame.DateUpdate;
+begin
+
+end;
+
+destructor TSimpleStringFrame.Destroy;
+begin
+//  fDataVariants:=nil;
+  fSPShow.Free;
   inherited;
 end;
 
