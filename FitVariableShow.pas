@@ -393,13 +393,11 @@ end;
 procedure TDecVarNumberArrayParameter.ReadFromIniFile;
 begin
  fFFParameter.ReadFromIniFile;
+ fVarArray.ReadFromIniFile;
  if (fVarArray is TVarDoubArray)
      and(fVarArray.ParametrByName['T']<>nil)
      and  ((fVarArray.ParametrByName['T'] as TVarDouble).Value=ErResult)
       then (fVarArray.ParametrByName['T'] as TVarDouble).AutoDeterm:=True;
-
-
- fVarArray.ReadFromIniFile;
 end;
 
 procedure TDecVarNumberArrayParameter.UpDate;

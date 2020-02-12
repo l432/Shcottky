@@ -68,7 +68,8 @@ Margin - відстань мід об'єктами}
 Procedure AddControlToForm(Control:TControl;
                            Form:TForm);
 
-procedure ResizeLabel(Lab:TLabel;Canvas: TCanvas);
+procedure ResizeElement(Lab:TLabel;Canvas: TCanvas);overload;
+procedure ResizeElement(CB:TCheckBox;Canvas: TCanvas);overload;
 
 implementation
 
@@ -376,10 +377,15 @@ Procedure AddControlToForm(Control:TControl;
 
  end;
 
-procedure ResizeLabel(Lab:TLabel;Canvas: TCanvas);
+procedure ResizeElement(Lab:TLabel;Canvas: TCanvas);
 begin
   Lab.Width:=Canvas.TextWidth(Lab.Caption);
   Lab.Height:=Canvas.TextHeight(Lab.Caption);
-end; 
+end;
+
+procedure ResizeElement(CB:TCheckBox;Canvas: TCanvas);overload;
+begin
+ CB.Width:=Canvas.TextWidth(CB.Caption)+10;
+end;
 
 end.

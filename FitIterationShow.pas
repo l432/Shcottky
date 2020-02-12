@@ -167,6 +167,12 @@ end;
   private
    fEvTypeFrame:TSimpleStringFrame;
    fSLEvType:TStringList;
+   fFitTypeFrame:TSimpleStringFrame;
+   fSLFitType:TStringList;
+   fRegTypeFrame:TSimpleStringFrame;
+   fSLRegType:TStringList;
+   fCB:TCheckBox;
+
 //   fPIArrayFrame:TParamIterationArrayFrame;
 //   fSIFrame:TSimpleIntFrame;
 //   fSDFrame:TSimpleDoubleFrame;
@@ -250,7 +256,7 @@ begin
   fLabelName.Caption:=fConstParDet.Name;
 //  fLabelName.Width:=fForm.Canvas.TextWidth(fLabelName.Caption);
 //  fLabelName.Height:=fForm.Canvas.TextHeight(fLabelName.Caption);
-  ResizeLabel(fLabelName,fForm.Canvas);
+  ResizeElement(fLabelName,fForm.Canvas);
   fLabelName.Top:=MarginTop;
   fLabelName.Left:=MarginLeft;
 
@@ -269,7 +275,7 @@ begin
   fLabelIndex.Caption:='t =';
 //  fLabelIndex.Width:=fForm.Canvas.TextWidth(fLabelIndex.Caption);
 //  fLabelIndex.Height:=fForm.Canvas.TextHeight(fLabelIndex.Caption);
-  ResizeLabel(fLabelIndex,fForm.Canvas);
+  ResizeElement(fLabelIndex,fForm.Canvas);
   AddControlToForm(fLabelIndex,fForm);
 
   CB:=TComboBox.Create(fForm);
@@ -769,7 +775,7 @@ procedure TWindowIterationShow.LabelAction(Lab: TLabel; Srt: string);
 begin
   Lab.Caption:=Srt;
   Lab.Left:=MarginLeft;
-  ResizeLabel(Lab, Form.Canvas);
+  ResizeElement(Lab, Form.Canvas);
 end;
 
 procedure TWindowIterationShow.Show;
@@ -1012,7 +1018,7 @@ end;
 
 procedure TFFParamIterationFrame.ElementsResize(Form: TForm);
 begin
-  ResizeLabel(fLabelName, Form.Canvas);
+  ResizeElement(fLabelName, Form.Canvas);
   GBoxModeResize(Form);
 end;
 
@@ -1085,14 +1091,14 @@ end;
 
 procedure TFFParamHeuristicFrame.ElementsRelativeLocation;
 begin
-  RelativeLocation(fLabelName, fGBoxLimit, oRow, 5);
-  RelativeLocation(fGBoxLimit, fGBoxMode, oRow, 4);
+  RelativeLocation(fLabelName, fGBoxLimit, oRow, 3);
+  RelativeLocation(fGBoxLimit, fGBoxMode, oRow, 2);
 end;
 
 procedure TFFParamHeuristicFrame.ElementsResize(Form: TForm);
 begin
  inherited;
- ResizeLabel(fLabelName, Form.Canvas);
+ ResizeElement(fLabelName, Form.Canvas);
  GBoxModeResize(Form);
 
  fLEmin.EditLabel.Width:=Form.Canvas.TextWidth(fLEmax.EditLabel.Caption);
@@ -1161,23 +1167,47 @@ begin
  fEvTypeFrame.Frame.Parent:=GB;
  fEvTypeFrame.SPShow.Data:=ord((fPIteration as TDParamsHeuristic).EvType);
 
-//    fEvTypeFrame:TSimpleStringFrame;
-//   fSLEvType:TStringList;
-//   fPIArrayFrame:=TParamIterationArrayFrame.Create(GB,PIteration);
-//  fPIArrayFrame.Frame.Parent:=GB;
-//  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
-//  fSIFrame.PShow.Limits.SetLimits(0);
-//  fSIFrame.Frame.Parent:=GB;
+ fSLFitType:=TStringList.Create;
+ StringArrayToStringList(FitTypeNames,fSLFitType);
+ fFitTypeFrame:=TSimpleStringFrame.Create(GB,fSLFitType,'Fitness way:');
+ fFitTypeFrame.Frame.Parent:=GB;
+ fFitTypeFrame.SPShow.Data:=ord((fPIteration as TDParamsHeuristic).FitType);
+ fFitTypeFrame.Orientation:=oRow;
+
+ fSLRegType:=TStringList.Create;
+ StringArrayToStringList(RegTypeNames,fSLRegType);
+ fRegTypeFrame:=TSimpleStringFrame.Create(GB,fSLRegType,'Regularization:');
+ fRegTypeFrame.Frame.Parent:=GB;
+ fRegTypeFrame.SPShow.Data:=ord((fPIteration as TDParamsHeuristic).RegType);
+ fRegTypeFrame.Orientation:=oRow;
+
+  fCB:=TCheckBox.Create(GB);
+  fCB.Parent:=GB;
+  fCB.Caption:='to use log value';
+  fCB.Enabled:=True;
+  fCB.Checked:=(fPIteration as TDParamsHeuristic).LogFitness;
+  fCB.Alignment:=taRightJustify;
+  fCB.Font.Style:=fCB.Font.Style+[fsItalic];
+
 end;
 
 procedure TDParamsHeuristicGroupBox.DateUpdate;
 begin
   inherited DateUpdate;
   (fPIteration as TDParamsHeuristic).EvType:=TEvolutionTypeNew(fEvTypeFrame.SPShow.Data);
+  (fPIteration as TDParamsHeuristic).FitType:=TFitnessType(fFitTypeFrame.SPShow.Data);
+  (fPIteration as TDParamsHeuristic).RegType:=TRegulationType(fRegTypeFrame.SPShow.Data);
+  (fPIteration as TDParamsHeuristic).LogFitness:=fCB.Checked;
 end;
 
 destructor TDParamsHeuristicGroupBox.Destroy;
 begin
+  fCB.Parent:=nil;
+  fCB.Free;
+  fFitTypeFrame.Free;
+  fSLFitType.Free;
+  fRegTypeFrame.Free;
+  fSLRegType.Free;
   fEvTypeFrame.Free;
   fSLEvType.Free;
   inherited;
@@ -1188,21 +1218,27 @@ begin
  fSIFrame.SizeDetermination(Form);
  fSDFrame.SizeDetermination(Form);
  fPIArrayFrame.SizeAndLocationDetermination(Form);
+ fFitTypeFrame.SizeDetermination(Form);
  fEvTypeFrame.SizeDetermination(Form);
-
+ fRegTypeFrame.SizeDetermination(Form);
+ ResizeElement(fCB,Form.Canvas);
 
  fSIFrame.Frame.Top:=MarginTop;
  fSIFrame.Frame.Left:=2*MarginFrame;
 
- RelativeLocation(fSIFrame.Frame,fEvTypeFrame.Frame,oRow,5);
+ RelativeLocation(fSIFrame.Frame,fEvTypeFrame.Frame,oRow,8);
+ RelativeLocation(fEvTypeFrame.Frame,fFitTypeFrame.Frame,oRow,8);
+ fFitTypeFrame.Frame.Top:=fEvTypeFrame.Frame.Top;
+ RelativeLocation(fFitTypeFrame.Frame,fCB,oCol);
 
-// RelativeLocation(fSIFrame.Frame,fSDFrame.Frame,oRow);
+ RelativeLocation(fFitTypeFrame.Frame,fRegTypeFrame.Frame,oRow,8);
+ RelativeLocation(fRegTypeFrame.Frame,fSDFrame.Frame,oCol);
 
  fPIArrayFrame.Frame.Top:=fSIFrame.Frame.Top+fSIFrame.Frame.Height+Marginbetween;
  fPIArrayFrame.Frame.Left:=fSIFrame.Frame.Left;
 
-// GB.Width:=max(fSDFrame.Frame.Left+fSDFrame.Frame.Width,
- GB.Width:=max(0,
+ GB.Width:=max(fSDFrame.Frame.Left+fSDFrame.Frame.Width,
+// GB.Width:=max(0,
                fPIArrayFrame.Frame.Left+fPIArrayFrame.Frame.Width)+3*MarginFrame;
  GB.Height:=fPIArrayFrame.Frame.Top+fPIArrayFrame.Frame.Height+2*MarginFrame;
 end;

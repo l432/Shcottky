@@ -75,7 +75,7 @@ type
     ftRAR//сума модулів відносних різниць
    );
 
-  TRegulationType=(rtL1,rtL2);
+  TRegulationType=(rtL2,rtL1);
 
 const
  Var_RandNames:array[TVar_RandNew]of string=
@@ -84,6 +84,12 @@ const
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
          ('DE','MABC','TLBO','PSO');
+
+ FitTypeNames:array[TFitnessType]of string=
+         ('Sq.Res.','Rel.Sq.Res.','Abs.Res.','Rel.Abs.Res.');
+
+ RegTypeNames:array[TRegulationType]of string=
+         ('L2','L1');
 
 type
 

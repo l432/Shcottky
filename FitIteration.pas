@@ -182,6 +182,9 @@ TDParamsHeuristic=class(TDParamsIteration)
   public
    property RegWeight:double read fRegWeight write fRegWeight;
    property EvType:TEvolutionTypeNew read fEvType write fEvType;
+   property FitType:TFitnessType read fFitType write fFitType;
+   property RegType:TRegulationType read fRegType write fRegType;
+   property LogFitness:boolean read fLogFitness write fLogFitness;
    procedure WriteToIniFile;override;
    procedure ReadFromIniFile;override;
 end;
@@ -1371,7 +1374,7 @@ begin
   fFitType:=fFF.ConfigFile.ReadFitType(fFF.Name,'FitType');
   fRegType:=fFF.ConfigFile.ReadRegType(fFF.Name,'RegType');
   fRegWeight:=fFF.ConfigFile.ReadFloat(fFF.Name,'RegWeight',0);
-  fLogFitness:=fFF.ConfigFile.ReadBool(fFF.Name,'RegWeight',False);
+  fLogFitness:=fFF.ConfigFile.ReadBool(fFF.Name,'LogFitness',False);
 end;
 
 procedure TDParamsHeuristic.WriteToIniFile;
