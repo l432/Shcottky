@@ -53,10 +53,10 @@ uses
 //
 type
 
-  TVar_RandNew=(vr_lin,vr_log,vr_const);
+  TVar_RandNew=(vr_lin,vr_ln,vr_const);
   {для змінних, які використовуються у еволюційних методах,
   norm - еволюціонує значення змінної
-  logar - еволюціонує значення логарифму змінної
+  logar - еволюціонує значення натурального логарифму змінної
   сons - змінна залишається сталою}
 //  TArrVar_Rand=array of TVar_Rand;
 //  PTArrVar_Rand=^TArrVar_Rand;

@@ -38,7 +38,8 @@ uses
   FitIteration in 'FitIteration.pas',
   FitIterationShow in 'FitIterationShow.pas',
   HighResolutionTimer in 'HighResolutionTimer.pas',
-  OApproxFunction in 'OApproxFunction.pas';
+  OApproxFunction in 'OApproxFunction.pas',
+  FitHeuristic in 'FitHeuristic.pas';
 
 {$R *.res}
 

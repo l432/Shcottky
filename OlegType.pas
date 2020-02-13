@@ -136,7 +136,7 @@ type
 
   TFunPoint=Function(Argument:double):TPointDouble of object;
 
-
+  TFunObj=Function(Argument:double;Parameters:TArrSingle):double of object;
   TFunSingle=Function(x:double):double of object;
   TFunDouble=Function(x,y:double):double of object;
   TFunTriple=Function(x,y,z:double):double of object;

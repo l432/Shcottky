@@ -35,6 +35,7 @@
     </DCCReference>
     <DCCReference Include="FitDigital.pas" />
     <DCCReference Include="FitGradient.pas" />
+    <DCCReference Include="FitHeuristic.pas" />
     <DCCReference Include="FitIteration.pas" />
     <DCCReference Include="FitIterationShow.pas" />
     <DCCReference Include="FitMaterial.pas" />
