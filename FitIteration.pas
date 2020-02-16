@@ -211,17 +211,21 @@ end;
 TFittingAgent=class
 {той, що вміє проводити ітераційний процес}
  private
-  fDescription:string;
-  fCurrentIteration:integer;
   fToStop:boolean;
 //  fIsDone:boolean;
+ protected
+  fDescription:string;
+  fCurrentIteration:integer;
+  function GetIstimeToShow:boolean;virtual;
  public
   property Description:string read fDescription;
   property CurrentIteration:integer read fCurrentIteration;
 //  property IsDone:boolean read fIsDone write fIsDone;
   property ToStop:boolean read fToStop;
+  property IsTimeToShow:boolean read GetIstimeToShow;
   procedure StartAction;virtual;
-  procedure IterationAction;virtual;abstract;
+  procedure IterationAction;virtual;
+  procedure DataCoordination;virtual;
 //  procedure EndAction;virtual;abstract;
 end;
 
@@ -609,6 +613,20 @@ end;
 
 { TFittingAgent }
 
+procedure TFittingAgent.DataCoordination;
+begin
+end;
+
+function TFittingAgent.GetIstimeToShow: boolean;
+begin
+ Result:=((fCurrentIteration mod 25)=0);
+end;
+
+procedure TFittingAgent.IterationAction;
+begin
+  Inc(fCurrentIteration);
+end;
+
 procedure TFittingAgent.StartAction;
 begin
  fToStop:=false;
@@ -675,7 +693,8 @@ begin
          if not(SquareFormIsCalculated) then
             Raise Exception.Create('Fault! not SquareFormIsCalculated');
        end;
-    Inc(fCurrentIteration);
+
+  inherited;
 end;
 
 procedure TFittingAgentLSM.nRsIoInitDetermine;

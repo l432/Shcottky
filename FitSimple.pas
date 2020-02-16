@@ -354,7 +354,7 @@ begin
   fIntVars:=TVarIntArray.Create(Self,'Npoint');
   fIntVars.ParametrByName['Npoint'].Limits.SetLimits(0);
   fIntVars.ParametrByName['Npoint'].Description:=
-        'Fitting poin number (0 - as in init date)';
+        'Fitting poin number (0 - as in init data)';
 end;
 
 procedure TFitFunctionWithArbitraryArgument.FileFilling;
@@ -405,8 +405,9 @@ end;
 
 procedure TFFSimple.AdditionalParamDetermination;
 begin
- fDParamArray.ParametrByName['dev'].Value:=Deviation;
- fDParamArray.OutputDataCoordinate;
+ fDParamArray.OutputData[High(fDParamArray.OutputData)]:=Deviation;
+// fDParamArray.ParametrByName['dev'].Value:=Deviation;
+// fDParamArray.OutputDataCoordinate;
 end;
 
 procedure TFFSimple.DataToStrings(OutStrings: TStrings);

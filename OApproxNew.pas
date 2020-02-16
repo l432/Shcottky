@@ -1060,7 +1060,7 @@ var
 implementation
 
 uses
-  SysUtils, Dialogs, OApproxShow, Graphics, Math, Controls;
+  SysUtils, Dialogs, OApproxShow, Graphics, Math, Controls, TypInfo;
 
 { TOIniFileNew }
 

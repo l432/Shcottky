@@ -818,7 +818,7 @@ begin
   fLabels[High(fLabels)-3].Top:=SampleHeigth;
   fLabels[High(fLabels)-2].Top:=fLabels[High(fLabels)-3].Top+3*SampleHeigth;
 
-  fLabels[High(fLabels)-1].Caption:=IntToStr((fFF.DParamArray as TDParamsGradient).Nit);
+  fLabels[High(fLabels)-1].Caption:=IntToStr((fFF.DParamArray as TDParamsIteration).Nit);
   fLabels[High(fLabels)-1].Left:=max(fLabels[High(fLabels)-3].Width,
                                      fLabels[High(fLabels)-2].Width)
                                  +fLabels[High(fLabels)-3].Left

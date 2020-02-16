@@ -3,18 +3,21 @@ unit FitHeuristic;
 interface
 
 uses
-  FitGradient, OlegType, FitIteration, OApproxNew, OlegVector;
+  FitGradient, OlegType, FitIteration, OApproxNew, OlegVector, OlegMath;
 
 type
 
 TFFHeuristic=class(TFFIteration)
  private
+  fPoint:TPointDouble;
   function GetParamsHeuristic:TDParamsHeuristic;
  protected
+//  procedure TuningBeforeAccessorialDataCreate;override;
   function RealFinalFunc(X:double):double;override;
+  procedure FittingAgentCreate;override;
  public
   property ParamsHeuristic:TDParamsHeuristic read GetParamsHeuristic;
-  function FuncForFitness(X:double;Data:TArrSingle):double;virtual;abstract;
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;virtual;abstract;
 end;
 
 
@@ -37,58 +40,59 @@ TFitnessTerm=class
   fFuncForFitness:TFunObj;
  public
   constructor Create(FF:TFFHeuristic);
-  function Term(X,Y:double;
-                 Parameters:TArrSingle):double;overload;virtual;abstract;
-  function Term(Point:TPointDouble;Parameters:TArrSingle):double;overload;
+//  function Term(X,Y:double;
+//                 Parameters:TArrSingle):double;overload;virtual;abstract;
+//  function Term(Point:TPointDouble;Parameters:TArrSingle):double;overload;
+  function Term(Point:TPointDouble;Parameters:TArrSingle):double;virtual;abstract;
   destructor Destroy;override;
 end;
 
 
 TFitnessTermSR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
 TFitnessTermRSR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
 TFitnessTermAR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
 TFitnessTermRAR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
 TFitnessTermLnSR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
 TFitnessTermLnRSR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
 TFitnessTermLnAR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
 TFitnessTermLnRAR=class(TFitnessTerm)
  public
-  function Term(X,Y:double;
+  function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
@@ -106,27 +110,41 @@ const
 
 type
 
-TRegulationZero=class
- public
-  function Term(Parameters:TArrSingle):double;virtual;
-end;
+//TRegulationZero=class
+// public
+//  function Term(Parameters:TArrSingle):double;virtual;
+//end;
 
-TRegTerm=class
+TReTerm=class
   fXmin:double;
   fXmaxXmin:double;
-  fIsLog:boolean;
  public
   Number:integer;//порядковий номер в масиві параметрів
-  constructor Create(const Param:TFFParamHeuristic);
-  function RegTerm(Arg:double):double;
+  function RegTerm(Arg:double):double;virtual;abstract;
 end;
 
-TRegulation=class(TRegulationZero)
-  fRegTerms:array of TRegTerm;
+TRegTerm=class(TReTerm)
+//  fXmin:double;
+//  fXmaxXmin:double;
+//  fIsLog:boolean;
+ public
+//  Number:integer;//порядковий номер в масиві параметрів
+  constructor Create(const Param:TFFParamHeuristic);
+  function RegTerm(Arg:double):double;override;
+end;
+
+TRegTermLog=class(TReTerm)
+  constructor Create(const Param:TFFParamHeuristic);
+  function RegTerm(Arg:double):double;override;
+end;
+
+
+TRegulation=class//(TRegulationZero)
+  fRegTerms:array of TReTerm;
   fRegWeight:double;
  public
   constructor Create(FF:TFFHeuristic);
-//  function Term(Parameters:TArrSingle):double;virtual;abstract;
+  function Term(Parameters:TArrSingle):double;virtual;abstract;
   destructor Destroy;override;
 end;
 
@@ -148,25 +166,135 @@ const
 
 type
 
+TFitnessCalculation=class
+ private
+  fData:TVector;
+  fFitTerm:TFitnessTerm;
+ public
+  constructor Create(FF:TFFHeuristic);
+  Function FitnessFunc(const OutputData:TArrSingle):double;virtual;
+  destructor Destroy;override;
+end;
+
+TFitnessCalculationWithRegalation=class(TFitnessCalculation)
+ private
+  fRegTerm:TRegulation;
+ public
+  constructor Create(FF:TFFHeuristic);
+  Function FitnessFunc(const OutputData:TArrSingle):double;override;
+  destructor Destroy;override;
+end;
+
+
+TToolKit=class
+ private
+  Xmin:double;
+  Xmax:double;
+ public
+  constructor Create(const Param:TFFParamHeuristic);
+  function RandValue:double;virtual;abstract;
+ {повертає випадкове з інтервалу Xmin-Xmax}
+  procedure Penalty(var X:double);virtual;abstract;
+ {якщо Х за межами інтервалу, то повертає його туди}
+  function DE_Mutation(X1,X2,X3,F:double):double;virtual;abstract;
+end;
+
+TToolKitLinear=class(TToolKit)
+ private
+  Xmax_Xmin:double;
+ public
+  constructor Create(const Param:TFFParamHeuristic);
+  function RandValue:double;override;
+  procedure Penalty(var X:double);override;
+  function DE_Mutation(X1,X2,X3,F:double):double;override;
+end;
+
+TToolKitLog=class(TToolKit)
+ private
+  lnXmax:double;
+  lnXmin:double;
+  lnXmax_Xmin:double;
+ public
+  constructor Create(const Param:TFFParamHeuristic);
+  function RandValue:double;override;
+  procedure Penalty(var X:double);override;
+  function DE_Mutation(X1,X2,X3,F:double):double;override;
+end;
+
+TToolKitConst=class(TToolKit)
+ public
+  constructor Create(const Param:TFFParamHeuristic);
+  function RandValue:double;override;
+  procedure Penalty(var X:double);override;
+  function DE_Mutation(X1,X2,X3,F:double):double;override;
+end;
+
+TToolKit_Class=class of TToolKit;
+
+const
+  ToolKitClasses:array[TVar_RandNew]of TToolKit_Class=
+  (TToolKitLinear,TToolKitLog,TToolKitConst);
+
+type
+
+
 TFA_Heuristic=class(TFittingAgent)
 //  fFuncForFitness:TFunObj;
 //  fParamsHeuristic:TDParamsHeuristic;
  private
-  fData:TVector;
+//  fData:TVector;
+  fNfit:Int64;
+  {кількість викликів FitnessFunc}
+  fNp:integer;
+  {кількість наборів параметрів}
   fFF:TFFHeuristic;
-  fFitTerm:TFitnessTerm;
-  fRegTerm:TRegulationZero;
+  fFitCalcul:TFitnessCalculation;
+  fToolKitArr:array of TToolKit;
+  Parameters:TArrArrSingle;
+  {набори параметрів}
   FitnessData:TArrSingle;
+  {значення цільової функції для різних наборів параметрів}
+  procedure RandomValueToParameter(i:integer);
+  {заповненя випадковим даними
+  і-го набору з Parameters}
+  procedure Penalty (X:TArrSingle);
+  {перевіряються значення  набору Х}
   procedure Initiation;
- {початкове встановлення випадкових значень
- параметрів та розрахунок
- відповідних величин цільової функції}
+  {початкове встановлення випадкових значень
+  параметрів та розрахунок
+  відповідних величин цільової функції}
   Function FitnessFunc(OutputData:TArrSingle):double;
  {цільова функція для оцінки якості апроксимації
  даних в InputData з використанням OutputData}
+  function NpDetermination:integer;virtual;abstract;
+  procedure ConditionalRandomize;
+ protected
+  function GetIstimeToShow:boolean;override;
+  procedure ArrayToHeuristicParam(Data:TArrSingle);
  public
   constructor Create(FF:TFFHeuristic);
   destructor Destroy;override;
+  procedure StartAction;override;
+end;
+
+
+TFA_DE=class(TFA_Heuristic)
+ private
+  F:double;
+  CR:double;
+  r:array [1..3] of integer;
+  Mutation:TArrArrSingle;
+//  FitnessDataMutation:TArrSingle;
+  function NpDetermination:integer;override;
+  procedure MutationCreate(i:integer);
+  {створення і-го вектора мутації}
+  procedure Crossover(i:integer);
+  procedure MutationCreateAll;
+  procedure CrossoverAll;
+ public
+  constructor Create(FF:TFFHeuristic);
+  procedure IterationAction;override;
+  procedure DataCoordination;override;
 end;
 
 //TFittingAgent=class
@@ -186,12 +314,42 @@ end;
 ////  procedure EndAction;virtual;abstract;
 //end;
 
+
+//uses TypInfo
+//
+//procedure TForm1.Button10Click(Sender: TObject);
+//var
+// p : PPropInfo;
+//begin
+// p := GetPropInfo(Timer1, "Font");
+// if Assigned(p) then
+//   ShowMessage("Yea!")
+// else
+//   ShowMessage("No!")
+//end;
+
+//
+//  try
+//
+//    DataSource:=GetObjectProp(Components[i],'DataSource');
+//
+//  except
+//
+//    DataSource:=nil;
+//
+//  end
+
 implementation
 
 uses
-  SysUtils;
+  SysUtils, Math;
 
 { TFFHeuristic }
+
+procedure TFFHeuristic.FittingAgentCreate;
+begin
+ fFittingAgent:=TFA_DE.Create(Self);
+end;
 
 function TFFHeuristic.GetParamsHeuristic: TDParamsHeuristic;
 begin
@@ -200,35 +358,54 @@ end;
 
 function TFFHeuristic.RealFinalFunc(X: double): double;
 begin
- Result:=FuncForFitness(X,fDParamArray.OutputData);
+ fPoint[cX]:=X;
+ Result:=FuncForFitness(fPoint,fDParamArray.OutputData);
 end;
 
 { TFA_Heuristic }
 
+procedure TFA_Heuristic.ArrayToHeuristicParam(Data: TArrSingle);
+ var i:integer;
+begin
+ for I := 0 to fFF.ParamsHeuristic.MainParamHighIndex do
+  fFF.ParamsHeuristic.Parametr[i].Value:=Data[i];
+end;
+
+procedure TFA_Heuristic.ConditionalRandomize;
+begin
+  if (fNfit mod 100)=0 then Randomize;
+end;
+
 constructor TFA_Heuristic.Create(FF: TFFHeuristic);
+ var i:integer;
 begin
  inherited Create;
  fFF:=FF;
 
- if FF.ParamsHeuristic.LogFitness
-  then fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
-  else fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
-
- fData:=TVector.Create(FF.DataToFit);
- if (FF.ParamsHeuristic.ArgumentType=cY) then fData.SwapXY;
-
  if (FF.ParamsHeuristic.RegWeight=0)
-   then fRegTerm:=TRegulationZero.Create
-   else fRegTerm:=RegulationClasses[FF.ParamsHeuristic.RegType].Create(FF);
-//  fFuncForFitness:=FF.FuncForFitness;
-//  fParamsHeuristic:=FF.ParamsHeuristic;
+   then fFitCalcul:=TFitnessCalculation.Create(FF)
+   else fFitCalcul:=TFitnessCalculationWithRegalation.Create(FF);
+
+ SetLength(fToolKitArr,FF.ParamsHeuristic.MainParamHighIndex+1);
+ for I := 0 to High(fToolKitArr) do
+   fToolKitArr[i]:=ToolKitClasses[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode].Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
+
+ fNp:=NpDetermination;
+
+ SetLength(FitnessData,fNp);
+ SetLength(Parameters,fNp,FF.ParamsHeuristic.MainParamHighIndex+1);
+// for I := 0 to High(Parameters) do
+//   SetLength(Parameters[i],FF.ParamsHeuristic.MainParamHighIndex+1);
 end;
 
 destructor TFA_Heuristic.Destroy;
+  var i:integer;
 begin
-  FreeAndNil(fRegTerm);
-  FreeAndNil(fFitTerm);
-  FreeAndNil(fData);
+  for I := 0 to High(fToolKitArr) do  FreeAndNil(fToolKitArr[i]);
+  FreeAndNil(fFitCalcul);
+//  FreeAndNil(fRegTerm);
+//  FreeAndNil(fFitTerm);
+//  FreeAndNil(fData);
   fFF:=nil;
 //  fFuncForFitness:=nil;
 //  fParamsHeuristic:=nil;
@@ -236,30 +413,52 @@ begin
 end;
 
 function TFA_Heuristic.FitnessFunc(OutputData: TArrSingle): double;
- var i:integer;
 begin
- Result:=0;
- for I := 0 to fData.HighNumber do
-    Result:=Result+fFitTerm.Term(fData[i],OutputData);
- Result:=Result+fRegTerm.Term(OutputData);
+ inc(fNfit);
+ Result:=fFitCalcul.FitnessFunc(OutputData);
+end;
+
+function TFA_Heuristic.GetIstimeToShow: boolean;
+begin
+  Result:=((fCurrentIteration mod 100)=0);
+end;
+
+procedure TFA_Heuristic.RandomValueToParameter(i: integer);
+ var j:integer;
+begin
+ for j := 0 to High(fToolKitArr) do
+  Parameters[i][j]:=fToolKitArr[j].RandValue;
+end;
+
+procedure TFA_Heuristic.StartAction;
+begin
+ inherited;
+ fNfit:=0;
+ Initiation;
 end;
 
 procedure TFA_Heuristic.Initiation;
+ var i:integer;
 begin
-// var i:integer;
-//begin
-//  i:=0;
-//  repeat
-//   if (i mod 25)=0 then Randomize;
-//     VarRand(X[i]);
-//     try
-//      Fit[i]:=FitnessFunc(InputData,X[i])
-//     except
-//      Continue;
-//     end;
-//    inc(i);
-//  until (i>High(X));
+  i:=0;
+  repeat
+     ConditionalRandomize;
+     RandomValueToParameter(i);
+     try
+      FitnessData[i]:=FitnessFunc(Parameters[i]);
+     except
+      Continue;
+     end;
+    inc(i);
+  until (i>High(Parameters));
+end;
 
+procedure TFA_Heuristic.Penalty(X:TArrSingle);
+ var j:integer;
+begin
+ Randomize;
+ for j := 0 to High(fToolKitArr) do
+  fToolKitArr[j].Penalty(X[j]);
 end;
 
 { TFitnessTerm }
@@ -275,25 +474,25 @@ begin
   inherited;
 end;
 
-function TFitnessTerm.Term(Point: TPointDouble; Parameters: TArrSingle): double;
-begin
- Result:=Term(Point[cX],Point[cY],Parameters);
-end;
+//function TFitnessTerm.Term(Point: TPointDouble; Parameters: TArrSingle): double;
+//begin
+// Result:=Term(Point[cX],Point[cY],Parameters);
+//end;
 
 { TFitnessTermSR }
 
-function TFitnessTermSR.Term(X,Y:double;
+function TFitnessTermSR.Term(Point:TPointDouble;
                               Parameters:TArrSingle):double;
 begin
- Result:=sqr(fFuncForFitness(X,Parameters)-Y);
+ Result:=sqr(fFuncForFitness(Point,Parameters)-Point[cY]);
 end;
 
 { TFitnessTermRSR }
 
-function TFitnessTermRSR.Term(X, Y: double; Parameters: TArrSingle): double;
+function TFitnessTermRSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
  try
-  Result:=sqr((fFuncForFitness(X,Parameters)-Y)/Y);
+  Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
  except
   Result:=0;
  end;
@@ -301,17 +500,17 @@ end;
 
 { TFitnessTermAR }
 
-function TFitnessTermAR.Term(X, Y: double; Parameters: TArrSingle): double;
+function TFitnessTermAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
- Result:=abs(fFuncForFitness(X,Parameters)-Y);
+ Result:=abs(fFuncForFitness(Point,Parameters)-Point[cY]);
 end;
 
 { TFitnessTermRAR }
 
-function TFitnessTermRAR.Term(X, Y: double; Parameters: TArrSingle): double;
+function TFitnessTermRAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
  try
-  Result:=abs((fFuncForFitness(X,Parameters)-Y)/Y);
+  Result:=abs((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
  except
   Result:=0;
  end;
@@ -319,10 +518,10 @@ end;
 
 { TFitnessTermLogSR }
 
-function TFitnessTermLnSR.Term(X, Y: double; Parameters: TArrSingle): double;
+function TFitnessTermLnSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
  try
-  Result:=sqr(ln(fFuncForFitness(X,Parameters))-ln(Y));
+  Result:=sqr(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
  except
   Result:=0;
  end;
@@ -330,10 +529,10 @@ end;
 
 { TFitnessTermLnRSR }
 
-function TFitnessTermLnRSR.Term(X, Y: double; Parameters: TArrSingle): double;
+function TFitnessTermLnRSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
  try
-  Result:=sqr((ln(fFuncForFitness(X,Parameters))-ln(Y))/ln(Y));
+  Result:=sqr((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
  except
   Result:=0;
  end;
@@ -341,10 +540,10 @@ end;
 
 { TFitnessTermLnAR }
 
-function TFitnessTermLnAR.Term(X, Y: double; Parameters: TArrSingle): double;
+function TFitnessTermLnAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
  try
-  Result:=abs(ln(fFuncForFitness(X,Parameters))-ln(Y));
+  Result:=abs(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
  except
   Result:=0;
  end;
@@ -352,10 +551,10 @@ end;
 
 { TFitnessTermLnRAR }
 
-function TFitnessTermLnRAR.Term(X, Y: double; Parameters: TArrSingle): double;
+function TFitnessTermLnRAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
   try
-  Result:=abs((ln(fFuncForFitness(X,Parameters))-ln(Y))/ln(Y));
+  Result:=abs((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
  except
   Result:=0;
  end;
@@ -365,21 +564,23 @@ end;
 
 constructor TRegTerm.Create(const Param: TFFParamHeuristic);
 begin
- fIsLog:=(Param.Mode=vr_ln);
- if fIsLog then begin
-                 fXmin:=ln(Param.fMinLim);
-                 fXmaxXmin:=ln(Param.fMaxLim)-fXmin;
-                 end
-            else begin
+ inherited Create;
+// fIsLog:=(Param.Mode=vr_ln);
+// if fIsLog then begin
+//                 fXmin:=ln(Param.fMinLim);
+//                 fXmaxXmin:=ln(Param.fMaxLim)-fXmin;
+//                 end
+//            else begin
                  fXmin:=Param.fMinLim;
                  fXmaxXmin:=Param.fMaxLim-fXmin;
-                 end
+//                 end
 end;
 
 function TRegTerm.RegTerm(Arg: double): double;
 begin
- if fIsLog then Result:=(ln(Arg)-fXmin)
-           else Result:=(Arg-fXmin)/fXmaxXmin;
+// if fIsLog then Result:=(ln(Arg)-fXmin)
+//           else
+           Result:=(Arg-fXmin)/fXmaxXmin;
 end;
 
 { TRegulationTerm }
@@ -392,7 +593,9 @@ begin
    if not(FF.ParamsHeuristic.Parametr[i].IsConstant) then
       begin
         SetLength(fRegTerms,High(fRegTerms)+2);
-        fRegTerms[High(fRegTerms)]:=TRegTerm.Create((FF.ParamsHeuristic.Parametr[i] as TFFParamHeuristic));
+        if (FF.ParamsHeuristic.Parametr[i] as TFFParamHeuristic).Mode=vr_lin
+          then fRegTerms[High(fRegTerms)]:=TRegTerm.Create((FF.ParamsHeuristic.Parametr[i] as TFFParamHeuristic))
+          else fRegTerms[High(fRegTerms)]:=TRegTermLog.Create((FF.ParamsHeuristic.Parametr[i] as TFFParamHeuristic));
         fRegTerms[High(fRegTerms)].Number:=i;
       end;
  fRegWeight:=FF.ParamsHeuristic.RegWeight;
@@ -417,12 +620,12 @@ begin
  Result:=fRegWeight*Result;
 end;
 
-{ TRegulationZero }
-
-function TRegulationZero.Term(Parameters: TArrSingle): double;
-begin
- Result:=0;
-end;
+//{ TRegulationZero }
+//
+//function TRegulationZero.Term(Parameters: TArrSingle): double;
+//begin
+// Result:=0;
+//end;
 
 { TRegulationL1 }
 
@@ -434,6 +637,256 @@ begin
     Result:=Result+
           abs(fRegTerms[i].RegTerm(Parameters[fRegTerms[i].Number]));
  Result:=fRegWeight*Result;
+end;
+
+{ TFitnessCalculation }
+
+constructor TFitnessCalculation.Create(FF: TFFHeuristic);
+begin
+ inherited Create;
+ if FF.ParamsHeuristic.LogFitness
+  then fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
+  else fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
+
+ fData:=TVector.Create(FF.DataToFit);
+ if (FF.ParamsHeuristic.ArgumentType=cY) then fData.SwapXY;
+end;
+
+destructor TFitnessCalculation.Destroy;
+begin
+  FreeAndNil(fFitTerm);
+  FreeAndNil(fData);
+  inherited;
+end;
+
+function TFitnessCalculation.FitnessFunc(const OutputData: TArrSingle): double;
+ var i:integer;
+begin
+ Result:=0;
+ for I := 0 to fData.HighNumber do
+    Result:=Result+fFitTerm.Term(fData[i],OutputData);
+end;
+
+{ TFitnessCalculationWithRegalation }
+
+constructor TFitnessCalculationWithRegalation.Create(FF: TFFHeuristic);
+begin
+ inherited;
+ fRegTerm:=RegulationClasses[FF.ParamsHeuristic.RegType].Create(FF);
+end;
+
+destructor TFitnessCalculationWithRegalation.Destroy;
+begin
+  FreeAndNil(fRegTerm);
+  inherited;
+end;
+
+function TFitnessCalculationWithRegalation.FitnessFunc(
+  const OutputData: TArrSingle): double;
+begin
+ Result:=fRegTerm.Term(OutputData)+inherited FitnessFunc(OutputData);
+end;
+
+{ TRegTermLn }
+
+constructor TRegTermLog.Create(const Param: TFFParamHeuristic);
+begin
+ inherited Create;
+ fXmin:=ln(Param.fMinLim);
+ fXmaxXmin:=ln(Param.fMaxLim)-fXmin;
+end;
+
+function TRegTermLog.RegTerm(Arg: double): double;
+begin
+ Result:=(ln(Arg)-fXmin)/fXmaxXmin;
+end;
+
+{ TToolKitLinear }
+
+constructor TToolKitLinear.Create(const Param: TFFParamHeuristic);
+begin
+ inherited;
+ Xmax_Xmin:=Param.fMaxLim-Xmin;
+end;
+
+function TToolKitLinear.DE_Mutation(X1, X2, X3, F: double): double;
+begin
+ Result:=X1+F*(X2-X3);
+end;
+
+procedure TToolKitLinear.Penalty(var X: double);
+ var temp:double;
+begin
+ while not(InRange(X,Xmin,Xmax)) do
+  begin
+    if X>Xmax then temp:=X-Random*Xmax_Xmin
+               else temp:=X+Random*Xmax_Xmin;
+    if InRange(temp,Xmin,Xmax) then X:=temp;
+  end;
+end;
+
+function TToolKitLinear.RandValue: double;
+begin
+   Result:=Xmin+Xmax_Xmin*Random;
+end;
+
+{ TToolKitLog }
+
+constructor TToolKitLog.Create(const Param: TFFParamHeuristic);
+begin
+ inherited;
+ lnXmax:=Ln(Xmax);
+ lnXmin:=ln(Xmin);
+ lnXmax_Xmin:=lnXMax-lnXmin;
+end;
+
+function TToolKitLog.DE_Mutation(X1, X2, X3, F: double): double;
+begin
+ Result:=exp(ln(X1)+F*(ln(X2)-ln(X3)));
+end;
+
+procedure TToolKitLog.Penalty(var X: double);
+ var temp,lnX:double;
+begin
+ if InRange(X,Xmin,Xmax) then Exit;
+ lnX:=ln(X);
+ while not(InRange(X,Xmin,Xmax)) do
+  begin
+    if lnX>lnXmax then temp:=lnX-Random*lnXmax_Xmin
+                  else temp:=lnX+Random*lnXmax_Xmin;
+    if InRange(temp,lnXmin,lnXmax) then X:=exp(temp);
+  end;
+
+end;
+
+function TToolKitLog.RandValue: double;
+begin
+ Result:=Xmin+exp(lnXmax_Xmin*Random);
+end;
+
+{ TToolKitConst }
+
+constructor TToolKitConst.Create(const Param: TFFParamHeuristic);
+begin
+ inherited;
+ Xmin:=Param.Value;
+end;
+
+function TToolKitConst.DE_Mutation(X1, X2, X3, F: double): double;
+begin
+ Result:=Xmin;
+end;
+
+procedure TToolKitConst.Penalty(var X: double);
+begin
+end;
+
+function TToolKitConst.RandValue: double;
+begin
+ Result:=Xmin;
+end;
+
+{ TToolKit }
+
+constructor TToolKit.Create(const Param: TFFParamHeuristic);
+begin
+ inherited Create;
+ Xmin:=Param.fMinLim;
+ Xmax:=Param.fMaxLim;
+end;
+
+{ TFA_DE }
+
+constructor TFA_DE.Create(FF: TFFHeuristic);
+begin
+ inherited;
+// SetLength(FitnessDataMutation,fNp);
+ SetLength(Mutation,fNp,FF.ParamsHeuristic.MainParamHighIndex+1);
+ fDescription:='Differential Evolution';
+ F:=0.8;
+ CR:=0.3;
+end;
+
+procedure TFA_DE.Crossover(i: integer);
+ var j:integer;
+begin
+ r[2]:=Random(fFF.ParamsHeuristic.MainParamHighIndex+1); //randn(i)
+ for j := 0 to High(fToolKitArr) do
+  if not(fFF.ParamsHeuristic.Parametr[j].IsConstant)
+     and(Random>CR)
+     and (j<>r[2]) then Mutation[i,j]:=Parameters[i,j];
+end;
+
+procedure TFA_DE.CrossoverAll;
+ var i:integer;
+     temp:double;
+begin
+  i:=0;
+  repeat
+   ConditionalRandomize;
+   Crossover(i);
+//   Penalty(Mutation[i]);
+   try
+    temp:=FitnessFunc(Mutation[i]);
+    if temp<FitnessData[i] then
+     begin
+      Parameters[i]:=Copy(Mutation[i]);
+      FitnessData[i]:=temp;
+     end;
+   except
+    Continue;
+   end;
+    inc(i);
+  until (i>High(Mutation));
+
+end;
+
+procedure TFA_DE.DataCoordination;
+begin
+ ArrayToHeuristicParam(Parameters[MinElemNumber(FitnessData)]);
+end;
+
+procedure TFA_DE.IterationAction;
+begin
+   MutationCreateAll;
+   CrossoverAll;
+//    EvFitShow(X,Fit,Nitt,100);
+  inherited;
+end;
+
+procedure TFA_DE.MutationCreate(i: integer);
+ var j:integer;
+begin
+ for j := 1 to 3 do
+  repeat
+   r[j]:=Random(fNp);
+  until (r[j]<>i);
+ for j := 0 to High(fToolKitArr) do
+  Mutation[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[r[1],j],
+                                             Parameters[r[2],j],
+                                             Parameters[r[3],j],F);
+end;
+
+procedure TFA_DE.MutationCreateAll;
+ var i:integer;
+begin
+  i:=0;
+  repeat
+   ConditionalRandomize;
+   MutationCreate(i);
+   Penalty(Mutation[i]);
+   try
+    FitnessFunc(Mutation[i]);
+   except
+    Continue;
+   end;
+    inc(i);
+  until (i>High(Mutation));
+end;
+
+function TFA_DE.NpDetermination: integer;
+begin
+ Result:=(fFF.ParamsHeuristic.MainParamHighIndex+1)*8;
 end;
 
 end.
