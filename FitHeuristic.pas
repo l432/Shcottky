@@ -229,11 +229,11 @@ TToolKitConst=class(TToolKit)
   function DE_Mutation(X1,X2,X3,F:double):double;override;
 end;
 
-TToolKit_Class=class of TToolKit;
-
-const
-  ToolKitClasses:array[TVar_RandNew]of TToolKit_Class=
-  (TToolKitLinear,TToolKitLog,TToolKitConst);
+//TToolKit_Class=class of TToolKit;
+//
+//const
+//  ToolKitClasses:array[TVar_RandNew]of TToolKit_Class=
+//  (TToolKitLinear,TToolKitLog,TToolKitConst);
 
 type
 
@@ -284,13 +284,14 @@ TFA_DE=class(TFA_Heuristic)
   CR:double;
   r:array [1..3] of integer;
   Mutation:TArrArrSingle;
-//  FitnessDataMutation:TArrSingle;
+  FitnessDataMutation:TArrSingle;
   function NpDetermination:integer;override;
   procedure MutationCreate(i:integer);
   {створення і-го вектора мутації}
   procedure Crossover(i:integer);
   procedure MutationCreateAll;
   procedure CrossoverAll;
+  procedure GreedySelection;
  public
   constructor Create(FF:TFFHeuristic);
   procedure IterationAction;override;
@@ -342,7 +343,7 @@ end;
 implementation
 
 uses
-  SysUtils, Math;
+  SysUtils, Math, Dialogs;
 
 { TFFHeuristic }
 
@@ -388,7 +389,18 @@ begin
 
  SetLength(fToolKitArr,FF.ParamsHeuristic.MainParamHighIndex+1);
  for I := 0 to High(fToolKitArr) do
-   fToolKitArr[i]:=ToolKitClasses[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode].Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
+  begin
+    case (FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode of
+    vr_lin:fToolKitArr[i]:=TToolKitLinear.Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
+    vr_ln:fToolKitArr[i]:=TToolKitLog.Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
+    vr_const:fToolKitArr[i]:=TToolKitConst.Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
+    end;
+  end;
+
+//  begin
+//   showmessage( Var_RandNames[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode]);
+//   fToolKitArr[i]:=ToolKitClasses[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode].Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
+//  end;
 
  fNp:=NpDetermination;
 
@@ -645,8 +657,8 @@ constructor TFitnessCalculation.Create(FF: TFFHeuristic);
 begin
  inherited Create;
  if FF.ParamsHeuristic.LogFitness
-  then fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
-  else fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
+  then fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
+  else fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
 
  fData:=TVector.Create(FF.DataToFit);
  if (FF.ParamsHeuristic.ArgumentType=cY) then fData.SwapXY;
@@ -706,6 +718,7 @@ end;
 constructor TToolKitLinear.Create(const Param: TFFParamHeuristic);
 begin
  inherited;
+// showmessage('TToolKitLinear');
  Xmax_Xmin:=Param.fMaxLim-Xmin;
 end;
 
@@ -735,6 +748,7 @@ end;
 constructor TToolKitLog.Create(const Param: TFFParamHeuristic);
 begin
  inherited;
+// showmessage('TToolKitLog');
  lnXmax:=Ln(Xmax);
  lnXmin:=ln(Xmin);
  lnXmax_Xmin:=lnXMax-lnXmin;
@@ -761,7 +775,7 @@ end;
 
 function TToolKitLog.RandValue: double;
 begin
- Result:=Xmin+exp(lnXmax_Xmin*Random);
+ Result:=exp(lnXmin+lnXmax_Xmin*Random);
 end;
 
 { TToolKitConst }
@@ -791,6 +805,7 @@ end;
 constructor TToolKit.Create(const Param: TFFParamHeuristic);
 begin
  inherited Create;
+// showmessage('TToolKit');
  Xmin:=Param.fMinLim;
  Xmax:=Param.fMaxLim;
 end;
@@ -800,7 +815,7 @@ end;
 constructor TFA_DE.Create(FF: TFFHeuristic);
 begin
  inherited;
-// SetLength(FitnessDataMutation,fNp);
+ SetLength(FitnessDataMutation,fNp);
  SetLength(Mutation,fNp,FF.ParamsHeuristic.MainParamHighIndex+1);
  fDescription:='Differential Evolution';
  F:=0.8;
@@ -819,7 +834,7 @@ end;
 
 procedure TFA_DE.CrossoverAll;
  var i:integer;
-     temp:double;
+//     temp:double;
 begin
   i:=0;
   repeat
@@ -827,12 +842,7 @@ begin
    Crossover(i);
 //   Penalty(Mutation[i]);
    try
-    temp:=FitnessFunc(Mutation[i]);
-    if temp<FitnessData[i] then
-     begin
-      Parameters[i]:=Copy(Mutation[i]);
-      FitnessData[i]:=temp;
-     end;
+    FitnessDataMutation[i]:=FitnessFunc(Mutation[i]);
    except
     Continue;
    end;
@@ -846,11 +856,76 @@ begin
  ArrayToHeuristicParam(Parameters[MinElemNumber(FitnessData)]);
 end;
 
-procedure TFA_DE.IterationAction;
+procedure TFA_DE.GreedySelection;
+ var i:integer;
 begin
-   MutationCreateAll;
-   CrossoverAll;
-//    EvFitShow(X,Fit,Nitt,100);
+ for I := 0 to High(FitnessData) do
+ if FitnessData[i]>FitnessDataMutation[i] then
+   begin
+    Parameters[i]:=Copy(Mutation[i]);
+    FitnessData[i]:=FitnessDataMutation[i]
+   end;
+end;
+
+procedure TFA_DE.IterationAction;
+ var i,j,k:integer;
+      temp:double;
+begin
+    i:=0;
+    repeat  //Вектор мутації
+     if (i mod 25)=0 then Randomize;
+     for j := 1 to 3 do
+        repeat
+          r[j]:=Random(fNp);
+        until (r[j]<>i);
+     for k := 0 to fFF.ParamsHeuristic.MainParamHighIndex do
+        case (fFF.ParamsHeuristic.Parametr[k] as TFFParamHeuristic).Mode of
+          vr_lin:Mutation[i,k]:=Parameters[r[1],k]+F*(Parameters[r[2],k]-Parameters[r[3],k]);
+          vr_ln:
+            begin
+             temp:=ln(Parameters[r[1],k])+F*(ln(Parameters[r[2],k])-ln(Parameters[r[3],k]));;
+             Mutation[i,k]:=exp(temp);
+            end;
+          vr_const:Mutation[i,k]:=fFF.ParamsHeuristic.Parametr[k].Value;
+        end;//case fXmode[k] of
+     Penalty(Mutation[i]);
+     try
+      FitnessFunc(Mutation[i])
+     except
+      Continue;
+     end;
+     inc(i);
+    until (i>High(Mutation));  //Вектор мутації
+
+    i:=0;
+    repeat  //Пробні вектори
+       if (i mod 25)=0 then Randomize;
+       r[2]:=Random(fFF.ParamsHeuristic.MainParamHighIndex+1); //randn(i)
+       for k := 0 to fFF.ParamsHeuristic.MainParamHighIndex do
+        case (fFF.ParamsHeuristic.Parametr[k] as TFFParamHeuristic).Mode of
+          vr_lin,vr_ln:
+            if (Random>CR) and (k<>r[2]) then Mutation[i,k]:=Parameters[i,k];
+        end;//case Xmode[k] of
+       Penalty(Mutation[i]);
+       try
+        FitnessDataMutation[i]:=FitnessFunc(Mutation[i])
+       except
+        Continue;
+       end;
+       inc(i);
+    until i>(fNp-1);
+
+    for I := 0 to High(Parameters) do
+     if FitnessData[i]>FitnessDataMutation[i] then
+       begin
+        Parameters[i]:=Copy(Mutation[i]);
+        FitnessData[i]:=FitnessDataMutation[i]
+       end;
+
+
+//   MutationCreateAll;
+//   CrossoverAll;
+//   GreedySelection;
   inherited;
 end;
 
