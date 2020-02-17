@@ -9,7 +9,7 @@ type
 
 TFFDiod=class (TFFHeuristic)
   private
-    fSchottky: TDSchottkyFit;
+//    fSchottky: TDSchottkyFit;
  protected
 //  procedure FittingAgentCreate;override;
   procedure TuningBeforeAccessorialDataCreate;override;

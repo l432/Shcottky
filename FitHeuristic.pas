@@ -3,7 +3,8 @@ unit FitHeuristic;
 interface
 
 uses
-  FitGradient, OlegType, FitIteration, OApproxNew, OlegVector, OlegMath;
+  FitGradient, OlegType, FitIteration, OApproxNew, OlegVector,
+  OlegMath, OlegFunction;
 
 type
 
@@ -190,6 +191,7 @@ TToolKit=class
  private
   Xmin:double;
   Xmax:double;
+  procedure DataSave(const Param: TFFParamHeuristic);virtual;
  public
   constructor Create(const Param:TFFParamHeuristic);
   function RandValue:double;virtual;abstract;
@@ -202,8 +204,9 @@ end;
 TToolKitLinear=class(TToolKit)
  private
   Xmax_Xmin:double;
+  procedure DataSave(const Param: TFFParamHeuristic);override;
  public
-  constructor Create(const Param:TFFParamHeuristic);
+//  constructor Create(const Param:TFFParamHeuristic);override;
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
@@ -214,26 +217,29 @@ TToolKitLog=class(TToolKit)
   lnXmax:double;
   lnXmin:double;
   lnXmax_Xmin:double;
+  procedure DataSave(const Param: TFFParamHeuristic);override;
  public
-  constructor Create(const Param:TFFParamHeuristic);
+//  constructor Create(const Param:TFFParamHeuristic);override;
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
 end;
 
 TToolKitConst=class(TToolKit)
+ private
+  procedure DataSave(const Param: TFFParamHeuristic);override;
  public
-  constructor Create(const Param:TFFParamHeuristic);
+//  constructor Create(const Param:TFFParamHeuristic);override;
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
 end;
 
-//TToolKit_Class=class of TToolKit;
-//
-//const
-//  ToolKitClasses:array[TVar_RandNew]of TToolKit_Class=
-//  (TToolKitLinear,TToolKitLog,TToolKitConst);
+TToolKit_Class=class of TToolKit;
+
+const
+  ToolKitClasses:array[TVar_RandNew]of TToolKit_Class=
+  (TToolKitLinear,TToolKitLog,TToolKitConst);
 
 type
 
@@ -268,6 +274,7 @@ TFA_Heuristic=class(TFittingAgent)
  даних в InputData з використанням OutputData}
   function NpDetermination:integer;virtual;abstract;
   procedure ConditionalRandomize;
+  procedure CreateFields;virtual;
  protected
   function GetIstimeToShow:boolean;override;
   procedure ArrayToHeuristicParam(Data:TArrSingle);
@@ -275,6 +282,7 @@ TFA_Heuristic=class(TFittingAgent)
   constructor Create(FF:TFFHeuristic);
   destructor Destroy;override;
   procedure StartAction;override;
+  procedure DataCoordination;override;
 end;
 
 
@@ -292,10 +300,35 @@ TFA_DE=class(TFA_Heuristic)
   procedure MutationCreateAll;
   procedure CrossoverAll;
   procedure GreedySelection;
+  procedure CreateFields;override;
  public
-  constructor Create(FF:TFFHeuristic);
+//  constructor Create(FF:TFFHeuristic);
   procedure IterationAction;override;
-  procedure DataCoordination;override;
+//  procedure DataCoordination;override;
+end;
+
+
+TFA_MABC=class(TFA_Heuristic)
+ private
+//  F:double;
+//  CR:double;
+//  r:array [1..3] of integer;
+//  Mutation:TArrArrSingle;
+  FitnessDataMutation:TArrSingle;
+  Count:TArrSingle;
+  ParametersNew:TArrSingle;
+  Limit:integer;
+  function NpDetermination:integer;override;
+//  procedure MutationCreate(i:integer);
+//  {створення і-го вектора мутації}
+//  procedure Crossover(i:integer);
+//  procedure MutationCreateAll;
+//  procedure CrossoverAll;
+//  procedure GreedySelection;
+  procedure CreateFields;override;
+ public
+  procedure IterationAction;override;
+//  procedure DataCoordination;override;
 end;
 
 //TFittingAgent=class
@@ -387,27 +420,17 @@ begin
    then fFitCalcul:=TFitnessCalculation.Create(FF)
    else fFitCalcul:=TFitnessCalculationWithRegalation.Create(FF);
 
- SetLength(fToolKitArr,FF.ParamsHeuristic.MainParamHighIndex+1);
+ SetLength(fToolKitArr,FF.DParamArray.MainParamHighIndex+1);
  for I := 0 to High(fToolKitArr) do
-  begin
-    case (FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode of
-    vr_lin:fToolKitArr[i]:=TToolKitLinear.Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
-    vr_ln:fToolKitArr[i]:=TToolKitLog.Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
-    vr_const:fToolKitArr[i]:=TToolKitConst.Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
-    end;
-  end;
-
-//  begin
-//   showmessage( Var_RandNames[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode]);
-//   fToolKitArr[i]:=ToolKitClasses[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode].Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
-//  end;
+   fToolKitArr[i]:=ToolKitClasses[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode].Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
 
  fNp:=NpDetermination;
+  CreateFields;
+end;
 
- SetLength(FitnessData,fNp);
- SetLength(Parameters,fNp,FF.ParamsHeuristic.MainParamHighIndex+1);
-// for I := 0 to High(Parameters) do
-//   SetLength(Parameters[i],FF.ParamsHeuristic.MainParamHighIndex+1);
+procedure TFA_Heuristic.DataCoordination;
+begin
+ ArrayToHeuristicParam(Parameters[MinElemNumber(FitnessData)]);
 end;
 
 destructor TFA_Heuristic.Destroy;
@@ -447,6 +470,12 @@ begin
  inherited;
  fNfit:=0;
  Initiation;
+end;
+
+procedure TFA_Heuristic.CreateFields;
+begin
+  SetLength(FitnessData, fNp);
+  SetLength(Parameters, fNp, fFF.DParamArray.MainParamHighIndex + 1);
 end;
 
 procedure TFA_Heuristic.Initiation;
@@ -715,11 +744,17 @@ end;
 
 { TToolKitLinear }
 
-constructor TToolKitLinear.Create(const Param: TFFParamHeuristic);
+//constructor TToolKitLinear.Create(const Param: TFFParamHeuristic);
+//begin
+// inherited;
+////// showmessage('TToolKitLinear');
+//// Xmax_Xmin:=Param.fMaxLim-Xmin;
+//end;
+
+procedure TToolKitLinear.DataSave(const Param: TFFParamHeuristic);
 begin
- inherited;
-// showmessage('TToolKitLinear');
- Xmax_Xmin:=Param.fMaxLim-Xmin;
+  inherited;
+  Xmax_Xmin:=Param.fMaxLim-Xmin;
 end;
 
 function TToolKitLinear.DE_Mutation(X1, X2, X3, F: double): double;
@@ -745,10 +780,18 @@ end;
 
 { TToolKitLog }
 
-constructor TToolKitLog.Create(const Param: TFFParamHeuristic);
+//constructor TToolKitLog.Create(const Param: TFFParamHeuristic);
+//begin
+// inherited;
+// showmessage('TToolKitLog');
+// lnXmax:=Ln(Xmax);
+// lnXmin:=ln(Xmin);
+// lnXmax_Xmin:=lnXMax-lnXmin;
+//end;
+
+procedure TToolKitLog.DataSave(const Param: TFFParamHeuristic);
 begin
  inherited;
-// showmessage('TToolKitLog');
  lnXmax:=Ln(Xmax);
  lnXmin:=ln(Xmin);
  lnXmax_Xmin:=lnXMax-lnXmin;
@@ -780,7 +823,13 @@ end;
 
 { TToolKitConst }
 
-constructor TToolKitConst.Create(const Param: TFFParamHeuristic);
+//constructor TToolKitConst.Create(const Param: TFFParamHeuristic);
+//begin
+// inherited;
+// Xmin:=Param.Value;
+//end;
+
+procedure TToolKitConst.DataSave(const Param: TFFParamHeuristic);
 begin
  inherited;
  Xmin:=Param.Value;
@@ -805,18 +854,33 @@ end;
 constructor TToolKit.Create(const Param: TFFParamHeuristic);
 begin
  inherited Create;
-// showmessage('TToolKit');
- Xmin:=Param.fMinLim;
- Xmax:=Param.fMaxLim;
+ DataSave(Param);
+end;
+
+procedure TToolKit.DataSave(const Param: TFFParamHeuristic);
+begin
+  // showmessage('TToolKit');
+  Xmin := Param.fMinLim;
+  Xmax := Param.fMaxLim;
 end;
 
 { TFA_DE }
 
-constructor TFA_DE.Create(FF: TFFHeuristic);
+//constructor TFA_DE.Create(FF: TFFHeuristic);
+//begin
+// inherited;
+// SetLength(FitnessDataMutation,fNp);
+// SetLength(Mutation,fNp,FF.ParamsHeuristic.MainParamHighIndex+1);
+// fDescription:='Differential Evolution';
+// F:=0.8;
+// CR:=0.3;
+//end;
+
+procedure TFA_DE.CreateFields;
 begin
  inherited;
  SetLength(FitnessDataMutation,fNp);
- SetLength(Mutation,fNp,FF.ParamsHeuristic.MainParamHighIndex+1);
+ SetLength(Mutation,fNp,fFF.DParamArray.MainParamHighIndex+1);
  fDescription:='Differential Evolution';
  F:=0.8;
  CR:=0.3;
@@ -825,9 +889,9 @@ end;
 procedure TFA_DE.Crossover(i: integer);
  var j:integer;
 begin
- r[2]:=Random(fFF.ParamsHeuristic.MainParamHighIndex+1); //randn(i)
+ r[2]:=Random(fFF.DParamArray.MainParamHighIndex+1); //randn(i)
  for j := 0 to High(fToolKitArr) do
-  if not(fFF.ParamsHeuristic.Parametr[j].IsConstant)
+  if not(fFF.DParamArray.Parametr[j].IsConstant)
      and(Random>CR)
      and (j<>r[2]) then Mutation[i,j]:=Parameters[i,j];
 end;
@@ -851,10 +915,10 @@ begin
 
 end;
 
-procedure TFA_DE.DataCoordination;
-begin
- ArrayToHeuristicParam(Parameters[MinElemNumber(FitnessData)]);
-end;
+//procedure TFA_DE.DataCoordination;
+//begin
+// ArrayToHeuristicParam(Parameters[MinElemNumber(FitnessData)]);
+//end;
 
 procedure TFA_DE.GreedySelection;
  var i:integer;
@@ -868,65 +932,11 @@ begin
 end;
 
 procedure TFA_DE.IterationAction;
- var i,j,k:integer;
-      temp:double;
 begin
-    i:=0;
-    repeat  //Вектор мутації
-     if (i mod 25)=0 then Randomize;
-     for j := 1 to 3 do
-        repeat
-          r[j]:=Random(fNp);
-        until (r[j]<>i);
-     for k := 0 to fFF.ParamsHeuristic.MainParamHighIndex do
-        case (fFF.ParamsHeuristic.Parametr[k] as TFFParamHeuristic).Mode of
-          vr_lin:Mutation[i,k]:=Parameters[r[1],k]+F*(Parameters[r[2],k]-Parameters[r[3],k]);
-          vr_ln:
-            begin
-             temp:=ln(Parameters[r[1],k])+F*(ln(Parameters[r[2],k])-ln(Parameters[r[3],k]));;
-             Mutation[i,k]:=exp(temp);
-            end;
-          vr_const:Mutation[i,k]:=fFF.ParamsHeuristic.Parametr[k].Value;
-        end;//case fXmode[k] of
-     Penalty(Mutation[i]);
-     try
-      FitnessFunc(Mutation[i])
-     except
-      Continue;
-     end;
-     inc(i);
-    until (i>High(Mutation));  //Вектор мутації
-
-    i:=0;
-    repeat  //Пробні вектори
-       if (i mod 25)=0 then Randomize;
-       r[2]:=Random(fFF.ParamsHeuristic.MainParamHighIndex+1); //randn(i)
-       for k := 0 to fFF.ParamsHeuristic.MainParamHighIndex do
-        case (fFF.ParamsHeuristic.Parametr[k] as TFFParamHeuristic).Mode of
-          vr_lin,vr_ln:
-            if (Random>CR) and (k<>r[2]) then Mutation[i,k]:=Parameters[i,k];
-        end;//case Xmode[k] of
-       Penalty(Mutation[i]);
-       try
-        FitnessDataMutation[i]:=FitnessFunc(Mutation[i])
-       except
-        Continue;
-       end;
-       inc(i);
-    until i>(fNp-1);
-
-    for I := 0 to High(Parameters) do
-     if FitnessData[i]>FitnessDataMutation[i] then
-       begin
-        Parameters[i]:=Copy(Mutation[i]);
-        FitnessData[i]:=FitnessDataMutation[i]
-       end;
-
-
-//   MutationCreateAll;
-//   CrossoverAll;
-//   GreedySelection;
-  inherited;
+   MutationCreateAll;
+   CrossoverAll;
+   GreedySelection;
+   inherited;
 end;
 
 procedure TFA_DE.MutationCreate(i: integer);
@@ -961,7 +971,90 @@ end;
 
 function TFA_DE.NpDetermination: integer;
 begin
- Result:=(fFF.ParamsHeuristic.MainParamHighIndex+1)*8;
+ Result:=(fFF.DParamArray.MainParamHighIndex+1)*8;
+end;
+
+{ TFA_MABC }
+
+procedure TFA_MABC.CreateFields;
+begin
+ inherited;
+ SetLength(FitnessDataMutation,fNp);
+ InitArrSingle(Count,word(fNp),0);
+ SetLength(ParametersNew,fFF.DParamArray.MainParamHighIndex+1);
+ fDescription:='Modified Artificial Bee Colony';
+ Limit:=36;
+end;
+
+//procedure TFA_MABC.DataCoordination;
+//begin
+//  inherited;
+//
+//end;
+
+procedure TFA_MABC.IterationAction;
+begin
+//     i:=0;
+//     repeat  //Employed bee
+//      if (i mod 25)=0 then Randomize;
+//      NewSolution(i);
+//      if Fit[i]>FitMut[i] then
+//       begin
+//        X[i]:=Copy(Xnew);
+//        Fit[i]:=FitMut[i];
+//        Count[i]:=0;
+//       end
+//                     else
+//        Count[i]:=Count[i]+1;
+//      inc(i);
+//     until (i>(Np-1));  //Employed bee
+//
+//     SumFit:=0;   //Onlookers bee
+//     for I := 0 to Np - 1 do
+//       SumFit:=SumFit+1/(1+Fit[i]);
+//
+//     i:=0;//номер   Onlookers bee
+//     j:=0; // номер джерела меду
+//     repeat
+//       if (i mod 25)=0 then Randomize;
+//       if Random<1/(1+Fit[j])/SumFit then
+//        begin
+//          i:=i+1;
+//          NewSolution(j);
+//          if Fit[j]>FitMut[j] then
+//           begin
+//           X[j]:=Copy(Xnew);
+//           Fit[j]:=FitMut[j];
+//           Count[j]:=0;
+//           end
+//        end;    // if Random<1/(1+Fit[j])/SumFit then
+//       j:=j+1;
+//       if j=Np then j:=0;
+//     until(i=Np);     //Onlookers bee
+//
+//     i:=0;
+//     repeat   //scout
+//      if (i mod 25)=0 then Randomize;
+//      j:=MinElemNumber(Fit);
+//      if (Count[i]>Limit)and(i<>j) then
+//       begin
+//        VarRand(X[i]);
+//        try
+//         Fit[i]:=FitnessFunc(InputData,X[i])
+//        except
+//         Continue;
+//        end;
+//        Count[i]:=0;
+//       end;// if Count[i]>Limit then
+//      inc(i);
+//     until i>(Np-1);//scout
+
+  inherited;
+end;
+
+function TFA_MABC.NpDetermination: integer;
+begin
+  Result:=(fFF.DParamArray.MainParamHighIndex+1)*8;
 end;
 
 end.
