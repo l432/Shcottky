@@ -214,11 +214,14 @@ function SecondFromDayBegining:integer;overload;
 function SecondFromDayBegining(ttime: TDateTime):integer;overload;
 
 
-procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
-                             InitialValue:double=ErResult);
+procedure InitArray(var OutputData: TArrSingle;NumberOfData:word;
+                             InitialValue:double=ErResult);overload;
 {забезпечую, щоб в OutputData було не менше
 NumberOfData елементів та призначає цим
 елементам значення InitialValue}
+procedure InitArray(var OutputData:TArrInteger;NumberOfData:word;
+                             InitialValue:integer=0);overload;
+
 
 procedure StringArrayToStringList(const Arr:array of string;
                                   StringList:TStringList);
@@ -1323,8 +1326,18 @@ begin
 end;
 
 
-procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
+procedure InitArray(var OutputData: TArrSingle;NumberOfData:word;
                              InitialValue:double=ErResult);
+  var i:word;
+begin
+ if High(OutputData)<(NumberOfData-1)
+      then SetLength(OutputData,NumberOfData);
+ for i := 0 to (NumberOfData-1)
+    do OutputData[i]:=InitialValue;
+end;
+
+procedure InitArray(var OutputData:TArrInteger;NumberOfData:word;
+                             InitialValue:integer=0);
   var i:word;
 begin
  if High(OutputData)<(NumberOfData-1)

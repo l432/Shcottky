@@ -129,6 +129,7 @@ type
   PTArrSingle=^TArrSingle;
   T2DArray=array of array of double;
 
+  TArrInteger=array of integer;
 
   TFunS=Function(x:double):double;
   TFun=Function(Argument:double;Parameters:array of double):double;

@@ -5368,7 +5368,7 @@ begin
  SetLength(LocBestPar,Np,fNx);
  SetLength(VelArhiv,fNx);
  SetLength(XArhiv,fNx);
-
+  GlobBestNumb:=0;
  try
   EvFitInit(InputData,X,LocBestFit);
   GlobBestNumb:=MinElemNumber(LocBestFit);
@@ -5468,7 +5468,8 @@ begin
    inc(Nitt);
   until (Nitt>fNit)or not(fIterWindow.Visible);
  finally
-  EndFitting(LocBestPar[MinElemNumber(LocBestFit)],OutputData);
+//  EndFitting(LocBestPar[MinElemNumber(LocBestFit)],OutputData);
+  EndFitting(LocBestPar[GlobBestNumb],OutputData);
  end;//try
 end;
 
@@ -6153,7 +6154,7 @@ begin
          lin:Xnew[k]:=X^[i,k]+r*(X^[i,k]-X^[Tf,k]);
          logar:
             begin
-             temp:=ln(X^[i,k])+r*(ln(X^[j,k])-ln(X^[Tf,k]));
+             temp:=ln(X^[i,k])+r*(ln(X^[i,k])-ln(X^[Tf,k]));
              Xnew[k]:=exp(temp);
             end;
          cons:Xnew[k]:=fXvalue[k];

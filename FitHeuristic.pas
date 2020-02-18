@@ -199,7 +199,13 @@ TToolKit=class
   procedure Penalty(var X:double);virtual;abstract;
  {якщо Х за межами інтервалу, то повертає його туди}
   function DE_Mutation(X1,X2,X3,F:double):double;virtual;abstract;
+  function PSO_Transform(X2,X3,F:double):double;virtual;abstract;
+  procedure PSO_Penalty(var X:double;var Velocity:double;
+                        const Parameter:double);virtual;abstract;
+  function TLBO_ToMeanValue(X:double):double;virtual;abstract;
+  function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;virtual;abstract;
 end;
+
 
 TToolKitLinear=class(TToolKit)
  private
@@ -210,6 +216,12 @@ TToolKitLinear=class(TToolKit)
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
+  function PSO_Transform(X2,X3,F:double):double;override;
+  procedure PSO_Penalty(var X:double;var Velocity:double;
+                        const Parameter:double);override;
+  function TLBO_ToMeanValue(X:double):double;override;
+  function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
+
 end;
 
 TToolKitLog=class(TToolKit)
@@ -223,6 +235,12 @@ TToolKitLog=class(TToolKit)
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
+  function PSO_Transform(X2,X3,F:double):double;override;
+  procedure PSO_Penalty(var X:double;var Velocity:double;
+                        const Parameter:double);override;
+  function TLBO_ToMeanValue(X:double):double;override;
+  function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
+
 end;
 
 TToolKitConst=class(TToolKit)
@@ -233,6 +251,12 @@ TToolKitConst=class(TToolKit)
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
+  function PSO_Transform(X2,X3,F:double):double;override;
+  procedure PSO_Penalty(var X:double;var Velocity:double;
+                        const Parameter:double);override;
+  function TLBO_ToMeanValue(X:double):double;override;
+  function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
+
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -275,6 +299,8 @@ TFA_Heuristic=class(TFittingAgent)
   function NpDetermination:integer;virtual;abstract;
   procedure ConditionalRandomize;
   procedure CreateFields;virtual;
+  function GreedySelection(i:integer;NewFitnessData:double;
+                             NewParameter:TArrSingle):boolean;
  protected
   function GetIstimeToShow:boolean;override;
   procedure ArrayToHeuristicParam(Data:TArrSingle);
@@ -299,7 +325,7 @@ TFA_DE=class(TFA_Heuristic)
   procedure Crossover(i:integer);
   procedure MutationCreateAll;
   procedure CrossoverAll;
-  procedure GreedySelection;
+  procedure GreedySelectionAll;
   procedure CreateFields;override;
  public
 //  constructor Create(FF:TFFHeuristic);
@@ -310,26 +336,66 @@ end;
 
 TFA_MABC=class(TFA_Heuristic)
  private
-//  F:double;
-//  CR:double;
-//  r:array [1..3] of integer;
-//  Mutation:TArrArrSingle;
   FitnessDataMutation:TArrSingle;
-  Count:TArrSingle;
+  Count:TArrInteger;
   ParametersNew:TArrSingle;
   Limit:integer;
   function NpDetermination:integer;override;
-//  procedure MutationCreate(i:integer);
-//  {створення і-го вектора мутації}
-//  procedure Crossover(i:integer);
-//  procedure MutationCreateAll;
-//  procedure CrossoverAll;
-//  procedure GreedySelection;
+  procedure CreateFields;override;
+  procedure CreateParametersNew(i:integer);
+  procedure EmployedBee;
+  procedure OnlookersBee;
+  procedure ScoutBee;
+ public
+  procedure IterationAction;override;
+end;
+
+TFA_PSO=class(TFA_Heuristic)
+ private
+  C1:byte;
+  C2:byte;
+  Wmax:double;
+  Wmin:double;
+//  VelocityArhiv:TArrSingle;
+//  ParameterArhiv:TArrSingle;
+  LocBestPar:TArrArrSingle;
+  Velocity:TArrArrSingle;
+  GlobBestNumb:integer;
+  function NpDetermination:integer;override;
   procedure CreateFields;override;
  public
   procedure IterationAction;override;
+  procedure StartAction;override;
+  procedure DataCoordination;override;
+end;
+
+
+TFA_TLBO=class(TFA_Heuristic)
+ private
+//  MaxFitnessData:double;
+  r:double;
+  Tf:integer;
+  temp:double;
+//  C1:byte;
+//  C2:byte;
+//  Wmax:double;
+//  Wmin:double;
+//  LocBestPar:TArrArrSingle;
+//  Velocity:TArrArrSingle;
+//  GlobBestNumb:integer;
+  ParameterMean:TArrSingle;
+  ParameterNew:TArrSingle;
+  function NpDetermination:integer;override;
+  procedure CreateFields;override;
+  procedure ParameterMeanCalculate;
+  procedure TeacherPhase;
+  procedure LearnerPhase;
+ public
+  procedure IterationAction;override;
+//  procedure StartAction;override;
 //  procedure DataCoordination;override;
 end;
+
 
 //TFittingAgent=class
 //{той, що вміє проводити ітераційний процес}
@@ -376,13 +442,17 @@ end;
 implementation
 
 uses
-  SysUtils, Math, Dialogs;
+  SysUtils, Math, Dialogs, Classes, Windows;
 
 { TFFHeuristic }
 
 procedure TFFHeuristic.FittingAgentCreate;
 begin
- fFittingAgent:=TFA_DE.Create(Self);
+// fFittingAgent:=TFA_DE.Create(Self);
+// fFittingAgent:=TFA_MABC.Create(Self);
+// fFittingAgent:=TFA_PSO.Create(Self);
+ fFittingAgent:=TFA_TLBO.Create(Self);
+
 end;
 
 function TFFHeuristic.GetParamsHeuristic: TDParamsHeuristic;
@@ -458,6 +528,18 @@ begin
   Result:=((fCurrentIteration mod 100)=0);
 end;
 
+function TFA_Heuristic.GreedySelection(i:integer;NewFitnessData:double;
+                             NewParameter:TArrSingle):boolean;
+begin
+ if FitnessData[i]>NewFitnessData then
+   begin
+    Parameters[i]:=Copy(NewParameter);
+    FitnessData[i]:=NewFitnessData;
+    Result:=True;
+   end                             else
+    Result:=False;
+end;
+
 procedure TFA_Heuristic.RandomValueToParameter(i: integer);
  var j:integer;
 begin
@@ -497,7 +579,7 @@ end;
 procedure TFA_Heuristic.Penalty(X:TArrSingle);
  var j:integer;
 begin
- Randomize;
+ ConditionalRandomize;
  for j := 0 to High(fToolKitArr) do
   fToolKitArr[j].Penalty(X[j]);
 end;
@@ -764,18 +846,60 @@ end;
 
 procedure TToolKitLinear.Penalty(var X: double);
  var temp:double;
+  var ST:TStringList;
 begin
+ ST:=TStringList.Create;
+ ST.Add(floattostr(X));
+ ST.SaveToFile('lin.dat');
+ ST.Free;
+
  while not(InRange(X,Xmin,Xmax)) do
   begin
     if X>Xmax then temp:=X-Random*Xmax_Xmin
                else temp:=X+Random*Xmax_Xmin;
     if InRange(temp,Xmin,Xmax) then X:=temp;
   end;
+ DeleteFile('lin.dat');
+end;
+
+procedure TToolKitLinear.PSO_Penalty(var X, Velocity: double;
+  const Parameter: double);
+// var temp:double;
+begin
+ X:=X+Velocity;
+ if  not(InRange(X,Xmin,Xmax)) then
+  begin
+   if X>Xmax then Velocity:=Xmax-Parameter
+             else Velocity:=Xmin-Parameter;
+   if X>Xmax then X:=Xmax
+             else X:=Xmin;
+//
+//   repeat
+//     if X>Xmax then temp:=Xmax-Random*Parameter
+//               else temp:=Xmin+Random*Parameter;
+//   until InRange(temp,Xmin,Xmax);
+//   X:=temp;
+  end;
+end;
+
+function TToolKitLinear.PSO_Transform(X2, X3, F: double): double;
+begin
+ Result:=F*(X2-X3);
 end;
 
 function TToolKitLinear.RandValue: double;
 begin
    Result:=Xmin+Xmax_Xmin*Random;
+end;
+
+function TToolKitLinear.TLBO_ToMeanValue(X: double): double;
+begin
+ Result:=X;
+end;
+
+function TToolKitLinear.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
+begin
+ Result:=X1+r*(X2-Tf*Xmean)
 end;
 
 { TToolKitLog }
@@ -804,21 +928,66 @@ end;
 
 procedure TToolKitLog.Penalty(var X: double);
  var temp,lnX:double;
+  var ST:TStringList;
 begin
+ ST:=TStringList.Create;
+ ST.Add(floattostr(X)+' '+ floattostr(ln(X))+ ' '+floattostr(lnXmax_Xmin));
+ ST.SaveToFile('log.dat');
+ ST.Free;
+
  if InRange(X,Xmin,Xmax) then Exit;
  lnX:=ln(X);
  while not(InRange(X,Xmin,Xmax)) do
   begin
-    if lnX>lnXmax then temp:=lnX-Random*lnXmax_Xmin
-                  else temp:=lnX+Random*lnXmax_Xmin;
+//    if lnX>lnXmax then temp:=lnX-Random*lnXmax_Xmin
+//                  else temp:=lnX+Random*lnXmax_Xmin;
+    if lnX>lnXmax then temp:=lnX-RandomAB(-1,1)*lnXmax_Xmin
+                  else temp:=lnX+RandomAB(-1,1)*lnXmax_Xmin;
     if InRange(temp,lnXmin,lnXmax) then X:=exp(temp);
   end;
+ DeleteFile('log.dat');
+end;
 
+procedure TToolKitLog.PSO_Penalty(var X, Velocity: double;
+                                 const Parameter: double);
+// var temp,lnX,lnPar:double;
+begin
+// lnX:=ln(X);
+ X:=exp(ln(X)+Velocity);
+ if not(InRange(X,Xmin,Xmax)) then
+  begin
+//   lnPar:=ln(Parameter);
+   if X>Xmax then Velocity:=lnXmax-ln(Parameter)
+             else Velocity:=lnXmin-ln(Parameter);
+  if X>Xmax then X:=Xmax
+             else X:=Xmin;
+//   repeat
+//     if X>Xmax then temp:=lnXmax-RandomAB(-1,1)*lnPar
+//               else temp:=lnXmin+RandomAB(-1,1)*lnPar;
+//   until InRange(temp,lnXmin,lnXmax);
+//   X:=exp(temp);
+  end;
+end;
+
+
+function TToolKitLog.PSO_Transform(X2, X3, F: double): double;
+begin
+ Result:=F*(ln(X2)-ln(X3));
 end;
 
 function TToolKitLog.RandValue: double;
 begin
  Result:=exp(lnXmin+lnXmax_Xmin*Random);
+end;
+
+function TToolKitLog.TLBO_ToMeanValue(X: double): double;
+begin
+ Result:=ln(X);
+end;
+
+function TToolKitLog.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
+begin
+ Result:=exp(ln(X1)+r*(ln(X2)-Tf*Xmean));
 end;
 
 { TToolKitConst }
@@ -844,7 +1013,27 @@ procedure TToolKitConst.Penalty(var X: double);
 begin
 end;
 
+procedure TToolKitConst.PSO_Penalty(var X, Velocity: double;
+                                   const Parameter: double);
+begin
+end;
+
+function TToolKitConst.PSO_Transform(X2, X3, F: double): double;
+begin
+ Result:=0;
+end;
+
 function TToolKitConst.RandValue: double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.TLBO_ToMeanValue(X: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
 begin
  Result:=Xmin;
 end;
@@ -920,22 +1109,23 @@ end;
 // ArrayToHeuristicParam(Parameters[MinElemNumber(FitnessData)]);
 //end;
 
-procedure TFA_DE.GreedySelection;
+procedure TFA_DE.GreedySelectionAll;
  var i:integer;
 begin
  for I := 0 to High(FitnessData) do
- if FitnessData[i]>FitnessDataMutation[i] then
-   begin
-    Parameters[i]:=Copy(Mutation[i]);
-    FitnessData[i]:=FitnessDataMutation[i]
-   end;
+   GreedySelection(i,FitnessDataMutation[i],Mutation[i]);
+// if FitnessData[i]>FitnessDataMutation[i] then
+//   begin
+//    Parameters[i]:=Copy(Mutation[i]);
+//    FitnessData[i]:=FitnessDataMutation[i]
+//   end;
 end;
 
 procedure TFA_DE.IterationAction;
 begin
    MutationCreateAll;
    CrossoverAll;
-   GreedySelection;
+   GreedySelectionAll;
    inherited;
 end;
 
@@ -980,7 +1170,7 @@ procedure TFA_MABC.CreateFields;
 begin
  inherited;
  SetLength(FitnessDataMutation,fNp);
- InitArrSingle(Count,word(fNp),0);
+ InitArray(Count,word(fNp),0);
  SetLength(ParametersNew,fFF.DParamArray.MainParamHighIndex+1);
  fDescription:='Modified Artificial Bee Colony';
  Limit:=36;
@@ -992,69 +1182,304 @@ end;
 //
 //end;
 
+procedure TFA_MABC.CreateParametersNew(i: integer);
+ Label NewSLabel;
+ var j,k:integer;
+     bool:boolean;
+ begin
+  NewSLabel:
+  repeat
+   j:=Random(fNp);
+  until (j<>i);
+  for k := 0 to High(fToolKitArr) do
+  ParametersNew[k]:=fToolKitArr[k].DE_Mutation(Parameters[i,k],
+                                             Parameters[i,k],
+                                             Parameters[j,k],
+                                             (-1+Random*2));
+  Penalty(ParametersNew);
+  bool:=False;
+  try
+   FitnessDataMutation[i]:=FitnessFunc(ParametersNew)
+  except
+   bool:=True
+  end;
+  if bool then goto NewSLabel;
+end;
+
+procedure TFA_MABC.EmployedBee;
+ var i:integer;
+begin
+  i:=0;
+  repeat
+   ConditionalRandomize;
+   CreateParametersNew(i);
+   if GreedySelection(i,FitnessDataMutation[i],ParametersNew)
+      then Count[i]:=0
+      else inc(Count[i]);
+   inc(i);
+  until (i>(fNp-1));
+end;
+
 procedure TFA_MABC.IterationAction;
 begin
-//     i:=0;
-//     repeat  //Employed bee
-//      if (i mod 25)=0 then Randomize;
-//      NewSolution(i);
-//      if Fit[i]>FitMut[i] then
-//       begin
-//        X[i]:=Copy(Xnew);
-//        Fit[i]:=FitMut[i];
-//        Count[i]:=0;
-//       end
-//                     else
-//        Count[i]:=Count[i]+1;
-//      inc(i);
-//     until (i>(Np-1));  //Employed bee
-//
-//     SumFit:=0;   //Onlookers bee
-//     for I := 0 to Np - 1 do
-//       SumFit:=SumFit+1/(1+Fit[i]);
-//
-//     i:=0;//номер   Onlookers bee
-//     j:=0; // номер джерела меду
-//     repeat
-//       if (i mod 25)=0 then Randomize;
-//       if Random<1/(1+Fit[j])/SumFit then
-//        begin
-//          i:=i+1;
-//          NewSolution(j);
-//          if Fit[j]>FitMut[j] then
-//           begin
-//           X[j]:=Copy(Xnew);
-//           Fit[j]:=FitMut[j];
-//           Count[j]:=0;
-//           end
-//        end;    // if Random<1/(1+Fit[j])/SumFit then
-//       j:=j+1;
-//       if j=Np then j:=0;
-//     until(i=Np);     //Onlookers bee
-//
-//     i:=0;
-//     repeat   //scout
-//      if (i mod 25)=0 then Randomize;
-//      j:=MinElemNumber(Fit);
-//      if (Count[i]>Limit)and(i<>j) then
-//       begin
-//        VarRand(X[i]);
-//        try
-//         Fit[i]:=FitnessFunc(InputData,X[i])
-//        except
-//         Continue;
-//        end;
-//        Count[i]:=0;
-//       end;// if Count[i]>Limit then
-//      inc(i);
-//     until i>(Np-1);//scout
-
-  inherited;
+ EmployedBee;
+ OnlookersBee;
+ ScoutBee;
+ inherited;
 end;
 
 function TFA_MABC.NpDetermination: integer;
 begin
   Result:=(fFF.DParamArray.MainParamHighIndex+1)*8;
+end;
+
+procedure TFA_MABC.OnlookersBee;
+ var i,j:integer;
+     SumFit:double;
+begin
+  SumFit:=0;   //Onlookers bee
+  for I := 0 to fNp - 1 do
+    SumFit:=SumFit+1/(1+FitnessData[i]);
+
+  i:=0;//номер   Onlookers bee
+  j:=0; // номер джерела меду
+  repeat
+   ConditionalRandomize;
+   if Random<1/(1+FitnessData[j])/SumFit then
+      begin
+        inc(i);
+        CreateParametersNew(j);
+        if GreedySelection(j,FitnessDataMutation[j],ParametersNew)
+           then Count[j]:=0
+      end;    // if Random<1/(1+Fit[j])/SumFit then
+       inc(j);
+       if j=fNp then j:=0;
+     until(i=fNp);     //Onlookers bee
+end;
+
+procedure TFA_MABC.ScoutBee;
+ var i,j:integer;
+begin
+  i:=0;
+  j:=MinElemNumber(FitnessData);
+  repeat
+   ConditionalRandomize;
+   if (Count[i]>Limit)and(i<>j) then
+    begin
+     RandomValueToParameter(i);
+     try
+      FitnessData[i]:=FitnessFunc(Parameters[i]);
+     except
+      Continue;
+     end;
+     Count[i]:=0;
+     if FitnessData[i]<FitnessData[j] then j:=i;
+    end;  // if (Count[i]>Limit)and(i<>j) then
+   inc(i);
+  until (i>(fNp-1));
+end;
+
+{ TFA_PSO }
+
+procedure TFA_PSO.CreateFields;
+begin
+ inherited CreateFields;
+//LocBestFit-> FitnessData
+ SetLength(LocBestPar,fNp,fFF.DParamArray.MainParamHighIndex + 1);
+ SetLength(Velocity,fNp);
+// SetLength(VelocityArhiv,fFF.DParamArray.MainParamHighIndex + 1);
+// SetLength(ParameterArhiv,fFF.DParamArray.MainParamHighIndex + 1);
+
+ fDescription:='Particle Swarm Optimization';
+ C1:=2;
+ C2:=2;
+ Wmax:=0.9;
+ Wmin:=0.4;
+end;
+
+procedure TFA_PSO.DataCoordination;
+begin
+//  ArrayToHeuristicParam(LocBestPar[MinElemNumber(FitnessData)]);
+  ArrayToHeuristicParam(LocBestPar[GlobBestNumb]);
+end;
+
+procedure TFA_PSO.IterationAction;
+ var temp,W:double;
+     i,j{,k}:integer;
+begin
+   temp:=0;
+   W:=Wmax-(Wmax-Wmin)*fCurrentIteration/(fFF.fDParamArray as TDParamsIteration).Nit;
+   i:=0;
+//   k:=0;
+   repeat
+
+    ConditionalRandomize;
+//    VelocityArhiv:=Copy(Velocity[i]);
+//    ParameterArhiv:=Copy(Parameters[i]);
+    for j := 0 to High(fToolKitArr) do
+//      VelocityArhiv[j]:=W*VelocityArhiv[j]
+      Velocity[i,j]:=W*Velocity[i,j]
+              +fToolKitArr[j].PSO_Transform(LocBestPar[i,j],Parameters[i,j],C1*Random)
+              +fToolKitArr[j].PSO_Transform(LocBestPar[GlobBestNumb,j],Parameters[i,j],C2*Random);
+
+    for j := 0 to High(fToolKitArr) do
+//     fToolKitArr[j].PSO_Penalty(ParameterArhiv[j],
+     fToolKitArr[j].PSO_Penalty(Parameters[i,j],
+                                Velocity[i,j],
+//                                VelocityArhiv[j],
+                                Parameters[i,j]);
+
+    try
+//     temp:=FitnessFunc(ParameterArhiv)
+     temp:=FitnessFunc(Parameters[i])
+    except
+//     inc(k);
+//     if k>20 then
+//         begin
+//         RandomValueToParameter(i);
+//         k:=0;
+//         end;
+     Continue;
+    end;
+//    k:=0;
+//    Velocity[i]:=Copy(VelocityArhiv);
+//    Parameters[i]:=Copy(ParameterArhiv);
+    if temp<FitnessData[i] then
+        begin
+         FitnessData[i]:=temp;
+         LocBestPar[i]:=Copy(Parameters[i]);
+        end;
+    inc(i);
+   until (i>High(Parameters));
+   GlobBestNumb:=MinElemNumber(FitnessData);
+  inherited IterationAction;
+end;
+
+function TFA_PSO.NpDetermination: integer;
+begin
+ Result:=(fFF.DParamArray.MainParamHighIndex+1)*15;
+end;
+
+procedure TFA_PSO.StartAction;
+ var i:integer;
+begin
+  inherited StartAction;
+  GlobBestNumb:=MinElemNumber(FitnessData);
+  for I := 0 to High(Parameters)
+     do LocBestPar[i]:=Copy(Parameters[i]);
+  {початкові значення швидкостей}
+  for I := 0 to High(Velocity) do
+    InitArray(Velocity[i],word(fFF.DParamArray.MainParamHighIndex + 1),0);
+//  k:=0;
+end;
+
+{ TFA_TLBO }
+
+procedure TFA_TLBO.CreateFields;
+begin
+  inherited CreateFields;
+  fDescription:='Teaching Learning Based Optimization';
+  SetLength(ParameterMean,fFF.DParamArray.MainParamHighIndex + 1);
+  SetLength(ParameterNew,fFF.DParamArray.MainParamHighIndex + 1);
+  temp:=1e10;
+end;
+
+procedure TFA_TLBO.IterationAction;
+begin
+  TeacherPhase;
+  LearnerPhase;
+  inherited;
+end;
+
+procedure TFA_TLBO.LearnerPhase;
+ var i,k:integer;
+begin
+  i:=0;
+  repeat
+   ConditionalRandomize;
+   r:=Random;
+   repeat
+     Tf:=Random(fNp);
+    until (Tf<>i);
+    if FitnessData[i]>FitnessData[Tf] then r:=-1*r;
+    for k := 0 to High(fToolKitArr) do
+     ParameterNew[k]:=fToolKitArr[k].DE_Mutation(Parameters[i,k],
+                                                 Parameters[i,k],
+                                                 Parameters[Tf,k],
+                                                 r);
+   Penalty(ParameterNew);
+   try
+    temp:=FitnessFunc(ParameterNew)
+   except
+    Continue;
+   end;
+   GreedySelection(i,temp, ParameterNew);
+   inc(i);
+  until i>High(FitnessData);
+end;
+
+function TFA_TLBO.NpDetermination: integer;
+begin
+ Result:=1000;
+end;
+
+procedure TFA_TLBO.ParameterMeanCalculate;
+ var i,k:integer;
+begin
+ InitArray(ParameterMean,High(ParameterMean)+1,0);
+ for I := 0 to fNp-1 do
+   for k := 0 to High(fToolKitArr) do
+     ParameterMean[k]:=ParameterMean[k]
+        +fToolKitArr[k].TLBO_ToMeanValue(Parameters[i,k]);
+ for k := 0 to High(fToolKitArr) do
+   ParameterMean[k]:=ParameterMean[k]/fNp;
+end;
+
+procedure TFA_TLBO.TeacherPhase;
+ var j,i,k:integer;
+//     temp:double;
+ var ST:TStringList;
+begin
+// temp:=1e10;
+ ParameterMeanCalculate;
+ j:=MaxElemNumber(FitnessData);
+
+ i:=0;
+ repeat
+
+  ConditionalRandomize;
+  if i=j then
+    begin
+      inc(i);
+      Continue;
+    end;
+
+  r:=Random;
+  Tf:=1+Random(2);
+  for k := 0 to High(fToolKitArr) do
+   ParameterNew[k]:=fToolKitArr[k].TLBO_Transform(Parameters[i,k],
+                                                  Parameters[j,k],
+                                                  ParameterMean[k],
+                                                  r,Tf);
+  ST:=TStringList.Create;
+  for k := 0 to High(fToolKitArr) do
+  ST.Add(floattostr(ParameterNew[k])+ ' '+floattostr(ParameterMean[k])
+         + ' '+floattostr(Parameters[j,k])+ ' '+floattostr(Parameters[i,k]));
+  ST.SaveToFile('Teach.dat');
+  ST.Free;
+
+   Penalty(ParameterNew);
+    DeleteFile('Teach.dat');
+
+   try
+    temp:=FitnessFunc(ParameterNew);
+   except
+    Continue;
+   end;
+
+   GreedySelection(i,temp, ParameterNew);
+   inc(i);
+  until i>High(FitnessData);
 end;
 
 end.

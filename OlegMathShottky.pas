@@ -2477,7 +2477,7 @@ end;
 function TVectorShottky.ExKalkFit(DD: TDiod_Schottky;
   OutputData: TArrSingle;OutsideTemperature:double=ErResult): boolean;
 begin
- InitArrSingle(OutputData,3);
+ InitArray(OutputData,3);
  ExKalk(DD,OutputData[1],OutputData[0],OutputData[2],OutsideTemperature);
  Result:=(OutputData[0]<>ErResult);
 end;

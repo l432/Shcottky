@@ -538,7 +538,7 @@ var R:PSysEquation;
     i:integer;
 begin
   Result:=False;
-  InitArrSingle(OutputData,3);
+  InitArray(OutputData,3);
 
   for I:=0 to Self.HighNumber do
     if Self.X[i]<=0 then Exit;
@@ -760,7 +760,7 @@ var temp:TVector;
     Param:array of double;
 begin
  Result:=False;
- InitArrSingle(OutputData,2);
+ InitArray(OutputData,2);
   if OutsideTemperature=ErResult then Temperature:=Self.T
                                  else Temperature:=OutsideTemperature;
   if (Temperature<=0)or(Self.Count=0) then Exit;
@@ -813,7 +813,7 @@ function TVectorTransform.LinAprox(var OutputData: TArrSingle): boolean;
       i:integer;
 begin
   Result:=False;
-  InitArrSingle(OutputData,2);
+  InitArray(OutputData,2);
   Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;
   for i:=0 to Self.HighNumber do
      begin
@@ -826,7 +826,7 @@ begin
   OutputData[0]:=(Sx2*Sy-Sxy*Sx)/(Self.Count*Sx2-Sx*Sx);
   OutputData[1]:=(Self.Count*Sxy-Sy*Sx)/(Self.Count*Sx2-Sx*Sx);
   except
-   InitArrSingle(OutputData,2);
+   InitArray(OutputData,2);
    Exit;
   end;
   Result:=True;
@@ -883,7 +883,7 @@ var R:PSysEquation;
     temp:double;
 begin
   Result:=False;
-  InitArrSingle(OutputData,N+1);
+  InitArray(OutputData,N+1);
   if Self.Count<(N+1) then Exit;
   new(R);
   R^.SetLengthSys(N+1);
@@ -949,7 +949,7 @@ var Sx,Sy,Sxy,Sx2,Sx3,Sx4,Syx2,pr:double;
     i:integer;
 begin
   Result:=False;
-  InitArrSingle(OutputData,3);
+  InitArray(OutputData,3);
  Sx:=0;Sy:=0;Sxy:=0;Sx2:=0;Sx3:=0;Sx4:=0;Syx2:=0;
  with Self do begin
   for i:=0 to HighNumber do
@@ -1042,7 +1042,7 @@ function TVectorTransform.PVParareters(var OutputData: TArrSingle): boolean;
      Number_Vmax:integer;
 begin
  Result:=False;
- InitArrSingle(OutputData,6,0);
+ InitArray(OutputData,6,0);
 
  P_V:=TVectorTransform.Create();
  Self.Power(P_V);

@@ -429,7 +429,7 @@ constructor TConstParDetermination.Create(Nm:string;VarArray:TVarDoubArray);
 begin
  inherited Create(Nm);
  fVarArray:=VarArray;
- InitArrSingle(Coefficients,3,0);
+ InitArray(Coefficients,3,0);
  SetLength(CoefNames,3);
  ch:='A';
  for I := 0 to High(CoefNames) do
@@ -895,7 +895,7 @@ begin
 // ['n','Rs','Io','Rsh']
 
  nkT:=fPIteration[0]*Kb*fT;
- InitArrSingle(derivX,fPIteration.MainParamHighIndex+1,0);
+ InitArray(derivX,fPIteration.MainParamHighIndex+1,0);
  Sum1:=0;
 
  try
@@ -1072,7 +1072,7 @@ function TFittingAgentDiodLam.SquareFormIsCalculated: boolean;
      F2,F1:double;
 begin
  bt:=1/Kb/fT;
- InitArrSingle(derivX,fPIteration.MainParamHighIndex+1,0);
+ InitArray(derivX,fPIteration.MainParamHighIndex+1,0);
  Sum1:=0;
 
  I0Rs:=fPIteration[2]*fPIteration[1];
@@ -1266,7 +1266,7 @@ function TFittingAgentPhotoDiodLam.SquareFormIsCalculated: boolean;
     n,Rs,Rsh:double;
 begin
  Result:=False;
- InitArrSingle(derivX,fPIteration.MainParamHighIndex+1,0);
+ InitArray(derivX,fPIteration.MainParamHighIndex+1,0);
  Sum1:=0;
  n:=fPIteration[0];
  Rs:=fPIteration[1];
