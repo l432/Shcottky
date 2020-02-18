@@ -846,20 +846,23 @@ end;
 
 procedure TToolKitLinear.Penalty(var X: double);
  var temp:double;
-  var ST:TStringList;
 begin
- ST:=TStringList.Create;
- ST.Add(floattostr(X));
- ST.SaveToFile('lin.dat');
- ST.Free;
-
  while not(InRange(X,Xmin,Xmax)) do
   begin
-    if X>Xmax then temp:=X-Random*Xmax_Xmin
-               else temp:=X+Random*Xmax_Xmin;
+    if X>Xmax then
+         begin
+         if X-Xmax_Xmin>=Xmax
+            then  temp:=Xmin+Xmax_Xmin*Random
+            else  temp:=X-Random*Xmax_Xmin
+         end
+              else
+         begin
+         if X+Xmax_Xmin<=Xmin
+            then  temp:=Xmin+Xmax_Xmin*Random
+            else  temp:=X+Random*Xmax_Xmin;
+         end;
     if InRange(temp,Xmin,Xmax) then X:=temp;
   end;
- DeleteFile('lin.dat');
 end;
 
 procedure TToolKitLinear.PSO_Penalty(var X, Velocity: double;
@@ -899,7 +902,8 @@ end;
 
 function TToolKitLinear.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
 begin
- Result:=X1+r*(X2-Tf*Xmean)
+ Result:=X1+r*(X2-Tf*Xmean);
+ Penalty(Result);
 end;
 
 { TToolKitLog }
@@ -928,44 +932,37 @@ end;
 
 procedure TToolKitLog.Penalty(var X: double);
  var temp,lnX:double;
-  var ST:TStringList;
 begin
- ST:=TStringList.Create;
- ST.Add(floattostr(X)+' '+ floattostr(ln(X))+ ' '+floattostr(lnXmax_Xmin));
- ST.SaveToFile('log.dat');
- ST.Free;
-
  if InRange(X,Xmin,Xmax) then Exit;
  lnX:=ln(X);
  while not(InRange(X,Xmin,Xmax)) do
   begin
-//    if lnX>lnXmax then temp:=lnX-Random*lnXmax_Xmin
-//                  else temp:=lnX+Random*lnXmax_Xmin;
-    if lnX>lnXmax then temp:=lnX-RandomAB(-1,1)*lnXmax_Xmin
-                  else temp:=lnX+RandomAB(-1,1)*lnXmax_Xmin;
+    if lnX>lnXmax then
+         begin
+         if lnX-lnXmax_Xmin>=lnXmax
+            then  temp:=lnXmin+lnXmax_Xmin*Random
+            else  temp:=lnX-Random*lnXmax_Xmin
+         end
+                  else
+         begin
+         if lnX+lnXmax_Xmin<=lnXmin
+            then  temp:=lnXmin+lnXmax_Xmin*Random
+            else  temp:=lnX+Random*lnXmax_Xmin;
+         end;
     if InRange(temp,lnXmin,lnXmax) then X:=exp(temp);
   end;
- DeleteFile('log.dat');
 end;
 
 procedure TToolKitLog.PSO_Penalty(var X, Velocity: double;
                                  const Parameter: double);
-// var temp,lnX,lnPar:double;
 begin
-// lnX:=ln(X);
  X:=exp(ln(X)+Velocity);
  if not(InRange(X,Xmin,Xmax)) then
   begin
-//   lnPar:=ln(Parameter);
    if X>Xmax then Velocity:=lnXmax-ln(Parameter)
              else Velocity:=lnXmin-ln(Parameter);
-  if X>Xmax then X:=Xmax
+   if X>Xmax then X:=Xmax
              else X:=Xmin;
-//   repeat
-//     if X>Xmax then temp:=lnXmax-RandomAB(-1,1)*lnPar
-//               else temp:=lnXmin+RandomAB(-1,1)*lnPar;
-//   until InRange(temp,lnXmin,lnXmax);
-//   X:=exp(temp);
   end;
 end;
 
@@ -986,8 +983,10 @@ begin
 end;
 
 function TToolKitLog.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
+// var temp:double;
 begin
  Result:=exp(ln(X1)+r*(ln(X2)-Tf*Xmean));
+ Penalty(Result);
 end;
 
 { TToolKitConst }
@@ -1437,16 +1436,13 @@ end;
 
 procedure TFA_TLBO.TeacherPhase;
  var j,i,k:integer;
-//     temp:double;
- var ST:TStringList;
 begin
-// temp:=1e10;
  ParameterMeanCalculate;
  j:=MaxElemNumber(FitnessData);
 
  i:=0;
- repeat
 
+ repeat
   ConditionalRandomize;
   if i=j then
     begin
@@ -1461,16 +1457,7 @@ begin
                                                   Parameters[j,k],
                                                   ParameterMean[k],
                                                   r,Tf);
-  ST:=TStringList.Create;
-  for k := 0 to High(fToolKitArr) do
-  ST.Add(floattostr(ParameterNew[k])+ ' '+floattostr(ParameterMean[k])
-         + ' '+floattostr(Parameters[j,k])+ ' '+floattostr(Parameters[i,k]));
-  ST.SaveToFile('Teach.dat');
-  ST.Free;
-
-   Penalty(ParameterNew);
-    DeleteFile('Teach.dat');
-
+//   Penalty(ParameterNew);
    try
     temp:=FitnessFunc(ParameterNew);
    except
