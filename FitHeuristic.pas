@@ -287,8 +287,8 @@ TFA_Heuristic=class(TFittingAgent)
   procedure RandomValueToParameter(i:integer);
   {заповненя випадковим даними
   і-го набору з Parameters}
-  procedure Penalty (X:TArrSingle);
-  {перевіряються значення  набору Х}
+//  procedure Penalty (X:TArrSingle);
+//  {перевіряються значення  набору Х}
   procedure Initiation;
   {початкове встановлення випадкових значень
   параметрів та розрахунок
@@ -397,22 +397,13 @@ TFA_TLBO=class(TFA_Heuristic)
 end;
 
 
-//TFittingAgent=class
-//{той, що вміє проводити ітераційний процес}
-// private
-//  fDescription:string;
-//  fCurrentIteration:integer;
-//  fToStop:boolean;
-////  fIsDone:boolean;
-// public
-//  property Description:string read fDescription;
-//  property CurrentIteration:integer read fCurrentIteration;
-////  property IsDone:boolean read fIsDone write fIsDone;
-//  property ToStop:boolean read fToStop;
-//  procedure StartAction;virtual;
-//  procedure IterationAction;virtual;abstract;
-////  procedure EndAction;virtual;abstract;
-//end;
+TFA_Heuristic_Class=class of TFA_Heuristic;
+
+const
+  FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
+  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_PSO);
+
+
 
 
 //uses TypInfo
@@ -451,8 +442,8 @@ begin
 // fFittingAgent:=TFA_DE.Create(Self);
 // fFittingAgent:=TFA_MABC.Create(Self);
 // fFittingAgent:=TFA_PSO.Create(Self);
- fFittingAgent:=TFA_TLBO.Create(Self);
-
+// fFittingAgent:=TFA_TLBO.Create(Self);
+ fFittingAgent:=FA_HeuristicClasses[ParamsHeuristic.EvType].Create(Self);
 end;
 
 function TFFHeuristic.GetParamsHeuristic: TDParamsHeuristic;
@@ -495,7 +486,7 @@ begin
    fToolKitArr[i]:=ToolKitClasses[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode].Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
 
  fNp:=NpDetermination;
-  CreateFields;
+ CreateFields;
 end;
 
 procedure TFA_Heuristic.DataCoordination;
@@ -576,13 +567,13 @@ begin
   until (i>High(Parameters));
 end;
 
-procedure TFA_Heuristic.Penalty(X:TArrSingle);
- var j:integer;
-begin
- ConditionalRandomize;
- for j := 0 to High(fToolKitArr) do
-  fToolKitArr[j].Penalty(X[j]);
-end;
+//procedure TFA_Heuristic.Penalty(X:TArrSingle);
+// var j:integer;
+//begin
+// ConditionalRandomize;
+// for j := 0 to High(fToolKitArr) do
+//  fToolKitArr[j].Penalty(X[j]);
+//end;
 
 { TFitnessTerm }
 
@@ -842,27 +833,25 @@ end;
 function TToolKitLinear.DE_Mutation(X1, X2, X3, F: double): double;
 begin
  Result:=X1+F*(X2-X3);
+ Penalty(Result);
 end;
 
 procedure TToolKitLinear.Penalty(var X: double);
  var temp:double;
 begin
- while not(InRange(X,Xmin,Xmax)) do
-  begin
-    if X>Xmax then
-         begin
-         if X-Xmax_Xmin>=Xmax
-            then  temp:=Xmin+Xmax_Xmin*Random
-            else  temp:=X-Random*Xmax_Xmin
-         end
-              else
-         begin
-         if X+Xmax_Xmin<=Xmin
-            then  temp:=Xmin+Xmax_Xmin*Random
-            else  temp:=X+Random*Xmax_Xmin;
-         end;
-    if InRange(temp,Xmin,Xmax) then X:=temp;
-  end;
+ if InRange(X,Xmin,Xmax) then Exit;
+ if not(InRange(X,Xmin-Xmax_Xmin,Xmax+Xmax_Xmin))
+    then
+      begin
+       X:=RandValue;
+       Exit;
+      end;
+ repeat
+    if X>Xmax then temp:=X-Random*Xmax_Xmin
+              else temp:=X+Random*Xmax_Xmin;
+    if InRange(temp,Xmin,Xmax) then  Break;
+ until False;
+ X:=temp;
 end;
 
 procedure TToolKitLinear.PSO_Penalty(var X, Velocity: double;
@@ -926,8 +915,27 @@ begin
 end;
 
 function TToolKitLog.DE_Mutation(X1, X2, X3, F: double): double;
+ var temp:double;
 begin
- Result:=exp(ln(X1)+F*(ln(X2)-ln(X3)));
+// Result:=exp(ln(X1)+F*(ln(X2)-ln(X3)));
+ Result:=ln(X1)+F*(ln(X2)-ln(X3));
+ if InRange(Result,lnXmin,lnXmax) then
+   begin
+   Result:=exp(Result);
+   Exit;
+   end;
+ if not(InRange(Result,lnXmin-lnXmax_Xmin,lnXmax+lnXmax_Xmin))
+    then
+      begin
+       Result:=RandValue;
+       Exit;
+      end;
+ repeat
+    if Result>lnXmax then temp:=Result-Random*lnXmax_Xmin
+                     else temp:=Result+Random*lnXmax_Xmin;
+    if InRange(temp,lnXmin,lnXmax) then  Break;
+ until False;
+ Result:=exp(temp);
 end;
 
 procedure TToolKitLog.Penalty(var X: double);
@@ -935,22 +943,18 @@ procedure TToolKitLog.Penalty(var X: double);
 begin
  if InRange(X,Xmin,Xmax) then Exit;
  lnX:=ln(X);
- while not(InRange(X,Xmin,Xmax)) do
-  begin
-    if lnX>lnXmax then
-         begin
-         if lnX-lnXmax_Xmin>=lnXmax
-            then  temp:=lnXmin+lnXmax_Xmin*Random
-            else  temp:=lnX-Random*lnXmax_Xmin
-         end
-                  else
-         begin
-         if lnX+lnXmax_Xmin<=lnXmin
-            then  temp:=lnXmin+lnXmax_Xmin*Random
-            else  temp:=lnX+Random*lnXmax_Xmin;
-         end;
-    if InRange(temp,lnXmin,lnXmax) then X:=exp(temp);
-  end;
+ if not(InRange(lnX,lnXmin-lnXmax_Xmin,lnXmax+lnXmax_Xmin))
+    then
+      begin
+       X:=RandValue;
+       Exit;
+      end;
+ repeat
+    if lnX>lnXmax then temp:=lnX-Random*lnXmax_Xmin
+                  else temp:=lnX+Random*lnXmax_Xmin;
+    if InRange(temp,lnXmin,lnXmax) then  Break;
+ until False;
+ X:=exp(temp);
 end;
 
 procedure TToolKitLog.PSO_Penalty(var X, Velocity: double;
@@ -1148,7 +1152,7 @@ begin
   repeat
    ConditionalRandomize;
    MutationCreate(i);
-   Penalty(Mutation[i]);
+//   Penalty(Mutation[i]);
    try
     FitnessFunc(Mutation[i]);
    except
@@ -1185,17 +1189,19 @@ procedure TFA_MABC.CreateParametersNew(i: integer);
  Label NewSLabel;
  var j,k:integer;
      bool:boolean;
+     r:double;
  begin
   NewSLabel:
   repeat
    j:=Random(fNp);
   until (j<>i);
+  r:=(-1+Random*2);
   for k := 0 to High(fToolKitArr) do
   ParametersNew[k]:=fToolKitArr[k].DE_Mutation(Parameters[i,k],
                                              Parameters[i,k],
                                              Parameters[j,k],
-                                             (-1+Random*2));
-  Penalty(ParametersNew);
+                                             r);
+//  Penalty(ParametersNew);
   bool:=False;
   try
    FitnessDataMutation[i]:=FitnessFunc(ParametersNew)
@@ -1406,7 +1412,7 @@ begin
                                                  Parameters[i,k],
                                                  Parameters[Tf,k],
                                                  r);
-   Penalty(ParameterNew);
+//   Penalty(ParameterNew);
    try
     temp:=FitnessFunc(ParameterNew)
    except

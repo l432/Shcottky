@@ -9,14 +9,12 @@ type
 
 TFFDiod=class (TFFHeuristic)
   private
-//    fSchottky: TDSchottkyFit;
  protected
-//  procedure FittingAgentCreate;override;
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
-  procedure AdditionalParamDetermination;override;
+//  procedure AdditionalParamDetermination;override;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
  published
@@ -35,12 +33,12 @@ uses
 //
 //end;
 
-procedure TFFDiod.AdditionalParamDetermination;
-begin
- fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((DoubVars.ParametrByName['T'] as TVarDouble).Value,
-                                                        fDParamArray.ParametrByName['Io'].Value);
- inherited AdditionalParamDetermination;
-end;
+//procedure TFFDiod.AdditionalParamDetermination;
+//begin
+// fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((DoubVars.ParametrByName['T'] as TVarDouble).Value,
+//                                                        fDParamArray.ParametrByName['Io'].Value);
+// inherited AdditionalParamDetermination;
+//end;
 
 function TFFDiod.FuncForFitness(Point:TPointDouble; Data: TArrSingle): double;
 begin

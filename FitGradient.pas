@@ -29,6 +29,7 @@ TFFVariabSet =class(TFFSimple)
   procedure AutoDoubVarsDetermination;virtual;
   {визначення дійсних параметрів, які
   не задаються в ручному режимі}
+  procedure AdditionalParamDetermination;override;
  public
 // published
   property DoubVars:TVarDoubArray read fDoubVars;
@@ -130,7 +131,7 @@ TFFDiodLSM=class (TFFIteration)
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
-  procedure AdditionalParamDetermination;override;
+//  procedure AdditionalParamDetermination;override;
  published
   property Schottky:TDSchottkyFit read fSchottky;
 end; // TFFDiodLSM=class (TFFIterationLSMSchottky)
@@ -204,6 +205,17 @@ end;
 procedure TFFVariabSet.AddDoubleVars;
 begin
 
+end;
+
+procedure TFFVariabSet.AdditionalParamDetermination;
+begin
+  if (GetPropInfo(Self.ClassInfo, 'Schottky')<>nil)
+   and ((fDParamArray.ParametrByName['Fb'])<>nil)
+     then
+   fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((DoubVars.ParametrByName['T'] as TVarDouble).Value,
+                                            fDParamArray.ParametrByName['Io'].Value);
+  fDParamArray.OutputDataCoordinateByName('Fb');
+  inherited;
 end;
 
 procedure TFFVariabSet.AutoDoubVarsDetermination;
@@ -440,12 +452,12 @@ end;
 //  inherited;
 //end;
 
-procedure TFFDiodLSM.AdditionalParamDetermination;
-begin
- fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((fDoubVars.ParametrByName['T'] as TVarDouble).Value,
-                                                        fDParamArray.ParametrByName['Io'].Value);
- inherited AdditionalParamDetermination;
-end;
+//procedure TFFDiodLSM.AdditionalParamDetermination;
+//begin
+// fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((fDoubVars.ParametrByName['T'] as TVarDouble).Value,
+//                                                        fDParamArray.ParametrByName['Io'].Value);
+// inherited AdditionalParamDetermination;
+//end;
 
 procedure TFFDiodLSM.FittingAgentCreate;
 begin
@@ -528,7 +540,7 @@ end;
 procedure TFFPhotoDiodLSM.AdditionalParamDetermination;
 begin
  PVparameteres(fDataToFit,fDParamArray);
- inherited;
+ inherited AdditionalParamDetermination;
 end;
 
 procedure TFFPhotoDiodLSM.FittingAgentCreate;

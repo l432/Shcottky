@@ -50,6 +50,7 @@ TDParamArray=class
                      const AddParamNames: array of string);overload;
    destructor Destroy;override;
    procedure OutputDataCoordinate;
+   procedure OutputDataCoordinateByName(str:string);
    Procedure DataToStrings(OutStrings:TStrings);
    procedure SetValueByName(Name:string;Value:double);
 end;
@@ -404,6 +405,17 @@ procedure TDParamArray.OutputDataCoordinate;
 begin
   for I := 0 to High(fParams)
      do OutputData[i]:=fParams[i].Value;
+end;
+
+procedure TDParamArray.OutputDataCoordinateByName(str: string);
+ var I:integer;
+begin
+  for I := 0 to High(fParams) do
+   if fParams[i].Name=str then
+      begin
+        OutputData[i]:=fParams[i].Value;
+        Exit;
+      end;
 end;
 
 procedure TDParamArray.SetValueByName(Name: string; Value: double);

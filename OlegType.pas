@@ -468,7 +468,9 @@ begin
  WriteIniDef(ConfigFile,Section, Ident+'YMin',fYMin);
  WriteIniDef(ConfigFile,Section, Ident+'XMax',fXMax);
  WriteIniDef(ConfigFile,Section, Ident+'Ymax',fYmax);
- ConfigFile.WriteString(Section,Ident+'Br',fBr);
+ WriteIniDef(ConfigFile,Section, Ident+'Br',fBr,'F');
+
+// ConfigFile.WriteString(Section,Ident+'Br',fBr);
 end;
 
 
