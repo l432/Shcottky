@@ -14,10 +14,11 @@ TFFVariabSet =class(TFFSimple)
   додаткові дійсні параметри}
  private
   fDoubVars:TVarDoubArray;
+ protected
   fTemperatureIsRequired:boolean;
   fVoltageIsRequired:boolean;
- protected
   fSchottky:TDSchottkyFit;
+  fMaterialLayer:TMaterialLayerFit;
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure AddDoubleVars;virtual;
   {додаються дійсні параметри, потрібні для
@@ -197,6 +198,7 @@ end;
 
 procedure TFFVariabSet.AccessorialDataDestroy;
 begin
+ FreeAndNil(fMaterialLayer);
  FreeAndNil(fSchottky);
  fDoubVars.Free;
  inherited;
@@ -245,6 +247,12 @@ begin
    begin
     fSchottky:=TDSchottkyFit.Create(Self);
     Result:=TDecDSchottkyParameter.Create(fSchottky,Result);
+   end;
+
+  if GetPropInfo(Self.ClassInfo, 'Layer')<>nil then
+   begin
+    fMaterialLayer:=TMaterialLayerFit.Create(Self);
+    Result:=TDecMaterialLayerParameter.Create(fMaterialLayer,Result);
    end;
 end;
 

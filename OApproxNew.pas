@@ -264,34 +264,6 @@ end;
 ////----------------------------------------------
 //
 
-//
-//TDiodTun=class (TFitFunctEvolution)
-//{I=I0*exp(A*(V-IRs)+(V-IRs)/Rsh}
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-// Function RealFunc(DeterminedParameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TDiodTun=class (TFitFunctEvolution)
-//
-//TTunRevers=class (TFitFunctEvolution)
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//// Procedure BeforeFitness(InputData:Pvector);override;
-// Procedure BeforeFitness(InputData:TVector);override;
-//end; // TTunRevers=class (TFitFunctEvolution)
-//
-//TTunReversRs=class (TFitFunctEvolution)
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//// Procedure BeforeFitness(InputData:Pvector);override;
-//end; // TTunRevers=class (TFitFunctEvolution)
-//
-//
 //TPhotoDiod=class (TFitFunctEvolution)
 //private
 // Function Func(Parameters:TArrSingle):double; override;

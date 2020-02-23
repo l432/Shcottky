@@ -366,9 +366,14 @@ end;
 
 procedure TDecVarNumberArrayParameter.FormClear;
 begin
- fFrame.Frame.Parent:=nil;
-// Form.RemoveComponent(fFrame.Frame);
- fFrame.Free;
+ if fFrame.Frame<>nil then
+  begin
+   fFrame.Frame.Parent:=nil;
+  // Form.RemoveComponent(fFrame.Frame);
+//   FreeAndNil(fFrame);
+  // fFrame.Free;
+  end;
+ FreeAndNil(fFrame); 
  fFFParameter.FormClear;
 end;
 
@@ -376,6 +381,8 @@ procedure TDecVarNumberArrayParameter.FormPrepare(Form: TForm);
 begin
   fFFParameter.FormPrepare(Form);
   fFrame := TVarNumberArrayFrame.Create(fVarArray);
+  if fFrame.Frame=nil then Exit;
+  
   fFrame.SizeAndLocationDetermination(Form);
   Form.InsertComponent(fFrame.Frame);
 
@@ -506,6 +513,9 @@ constructor TVarNumberArrayFrame.Create(VarNumberArray:TVarNumberArray);
  var i:integer;
 begin
   inherited Create;
+  Frame:=nil;
+  if VarNumberArray.HighIndex<0 then Exit;
+
   Frame:=TFrame.Create(nil);
 
   SetLength(fSubFrames,VarNumberArray.HighIndex+1);
@@ -541,8 +551,10 @@ end;
 destructor TVarNumberArrayFrame.Destroy;
  var i:integer;
 begin
-  for I := 0 to High(fSubFrames) do fSubFrames[i].Free;
-  Frame.Free;
+  for I := 0 to High(fSubFrames) do FreeAndNil(fSubFrames[i]);
+//  fSubFrames[i].Free;
+  FreeAndNil(Frame);
+//  Frame.Free;
   inherited;
 end;
 
@@ -581,6 +593,8 @@ end;
 
 procedure TVarNumberArrayFrame.SizeAndLocationDetermination(Form: TForm);
 begin
+ if High(fSubFrames)<0 then Exit;
+ 
  SubFramesResize(Form);
  SubFramesLocate;
  FrameLocate(Form);

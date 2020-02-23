@@ -16,6 +16,16 @@ type
 //
 //end;
 
+TMaterialLayerFit=class(TMaterialLayer)
+ private
+  fFF:TFitFunctionNew;
+ public
+  Constructor Create(FF:TFitFunctionNew);
+  destructor Destroy;override;
+  procedure ReadFromIni;
+  procedure WriteToIni;
+end;
+
 TDSchottkyFit=class(TDiod_Schottky)
 {дещо скорочений варіант, параметри діелектричного шару
 не передбачено змінювати, матеріал лише з переліку,
@@ -103,6 +113,22 @@ end;
    destructor Destroy;override;
    procedure SizeDetermination (Form: TForm);override;
    procedure DateUpdate;override;
+ end;
+
+ TDecMaterialLayerParameter=class(TFFParameter)
+   private
+    fMLFrame:TMaterialLayerFrame;
+    fFFParameter:TFFParameter;
+    fMaterialLayer:TMaterialLayerFit;
+   public
+    constructor Create(MaterialLayer:TMaterialLayerFit;
+                       FFParam:TFFParameter);
+    procedure FormPrepare(Form:TForm);override;
+    procedure UpDate;override;
+    procedure FormClear;override;
+    function IsReadyToFitDetermination:boolean;override;
+    Procedure WriteToIniFile;override;
+    Procedure ReadFromIniFile;override;
  end;
 
 
@@ -581,6 +607,85 @@ procedure TDecD_PNParameter.WriteToIniFile;
 begin
  fFFParameter.WriteToIniFile;
  fD_PN.WriteToIni;
+end;
+
+{ TDecMaterialLayerParameter }
+
+constructor TDecMaterialLayerParameter.Create(MaterialLayer: TMaterialLayerFit;
+  FFParam: TFFParameter);
+begin
+ fFFParameter:=FFParam;
+ fMaterialLayer:=MaterialLayer;
+end;
+
+procedure TDecMaterialLayerParameter.FormClear;
+begin
+ fMLFrame.Frame.Parent:=nil;
+ fMLFrame.Free;
+ fFFParameter.FormClear;
+end;
+
+procedure TDecMaterialLayerParameter.FormPrepare(Form: TForm);
+begin
+  fFFParameter.FormPrepare(Form);
+  fMLFrame:=TMaterialLayerFrame.Create(Form,fMaterialLayer);
+  fMLFrame.Frame.Parent:=Form;
+  fMLFrame.SizeDetermination(Form);
+  AddControlToForm(fMLFrame.Frame,Form);
+end;
+
+function TDecMaterialLayerParameter.IsReadyToFitDetermination: boolean;
+begin
+ Result:=fFFParameter.IsReadyToFitDetermination;
+end;
+
+procedure TDecMaterialLayerParameter.ReadFromIniFile;
+begin
+ fFFParameter.ReadFromIniFile;
+ fMaterialLayer.ReadFromIni;
+end;
+
+procedure TDecMaterialLayerParameter.UpDate;
+begin
+ fFFParameter.UpDate;
+ fMLFrame.DateUpdate;
+end;
+
+procedure TDecMaterialLayerParameter.WriteToIniFile;
+begin
+ fFFParameter.WriteToIniFile;
+ fMaterialLayer.WriteToIni;
+end;
+
+{ TMaterialLayerFit }
+
+constructor TMaterialLayerFit.Create(FF: TFitFunctionNew);
+begin
+ inherited Create;
+ Self.Material:=TMaterial.Create(TMaterialName(0));
+ fFF:=FF;
+end;
+
+destructor TMaterialLayerFit.Destroy;
+begin
+  Self.Material.Free;
+  inherited;
+end;
+
+procedure TMaterialLayerFit.ReadFromIni;
+begin
+  Nd:=fFF.ConfigFile.ReadFloat(fFF.Name,'Concentration Layer',5e21);
+  IsNType:=fFF.ConfigFile.ReadBool(fFF.Name,'Layer type',True);
+  Material.ChangeMaterial(TMaterialName(
+   fFF.ConfigFile.ReadInteger(fFF.Name,'Material Name',0)));
+end;
+
+procedure TMaterialLayerFit.WriteToIni;
+begin
+  fFF.ConfigFile.WriteFloat(fFF.Name,'Concentration Layer',Nd);
+  fFF.ConfigFile.WriteBool(fFF.Name,'Layer type',IsNType);
+  fFF.ConfigFile.WriteInteger(fFF.Name,'Material Name',
+          ord(Material.MaterialName));
 end;
 
 end.

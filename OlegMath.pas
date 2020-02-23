@@ -465,11 +465,10 @@ Data[3] - Et
 Function IV_DiodTATrev(V:double;Data:array of double;I:double=0):double;
 {I=I0*(Ud+V-I Rs)*exp(-4 (2m*)^0.5 Et^1.5/
                      (3 q h (q Nd (Ud+V-I Rs)/2 Eps Eps0)))
-
 Data[0] - I0
-Data[1] - Et
+Data[1] - Rs
 Data[2] - Ud
-Data[3] - Rs
+Data[3] - Et
 Data[4] - meff
 Data[5] - Nd
 Data[6] - Eps
