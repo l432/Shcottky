@@ -208,12 +208,15 @@ end;
 
 TWindowIterationShow=class(TWindowIterationAbstract)
   private
-   fFF:TFFIteration;
+//   fFF:TFFIteration;
 //   Form:TForm;
    fButton: TButton;
-   fLabels:array of TLabel;
+//   fLabels:array of TLabel;
    procedure ButClick(Sender: TObject);
    procedure LabelAction(Lab:TLabel;Srt:string);
+  protected
+   fFF:TFFIteration;
+   fLabels:array of TLabel;
   public
    constructor Create(FFSimple:TFFIteration);
    procedure Show;override;

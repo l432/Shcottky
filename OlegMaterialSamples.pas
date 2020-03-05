@@ -427,6 +427,14 @@ Procedure AllSCR(DiodPN:TDiod_PN;
 ף פאיכ }
 
 
+Function ElectronConcentrationSimple(const T:double;
+                                     const Parameters:array of double;
+                                     const Nd:byte;
+                                     const Nt:byte;
+                                     const Ef:double;
+                                     Material:TMaterial):double;
+
+
 Function ElectronConcentration(const T:double;
                                const Parameters:array of double;
                                const Nd:byte;
@@ -2146,6 +2154,29 @@ begin
  {J.Appl.Phys., 67, p2944}
 end;
 
+Function ElectronConcentrationSimple(const T:double;
+                                     const Parameters:array of double;
+                                     const Nd:byte;
+                                     const Nt:byte;
+                                     const Ef:double;
+                                     Material:TMaterial):double;
+ var
+     i:byte;
+begin
+  Result:=ErResult;
+  if T<=0 then Exit;
+  if High(Parameters)<2*(Nd+Nt) then Exit;
+  Result:=Material.n_i(T)-Parameters[0];
+  i:=2;
+  while(i<=2*(Nd+Nt)) do
+   begin
+   if i<(2*Nd+1)
+     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))
+     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
+   i:=i+2;
+   end;
+end;
+
 Function ElectronConcentration(const T:double;
                                const Parameters:array of double;
                                const Nd:byte;
@@ -2190,7 +2221,7 @@ begin
    Ef:=Bisection(FermiLevelEquation,tempParameters,
                  Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4)
            else
-   Ef:=Ef0;              
+   Ef:=Ef0;
 
   i:=2;
   while(i<=2*(Nd+Nt)) do

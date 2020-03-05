@@ -4022,7 +4022,7 @@ begin
 //         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
 //               /Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
 
- Result:=CasrtoIV(fy,[3.747e-11,1.866,
+ Result:=CastroIV(fy,[3.747e-11,1.866,
                       7.399e7,1e-13,
                       1,2.675e3,
                       1e-5,0,

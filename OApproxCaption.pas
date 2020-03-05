@@ -7,7 +7,8 @@ uses
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
-                   ffc_simple,ffc_schottky,ffc_diode,ffc_ThinDiode);
+                   ffc_simple,ffc_schottky,ffc_diode,ffc_2diode,
+                   ffc_ThinDiode,ffc_Custom,ffc_fb);
 
   TFitFunctionNew_Class=class of TFitFunctionNew;
 
@@ -16,7 +17,8 @@ type
 const
   FitFuncCategoryNames:array[TFitFuncCategory]of string=
            ('None','Transform','Digital filter','Simple',
-           'Schottky diod','n-p diod','Thin film diode');
+           'Schottky diode','n-p diode','Double Diode',
+           'Thin film diode','Custom','Fe-B');
 
 //  FitFuncCategoryNumbers:array[TFitFuncCategory]of integer=
 //           (-1,  //ffc_none
@@ -42,35 +44,55 @@ const
   TFFLP_FIR_ChebyshevWindow,TFFHP_FIR_SimpleWindow);
 
 
-  SFNumber=4;
+  SFNumber=5;
   SFNames:array[0..SFNumber] of string=
    ('Linear','Ohm law','Quadratic function','Gromov / Lee',
-   'Polynomial fitting');
+   'Polynomial fitting','Variate Polynomial');
    SFClasses:array[0..SFNumber]of TFitFunctionNew_Class=
    (TFFLinear,TFFOhmLaw,TFFQuadratic,TFFGromov,
-   TFFPolinom);
+   TFFPolinom,TFFTwoPower);
 
-  SchDNumber=1;
+  SchDNumber=3;
   SchDNames:array[0..SchDNumber] of string=
-   ('Exponent','Ivanov method');
+   ('Exponent','Ivanov method','D-Gaussian','Patch Barrier');
    SchDClasses:array[0..SchDNumber]of TFitFunctionNew_Class=
-   (TFFExponent,TFFIvanov);
+   (TFFExponent,TFFIvanov,TFFDGaus,TFFLinEg);
 
-  DiodNumber=4;
+  DiodNumber=5;
   DiodNames:array[0..DiodNumber] of string=
-   ('Diode','Diode, LSM','Diode, Lambert','PhotoDiode, LSM','PhotoDiode, Lambert');
+   ('Diode','Diode, LSM','Diode, Lambert',
+    'PhotoDiode','PhotoDiode, LSM','PhotoDiode, Lambert');
   DiodClasses:array[0..DiodNumber]of TFitFunctionNew_Class=
-   (TFFDiod,TFFDiodLSM,TFFDiodLam,TFFPhotoDiodLSM,TFFPhotoDiodLam);
+   (TFFDiod,TFFDiodLSM,TFFDiodLam,
+    TFFPhotoDiod,TFFPhotoDiodLSM,TFFPhotoDiodLam);
 
-  ThinDiodeNumber=2;
+  TwoDiodNumber=0;
+  TwoDiodNames:array[0..TwoDiodNumber] of string=
+   ('Two Diode Full');
+  TwoDiodClasses:array[0..TwoDiodNumber]of TFitFunctionNew_Class=
+   (TFFDiodTwoFull);
+
+  ThinDiodeNumber=4;
   ThinDiodeNames:array[0..ThinDiodeNumber] of string=
-   ('Tunneling diod forward', 'TAT reverse',
-   'TAT reverse with Rs');
+   ('IV thin SC','Tunneling diode forward',
+   'Illuminated tunneling diod',
+   'TAT reverse', 'TAT reverse with Rs');
   ThinDiodeClasses:array[0..ThinDiodeNumber]of TFitFunctionNew_Class=
-   (TFFDiodTun,TFFTunRevers,TFFTunReversRs);
+   (TFFIV_thin,TFFDiodTun,
+    TFFPhotoDiodTun,
+    TFFTunRevers,TFFTunReversRs);
 
-// FitFunctionNames:array[ffc_digital..ffc_ThinDiode]of TFitFunctionNames=
-//  (DFNames,SFNames,SchDNames,DiodNames,ThinDiodeNames);
+  CustomNumber=2;
+  CustomNames:array[0..CustomNumber] of string=
+   ('Lifetime in SCR','Mobility','n vs T (donors and traps)');
+  CustomClasses:array[0..CustomNumber]of TFitFunctionNew_Class=
+   (TFFTauG,TFFMobility,TFFElectronConcentration);
+
+  FeBNumber=0;
+  FeBNames:array[0..FeBNumber] of string=
+   ('Ideal. Factor vs T');
+  FeBClasses:array[0..FeBNumber]of TFitFunctionNew_Class=
+   (TFFnFeBPart);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;
@@ -160,12 +182,33 @@ begin
          Exit;
        end;
 
+   for j := 0 to TwoDiodNumber do
+      if str=TwoDiodNames[j] then
+       begin
+         Result:=TwoDiodClasses[j].Create;
+         Exit;
+       end;
+
    for j := 0 to ThinDiodeNumber do
       if str=ThinDiodeNames[j] then
        begin
          Result:=ThinDiodeClasses[j].Create;
          Exit;
        end;
+
+   for j := 0 to CustomNumber do
+     if str=CustomNames[j] then
+      begin
+       Result:=CustomClasses[j].Create;
+       Exit;
+      end;
+
+   for j := 0 to FeBNumber do
+     if str=FeBNames[j] then
+      begin
+       Result:=FeBClasses[j].Create;
+       Exit;
+      end;
 
    if str='Moving Average Filter' then
      begin
@@ -196,7 +239,10 @@ initialization
  FitFuncNames_Filling(ffc_simple,SFNames);
  FitFuncNames_Filling(ffc_schottky,SchDNames);
  FitFuncNames_Filling(ffc_diode,DiodNames);
+ FitFuncNames_Filling(ffc_2diode,TwoDiodNames); 
  FitFuncNames_Filling(ffc_ThinDiode,ThinDiodeNames);
+ FitFuncNames_Filling(ffc_Custom,CustomNames); 
+ FitFuncNames_Filling(ffc_fb,FeBNames);
 
 // FitFuncNames_digital_Filling;
 // FitFuncNames_simple_Filling;

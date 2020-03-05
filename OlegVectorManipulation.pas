@@ -37,7 +37,7 @@ type
                       const IsPositive:boolean=True;
                       const IsRigorous:boolean=True);
      procedure Module(Coord:TCoord_type;Target:TVector);
-     function PVParareter(Index:word):double;
+     function PVParameter(Index:word):double;
     protected
 //     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
 //                             InitialValue:double=ErResult);
@@ -740,7 +740,7 @@ begin
 // if temp=ErResult then
 //      Result:=(-Self.Y[1]*Self.X[0]+Self.Y[0]*Self.X[1])
 //              /(Self.X[0]-Self.X[1]);
- Result:=PVParareter(1);
+ Result:=PVParameter(1);
 end;
 
 procedure TVectorTransform.Itself(ProcTarget: TProcTarget);
@@ -977,7 +977,7 @@ end;
 
 function TVectorTransform.Pm: double;
 begin
- Result:=PVParareter(2);
+ Result:=PVParameter(2);
 end;
 
 procedure TVectorTransform.PointSupplement(Target: TVector;
@@ -1024,7 +1024,7 @@ begin
       Target.Y[i]:=Target.Y[i]*Target.X[i];
 end;
 
-function TVectorTransform.PVParareter(Index: word): double;
+function TVectorTransform.PVParameter(Index: word): double;
  var outputData:TArrSingle;
 begin
  if Index>4 then Result:=ErResult
@@ -1183,7 +1183,7 @@ end;
 function TVectorTransform.Voc: double;
 // var temp:double;
 begin
- Result:=PVParareter(0);
+ Result:=PVParameter(0);
 // Result:=0;
 // temp:=Self.Xvalue(0);
 // if (temp=ErResult)or

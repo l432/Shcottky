@@ -163,13 +163,19 @@ Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
 
 Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;
-                   const eps:double=1e-6):double;
+                   const eps:double=1e-6):double;overload;
 //Function Bisection(const F:TFun; const Parameters:TArrSingle;
 //                   const Xmax:double=5; const Xmin:double=0;
 //                   const eps:double=1e-6):double;
 {метод ділення навпіл для функції F на інтервалі [Xmin,Xmax]
 eps - відносна точність розв'язку
 (ширина кінцевого інтервалу по відношенню до величини його границь)}
+
+Function Bisection(const F:TFunDoubleObj; const Parameters:array of double;
+                   const Xmax:double=5; const Xmin:double=0;
+                   const eps:double=1e-6):double;overload;
+
+
 
 Function Hord(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;
@@ -1091,6 +1097,45 @@ begin
 
   end;
 end;
+
+Function Bisection(const F:TFunDoubleObj; const Parameters:array of double;
+                   const Xmax:double=5; const Xmin:double=0;
+                   const eps:double=1e-6):double;overload;
+ const Nit_Max=1e6;
+ var a,b,c,Fa,Fc :double;
+     i:integer;
+begin
+  Result:=ErResult;
+  a:=F(Xmin,Parameters);
+  b:=F(Xmax,Parameters);
+  if a=0 then Result:=Xmin;
+  if b=0 then Result:=Xmax;
+
+  if a*b>=0 then Exit;
+
+  Fa:=a;
+  a:=Xmin;
+  b:=Xmax;
+
+  i:=0;
+  try
+    repeat
+     inc(i);
+      c:=(a+b)/2;
+      Fc:=F(c,Parameters);
+      if (Fc*Fa<=0)
+         then b:=c
+         else begin
+              a:=c;
+              Fa:=Fc;
+              end;
+    until (IsEqual(a,b,eps) or (i>Nit_Max));
+    if (i<=Nit_Max) then Result:=c;
+  except
+
+  end;
+end;                   
+
 
 Function Hord(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;

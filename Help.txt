@@ -1,0 +1,45 @@
+procedure TFFTwoPower.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.Add(Self,'m1');
+//  (DoubVars.ParametrByName['Tr'] as TVarDouble).ManualDetermOnly:=False;
+  DoubVars.ParametrByName['m1'].Description:='First power-law parameter (m1)';
+//  DoubVars.ParametrByName['Tr'].Limits.SetLimits(0);
+
+  DoubVars.Add(Self,'m2');
+  DoubVars.ParametrByName['m2'].Description:='Second power-law parameter (m2)';
+end;
+
+function TFFTwoPower.FuncForFitness(Point: TPointDouble;
+        Data: TArrSingle): double;
+begin
+  Result:=Data[0]
+          +Data[1]*Power(Point[cX],(DoubVars.Parametr[0] as TVarDouble).Value)
+          +Data[2]*Power(Point[cX],(DoubVars.Parametr[1] as TVarDouble).Value);
+end;
+
+procedure TFFTwoPower.NamesDefine;
+begin
+  SetNameCaption('TwoPowerA',
+      'Variate Polynomial');
+end;
+
+procedure TFFTwoPower.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['a0','a1','a2']);
+end;
+
+procedure TFFTwoPower.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+  FPictureName:='TwoPowerFig';
+end;
+
+procedure TFFPhotoDiodLSM.AdditionalParamDetermination;
+begin
+ PVparameteres(fDataToFit,fDParamArray);
+ inherited AdditionalParamDetermination;
+end;
+

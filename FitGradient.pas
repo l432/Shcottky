@@ -19,6 +19,7 @@ TFFVariabSet =class(TFFSimple)
   fVoltageIsRequired:boolean;
   fSchottky:TDSchottkyFit;
   fMaterialLayer:TMaterialLayerFit;
+  fMaterial:TMaterialFit;
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure AddDoubleVars;virtual;
   {додаються дійсні параметри, потрібні для
@@ -83,12 +84,10 @@ TWindowIterationAbstract=class
  end;
 
 TFFIteration =class(TFFVariabSet)
- private
-
-  fWindowAgent:TWindowIterationAbstract;
-  procedure WindowAgentCreate;
  protected
+  fWindowAgent:TWindowIterationAbstract;
   fFittingAgent:TFittingAgent;
+  procedure WindowAgentCreate;virtual;
   procedure FittingAgentCreate;virtual;abstract;
   function FittingCalculation:boolean;override;
   procedure VariousPreparationBeforeFitting;override;
@@ -198,6 +197,7 @@ end;
 
 procedure TFFVariabSet.AccessorialDataDestroy;
 begin
+ FreeAndNil(fMaterial);
  FreeAndNil(fMaterialLayer);
  FreeAndNil(fSchottky);
  fDoubVars.Free;
@@ -254,6 +254,13 @@ begin
     fMaterialLayer:=TMaterialLayerFit.Create(Self);
     Result:=TDecMaterialLayerParameter.Create(fMaterialLayer,Result);
    end;
+
+  if GetPropInfo(Self.ClassInfo, 'Material')<>nil then
+   begin
+    fMaterial:=TMaterialFit.Create(Self);
+    Result:=TDecMaterialParameter.Create(fMaterial,Result);
+   end;
+
 end;
 
 procedure TFFVariabSet.TuningBeforeAccessorialDataCreate;
@@ -380,7 +387,6 @@ end;
 
 function TFFIteration.FittingCalculation: boolean;
 begin
-// Result:=False;
  FittingAgentCreate;
  WindowAgentCreate;
  try
@@ -389,9 +395,14 @@ begin
    Result:=False;
 //   fFittingAgent.IsDone:=False;
    fFittingAgent.StartAction;
+   Timer.StartTimer;
+   fFittingAgent.DataCoordination;
+   fWindowAgent.UpDate;
+   Application.ProcessMessages;
+
        repeat
         fFittingAgent.IterationAction;
-        Timer.StartTimer;
+//        Timer.StartTimer;
 
         if fFittingAgent.IstimeToShow
            or(Timer.ReadTimer>15000) then
@@ -400,7 +411,7 @@ begin
             fWindowAgent.UpDate;
             Application.ProcessMessages;
             Timer.StartTimer;
-         end;
+           end;
 
        until (fFittingAgent.ToStop
             or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsIteration).Nit)

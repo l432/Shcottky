@@ -615,7 +615,7 @@ Function arcTanh(x:double):Double;
 //{повертає кількість секунд з початку доби}
 //function SecondFromDayBegining(ttime: TDateTime):integer;overload;
 
-Function CasrtoIV(I:double;Parameters:array of double):double;
+Function CastroIV(I:double;Parameters:array of double):double;
 
 Function ThermallyActivated(A0,Eact,T:double):double;
 
@@ -2910,43 +2910,28 @@ Function Full_IV(F:TFun_IV;V:double;Data:array of double;Rsh:double=1e12;Iph:dou
 {Data[1] має бути Rs}
 {розраховує значення функції
 I=F(V,E,I0,I,Rs)+(V-I Rs)/Rsh-Iph)}
-//    Function I_V({mode:byte;}I,V,I0,Rs,E,Rsh,Iph:double):double;
     Function I_V(I:double):double;
     begin
       Result:=I-F(V, Data,I)+Iph;
-//      Result:=I-F([V, E, I0, Rs,I])+Iph;
-//      Result:=I-F(V,E,I0,I,Rs)+Iph;
-//      Result:=I-I0*exp((V-I*Rs)/E)+I0+Iph;
       if Rsh<1e12 then Result:=Result-(V-I*Data[1])/Rsh;
-//      case mode of
-//         1:Result:=I-I0*exp((V-I*Rs)/kT)+I0+Iph;
-//       else Result:=I-I0*exp((V-I*Rs)/kT)+I0-(V-I*Rs)/Rsh+Iph;
-//      end;
     end;
 const eps=1e-6;
       Nit_Max=1e6;
-var {mode,md:byte;}
-    i:integer;
+var i:integer;
     a,b,c,Ia,Ic:double;
 begin
  try
   if Rsh>1e12 then Rsh:=1e12;
-//  if (Rs<=1e-4) then
   if (Data[1]<=1e-4) then
    begin
-//     if (Rsh=1e12) then Result:=F([V,E,I0,0,0])-Iph
-//                   else Result:=F([V,E,I0,0,0])+V/Rsh-Iph;
      if (Rsh=1e12) then Result:=F(V,Data,0)-Iph
                    else Result:=F(V,Data,0)+V/Rsh-Iph;
      Exit;
    end;
 
   c:=F(V,Data,0)-Iph;
-//     c:=F([V,E,I0,0,0])-Iph;
-//     c:=I0*(exp(V/E)-1)-Iph;
   if c*Data[1]>88 then c:=10/Data[1];
 
-//     if abs(c)<1e-8 then
   if abs(c)<1e-11 then
         begin
            if Iph>0 then a:=-3e-2
@@ -2961,11 +2946,9 @@ begin
           repeat
             a:=a-0.1*abs(c);
           until I_V(a)<0;
-//          until I_V({mode,}a,V,I0,Rs,E,Rsh,Iph)<0;
           repeat
             b:=b+0.1*abs(c);
           until I_V(b)>0;
-//          until I_V({mode,}b,V,I0,Rs,E,Rsh,Iph)>0;
 
           except
 
@@ -2977,7 +2960,6 @@ begin
        inc(i);
        c:=(a+b)/2;
        Ic:=I_V(c);
-//       if (I_V(c)*I_V(a)<=0)
        if (Ic*Ia<=0)
            then b:=c
            else begin
@@ -3507,7 +3489,7 @@ end;
 // Result:=Sec+60*Min+60*60*Hour;
 //end;
 
-Function CasrtoIV(I:double;Parameters:array of double):double;
+Function CastroIV(I:double;Parameters:array of double):double;
  var Vt,temp10,temp20,temp11,temp21,x1,x2:double;
 
 begin

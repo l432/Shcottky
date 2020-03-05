@@ -9574,7 +9574,7 @@ begin
   if OutputData[7]<Isc_min then Exit;
   fY:=0;
   OutputData[8]:=Func(OutputData);
-  OutputData[9]:=-Bisection(CasrtoIV,
+  OutputData[9]:=-Bisection(CastroIV,
                            [OutputData[0],OutputData[1],
                             OutputData[2],OutputData[3],
                             OutputData[4],OutputData[5],
@@ -9709,7 +9709,7 @@ end;
 
 function TIV_thin.Func(Parameters: TArrSingle): double;
 begin
- Result:=CasrtoIV(fY,[Parameters[0],Parameters[1],
+ Result:=CastroIV(fY,[Parameters[0],Parameters[1],
                       Parameters[2],Parameters[3],
                       Parameters[4],Parameters[5],
                       Parameters[6],Parameters[7],

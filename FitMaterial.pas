@@ -8,13 +8,14 @@ uses
 
 type
 
-//TMaterialFit=class(TMaterial)
-// private
-//  fFF:TFitFunctionNew;
-// public
-//  Constructor Create(MaterialName:TMaterialName;FF:TFitFunctionNew);
-//
-//end;
+TMaterialFit=class(TMaterial)
+ private
+  fFF:TFitFunctionNew;
+ public
+  Constructor Create(FF:TFitFunctionNew);
+  procedure ReadFromIni;
+  procedure WriteToIni;
+end;
 
 TMaterialLayerFit=class(TMaterialLayer)
  private
@@ -114,6 +115,23 @@ end;
    procedure SizeDetermination (Form: TForm);override;
    procedure DateUpdate;override;
  end;
+
+ TDecMaterialParameter=class(TFFParameter)
+   private
+    fMaterialFrame:TMaterialFrame;
+    fFFParameter:TFFParameter;
+    fMaterial:TMaterialFit;
+   public
+    constructor Create(Material:TMaterialFit;
+                       FFParam:TFFParameter);
+    procedure FormPrepare(Form:TForm);override;
+    procedure UpDate;override;
+    procedure FormClear;override;
+    function IsReadyToFitDetermination:boolean;override;
+    Procedure WriteToIniFile;override;
+    Procedure ReadFromIniFile;override;
+ end;
+
 
  TDecMaterialLayerParameter=class(TFFParameter)
    private
@@ -686,6 +704,74 @@ begin
   fFF.ConfigFile.WriteBool(fFF.Name,'Layer type',IsNType);
   fFF.ConfigFile.WriteInteger(fFF.Name,'Material Name',
           ord(Material.MaterialName));
+end;
+
+{ TMaterialFit }
+
+constructor TMaterialFit.Create(FF: TFitFunctionNew);
+begin
+ inherited Create(TMaterialName(0));
+ fFF:=FF;
+end;
+
+procedure TMaterialFit.ReadFromIni;
+begin
+  ChangeMaterial(TMaterialName(
+   fFF.ConfigFile.ReadInteger(fFF.Name,'Material Name',0)));
+end;
+
+procedure TMaterialFit.WriteToIni;
+begin
+  fFF.ConfigFile.WriteInteger(fFF.Name,'Material Name',
+          ord(MaterialName));
+end;
+
+{ TDecMaterialParameter }
+
+constructor TDecMaterialParameter.Create(Material: TMaterialFit;
+  FFParam: TFFParameter);
+begin
+ fFFParameter:=FFParam;
+ fMaterial:=Material;
+end;
+
+procedure TDecMaterialParameter.FormClear;
+begin
+ fMaterialFrame.Frame.Parent:=nil;
+ fMaterialFrame.Free;
+ fFFParameter.FormClear;
+end;
+
+procedure TDecMaterialParameter.FormPrepare(Form: TForm);
+begin
+  fFFParameter.FormPrepare(Form);
+  fMaterialFrame:=TMaterialFrame.Create(Form,fMaterial);
+  fMaterialFrame.Frame.Parent:=Form;
+  fMaterialFrame.SizeDetermination(Form);
+  AddControlToForm(fMaterialFrame.Frame,Form);
+end;
+
+function TDecMaterialParameter.IsReadyToFitDetermination: boolean;
+begin
+ Result:=fFFParameter.IsReadyToFitDetermination;
+end;
+
+procedure TDecMaterialParameter.ReadFromIniFile;
+begin
+ fFFParameter.ReadFromIniFile;
+ fMaterial.ReadFromIni;
+end;
+
+procedure TDecMaterialParameter.UpDate;
+begin
+ fFFParameter.UpDate;
+ fMaterialFrame.DateUpdate;
+end;
+
+procedure TDecMaterialParameter.WriteToIniFile;
+begin
+ fFFParameter.WriteToIniFile;
+ fMaterial.WriteToIni;
 end;
 
 end.

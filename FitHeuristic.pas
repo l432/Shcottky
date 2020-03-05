@@ -4,7 +4,7 @@ interface
 
 uses
   FitGradient, OlegType, FitIteration, OApproxNew, OlegVector,
-  OlegMath, OlegFunction;
+  OlegMath, OlegFunction, FitIterationShow, OlegApprox;
 
 type
 
@@ -21,7 +21,22 @@ TFFHeuristic=class(TFFIteration)
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;virtual;abstract;
 end;
 
+TWindowIterationShowID=class(TWindowIterationShow)
+  public
+   procedure UpDate;override;
+ end;
 
+TFFIlluminatedDiode=class(TFFHeuristic)
+ protected
+  procedure WindowAgentCreate;override;
+  function FittingCalculation:boolean;override;
+end;
+
+TFFXYSwap=class(TFFHeuristic)
+ protected
+  Procedure RealToFile;override;
+  procedure RealFitting;override;
+end;
 
 //TFFIteration =class(TFFVariabSet)
 // private
@@ -433,7 +448,7 @@ const
 implementation
 
 uses
-  SysUtils, Math, Dialogs, Classes, Windows;
+  SysUtils, Math, Dialogs, Classes, Windows, Graphics;
 
 { TFFHeuristic }
 
@@ -454,6 +469,7 @@ end;
 function TFFHeuristic.RealFinalFunc(X: double): double;
 begin
  fPoint[cX]:=X;
+ fPoint[cY]:=DataToFit.Yvalue(X);;
  Result:=FuncForFitness(fPoint,fDParamArray.OutputData);
 end;
 
@@ -1473,6 +1489,76 @@ begin
    GreedySelection(i,temp, ParameterNew);
    inc(i);
   until i>High(FitnessData);
+end;
+
+{ TFFIlluminatedDiode }
+
+function TFFIlluminatedDiode.FittingCalculation: boolean;
+begin
+  PVparameteres(fDataToFit,fDParamArray);
+  fDataToFit.AdditionY(fDParamArray.ParametrByName['Isc'].Value);
+  Result:=Inherited FittingCalculation;
+  fDParamArray.ParametrByName['Iph'].Value:=fDParamArray.ParametrByName['Iph'].Value
+                                           +fDParamArray.ParametrByName['Isc'].Value;
+  fDataToFit.AdditionY(-fDParamArray.ParametrByName['Isc'].Value);
+end;
+
+procedure TFFIlluminatedDiode.WindowAgentCreate;
+begin
+ fWindowAgent:=TWindowIterationShowID.Create(Self);
+end;
+
+{ TWindowIterationShowID }
+
+procedure TWindowIterationShowID.UpDate;
+ var i:byte;
+     str:string;
+begin
+   for I := 0 to fFF.DParamArray.MainParamHighIndex do
+    if not(fFF.DParamArray.fParams[i].IsConstant) then
+     begin
+       if fFF.DParamArray.fParams[i].Name='Iph' then
+       str:=floattostrf(fFF.DParamArray.fParams[i].Value
+                  +fFF.DParamArray.ParametrByName['Isc'].Value,ffExponent,4,2)
+                                               else
+       str:=floattostrf(fFF.DParamArray.fParams[i].Value,ffExponent,4,2);
+       if str=fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption
+         then fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Font.Color:=clBlack
+         else
+           begin
+           fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Font.Color:=clRed;
+           fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption:=str;
+           end;
+     end;
+  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIteration);
+end;
+
+{ TFFXYSwap }
+
+procedure TFFXYSwap.RealFitting;
+begin
+ fDataToFit.SwapXY;
+ inherited RealFitting;
+ fDataToFit.SwapXY;
+ FittingData.SwapXY;
+end;
+
+procedure TFFXYSwap.RealToFile;
+  var Str1:TStringList;
+    i:integer;
+begin
+  if fIntVars[0]<>0 then FileFilling
+                    else
+   begin
+    Str1:=TStringList.Create;
+    Str1.Add('X Y Xfit Y');
+    for I := 0 to fDataToFit.HighNumber do
+      Str1.Add(fDataToFit.PoinToString(i,DigitNumber)
+               +' '
+               +FittingData.PoinToString(i,DigitNumber));
+    Str1.SaveToFile(FitName(fDataToFit,FileSuffix));
+    Str1.Free;
+   end;
 end;
 
 end.
