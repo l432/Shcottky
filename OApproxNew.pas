@@ -72,7 +72,8 @@ type
    (ftSR,//the sum of squared residuals звичайна квадратична форма
     ftRSR,//the sum relative of squared residuals квадратична форма з в≥дносних величин
     ftAR,//сума модул≥в р≥зниць
-    ftRAR//сума модул≥в в≥дносних р≥зниць
+    ftRAR,//сума модул≥в в≥дносних р≥зниць
+    ftArea//р≥зниц€ площ, див.PROGRESS  IN  PHOTOVOLTAICS: RESEARCH  AND APPLICATIONS,  VOL  1,  93-106 (1993)
    );
 
   TRegulationType=(rtL2,rtL1);
@@ -86,7 +87,8 @@ const
          ('DE','MABC','TLBO','PSO');
 
  FitTypeNames:array[TFitnessType]of string=
-         ('Sq.Res.','Rel.Sq.Res.','Abs.Res.','Rel.Abs.Res.');
+         ('Sq.Res.','Rel.Sq.Res.','Abs.Res.','Rel.Abs.Res.',
+          'Area');
 
  RegTypeNames:array[TRegulationType]of string=
          ('L2','L1');
@@ -321,85 +323,6 @@ end;
 //public
 // Constructor Create(FileName:string='');
 //end; //Tn_FeBNew=class(TManyArgumentsFitEvolution)
-//
-//TTauDAP=class (TFitFunctEvolution)
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//// Function Weight(OutputData:TArrSingle):double;override;
-//public
-// Constructor Create;
-//end; //TTauDAP=class (TFitFunctEvolution)
-//
-//TRsh_T=class (TFitFunctEvolution)
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-// class Function Rsh_T(T,A,Et,qUs:double;U0:double=0):double;
-//end; //TRsh_T=class (TFitFunctEvolution)
-//
-//
-//TRsh2_T=class (TFitFunctEvolution)
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; //TRsh_T=class (TFitFunctEvolution)
-//
-//
-//TDoubleDiodAbstract=class (TFitFunctEvolution)
-//  private
-//   fFunc:TFun_IV;
-//   Procedure CreateFooter;override;
-//   Procedure Hook();virtual;
-////   Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
-//   Function FitnessFunc(InputData:TVector; OutputData:TArrSingle):double;override;
-//   Function Func(Parameters:TArrSingle):double; override;
-//   Function RealFunc(DeterminedParameters:TArrSingle):double; override;
-////   Procedure BeforeFitness(InputData:Pvector);override;
-//   Procedure BeforeFitness(InputData:TVector);override;
-// public
-//end;  // TDoubleDiodAbstract=class (TFitFunctEvolution)
-//
-//
-//TDoubleDiod=class (TDoubleDiodAbstract)
-//{I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh}
-//private
-//public
-// Constructor Create;
-//end; // TDoubleDiodo=class (TDoubleDiodAbstract)
-//
-//TDoubleDiodTau=class (TDoubleDiod)
-//{I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+(V-IRs)/Rsh
-//I01 та I02 виражаютьс€ через часи житт€ -
-//використовуютьс€ властивост≥ DiodPN}
-//private
-// Procedure Hook;override;
-//public
-//end; // TDoubleDiodTau=class (TDoubleDiod)
-//
-//
-//TDoubleDiodLight=class (TDoubleDiodAbstract)
-//{I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]
-//         +(V-IRs)/Rsh-Iph}
-//private
-//public
-// Constructor Create;
-//// Procedure AddParDetermination(InputData:PVector;
-////                               var OutputData:TArrSingle); override;
-// Procedure AddParDetermination(InputData:TVector;
-//                               var OutputData:TArrSingle); override;
-//end; // TDoubleDiodLight=class (TDoubleDiodAbstract)
-//
-//TDoubleDiodTauLight=class (TDoubleDiodLight)
-//{I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]
-//         +(V-IRs)/Rsh-Iph
-//I01 та I02 виражаютьс€ через часи житт€ -
-//використовуютьс€ властивост≥ DiodPN}
-//private
-// Procedure Hook;override;
-//public
-//end; // TDoubleDiodTauLight=class (TDoubleDiodLight)
 //
 //
 //TTripleDiod=class (TFitFunctEvolution)

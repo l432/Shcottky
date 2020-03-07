@@ -3,7 +3,8 @@ unit OApproxCaption;
 interface
 
 uses
-  OApproxNew, FitDigital, FitSimple, FitGradient, OApproxFunction;
+  OApproxNew, FitDigital, FitSimple, FitGradient, OApproxFunction, 
+  OApproxFunction2;
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
@@ -66,27 +67,31 @@ const
    (TFFDiod,TFFDiodLSM,TFFDiodLam,
     TFFPhotoDiod,TFFPhotoDiodLSM,TFFPhotoDiodLam);
 
-  TwoDiodNumber=0;
+  TwoDiodNumber=4;
   TwoDiodNames:array[0..TwoDiodNumber] of string=
-   ('Two Diode Full');
+   ('2-Diode','2-Diode, Tau','Two Diode Full',
+    '2-Diode, illum','2-Diode, Tau, illum');
   TwoDiodClasses:array[0..TwoDiodNumber]of TFitFunctionNew_Class=
-   (TFFDiodTwoFull);
+   (TFFDoubleDiod,TFFDoubleDiodTau,TFFDiodTwoFull,
+    TFFDoubleDiodLight,TFFDoubleDiodTauLight);
 
   ThinDiodeNumber=4;
   ThinDiodeNames:array[0..ThinDiodeNumber] of string=
-   ('IV thin SC','Tunneling diode forward',
-   'Illuminated tunneling diod',
-   'TAT reverse', 'TAT reverse with Rs');
+   ('IV thin SC','Tun. diode forward',
+   'Illum. tun. diode',
+   'TAT reverse', 'TAT reverse & Rs');
   ThinDiodeClasses:array[0..ThinDiodeNumber]of TFitFunctionNew_Class=
    (TFFIV_thin,TFFDiodTun,
     TFFPhotoDiodTun,
     TFFTunRevers,TFFTunReversRs);
 
-  CustomNumber=2;
+  CustomNumber=5;
   CustomNames:array[0..CustomNumber] of string=
-   ('Lifetime in SCR','Mobility','n vs T (donors and traps)');
+   ('Lifetime in SCR','Mobility','n vs T (donors and traps)',
+   'Tau DAP','Rsh vs T','Rsh,2 vs T');
   CustomClasses:array[0..CustomNumber]of TFitFunctionNew_Class=
-   (TFFTauG,TFFMobility,TFFElectronConcentration);
+   (TFFTauG,TFFMobility,TFFElectronConcentration,
+   TFFTauDAP,TFFRsh_T,TFFRsh2_T);
 
   FeBNumber=0;
   FeBNames:array[0..FeBNumber] of string=

@@ -20,6 +20,7 @@ TFFVariabSet =class(TFFSimple)
   fSchottky:TDSchottkyFit;
   fMaterialLayer:TMaterialLayerFit;
   fMaterial:TMaterialFit;
+  fPNDiode:TD_PNFit;
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure AddDoubleVars;virtual;
   {додаються дійсні параметри, потрібні для
@@ -200,6 +201,7 @@ begin
  FreeAndNil(fMaterial);
  FreeAndNil(fMaterialLayer);
  FreeAndNil(fSchottky);
+ FreeAndNil(fPNDiode);
  fDoubVars.Free;
  inherited;
 end;
@@ -261,6 +263,12 @@ begin
     Result:=TDecMaterialParameter.Create(fMaterial,Result);
    end;
 
+  if GetPropInfo(Self.ClassInfo, 'PN_Diode')<>nil then
+   begin
+    fPNDiode:=TD_PNFit.Create(Self);
+    Result:=TDecD_PNParameter.Create(fPNDiode,Result);
+   end;
+
 end;
 
 procedure TFFVariabSet.TuningBeforeAccessorialDataCreate;
@@ -272,7 +280,7 @@ end;
 procedure TFFVariabSet.VariousPreparationBeforeFitting;
 begin
   AutoDoubVarsDetermination;
-  inherited;
+  inherited VariousPreparationBeforeFitting;
 end;
 
 { TFFExponent }

@@ -143,7 +143,7 @@ end; //  TFFMobility=class (TFFHeuristic)
 
 TFFElectronConcentration=class (TFFHeuristic)
  private
-  fFermiLevelData:TVector;
+//  fFermiLevelData:TVector;
   Function FermiLevelEquationS(Ef:double;
                             Parameters:array of double):double;
  protected
@@ -178,6 +178,33 @@ TFFIV_thin=class (TFFXYSwap)
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
 end; // TFFIV_thin=class (TFFXYSwap)
 
+TFFTauDAP=class (TFFHeuristic)
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFTauDAP=class (TFFHeuristic)
+
+TFFRsh_T=class (TFFHeuristic)
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  class Function Rsh_T(T,A,Et,qUs:double;U0:double=0):double;
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFRsh_T=class (TFFHeuristic)
+
+TFFRsh2_T=class (TFFHeuristic)
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFRsh2_T=class (TFFHeuristic)
 
 implementation
 
@@ -641,7 +668,7 @@ begin
 //  Result:=ElectronConcentration(Point[cX],Data,4,3,
 //                     FermiLevelDeterminationSimple(Point[cY],Point[cX]));
   Result:=ElectronConcentrationSimple(Point[cX],Data,4,3,
-                     fFermiLevelData.Yvalue(Point[cX]),Material);
+                     ftempVector.Yvalue(Point[cX]),Material);
 
 end;
 
@@ -673,17 +700,17 @@ end;
 procedure TFFElectronConcentration.RealFitting;
  var i:integer;
 begin
- fFermiLevelData:=TVector.Create;
+// fFermiLevelData:=TVector.Create;
  ftempVector.CopyFrom(fDataToFit);
  for i := 0 to ftempVector.HighNumber do
    ftempVector.Y[i]:=Bisection(FermiLevelEquationS,
                            [ftempVector.Y[i],ftempVector.X[i]],
                             Material.EgT(ftempVector.X[i]),0,5e-4);
 
- ftempVector.CopyTo(fFermiLevelData);
+// ftempVector.CopyTo(fFermiLevelData);
 
  inherited RealFitting;
- FreeAndNil(fFermiLevelData);
+// FreeAndNil(fFermiLevelData);
 end;
 
 procedure TFFElectronConcentration.TuningBeforeAccessorialDataCreate;
@@ -756,6 +783,93 @@ procedure TFFIV_thin.TuningBeforeAccessorialDataCreate;
 begin
   inherited;
   fHasPicture:=False;
+end;
+
+{ TFFTauDAP }
+
+function TFFTauDAP.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+ Result:=Data[1]*Power(Point[cX]/300,Data[0]-0.5)/
+         sqr(1+Data[2]*Point[cX]);
+end;
+
+procedure TFFTauDAP.NamesDefine;
+begin
+  SetNameCaption('TauDAP',
+      'Lifetime in DAP theory');
+end;
+
+procedure TFFTauDAP.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['m','A','B']);
+end;
+
+procedure TFFTauDAP.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+end;
+
+{ TFFRsh_T }
+
+function TFFRsh_T.FuncForFitness(Point: TPointDouble; Data: TArrSingle): double;
+begin
+   Result:=Rsh_T(Point[cX],Data[0],Data[1],Data[3],Data[2]);
+end;
+
+procedure TFFRsh_T.NamesDefine;
+begin
+  SetNameCaption('RshT',
+      'Shunt resistance vs T');
+end;
+
+procedure TFFRsh_T.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['A','Et','U0','qUs']);
+end;
+
+class function TFFRsh_T.Rsh_T(T, A, Et, qUs, U0: double): double;
+begin
+ Result:=A*T*(cosh(Et/T/Kb-U0)+cosh(qUs/T/Kb-U0));
+end;
+
+procedure TFFRsh_T.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+end;
+
+{ TFFRsh2_T }
+
+function TFFRsh2_T.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+ var Rdisl,Rmet:double;
+begin
+ Rdisl:=TFFRsh_T.Rsh_T(Point[cX],Data[0],Data[1],Data[2],0);
+ Rmet:=Data[3]*(1+(Point[cX]-293)*Data[4]);
+ Result:=Rdisl*Rmet/(Rdisl+Rmet);
+end;
+
+procedure TFFRsh2_T.NamesDefine;
+begin
+  SetNameCaption('RdislRmet',
+      'Shunt resistance with T');
+end;
+
+procedure TFFRsh2_T.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['A','Et','qUs','R0','alp']);
+
+end;
+
+procedure TFFRsh2_T.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
 end;
 
 end.

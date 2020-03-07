@@ -4,15 +4,17 @@ interface
 
 uses
   FitGradient, OlegType, FitIteration, OApproxNew, OlegVector,
-  OlegMath, OlegFunction, FitIterationShow, OlegApprox;
+  OlegMath, OlegFunction, FitIterationShow, OlegApprox, OlegVectorManipulation;
 
 type
 
 TFFHeuristic=class(TFFIteration)
  private
-  fPoint:TPointDouble;
+
   function GetParamsHeuristic:TDParamsHeuristic;
  protected
+  fPoint:TPointDouble;
+  procedure PointDetermine(X:double);
 //  procedure TuningBeforeAccessorialDataCreate;override;
   function RealFinalFunc(X:double):double;override;
   procedure FittingAgentCreate;override;
@@ -115,11 +117,13 @@ end;
 TFitnessTerm_Class=class of TFitnessTerm;
 
 const
-  FitnessTermClasses:array[TFitnessType]of TFitnessTerm_Class=
+//  FitnessTermClasses:array[TFitnessType]of TFitnessTerm_Class=
+  FitnessTermClasses:array[ftSR..ftRAR]of TFitnessTerm_Class=
   (TFitnessTermSR,TFitnessTermRSR,
    TFitnessTermAR,TFitnessTermRAR);
 
-  LogFitnessTermClasses:array[TFitnessType]of TFitnessTerm_Class=
+//  LogFitnessTermClasses:array[TFitnessType]of TFitnessTerm_Class=
+  LogFitnessTermClasses:array[ftSR..ftRAR]of TFitnessTerm_Class=
   (TFitnessTermLnSR,TFitnessTermLnRSR,
    TFitnessTermLnAR,TFitnessTermLnRAR);
 
@@ -184,23 +188,82 @@ type
 
 TFitnessCalculation=class
  private
-  fData:TVector;
-  fFitTerm:TFitnessTerm;
+//  fData:TVector;
+  procedure SomeActions(FF:TFFHeuristic);virtual;
  public
   constructor Create(FF:TFFHeuristic);
   Function FitnessFunc(const OutputData:TArrSingle):double;virtual;
+//  destructor Destroy;override;
+end;
+
+TFitnessCalculationData=class(TFitnessCalculation)
+ private
+  fData:TVector;
+  procedure SomeActions(FF:TFFHeuristic);override;
+ public
+//  constructor Create(FF:TFFHeuristic);
+  destructor Destroy;override;
+end;
+
+
+
+TFitnessCalculationArea=class(TFitnessCalculationData)
+{according to PROGRESS  IN  PHOTOVOLTAICS: RESEARCH  AND APPLICATIONS,  VOL  1,  93-106 (1993) }
+ private
+  fDataFitness:TVectorTransform;
+//  fDataAbs:TVectorTransform;
+  fFuncForFitness:TFunObj;
+  procedure Prepare(const OutputData:TArrSingle);virtual;
+  procedure SomeActions(FF:TFFHeuristic);override;
+ public
+//  constructor Create(FF:TFFHeuristic);
+  Function FitnessFunc(const OutputData:TArrSingle):double;override;
+  destructor Destroy;override;
+end;
+
+TFitnessCalculationAreaLn=class(TFitnessCalculationArea)
+ private
+  fDataInit:TVectorTransform;
+  procedure Prepare(const OutputData:TArrSingle);override;
+  procedure SomeActions(FF:TFFHeuristic);override;
+ public
+//  constructor Create(FF:TFFHeuristic);
+//  Function FitnessFunc(const OutputData:TArrSingle):double;override;
+  destructor Destroy;override;
+end;
+
+TFitnessCalculationSum=class(TFitnessCalculationData)
+ private
+//  fData:TVector;
+  fFitTerm:TFitnessTerm;
+  procedure SomeActions(FF:TFFHeuristic);override;
+ public
+//  constructor Create(FF:TFFHeuristic);
+  Function FitnessFunc(const OutputData:TArrSingle):double;override;
   destructor Destroy;override;
 end;
 
 TFitnessCalculationWithRegalation=class(TFitnessCalculation)
  private
   fRegTerm:TRegulation;
+  fFitCalcul:TFitnessCalculation;
  public
-  constructor Create(FF:TFFHeuristic);
+  constructor Create(FF:TFFHeuristic;FitCalcul:TFitnessCalculation);
   Function FitnessFunc(const OutputData:TArrSingle):double;override;
   destructor Destroy;override;
 end;
 
+TFitnessFunc_Class=class of TFitnessCalculation;
+
+const
+  FitnessFuncClasses:array[ftArea..ftArea]of TFitnessFunc_Class=
+  (TFitnessCalculationArea);
+
+
+  LogFitnessFuncClasses:array[ftArea..ftArea]of TFitnessFunc_Class=
+  (TFitnessCalculationAreaLn);
+
+type
 
 TToolKit=class
  private
@@ -419,7 +482,7 @@ const
   (TFA_DE,TFA_MABC,TFA_TLBO,TFA_PSO);
 
 
-
+Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
 
 //uses TypInfo
 //
@@ -466,10 +529,17 @@ begin
  Result:=(fDParamArray as TDParamsHeuristic);
 end;
 
-function TFFHeuristic.RealFinalFunc(X: double): double;
+procedure TFFHeuristic.PointDetermine(X: double);
 begin
  fPoint[cX]:=X;
- fPoint[cY]:=DataToFit.Yvalue(X);;
+ fPoint[cY]:=DataToFit.Yvalue(X);
+end;
+
+function TFFHeuristic.RealFinalFunc(X: double): double;
+begin
+ PointDetermine(X);
+// fPoint[cX]:=X;
+// fPoint[cY]:=DataToFit.Yvalue(X);
  Result:=FuncForFitness(fPoint,fDParamArray.OutputData);
 end;
 
@@ -493,9 +563,14 @@ begin
  inherited Create;
  fFF:=FF;
 
+// if (FF.ParamsHeuristic.RegWeight=0)
+//   then fFitCalcul:=TFitnessCalculation.Create(FF)
+//   else fFitCalcul:=TFitnessCalculationWithRegalation.Create(FF);
+
  if (FF.ParamsHeuristic.RegWeight=0)
-   then fFitCalcul:=TFitnessCalculation.Create(FF)
-   else fFitCalcul:=TFitnessCalculationWithRegalation.Create(FF);
+   then fFitCalcul:=FitnessCalculationFactory(FF)
+   else fFitCalcul:=TFitnessCalculationWithRegalation.Create(FF,FitnessCalculationFactory(FF));
+
 
  SetLength(fToolKitArr,FF.DParamArray.MainParamHighIndex+1);
  for I := 0 to High(fToolKitArr) do
@@ -769,27 +844,27 @@ begin
  Result:=fRegWeight*Result;
 end;
 
-{ TFitnessCalculation }
+{ TFitnessCalculationSum }
 
-constructor TFitnessCalculation.Create(FF: TFFHeuristic);
-begin
- inherited Create;
- if FF.ParamsHeuristic.LogFitness
-  then fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
-  else fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
+//constructor TFitnessCalculationSum.Create(FF: TFFHeuristic);
+//begin
+// inherited Create(FF);
+// if FF.ParamsHeuristic.LogFitness
+//  then fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
+//  else fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
+//
+//// fData:=TVector.Create(FF.DataToFit);
+//// if (FF.ParamsHeuristic.ArgumentType=cY) then fData.SwapXY;
+//end;
 
- fData:=TVector.Create(FF.DataToFit);
- if (FF.ParamsHeuristic.ArgumentType=cY) then fData.SwapXY;
-end;
-
-destructor TFitnessCalculation.Destroy;
+destructor TFitnessCalculationSum.Destroy;
 begin
   FreeAndNil(fFitTerm);
-  FreeAndNil(fData);
+//  FreeAndNil(fData);
   inherited;
 end;
 
-function TFitnessCalculation.FitnessFunc(const OutputData: TArrSingle): double;
+function TFitnessCalculationSum.FitnessFunc(const OutputData: TArrSingle): double;
  var i:integer;
 begin
  Result:=0;
@@ -797,16 +872,26 @@ begin
     Result:=Result+fFitTerm.Term(fData[i],OutputData);
 end;
 
+procedure TFitnessCalculationSum.SomeActions(FF: TFFHeuristic);
+begin
+  inherited;
+  if FF.ParamsHeuristic.LogFitness
+   then fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
+   else fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
+end;
+
 { TFitnessCalculationWithRegalation }
 
-constructor TFitnessCalculationWithRegalation.Create(FF: TFFHeuristic);
+constructor TFitnessCalculationWithRegalation.Create(FF: TFFHeuristic;FitCalcul:TFitnessCalculation);
 begin
- inherited;
+ inherited Create(FF);
+ fFitCalcul:=FitCalcul;
  fRegTerm:=RegulationClasses[FF.ParamsHeuristic.RegType].Create(FF);
 end;
 
 destructor TFitnessCalculationWithRegalation.Destroy;
 begin
+  FreeAndNil(fFitCalcul);
   FreeAndNil(fRegTerm);
   inherited;
 end;
@@ -814,7 +899,8 @@ end;
 function TFitnessCalculationWithRegalation.FitnessFunc(
   const OutputData: TArrSingle): double;
 begin
- Result:=fRegTerm.Term(OutputData)+inherited FitnessFunc(OutputData);
+// Result:=fRegTerm.Term(OutputData)+inherited FitnessFunc(OutputData);
+ Result:=fRegTerm.Term(OutputData)+fFitCalcul.FitnessFunc(OutputData);
 end;
 
 { TRegTermLn }
@@ -1559,6 +1645,148 @@ begin
     Str1.SaveToFile(FitName(fDataToFit,FileSuffix));
     Str1.Free;
    end;
+end;
+
+{ TFitnessCalculation }
+
+constructor TFitnessCalculation.Create(FF: TFFHeuristic);
+begin
+ inherited Create;
+ SomeActions(FF);
+end;
+
+//destructor TFitnessCalculation.Destroy;
+//begin
+//  FreeAndNil(fData);
+//  inherited;
+//end;
+
+function TFitnessCalculation.FitnessFunc(const OutputData: TArrSingle): double;
+begin
+ Result:=0;
+end;
+
+procedure TFitnessCalculation.SomeActions(FF:TFFHeuristic);
+begin
+end;
+
+{ TFitnessCalculationArea }
+
+//constructor TFitnessCalculationArea.Create(FF: TFFHeuristic);
+//begin
+// inherited Create(FF);
+//
+//end;
+
+destructor TFitnessCalculationArea.Destroy;
+begin
+  fFuncForFitness:=nil;
+  FreeAndNil(fDataFitness);
+//  FreeAndNil(fDataAbs);
+  inherited;
+end;
+
+function TFitnessCalculationArea.FitnessFunc(
+  const OutputData: TArrSingle): double;
+ var i:integer;
+begin
+  Prepare(OutputData);
+  Result:=0;
+  for I := 0 to fData.HighNumber-1 do
+   begin
+     if fDataFitness.X[i]*fDataFitness.X[i+1]<0 then
+         Result:=Result+abs((sqr(fDataFitness.X[i])+sqr(fDataFitness.X[i+1]))
+                            *(fData.X[i+1]-fData.X[i])
+                            /(abs(fDataFitness.X[i])+abs(fDataFitness.X[i+1])))
+                                                else
+         Result:=Result+abs((fDataFitness.X[i]+fDataFitness.X[i+1])
+                            *((fData.X[i+1]-fData.X[i])));
+    end;
+end;
+
+procedure TFitnessCalculationArea.Prepare(const OutputData:TArrSingle);
+ var i:integer;
+begin
+ for I := 0 to fDataFitness.HighNumber do
+    begin
+    fDataFitness.Y[i]:=fFuncForFitness(fData.Point[i],OutputData);
+    fDataFitness.X[i]:=fDataFitness.Y[i]-fData.Y[i];
+    end;
+end;
+
+procedure TFitnessCalculationArea.SomeActions(FF:TFFHeuristic);
+begin
+  inherited;
+  fDataFitness:=TVectorTransform.Create(fData);
+  fFuncForFitness:=FF.FuncForFitness;
+end;
+
+Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
+begin
+  if (FF.ParamsHeuristic.FitType in [ftSR..ftRAR])
+   then Result:=TFitnessCalculationSum.Create(FF)
+   else
+    begin
+     if FF.ParamsHeuristic.LogFitness
+//      then Result:=TFitnessCalculationAreaLn.Create(FF)
+//      else Result:=TFitnessCalculationArea.Create(FF);
+      then Result:=LogFitnessFuncClasses[FF.ParamsHeuristic.FitType].Create(FF)
+      else Result:=FitnessFuncClasses[FF.ParamsHeuristic.FitType].Create(FF);
+    end;
+end;
+
+{ TFitnessCalculationAreaLn }
+
+//constructor TFitnessCalculationAreaLn.Create(FF: TFFHeuristic);
+// var i:integer;
+//begin
+// inherited;
+// fDataInit:=TVectorTransform.Create(fData);
+// fDataInit.DeleteZeroY;
+// fDataInit.AbsY(fData);
+// for I := 0 to fData.HighNumber do  fData.Y[i]:=ln(fData.Y[i]);
+// fData.CopyTo(fDataFitness);
+//end;
+
+destructor TFitnessCalculationAreaLn.Destroy;
+begin
+  FreeAndNil(fDataInit);
+  inherited;
+end;
+
+procedure TFitnessCalculationAreaLn.Prepare(const OutputData: TArrSingle);
+ var i:integer;
+begin
+ for I := 0 to fDataFitness.HighNumber do
+    begin
+    fDataFitness.Y[i]:=ln(abs(fFuncForFitness(fDataInit.Point[i],OutputData)));
+    fDataFitness.X[i]:=fDataFitness.Y[i]-fData.Y[i];
+    end;
+end;
+
+procedure TFitnessCalculationAreaLn.SomeActions(FF: TFFHeuristic);
+ var i:integer;
+begin
+  inherited;
+ fDataInit:=TVectorTransform.Create(fData);
+ fDataInit.DeleteZeroY;
+ fDataInit.AbsY(fData);
+ for I := 0 to fData.HighNumber do  fData.Y[i]:=ln(fData.Y[i]);
+ fData.CopyTo(fDataFitness);
+end;
+
+{ TFitnessCalculationData }
+
+destructor TFitnessCalculationData.Destroy;
+begin
+  FreeAndNil(fData);
+  inherited;
+end;
+
+procedure TFitnessCalculationData.SomeActions(FF:TFFHeuristic);
+begin
+  inherited;
+  fData:=TVector.Create(FF.DataToFit);
 end;
 
 end.

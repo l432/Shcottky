@@ -179,7 +179,7 @@ TDParamsHeuristic=class(TDParamsIteration)
    {тип регуляризації}
    fRegWeight:double;
    {вагова вартість - множник у обчисленні регуляризації}
-   fArgumentType:TCoord_type;
+//   fArgumentType:TCoord_type;
    procedure MainParamCreate(const MainParamNames: array of string);override;
 
   public
@@ -188,7 +188,7 @@ TDParamsHeuristic=class(TDParamsIteration)
    property FitType:TFitnessType read fFitType write fFitType;
    property RegType:TRegulationType read fRegType write fRegType;
    property LogFitness:boolean read fLogFitness write fLogFitness;
-   property ArgumentType:TCoord_type read fArgumentType write fArgumentType;
+//   property ArgumentType:TCoord_type read fArgumentType write fArgumentType;
    procedure WriteToIniFile;override;
    procedure ReadFromIniFile;override;
 end;
@@ -1398,7 +1398,7 @@ begin
   for I := 0 to fMainParamHighIndex do
     fParams[i] := TFFParamHeuristic.Create(MainParamNames[i],
                                (fFF as TFFVariabSet).DoubVars);
-  fArgumentType:=cX;
+//  fArgumentType:=cX;
 end;
 
 procedure TDParamsHeuristic.ReadFromIniFile;

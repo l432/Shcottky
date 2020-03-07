@@ -64,6 +64,7 @@
     <DCCReference Include="HighResolutionTimer.pas" />
     <DCCReference Include="OApproxCaption.pas" />
     <DCCReference Include="OApproxFunction.pas" />
+    <DCCReference Include="OApproxFunction2.pas" />
     <DCCReference Include="OApproxNew.pas" />
     <DCCReference Include="OApproxShow.pas" />
     <DCCReference Include="OlegApprox.pas" />
