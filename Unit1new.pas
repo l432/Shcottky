@@ -1301,7 +1301,8 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit, FormSelectFitNew, OApproxNew, FitSimple;
+uses ApprWindows, FormSelectFit, FormSelectFitNew, OApproxNew, FitSimple, 
+  OApproxFunction2;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -3001,17 +3002,27 @@ begin
   Exit;
  end;
 
- FitFunction:=TNGausian.Create(SEGauss.MaxValue);
- FitFunction.Fitting(tempVector,EvolParam);
+// FitFunction:=TNGausian.Create(SEGauss.MaxValue);
+// FitFunction.Fitting(tempVector,EvolParam);
+// for I := 1 to SEGauss.MaxValue do
+//  begin
+//   GausLinesCur[i].A:=EvolParam[3*i-3];
+//   GausLinesCur[i].B:=EvolParam[3*i-2];
+//   GausLinesCur[i].C:=EvolParam[3*i-1];
+//  end;
+// FitFunction.Free;
+
+ FitFunctionNew:=TFFNGausian.Create;
+ (FitFunctionNew as TFFNGausian).NGaus:=SEGauss.MaxValue;
 
  for I := 1 to SEGauss.MaxValue do
   begin
-   GausLinesCur[i].A:=EvolParam[3*i-3];
-   GausLinesCur[i].B:=EvolParam[3*i-2];
-   GausLinesCur[i].C:=EvolParam[3*i-1];
+   GausLinesCur[i].A:=(FitFunctionNew as TFFNGausian).ParamsHeuristic.OutputData[3*i-3];
+   GausLinesCur[i].B:=(FitFunctionNew as TFFNGausian).ParamsHeuristic.OutputData[3*i-2];
+   GausLinesCur[i].C:=(FitFunctionNew as TFFNGausian).ParamsHeuristic.OutputData[3*i-1];
   end;
 
- FitFunction.Free;
+ FitFunctionNew.Free;
 // dispose(tempVector);
  tempVector.Free;
  ButGLResClick(Sender);

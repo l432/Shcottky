@@ -10,7 +10,6 @@ type
 
 TFFHeuristic=class(TFFIteration)
  private
-
   function GetParamsHeuristic:TDParamsHeuristic;
  protected
   fPoint:TPointDouble;

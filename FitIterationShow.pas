@@ -567,8 +567,15 @@ begin
     fSubFrames[i].Frame.Top := (i div ColNumber) * fSubFrames[0].Frame.Height;
     fSubFrames[i].Frame.Left := (i mod ColNumber) * fSubFrames[0].Frame.Width;
   end;
+  if High(fSubFrames)<0 then
+        begin
+          Frame.Height :=0;
+          Frame.Width := 0;
+        end             else
+        begin
   Frame.Height := fSubFrames[High(fSubFrames)].Frame.Top + fSubFrames[0].Frame.Height;
   Frame.Width := ColNumber * fSubFrames[0].Frame.Width;
+        end;
 end;
 
 procedure TParamIterationArrayFrame.SubFramesResize(Form: TForm);
@@ -639,9 +646,12 @@ begin
  fSDFrame.SizeDetermination(Form);
  fPIArrayFrame.SizeAndLocationDetermination(Form);
 
+
  fSIFrame.Frame.Top:=MarginTop;
  fSIFrame.Frame.Left:=3*MarginFrame;
  RelativeLocation(fSIFrame.Frame,fSDFrame.Frame,oRow);
+
+
 
  fPIArrayFrame.Frame.Top:=fSIFrame.Frame.Top+fSIFrame.Frame.Height+Marginbetween;
  fPIArrayFrame.Frame.Left:=fSIFrame.Frame.Left;
@@ -670,6 +680,11 @@ begin
   fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
   fSIFrame.PShow.Limits.SetLimits(0);
   fSIFrame.Frame.Parent:=GB;
+
+//  showmessage(inttostr(fPIArrayFrame.Frame.Width));
+//  if fPIArrayFrame.Frame.Height=0 then fSIFrame.Frame.Visible:=false;
+//  SText.Enabled:=False;
+
 
   if (fPIteration is TDParamsGradient)
    then fSDFrame:=TSimpleDoubleFrame.Create(GB,'Accuracy:',(fPIteration as TDParamsGradient).Accurancy);
@@ -732,6 +747,9 @@ end;
 
 function TDecParamsIteration.IsReadyToFitDetermination: boolean;
 begin
+// Result:=fFFParameter.IsReadyToFitDetermination;
+// if fPIteration<>nil then Result:=(Result and fPIteration.IsReadyToFitDetermination);
+
  Result:=fFFParameter.IsReadyToFitDetermination
          and fPIteration.IsReadyToFitDetermination;
 end;
@@ -739,7 +757,8 @@ end;
 procedure TDecParamsIteration.ReadFromIniFile;
 begin
  fFFParameter.ReadFromIniFile;
- fPIteration.ReadFromIniFile;
+// if fPIteration<>nil then
+  fPIteration.ReadFromIniFile;
 end;
 
 procedure TDecParamsIteration.UpDate;
@@ -1225,6 +1244,8 @@ begin
  fEvTypeFrame.SizeDetermination(Form);
  fRegTypeFrame.SizeDetermination(Form);
  ResizeElement(fCB,Form.Canvas);
+
+  if fPIArrayFrame.Frame.Height=0 then fSIFrame.Frame.Visible:=false;
 
  fSIFrame.Frame.Top:=MarginTop;
  fSIFrame.Frame.Left:=2*MarginFrame;

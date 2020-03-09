@@ -399,7 +399,7 @@ end;
 
 procedure TFFSimple.AccessorialDataDestroy;
 begin
-  fDParamArray.Free;
+  FreeAndNil(fDParamArray);
   inherited;
 end;
 

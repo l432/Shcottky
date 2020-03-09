@@ -3402,7 +3402,7 @@ Function Brailsford(T,w:double;Parameters:TArrSingle):double;
  var d:double;
 begin
  Result:=ErResult;
- if (T<=0)or(w<=0)or(High(Parameters)<>2) then Exit;
+ if (T<=0)or(w<=0)or(High(Parameters)<2) then Exit;
  d:=Parameters[1]*w*exp(Parameters[2]/Kb/T);
  Result:=Parameters[0]*w/T*d/(1+sqr(d));
 end;

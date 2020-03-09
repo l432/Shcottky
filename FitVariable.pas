@@ -36,7 +36,6 @@ end;
 TVarBool=class(TFFVar)
 {змінна булевського типу, потрібна
 для проведення апроксимації}
- private
  protected
   fValue:boolean;
  public

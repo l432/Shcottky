@@ -18,7 +18,7 @@ const
   FunctionDDiod='D-Diod';
   FunctionPhotoDDiod='Photo D-Diod';
   FunctionOhmLaw='Ohm law';
-  FuncName:array[0..62]of string=
+  FuncName:array[0..63]of string=
            ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
            'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
            FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
@@ -41,7 +41,7 @@ const
            'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
            'n vs T (donors and traps)',
            'Ideal. Factor vs T & N_B & N_Fe','Ideal. Factor vs T & N_B',
-           'Ideal. Factor vs T','IV thin SC');
+           'Ideal. Factor vs T','IV thin SC','NGausian');
   Voc_min=0.0002;
   Isc_min=1e-11;
 
@@ -1228,11 +1228,15 @@ end; // TTripleDiodLight=class (TFitFunctEvolution)
 
 TNGausian=class (TFitFunctEvolution)
 private
+ fNGaus:byte;
  Function Func(Parameters:TArrSingle):double; override;
 // Procedure BeforeFitness(InputData:Pvector);override;
  Procedure BeforeFitness(InputData:TVector);override;
 public
+ property NGaus:byte read fNGaus write fNGaus;
  Constructor Create(NGaus:byte);
+// Constructor Create;
+
 end; // TNGausian=class (TFitFunctEvolution)
 
 TTunnel=class (TFitFunctEvolution)
@@ -7370,10 +7374,14 @@ procedure TNGausian.BeforeFitness(InputData: TVector);
  var i:byte;
      Xmin,Xmax,delY,delX:double;
 begin
- Xmin:=InputData.MinXnumber;
- Xmax:=InputData.MaxXnumber;
- delY:=InputData.MaxYnumber-
-       InputData.MinYnumber;
+// Xmin:=InputData.MinXnumber;
+// Xmax:=InputData.MaxXnumber;
+// delY:=InputData.MaxYnumber-
+//       InputData.MinYnumber;
+ Xmin:=InputData.MinX;
+ Xmax:=InputData.MaxX;
+ delY:=InputData.MaxY-
+       InputData.MinY;
  delX:=Xmax-Xmin;
  for I := 1 to round(FNx/3) do
   begin
@@ -7395,10 +7403,21 @@ begin
 end;
 
 Constructor TNGausian.Create(NGaus:byte);
+//Constructor TNGausian.Create();
  var i:byte;
 begin
- inherited Create('N_Gausian','Sum of '+inttostr(NGaus)+' Gaussian',
+ inherited Create('N_Gausian','Sum of NGaus Gaussian',
                   3*NGaus,0,0);
+// inherited Create('N_Gausian','Sum of NGaus Gaussian',
+//                  3*2,1,0);
+ fTemperatureIsRequired:=False;
+ fSampleIsRequired:=False;
+ fHasPicture:=False;
+// FVarManualDefinedOnly[0]:=True;
+// FVarName[0]:='NGaus';
+// ReadFromIniFile();
+// fnGaus:=round(FVarValue[0]);
+// fnGaus:=2;
  for I := 1 to NGaus do
    begin
     FXname[3*i-3]:='A'+inttostr(i);
@@ -9833,6 +9852,7 @@ begin
   if str='Ideal. Factor vs T & N_B' then F:=Tn_FeBNew.Create(FileName);
   if str='Ideal. Factor vs T' then F:=TnFeBPart.Create;
   if str='IV thin SC' then F:=TIV_thin.Create;
+  if str='NGausian' then F:=TNGausian.Create(2);
 
 //  if str='None' then F:=TDiodLSM.Create;
 end;
