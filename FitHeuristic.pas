@@ -553,7 +553,12 @@ end;
 
 procedure TFA_Heuristic.ConditionalRandomize;
 begin
-  if (fNfit mod 100)=0 then Randomize;
+//  if (fNfit mod 100)=0 then Randomize;
+  if (fNfit > 100) then
+     begin
+     Randomize;
+     fNfit:=0;
+     end;
 end;
 
 constructor TFA_Heuristic.Create(FF: TFFHeuristic);
@@ -695,11 +700,11 @@ end;
 
 function TFitnessTermRSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
- try
+// try
   Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
- except
-  Result:=0;
- end;
+// except
+//  Result:=0;
+// end;
 end;
 
 { TFitnessTermAR }
@@ -713,55 +718,55 @@ end;
 
 function TFitnessTermRAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
- try
+// try
   Result:=abs((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
- except
-  Result:=0;
- end;
+// except
+//  Result:=0;
+// end;
 end;
 
 { TFitnessTermLogSR }
 
 function TFitnessTermLnSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
- try
+// try
   Result:=sqr(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
- except
-  Result:=0;
- end;
+// except
+//  Result:=0;
+// end;
 end;
 
 { TFitnessTermLnRSR }
 
 function TFitnessTermLnRSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
- try
+// try
   Result:=sqr((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
- except
-  Result:=0;
- end;
+// except
+//  Result:=0;
+// end;
 end;
 
 { TFitnessTermLnAR }
 
 function TFitnessTermLnAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
- try
+// try
   Result:=abs(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
- except
-  Result:=0;
- end;
+// except
+//  Result:=0;
+// end;
 end;
 
 { TFitnessTermLnRAR }
 
 function TFitnessTermLnRAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
-  try
+//  try
   Result:=abs((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
- except
-  Result:=0;
- end;
+// except
+//  Result:=0;
+// end;
 end;
 
 { TRegTerm }

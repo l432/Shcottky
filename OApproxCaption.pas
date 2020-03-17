@@ -4,7 +4,7 @@ interface
 
 uses
   OApproxNew, FitDigital, FitSimple, FitGradient, OApproxFunction, 
-  OApproxFunction2;
+  OApproxFunction2, OApproxFunction3;
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
@@ -53,19 +53,23 @@ const
    (TFFLinear,TFFOhmLaw,TFFQuadratic,TFFGromov,
    TFFPolinom,TFFTwoPower,TFFPower2);
 
-  SchDNumber=3;
+  SchDNumber=5;
   SchDNames:array[0..SchDNumber] of string=
-   ('Exponent','Ivanov method','D-Gaussian','Patch Barrier');
+   ('Exponent','Ivanov method','D-Gaussian','Patch Barrier',
+   'Barrier height','TE reverse');
    SchDClasses:array[0..SchDNumber]of TFitFunctionNew_Class=
-   (TFFExponent,TFFIvanov,TFFDGaus,TFFLinEg);
+   (TFFExponent,TFFIvanov,TFFDGaus,TFFLinEg,
+   TFFBarierHeigh,TFFRevSh);
 
-  CCNumber=2;
+  CCNumber=4;
   CCNames:array[0..CCNumber] of string=
    ('TE and SCLC on 1/kT','TE and SCLCexp on 1/kT',
-   'TE and TAHT on 1/kT');
+    'TEstrict and SCLCexp on 1/kT','TE and TAHT on 1/kT',
+    'TE and SCLC on V');
   CCClasses:array[0..CCNumber]of TFitFunctionNew_Class=
    (TFFTEandSCLC_kT1,TFFTEandSCLCexp_kT1,
-   TFFTEandTAHT_kT1);
+   TFFTEstrAndSCLCexp_kT1,TFFTEandTAHT_kT1,
+   TFFTEandSCLCV);
 
   DiodNumber=5;
   DiodNames:array[0..DiodNumber] of string=
@@ -99,15 +103,17 @@ const
     TFFPhotoDiodTun,
     TFFTunRevers,TFFTunReversRs);
 
-  CustomNumber=10;
+  CustomNumber=11;
   CustomNames:array[0..CustomNumber] of string=
    ('Lifetime in SCR','Mobility','n vs T (donors and traps)',
    'Tau DAP','Rsh vs T','Rsh,2 vs T','N Gausian','Tunneling rect.',
-   'Tunneling trap.','Brailsford on T','Brailsford on w');
+   'Tunneling trap.','Brailsford on T','Brailsford on w',
+   'Shot-circuit Current');
   CustomClasses:array[0..CustomNumber]of TFitFunctionNew_Class=
    (TFFTauG,TFFMobility,TFFElectronConcentration,
    TFFTauDAP,TFFRsh_T,TFFRsh2_T,TFFNGausian,TFFTunnel,
-   TFFTunnelFNmy,TFFBrailsford,TFFBrailsfordw);
+   TFFTunnelFNmy,TFFBrailsford,TFFBrailsfordw,
+   TFFCurrentSC);
 
   FeBNumber=0;
   FeBNames:array[0..FeBNumber] of string=

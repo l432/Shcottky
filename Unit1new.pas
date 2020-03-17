@@ -4049,7 +4049,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 //     Nb:double;
 begin
 
- showmessage(inttostr(Screen.PixelsPerInch));
+ showmessage(floattostr(FileNameToVoltage('13.dat')));
 // Silicon.mu_n();
 // showmessage(floattostr(Pi));
 ////

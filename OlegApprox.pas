@@ -7819,6 +7819,10 @@ begin
  inherited AddParDetermination(InputData,OutputData);
  if fEmIsNeeded then
   begin
+   showmessage(floattostr(FVariab[0])+#10
+               +floattostr(FVariab[1])+#10
+               +floattostr(InputData.X[0])+#10
+               +floattostr(InputData.X[InputData.HighNumber]));
    FXname[High(FXname)-1]:='Em';
    OutputData[High(OutputData)-1]:=
      0.5*((FSample as TDiod_Schottky).Em(InputData.X[0],FVariab[1],FVariab[0])+
@@ -7832,6 +7836,8 @@ begin
  F2:=2/(FSample as TDiod_Schottky).nu;
  F1:=(FSample as TDiod_Schottky).Semiconductor.Material.Varshni(FVariab[1],FVariab[0])-(FSample as TDiod_Schottky).Vbi(FVariab[0]);
  fkT:=Kb*FVariab[0];
+
+//  showmessage(floattostr(fkT));
 end;
 
 Constructor TFitFunctEvolutionEm.Create(FunctionName,FunctionCaption:string;
@@ -7874,6 +7880,7 @@ Function TFitFunctEvolutionEm.TECurrent(V,T,Seff,A:double):double;
  var kT:double;
 begin
   kT:=Kb*T;
+//  showmessage(floattostr((FSample as TDiod_Schottky).Em(T,FVariab[1],V)));
 //  Result:=Seff*FSample.Em(T,FVariab[1],V)*Power(T,-2.33)*FSample.I0(T,FVariab[1])*
 //    exp(A*sqrt(FSample.Em(T,FVariab[1],V))/kT)*(1-exp(-V/kT));
   Result:=Seff*(FSample as TDiod_Schottky).I0(T,FVariab[1])*

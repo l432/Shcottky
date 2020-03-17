@@ -214,10 +214,38 @@ TFFBrailsfordw=class (TFFBrails)
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
 end; // TFFBrails=class (TFFHeuristic)
 
+
+TFFBarierHeigh=class (TFFHeuristic)
+{Fb=Fb0-a*x- b*x^0.5}
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFTEandTAHT_kT1=class (TFFHeuristic)
+
+
+TFFCurrentSC=class (TFFHeuristic)
+{Isc(T)=Nph*Abs*Lo*T^m/(1+Abs*Lo*T^m)}
+ private
+  fT0:double;
+  function TemperatureToString(T:double):string;
+  function PointToString(Point:TPointDouble):string;
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  procedure AddDoubleVars;override;
+  Procedure RealToFile;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFTEandTAHT_kT1=class (TFFHeuristic)
+
 implementation
 
 uses
-  FitIteration, OlegMath, Math, SysUtils;
+  FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegApprox;
 
 { TFFDoubleDiod }
 
@@ -712,7 +740,6 @@ procedure TFFTEandSCLC_kT1.AddDoubleVars;
 begin
   inherited;
   DoubVars.Add(Self,'m');
-  DoubVars.ParametrByName['m'].Description:='temperature power-law parameter (m)';
 end;
 
 function TFFTEandSCLC_kT1.FuncForFitness(Point: TPointDouble;
@@ -891,6 +918,113 @@ procedure TFFBrailsfordw.NamesDefine;
 begin
   SetNameCaption('Brailsfordw',
       BrailsfordName+'Dependence on frequency.');
+end;
+
+{ TFFBarierHeigh }
+
+function TFFBarierHeigh.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+  Result:=Data[0]-Data[1]*Point[cX]-Data[2]*sqrt(Point[cX]);
+end;
+
+procedure TFFBarierHeigh.NamesDefine;
+begin
+  SetNameCaption('BarierHeigh',
+      'Barier heigh on electric field, '+
+      'Schottky (Poole-Frenkel) effect (b value) and linear (a value)');
+end;
+
+procedure TFFBarierHeigh.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Fbo','a','b']);
+end;
+
+procedure TFFBarierHeigh.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+end;
+
+{ TFFCurrentSC }
+
+procedure TFFCurrentSC.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.Add(Self,'L_nm');
+  DoubVars.ParametrByName['L_nm'].Description:='Illumination wave length (nm)';
+  DoubVars.ParametrByName['L_nm'].Limits.SetLimits(0);
+end;
+
+function TFFCurrentSC.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+ var AlL:double;
+begin
+ AlL:=Silicon.Absorption((DoubVars.Parametr[0] as TVarDouble).Value,Point[cX])*
+          Data[1]*Power(Point[cX]/fT0,Data[2]);
+ Result:=Data[0]*AlL/(1+AlL);
+end;
+
+procedure TFFCurrentSC.NamesDefine;
+begin
+  SetNameCaption('Isc',
+      'Isc on temperature for monochromatic llumination');
+end;
+
+procedure TFFCurrentSC.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nph','Lo','m']);
+end;
+
+function TFFCurrentSC.PointToString(Point: TPointDouble): string;
+ var AlL:double;
+begin
+ AlL:=Silicon.Absorption((DoubVars.Parametr[0] as TVarDouble).Value,Point[cX])*
+          fDParamArray.OutputData[1]*Power(Point[cX]/fT0,fDParamArray.OutputData[2]);
+ Result:=FloatToStrF(Point[cX],ffExponent,4,0)+' '
+         +FloatToStrF(Point[cY],ffExponent,DigitNumber,0)+' '
+         +FloatToStrF(fDParamArray.OutputData[0]*AlL/(1+AlL),ffExponent,DigitNumber,0)+' '
+         +FloatToStrF(fDParamArray.OutputData[1]*Power(Point[cX]/fT0,fDParamArray.OutputData[2]),ffExponent,DigitNumber,0);
+end;
+
+procedure TFFCurrentSC.RealToFile;
+var Str1:TStringList;
+    i:integer;
+begin
+  Str1:=TStringList.Create;
+  if fIntVars[0]<>0 then
+   begin
+    Str1.Add('T Isc_fit DiffLength');
+    for i := 0 to FittingData.HighNumber do
+     Str1.Add(TemperatureToString(FittingData.X[i]));
+
+   end              else
+   begin
+    Str1.Add('T Isc Isc_fit DiffLength');
+    for i := 0 to fDataToFit.HighNumber do
+     Str1.Add(PointToString(fDataToFit[i]));
+   end;
+  Str1.SaveToFile(FitName(fDataToFit,FileSuffix));
+  Str1.Free;
+end;
+
+function TFFCurrentSC.TemperatureToString(T:double): string;
+ var AlL:double;
+begin
+ AlL:=Silicon.Absorption((DoubVars.Parametr[0] as TVarDouble).Value,T)*
+          fDParamArray.OutputData[1]*Power(T/fT0,fDParamArray.OutputData[2]);
+ Result:=FloatToStrF(T,ffExponent,4,0)+' '
+         +FloatToStrF(fDParamArray.OutputData[0]*AlL/(1+AlL),ffExponent,DigitNumber,0)+' '
+         +FloatToStrF(fDParamArray.OutputData[1]*Power(T/fT0,fDParamArray.OutputData[2]),ffExponent,DigitNumber,0);
+end;
+
+procedure TFFCurrentSC.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+ fT0:=300;
 end;
 
 end.

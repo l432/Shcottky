@@ -232,6 +232,8 @@ procedure InitArray(var OutputData:TArrInteger;NumberOfData:word;
 procedure StringArrayToStringList(const Arr:array of string;
                                   StringList:TStringList);
 
+Function FileNameToVoltage(name:string):double;
+
 implementation
 
 uses
@@ -1397,6 +1399,25 @@ procedure StringArrayToStringList(const Arr:array of string;
 begin
  StringList.Clear;
  for I := Low(Arr) to High(Arr) do StringList.Add(Arr[i]);
+end;
+
+Function FileNameToVoltage(name:string):double;
+ var i:byte;
+     tempstr:string;
+begin
+ tempstr:='';
+ for I := 1 to Length(name) do
+  begin
+  if (name[i] in ['0'..'9']) then tempstr:=tempstr+name[i];
+  if (name[i]='m') then tempstr:=tempstr+'-';
+  if (name[i]='_') then tempstr:=tempstr+'.';
+  end;
+ try
+  Result:=StrToFloat(tempstr);
+  if (name[1] in ['0'..'9']) then Result:=Result/10;
+ except
+  Result:=ErResult;
+ end;
 end;
 
 end.

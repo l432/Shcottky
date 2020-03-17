@@ -230,14 +230,15 @@ begin
 
  if (fVoltageIsRequired)
     and (fDoubVars.ParametrByName['V'] as TVarDouble).AutoDeterm then
-     begin
-      try
-       (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=
-       StrToFloat(copy(fDataToFit.name,1,length(fDataToFit.name)-4))/10;
-      except
-       (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=ErResult;
-      end;
-     end;
+     (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=FileNameToVoltage(fDataToFit.name);
+//     begin
+//      try
+//       (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=
+//       StrToFloat(copy(fDataToFit.name,1,length(fDataToFit.name)-4))/10;
+//      except
+//       (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=ErResult;
+//      end;
+//     end;
 end;
 
 function TFFVariabSet.ParameterCreate: TFFParameter;
