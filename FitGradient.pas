@@ -193,7 +193,7 @@ begin
          'Voltage';
       end;
   AddDoubleVars;
-  inherited;
+  inherited AccessorialDataCreate;
 end;
 
 procedure TFFVariabSet.AccessorialDataDestroy;

@@ -527,6 +527,9 @@ begin
      begin
        fSubFrames[i]:=TIntFrame.Create(Frame,(VarNumberArray.Parametr[i] as TVarInteger));
        fSubFrames[i].Frame.Parent:=Frame;
+       if (VarNumberArray.Parametr[i].Description='Fitting point number (0 - as in init data)')
+           and (VarNumberArray.ParametrByName['FCN']<>nil)
+         then  fSubFrames[i].Frame.Visible:=False;
      end;
    end;
 

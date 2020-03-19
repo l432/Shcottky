@@ -401,7 +401,7 @@ var
   Diod:TDiod_Schottky;
   DiodPN:TDiod_PN;
 
-Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
+//Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
 
 Procedure AllSCR(DiodPN:TDiod_PN;
                  Vec:TVector;
@@ -825,24 +825,24 @@ begin
 //end;
 
 
-Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
-var g,gam,gam1,qE,Et:double;
-begin
-
-
-  qE:=Qelem*Sample.Em(1/(kT1*Kb),Fb0,V);
-
-  Et:=E*Qelem;
-
-  g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
-  gam:=sqrt(2*m0*Sample.Semiconductor.Meff)*g/(Hpl*qE*sqrt(Et));
-  gam1:=sqrt(1+sqr(gam));
-  Result:=Sample.Area*Nss*qE/sqrt(8*m0*Sample.Semiconductor.Meff*E)*sqrt(1-gam/gam1)*
-          exp(-4*sqrt(2*m0*Sample.Semiconductor.Meff)*Et*sqrt(Et)/(3*Hpl*qE)*
-              sqr(gam1-gam)*(gam1+0.5*gam));
-// showmessage('gam1='+floattostr(gam1)+'  Res='+floattostr(Result));
-
-end;
+//Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
+//var g,gam,gam1,qE,Et:double;
+//begin
+//
+//
+//  qE:=Qelem*Sample.Em(1/(kT1*Kb),Fb0,V);
+//
+//  Et:=E*Qelem;
+//
+//  g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
+//  gam:=sqrt(2*m0*Sample.Semiconductor.Meff)*g/(Hpl*qE*sqrt(Et));
+//  gam1:=sqrt(1+sqr(gam));
+//  Result:=Sample.Area*Nss*qE/sqrt(8*m0*Sample.Semiconductor.Meff*E)*sqrt(1-gam/gam1)*
+//          exp(-4*sqrt(2*m0*Sample.Semiconductor.Meff)*Et*sqrt(Et)/(3*Hpl*qE)*
+//              sqr(gam1-gam)*(gam1+0.5*gam));
+//// showmessage('gam1='+floattostr(gam1)+'  Res='+floattostr(Result));
+//
+//end;
 
 Procedure AllSCR(DiodPN:TDiod_PN;
 //                 var Vec:PVector;

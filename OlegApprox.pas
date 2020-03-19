@@ -1592,7 +1592,7 @@ Procedure FunCreate(str:string; var F:TFitFunction;
 
 //Function FitName(V: PVector; st:string='fit'):string;overload;
 Function FitName(V: TVector; st:string='fit'):string;//overload;
-{повертає змінене значення V^.name,
+{повертає змінене значення V.name,
 зміна полягає у дописуванні st перед першою крапкою}
 
 //Function Parametr(V: PVector; FunName,ParName:string):double;overload;
@@ -7819,10 +7819,10 @@ begin
  inherited AddParDetermination(InputData,OutputData);
  if fEmIsNeeded then
   begin
-   showmessage(floattostr(FVariab[0])+#10
-               +floattostr(FVariab[1])+#10
-               +floattostr(InputData.X[0])+#10
-               +floattostr(InputData.X[InputData.HighNumber]));
+//   showmessage(floattostr(FVariab[0])+#10
+//               +floattostr(FVariab[1])+#10
+//               +floattostr(InputData.X[0])+#10
+//               +floattostr(InputData.X[InputData.HighNumber]));
    FXname[High(FXname)-1]:='Em';
    OutputData[High(OutputData)-1]:=
      0.5*((FSample as TDiod_Schottky).Em(InputData.X[0],FVariab[1],FVariab[0])+

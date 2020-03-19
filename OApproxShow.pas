@@ -74,7 +74,7 @@ procedure ResizeElement(CB:TCheckBox;Canvas: TCanvas);overload;
 implementation
 
 uses
-  SysUtils, Math;
+  SysUtils, Math, FitManyArguments;
 
 { TDiapazonDoubleParameterShow }
 
@@ -226,6 +226,9 @@ begin
  fDiapazoneGB.GB.Parent := Form;
  fDiapazoneGB.GB.Top:=10;
  fDiapazoneGB.GB.Left:=470;
+
+ if (fFF is TFFManyArguments) then fDiapazoneGB.GB.Visible:=False;
+
 
  if fFF.HasPicture then
   begin

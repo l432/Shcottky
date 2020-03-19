@@ -62,7 +62,7 @@ Function StringDataFromRow(str:string;Number:word):string;
 
 Function FloatDataFromRow(str:string;Number:word):double;
 {вважається, що частини рядка відділені один від одного пробілами;
-повертається число, рохташоване в частині з номером Number
+повертається число, розташоване в частині з номером Number
 (нумерація починається з 1);
 якщо там не число - то повертається ErResult}
 

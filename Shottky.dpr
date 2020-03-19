@@ -41,7 +41,8 @@ uses
   OApproxFunction in 'OApproxFunction.pas',
   FitHeuristic in 'FitHeuristic.pas',
   OApproxFunction2 in 'OApproxFunction2.pas',
-  OApproxFunction3 in 'OApproxFunction3.pas';
+  OApproxFunction3 in 'OApproxFunction3.pas',
+  FitManyArguments in 'FitManyArguments.pas';
 
 {$R *.res}
 

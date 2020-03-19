@@ -162,12 +162,10 @@ private
  //кількість цифр, які виводяться при записі даних, за замовчуванням 8
  fFileSuffix:string;
  //те, що додається до імені файла при записі результатів, за замовчуванням 'fit'
- procedure DataContainerCreate;virtual;
- procedure DataContainerDestroy;virtual;
+
 
  procedure ParameterDestroy;virtual;
 // procedure RealFitting;virtual;//abstract;
- procedure DataPreraration(InputFileName:string);overload;
  function FittingBegin:boolean;
 protected
  fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
@@ -175,6 +173,8 @@ protected
  fDataToFit:TVectorTransform; //дані для апроксимації
  FPictureName:string;//ім'я  рисунку в ресурсах, за умовчанням FName+'Fig';
  ftempVector: TVectorShottky;//допоміжний векторж
+ procedure DataContainerCreate;virtual;
+ procedure DataContainerDestroy;virtual;
  procedure AccessorialDataCreate;virtual;
  procedure AccessorialDataDestroy;virtual;
  function ParameterCreate:TFFParameter;virtual;
@@ -185,11 +185,13 @@ protected
  procedure TuningAfterReadFromIni;virtual;
  procedure TuningBeforeAccessorialDataCreate;virtual;
  function RealFinalFunc(X:double):double;virtual;
+ procedure DataPreraration(InputFileName:string);overload;virtual;
  procedure DataPreraration(InputData: TVector);overload;virtual;
  procedure RealToGraph (Series: TChartSeries);virtual;
  procedure VariousPreparationBeforeFitting;virtual;
 public
  FittingData:TVector;
+ property FileHeader:string read fFileHeader write fFileHeader;
  property DataToFit:TVectorTransform read fDataToFit;
  property Name:string read FName;
  property PictureName:string read FPictureName;
@@ -266,213 +268,6 @@ end;
 ////----------------------------------------------
 //
 
-//TManyArgumentsFitEvolution=class (TFitFunctEvolution)
-//private
-// fFileName:string;
-// fSL:TStringList;
-// fCAN:integer;
-// {fCurrentArgumentsNumber}
-// fAllArguments:array of array of double;
-// fArgumentsName:array of string;
-// fArgumentNumber:byte;
-//// fFunctionColumnInFile:byte;
-// procedure Initiation;
-// procedure DataReading;
-// procedure DataCorrection();virtual;
-// function ColumnsTitle():string;
-//
-//// Function FitnessFunc(InputData:Pvector; OutputData:TArrSingle):double;override;
-// Function FitnessFunc(InputData:TVector; OutputData:TArrSingle):double;override;
-//// Procedure BeforeFitness(InputData:Pvector);override;
-// Procedure BeforeFitness(InputData:TVector);override;
-//// Procedure RealToFile (InputData:PVector; var OutputData:TArrSingle;
-////              Xlog,Ylog:boolean; suf:string);override;
-// Procedure RealToFile (InputData:TVector; var OutputData:TArrSingle;
-//              Xlog,Ylog:boolean; suf:string);override;
-//// Procedure RealToGraph (InputData:PVector; var OutputData:TArrSingle;
-////              Series: TLineSeries;
-////              Xlog,Ylog:boolean; Np:Word); override;
-// Procedure RealToGraph (InputData:TVector; var OutputData:TArrSingle;
-//              Series: TLineSeries;
-//              Xlog,Ylog:boolean; Np:Word); override;
-// procedure AditionalRealToFile(OutputData:TArrSingle);virtual;
-//// Procedure CreateFooter;override;
-//public
-// Constructor Create(FunctionName,FunctionCaption:string;
-//                     Npar,Nvar,NaddX,ArgNum{,FCIF}:byte;
-//                     FileName:string='');
-// procedure Free;
-//// Function Deviation (InputData:PVector;OutputData:TArrSingle):double;override;
-// Function Deviation (InputData:TVector;OutputData:TArrSingle):double;override;
-//end; //TManyArgumentsFitEvolution=class (TFitFunctEvolution)
-//
-////Tn_FeB=class (TFitFunctEvolution)
-//Tn_FeB=class(TManyArgumentsFitEvolution)
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-// procedure AditionalRealToFile(OutputData:TArrSingle);override;
-// public
-// Constructor Create(FileName:string='');
-//end; //Tn_FeB=class (TFitFunctEvolution)
-//
-//Tn_FeBNew=class(TManyArgumentsFitEvolution)
-//private
-// procedure DataCorrection();override;
-// Function Func(Parameters:TArrSingle):double; override;
-// procedure AditionalRealToFile(OutputData:TArrSingle);override;
-//public
-// Constructor Create(FileName:string='');
-//end; //Tn_FeBNew=class(TManyArgumentsFitEvolution)
-//
-//
-//TRevShSCLC3=class (TFitFunctEvolutionEm)
-//{I(V) = I01*V^m1+I02*V^m2+I03*exp(A*Em(V)/kT)*(1-exp(-eV/kT))}
-//private
-// Function Sum1(Parameters:TArrSingle):double; override;
-// Function Sum2(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TRevShSCLC3=class (TFitFunctEvolutionEm)
-//
-//TRevShSCLC2=class (TFitFunctEvolutionEm)
-//{I(V) = I01*(V^m1+b*V^m2)+I02*exp(A*Em(V)/kT)*(1-exp(-eV/kT))
-//m1=1+T01/T;
-//m2=1+T02/T}
-//private
-// Fm1:double;
-// Fm2:double;
-// Function Sum1(Parameters:TArrSingle):double; override;
-// Function Sum2(Parameters:TArrSingle):double; override;
-//// Procedure BeforeFitness(InputData:Pvector);override;
-// Procedure BeforeFitness(InputData:TVector);override;
-//public
-// Constructor Create;
-//end; // TRevShSCLC2=class (TFitFunctEvolutionEm)
-//
-//TPhonAsTun=class (TFitFunctEvolutionEm)
-//{Розраховується залежність струму, пов'язаного
-//з phonon-assisted tunneling}
-//private
-// fmeff: Double; //абсолютна величина ефективної маси
-// Function Weight(OutputData:TArrSingle):double;override;
-// Constructor Create (FunctionName,FunctionCaption:string;
-//                     Npar:byte);
-//// Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;
-//public
-// Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;virtual;
-// class Function PAT(Sample:TDiod_Schottky; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
-//end; // TPhonAsTun=class (TFitFunctEvolutionEm)
-//
-//TPhonAsTunOnly=class (TPhonAsTun)
-//{базовий клас для розрахунків, де лище струм, пов'язаний
-//з phonon-assisted tunneling}
-//private
-// Constructor Create(FunctionName:string);overload;
-//end; // TPhonAsTunOnly=class (TPhonAsTun)
-//
-//TPhonAsTun_kT1=class (TPhonAsTunOnly)
-//{струм як функція 1/kT,
-//тобто стале значення напруги потрібно вводити}
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TPhonAsTun_kT1=class (TPhonAsTunOnly)
-//
-//TPhonAsTun_V=class (TPhonAsTunOnly)
-//{струм як функція зворотньої напруги,
-//потрібна температура}
-//private
-// Function Func(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TPhonAsTun_V=class (TPhonAsTunOnly)
-//
-//TPATAndTE=class (TPhonAsTun)
-//{базовий клас для розрахунків, де струм, пов'язаний
-//з phonon-assisted tunneling та термоемісійний}
-//private
-// Constructor Create(FunctionName:string);overload;
-//end; // TPATAndTE=class (TPhonAsTun)
-//
-//TPATandTE_kT1=class (TPATAndTE)
-//{струм як функція 1/kT,
-//тобто стале значення напруги потрібно вводити}
-//private
-// Function Sum1(Parameters:TArrSingle):double; override;
-// Function Sum2(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TPATandTE_kT1=class (TPATAndTE)
-//
-//TPATandTE_V=class (TPATAndTE)
-//{струм як функція зворотньої напруги,
-//потрібна температура}
-//private
-//// Function Func(Parameters:TArrSingle):double; override;
-// Function Sum1(Parameters:TArrSingle):double; override;
-// Function Sum2(Parameters:TArrSingle):double; override;
-//public
-// Constructor Create;
-//end; // TPATandTE_V=class (TPATAndTE)
-//
-//TPhonAsTunAndTE2=class (TPhonAsTun)
-//{базовий клас для розрахунків, де струм, пов'язаний
-//з phonon-assisted tunneling та термоемісійний}
-//private
-// Constructor Create(FunctionName:string);overload;
-//end; // TPhonAsTunAndTE=class (TPhonAsTun)
-//
-//TPhonAsTunAndTE2_kT1=class (TPhonAsTunAndTE2)
-//{струм як функція 1/kT,
-//тобто стале значення напруги потрібно вводити}
-//private
-//// Procedure BeforeFitness(InputData:Pvector);override;
-// Procedure BeforeFitness(InputData:TVector);override;
-// Function Sum1(Parameters:TArrSingle):double; override;
-// Function Sum2(Parameters:TArrSingle):double; override;
-//// Procedure AddParDetermination(InputData:PVector;
-////                               var OutputData:TArrSingle); override;
-// Procedure AddParDetermination(InputData:TVector;
-//                               var OutputData:TArrSingle); override;
-// Procedure CreateFooter;override;
-//public
-//// Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;override;
-// Constructor Create;
-//end; // TPhonAsTunAndTE_kT1=class (TPhonAsTunAndTE)
-//
-//
-////TPhonAsTunAndTE3_kT1=class (TPhonAsTun)
-////{базовий клас для розрахунків, де струм, пов'язаний
-////з phonon-assisted tunneling та термоемісійний}
-////private
-////// Constructor Create(FunctionName:string);overload;
-//// Function Sum1(Parameters:TArrSingle):double; override;
-//// Function Sum2(Parameters:TArrSingle):double; override;
-////public
-//// Constructor Create;
-////end; // TPhonAsTunAndTE=class (TPhonAsTun)
-//
-//TTAU_Fei_FeB=class (TFitFunctEvolution)
-//{часова залежність часу життя неосновних носіїв,
-//якщо відбувається перехід міжвузольного
-//заліза в комплекс FeB
-//tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r)
-//де tau_r - час життя, що задаєься іншими механізмами
-//рекомбінації, окрім на рівнях, зв'язаними з Fei та FeB;
-//параметри, які підбираються - сумарна концентрація
-//атомів заліза (міжвузольних та в парах FeB) та tau_r}
-//private
-// fFei:TDefect;
-// fFeB:TDefect;
-// Function Func(Parameters:TArrSingle):double; override;
-//
-//public
-// Constructor Create;
-// Procedure Free;
-//end; //TTAU_Fei_FeB=class (TFitFunctEvolution)
-//
-//
 var
  FitFunctionNew:TFitFunctionNew;
 // EvolParam:TArrSingle;

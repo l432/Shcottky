@@ -3,7 +3,11 @@ unit OApproxFunction3;
 interface
 
 uses
-  FitHeuristic, FitMaterial, OlegType;
+  FitHeuristic, FitMaterial, OlegType, OlegMaterialSamples;
+
+const
+ PhonAsTunName='Dependence of reverse photon-assisted tunneling current at constant bias on ';
+ PhonAsTunAndTEName='Dependence of photon-assisted tunneling current and thermionic emission current (strict rule) at constant bias on ';
 
 type
 
@@ -70,6 +74,123 @@ TFFTEandSCLCV=class (TFFEvolutionEm)
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
 end; //  TFFTEandSCLCV=class (TFFEvolutionEm)
 
+TFFRevShSCLC3=class (TFFEvolutionEm)
+{I(V) = I01*V^m1+I02*V^m2+I03*exp(A*Em(V)/kT)*(1-exp(-eV/kT))}
+ protected
+//  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; //  TFFRevShSCLC3=class (TFFEvolutionEm)
+
+TFFRevShSCLC2=class (TFFEvolutionEm)
+{I(V) = I01*(V^m1+b*V^m2)+I02*exp(A*Em(V)/kT)*(1-exp(-eV/kT))
+m1=1+T01/T;
+m2=1+T02/T}
+ private
+  Fm1:double;
+  Fm2:double;
+ protected
+//  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  procedure AddDoubleVars;override;
+  procedure VariousPreparationBeforeFitting;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; //  TFFRevShSCLC2=class (TFFEvolutionEm)
+
+
+TFFPhonAsTun=class (TFFEvolutionEm)
+{Розраховується залежність струму, пов'язаного
+з phonon-assisted tunneling}
+ private
+  fmeff: Double; //абсолютна величина ефективної маси
+ protected
+  procedure VariousPreparationBeforeFitting;override;
+  procedure AddDoubleVars;override;
+ public
+  Function PhonAsTun(V,kT1:double;Parameters:TArrSingle):double;virtual;
+  class Function PAT(Sample:TDiod_Schottky; V,kT1,Fb0,a,hw,Ett,Nss:double):double;
+end; //  TFFPhonAsTun=class (TFFEvolutionEm)
+
+TFFPhonAsTunOnly=class (TFFPhonAsTun)
+{базовий клас для розрахунків, де лище струм, пов'язаний
+з phonon-assisted tunneling}
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+ public
+end; //  TFFPhonAsTun=class (TFFEvolutionEm)
+
+TFFPhonAsTun_kT1=class (TFFPhonAsTunOnly)
+{струм як функція 1/kT,
+тобто стале значення напруги потрібно вводити}
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  procedure AddDoubleVars;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; //  TFFPhonAsTun_kT1=class (TFFPhonAsTunOnly)
+
+TFFPhonAsTun_V=class (TFFPhonAsTunOnly)
+{струм як функція зворотньої напруги,
+потрібна температура}
+ protected
+//  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+//  procedure AddDoubleVars;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; //  TFFPhonAsTun_V=class (TFFPhonAsTunOnly)
+
+TFFPATAndTE=class (TFFPhonAsTun)
+{базовий клас для розрахунків, де струм, пов'язаний
+з phonon-assisted tunneling та термоемісійним}
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+end; //  TFFPhonAsTun=class (TFFEvolutionEm)
+
+TFFPATandTE_kT1=class (TFFPATAndTE)
+{струм як функція 1/kT,
+тобто стале значення напруги потрібно вводити}
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  procedure AddDoubleVars;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; //  TFFPATandTE_kT1=class (TFFPATAndTE)
+
+
+TFFPATandTE_V=class (TFFPATAndTE)
+{струм як функція зворотньої напруги,
+потрібна температура}
+ protected
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFPATandTE_V=class (TFFPATAndTE)
+
+TFFPhonAsTunAndTE2_kT1=class (TFFPhonAsTun)
+{струм як функція 1/kT,
+тобто стале значення напруги потрібно вводити}
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure VariousPreparationBeforeFitting;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  procedure AddDoubleVars;override;
+  procedure AdditionalParamDetermination;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFPhonAsTunAndTE2_kT1=class (TFFPhonAsTun)
+
 implementation
 
 uses
@@ -93,11 +214,6 @@ procedure TFFEvolutionEm.AdditionalParamDetermination;
 begin
   if ((fDParamArray.ParametrByName['Em'])<>nil) then
   begin
-//   showmessage(floattostr((DoubVars.ParametrByName['V'] as TVarDouble).Value)+#10
-//               +floattostr((DoubVars.ParametrByName['Fb0'] as TVarDouble).Value)+#10
-//               +floattostr(1/fDataToFit.X[0]/Kb)+#10
-//               +floattostr(fDataToFit.X[fDataToFit.HighNumber]));
-
    fDParamArray.ParametrByName['Em'].Value:=
      0.5*(Schottky.Em(1/fDataToFit.X[0]/Kb,
              (DoubVars.ParametrByName['Fb0'] as TVarDouble).Value,
@@ -231,5 +347,317 @@ begin
                  [ 'Io1','p','A','Io2']);
 end;
 
+
+{ TFFRevShSCLC3 }
+
+function TFFRevShSCLC3.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+  Result:=Data[0]*Power(Point[cX],Data[1])+Data[2]*Power(Point[cX],Data[3])
+   +Data[4]*exp(Data[5]*sqrt(F2*(F1+Point[cX]))/fkT)*(1-exp(-Point[cX]/fKT));
+end;
+
+procedure TFFRevShSCLC3.NamesDefine;
+begin
+  SetNameCaption('RevShSCLC3',
+      'Dependence of reverse current on bias. '
+      +'First component is SCLC current, second is TE current');
+end;
+
+procedure TFFRevShSCLC3.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Io1','p1','Io2','p2','Io3','A']);
+end;
+
+
+{ TFFRevShSCLC2 }
+
+procedure TFFRevShSCLC2.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.Add(Self,'To1');
+  DoubVars.Add(Self,'To2');
+  DoubVars.Add(Self,'b');
+  DoubVars.ParametrByName['b'].Limits.SetLimits(0);
+  DoubVars.ParametrByName['To1'].Limits.SetLimits(0);
+  DoubVars.ParametrByName['To2'].Limits.SetLimits(0);
+end;
+
+function TFFRevShSCLC2.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+ Result:=Data[0]*(Power(Point[cX],Fm1)
+        +(DoubVars.Parametr[4] as TVarDouble).Value*Power(Point[cX],Fm2))
+        +Data[1]*exp(Data[2]*sqrt(F2*(F1+Point[cX]))/fkT)
+        *(1-exp(-Point[cX]/fkT));
+end;
+
+procedure TFFRevShSCLC2.NamesDefine;
+begin
+  SetNameCaption('RevShSCLC2',
+      'Dependence of reverse current on bias. '
+      +'First component is SCLC current, second is TE current');
+end;
+
+procedure TFFRevShSCLC2.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Io1','Io2','A']);
+end;
+
+
+procedure TFFRevShSCLC2.VariousPreparationBeforeFitting;
+begin
+ inherited VariousPreparationBeforeFitting;
+ Fm1:=1+(DoubVars.ParametrByName['To1'] as TVarDouble).Value
+        /(DoubVars.ParametrByName['T'] as TVarDouble).Value;
+ Fm2:=1+(DoubVars.ParametrByName['To2'] as TVarDouble).Value
+        /(DoubVars.ParametrByName['T'] as TVarDouble).Value;
+end;
+
+{ TFFPhonAsTun }
+
+procedure TFFPhonAsTun.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.Add(Self,'a');
+  DoubVars.Add(Self,'hw');
+  DoubVars.ParametrByName['a'].Limits.SetLimits(0);
+  DoubVars.ParametrByName['hw'].Limits.SetLimits(0);
+
+end;
+
+class function TFFPhonAsTun.PAT(Sample: TDiod_Schottky; V, kT1, Fb0, a, hw, Ett,
+  Nss: double): double;
+ var g,gam,gam1,qE,Et,meff:double;
+begin
+  Result:=ErResult;
+  if kT1<=0 then Exit;
+  qE:=Qelem*Sample.Em(1/(kT1*Kb),Fb0,V);
+  Et:=Ett*Qelem;
+  meff:=m0*Sample.Semiconductor.Meff;
+  g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
+  gam:=sqrt(2*meff)*g/(Hpl*qE*sqrt(Et));
+  gam1:=sqrt(1+sqr(gam));
+  Result:=Sample.Area*Nss*qE*Qelem/sqrt(8*meff*Et)*sqrt(1-gam/gam1)*
+          exp(-4*sqrt(2*meff)*Et*sqrt(Et)/(3*Hpl*qE)*
+              sqr(gam1-gam)*(gam1+0.5*gam));
+ end;
+
+function TFFPhonAsTun.PhonAsTun(V, kT1: double; Parameters: TArrSingle): double;
+begin
+  Result:=PAT(Schottky,V,kT1,
+         (DoubVars.Parametr[1] as TVarDouble).Value,
+         (DoubVars.Parametr[2] as TVarDouble).Value,
+         (DoubVars.Parametr[3] as TVarDouble).Value,
+         Parameters[1],Parameters[0]);
+end;
+
+procedure TFFPhonAsTun.VariousPreparationBeforeFitting;
+begin
+  inherited;
+  fmeff:=m0*Schottky.Semiconductor.Meff;
+end;
+
+{ TFFPhonAsTunOnly }
+
+procedure TFFPhonAsTunOnly.TuningBeforeAccessorialDataCreate;
+begin
+  inherited;
+  FPictureName:='PhonAsTunFig';
+end;
+
+{ TFFPhonAsTun_kT1 }
+
+procedure TFFPhonAsTun_kT1.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.ParametrByName['V'].Description:='V (volt)';
+end;
+
+function TFFPhonAsTun_kT1.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+  Result:=PhonAsTun((DoubVars.Parametr[0] as TVarDouble).Value,
+                    Point[cX],Data);
+end;
+
+procedure TFFPhonAsTun_kT1.NamesDefine;
+begin
+   SetNameCaption('PhonAsTun',
+      PhonAsTunName+'inverse temperature');
+end;
+
+procedure TFFPhonAsTun_kT1.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nss','Et'],['Em']);
+end;
+
+procedure TFFPhonAsTun_kT1.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+ fVoltageIsRequired:=True;
+end;
+
+{ TFFPhonAsTun_V }
+
+function TFFPhonAsTun_V.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+   Result:=PhonAsTun(Point[cX],1/fkT,Data);
+end;
+
+procedure TFFPhonAsTun_V.NamesDefine;
+begin
+   SetNameCaption('PhonAsTunV',
+      PhonAsTunName+'reverse voltage');
+end;
+
+procedure TFFPhonAsTun_V.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nss','Et']);
+end;
+
+{ TFFPATAndTE }
+
+procedure TFFPATAndTE.TuningBeforeAccessorialDataCreate;
+begin
+  inherited;
+  FPictureName:='PATandTEFig';
+end;
+
+{ TFFPATandTE_kT1 }
+
+procedure TFFPATandTE_kT1.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.ParametrByName['V'].Description:='V (volt)';
+end;
+
+function TFFPATandTE_kT1.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+  Result:=PhonAsTun((DoubVars.Parametr[0] as TVarDouble).Value,
+                    Point[cX],Data)
+         +TECurrent((DoubVars.Parametr[0] as TVarDouble).Value,
+                    1/Point[cX]/Kb,Data[2],Data[3]);
+end;
+
+procedure TFFPATandTE_kT1.NamesDefine;
+begin
+   SetNameCaption('PATandTEkT1',
+      PhonAsTunAndTEName+'inverse temperature');
+end;
+
+procedure TFFPATandTE_kT1.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nss','Et','Seff','alpha'],['Em']);
+end;
+
+procedure TFFPATandTE_kT1.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+ fVoltageIsRequired:=True;
+end;
+
+{ TFFPATandTE_V }
+
+function TFFPATandTE_V.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+   Result:=PhonAsTun(Point[cX],1/fkT,Data)
+      +TECurrent(Point[cX],
+           (DoubVars.Parametr[0] as TVarDouble).Value,
+           Data[2],Data[3]);
+end;
+
+procedure TFFPATandTE_V.NamesDefine;
+begin
+   SetNameCaption('PATandTEV',
+      PhonAsTunAndTEName+'reverse voltage');
+end;
+
+procedure TFFPATandTE_V.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nss','Et','Seff','alpha']);
+end;
+
+{ TFFPhonAsTunAndTE2_kT1 }
+
+procedure TFFPhonAsTunAndTE2_kT1.AddDoubleVars;
+begin
+ DoubVars.Add(Self,'Vsmp');
+// DoubVars.ParametrByName['Fb0'].Limits.SetLimits(0);
+ DoubVars.ParametrByName['Vsmp'].Description:='V_smp';
+ inherited;
+
+end;
+
+procedure TFFPhonAsTunAndTE2_kT1.AdditionalParamDetermination;
+begin
+   fDParamArray.ParametrByName['Emax'].Value:=
+     0.5*(Schottky.Em(1/fDataToFit.X[0]/Kb,
+             fDParamArray.ParametrByName['Fb0'].Value,
+             (DoubVars.ParametrByName['V'] as TVarDouble).Value)
+        +Schottky.Em(1/fDataToFit.X[fDataToFit.HighNumber]/Kb,
+             fDParamArray.ParametrByName['Fb0'].Value,
+             (DoubVars.ParametrByName['V'] as TVarDouble).Value));
+   fDParamArray.OutputDataCoordinateByName('Emax');
+
+   fDParamArray.ParametrByName['V'].Value:=(DoubVars.Parametr[0] as TVarDouble).Value
+                                          /(DoubVars.Parametr[1] as TVarDouble).Value;
+   fDParamArray.OutputDataCoordinateByName('V');
+  inherited;
+end;
+
+function TFFPhonAsTunAndTE2_kT1.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+  Result:=PAT(Schottky,(DoubVars.Parametr[0] as TVarDouble).Value,
+             Point[cX],Data[3],
+             (DoubVars.Parametr[2] as TVarDouble).Value,
+             (DoubVars.Parametr[3] as TVarDouble).Value,
+              Data[1],Data[0])
+         +RevZrizFun(Point[cX],2,Data[2],
+           Schottky.Semiconductor.Material.Varshni(Data[3],1/Kb/Point[cX]))
+          *(1-exp(-(DoubVars.Parametr[0] as TVarDouble).Value*Point[cX]));
+end;
+
+procedure TFFPhonAsTunAndTE2_kT1.NamesDefine;
+begin
+   SetNameCaption('PATandTEsoftkT1',
+      'Dependence of photon-assisted tunneling current '
+      +'and thermionic emission current (soft rule)  at constant bias on '
+      +'inverse temperature');
+end;
+
+procedure TFFPhonAsTunAndTE2_kT1.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nss','Et','I0','Fb0'],
+                 ['Emax','V']);
+end;
+
+procedure TFFPhonAsTunAndTE2_kT1.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+ fVoltageIsRequired:=True;
+ fFb0IsNeeded:=False;
+end;
+
+procedure TFFPhonAsTunAndTE2_kT1.VariousPreparationBeforeFitting;
+begin
+ inherited;
+ (DoubVars.Parametr[0] as TVarDouble).Value:=(DoubVars.Parametr[0] as TVarDouble).Value
+         *(DoubVars.Parametr[1] as TVarDouble).Value;
+end;
 
 end.

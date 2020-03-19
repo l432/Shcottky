@@ -4,7 +4,7 @@ interface
 
 uses
   OApproxNew, FitDigital, FitSimple, FitGradient, OApproxFunction, 
-  OApproxFunction2, OApproxFunction3;
+  OApproxFunction2, OApproxFunction3, FitManyArguments;
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
@@ -61,15 +61,19 @@ const
    (TFFExponent,TFFIvanov,TFFDGaus,TFFLinEg,
    TFFBarierHeigh,TFFRevSh);
 
-  CCNumber=4;
+  CCNumber=11;
   CCNames:array[0..CCNumber] of string=
    ('TE and SCLC on 1/kT','TE and SCLCexp on 1/kT',
     'TEstrict and SCLCexp on 1/kT','TE and TAHT on 1/kT',
-    'TE and SCLC on V');
+    'TE and SCLC on V','TE and SCLC on V (II)','TE and SCLC on V (III)',
+    'Phonon Tunneling on 1/kT','PAT and TE on 1/kT','PAT and TEsoft on 1/kT',
+    'Phonon Tunneling on V','PAT and TE on V');
   CCClasses:array[0..CCNumber]of TFitFunctionNew_Class=
    (TFFTEandSCLC_kT1,TFFTEandSCLCexp_kT1,
    TFFTEstrAndSCLCexp_kT1,TFFTEandTAHT_kT1,
-   TFFTEandSCLCV);
+   TFFTEandSCLCV,TFFRevShSCLC3,TFFRevShSCLC2,
+   TFFPhonAsTun_kT1,TFFPATandTE_kT1,TFFPhonAsTunAndTE2_kT1,
+   TFFPhonAsTun_V,TFFPATandTE_V);
 
   DiodNumber=5;
   DiodNames:array[0..DiodNumber] of string=
@@ -115,11 +119,13 @@ const
    TFFTunnelFNmy,TFFBrailsford,TFFBrailsfordw,
    TFFCurrentSC);
 
-  FeBNumber=0;
+  FeBNumber=3;
   FeBNames:array[0..FeBNumber] of string=
-   ('Ideal. Factor vs T');
+   ('Ideal. Factor vs T','Ideal. Factor vs T & N_B & N_Fe',
+   'Ideal. Factor vs T & N_B','Tau Fei-FeB');
   FeBClasses:array[0..FeBNumber]of TFitFunctionNew_Class=
-   (TFFnFeBPart);
+   (TFFnFeBPart,TFFn_FeB,
+   TFFn_FeBNew,TFFTAU_Fei_FeB);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;

@@ -3,7 +3,7 @@ unit OApproxFunction2;
 interface
 
 uses
-  FitHeuristic, OlegType, FitMaterial, FitVariable, OApproxNew;
+  FitHeuristic, OlegType, FitMaterial, FitVariable, OApproxNew, OlegDefectsSi;
 
 const
  BrailsfordName='Ultrasound atteniation, Brailsford"s theory. w is a frequency. ';
@@ -223,7 +223,7 @@ TFFBarierHeigh=class (TFFHeuristic)
   procedure NamesDefine;override;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
-end; // TFFTEandTAHT_kT1=class (TFFHeuristic)
+end; // TFFBarierHeigh=class (TFFHeuristic)
 
 
 TFFCurrentSC=class (TFFHeuristic)
@@ -240,7 +240,31 @@ TFFCurrentSC=class (TFFHeuristic)
   Procedure RealToFile;override;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
-end; // TFFTEandTAHT_kT1=class (TFFHeuristic)
+end; // TFFCurrentSC=class (TFFHeuristic)
+
+TFFTAU_Fei_FeB=class (TFFHeuristic)
+{часова залежність часу життя неосновних носіїв,
+якщо відбувається перехід міжвузольного
+заліза в комплекс FeB
+tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r)
+де tau_r - час життя, що задаєься іншими механізмами
+рекомбінації, окрім на рівнях, зв'язаними з Fei та FeB;
+параметри, які підбираються - сумарна концентрація
+атомів заліза (міжвузольних та в парах FeB) та tau_r}
+ private
+  fFei:TDefect;
+  fFeB:TDefect;
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  procedure AddDoubleVars;override;
+ published
+  property Layer:TMaterialLayerFit read fMaterialLayer;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+  destructor Destroy;override;
+end; // TFFBarierHeigh=class (TFFHeuristic)
 
 implementation
 
@@ -1025,6 +1049,61 @@ begin
  inherited;
  fTemperatureIsRequired:=False;
  fT0:=300;
+end;
+
+{ TFFTAU_Fei_FeB }
+
+procedure TFFTAU_Fei_FeB.AddDoubleVars;
+begin
+  inherited;
+//  DoubVars.Add(Self,'T');
+//  DoubVars.ParametrByName['T'].Limits.SetLimits(0.1);
+  DoubVars.Add(Self,'delN');
+  DoubVars.ParametrByName['delN'].Limits.SetLimits(0);
+end;
+
+
+destructor TFFTAU_Fei_FeB.Destroy;
+begin
+ FreeAndNil(fFei);
+ FreeAndNil(fFeB);
+ inherited;
+end;
+
+function TFFTAU_Fei_FeB.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+begin
+ fFei.Nd:=Fe_i_t(Point[cX],Layer,Data[0],
+                (DoubVars.Parametr[0] as TVarDouble).Value);
+ fFeB.Nd:=Data[0]-fFei.Nd;
+ Result:=1/(1/Data[1]
+           +1/fFei.TAUsrh(Layer.Nd,
+                    (DoubVars.Parametr[1] as TVarDouble).Value,
+                    (DoubVars.Parametr[0] as TVarDouble).Value)
+           +1/fFeB.TAUsrh(Layer.Nd,
+                    (DoubVars.Parametr[1] as TVarDouble).Value,
+                    (DoubVars.Parametr[0] as TVarDouble).Value));
+end;
+
+procedure TFFTAU_Fei_FeB.NamesDefine;
+begin
+  SetNameCaption('TTAUFeiFeB',
+      'Time dependence of minority'+
+                'carrier life time');
+end;
+
+procedure TFFTAU_Fei_FeB.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Fe','tau_r']);
+end;
+
+procedure TFFTAU_Fei_FeB.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+// fTemperatureIsRequired:=False;
+ fFei:=TDefect.Create(Fei);
+ fFeB:=TDefect.Create(FeB_ac);
 end;
 
 end.

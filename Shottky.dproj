@@ -38,6 +38,7 @@
     <DCCReference Include="FitHeuristic.pas" />
     <DCCReference Include="FitIteration.pas" />
     <DCCReference Include="FitIterationShow.pas" />
+    <DCCReference Include="FitManyArguments.pas" />
     <DCCReference Include="FitMaterial.pas" />
     <DCCReference Include="FitSimple.pas" />
     <DCCReference Include="FitTransform.pas" />
