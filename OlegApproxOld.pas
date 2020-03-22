@@ -1576,14 +1576,14 @@ end; //TTAU_Fei_FeB=class (TFitFunctEvolution)
 
 var
  FitFunction:TFitFunction;
- EvolParam:TArrSingle;
-{масив з double, використовується в еволюційних процедурах}
+// EvolParam:TArrSingle;
+//{масив з double, використовується в еволюційних процедурах}
 
 //-------------------------------------------------
-procedure PictLoadScale(Img: TImage; ResName:String);
-{в Img завантажується bmp-картинка з ресурсу з назвою
-ResName і масштабується зображення, щоб не вийшо
-за межі розмірів Img, які були перед цим}
+//procedure PictLoadScale(Img: TImage; ResName:String);
+//{в Img завантажується bmp-картинка з ресурсу з назвою
+//ResName і масштабується зображення, щоб не вийшо
+//за межі розмірів Img, які були перед цим}
 
 Procedure FunCreate(str:string; var F:TFitFunction;
           FileName:string='');
@@ -1591,19 +1591,19 @@ Procedure FunCreate(str:string; var F:TFitFunction;
 від значення str}
 
 //Function FitName(V: PVector; st:string='fit'):string;overload;
-Function FitName(V: TVector; st:string='fit'):string;//overload;
+//Function FitName(V: TVector; st:string='fit'):string;//overload;
 {повертає змінене значення V.name,
 зміна полягає у дописуванні st перед першою крапкою}
 
 //Function Parametr(V: PVector; FunName,ParName:string):double;overload;
-Function Parametr(V: TVector; FunName,ParName:string):double;//overload;
+//Function Parametr(V: TVector; FunName,ParName:string):double;//overload;
 {повертає параметр з іменем ParName,
 який знаходиться в результаті апроксимації даних в V
 за допомогою функції FunName}
 
 
-Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
-                   Var_Rand:TVar_Rand):double;
+//Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
+//                   Var_Rand:TVar_Rand):double;
 {крок для зміни величини в інтервалі
 [Xmin, Xmax] з загальною кількістю
 вузлів Npoint;
@@ -8417,35 +8417,35 @@ end;
 
 //-----------------------------------------------------------------------------------
 
-procedure PictLoadScale(Img: TImage; ResName:String);
-{в Img завантажується bmp-картинка з ресурсу з назвою
-ResName і масштабується зображення, щоб не вийшо
-за межі розмірів Img, які були перед цим}
-var
-  scaleY: double;
-  scaleX: double;
-  scale: double;
-begin
-  try
-  Img.Picture.Bitmap.LoadFromResourceName(hInstance,ResName);
-  if Img.Picture.Width > Img.Width then
-    scaleX := Img.Width / Img.Picture.Width
-  else
-    scaleX := 1;
-  if Img.Picture.Height > Img.Height then
-    scaleY := Img.Height / Img.Picture.Height
-  else
-    scaleY := 1;
-  if scaleX < scaleY then
-    scale := scaleX
-  else
-    scale := scaleY;
-  Img.Height := Round(Img.Picture.Height * scale);
-  Img.Width := Round(Img.Picture.Width * scale);
-  finally
-
-  end;
-end;
+//procedure PictLoadScale(Img: TImage; ResName:String);
+//{в Img завантажується bmp-картинка з ресурсу з назвою
+//ResName і масштабується зображення, щоб не вийшо
+//за межі розмірів Img, які були перед цим}
+//var
+//  scaleY: double;
+//  scaleX: double;
+//  scale: double;
+//begin
+//  try
+//  Img.Picture.Bitmap.LoadFromResourceName(hInstance,ResName);
+//  if Img.Picture.Width > Img.Width then
+//    scaleX := Img.Width / Img.Picture.Width
+//  else
+//    scaleX := 1;
+//  if Img.Picture.Height > Img.Height then
+//    scaleY := Img.Height / Img.Picture.Height
+//  else
+//    scaleY := 1;
+//  if scaleX < scaleY then
+//    scale := scaleX
+//  else
+//    scale := scaleY;
+//  Img.Height := Round(Img.Picture.Height * scale);
+//  Img.Width := Round(Img.Picture.Width * scale);
+//  finally
+//
+//  end;
+//end;
 
 
 
@@ -8460,16 +8460,16 @@ end;
 //  end;
 //end;
 
-Function FitName(V: TVector; st:string='fit'):string;overload;
-begin
-  if V.name = '' then
-    Result := st+'.dat'
-  else
-  begin
-    Result := V.name;
-    Insert(st, Result, Pos('.', Result));
-  end;
-end;
+//Function FitName(V: TVector; st:string='fit'):string;overload;
+//begin
+//  if V.name = '' then
+//    Result := st+'.dat'
+//  else
+//  begin
+//    Result := V.name;
+//    Insert(st, Result, Pos('.', Result));
+//  end;
+//end;
 
 
 //Function Parametr(V: PVector; FunName,ParName:string):double;
@@ -8508,38 +8508,38 @@ end;
 //  F.Free;
 //end;
 
-Function Parametr(V: TVector; FunName,ParName:string):double;overload;
- var i,par_number:integer;
-     error:boolean;
-     F:TFitFunction;
-     EP:TArrSingle;
-begin
-  Result:=ErResult;
-  error:=true;
-  for I := 1 to High(FuncName) do
-   if FunName=FuncName[i] then
-    begin
-      error:=False;
-      Break;
-    end;
-  if error then Exit;
-  FunCreate(FunName,F);
-  par_number:=-1;
-  for i := 0 to High(F.Xname) do
-   if F.Xname[i]=ParName then
-    begin
-      par_number:=i;
-      Break;
-    end;
-  if par_number<0 then
-    begin
-      F.Free;
-      Exit;
-    end;
-  F.Fitting(V,EP);
-  Result:=EP[par_number];
-  F.Free;
-end;
+//Function Parametr(V: TVector; FunName,ParName:string):double;overload;
+// var i,par_number:integer;
+//     error:boolean;
+//     F:TFitFunction;
+//     EP:TArrSingle;
+//begin
+//  Result:=ErResult;
+//  error:=true;
+//  for I := 1 to High(FuncName) do
+//   if FunName=FuncName[i] then
+//    begin
+//      error:=False;
+//      Break;
+//    end;
+//  if error then Exit;
+//  FunCreate(FunName,F);
+//  par_number:=-1;
+//  for i := 0 to High(F.Xname) do
+//   if F.Xname[i]=ParName then
+//    begin
+//      par_number:=i;
+//      Break;
+//    end;
+//  if par_number<0 then
+//    begin
+//      F.Free;
+//      Exit;
+//    end;
+//  F.Fitting(V,EP);
+//  Result:=EP[par_number];
+//  F.Free;
+//end;
 
 { TCurrentSC }
 
@@ -8643,18 +8643,18 @@ begin
             1/fFeB.TAUsrh(DiodPN.LayerP.Nd,FVariab[1],FVariab[0]));
 end;
 
-Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
-                   Var_Rand:TVar_Rand):double;
-begin
- if Npoint<1 then Result:=ErResult
-   else if (Npoint=1)or(Var_Rand=cons) then Result:=(Xmax-Xmin)+1
-        else if (Xmax=Xmin) then Result:=1
-         else    
-         case Var_Rand of
-          lin:Result:=(Xmax-Xmin)/(Npoint-1);
-          else Result:=(Log10(Xmax)-Log10(Xmin))/(Npoint-1);
-         end;
-end;
+//Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
+//                   Var_Rand:TVar_Rand):double;
+//begin
+// if Npoint<1 then Result:=ErResult
+//   else if (Npoint=1)or(Var_Rand=cons) then Result:=(Xmax-Xmin)+1
+//        else if (Xmax=Xmin) then Result:=1
+//         else    
+//         case Var_Rand of
+//          lin:Result:=(Xmax-Xmin)/(Npoint-1);
+//          else Result:=(Log10(Xmax)-Log10(Xmin))/(Npoint-1);
+//         end;
+//end;
 
 
 { TRsh_TP }

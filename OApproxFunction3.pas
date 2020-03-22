@@ -57,7 +57,6 @@ TFFRevSh=class (TFFEvolutionEm)
 {I(V) = I01*exp(A1*Em(V)+B*Em(V)^0.5)*(1-exp(-V/kT))+
         I02*exp(A2*Em(V)+B*Em(V)^0.5)*(1-exp(-V/kT))}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
  public
@@ -67,7 +66,6 @@ end; //  TFFRevSh=class (TFFEvolutionEm)
 TFFTEandSCLCV=class (TFFEvolutionEm)
 {I(V) = I01*V^m+I02*exp(A*Em(V)/kT)(1-exp(-eV/kT))}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
  public
@@ -77,7 +75,6 @@ end; //  TFFTEandSCLCV=class (TFFEvolutionEm)
 TFFRevShSCLC3=class (TFFEvolutionEm)
 {I(V) = I01*V^m1+I02*V^m2+I03*exp(A*Em(V)/kT)*(1-exp(-eV/kT))}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
  public
@@ -92,7 +89,6 @@ m2=1+T02/T}
   Fm1:double;
   Fm2:double;
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   procedure AddDoubleVars;override;
@@ -139,10 +135,8 @@ TFFPhonAsTun_V=class (TFFPhonAsTunOnly)
 {струм як функція зворотньої напруги,
 потрібна температура}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
-//  procedure AddDoubleVars;override;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
 end; //  TFFPhonAsTun_V=class (TFFPhonAsTunOnly)
@@ -240,7 +234,6 @@ end;
 procedure TFFEvolutionEm.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
-// fEmIsNeeded:=False;
  fFb0IsNeeded:=True;
 end;
 
@@ -256,7 +249,6 @@ begin
      -Schottky.Vbi((DoubVars.ParametrByName['T'] as TVarDouble).Value);
    fkT:=Kb*(DoubVars.ParametrByName['T'] as TVarDouble).Value;
   end;
-// showmessage(floattostr(fkT));
 end;
 
 { TFFTEstrAndSCLCexp_kT1 }
@@ -594,7 +586,6 @@ end;
 procedure TFFPhonAsTunAndTE2_kT1.AddDoubleVars;
 begin
  DoubVars.Add(Self,'Vsmp');
-// DoubVars.ParametrByName['Fb0'].Limits.SetLimits(0);
  DoubVars.ParametrByName['Vsmp'].Description:='V_smp';
  inherited;
 

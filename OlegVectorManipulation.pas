@@ -28,10 +28,8 @@ type
 
    TProcTarget=Procedure(Target:TVector) of object;
 
-//   TVectorTransform=class(TVectorManipulation)
    TVectorTransform=class(TVector)
     private
-//     procedure SetVector(const Value: TVectorNew);
      Procedure CopyLimited (Coord:TCoord_type;Target:TVector;Clim1, Clim2:double);
      procedure Branch(Coord:TCoord_type;Target:TVector;
                       const IsPositive:boolean=True;
@@ -39,12 +37,8 @@ type
      procedure Module(Coord:TCoord_type;Target:TVector);
      function PVParameter(Index:word):double;
     protected
-//     procedure InitArrSingle(var OutputData: TArrSingle;NumberOfData:word;
-//                             InitialValue:double=ErResult);
      Procedure InitTarget(Target:TVector);
     public
-//     Constructor Create(ExternalVector:TVectorNew);overload;
-//     Constructor Create();overload;
      Procedure CopyLimitedX (Target:TVector;Xmin,Xmax:double);
        {копіюються з даного вектора в Target
         - точки, для яких абсциса в діапазоні від Xmin до Xmax включно
@@ -262,6 +256,7 @@ type
       використовується підхід з роботи
       ProgPhotov_25_p623-625.pdf
       для випадку SNR=80 dB}
+      function FF():double;
    end;
 
 
@@ -293,9 +288,6 @@ implementation
 uses
   Math, Dialogs, SysUtils, OlegMath;
 
-
-
-
 { TVectorManipulation }
 
 constructor TVectorManipulation.Create(ExternalVector: TVector);
@@ -321,7 +313,6 @@ procedure TVectorManipulation.SetVector(const Value: TVector);
 begin
  Value.CopyTo(fVector);
 end;
-
 
 { TVectorTransform }
 
@@ -374,7 +365,6 @@ procedure TVectorTransform.AbsY(Target: TVector);
 begin
  Module(cY,Target);
 end;
-
 
 procedure TVectorTransform.Branch(Coord: TCoord_type; Target: TVector;
                 const IsPositive:boolean=True;
@@ -476,17 +466,6 @@ begin
  CopyLimited(cY,Target,Ymin, Ymax);
 end;
 
-//constructor TVectorTransform.Create;
-//begin
-// inherited Create;
-//end;
-
-//constructor TVectorTransform.Create(ExternalVector: TVectorNew);
-//begin
-//  Create();
-//  SetVector(ExternalVector);
-//end;
-
 function TVectorTransform.DerivateAtPoint(PointNumber: integer): double;
 begin
  Result:=ErResult;
@@ -498,7 +477,6 @@ begin
   if (PointNumber>0)and(PointNumber<Self.HighNumber)
      then Result:=DerivateLagr(Self[PointNumber-1],Self[PointNumber],Self[PointNumber+1]);
  except
-
  end;
 end;
 
@@ -521,6 +499,11 @@ begin
  Self.CopyTo(Target);
  for i:=0 to Self.HighNumber do
    Target.Y[i]:=DerivateAtPoint(i);
+end;
+
+function TVectorTransform.FF: double;
+begin
+  Result:=PVParameter(5);
 end;
 
 procedure TVectorTransform.ForwardX(Target: TVector);
@@ -579,7 +562,7 @@ begin
   finally
    dispose(R);
   end;
-  
+
   Result:=True;
 end;
 
@@ -705,23 +688,8 @@ begin
 
 end;
 
-//procedure TVectorTransform.InitArrSingle(var OutputData: TArrSingle;
-//  NumberOfData: word;InitialValue:double=ErResult);
-//  var i:word;
-//begin
-// if High(OutputData)<(NumberOfData-1)
-//      then SetLength(OutputData,NumberOfData);
-// for i := 0 to High(OutputData)
-//    do OutputData[i]:=InitialValue;
-//end;
-
 procedure TVectorTransform.InitTarget(Target: TVector);
 begin
-//  try
-//   Target.Clear
-//  except
-//   Target:=TVectorNew.Create;
-//  end;
   Target.Clear;
   Target.T:=Self.T;
   Target.name:=Self.name;
@@ -729,17 +697,7 @@ begin
 end;
 
 function TVectorTransform.Isc: double;
-// var temp, temp2:double;
 begin
-// Result:=0;
-// if Self.Count<2 then Exit;
-// temp:=Self.Yvalue(0);
-// temp2:=Self.Yvalue(0.01);
-// if (abs(temp2/temp)>2) then Exit
-//             else Result:=-temp;
-// if temp=ErResult then
-//      Result:=(-Self.Y[1]*Self.X[0]+Self.Y[0]*Self.X[1])
-//              /(Self.X[0]-Self.X[1]);
  Result:=PVParameter(1);
 end;
 
@@ -1027,12 +985,12 @@ end;
 function TVectorTransform.PVParameter(Index: word): double;
  var outputData:TArrSingle;
 begin
- if Index>4 then Result:=ErResult
+ if Index>5 then Result:=ErResult
             else
      begin
        PVParareters(outputData);
        Result:=outputData[Index];
-     end;       
+     end;
 end;
 
 function TVectorTransform.PVParareters(var OutputData: TArrSingle): boolean;
@@ -1107,11 +1065,6 @@ begin
    Branch(cY,Target,false,false);
 end;
 
-//procedure TVectorTransform.SetVector(const Value: TVectorNew);
-//begin
-// Value.CopyTo(Self);
-//end;
-
 procedure TVectorTransform.Smoothing(Target: TVector);
 const W0=17;W1=66;W2=17;
 {вагові коефіцієнти для нульової, першої та другої точок}
@@ -1181,14 +1134,8 @@ begin
 end;
 
 function TVectorTransform.Voc: double;
-// var temp:double;
 begin
  Result:=PVParameter(0);
-// Result:=0;
-// temp:=Self.Xvalue(0);
-// if (temp=ErResult)or
-//    (temp<=0) then Exit
-//              else Result:=temp;
 end;
 
 function TVectorTransform.XvalueLinear(YValue: double): double;

@@ -25,15 +25,12 @@ TFitTransform=class (TFitFunctionNew)
 {базовий для операцій простих перетворень вихідної функції}
 private
  fTTF:TTransformFunction;
-//  FErrorMessage:string; //виводиться при помилці
 protected
  procedure RealFitting;override;
  procedure NamesDefine;override;
 public
  Constructor Create(FunctionName:string);
 end;  //TFitTransform=class (TFitFunctionNew)
-
-
 
 implementation
 
@@ -46,7 +43,7 @@ begin
 
  for I := Low(TTransformFunction)
     to High(TTransformFunction) do
-      if FunctionName=TransformFunctionNames[i] then 
+      if FunctionName=TransformFunctionNames[i] then
         begin
           fTTF:=i;
           Break;
@@ -73,12 +70,6 @@ begin
   tfDeriv:fDataToFit.Derivate(FittingData);
   tfMedian:fDataToFit.Median(FittingData);
  end;
-// if Name=TransformFunctionNames[tfSmooth]
-//       then fDataToFit.Smoothing(FittingData);
-// if Name=TransformFunctionNames[tfDeriv]
-//       then fDataToFit.Derivate(FittingData);
-// if Name=TransformFunctionNames[tfMedian]
-//       then fDataToFit.Median(FittingData);
 end;
 
 end.

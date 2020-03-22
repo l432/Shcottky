@@ -25,7 +25,6 @@ end;
 TDParamArray=class
   private
    fFF:TFitFunctionNew;
-//   fParams:array of TFFDParam;
    fMainParamHighIndex:integer;
    {індекс останного параметра, який безпосередньо визначається
    з апроксимації (MainParam)}
@@ -101,12 +100,6 @@ TFFParamGradient=class(TFFParamIteration)
   function GetIsConstant: boolean;override;
   procedure SetIsConstant(const Value: boolean);override;
  public
-//  fCPDeter:TConstParDetermination;
-//  property IsConstant:boolean read GetIsConstant write SetIsConstant;
-//  property Value:Double read fValue write fValue;
-//  procedure UpDate;
-//  constructor Create(Nm:string;VarArray:TVarDoubArray);
-//  destructor Destroy;override;
   procedure WriteToIniFile(ConfigFile:TOIniFileNew;
                            const Section:string);override;
   procedure ReadFromIniFile(ConfigFile:TOIniFileNew;
@@ -135,13 +128,8 @@ end;
 TDParamsIteration=class(TDParamArray)
   private
    fNit:integer;//кількість ітерацій
-//   fAccurancy:double;
-//  {величина, пов'язана з критерієм
-//   припинення ітераційного процесу}
-//   procedure MainParamCreate(const MainParamNames: array of string);override;
   public
    property Nit:integer read fNit write fNit;
-//   property Accurancy:double read fAccurancy write fAccurancy;
    procedure WriteToIniFile;virtual;
    procedure ReadFromIniFile;virtual;
    function IsReadyToFitDetermination:boolean;virtual;
@@ -151,18 +139,15 @@ end;
 
 TDParamsGradient=class(TDParamsIteration)
   private
-//   fNit:integer;//кількість ітерацій
    fAccurancy:double;
   {величина, пов'язана з критерієм
    припинення ітераційного процесу}
    procedure MainParamCreate(const MainParamNames: array of string);override;
   public
-//   property Nit:integer read fNit write fNit;
    property Accurancy:double read fAccurancy write fAccurancy;
    procedure WriteToIniFile;override;
    procedure ReadFromIniFile;override;
    function IsReadyToFitDetermination:boolean;override;
-//   procedure UpDate;
 end;
 
 
@@ -179,7 +164,6 @@ TDParamsHeuristic=class(TDParamsIteration)
    {тип регуляризації}
    fRegWeight:double;
    {вагова вартість - множник у обчисленні регуляризації}
-//   fArgumentType:TCoord_type;
    procedure MainParamCreate(const MainParamNames: array of string);override;
 
   public
@@ -188,32 +172,14 @@ TDParamsHeuristic=class(TDParamsIteration)
    property FitType:TFitnessType read fFitType write fFitType;
    property RegType:TRegulationType read fRegType write fRegType;
    property LogFitness:boolean read fLogFitness write fLogFitness;
-//   property ArgumentType:TCoord_type read fArgumentType write fArgumentType;
    procedure WriteToIniFile;override;
    procedure ReadFromIniFile;override;
 end;
-
-//  TEvolutionTypeNew= //еволюційний метод, який використовується для апроксимації
-//    (etDE, //differential evolution
-//     etMABC, // modified artificial bee colony
-//     etTLBO,  //teaching learning based optimization algorithm
-//     etPSO    // particle swarm optimization
-//     );
-//  {}
-//  TFitnessType=
-//   (ftSR,//the sum of squared residuals звичайна квадратична форма
-//    ftRSR,//the sum relative of squared residuals квадратична форма з відносних величин
-//    ftAR,//сума модулів різниць
-//    ftRAR//сума модулів відносних різниць
-//   );
-
-
 
 TFittingAgent=class
 {той, що вміє проводити ітераційний процес}
  private
   fToStop:boolean;
-//  fIsDone:boolean;
  protected
   fDescription:string;
   fCurrentIteration:integer;
@@ -221,13 +187,11 @@ TFittingAgent=class
  public
   property Description:string read fDescription;
   property CurrentIteration:integer read fCurrentIteration;
-//  property IsDone:boolean read fIsDone write fIsDone;
   property ToStop:boolean read fToStop;
   property IsTimeToShow:boolean read GetIstimeToShow;
   procedure StartAction;virtual;
   procedure IterationAction;virtual;
   procedure DataCoordination;virtual;
-//  procedure EndAction;virtual;abstract;
 end;
 
 TFittingAgentLSM=class(TFittingAgent)
@@ -267,10 +231,8 @@ TFittingAgentLSM=class(TFittingAgent)
  public
   constructor Create(PIteration:TDParamsGradient;DataToFit,tempVector: TVectorTransform;
                      T:double);
-//                     DoubVars:TVarDoubArray);
   procedure StartAction;override;
   procedure IterationAction;override;
-//  procedure EndAction;override;
 end;
 
 
@@ -340,7 +302,6 @@ constructor TDParamArray.Create(FF:TFitFunctionNew;
                               const AddParamNames: array of string);
 begin
   inherited Create;
-//  fFF:=FF;
   CreateSuffix(FF, MainParamNames);
   MainParamCreate(MainParamNames);
   AddParamCreate(AddParamNames);
@@ -394,8 +355,6 @@ procedure TDParamArray.MainParamCreate(const MainParamNames: array of string);
 var
   i: Integer;
 begin
-//  fMainParamHighIndex := High(MainParamNames);
-//  SetLength(fParams, fMainParamHighIndex + 1);
   for I := 0 to fMainParamHighIndex do
     fParams[i] := TFFDParam.Create(MainParamNames[i]);
 end;
@@ -478,8 +437,6 @@ begin
  for I := 0 to High(Coefficients) do
   Coefficients[i]:=
     ConfigFile.ReadFloat(Section,Name+CoefNames[i],0);
-// Coefficients[1]:=ConfigFile.ReadFloat(Section,Prefix+'B',0);
-// Coefficients[2]:=ConfigFile.ReadFloat(Section,Prefix+'C',0);
  fIndex:=ConfigFile.ReadInteger(Section,Name+'_tt',-1);
  fIsNotReverse:=ConfigFile.ReadBool(Section,Name+'_Reverse',False);
 end;
@@ -491,27 +448,12 @@ procedure TConstParDetermination.WriteToIniFile(ConfigFile: TIniFile;
 begin
  for I := 0 to High(Coefficients) do
    WriteIniDef(ConfigFile,Section,Name+CoefNames[i],Coefficients[i],0);
-// WriteIniDef(ConfigFile,Section,Prefix+'B',Coefficients[1],0);
-// WriteIniDef(ConfigFile,Section,Prefix+'C',Coefficients[2],0);
  WriteIniDef(ConfigFile,Section,Name+'_tt',fIndex,-1);
  WriteIniDef(ConfigFile,Section,Name+'_Reverse',fIsNotReverse);
 end;
 
 
 { TFFParamIteration }
-
-//constructor TFFParamGradient.Create(Nm: string; VarArray: TVarDoubArray);
-//begin
-// inherited Create(Nm);
-// IsConstant:=False;
-// fCPDeter:=TConstParDetermination.Create(Nm,VarArray);
-//end;
-
-//destructor TFFParamGradient.Destroy;
-//begin
-// fCPDeter.Free;
-// inherited;
-//end;
 
 function TFFParamGradient.GetIsConstant: boolean;
 begin
@@ -522,7 +464,6 @@ procedure TFFParamGradient.ReadFromIniFile(ConfigFile: TOIniFileNew;
   const Section: string);
 begin
   inherited;
-//  fCPDeter.ReadFromIniFile(ConfigFile,Section);
   IsConstant:=ConfigFile.ReadBool(Section,Name+'_IsConstant',False);
 end;
 
@@ -531,23 +472,16 @@ begin
   fIsConstant:=Value;
 end;
 
-//procedure TFFParamGradient.UpDate;
-//begin
-// if IsConstant then Value:=fCPDeter.Value;
-//end;
-
 procedure TFFParamGradient.WriteToIniFile(ConfigFile: TOIniFileNew;
   const Section: string);
 begin
   inherited;
-//  fCPDeter.WriteToIniFile(ConfigFile,Section);
   WriteIniDef(ConfigFile,Section,Name+'_IsConstant',IsConstant);
 end;
 
 { TDParamIterationArray }
 
 function TDParamsGradient.IsReadyToFitDetermination: boolean;
-//  var I:integer;
 begin
  Result:= inherited IsReadyToFitDetermination;
  Result:=Result and (fAccurancy<>ErResult);
@@ -557,8 +491,6 @@ procedure TDParamsGradient.MainParamCreate(
          const MainParamNames: array of string);
  var i: Integer;
 begin
-//  fMainParamHighIndex := High(MainParamNames);
-//  SetLength(fParams, fMainParamHighIndex + 1);
   for I := 0 to fMainParamHighIndex do
     fParams[i] := TFFParamGradient.Create(MainParamNames[i],
                                (fFF as TFFVariabSet).DoubVars);
@@ -571,15 +503,7 @@ begin
   for I := 0 to fMainParamHighIndex
     do (fParams[i] as TFFParamGradient).ReadFromIniFile(fFF.ConfigFile,fFF.Name);
   fAccurancy:=fFF.ConfigFile.ReadFloat(fFF.Name,'Accurancy',1e-8);
-//  fNit:=fFF.ConfigFile.ReadInteger(fFF.Name,'Nit',1000);
 end;
-
-//procedure TDParamsGradient.UpDate;
-// var i:integer;
-//begin
-// for I := 0 to MainParamHighIndex do
-//    (fParams[i] as TFFParamGradient).UpDate;
-//end;
 
 procedure TDParamsGradient.WriteToIniFile;
  var I:integer;
@@ -588,7 +512,6 @@ begin
   for I := 0 to fMainParamHighIndex
     do (fParams[i] as TFFParamGradient).WriteToIniFile(fFF.ConfigFile,fFF.Name);
   WriteIniDef(fFF.ConfigFile,fFF.Name,'Accurancy',fAccurancy,1e-8);
-//  WriteIniDef(fFF.ConfigFile,fFF.Name,'Nit',fNit,1000);
 end;
 
 { TFFParamIteration }
@@ -650,13 +573,11 @@ end;
 constructor TFittingAgentLSM.Create(PIteration: TDParamsGradient;
                                     DataToFit,tempVector: TVectorTransform;
                                     T:double);
-//                                    DoubVars:TVarDoubArray);
 begin
  inherited Create;
  fPIteration:=PIteration;
  fDataToFit:=DataToFit;
  ftempVector:=tempVector;
-// fDoubVars:=DoubVars;
  fT:=T;
  fDescription:='Coordinate gradient descent';
 end;
@@ -941,7 +862,6 @@ begin
 end;
 
 procedure TFittingAgentLSM.StartAction;
-// var i:integer;
 begin
   inherited StartAction;
   SetLength(X2,fPIteration.MainParamHighIndex+1);
@@ -960,17 +880,9 @@ begin
   if fPIteration.ParametrByName['n'].Value=ErResult
      then Raise Exception.Create('Fault, n=ErResult');
 
-//    for I := 0 to fPIteration.MainParamHighIndex do
-//    HelpForMe(inttostr(i)+'0_'+floattostr(fPIteration[i]));
-
   if not(SquareFormIsCalculated)
     then Raise Exception.Create('Fault in SquareFormIsCalculated');
-//  HelpForMe('sum1'+floattostr(Sum1));
   Sum2:=Sum1;
-
-
-//    for I := 0 to fPIteration.MainParamHighIndex do
-//    HelpForMe(inttostr(i)+'0_'+floattostr(fPIteration[i]));
 end;
 
 { TFFDParam }
@@ -1149,11 +1061,9 @@ begin
     then Exception.Create('Fault! Voc or Isc is so small');
   RshInitDetermine(fDataToFit);
 
-//  HelpForMe('Rsh'+floattostr(fPIteration[2]));
    {n та Rs0 - як нахил та вільних член лінійної апроксимації
     щонайбільше семи останніх точок залежності dV/dI від kT/q(Isc+I-V/Rsh);}
   fDataToFit.Derivate(ftempVector);
-//  ftempVector.DeleteZeroY;
   for I := 0 to ftempVector.HighNumber do
        begin
          ftempVector.Y[i]:=1/ftempVector.Y[i];
@@ -1166,9 +1076,6 @@ begin
    ftempVector.LinAprox(OutputData);
    SetParameterValue('Rs',OutputData[0]);
    SetParameterValue('n',OutputData[1]);
-
-//    HelpForMe('n'+floattostr(fPIteration[0]));
-//    HelpForMe('Rs'+floattostr(fPIteration[1]));
 end;
 
 function TFittingAgentPhotoDiodLam.ParamCorectIsDone: boolean;

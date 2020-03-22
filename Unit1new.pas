@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
-  TypInfo, Spin, OlegApprox,FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
+  TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
   OlegTests, OlegVector, OlegMathShottky,
   OlegVectorManipulation,OApproxCaption, FitTransform;
 
@@ -36,22 +36,14 @@ type
   TColName=(fname, time, Tem, kT_1,
             Rs_Ch, Rs_H, Rs_N, Rs_K1, Rs_K2, Rs_Gr1,
             Rs_Gr2, Rs_Cb, Rs_Wer, Rs_Lee, Rs_Bh, Rs_Mk,
-            Rs_ExN,Rs_Lam,Rs_DE,Rs_EA,
             Is_Exp, Is_El, Is_Gr1, Is_Gr2, Is_Lee,
             Is_Bh, Is_Mk, Is_E2F, Is_E2R,
-            Is_ExN,Is_Lam,Is_DE,Is1_EA,Is2_EA,
             n_Exp, n_El, n_Ch, n_K1, n_K2, n_Gr1, n_Gr2,
             n_Cb, n_Wer, n_Lee, n_Bh, n_Mk, n_E2F, n_E2R,
-            n_ExN,n_Lam,n_DE,n1_EA,n2_EA,
             Fb_Exp, Fb_El, Fb_H, Fb_N, Fb_Gr1, Fb_Gr2,
             Fb_Lee, Fb_Bh, Fb_Mk, Fb_E2F, Fb_E2R, Kr,
             Fb_ExN,Fb_Lam,Fb_DE,
-            Rsh_ExN,Rsh_Lam,Rsh_DE,Rsh_EA,
-            If_ExN,If_Lam,If_DE,If_EA,
-            Voc_ExN,Voc_Lam,Voc_DE,Voc_EA,
-            Isc_ExN,Isc_Lam,Isc_DE,Isc_EA,
-            Pm_ExN,Pm_Lam,Pm_DE,Pm_EA,
-            FF_ExN,FF_Lam,FF_DE,FF_EA
+            Rsh_ExN,Rsh_Lam,Rsh_DE,Rsh_EA
             );
 {назви колонок у файлі dates.dat;
 для візуальних елементів, пов'язаних
@@ -62,9 +54,6 @@ type
 елемент з масиву ColName (тобто в назву має
 входити, наприклад, Rs_Ch...}
   TColNames= set of TColName;
-//  TDiapazons=(diChung, diMikh, diExp, diEx, diNord, diNss,
-//              diKam1, diKam2, diGr1, diGr2, diCib, diLee,
-//              diWer, diIvan, diE2F, DiE2R, diLam, diDE, diHfunc);
 
 
   TForm1 = class(TForm)
@@ -702,61 +691,9 @@ type
     Label25: TLabel;
     LabelDEIph: TLabel;
     ButtonParamDE: TButton;
-    GroupBox39: TGroupBox;
-    CBDateRs_ExN: TCheckBox;
-    CBDaten_ExN: TCheckBox;
-    CBDateIs_ExN: TCheckBox;
-    CBDateFb_ExN: TCheckBox;
-    LExN: TLabel;
-    CBDateIf_ExN: TCheckBox;
-    CBDateIsc_ExN: TCheckBox;
-    CBDateVoc_ExN: TCheckBox;
-    CBDatePm_ExN: TCheckBox;
-    CBDateFF_ExN: TCheckBox;
-    CBDateRsh_ExN: TCheckBox;
-    GroupBox40: TGroupBox;
-    LLam: TLabel;
-    CBDateRs_Lam: TCheckBox;
-    CBDaten_Lam: TCheckBox;
-    CBDateIs_Lam: TCheckBox;
-    CBDateFb_Lam: TCheckBox;
-    CBDateIf_Lam: TCheckBox;
-    CBDateIsc_Lam: TCheckBox;
-    CBDateVoc_Lam: TCheckBox;
-    CBDatePm_Lam: TCheckBox;
-    CBDateFF_Lam: TCheckBox;
-    CBDateRsh_Lam: TCheckBox;
-    GroupBox41: TGroupBox;
-    LDE: TLabel;
-    CBDateRs_DE: TCheckBox;
-    CBDaten_DE: TCheckBox;
-    CBDateIs_DE: TCheckBox;
-    CBDateFb_DE: TCheckBox;
-    CBDateIf_DE: TCheckBox;
-    CBDateIsc_DE: TCheckBox;
-    CBDateVoc_DE: TCheckBox;
-    CBDatePm_DE: TCheckBox;
-    CBDateFF_DE: TCheckBox;
-    CBDateRsh_DE: TCheckBox;
     CBoxRCons: TCheckBox;
     LabRCons: TLabel;
-    GroupBox42: TGroupBox;
-    LEA: TLabel;
-    CBDateRs_EA: TCheckBox;
-    CBDaten1_EA: TCheckBox;
-    CBDateIs1_EA: TCheckBox;
-    CBDateIs2_EA: TCheckBox;
-    CBDateIf_EA: TCheckBox;
-    CBDateIsc_EA: TCheckBox;
-    CBDateVoc_EA: TCheckBox;
-    CBDatePm_EA: TCheckBox;
-    CBDateFF_EA: TCheckBox;
-    CBDateRsh_EA: TCheckBox;
-    CBDaten2_EA: TCheckBox;
     Button1: TButton;
-    SButFit: TSpeedButton;
-    ButFitSelect: TButton;
-    ButFitOption: TButton;
     ButLDFitSelect: TButton;
     ButLDFitOption: TButton;
     RBGausSelect: TRadioButton;
@@ -930,8 +867,6 @@ type
     procedure ButGLLoadClick(Sender: TObject);
     procedure ButGausSaveClick(Sender: TObject);
     procedure LabRConsClick(Sender: TObject);
-    procedure ButFitSelectClick(Sender: TObject);
-    procedure SButFitClick(Sender: TObject);
     procedure ButFitOptionClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormDpKeyPress(Sender: TObject; var Key: Char);
@@ -964,16 +899,12 @@ type
   end;
 
 
-//procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
-//          Temperature:TLabel; a:PVector);overload;
 procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
           Temperature:TLabel; a:TVector);//overload;
 {процедура виведення на форму данних зі структури а:
 координати самих точок в Sheet, коротку назву файла
 в NameFile, температуру в Temperature}
 
-//procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
-//          Graph: TChart; Caption:string; a:PVector);overload;
 procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
           Graph: TChart; Caption:string; a:TVector);//overload;
 {занесення координат точок в змінні SeriesPoint та SeriesLine,
@@ -984,7 +915,6 @@ procedure NoLog(X,Y:TCheckBox; Graph:TChart);
 у виборі логарифмічного масштабу та переведення
 осей в лінійний режим}
 
-//procedure MarkerDraw (Graph,Vax:PVector; Point:Integer; F:TForm1);overload;
 procedure MarkerDraw (Graph,Vax:TVector; Point:Integer; F:TForm1);//overload;
 {процедура малювання вертикального маркера
 в точці з номером Рoint масиву Graph;
@@ -997,10 +927,6 @@ procedure MarkerHide(F:TForm1);
 {процедура прибирання маркеру,
 з графіку, очищення міток та переведення їх та
 повзунка з кнопкою в неактивний режим}
-
-//procedure ApproxHide(Form1:TForm1);
-//{прибирається апроксимаційна крива,
-//відповідна кнопка переводиться в ненатиснутий стан}
 
 procedure LimitSetup(Lim:Limits; Min, Max:TRadioGroup;
                      LMin, LMax:TLabel);
@@ -1039,7 +965,6 @@ procedure FormToDiap(XMin,Ymin,Xmax,YMax:TLabeledEdit; var D:TDiapazon);
 вікон зміни діапазону}
 procedure FormFrToDiap(FrDp:TFrDp; var D:TDiapazon);
 
-//Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;overload;
 Function RsDefineCB(A:TVectorShottky; CB, CBdod:TComboBox):double;//overload;
 {в залежності від вибраного значення
 в списку ComboBox
@@ -1048,7 +973,6 @@ Function RsDefineCB(A:TVectorShottky; CB, CBdod:TComboBox):double;//overload;
 значення n, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 
-//Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;overload;
 Function RsDefineCB_Shot(A:TVectorShottky; CB:TComboBox):double;//overload;
 {в залежності від вибраного значення
 в списку ComboBox
@@ -1057,7 +981,6 @@ Function RsDefineCB_Shot(A:TVectorShottky; CB:TComboBox):double;//overload;
 які дозволяють визначити Rs спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
 
-//Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;overload;
 Function nDefineCB(A:TVectorShottky; CB, CBdod:TComboBox):double;//overload;
 {в залежності від вибраного значення
 в списку ComboBox
@@ -1066,7 +989,6 @@ Function nDefineCB(A:TVectorShottky; CB, CBdod:TComboBox):double;//overload;
 значення Rs, то воно обчислюється залежно від того,
 що вибрано в CBdod}
 
-//Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;overload;
 Function nDefineCB_Shot(A:TVectorShottky; CB:TComboBox):double;//overload;
 {в залежності від вибраного значення
 в списку ComboBox
@@ -1075,7 +997,6 @@ Function nDefineCB_Shot(A:TVectorShottky; CB:TComboBox):double;//overload;
 які дозволяють визначити n спираючись
 лише на вигляд ВАХ, без додаткових параметрів}
 
-//Function FbDefineCB(A:PVector; CB:TComboBox; Rs:double):double;overload;
 Function FbDefineCB(A:TVectorShottky; CB:TComboBox; Rs:double):double;overload;
 {в залежності від вибраного значення
 в списку ComboBox
@@ -1176,15 +1097,12 @@ Function DiapFunName(Sender: TObject; var bohlin: Boolean):TDiapazons;
 апроксимації;
 використовується разом з FormDiapazon}
 
-//Function FuncLimit(A:Pvector; var B:Pvector):boolean;overload;
 Function FuncLimit(A:TVectorTransform; B:TVector):boolean;//overload;
 {розміщує в В обмежений набір точок з А відповідно до
 очікуваної згідно з Form1.LabIsc.Caption апроксимації;
 загалом допоміжна функція, використовується, зокрема,
 в dB_dV_Fun}
 
-//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
-//                    FitName:string;Rbool:boolean);overload;
 Procedure dB_dV_Fun(A:TVectorShottky;B:TVector; fun:byte;
                     FitName:string;Rbool:boolean);overload;
 {по даним у векторі А будує залежність похідної
@@ -1195,7 +1113,6 @@ Rbool=true - потрібно враховувати послідовний
 FitName - назва функції, якв буде використовуватись
 для апроксимації}
 
-//Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;overload;
 Function FuncFitting(A:TVector; B:TVector; FitName:string):boolean;//overload;
 {дані в А апроксимуються відповідно до FitName,
 в В - результат апроксимації при тих же абсцисах,
@@ -1222,7 +1139,6 @@ Function ParamDeterm(Source:TArrSingle;ParamName:string):double;overload;
 має вже існувати}
 
 
-//Function FunCorrectionDefine():TFunCorrection;
 Function FunCorrectionDefineNew():TFunCorrectionNew;
 {визначення, яка диференційна операція буде проводитися
 відповідно до вмісту CBDLFunction}
@@ -1232,18 +1148,11 @@ Function FileNameIsBad(FileName:string):boolean;
 {повертає True, якщо FileName містить
 щось з переліку BadName (масив констант)}
 
-//Procedure GraphParCalculComBox(InVector:Pvector;ComboBox:TCombobox);overload;
 Procedure GraphParCalculComBox(InVector:TVectorShottky;ComboBox:TCombobox);//overload;
 
 procedure InputValueToLabel(Name,Hint:string; Format:TFloatFormat;
                    var Lab:Tlabel;var Value:double);
 
-
-//Function dB_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
-//Function Rnp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
-//Function dRnp_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
-//Function Rnp2_exp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
-//Function Gamma_Build(A:Pvector; var B:Pvector; fun:byte):boolean;overload;
 
 Function dB_dV_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
 Function Rnp_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
@@ -1263,7 +1172,6 @@ var
   BohlinMethod: Boolean;
   {використовується при показі віконечок для введення параметрів методів}
   Directory, Directory0, CurDirectory:string;
-//  VaxFile, VaxGraph, VaxTemp, VaxTempLim:Pvector;
   VaxFile:TVectorShottky;
   VaxGraph,VaxTemp,VaxTempLim:TVectorTransform;
   GrLim:Limits;
@@ -1301,8 +1209,8 @@ var
 
 implementation
 
-uses ApprWindows, FormSelectFit, FormSelectFitNew, OApproxNew, FitSimple, 
-  OApproxFunction2;
+uses FormSelectFitNew, OApproxNew, FitSimple,
+  OApproxFunction2, FitGradient;
 
 {$R *.dfm}
 {$R Fig.RES}
@@ -1358,7 +1266,6 @@ begin
          [fnReq0,fnCheung,fnKaminskii1,fnKaminskii2,
          fnRvsTpower2,fnGromov1,fnCibils,fnLee,
          fnMikhelashvili,fnDiodLSM,fnDiodLambert,fnDiodEvolution]) then
-//  if not (ComboBoxRS.ItemIndex in [0,1,2,3,6,7,10,11,13,14,15,16]) then
    begin
    MessageDlg('Rs can not be calculated by this method,'+#10+#13+
               'because T is undefined',mtError, [mbOK], 0);
@@ -1668,8 +1575,8 @@ GrLim.MaxValue[1]:=ConfigFile.ReadFloat('Limit','MaxV1',ErResult);
   LabRA.Caption:='A = '+FloatToStrF(GraphParameters.RA,ffGeneral,3,2);
   LabRB.Caption:='B = '+FloatToStrF(GraphParameters.RB,ffExponent,3,2);
   LabRC.Caption:='C = '+FloatToStrF(GraphParameters.RC,ffExponent,3,2);
-  LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName',FunctionPhotoDDiod);
-  LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName',FunctionPhotoDDiod);
+  LabIsc.Caption:=ConfigFile.ReadString('Parameters','DLFunctionName',FFFunctionPhotoDDiod);
+  LDateFun.Caption:=ConfigFile.ReadString('Parameters','DateFunctionName',FFFunctionPhotoDDiod);
   ButDateOption.Enabled:=not((LDateFun.Caption='None'));
   for DP := Low(DP) to High(DP) do
       DiapShowNew(DP);
@@ -1828,7 +1735,7 @@ CBDateFun.Checked:=ConfigFile.ReadBool('Column',
 
 RadioButtonNssNvM.Checked:=ConfigFile.ReadBool('Graph','Nss_N(V)',False);
 RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
-  SButFit.Caption:='None';
+  SButFitNew.Caption:='None';
   MemoAppr.Clear;
 
   VaxFile:=TVectorShottky.Create;
@@ -1836,13 +1743,8 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   VaxTemp:=TVectorTransform.Create;
   VaxTempLim:=TVectorTransform.Create;
 
-//  new(VaxFile);
-//  new(VaxGraph);
-//  new(VaxTemp);
-//  new(VaxTempLim);
 
   MarkerHide(Form1);
-//  VaxFile^.n:=0;
   GraphShow(Form1);
 
   LabelKalk1.Visible:=False;
@@ -1998,10 +1900,6 @@ end; // with Form1 do
  VaxTemp.Free;
  VaxTempLim.Free;
 
-// dispose(VaxFile);
-// dispose(VaxGraph);
-// dispose(VaxTemp);
-// dispose(VaxTempLim);
  ConfigFile.Free;
  end;
 
@@ -2028,10 +1926,8 @@ end;
 procedure TForm1.FullIVClick(Sender: TObject);
 begin
  ClearGraph(Form1);
-// IVchar(VaxFile,VaxGraph);
  VaxFile.CopyTo(VaxGraph);
  DataToGraph(Series1,Series2,Graph,'I-V-characteristic',VaxGraph);
-// IVChar(VaxGraph,VaxTemp);
  VaxFile.CopyTo(VaxTemp);
 end;
 
@@ -2106,6 +2002,7 @@ begin
   if TComponent(Sender).Name='RB_Ldif' then Result:=fnLdif;
 end;
 
+
 procedure TForm1.LabelXLogClick(Sender: TObject);
 begin
  XLogCheck.Checked:= not XLogCheck.Checked;
@@ -2152,13 +2049,10 @@ begin
        ChooseDirect(Form1);
        ChDir(Directory);
        DirName.Caption:=Directory;
-//       if FileExists(fileName) then Read_File(fileName,VaxFile);
-//       if VaxFile^.n=0 then
        VaxFile.ReadFromFile(fileName);
        if VaxFile.IsEmpty then
            begin
            MessageDlg('File '+VaxGraph.name+' has not correct datas',
-//           MessageDlg('File '+VaxGraph^.name+' has not correct datas',
              mtError, [mbOK], 0);
            Series1.Clear;
            Series2.Clear;
@@ -2177,12 +2071,10 @@ begin
              end; // if High(GausLines)<0 then
           SetLength(GausLines,High(GausLines)+2);
           GausLines[High(GausLines)]:=TLineSeries.Create(Form1);
-//          VectorToGraph(VaxFile,GausLines[High(GausLines)]);
           VaxFile.WriteToGraph(GausLines[High(GausLines)]);
           SGridGaussian.RowCount:=SGridGaussian.RowCount+1;
           SGridGaussian.Cells[0,SGridGaussian.RowCount-4]:=
                        IntToStr(High(GausLines));
-//          SGridGaussian.Cells[1,SGridGaussian.RowCount-4]:=VaxFile^.name;
           SGridGaussian.Cells[1,SGridGaussian.RowCount-4]:=VaxFile.name;
 
           if SEGauss.Value<>0 then GausLines[SEGauss.Value].SeriesColor:=clNavy;
@@ -2194,9 +2086,6 @@ begin
           SEGauss.Value:=SEGauss.MaxValue;
           VaxFile.ReadFromGraph(GausLines[0]);
           VaxFile.name:='average';
-//          GraphToVector(GausLines[0],VaxFile);
-//          VaxFile^.T:=0;
-//          VaxFile^.name:='average';
          end;
          GraphShow(Form1);
        end;
@@ -2224,7 +2113,6 @@ begin
    XlogCheck.Checked:=false;
    YlogCheck.Checked:=false;
    GrType.Parent:=PageControl1.Pages[PageControl1.ActivePageIndex];
-//   VaxGraph.n:=0;
    VaxGraph.Clear;
    GraphShow(Form1);
    if PageControl1.ActivePageIndex=1 then FullIV.Checked:=true
@@ -2245,7 +2133,6 @@ var str:string;
 begin
 tg:=GraphType(Sender);
 ClearGraph(Form1);
-//VaxGraph^.Clear;
 VaxGraph.Clear;
 GraphParameters.Rs:=ErResult;
 GraphParameters.n:=ErResult;
@@ -2288,10 +2175,8 @@ GraphParameters.n:=ErResult;
  GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
 
  if tg<>fnEmpty then str:=GraphName(tg);
-// GraphCalculation(VaxFile,VaxGraph,tg);
  VaxFile.GraphCalculation(VaxGraph,tg);
 
-//if VaxGraph^.n=0 then
 if VaxGraph.IsEmpty then
     MessageDlg(GraphErrorMessage(tg), mtError, [mbOK], 0)
                  else
@@ -2426,73 +2311,22 @@ begin
      end;
 end;
 
-procedure TForm1.SButFitClick(Sender: TObject);
-begin
- if SButFit.Down then
-  begin
-
-  if   SButFit.Caption='None' then Exit;
-  FunCreate(SButFit.Caption,FitFunction);
-
-  if (SButFit.Caption='Linear')or
-     (SButFit.Caption=FunctionOhmLaw)or
-   (SButFit.Caption='Quadratic') then
-       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
-                                 else
-       FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4);
-
-   if EvolParam[0]=ErResult then Exit;
-   Series4.Active:=True;
-   if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-   if ((SButFit.Caption<>'Smoothing')and
-       (SButFit.Caption<>'Median filtr')and
-       (SButFit.Caption<>'Derivative')and
-       (SButFit.Caption<>'Noise Smoothing'))
-       then
-        begin
-         MemoAppr.Lines.Add('');
-         MemoAppr.Lines.Add(VaxFile.name);
-         MemoAppr.Lines.Add(SButFit.Caption);
-        end;
-
-   FitFunction.DataToStrings(EvolParam,MemoAppr.Lines);
-  FitFunction.Free;
-  end  //if SButFit.Down then
-   else Series4.Active:=False;
-end;
-
 procedure TForm1.SButFitNewClick(Sender: TObject);
 begin
  if SButFitNew.Down then
   begin
-//    if   SButFitNew.Caption='None' then Exit;
     FitFunctionNew:=FitFunctionFactory(SButFitNew.Caption);
     if FitFunctionNew=nil then Exit;
     if (FitFunctionNew is TFFSimpleLogEnable) then
         (FitFunctionNew as TFFSimpleLogEnable).SetAxisScale(XLogCheck.Checked,
                                                             YLogCheck.Checked);
-//    if (SButFit.Caption='Linear')or
-//       (SButFit.Caption=FunctionOhmLaw)or
-//     (SButFit.Caption='Quadratic') then
-//         FitFunction.FittingGraphFile(VaxGraph,EvolParam,Series4,XLogCheck.Checked,YLogCheck.Checked)
-//                                   else
-         FitFunctionNew.FittingToGraphAndFile(VaxGraph,Series4);
+    FitFunctionNew.FittingToGraphAndFile(VaxGraph,Series4);
 
-     if not(FitFunctionNew.ResultsIsReady) then Exit;
-     Series4.Active:=True;
-     if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
-//     if not(FitFunctionNew is TFitTransform) then
-//     if ((SButFit.Caption<>'Smoothing')and
-//         (SButFit.Caption<>'Median filtr')and
-//         (SButFit.Caption<>'Derivative')and
-//         (SButFit.Caption<>'Noise Smoothing'))
-//         then
-//          begin
-           MemoAppr.Lines.Add('');
-//           MemoAppr.Lines.Add(VaxFile.name);
-           MemoAppr.Lines.Add(SButFitNew.Caption);
-//          end;
-
+    if not(FitFunctionNew.ResultsIsReady) then Exit;
+    Series4.Active:=True;
+    MemoAppr.Lines.Add('');
+    if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
+    MemoAppr.Lines.Add(SButFitNew.Caption);
     FitFunctionNew.DataToStrings(MemoAppr.Lines);
     FitFunctionNew.Free;
   end  //if SButFit.Down then
@@ -2556,20 +2390,15 @@ begin
 
  if SpButLimit.Down then
     begin
-//      IVchar(VaxGraph,VaxTempLim);
       VaxGraph.CopyTo(VaxTempLim);
-//      LimitFun(VaxTempLim, VaxFile, VaxGraph, GrLim);
       VaxTempLim.CopyDiapazonPoint(VaxGraph,GrLim,VaxFile);
-//      if VaxGraph^.n=0 then
       if VaxGraph.IsEmpty then
                 begin
-//                  IVchar(VaxTempLim,VaxGraph);
                   VaxTempLim.CopyTo(VaxGraph);
                   SpButLimit.Down:=False;
                   Exit;
                 end;
     end
-//                    else  IVchar(VaxTempLim,VaxGraph);
                     else  VaxTempLim.CopyTo(VaxGraph);
 
   DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
@@ -2644,14 +2473,11 @@ begin
 end;
 
 procedure TForm1.XLogCheckClick(Sender: TObject);
-// var temp:PVector;
  var temp:TVector;
 begin
  ClearGraphLog(Form1);
  if XLogCheck.Checked then
   begin
-//   new(temp);
-//   LogX(VaxGraph,temp);
    temp:=TVector.Create;
    VaxGraph.PositiveX(temp);
    if temp.IsEmpty then
@@ -2661,18 +2487,14 @@ begin
                             mtError, [mbOK], 0);
                  Exit;
                 end;
-//   IVChar(temp,VaxGraph);
    temp.CopyTo(VaxGraph);
    DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
    Graph.BottomAxis.Logarithmic:=True;
-//   dispose(temp);
    temp.Free;
   end;
 
  if not(XLogCheck.Checked) then
   begin
-//   if YLogCheck.Checked then LogY(VaxTemp,VaxGraph);
-//   if not(YLogCheck.Checked) then IVChar(VaxTemp,VaxGraph);
    if YLogCheck.Checked then VaxTemp.PositiveY(VaxGraph);
    if not(YLogCheck.Checked) then VaxTemp.CopyTo(VaxGraph);
    DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
@@ -2681,15 +2503,11 @@ begin
 end;
 
 procedure TForm1.YLogCheckClick(Sender: TObject);
-// var temp:PVector;
  var temp:TVector;
 begin
  ClearGraphLog(Form1);
  if YLogCheck.Checked then
   begin
-//   new(temp);
-//   VaxGraph^.AbsY(temp^);
-//   if temp^.n=0 then
    temp:=TVector.Create;
    VaxGraph.AbsY(temp);
    if temp.IsEmpty then
@@ -2699,18 +2517,14 @@ begin
                             mtError, [mbOK], 0);
                  Exit;
                 end;
-//   IVChar(temp,VaxGraph);
    temp.CopyTo(VaxGraph);
    DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
    Graph.LeftAxis.Logarithmic:=True;
-//   dispose(temp);
    temp.Free;
   end;
 
  if not(YLogCheck.Checked) then
   begin
-//   if XLogCheck.Checked then LogX(VaxTemp,VaxGraph);
-//   if not(XLogCheck.Checked) then IVChar(VaxTemp,VaxGraph);
    if XLogCheck.Checked then VaxTemp.PositiveX(VaxGraph);
    if not(XLogCheck.Checked) then VaxTemp.CopyTo(VaxGraph);
    DataToGraph(Series1,Series2,Graph,Graph.Title.Text.Strings[0],VaxGraph);
@@ -2720,7 +2534,7 @@ end;
 
 procedure TForm1.ApproxHide;
 begin
-  SButFit.Down:=False;
+  SButFitNew.Down:=False;
   Series4.Active:=False;
 end;
 
@@ -2734,16 +2548,12 @@ var st:string;
 begin
   SGMarker.RowCount:=SGMarker.RowCount+1;
   SGMarker.Cells[0,SGMarker.RowCount-4]:=IntToStr(SGMarker.RowCount-4);
-//  st:=VaxGraph^.name;
-//  delete(st,LastDelimiter('.',VaxGraph^.name),4);
   st:=VaxGraph.name;
   delete(st,LastDelimiter('.',VaxGraph.name),4);
   SGMarker.Cells[1,SGMarker.RowCount-4]:=st;
   SGMarker.Cells[2,SGMarker.RowCount-4]:=
-//   FloatToStrF(VaxFile^.X[TrackBarMar.Position+VaxGraph^.N_begin],ffGeneral,4,3);
    FloatToStrF(VaxFile.X[TrackBarMar.Position+VaxGraph.N_begin],ffGeneral,4,3);
   SGMarker.Cells[3,SGMarker.RowCount-4]:=
-//   FloatToStrF(VaxFile^.Y[TrackBarMar.Position+VaxGraph^.N_begin],ffExponent,3,2);
    FloatToStrF(VaxFile.Y[TrackBarMar.Position+VaxGraph.N_begin],ffExponent,3,2);
 end;
 
@@ -2762,7 +2572,6 @@ begin
   if(Sender is TButton)and((Sender as TButton).Caption='>')
       then  GraphAverage(GausLines,CBoxGLShow.Checked, 0.002,SEGauss.Value,0.002);
   GaussLinesToGraph(True);
-//  GraphToVector(GausLines[0],VaxFile);
   VaxFile.ReadFromGraph(GausLines[0]);
   GraphShow(Form1);
 end;
@@ -2787,25 +2596,14 @@ begin
                  mtWarning,mbOkCancel,0)=mrOK
   then
    begin
-//   for i := SelectedRow-1 to High(VaxFile^.x)-1 do
-//      begin
-//        VaxFile^.X[i]:=VaxFile^.X[i+1];
-//        VaxFile^.Y[i]:=VaxFile^.Y[i+1];
-//      end;
-//   VaxFile^.n:=VaxFile^.n-1;
-//   SetLength(VaxFile^.X, VaxFile^.n);
-//   SetLength(VaxFile^.Y, VaxFile^.n);
    VaxFile.DeletePoint(SelectedRow-1);
    ChDir(Directory);
    CurDirectory:=Directory;
    ChooseDirect(Form1);
-//   filename:=VaxFile^.name;
    filename:=VaxFile.name;
    i:=FileAge(filename);
-//   Write_File(filename, VaxFile);
    VaxFile.WriteToFile(filename);
    if i>-1 then FileSetDate(filename,i);
-//   Read_File(filename,VaxFile);
    VaxFile.ReadFromFile(filename);
    GraphShow(Form1);
    end;
@@ -2817,17 +2615,17 @@ var
 begin
 str:='None';
 if (Sender is TButton)and((Sender as TButton).Name='ButFitOption')
-     then  str:=SButFit.Caption;
+     then  str:=SButFitNew.Caption;
 if (Sender is TButton)and((Sender as TButton).Name='ButLDFitOption')
      then  str:=LabIsc.Caption;
 if (Sender is TButton)and((Sender as TButton).Name='ButDateOption')
      then  str:=LDateFun.Caption;
 
-FunCreate(str,FitFunction);
-if  not(Assigned(FitFunction)) then Exit;
+FitFunctionNew:= FitFunctionFactory(str);
+if  not(Assigned(FitFunctionNew)) then Exit;
 
-FitFunction.SetValueGR;
-FitFunction.Free;
+FitFunctionNew.SetParametersGR;
+FreeAndNil(FitFunctionNew);
 end;
 
 procedure TForm1.ButFitOptionNewClick(Sender: TObject);
@@ -2835,51 +2633,27 @@ var
     str:string;
 begin
 str:='None';
-if (Sender is TButton)and((Sender as TButton).Name='ButFitOptionNew')
-     then  str:=SButFitNew.Caption;
-//if (Sender is TButton)and((Sender as TButton).Name='ButLDFitOption')
-//     then  str:=LabIsc.Caption;
-//if (Sender is TButton)and((Sender as TButton).Name='ButDateOption')
-//     then  str:=LDateFun.Caption;
+if (Sender is TButton) then
+  begin
+  if (Sender as TButton).Name='ButFitOptionNew'
+         then  str:=SButFitNew.Caption;
+  if (Sender as TButton).Name='ButLDFitOption'
+         then  str:=LabIsc.Caption;
+  if (Sender as TButton).Name='ButDateOption'
+        then  str:=LDateFun.Caption;
+  end;
 
 FitFunctionNew:=FitFunctionFactory(str);
 if  not(Assigned(FitFunctionNew)) then Exit;
 
 FitFunctionNew.SetParametersGR;
-FitFunctionNew.Free;
-
-end;
-
-procedure TForm1.ButFitSelectClick(Sender: TObject);
-var str:string;
-begin
- if FormSF.ShowModal=mrOk then
-  begin
-   str:=FormSF.CB.Items[FormSF.CB.ItemIndex];
-   if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
-     then
-       begin
-       SButFit.Caption:=str;
-       ApproxHide();
-       end;
-   if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
-     then
-       begin
-       LDateFun.Caption:=str;
-       CBDateFun.Checked:=False;
-       end;
-             if (Sender is TButton)and((Sender as TButton).Name='ButFitSelect')
-               then ButFitOption.Enabled:=not(str='None');
-            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
-               then ButDateOption.Enabled:=not(str='None');
-  end;
+FreeAndNil(FitFunctionNew);
 end;
 
 procedure TForm1.ButFitSelectNewClick(Sender: TObject);
 begin
  if FormSFNew.ShowModal=mrOk then
   begin
-//   str:=FormSF.CB.Items[FormSF.CB.ItemIndex];
    if (Sender is TButton)and((Sender as TButton).Name='ButFitSelectNew')
      then
        begin
@@ -2887,15 +2661,13 @@ begin
        ButFitOptionNew.Enabled:=(SButFitNew.Caption<>'None');
        ApproxHide;
        end;
-//   if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
-//     then
-//       begin
-//       LDateFun.Caption:=str;
-//       CBDateFun.Checked:=False;
-//       end;
-
-//            if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
-//               then ButDateOption.Enabled:=not(str='None');
+   if (Sender is TButton)and((Sender as TButton).Name='ButDateSelect')
+     then
+       begin
+       LDateFun.Caption:=FormSFNew.SelectedString;;
+       CBDateFun.Checked:=False;
+       ButDateOption.Enabled:=(LDateFun.Caption<>'None')
+       end;
   end;
 end;
 
@@ -2908,12 +2680,10 @@ if RBAveSelect.Checked then
  begin
    SaveDialog1.FileName:='average.dat';
    if SaveDialog1.Execute() then
-//      Write_File(SaveDialog1.FileName, VaxFile);
       VaxFile.WriteToFile(SaveDialog1.FileName);
  end  // if RBAveSelect.Checked then
                        else  // if RBAveSelect.Checked
  begin
-// SaveDialog1.FileName:=copy(VaxFile^.name,1,length(VaxFile^.name)-4)+'gl.dat';
  SaveDialog1.FileName:=copy(VaxFile.name,1,length(VaxFile.name)-4)+'gl.dat';
    if SaveDialog1.Execute()
      then
@@ -2983,34 +2753,20 @@ end;
 
 procedure TForm1.ButGLAutoClick(Sender: TObject);
 var tempVector:TVector;
-//var tempVector:PVector;
     i:integer;
 begin
  try
-//  new(tempVector);
   tempVector:=TVector.Create;
  except
   Exit;
  end;
 
  try
-// GraphToVector((Graph.Series[1] as TLineSeries),tempVector);
   tempVector.ReadFromGraph((Graph.Series[1] as TLineSeries));
  except
-//  dispose(tempVector);
   tempVector.Free;
   Exit;
  end;
-
-// FitFunction:=TNGausian.Create(SEGauss.MaxValue);
-// FitFunction.Fitting(tempVector,EvolParam);
-// for I := 1 to SEGauss.MaxValue do
-//  begin
-//   GausLinesCur[i].A:=EvolParam[3*i-3];
-//   GausLinesCur[i].B:=EvolParam[3*i-2];
-//   GausLinesCur[i].C:=EvolParam[3*i-1];
-//  end;
-// FitFunction.Free;
 
  FitFunctionNew:=TFFNGausian.Create;
  (FitFunctionNew as TFFNGausian).NGaus:=SEGauss.MaxValue;
@@ -3022,8 +2778,7 @@ begin
    GausLinesCur[i].C:=(FitFunctionNew as TFFNGausian).ParamsHeuristic.OutputData[3*i-1];
   end;
 
- FitFunctionNew.Free;
-// dispose(tempVector);
+ FreeAndNil(FitFunctionNew);
  tempVector.Free;
  ButGLResClick(Sender);
  SEGaussChange(Sender);
@@ -3046,7 +2801,6 @@ if RBAveSelect.Checked then
 
   GaussLinesToGraph(True);
   GraphAverage(GausLines,CBoxGLShow.Checked);
-//  GraphToVector(GausLines[0],VaxFile);
   VaxFile.ReadFromGraph(GausLines[0]);
   GraphShow(Form1);
 
@@ -3102,16 +2856,11 @@ procedure TForm1.ButInputTClick(Sender: TObject);
 var st,stHint:string;
     temp, temp2:double;
 begin
-//temp:=VaxFile^.T;
 temp:=VaxFile.T;
 st:=FloatToStrF(temp,ffGeneral,4,1);
 stHint:='Input Temperature';
 st:=InputBox('Temperature',stHint,st);
 StrToNumber(st, temp, temp2);
-//VaxFile^.T:=temp2;
-//if VaxFile^.T<=0 then
-//   begin
-//    VaxFile^.T:=temp;
 VaxFile.T:=temp2;
 if VaxFile.T<=0 then
    begin
@@ -3123,16 +2872,16 @@ end;
 
 procedure TForm1.ButLDFitSelectClick(Sender: TObject);
 begin
- if FormSF.ShowModal=mrOk then
-    if (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiod)or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDiodLSM)or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiodLSM)or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDiodLambert)or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDiodLambert)or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDiod)or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionDDiod)or
-       (FormSF.CB.Items[FormSF.CB.ItemIndex]=FunctionPhotoDDiod)
-       then LabIsc.Caption:=FormSF.CB.Items[FormSF.CB.ItemIndex];
+ if FormSFNew.ShowModal=mrOk then
+    if (FormSFNew.SelectedString=FFFunctionPhotoDiod)or
+       (FormSFNew.SelectedString=FFFunctionDiodLSM)or
+       (FormSFNew.SelectedString=FFFunctionPhotoDiodLSM)or
+       (FormSFNew.SelectedString=FFFunctionDiodLambert)or
+       (FormSFNew.SelectedString=FFFunctionPhotoDiodLambert)or
+       (FormSFNew.SelectedString=FFFunctionDiod)or
+       (FormSFNew.SelectedString=FFFunctionDDiod)or
+       (FormSFNew.SelectedString=FFFunctionPhotoDDiod)
+       then LabIsc.Caption:=FormSFNew.SelectedString;
  CBoxDLBuildClick(Sender);
 end;
 
@@ -3180,32 +2929,23 @@ begin
  if RB_TauR.Checked
      then Write_File3Column(FitName(VaxFile,'show'),VaxGraph,
                             DiodPN.TauToLdif)
-//     else Write_File(FitName(VaxFile,'show'),VaxGraph);
      else  VaxGraph.WriteToFile(FitName(VaxFile,'show'));
 end;
 
 procedure TForm1.ButSaveDLClick(Sender: TObject);
 Label fin;
 var
-//    aprr,aprr2:Pvector;
-//    Action:TFunCorrection;
     aprr:TVector;
     aprr2:TVectorTransform;
     Action:TFunCorrectionNew;
     EP:TArrSingle;
     j:integer;
 begin
-//SaveDialog1.FileName:=copy(VaxFile^.name,1,length(VaxFile^.name)-4)+'dl.dat';
 SaveDialog1.FileName:=copy(VaxFile.name,1,length(VaxFile.name)-4)+'dl.dat';
    if SaveDialog1.Execute()
      then
-//       begin
        Write_File_Series(SaveDialog1.FileName,Series1);
-//       end;
 
-//new(aprr);
-//Splain3Vec(VaxGraph,0.05,0.002,aprr);
-//if aprr^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ap.dat',aprr);
 aprr:=TVector.Create;
 VaxGraph.Splain3(aprr,0.05,0.002);
 if aprr.Count>0 then
@@ -3214,38 +2954,26 @@ if aprr.Count>0 then
 if CBoxRCons.Checked then
   begin
   if EvolParam[0]=ErResult then Goto fin;
-  FunCreate(LabIsc.Caption,FitFunction);
-//  (FitFunction as TFitTemperatureIsUsed).T:=VaxFile^.T;
-  (FitFunction as TFitTemperatureIsUsed).T:=VaxFile.T;
+  FitFunctionNew:=FitFunctionFactory(LabIsc.Caption);
+  (FitFunctionNew as TFFVariabSet).T:=VaxFile.T;
   ParameterSimplify(EvolParam,EP,LabIsc.Caption);
-//  VaxFile^.Copy(aprr^);
-//  for j:=0 to High(aprr^.X) do
-//     begin
-//     aprr^.X[j]:=VaxFile^.X[j]-
-//         ParamDeterm(EvolParam,'Rs',LabIsc.Caption)*VaxFile^.Y[j];
-//     aprr^.Y[j]:=FitFunction.FinalFunc(aprr^.X[j],EP);
-//     end;
   VaxFile.CopyTo(aprr);
+
+  FitFunctionNew.OutputDataImport(EP);
   for j:=0 to aprr.HighNumber do
      begin
      aprr.X[j]:=VaxFile.X[j]-
          ParamDeterm(EvolParam,'Rs',LabIsc.Caption)*VaxFile.Y[j];
-     aprr.Y[j]:=FitFunction.FinalFunc(aprr.X[j],EP);
+     aprr.Y[j]:=FitFunctionNew.FinalFunc(aprr.X[j]);
      end;
-  FitFunction.Free;
-//  Action:= FunCorrectionDefine();
-//  new(aprr2);
+  FreeAndNil(FitFunctionNew);
   Action:= FunCorrectionDefineNew();
   aprr2:=TVectorTransform.Create;
   if not(Action(aprr,aprr2,SpinEditDL.Value)) then
      begin
-//     dispose(aprr2);
      aprr2.Free;
      Goto fin;
      end;
-//  if aprr2^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ft.dat',aprr2);
-//  Splain3Vec(aprr2,0.05,0.002,aprr);
-//  if aprr^.n>0 then Write_File(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ftap.dat',aprr);
   if aprr2.Count>0 then
      aprr2.WriteToFile(copy(SaveDialog1.FileName,1,length(SaveDialog1.FileName)-4)+'ft.dat');
   aprr2.Splain3(aprr,0.05,0.002);
@@ -3255,7 +2983,6 @@ if CBoxRCons.Checked then
   end;
 
 fin:
-// dispose(aprr);
  aprr.Free;
 end;
 
@@ -3470,15 +3197,6 @@ begin
   Result:=False;
 end;
 
-//Procedure GraphParCalculComBox(InVector:Pvector;ComboBox:TCombobox);
-// var tg:TGraph;
-//begin
-// tg:=ConvertStringToTGraph(ComboBox);
-// GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
-// GraphParameterCalculation(InVector,tg);
-//end;
-//
-
 Procedure GraphParCalculComBox(InVector:TVectorShottky;ComboBox:TCombobox);
  var tg:TGraph;
 begin
@@ -3486,10 +3204,6 @@ begin
  GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
  InVector.GraphParameterCalculation(tg);
 end;
-
-
-
-
 
 Function FileCount():integer;
 {повертає кількість .dat файлів у поточній
@@ -3522,31 +3236,6 @@ begin
  Lab.Caption:=FloatToStrF(Value,Format,3,2);
 end;
 
-
-//Procedure ReadFileToVectorArray(VectorArray:array of PVector);
-//{з поточної директорії зчитуються всі .dat файли
-//в масив VectorArray (окрім тих, які містять
-//у назві "fit" та "dates")
-//повертається кількість зчитаних файлів}
-// var
-//  SR : TSearchRec;
-//  i:integer;
-//begin
-// DecimalSeparator:='.';
-// if not(SetCurrentDir(CurDirectory)) then Exit;
-// i:=-1;
-// if FindFirst(mask, faAnyFile, SR) = 0 then
-//  begin
-//    repeat
-//     if FileNameIsBad(SR.name) then Continue;
-//     inc(i);
-//     if i>High(VectorArray) then Break;
-//     Read_File(SR.name,VectorArray[i]);
-//    until FindNext(SR) <> 0;
-//  end;
-// FindClose(SR);
-//end;
-
 Procedure ReadFileToVectorArray(VectorArray:array of TVectorTransform);
 {з поточної директорії зчитуються всі .dat файли
 в масив VectorArray (окрім тих, які містять
@@ -3566,84 +3255,10 @@ begin
      inc(i);
      if i>High(VectorArray) then Break;
      VectorArray[i].ReadFromFile(SR.name);
-//     Read_File(SR.name,VectorArray[i]);
     until FindNext(SR) <> 0;
   end;
  FindClose(SR);
 end;
-
-
-//Function VectorIsFitting(Vax:PVector):boolean;
-//{апроксимує дані Vax відповідно до глобального
-//об'єкту Fit (який вже має бути створений),
-//обмеження, які застосовуються у даних в Vax такі самі,
-//як для розгляду диференційного коефіцієнту
-//нахилу (тобто найчастіше визначаються вмістом D[diDE]);
-//Результат в глобальному масиві EvolParam}
-// var tempVax:PVector;
-//begin
-// Result:=False;
-// new(tempVax);
-// try
-//  if not(FuncLimit(Vax,tempVax)) then Raise Exception.Create('Fault!!!!');
-//  FitFunction.Fitting(tempVax,EvolParam);
-//  if EvolParam[0]=ErResult then Raise Exception.Create('Fault!!!!');
-//  Result:=True;
-// finally
-//  dispose(tempVax);
-// end;
-//end;
-
-//Procedure dB_dU_DataCreate(Vax:PVector);
-//{на основі Vax створюється файл з
-//диференційним коефіцієнтом нахилу;
-//кінцеві дані враховують ідеалізовану залежність;
-//глобальний об'єкт Fit вже має бути створений відповідно до
-//апроксимуючої функції;
-//при розрахунках використовуються різні
-//значення, встановлені на формі
-//}
-//var
-//    temp,temp2:Pvector;
-//    Action:TFunCorrection;
-//    EP:TArrSingle;
-//    Rs:double;
-//    j:integer;
-//begin
-//  Action:= FunCorrectionDefine();
-//  new(temp);
-//  new(temp2);
-//
-//  try
-//  if not(VectorIsFitting(Vax)) then Raise Exception.Create('Fault!!!!');
-//
-//   ParameterSimplify(EvolParam,EP);
-//   Rs:=ParamDeterm(EvolParam,'Rs');
-//  if Rs=ErResult then Raise Exception.Create('Fault!!!!');
-//
-//   Vax^.Copy(temp^);
-//   for j:=0 to High(Vax^.X) do
-//     begin
-//     Vax^.X[j]:=Vax^.X[j]-Vax^.Y[j]*Rs;
-//     temp^.Y[j]:=FitFunction.FinalFunc(Vax^.X[j],EP);
-//     Vax^.Y[j]:=Vax^.Y[j]-FitFunction.FinalFunc(temp^.X[j],EvolParam)
-//                     +temp^.Y[j];
-//     temp^.X[j]:=Vax^.X[j];
-//     end;
-//  if (not(Action(temp,temp2,Form1.SpinEditDL.Value)))or
-//     (not(Action(Vax,temp,Form1.SpinEditDL.Value))) then
-//              Raise Exception.Create('Fault!!!!');
-//  temp^.T:=Vax^.T;
-//  temp^.name:=Vax^.name;
-//  temp^.DeltaY(temp2^);
-//  Splain3Vec(temp,temp^.X[0],0.002,Vax);
-//
-//  finally
-//   dispose(temp);
-//   dispose(temp2);
-//  end; //try
-//end;
-
 
 Function VectorIsFitting(Vax:TVectorTransform):boolean;
 {апроксимує дані Vax відповідно до глобального
@@ -3658,8 +3273,10 @@ begin
  tempVax:=TVector.Create;
  try
   if not(FuncLimit(Vax,tempVax)) then Raise Exception.Create('Fault!!!!');
-  FitFunction.Fitting(tempVax,EvolParam);
-  if EvolParam[0]=ErResult then Raise Exception.Create('Fault!!!!');
+  FitFunctionNew.Fitting(tempVax);
+  if not(FitFunctionNew.ResultsIsReady)
+     then Raise Exception.Create('Fault!!!!');
+  FitFunctionNew.OutputDataExport(EvolParam);
   Result:=True;
  finally
   tempVax.Free;
@@ -3696,19 +3313,24 @@ begin
   if Rs=ErResult then Raise Exception.Create('Fault!!!!');
 
    Vax.CopyTo(temp);
+
+   FitFunctionNew.OutputDataImport(EP);
    for j:=0 to Vax.HighNumber do
      begin
-     Vax.X[j]:=Vax.X[j]-Vax.Y[j]*Rs;
-     temp.Y[j]:=FitFunction.FinalFunc(Vax.X[j],EP);
-     Vax.Y[j]:=Vax.Y[j]-FitFunction.FinalFunc(temp.X[j],EvolParam)
+     temp.X[j]:=Vax.X[j]-Vax.Y[j]*Rs;
+     temp.Y[j]:=FitFunctionNew.FinalFunc(temp.X[j]);
+     end;
+
+   FitFunctionNew.OutputDataImport(EvolParam);
+   for j:=0 to Vax.HighNumber do
+     begin
+     Vax.Y[j]:=Vax.Y[j]-FitFunctionNew.FinalFunc(Vax.X[j])
                      +temp.Y[j];
-     temp.X[j]:=Vax.X[j];
+     Vax.X[j]:=temp.X[j];
      end;
   if (not(Action(temp,temp2,Form1.SpinEditDL.Value)))or
      (not(Action(Vax,temp,Form1.SpinEditDL.Value))) then
               Raise Exception.Create('Fault!!!!');
-//  temp.T:=Vax.T;
-//  temp.name:=Vax.name;
   temp.DeltaY(temp2);
   temp.Splain3(Vax,temp.X[0],0.002);
   finally
@@ -3716,39 +3338,6 @@ begin
    temp.Free;
   end; //try
 end;
-
-
-
-//Procedure  WriteToDirVectorArray(VectorArray:array of PVector;
-//           DirName,FileEnd:string);
-//{В поточній директорії створюється нова з іменем DirName і
-//туди записуються .dat файли зі вмістом VectorArray;
-//FileEnd  - те, що дописується до кінця назви файлу
-//порівняно з назвами, які містятся в VectorArray[i]^.name}
-// var j:integer;
-//     newFileName:string;
-//     Comments:TStringList;
-//begin
-//  try
-//   MkDir(DirName);
-//  except
-//  ;
-//  end; //try
-//  FileEnd:=FileEnd+'.dat';
-//  DecimalSeparator:='.';
-//  Comments:=TStringList.Create;
-//  for j := 0 to High(VectorArray) do
-//   begin
-//    newFileName:=copy(VectorArray[j]^.name,1,length(VectorArray[j]^.name)-4)+
-//     FileEnd;
-//    Write_File(CurDirectory+'\'+DirName+'\'+newFileName,VectorArray[j]);
-//    Comments.Add(newFileName);
-//    Comments.Add('T='+FloatToStrF(VectorArray[j]^.T,ffGeneral,5,2));
-//    Comments.Add('');
-//   end;
-////  Comments.SaveToFile(CurDirectory+'\'+DirName+'\comments');
-//  Comments.SaveToFile(CurDirectory+'\'+DirName+'\comments.dat');
-//end;
 
 
 Procedure  WriteToDirVectorArray(VectorArray:array of TVectorTransform;
@@ -3797,7 +3386,6 @@ begin
    end;
   SetLength(VectorArray,FileCount());
   if High(VectorArray)<0 then Exit;
-//  for i := 0 to High(VectorArray) do new(VectorArray[i]);
   for i := 0 to High(VectorArray) do VectorArray[i]:=TVectorTransform.Create;
   try
    ReadFileToVectorArray(VectorArray);
@@ -3805,14 +3393,14 @@ begin
 
   end;
 
-  FunCreate(Form1.LabIsc.Caption,FitFunction);
+  FitFunctionNew:= FitFunctionFactory(Form1.LabIsc.Caption);
   for i := 0 to High(VectorArray) do
         dB_dU_DataCreate(VectorArray[i]);
-  FitFunction.Free;
+
+  FreeAndNil(FitFunctionNew);
 
   WriteToDirVectorArray(VectorArray,'dB_dU','sm2');
 
-//  for i := 0 to High(VectorArray) do dispose(VectorArray[i]);
   for i := 0 to High(VectorArray) do VectorArray[i].Free;
 end;
 
@@ -3826,58 +3414,61 @@ Procedure VocFF_Dependence();
      nmin,nmax,ndel,n,
      Rsmin,Rsmax,Rsdel,Rs,
      Rshmin,Rshmax,Rshdel,Rsh:double;
-     FitIV{,FitIph}:TFitFunction;
+     FitIV:TFitFunctionNew;
      Iph:double;
      OutputData:TArrSingle;
+     i:integer;
 begin
  Tmin:=320;
  Tmax:=Tmin;
 // Tmin:=290;
 // Tmax:=340;
- Tdel:=StepDetermination(Tmin,Tmax,Npoint,lin);
+ Tdel:=StepDeterminationNew(Tmin,Tmax,Npoint,vr_lin);
 
  tauGmin:=log10(5e-8);
  tauGmax:=tauGmin;
 // tauGmin:=log10(1e-9);
 // tauGmax:=log10(1.02e-6);
- tauGdel:=StepDetermination(tauGmin,tauGmax,Npoint,lin);
+ tauGdel:=StepDeterminationNew(tauGmin,tauGmax,Npoint,vr_lin);
 
  tauRmin:=log10(3e-6);
  tauRmax:=tauRmin;
 // tauRmin:=log10(1e-7);
 // tauRmax:=log10(1.01e-5);
- tauRdel:=StepDetermination(tauRmin,tauRmax,Npoint,lin);
+ tauRdel:=StepDeterminationNew(tauRmin,tauRmax,Npoint,vr_lin);
 
 // nmin:=2.55;
 // nmax:=nmin;
  nmin:=2;
  nmax:=4.05;
- ndel:=StepDetermination(nmin,nmax,Npoint,lin);
+ ndel:=StepDeterminationNew(nmin,nmax,Npoint,vr_lin);
 
  Rsmin:=0.6;
  Rsmax:=Rsmin;
- Rsdel:=StepDetermination(Rsmin,Rsmax,Npoint,lin);
+ Rsdel:=StepDeterminationNew(Rsmin,Rsmax,Npoint,vr_lin);
 
 // Rshmin:=log10(1e19);
 // Rshmin:=log10(5e3);
 // Rshmax:=Rshmin;
  Rshmin:=log10(1e2);
  Rshmax:=log10(1.01e8);
- Rshdel:=StepDetermination(Rshmin,Rshmax,Npoint,lin);
+ Rshdel:=StepDeterminationNew(Rshmin,Rshmax,Npoint,vr_lin);
 
 
  Str:=TStringList.Create;
 // Str.Add('T Rs Rsh logRsh n tauG logTG tauR logTR Voc ff');
  Str.Add('T Rsh logRsh n tauR logTR tauG logTG Voc ff');
 
- FitIV:=TDoubleDiodTauLight.Create;
+ FitIV:=TFFDoubleDiodTauLight.Create;
+// FitIV:=TDoubleDiodTauLight.Create;
 // FitIph:=TCurrentSC.Create;
  SetLength(OutputData,13);
 
  OutputData[0]:=1;
  T:=Tmin;
  repeat
- (FitIV as TFitTemperatureIsUsed).T:=T;
+// (FitIV as TFitTemperatureIsUsed).T:=T;
+ (FitIV as TFFVariabSet).T:=T;
 
    Rs:=Rsmin;
    repeat
@@ -3910,7 +3501,15 @@ begin
                     Form1.Button1.Caption:='n='+floattostrf(n,ffExponent,4,0)+' Rsh='+
                     floattostrf(Rsh,ffExponent,4,0);
 //!!!!!!!!було так  (FitIV as TDoubleDiodLight).AddParDetermination(nil,OutputData);
-                    (FitIV as TDoubleDiodLight).AddParDetermination(VaxFile,OutputData);
+//                    (FitIV as TDoubleDiodLight).AddParDetermination(VaxFile,OutputData);
+
+                    FitIV.OutputDataImport(OutputData);
+                    VaxFile.Clear;
+                    for I := 0 to 100 do
+                      VaxFile.Add(i*0.01,FitIV.FinalFunc(i*0.01));
+                    OutputData[7]:=VaxFile.Voc;
+                    OutputData[10]:=VaxFile.FF;
+//                    (FitIV as TFFDoubleDiodTauLight).AddParDetermination(VaxFile,OutputData);
 
 
                     Str.Add(FloatToStrF(T,ffFixed,3,0)+' '+
@@ -3940,98 +3539,22 @@ begin
  until (T>Tmax);
 
 // FitIph.Free;
- FitIV.Free;
+// FitIV.Free;
+ FreeAndNil(FitIV);
  Str.SaveToFile('VocFF.dat');
  Str.Free;
 end;
 
 
-//Procedure ElectronConcentrationCalcul();
-// var StrEf,StrN:TStringList;
-//     T,Nd0,Nd1,Ed1,Ef:double;
-//     param:array of double;
-//begin
-// StrEf:=TStringList.Create;
-// StrN:=TStringList.Create;
-//
-// T:=15;
-// Nd0:=10;
-// Nd1:=5e16;
-// Ed1:=0.08;
-//// SetLength(param,5);
-//// param[0]:=5e16;
-//// param[1]:=0;
-//// param[2]:=Ed1;
-//// param[3]:=5e19;
-//// param[4]:=0.45;
-//
-// while(T<600) do
-// begin
-//  Ef:=Bisection(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
-////  Ef:=Hord(FermiLevelEquation,[Nd0,Nd1,Ed1,T],Diod.Semiconductor.Material.EgT(T));
-//
-//   StrEf.Add(FloatToStrF(T,ffFixed,3,0)+' '+
-//                            FloatToStrF(Ef,ffExponent,4,0));
-//
-//   StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
-//                            FloatToStrF(ElectronConcentration(T,[Nd0,Nd1,Ed1]),ffExponent,4,0));
-//
-////   StrN.Add(FloatToStrF(1/T,ffExponent,4,0)+' '+FloatToStrF(T,ffFixed,3,0)+' '+
-////                            FloatToStrF(ElectronConcentration(T,param),ffExponent,4,0));
-//   T:=T+2;
-// end;
-//
-// StrEf.SaveToFile('Ef.dat');
-// StrN.SaveToFile('n.dat');
-// StrEf.Free;
-// StrN.Free;
-//end;
-
-
  function My(T:double;d:array of double):double;
   begin
-//   Result:=Silicon.Eg(T);
-//   Result:=Diod.Semiconductor.F(T);
    Result:=Diod.Semiconductor.Material.n_i(T);
   end;
 
 
 function Button(fy:double):double;
 
-// var Vt,temp1,temp2,temp11,temp21,FVariab:double;
-//     Parameters:array of double;
-
 begin
-
-// FVariab:=295.1;
-// SetLength(Parameters,8);
-// Parameters[0]:=1e-5;
-// Parameters[1]:=1;
-// Parameters[2]:=1e4;
-// Parameters[3]:=1e-7;
-// Parameters[4]:=2;
-// Parameters[5]:=1e5;
-// Parameters[6]:=10;
-// Parameters[7]:=2.3e-4;
-//
-// Vt:=Kb*FVariab;
-// temp1:=Parameters[2]/Parameters[1];
-// temp2:=Parameters[5]/Parameters[4];
-//
-// temp11:=temp1*Parameters[0];
-// temp21:=temp2*Parameters[3];
-//
-//// Result:=fY*Parameters[6]+
-////       Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])/
-////         Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
-//
-// //         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
-////               /Power(Lambert(temp21/Vt*exp(temp2/Vt)*(fY-Parameters[3]))/temp21,Parameters[4]));
-//
-//
-// Result:=fY*Parameters[6]
-//         +Vt*ln(Power(Lambert(temp11/Vt*exp(temp1/Vt*(fY+Parameters[0]+Parameters[7])))/temp11,Parameters[1])
-//               /Power(Lambert(temp21/Vt*exp(temp2/Vt*(fY-Parameters[3])))/temp21,Parameters[4]));
 
  Result:=CastroIV(fy,[3.747e-11,1.866,
                       7.399e7,1e-13,
@@ -4043,10 +3566,6 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
-// var Vec:TVectorTransform;
-//     SA,SA2:TArrSingle;
-//     T,i:integer;
-//     Nb:double;
 begin
 
  showmessage(floattostr(FileNameToVoltage('13.dat')));
@@ -4130,18 +3649,16 @@ end;
 
 
 
+
 procedure TForm1.ButtonCreateDateClick(Sender: TObject);
 var
   SR : TSearchRec;
-  ShotName:string;
-//  Vax,Vax2:Pvector;
+  ShotName,DatesFileName:string;
   Vax:TVectorShottky;
-  Vax2:TVector;
   Rs,n:double;
-  i,j:integer;
+  i:integer;
   T_bool:boolean;
-  dat:array  of string;
-  F:TextFile;
+  dat:TArrStr;
   CL:TColName;
 
 begin
@@ -4149,11 +3666,9 @@ DecimalSeparator:='.';
 SetLength(dat,ord(High(TColName))+1);
 if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
-  FunCreate(LDateFun.Caption,FitFunction);
-
-  SetLength(dat,High(dat)+1+High(FitFunction.Xname)+1{+High(Fit.DodXname)+1});
-
-  FitFunction.Free;
+  FitFunctionNew:=FitFunctionFactory(LDateFun.Caption);
+  FitFunctionNew.ParameterNamesToArray(dat);
+  FreeAndNil(FitFunctionNew);
  end;
 
 
@@ -4163,52 +3678,31 @@ if not(SetCurrentDir(CurDirectory)) then
    MessageDlg('Current directory is not exist', mtError,[mbOk],0);
    Exit;
    end;
+DatesFileName:=CurDirectory+'\'+'dates.dat';
+
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
-//    new(Vax);
     Vax:=TVectorShottky.Create;
 
     StrGridData.RowCount:=2;
-    StrGridData.ColCount:=StrGridData.ColCount+1;
-{створюємо ще одну колонку, куди будемо заносити
-ціле число, яке пов'язане з часом створення
-файлу - SR.Time; головна ідея цього - відсортувати
-в кінці StrGridData саме по вмісту цієї колонки;
-якщо сортувати по вмісту колонки з явним часом,
-то 9:00 більше ніж 10:00 -
-в кінці-кінців поміняв на сортування за назвою файлу,
-але цей шматок вже не викидав }
-
+    AddRowToFileFromStringGrid(DatesFileName,StrGridData,0);
     repeat
      ShotName:=AnsiUpperCase(SR.name);
      if FileNameIsBad(ShotName)then Continue;
-//     showmessage(ShotName);
      try
-//     Read_File(SR.name,Vax);
      Vax.ReadFromFile(SR.name);
      except
-//     Vax^.T:=0;
      Vax.T:=0;
      end;
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'я файла - те що вводиться при вимірах :)
-//     if Vax^.T=0 then T_bool:=True;
      if Vax.T=0 then T_bool:=True;
 //     {встановлюється змінна, яка показує що є файли з невизначеною температурою}
 
      dat[ord(fname)]:=ShotName;
-     if length(dat[ord(fname)])<4 then insert('0',dat[0],1);
-     if length(dat[ord(fname)])<4 then insert('0',dat[0],1);
-     if length(dat[ord(fname)])<4 then insert('0',dat[0],1);
+     for I := 1 to 4-length(dat[ord(fname)])
+        do insert('0',dat[ord(fname)],1);
 
-//     if Vax^.time='' then dat[ord(time)]:=IntToStr(SR.Time)
-//                     else dat[ord(time)]:=Vax^.time;
-//     dat[ord(Tem)]:=FloatToStrF(Vax^.T,ffGeneral,5,2);
-//     if Vax^.T=0 then dat[ord(kT_1)]:='555'
-//                 else dat[ord(kT_1)]:=FloatToStrF(1/Kb/Vax^.T,ffGeneral,5,3);
-//
-//      if Vax^.T=0 then  Vax^.T:=300;
-//
      if Vax.time='' then dat[ord(time)]:=IntToStr(SR.Time)
                      else dat[ord(time)]:=Vax.time;
 
@@ -4221,7 +3715,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      // обчислення за функцією Чюнга
      if (Rs_Ch in ColNames) or (n_Ch in ColNames) then
       begin
-//      ChungKalk(Vax,D[diChung],GraphParameters.Rs,GraphParameters.n);
       Vax.ChungKalk(D[diChung],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_Ch)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Ch)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4231,7 +3724,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_H in ColNames) or (Fb_H in ColNames) then
       begin
       n:=nDefineCB(Vax,ComBDateHfunN,ComBDateHfunN_Rs);
-//      HFunKalk(Vax,D[diHfunc],Diod,n,GraphParameters.Rs,GraphParameters.Fb);
       Vax.HFunKalk(D[diHfunc],Diod,n,GraphParameters.Rs,GraphParameters.Fb);
       dat[ord(Rs_H)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(Fb_H)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
@@ -4241,7 +3733,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_N in ColNames) or (Fb_N in ColNames) then
       begin
       n:=nDefineCB(Vax,ComBDateNordN,ComBDateNordN_Rs);
-//      NordKalk(Vax,D[diNord],Diod,GraphParameters.Gamma,n,GraphParameters.Rs,GraphParameters.Fb);
       Vax.NordKalk(D[diNord],Diod,GraphParameters.Gamma,n,GraphParameters.Rs,GraphParameters.Fb);
       dat[ord(Rs_N)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(Fb_N)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
@@ -4252,7 +3743,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_Exp in ColNames) then
       begin
        Rs:=RsDefineCB(Vax,ComBDateExpRs,ComBDateExpRs_n);
-//       ExpKalk(Vax,D[diExp],Rs,Diod,ApprExp,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
        Vax.ExpKalk(D[diExp],Rs,Diod,ApprExp,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
        dat[ord(n_Exp)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
        dat[ord(Is_Exp)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
@@ -4264,7 +3754,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_E2F in ColNames) then
        begin
         Rs:=RsDefineCB(Vax,ComBDateEx2FRs,ComBDateEx2FRs_n);
-//        ExKalk(2,Vax,D[diE2F],Rs,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
         Vax.ExKalk(2,D[diE2F],Rs,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
         dat[ord(n_E2F)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
         dat[ord(Is_E2F)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
@@ -4276,7 +3765,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_E2R in ColNames) then
        begin
         Rs:=RsDefineCB(Vax,ComBDateEx2RRs,ComBDateEx2RRs_n);
-//        ExKalk(3,Vax,D[diE2R],Rs,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
         Vax.ExKalk(3,D[diE2R],Rs,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
         dat[ord(n_E2R)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
         dat[ord(Is_E2R)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
@@ -4286,7 +3774,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      //обчислення коефіцієнту випрямлення
     if (Kr in ColNames) then
      begin
-//     GraphParameters.Krec:=Krect(Vax,GraphParameters.Vrect);
      GraphParameters.Krec:=Vax.Krect(GraphParameters.Vrect);
      dat[ord(Kr)]:=FloatToStrF(GraphParameters.Krec,ffGeneral,3,2);
      end;
@@ -4294,7 +3781,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      // обчислення за функцією Камінські І-роду
      if (Rs_K1 in ColNames) or (n_K1 in ColNames) then
       begin
-//      Kam1Kalk(Vax,D[diKam1],GraphParameters.Rs,GraphParameters.n);
       Vax.Kam1Kalk(D[diKam1],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_K1)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_K1)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4303,7 +3789,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      // обчислення за функцією Камінські IІ-роду
      if (Rs_K2 in ColNames) or (n_K2 in ColNames) then
       begin
-//      Kam2Kalk(Vax,D[diKam2],GraphParameters.Rs,GraphParameters.n);
       Vax.Kam2Kalk(D[diKam2],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_K2)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_K2)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4314,7 +3799,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Gr1 in ColNames) or (n_Gr1 in ColNames)
          or (Is_Gr1 in ColNames) or (Fb_Gr1 in ColNames) then
       begin
-//      Gr1Kalk (Vax,D[diGr1],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       Vax.Gr1Kalk (D[diGr1],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       dat[ord(Rs_Gr1)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Gr1)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4327,7 +3811,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Gr2 in ColNames) or (n_Gr2 in ColNames)
          or (Is_Gr2 in ColNames) or (Fb_Gr2 in ColNames) then
       begin
-//      Gr2Kalk (Vax,D[diGr2],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       Vax.Gr2Kalk (D[diGr2],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       dat[ord(Rs_Gr2)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Gr2)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4338,7 +3821,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      // обчислення за методом Вернера
      if (Rs_Wer in ColNames) or (n_Wer in ColNames) then
       begin
-//      WernerKalk(Vax,D[diWer],GraphParameters.Rs,GraphParameters.n);
       Vax.WernerKalk(D[diWer],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_Wer)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Wer)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4347,7 +3829,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      // обчислення за методом Сібілса
      if (Rs_Cb in ColNames) or (n_Cb in ColNames) then
       begin
-//      CibilsKalk(Vax,D[diCib],GraphParameters.Rs,GraphParameters.n);
       Vax.CibilsKalk(D[diCib],GraphParameters.Rs,GraphParameters.n);
       dat[ord(Rs_Cb)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Cb)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4359,7 +3840,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
          or (Fb_El in ColNames) then
        begin
         Rs:=RsDefineCB(Vax,ComBDateExRs,ComBDateExRs_n);
-//        ExKalk(1,Vax,D[diEx],Rs,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
         Vax.ExKalk(1,D[diEx],Rs,Diod,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
         dat[ord(n_El)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
         dat[ord(Is_El)]:=FloatToStrF(GraphParameters.I0,ffExponent,3,2);
@@ -4370,8 +3850,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Bh in ColNames) or (n_Bh in ColNames)
          or (Is_Bh in ColNames) or (Fb_Bh in ColNames) then
       begin
-//      BohlinKalk(Vax,D[diNord],Diod,GraphParameters.Gamma1,GraphParameters.Gamma2,
-//          GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       Vax.BohlinKalk(D[diNord],Diod,GraphParameters.Gamma1,GraphParameters.Gamma2,
           GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       dat[ord(Rs_Bh)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
@@ -4384,7 +3862,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Lee in ColNames) or (n_Lee in ColNames)
          or (Is_Lee in ColNames) or (Fb_Lee in ColNames) then
       begin
-//      LeeKalk (Vax,D[diLee],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       Vax.LeeKalk (D[diLee],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.Fb,GraphParameters.I0);
       dat[ord(Rs_Lee)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Lee)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4396,7 +3873,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if (Rs_Mk in ColNames) or (n_Mk in ColNames)
          or (Is_Mk in ColNames) or (Fb_Mk in ColNames) then
       begin
-//      MikhKalk (Vax,D[diMikh],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
       Vax.MikhKalk (D[diMikh],Diod,GraphParameters.Rs,GraphParameters.n,GraphParameters.I0,GraphParameters.Fb);
       dat[ord(Rs_Mk)]:=FloatToStrF(GraphParameters.Rs,ffExponent,3,2);
       dat[ord(n_Mk)]:=FloatToStrF(GraphParameters.n,ffGeneral,4,3);
@@ -4404,189 +3880,19 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       dat[ord(Fb_Mk)]:=FloatToStrF(GraphParameters.Fb,ffGeneral,3,2);
       end;
 
-   //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-     if (Rs_ExN in ColNames) or (n_ExN in ColNames)
-         or (Is_ExN in ColNames) or (Fb_ExN in ColNames)
-         or (Rsh_ExN in ColNames) or (If_ExN in ColNames)
-         or (Isc_ExN in ColNames) or (Voc_ExN in ColNames)
-         or (Pm_ExN in ColNames) or (FF_ExN in ColNames)
-         then
-      begin
-        if GraphParameters.Iph_Exp then FitFunction:=TPhotoDiodLSM.Create
-                   else FitFunction:=TDiodLSM.Create;
-        FitFunction.FittingDiapazon(Vax,EvolParam,D[diExp]);
-        FitFunction.Free;
-        dat[ord(Rs_ExN)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
-        dat[ord(n_ExN)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
-        dat[ord(Is_ExN)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
-        dat[ord(Rsh_ExN)]:=FloatToStrF(EvolParam[3],ffExponent,3,2);
-        if GraphParameters.Iph_Exp then
-          begin
-            dat[ord(Fb_ExN)]:='555';
-            dat[ord(If_ExN)]:=FloatToStrF(EvolParam[4],ffExponent,3,2);
-            dat[ord(Isc_ExN)]:=FloatToStrF(EvolParam[6],ffExponent,3,2);
-            dat[ord(Pm_ExN)]:=FloatToStrF(EvolParam[7],ffExponent,3,2);
-            dat[ord(Voc_ExN)]:=FloatToStrF(EvolParam[5],ffGeneral,4,3);
-            dat[ord(FF_ExN)]:=FloatToStrF(EvolParam[8],ffGeneral,4,3);
-          end
-                  else
-          begin
-            dat[ord(Fb_ExN)]:=FloatToStrF(EvolParam[4],ffGeneral,4,3);
-            dat[ord(If_ExN)]:='0';
-            dat[ord(Isc_ExN)]:='0';
-            dat[ord(Pm_ExN)]:='0';
-            dat[ord(Voc_ExN)]:='0';
-            dat[ord(FF_ExN)]:='0';
-          end;
-
-      end;
-
-   //обчислення шляхом апроксимації І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph
-   //функцією Ламберта
-     if (Rs_Lam in ColNames) or (n_Lam in ColNames)
-         or (Is_Lam in ColNames) or (Fb_Lam in ColNames)
-         or (Rsh_Lam in ColNames) or (If_Lam in ColNames)
-         or (Isc_Lam in ColNames) or (Voc_Lam in ColNames)
-         or (Pm_Lam in ColNames) or (FF_Lam in ColNames)
-         then
-      begin
-        if GraphParameters.Iph_Lam then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
-        FitFunction.FittingDiapazon(Vax,EvolParam,D[diLam]);
-        FitFunction.Free;
-        dat[ord(Rs_Lam)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
-        dat[ord(n_Lam)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
-        dat[ord(Is_Lam)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
-        dat[ord(Rsh_Lam)]:=FloatToStrF(EvolParam[3],ffExponent,3,2);
-        if GraphParameters.Iph_Lam then
-          begin
-            dat[ord(Fb_Lam)]:='555';
-            dat[ord(If_Lam)]:=FloatToStrF(EvolParam[4],ffExponent,3,2);
-            dat[ord(Isc_Lam)]:=FloatToStrF(EvolParam[6],ffExponent,3,2);
-            dat[ord(Pm_Lam)]:=FloatToStrF(EvolParam[7],ffExponent,3,2);
-            dat[ord(Voc_Lam)]:=FloatToStrF(EvolParam[5],ffGeneral,4,3);
-            dat[ord(FF_Lam)]:=FloatToStrF(EvolParam[8],ffGeneral,4,3);
-          end
-                  else
-          begin
-            dat[ord(Fb_Lam)]:=FloatToStrF(EvolParam[4],ffGeneral,4,3);
-            dat[ord(If_Lam)]:='0';
-            dat[ord(Isc_Lam)]:='0';
-            dat[ord(Pm_Lam)]:='0';
-            dat[ord(Voc_Lam)]:='0';
-            dat[ord(FF_Lam)]:='0';
-          end;
-      end;
-
-
-   //обчислення шляхом апроксимації
-   //І=I0*[exp(q(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph,
-   //еволюційні методи
-     if (Rs_DE in ColNames) or (n_DE in ColNames)
-         or (Is_DE in ColNames) or (Fb_DE in ColNames)
-         or (Rsh_DE in ColNames) or (If_DE in ColNames)
-         or (Isc_DE in ColNames) or (Voc_DE in ColNames)
-         or (Pm_DE in ColNames) or (FF_DE in ColNames)
-         then
-      begin
-        if GraphParameters.Iph_DE then FitFunction:=TPhotoDiod.Create
-                   else FitFunction:=TDiod.Create;
-        FitFunction.FittingDiapazon(Vax,EvolParam,D[diDE]);
-        FitFunction.Free;
-        dat[ord(Rs_DE)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
-        dat[ord(n_DE)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
-        dat[ord(Is_DE)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
-        dat[ord(Rsh_DE)]:=FloatToStrF(EvolParam[3],ffExponent,3,2);
-        if GraphParameters.Iph_DE then
-          begin
-            dat[ord(Fb_DE)]:='555';
-            dat[ord(If_DE)]:=FloatToStrF(EvolParam[4],ffExponent,3,2);
-            dat[ord(Isc_DE)]:=FloatToStrF(EvolParam[6],ffExponent,3,2);
-            dat[ord(Pm_DE)]:=FloatToStrF(EvolParam[7],ffExponent,3,2);
-            dat[ord(Voc_DE)]:=FloatToStrF(EvolParam[5],ffGeneral,4,3);
-            dat[ord(FF_DE)]:=FloatToStrF(EvolParam[8],ffGeneral,4,3);
-          end
-                  else
-          begin
-            dat[ord(Fb_DE)]:=FloatToStrF(EvolParam[4],ffGeneral,4,3);
-            dat[ord(If_DE)]:='0';
-            dat[ord(Isc_DE)]:='0';
-            dat[ord(Pm_DE)]:='0';
-            dat[ord(Voc_DE)]:='0';
-            dat[ord(FF_DE)]:='0';
-          end;
-      end;
-
-
-   //обчислення шляхом апроксимації
-   //І=I01*[exp(q(V-IRs)/n1kT)-1]+I02*[exp(q(V-IRs)/n2kT)-1]+(V-IRs)/Rsh-Iph,
-   //еволюційні методи
-     if (Rs_EA in ColNames) or (n1_EA in ColNames)
-         or (Is1_EA in ColNames) or (n2_EA in ColNames) or (Is2_EA in ColNames)
-         or (Rsh_EA in ColNames) or (If_EA in ColNames)
-         or (Isc_EA in ColNames) or (Voc_EA in ColNames)
-         or (Pm_EA in ColNames) or (FF_EA in ColNames)
-         then
-      begin
-        if GraphParameters.Iph_DE then FitFunction:=TDoubleDiodLight.Create
-                   else FitFunction:=TDoubleDiod.Create;
-        FitFunction.FittingDiapazon(Vax,EvolParam,D[diDE]);
-        FitFunction.Free;
-        dat[ord(Rs_EA)]:=FloatToStrF(EvolParam[1],ffExponent,3,2);
-        dat[ord(n1_EA)]:=FloatToStrF(EvolParam[0],ffGeneral,4,3);
-        dat[ord(Is1_EA)]:=FloatToStrF(EvolParam[2],ffExponent,3,2);
-        dat[ord(Rsh_EA)]:=FloatToStrF(EvolParam[3],ffExponent,3,2);
-        dat[ord(n2_EA)]:=FloatToStrF(EvolParam[4],ffGeneral,4,3);
-        dat[ord(Is2_EA)]:=FloatToStrF(EvolParam[5],ffExponent,3,2);
-        if GraphParameters.Iph_DE then
-          begin
-            dat[ord(If_EA)]:=FloatToStrF(EvolParam[6],ffExponent,4,3);
-            dat[ord(Isc_EA)]:=FloatToStrF(EvolParam[8],ffExponent,4,3);
-            dat[ord(Pm_EA)]:=FloatToStrF(EvolParam[9],ffExponent,4,3);
-            dat[ord(Voc_EA)]:=FloatToStrF(EvolParam[7],ffGeneral,4,3);
-            dat[ord(FF_EA)]:=FloatToStrF(EvolParam[10],ffGeneral,4,3);
-          end
-                  else
-          begin
-            dat[ord(If_EA)]:='0';
-            dat[ord(Isc_EA)]:='0';
-            dat[ord(Pm_EA)]:='0';
-            dat[ord(Voc_EA)]:='0';
-            dat[ord(FF_EA)]:='0';
-          end;
-
-      end;
 
     //обчислення за допомогою обраної функції
     if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
      begin
-//      dat[ord(High(TColName))+1]:=FloatToStrF(Vax^.MeanY,ffExponent,10,2);
-//      dat[ord(High(TColName))+2]:=FloatToStrF(Vax^.StandartErrorY,ffExponent,10,2);
+      FitFunctionNew:=FitFunctionFactory(LDateFun.Caption);
+      FitFunctionNew.Fitting(Vax);
 
-      FunCreate(LDateFun.Caption,FitFunction,SR.name);
-//      new(Vax2);
-//      Vax.Copy(Vax2^);
-//      if (LDateFun.Caption=FunctionPhotoDDiod)
-//           then  A_B_Diapazon(Vax,Vax2,D[diDE],True)
-//           else  A_B_Diapazon(Vax,Vax2,D[diDE]);
-      Vax2:=TVector.Create;
-      Vax.CopyDiapazonPoint(Vax2,D[diDE]);
-
-      FitFunction.Fitting(Vax2,EvolParam);
-
-//      dispose(Vax2);
-      Vax2.Free;
-      for i:=0 to High(FitFunction.Xname) do
-        dat[ord(High(TColName))+1+i]:=
-           FloatToStrF(EvolParam[i],ffExponent,10,2);
-      FitFunction.Free;
-
-      if EvolParam[0]=ErResult then Break;
-
+      if FitFunctionNew.ResultsIsReady then
+       for i:=0 to FitFunctionNew.ParametersNumber-1 do
+        StrGridData.Cells[StrGridData.ColCount-1-i,StrGridData.RowCount-1]:=
+           FloatToStrF((FitFunctionNew as TFFSimple).DParamArray.OutputData[FitFunctionNew.ParametersNumber-1-i],ffExponent,10,2);
+      FreeAndNil(FitFunctionNew);
      end;
-
-
-
 
     i:=0;
     for CL:=Low(CL) to High(CL) do
@@ -4595,50 +3901,18 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         StrGridData.Cells[i,StrGridData.RowCount-1]:=dat[ord(CL)];
         i:=i+1;
         end;
-    StrGridData.Cells[StrGridData.ColCount-1,StrGridData.RowCount-1]:=IntToStr(SR.Time);
-    if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
-     begin
-      FunCreate(LDateFun.Caption,FitFunction);
-
-      for i:=0 to High(FitFunction.Xname) do
-        StrGridData.Cells[StrGridData.ColCount-2-i,StrGridData.RowCount-1]:=
-           dat[High(dat)-i];
-      FitFunction.Free;
-     end;
-
-    StrGridData.RowCount:=StrGridData.RowCount+1;
-
-
 //_________________________
-   AssignFile(f,CurDirectory+'\'+'dates.dat');
-   Rewrite(f);
-   for j := 0 to StrGridData.RowCount-2 do
-     begin
-     for I := 0 to StrGridData.ColCount-2 do
-                           write(f,StrGridData.Cells[i,j],' ');
-     writeln(f);
-     end;
-    CloseFile(f);
+   AddRowToFileFromStringGrid(DatesFileName,StrGridData,StrGridData.RowCount-1);
 //___________________________
-
+    StrGridData.RowCount:=StrGridData.RowCount+1;
 
     until FindNext(SR) <> 0;
 
    StrGridData.RowCount:=StrGridData.RowCount-1;
    SortGrid(StrGridData,0);
-   StrGridData.ColCount:=StrGridData.ColCount-1;
 
-   AssignFile(f,CurDirectory+'\'+'dates.dat');
-   Rewrite(f);
-   for j := 0 to StrGridData.RowCount-1 do
-     begin
-     for I := 0 to StrGridData.ColCount-1 do
-                           write(f,StrGridData.Cells[i,j],' ');
-     writeln(f);
-     end;
-    CloseFile(f);
-//    dispose(Vax);
-    Vax.Free;
+   StringGridToFile(DatesFileName,StrGridData);
+    FreeAndNil(Vax);
 
     FindClose(SR);
     if T_bool then MessageDlg('Some data can be equal 555 because temperuture is undefined', mtInformation,[mbOk],0);
@@ -4647,11 +3921,12 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
           MessageDlg('No *.dat file in current directory', mtError,[mbOk],0);
 end;
 
+
+
 procedure TForm1.ButtonCreateFileClick(Sender: TObject);
 var
   SR : TSearchRec;
   ShotName:string;
-//  Vax, tempVax:Pvector;
   Vax:TVectorShottky;
   tempVax:TVector;
   j:integer;
@@ -4668,8 +3943,6 @@ if not(SetCurrentDir(CurDirectory)) then
    end;
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
-//    new(Vax);
-//    new(tempVax);
     Vax:=TVectorShottky.Create;
     tempVax:=TVector.Create;
     Inform:=TStringlist.Create;
@@ -4692,8 +3965,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
      Inform.Add(ShotName);
-//     Inform.Add('T='+FloatToStrF(Vax^.T,ffGeneral,5,2));
-//     if Vax^.T=0 then T_bool:=True;
      Inform.Add('T='+FloatToStrF(Vax.T,ffGeneral,5,2));
      if Vax.T=0 then T_bool:=True;
      {встановлюється змінна, яка показує що є файли з невизначеною температурою}
@@ -4704,131 +3975,97 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       begin
       case DR of
        ForwRs:
-//        ForwardIVwithRs(Vax,tempVax,RsDefineCB(Vax,ComBForwRs,ComBForwRs_n));
         Vax.ForwardIVwithRs(tempVax,RsDefineCB(Vax,ComBForwRs,ComBForwRs_n));
 {---------------------------------------------}
        Cheung:
-//        ChungFun(Vax,tempVax);
         Vax.ChungFun(tempVax);
 {---------------------------------------------}
        Hfunct:
-//        HFun(Vax,tempVax,Diod,nDefineCB(Vax,CombHfuncN,CombHfuncN_Rs));
         Vax.HFun(tempVax,Diod,nDefineCB(Vax,CombHfuncN,CombHfuncN_Rs));
 {---------------------------------------------}
        Norde:
-//         NordeFun(Vax,tempVax,Diod,GraphParameters.Gamma);
          Vax.NordeFun(tempVax,Diod,GraphParameters.Gamma);
 {---------------------------------------------}
        Ideal:
-//         N_V_Fun(Vax,tempVax,RsDefineCB(Vax,ComBNRs,ComBNRs_n));
          Vax.N_V_Fun(tempVax,RsDefineCB(Vax,ComBNRs,ComBNRs_n));
 {---------------------------------------------}
        Nss:
          begin
-//        Nss_Fun(Vax,tempVax,
         Vax.Nss_Fun(tempVax,
                FbDefineCB(Vax,ComboBNssFb,RsDefineCB(Vax,ComBNssRs,ComBNssRs_n)),
                RsDefineCB(Vax,ComBNssRs,ComBNssRs_n),
                Diod,D[diNss],RadButNssNvD.Checked);
-//          Sorting(tempVax);
           TempVax.Sorting;
          end;
 {---------------------------------------------}
        Reverse:
-//        ReverseIV(Vax,tempVax);
         Vax.ReverseIV(tempVax);
 {---------------------------------------------}
        Kamin1:
-//         Kam1_Fun(Vax,tempVax,D[diKam1]);
          Vax.Kam1_Fun(tempVax,D[diKam1]);
 {---------------------------------------------}
        Kamin2:
-//         Kam2_Fun(Vax,tempVax,D[diKam2]);
          Vax.Kam2_Fun(tempVax,D[diKam2]);
 {---------------------------------------------}
        Gromov1:
-//         Gr1_Fun(Vax,tempVax);
          Vax.Gr1_Fun(tempVax);
 {---------------------------------------------}
        Gromov2:
-//         Gr2_Fun(Vax,tempVax,Diod);
          Vax.Gr2_Fun(tempVax,Diod);
 {---------------------------------------------}
        Cibil:
-//         CibilsFun(Vax,D[diCib],tempVax);
          Vax.CibilsFun(tempVax,D[diCib]);
 {---------------------------------------------}
        Lee:
-//         LeeFun(Vax,D[diLee],tempVax);
          Vax.LeeFun(tempVax,D[diLee]);
 {---------------------------------------------}
        Werner:
-//         WernerFun(Vax,tempVax);
          Vax.WernerFun(tempVax);
 {---------------------------------------------}
        MAlpha:
-//         MikhAlpha_Fun(Vax,tempVax);
          Vax.MikhAlpha_Fun(tempVax);
 {---------------------------------------------}
        MBetta:
          Vax.MikhBetta_Fun(tempVax);
-//         MikhBetta_Fun(Vax,tempVax);
 {---------------------------------------------}
        MIdeal:
-//         MikhN_Fun(Vax,tempVax);
          Vax.MikhN_Fun(tempVax);
 {---------------------------------------------}
        MRserial:
-//         MikhRs_Fun(Vax,tempVax);
          Vax.MikhRs_Fun(tempVax);
 {---------------------------------------------}
        Dit:
-//         Dit_Fun(Vax,tempVax,
-//                 RsDefineCB(Vax,ComBDitRs,ComBDitRs_n),
-//                 Diod,D[diIvan]);
          Vax.Dit_Fun(tempVax,
                  RsDefineCB(Vax,ComBDitRs,ComBDitRs_n),
                  Diod,D[diIvan]);
 {---------------------------------------------}
       Exp2F:
-//        Forward2Exp(Vax,tempVax,RsDefineCB(Vax,ComBExp2FRs,ComBExp2FRs_n));
         Vax.Forward2Exp(tempVax,RsDefineCB(Vax,ComBExp2FRs,ComBExp2FRs_n));
 {---------------------------------------------}
       Exp2R:
-//        Reverse2Exp(Vax,tempVax,RsDefineCB(Vax,ComBExp2RRs,ComBExp2RRs_n));
         Vax.Reverse2Exp(tempVax,RsDefineCB(Vax,ComBExp2RRs,ComBExp2RRs_n));
 {---------------------------------------------}
        M_V:
          Vax.M_V_Fun(tempVax,CBM_Vdod.Checked,fnPowerIndex);
-//         M_V_Fun(Vax,tempVax,CBM_Vdod.Checked,fnPowerIndex);
 {---------------------------------------------}
        Fow_Nor:
          Vax.M_V_Fun(tempVax,CBFow_Nordod.Checked,fnFowlerNordheim);
-//         M_V_Fun(Vax,tempVax,CBFow_Nordod.Checked,fnFowlerNordheim);
 {---------------------------------------------}
        Fow_NorE:
-//         M_V_Fun(Vax,tempVax,CBFow_NorEdod.Checked,fnFowlerNordheimEm);
          Vax.M_V_Fun(tempVax,CBFow_NorEdod.Checked,fnFowlerNordheimEm);
 {---------------------------------------------}
        Abeles:
-//         M_V_Fun(Vax,tempVax,CBAbelesdod.Checked,fnAbeles);
          Vax.M_V_Fun(tempVax,CBAbelesdod.Checked,fnAbeles);
 {---------------------------------------------}
        AbelesE:
-//         M_V_Fun(Vax,tempVax,CBAbelesEdod.Checked,fnAbelesEm);
          Vax.M_V_Fun(tempVax,CBAbelesEdod.Checked,fnAbelesEm);
 {---------------------------------------------}
        Fr_Pool:
-//         M_V_Fun(Vax,tempVax,CBFr_Pooldod.Checked,fnFrenkelPool);
          Vax.M_V_Fun(tempVax,CBFr_Pooldod.Checked,fnFrenkelPool);
 {---------------------------------------------}
        Fr_PoolE:
-//         M_V_Fun(Vax,tempVax,CBFr_PoolEdod.Checked,fnFrenkelPoolEm);
          Vax.M_V_Fun(tempVax,CBFr_PoolEdod.Checked,fnFrenkelPoolEm);
      end; //case
-//       Write_File(CurDirectory+'\'+
-//         GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+ShotName+
-//         GetEnumName(TypeInfo(Tfile_end),ord(DR))+'.dat',tempVax);
        tempVax.WriteToFile(CurDirectory+'\'+
          GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+ShotName+
          GetEnumName(TypeInfo(Tfile_end),ord(DR))+'.dat');
@@ -4840,7 +4077,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       if (DR in DirNames) then
        begin
         AssignFile(f,CurDirectory+'\'+
-//        GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+'comments');
         GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+'comments.dat');
         Rewrite(f);
         for j := 0 to Inform.Count-1 do
@@ -4854,8 +4090,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
             GetEnumName(TypeInfo(Tfile_end),ord(DR))+'.dat');
         CloseFile(f);
        end;
-//    dispose(Vax);
-//    dispose(tempVax);
     Vax.Free;
     tempVax.Free;
     Inform.Free;
@@ -4887,7 +4121,6 @@ GraphParameters.Clear;
 
  tg:=ConvertStringToTGraph(CBKalk);
 
-//if VaxFile^.T<=0 then
 if VaxFile.T<=0 then
  begin
   if tg in [fnCheung,fnKaminskii1,fnKaminskii2,
@@ -4919,7 +4152,6 @@ if VaxFile.T<=0 then
 //QueryPerformanceCounter(StartValue);
 
  GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
-// GraphParameterCalculation(VaxFile,tg);
  VaxFile.GraphParameterCalculation(tg);
 
 
@@ -4992,7 +4224,6 @@ LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
 if Form1.SpButLimit.Down then
                 begin
                 Form1.SpButLimit.Down:=False;
-//                IVChar(VaxTempLim, VaxGraph);
                 VaxTempLim.CopyTo(VaxGraph);
                 DataToGraph(Series1,Series2,Graph,
                 Graph.Title.Text.Strings[0],VaxGraph);
@@ -5016,7 +4247,6 @@ LimitSetup(GrLim, RdGrMin, RdGrMax, LabelMin, LabelMax);
 if Form1.SpButLimit.Down then
                 begin
                 Form1.SpButLimit.Down:=False;
-//                IVChar(VaxTempLim, VaxGraph);
                 VaxTempLim.CopyTo(VaxGraph);
                 DataToGraph(Series1,Series2,Graph,
                 Graph.Title.Text.Strings[0],VaxGraph);
@@ -5047,7 +4277,6 @@ procedure TForm1.ButtonVoltClick(Sender: TObject);
 var
   SR : TSearchRec;
   mask,ShotName:string;
-//  Vax:Pvector;
   Vax:TVectorShottky;
   i,j,k:integer;
   F:TextFile;
@@ -5065,7 +4294,6 @@ if not(SetCurrentDir(CurDirectory)) then
 mask:='*.dat';
 if FindFirst(mask, faAnyFile, SR) = 0 then
   begin
-//    new(Vax);
     Vax:=TVectorShottky.Create;
       try
       MkDir('Zriz');
@@ -5101,7 +4329,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
     repeat
      ShotName:=AnsiUpperCase(SR.name);
-//     Vax.ReadFromFile(SR.name);
      Vax.ReadFromFile(SR.name);
      ShotName:=copy(ShotName,1,length(ShotName)-4);
      //в ShotName коротке ім'z файла - те що вводиться при вимірах :)
@@ -5109,10 +4336,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      if length(ShotName)<3 then insert('0',ShotName,1);
 
      Grid.Cells[0,Grid.RowCount-1]:=ShotName;
-//     Grid.Cells[1,Grid.RowCount-1]:=Vax^.time;
-//     Grid.Cells[2,Grid.RowCount-1]:=FloatToStrF(Vax^.T,ffGeneral,4,1);
-//     if Vax^.T=0 then Grid.Cells[3,Grid.RowCount-1]:='555'
-//                 else Grid.Cells[3,Grid.RowCount-1]:=FloatToStrF(1/Kb/Vax^.T,ffGeneral,4,2);
      Grid.Cells[1,Grid.RowCount-1]:=Vax.time;
      Grid.Cells[2,Grid.RowCount-1]:=FloatToStrF(Vax.T,ffGeneral,4,1);
      if Vax.T=0 then Grid.Cells[3,Grid.RowCount-1]:='555'
@@ -5121,13 +4344,9 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
      for I := 0 to High(Volt) do
      begin
-//       Cur:=abs(ChisloY(Vax,Volt[i]));
        Cur:=abs(Vax.Yvalue(Volt[i]));
        Grid.Cells[k*i+4,Grid.RowCount-1]:=FloatToStrF(Cur,ffExponent,4,3);
        if (CheckBoxLnIT2.Checked)then
-//           if ((Vax^.T)>0)and(Cur<>ErResult)
-//                         then Grid.Cells[k*i+1+4,Grid.RowCount-1]:=
-//                                  FloatToStrF(ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
            if ((Vax.T)>0)and(Cur<>ErResult)
                          then Grid.Cells[k*i+1+4,Grid.RowCount-1]:=
                                   FloatToStrF(ln(Cur/sqr(Vax.T)),ffExponent,5,4)
@@ -5135,21 +4354,14 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
 
        RsDefineCB(Vax,ComBDateExRs,ComBDateExRs_n);
        GraphParameters.Diapazon:=D[diEx];
-//       ExKalk(1,Vax);
        Vax.ExKalk(1);
 
        if (CheckBoxnLnIT2.Checked)and(not(CheckBoxLnIT2.Checked)) then
-//           if ((Vax^.T)>0)and(Cur<>ErResult)and(GraphParameters.n<>ErResult)
-//                         then Grid.Cells[k*i+1+4,Grid.RowCount-1]:=
-//                                  FloatToStrF(GraphParameters.n*ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
            if ((Vax.T)>0)and(Cur<>ErResult)and(GraphParameters.n<>ErResult)
                          then Grid.Cells[k*i+1+4,Grid.RowCount-1]:=
                                   FloatToStrF(GraphParameters.n*ln(Cur/sqr(Vax.T)),ffExponent,5,4)
                          else Grid.Cells[k*i+1+4,Grid.RowCount-1]:='555';
        if k=3 then
-//           if ((Vax^.T)>0)and(Cur<>ErResult)and(GraphParameters.n<>ErResult)
-//                         then Grid.Cells[k*i+2+4,Grid.RowCount-1]:=
-//                                  FloatToStrF(GraphParameters.n*ln(Cur/sqr(Vax^.T)),ffExponent,5,4)
            if ((Vax.T)>0)and(Cur<>ErResult)and(GraphParameters.n<>ErResult)
                          then Grid.Cells[k*i+2+4,Grid.RowCount-1]:=
                                   FloatToStrF(GraphParameters.n*ln(Cur/sqr(Vax.T)),ffExponent,5,4)
@@ -5158,7 +4370,6 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
     //************
     if CBVoc.Checked then
      begin
-//     Cur:=abs(ChisloX(Vax,0));
      Cur:=abs(Vax.Yvalue(0));
      Grid.Cells[Grid.ColCount-1,Grid.RowCount-1]:=FloatToStrF(Cur,ffExponent,4,3);
      end;
@@ -5213,10 +4424,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
      end;
     //************
 
-
-
     end;
-//    dispose(Vax);
     Vax.Free;
     FindClose(SR);
     Grid.Free;
@@ -5273,21 +4481,23 @@ end;
 
 procedure TForm1.CBDateFunClick(Sender: TObject);
 var i:integer;
+    tempStr:TArrStr;
 begin
 ColParam(Form1.StrGridData);
 if LDateFun.Caption='None' then Exit;
 if CBDateFun.Checked then
        begin
-        FunCreate(LDateFun.Caption,FitFunction);
-        if  not(Assigned(FitFunction)) then Exit;
+       FitFunctionNew:=FitFunctionFactory(LDateFun.Caption);
+        if FitFunctionNew=nil then Exit;
 
-        for i:=0 to High(FitFunction.Xname) do
+       FitFunctionNew.ParameterNamesToArray(tempStr);
+       for i:=0 to High(tempStr) do
           begin
           StrGridData.ColCount:=StrGridData.ColCount+1;
-          StrGridData.Cells[StrGridData.ColCount-1, 0]:=FitFunction.Xname[i];
+          StrGridData.Cells[StrGridData.ColCount-1, 0]:=tempStr[i];
           StrGridData.Cells[StrGridData.ColCount-1, 1]:='';
           end;
-        FitFunction.Free;
+        FreeAndNil(FitFunctionNew);
        end
 end;
 
@@ -5404,8 +4614,6 @@ if CBMarker.Checked then
    end;
 
    TrackBarMar.Min:=0;
-//   TrackBarMar.Max:=VaxGraph^.n-1;
-//   TrackBarMar.Position:=round(VaxGraph.n/2);
    TrackBarMar.Max:=VaxGraph.HighNumber;
    TrackBarMar.Position:=round(VaxGraph.Count/2);
   end
@@ -5449,7 +4657,6 @@ begin
          end;
        if not Assigned(BaseLineCur)
             then BaseLineCur:=Curve3.Create(Series1.MinYValue,0,0);
-//            else BaseLineCur.A:=Series1.MinYValue;
        BaseLine.Clear;
        GraphFill(BaseLine,BaseLineCur.Parab,
                    Series1.MinXValue,Series1.MaxXValue,150);
@@ -5478,7 +4685,6 @@ end;
 procedure TForm1.CBoxDLBuildClick(Sender: TObject);
 var str:string;
 begin
-//VaxGraph^.n:=0;
 VaxGraph.Clear;
 ButSaveDL.Enabled:=CBoxDLBuild.Checked;
 if CBoxDLBuild.Checked then
@@ -5491,7 +4697,6 @@ if CBoxDLBuild.Checked then
         GaussLinesToGrid;
         end;
       dB_dV_Fun(VaxFile,VaxGraph,SpinEditDL.Value,LabIsc.Caption,CBoxRCons.Checked);
-//     str:='dB/dV';
       str:=CBDLFunction.Items[CBDLFunction.ItemIndex];
     end;
 ShowGraph(Form1,str);
@@ -5501,7 +4706,6 @@ procedure TForm1.CBoxGLShowClickAve(Sender: TObject);
 begin
  if High(GausLines)<0 then Exit;
  GraphAverage(GausLines,CBoxGLShow.Checked);
-// GraphToVector(GausLines[0],VaxFile);
  VaxFile.ReadFromGraph(GausLines[0]);
  GraphShow(Form1);
 end;
@@ -5567,28 +4771,6 @@ if RadioButtonFPEm.Checked then
                  RadioButtonM_VClick(RadioButtonFPEm);
 end;
 
-
-//procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
-//          Temperature:TLabel; a:PVector);
-//var i:integer;
-//begin
-//  Sheet.Visible:=True;
-//  Sheet.RowCount:=2;
-//  for i:=0 to High(a^.X) do
-//    begin
-//      Sheet.Cells[0,i+1]:=IntToStr(i+1);
-//      Sheet.Cells[1,i+1]:=FloatToStrF(a^.X[i],ffGeneral,4,3);
-//      Sheet.Cells[2,i+1]:=FloatToStrF(a^.Y[i],ffExponent,3,2);
-//      Sheet.RowCount:=Sheet.RowCount+1;
-//    end;
-//  Sheet.RowCount:=Sheet.RowCount-1;
-//  NameFile.Visible:=True;
-//  Temperature.Visible:=True;
-//  NameFile.Caption:='File name: '+ a^.name;
-//  Temperature.Caption:='Temperature = '
-//      + FloatToStrF(a^.T,ffGeneral,5,2)+' K';
-//end;
-
 procedure FileToDataSheet(Sheet:TStringGrid; NameFile:TLabel;
           Temperature:TLabel; a:TVector);
 var i:integer;
@@ -5609,28 +4791,6 @@ begin
   Temperature.Caption:='Temperature = '
       + FloatToStrF(a.T,ffGeneral,5,2)+' K';
 end;
-
-//procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
-//          Graph: TChart; Caption:string; a:PVector);
-//var i:word;
-//begin
-// SeriesPoint.Clear;
-// SeriesLine.Clear;
-// Graph.LeftAxis.Automatic:=true;
-// Graph.BottomAxis.Automatic:=true;
-//
-//
-// if a^.n>0 then
-//  begin
-//   for i:=0 to High(a^.X) do
-//    begin
-//     SeriesPoint.AddXY(a^.X[i],a^.Y[i],'',clRed);
-//     SeriesLine.AddXY(a^.X[i],a^.Y[i],'',clRed);
-//    end;
-//  end;
-// Graph.Title.Text.Clear;
-// Graph.Title.Text.Append(Caption);
-//end;
 
 procedure DataToGraph(SeriesPoint, SeriesLine:TChartSeries;
           Graph: TChart; Caption:string; a:TVector);
@@ -5655,25 +4815,6 @@ begin
  Y.Checked:=False;
  Graph.LeftAxis.Logarithmic:=False;
 end;
-
-//procedure MarkerDraw (Graph,Vax:PVector; Point:Integer; F:TForm1);
-//{процедура малювання вертикального маркера
-//в точці з номером Рoint масиву Graph;
-//в мітки виводяться номер та координати точки, через
-//яку проводиться маркер; координати виводяться
-//як точок вихідної ВАХ (масив VAX), так і перебудованої
-//кривої (з масиву Graph)}
-//begin
-//  F.Series3.Clear;
-//  F.Series3.AddXY(VaxGraph.X[Point],F.Series2.MinYValue);
-//  F.Series3.AddXY(Graph.X[Point],F.Series2.MaxYValue);
-//  F.Series3.Active:=True;
-//  F.LabMarN.Caption:='N='+IntToStr(Point+1+Graph.N_begin);
-//  F.LabMarX.Caption:='X='+FloatToStrF(Vax^.X[Point+Graph.N_begin],ffGeneral,4,3);
-//  F.LabMarY.Caption:='Y='+FloatToStrF(Vax^.Y[Point+Graph.N_begin],ffExponent,3,2);
-//  F.LabelMarXGr.Caption:='X='+FloatToStrF(Graph^.X[Point],ffExponent,2,1);
-//  F.LabelMarYGr.Caption:='Y='+FloatToStrF(Graph^.Y[Point],ffExponent,3,2);
-//end;
 
 procedure MarkerDraw (Graph,Vax:TVector; Point:Integer; F:TForm1);overload;
 begin
@@ -5707,16 +4848,6 @@ begin
   {про Tag=58 і Tag=59 див. у методі CBMarkerClick}
 
 end;
-
-//procedure ApproxHide(Form1:TForm1);
-//{прибирається апроксимаційна крива,
-//відповідна кнопка переводиться в ненатиснутий стан}
-//begin
-////  Form1.CBoxAppr.Checked:=False;
-//  Form1.SButFit.Down:=False;
-//  Form1.Series4.Active:=False;
-//end;
-
 
 procedure LimitSetup(Lim:Limits; Min, Max:TRadioGroup;
                      LMin, LMax:TLabel);
@@ -5772,7 +4903,6 @@ Form1.CBMarker.Checked:=False;
 if Form1.SpButLimit.Down then
                 begin
                 Form1.SpButLimit.Down:=False;
-//                IVChar(VaxTempLim, VaxGraph);
                 VaxTempLim.CopyTo(VaxGraph);
                 end;
 Form1.ApproxHide;
@@ -5893,57 +5023,6 @@ begin
   FormToDiap(FrDp.LEXMin,FrDp.LEYmin,FrDp.LEXmax,FrDp.LEYMax,D)
 end;
 
-//procedure StrToNumber(St:TCaption; Def:double; var Num:double);
-//{процедура переведення тестового рядка St в чисельне
-//значення Num;
-//якщо формат рядка поганий - змінна не зміниться,
-//буде показано віконечко з відповідним написом;
-//якщо рядок порожній - Num  буде присвоєне
-//значення Def}
-//var temp:real;
-//begin
-//if St='' then Num:=Def
-//         else
-//          begin
-//           try
-//            temp:=StrToFloat(St);
-//           except
-//            on Exception : EConvertError do
-//                   begin
-//                   ShowMessage(Exception.Message);
-//                   Exit;
-//                   end;
-//           end;//try
-//           Num:=temp;
-//          end;//else
-//end;
-
-
-//Function RsDefineCB(A:PVector; CB, CBdod:TComboBox):double;
-//{в залежності від вибраного значення
-//в списку ComboBox
-//визначаеться величина послідовного опору;
-//якщо у відповідному методі необхідне
-//значення n, то воно обчислюється залежно від того,
-//що вибрано в CBdod}
-//var //n_tmp:double;
-//    tg:TGraph;
-//begin
-// Result:=ErResult;
-//
-// tg:=ConvertStringToTGraph(CB);
-// if tg in [fnH,fnNorde] then
-//     begin
-//      GraphParCalculComBox(A,CBdod);
-//      if GraphParameters.n=ErResult then Exit;
-//     end;
-//
-// GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
-// GraphParameterCalculation(A,tg);
-// Result:=GraphParameters.Rs;
-//
-//end;
-
 Function RsDefineCB(A:TVectorShottky; CB, CBdod:TComboBox):double;overload;
 var tg:TGraph;
 begin
@@ -5961,48 +5040,11 @@ begin
  Result:=GraphParameters.Rs;
 end;
 
-
-
-//Function RsDefineCB_Shot(A:PVector; CB:TComboBox):double;
-//{в залежності від вибраного значення
-//в списку ComboBox
-//визначаеться величина послідовного опору,
-//використовується для методів,
-//які дозволяють визначити Rs спираючись
-//лише на вигляд ВАХ, без додаткових параметрів}
-//begin
-// GraphParCalculComBox(A,CB);
-// Result:=GraphParameters.Rs;
-//end;
-
 Function RsDefineCB_Shot(A:TVectorShottky; CB:TComboBox):double;
 begin
  GraphParCalculComBox(A,CB);
  Result:=GraphParameters.Rs;
 end;
-
-
-//Function nDefineCB(A:PVector; CB, CBdod:TComboBox):double;
-//{в залежності від вибраного значення
-//в списку ComboBox
-//визначаеться величина коефіцієнту неідеальності;
-//якщо у відповідному методі необхідне
-//значення Rs, то воно обчислюється залежно від того,
-//що вибрано в CBdod}
-//var //Rs_tmp:double;
-//    tg:TGraph;
-//begin
-// Result:=ErResult;
-// tg:=ConvertStringToTGraph(CB);
-// if tg in [fnDiodVerySimple,fnExpForwardRs,fnExpReverseRs] then
-//     begin
-//      GraphParCalculComBox(A,CBdod);
-//      if GraphParameters.Rs=ErResult then Exit;
-//     end;
-// GraphParameters.Diapazon:=D[ConvertTGraphToTDiapazons(tg)];
-// GraphParameterCalculation(A,tg);
-// Result:=GraphParameters.n;
-//end;
 
 Function nDefineCB(A:TVectorShottky; CB, CBdod:TComboBox):double;
 var tg:TGraph;
@@ -6021,39 +5063,11 @@ begin
 end;
 
 
-
-//Function nDefineCB_Shot(A:PVector; CB:TComboBox):double;
-//{в залежності від вибраного значення
-//в списку ComboBox
-//визначаеться величина коефіцієнту неідеальності,
-//використовується для методів,
-//які дозволяють визначити n спираючись
-//лише на вигляд ВАХ, без додаткових параметрів}
-//begin
-// GraphParCalculComBox(A,CB);
-// Result:=GraphParameters.n;
-//end;
-
 Function nDefineCB_Shot(A:TVectorShottky; CB:TComboBox):double;
 begin
  GraphParCalculComBox(A,CB);
  Result:=GraphParameters.n;
 end;
-
-
-//Function FbDefineCB(A:PVector; CB:TComboBox; Rs:double):double;
-//{в залежності від вибраного значення
-//в списку ComboBox
-//визначаеться величина висоти бар'єру,
-//для деякий методів необхідне значення Rs,
-//яке використовується як параметр}
-//begin
-//Result:=ErResult;
-//if (GraphParameters.Rs=ErResult)
-//  and (CB.Items[CB.ItemIndex]=GraphLabel[fnDiodVerySimple]) then Exit;
-// GraphParCalculComBox(A,CB);
-// Result:=GraphParameters.Fb;
-//end;
 
 Function FbDefineCB(A:TVectorShottky; CB:TComboBox; Rs:double):double;overload;
 begin
@@ -6072,18 +5086,6 @@ Procedure ShowGraph(F:TForm1; st:string);
 виводиться вихідна ВАХ з файлу;
 st - назва графіку}
 begin
-//  if VaxGraph^.n=0 then
-//   begin
-//     F.FullIV.Checked:=True;
-//     IVchar(VaxFile,VaxGraph);
-//     DataToGraph(F.Series1,F.Series2,F.Graph,'I-V-characteristic',VaxGraph);
-//     IVChar(VaxGraph,VaxTemp);
-//   end
-//                 else
-//   begin
-//    DataToGraph(F.Series1,F.Series2,F.Graph, st ,VaxGraph);
-//    IVChar(VaxGraph,VaxTemp);
-//   end
   if VaxGraph.IsEmpty then
    begin
      F.FullIV.Checked:=True;
@@ -6168,7 +5170,7 @@ Procedure ColParam(Dates:TStringGrid);
 var i:integer;
     CL:TColName;
 begin
-Dates.ColCount:=4;
+Dates.ColCount:=ord(kT_1)+1;
 Dates.RowCount:=2;
 for CL:=fname to kT_1 do
     begin
@@ -6208,7 +5210,7 @@ for I := 1 to SG.RowCount-2 do
           SG.Rows[j].Assign(SG.Rows[j+1]);
           SG.Rows[j+1].Assign(SG.Rows[SG.RowCount-1]);
           end;
-SG.RowCount:=SG.RowCount-1;          
+SG.RowCount:=SG.RowCount-1;
 end;
 
 Procedure CBEnable(Main,Second:TComboBox);
@@ -6232,10 +5234,8 @@ begin
   begin
    FileToDataSheet(F.DataSheet,F.NameFile,F.Temper,VaxFile);
    ClearGraph(Form1);
-//   IVchar(VaxFile,VaxGraph);
    VaxFile.CopyTo(VaxGraph);
    DataToGraph(F.Series1,F.Series2,F.Graph,'I-V-characteristic',VaxGraph);
-//   IVChar(VaxGraph,VaxTemp);
    VaxGraph.CopyTo(VaxTemp);
    F.FullIV.Checked:=True;
 
@@ -6244,7 +5244,6 @@ begin
      if (F.Components[i].Tag=55) then
       (F.Components[i] as TControl).Enabled:=True;
      if (F.Components[i].Tag=56) then
-//       if VaxFile^.T>0 then (F.Components[i] as TControl).Enabled:=True
        if VaxFile.T>0 then (F.Components[i] as TControl).Enabled:=True
                        else (F.Components[i] as TControl).Enabled:=False;
    end; // for I := 0 to F.ComponentCount-1 do
@@ -6302,8 +5301,6 @@ Procedure GaussianLinesParam;
 begin
   with Form1 do
   begin
-//    if SEGauss.Value=0 then Exit;
-
     ToTrack (GausLinesCur[SEGauss.Value].A,TrackPanA,SpinEditPanA,CBoxPanA);
     ToTrack (GausLinesCur[SEGauss.Value].B,TrackPanB,SpinEditPanB,CBoxPanB);
     ToTrack (GausLinesCur[SEGauss.Value].C,TrackPanC,SpinEditPanC,CBoxPanC);
@@ -6376,11 +5373,9 @@ end;
 Procedure GausLinesSave;
 {запис пареметрів гаусіан у ini-файл}
 var
-//    ConfigFile:TIniFile;
     i:integer;
     st:string;
 begin
-// ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
  ConfigFile.WriteInteger('Gauss','NLine',High(GausLinesCur));
    for I := 1 to High(GausLinesCur) do
      begin
@@ -6389,17 +5384,14 @@ begin
        ConfigFile.WriteFloat('Gauss','B'+st,GausLinesCur[i].B);
        ConfigFile.WriteFloat('Gauss','C'+st,GausLinesCur[i].C);
      end;
-// ConfigFile.Free;
 end;
 
 Procedure GausLinesLoad;
 {зчитування пареметрів гаусіан з ini-файла}
 var
-//    ConfigFile:TIniFile;
     i:integer;
     st:string;
 begin
-// ConfigFile:=TIniFile.Create(Directory0+'\Shottky.ini');
  i:=ConfigFile.ReadInteger('Gauss','NLine',-1);
  if i<1 then
       begin
@@ -6432,7 +5424,6 @@ begin
  Form1.SEGauss.Value:=1;
  GaussLinesToGraph(True);
  GaussLinesToGrid;
-// ConfigFile.Free;
 end;
 
 
@@ -6468,9 +5459,6 @@ begin
             +3*Kb*VaxFile.T/4
             *ln(DiodPN.LayerP.Material.Me/DiodPN.LayerP.Material.Mh),
                    ffFixed,3,2);
-
-//    Form1.SGridGaussian.Cells[2,Form1.SGridGaussian.RowCount-4]:=
-//      FloatToStrF((Eg(VaxFile.T)-GausLinesCur[i].B)/2,ffFixed,3,2);
 
     Form1.SGridGaussian.Cells[3,Form1.SGridGaussian.RowCount-4]:=
                        FloatToStrF(GausLinesCur[i].C,ffExponent,3,2);
@@ -6964,7 +5952,7 @@ procedure TForm1.OnClickButton(Sender: TObject);
     викликає вікно з параметрами апроксимації}
 var FuncName:string;
     i:integer;
-    F:TFitFunction;
+    F:TFitFunctionNew;
     boolIph,boolDD:boolean;
 begin
 boolIph:=true;
@@ -6976,8 +5964,8 @@ boolDD:=true;
        if ((Sender as TButton).Parent.Components[i] is TCheckBox) then
         begin
           if ((Sender as TButton).Parent.Components[i] as TCheckBox).Checked
-           then FuncName:=FunctionPhotoDiodLSM
-           else FuncName:=FunctionDiodLSM;
+           then FuncName:=FFFunctionPhotoDiodLSM
+           else FuncName:=FFFunctionDiodLSM;
         end;
     end;
 
@@ -6987,8 +5975,8 @@ boolDD:=true;
        if ((Sender as TButton).Parent.Components[i] is TCheckBox) then
         begin
           if ((Sender as TButton).Parent.Components[i] as TCheckBox).Checked
-           then FuncName:=FunctionPhotoDiodLambert
-           else FuncName:=FunctionDiodLambert;
+           then FuncName:=FFFunctionPhotoDiodLambert
+           else FuncName:=FFFunctionDiodLambert;
         end;
     end;
 
@@ -7006,61 +5994,37 @@ boolDD:=true;
       end;
 
       if boolIph then
-             if boolDD then FuncName:=FunctionPhotoDDiod
-                       else FuncName:=FunctionPhotoDiod
+             if boolDD then FuncName:=FFFunctionPhotoDDiod
+                       else FuncName:=FFFunctionPhotoDiod
                 else
-             if boolDD then FuncName:=FunctionDDiod
-                         else FuncName:=FunctionDiod;
+             if boolDD then FuncName:=FFFunctionDDiod
+                         else FuncName:=FFFunctionDiod;
     end;
 
-
-FunCreate(FuncName,F);
+F:=FitFunctionFactory(FuncName);
 if  not(Assigned(F)) then Exit;
-F.SetValueGR;
-F.Free;
+F.SetParametersGR;
+FreeAndNil(F);
 end;
-
-//Function FuncFitting(A:Pvector; var B:Pvector; FitName:string):boolean;
-//{дані в А апроксимуються відповідно до FitName,
-//в В - результат апроксимації при тих же абсцисах,
-//при невдачі - результат False}
-// var j:integer;
-//begin
-//  Result:=False;
-//  FunCreate(FitName,FitFunction);
-//  try
-//   FitFunction.Fitting(A,EvolParam);
-//   if EvolParam[0]=ErResult then
-//     begin
-//      FitFunction.Free;
-//      Exit;
-//     end;
-//   IVchar(A,B);
-//   for j:=0 to High(A^.X) do
-//     B^.Y[j]:=FitFunction.FinalFunc(A^.X[j],EvolParam);
-//  finally
-//   FitFunction.Free;
-//  end;
-//  Result:=True;
-//end;
 
 Function FuncFitting(A:TVector; B:TVector; FitName:string):boolean;
  var j:integer;
 begin
   Result:=False;
-  FunCreate(FitName,FitFunction);
+  FitFunctionNew:=FitFunctionFactory(FitName);
   try
-   FitFunction.Fitting(A,EvolParam);
-   if EvolParam[0]=ErResult then
+   FitFunctionNew.Fitting(A);
+   if not(FitFunctionNew.ResultsIsReady) then
      begin
-      FitFunction.Free;
+      FreeAndNil(FitFunctionNew);
       Exit;
      end;
+   FitFunctionNew.OutputDataExport(EvolParam);
    A.CopyTo(B);
    for j:=0 to A.HighNumber do
-     B.Y[j]:=FitFunction.FinalFunc(A.X[j],EvolParam);
+     B.Y[j]:=FitFunctionNew.FinalFunc(A.X[j]);
   finally
-   FitFunction.Free;
+  FreeAndNil(FitFunctionNew);
   end;
   Result:=True;
 end;
@@ -7068,17 +6032,17 @@ end;
 
 
 Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle;FitName:string);
- var Ft:TFitFunction;
+ var Ft:TFitFunctionNew;
      j:integer;
 begin
- FunCreate(FitName,Ft);
+ Ft:=FitFunctionFactory(FitName);
  SetLength(Target,High(Source)+1);
    for j := 0 to High(Target) do
-       if Ft.Xname[j]='Rs' then Target[j]:=0
-         else if Ft.Xname[j]='Rsh' then Target[j]:=1e12
-           else if Ft.Xname[j]='Iph' then Target[j]:=0
+       if Ft.ParameterName(j)='Rs' then Target[j]:=0
+         else if Ft.ParameterName(j)='Rsh' then Target[j]:=1e12
+           else if Ft.ParameterName(j)='Iph' then Target[j]:=0
              else Target[j]:=Source[j];
- Ft.Free;
+ FreeAndNil(Ft);
 end;
 
 Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle);overload;
@@ -7086,9 +6050,9 @@ Procedure ParameterSimplify(Source:TArrSingle;var Target:TArrSingle);overload;
 begin
  SetLength(Target,High(Source)+1);
    for j := 0 to High(Target) do
-       if FitFunction.Xname[j]='Rs' then Target[j]:=0
-         else if FitFunction.Xname[j]='Rsh' then Target[j]:=1e12
-           else if FitFunction.Xname[j]='Iph' then Target[j]:=0
+       if FitFunctionNew.ParameterName(j)='Rs' then Target[j]:=0
+         else if FitFunctionNew.ParameterName(j)='Rsh' then Target[j]:=1e12
+           else if FitFunctionNew.ParameterName(j)='Iph' then Target[j]:=0
              else Target[j]:=Source[j];
 end;
 
@@ -7097,74 +6061,24 @@ Function ParamDeterm(Source:TArrSingle;ParamName,FitName:string):double;
 {вважаючи, що Source це набір визначених параметрів
 апроксимації функцією FitName,
 вибирається параметр з назвою ParamNameв}
- var Ft:TFitFunction;
+// var Ft:TFitFunction;
+ var Ft:TFitFunctionNew;
      j:integer;
 begin
- Result:=ErResult;
- FunCreate(FitName,Ft);
- for j := 0 to High(Ft.Xname) do
-  if Ft.Xname[j]=ParamName then
-    begin
-      Result:=Source[j];
-      Break;
-    end;
- Ft.Free;
+ Ft:=FitFunctionFactory(FitName);
+ j:=Ft.ParameterIndexByName(ParamName);
+ if j<0 then Result:=ErResult
+        else Result:=Source[j];
+ FreeAndNil(Ft);
 end;
 
 Function ParamDeterm(Source:TArrSingle;ParamName:string):double;
  var j:integer;
 begin
- Result:=ErResult;
- for j := 0 to High(FitFunction.Xname) do
-  if FitFunction.Xname[j]=ParamName then
-    begin
-      Result:=Source[j];
-      Break;
-    end;
+ j:=FitFunctionNew.ParameterIndexByName(ParamName);
+ if j<0 then Result:=ErResult
+        else Result:=Source[j];
 end;
-
-//Function RsRshIphModification(var A:Pvector;FitName:string):boolean;overload;
-//{дані в А модифікуються таким чином, щоб не лишилося
-//впливів послідовного та шунтуючого опорів та
-//фотоструму}
-// var j:integer;
-//     EP:TArrSingle;
-//     Alim:PVector;
-//     Rs,temp:double;
-//begin
-//  Result:=False;
-//  new(Alim);
-//  if not(FuncLimit(A,Alim)) then
-//     begin
-//     dispose(Alim);
-//     Exit;
-//     end;
-//
-//  FunCreate(FitName,FitFunction);
-//  try
-//   FitFunction.Fitting(Alim,EvolParam);
-//   if EvolParam[0]=ErResult then
-//     begin
-//      FitFunction.Free;
-//      Exit;
-//     end;
-//   ParameterSimplify(EvolParam,EP,FitName);
-//
-//   Rs:=ParamDeterm(EvolParam,'Rs',FitName);
-//   for j:=0 to High(A^.X) do
-//     begin
-//     temp:=A^.X[j];
-//     A^.X[j]:=A^.X[j]-A^.Y[j]*Rs;
-//     A^.Y[j]:=A^.Y[j]-FitFunction.FinalFunc(temp,EvolParam)
-//                     +FitFunction.FinalFunc(A^.X[j],EP);
-//     end;
-//   Result:=True;
-//  finally
-//   FitFunction.Free;
-//   dispose(Alim);
-//  end;
-//end;
-
 
 Function RsRshIphModification(A:TVectorTransform;FitName:string):boolean;overload;
 {дані в А модифікуються таким чином, щоб не лишилося
@@ -7183,164 +6097,35 @@ begin
      Exit;
      end;
 
-  FunCreate(FitName,FitFunction);
+
+  FitFunctionNew:=FitFunctionFactory(FitName);
   try
-   FitFunction.Fitting(Alim,EvolParam);
-   if EvolParam[0]=ErResult then
+   FitFunctionNew.Fitting(A);
+   if not(FitFunctionNew.ResultsIsReady) then
      begin
-      FitFunction.Free;
+      FreeAndNil(FitFunctionNew);
       Exit;
      end;
+   FitFunctionNew.OutputDataExport(EvolParam);
    ParameterSimplify(EvolParam,EP,FitName);
 
    Rs:=ParamDeterm(EvolParam,'Rs',FitName);
+
    for j:=0 to A.HighNumber do
      begin
      temp:=A.X[j];
      A.X[j]:=A.X[j]-A.Y[j]*Rs;
-     A.Y[j]:=A.Y[j]-FitFunction.FinalFunc(temp,EvolParam)
-                     +FitFunction.FinalFunc(A.X[j],EP);
+     A.Y[j]:=A.Y[j]-FitFunctionNew.FinalFunc(temp);
      end;
+   FitFunctionNew.OutputDataImport(EP);
+   for j:=0 to A.HighNumber do
+     A.Y[j]:=A.Y[j]+FitFunctionNew.FinalFunc(A.X[j]);
    Result:=True;
   finally
-   FitFunction.Free;
+   FreeAndNil(FitFunctionNew);
    Alim.Free;
   end;
 end;
-
-
-//Function Rnp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
-//{по даним у векторі А будує в В залежність
-//приведеної швидкості рекомбінації (див. Булярського)
-//безпосередньо самі математичні перетворювання
-//без підготовчих операцій
-//fun - кількість зглажувань
-//якщо все добре - повертається True}
-//  var i:integer;
-//begin
-//  Result:=True;
-//  B^.SetLenVector(A^.n);
-//  try
-//    for I := 0 to High(A^.X) do
-//     begin
-//       B^.X[i]:=A^.X[i];
-//       B^.Y[i]:=DiodPN.Rnp(A^.T,A^.X[i],A^.Y[i]);
-//     end;
-//  except
-//    Result:=False;
-//  end;
-//end;
-//
-//Function dRnp_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
-//{по даним у векторі А будує в В залежність
-//похідної приведеної швидкості рекомбінації (див. Булярського)
-//безпосередньо самі математичні перетворювання
-//без підготовчих операцій
-//fun - кількість зглажувань
-//якщо все добре - повертається True}
-//  var j:integer;
-//      temp:PVector;
-//begin
-//  Result:=False;
-//  if not(Rnp_Build(A,B,fun)) then Exit;
-//  new(temp);
-//  Diferen (B,temp);
-//  for j:=1 to fun do SmoothingA(temp);
-//  temp^.CopyLimitedX(B^,0.038,temp^.X[High(temp^.X)]-0.04);
-//  dispose(temp);
-//  Result:=True;
-//end;
-//
-//
-//Function Rnp2_exp_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
-//{по даним у векторі А будує в В залежність
-//функції L(V) (див. Булярського, ФТП, 1998, т.32, с.1193)
-//безпосередньо самі математичні перетворювання
-//без підготовчих операцій
-//fun - кількість зглажувань
-//якщо все добре - повертається True}
-//  var j:integer;
-////      temp:PVector;
-//begin
-//  Result:=False;
-//  if not(Rnp_Build(A,B,fun)) then Exit;
-//  for j := 0 to High(B^.X) do
-//    B^.Y[j]:=sqr(B^.Y[j])/exp(B^.X[j]/2/Kb/A^.T);
-//  for j:=1 to fun do SmoothingA(B);
-//  Result:=True;
-//end;
-//
-//Function Gamma_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
-//{по даним у векторі А будує в В залежність
-//функції gamm(V) (див. Булярського, Письма в ЖТФ, 1999, т.25, №5, с.22)
-//правильніше - 1/gamma, тому що в теорії положенню
-//рівнів відповідає мінімум функції gamma,
-//а я хотів дивитись тільки на максимуми
-//безпосередньо самі математичні перетворювання
-//без підготовчих операцій
-//fun - кількість зглажувань
-//якщо все добре - повертається True}
-//  var j:integer;
-//      temp:PVector;
-//begin
-//  Result:=False;
-//  new(temp);
-//  if not(dRnp_dV_Build(A,temp,fun)) then Exit;
-//  if not(Rnp_Build(A,B,fun)) then Exit;
-//  for j := 0 to High(B^.X) do
-////    temp^.Y[j]:=temp^.Y[j]/B^.Y[j]*2*Kb*A^.T;
-//    temp^.Y[j]:=1/(temp^.Y[j]/B^.Y[j]*2*Kb*A^.T);
-//
-//  temp^.CopyLimitedX(B^,0.038,temp^.X[High(temp^.X)]-0.04);
-//  dispose(temp);
-//  Result:=True;
-//end;
-//
-//
-//Function dB_dV_Build(A:Pvector; var B:Pvector; fun:byte):boolean;
-//{по даним у векторі А будує в В залежність похідної
-//диференційного нахилу ВАХ від напруги (метод Булярського) -
-//безпосередньо самі математичні перетворювання
-//без підготовчих операцій
-//fun - кількість зглажувань
-//якщо все добре - повертається True}
-// var temp:PVector;
-//     kT:double;
-//     j:integer;
-////     A_apr,B_apr:Pvector;
-////     EvPar:TArrSingle;
-//begin
-//  Result:=False;
-//  Diferen (A,B);
-//  if B^.n=0 then Exit;
-//
-//  kT:=A^.T*Kb;
-//
-//  new(temp);
-//  B^.Copy(temp^);
-//  for j := 0 to High(B^.X) do
-//    temp^.X[j]:=A^.Y[j];
-//  B^.DeleteZeroY;
-//  temp^.DeleteZeroY;
-//  for j:=0 to High(B^.X) do
-//        B^.Y[j]:=1/B^.Y[j]*temp^.X[j]/kT;
-//  dispose(temp);
-//
-////  for j:=0 to High(B^.X) do
-////        B^.Y[j]:=1/B^.Y[j]*A^.Y[j]/kT;
-//
-//  ForwardIV(B);
-//
-//  for j:=1 to fun do SmoothingA(B);
-//
-//  new(temp);
-//  Diferen (B,temp);
-//  temp^.CopyLimitedX(B^,temp^.X[0]+0.038,temp^.X[High(temp^.X)]-0.04);
-//
-//  dispose(temp);
-//  Result:=True;
-//end;
-
 
 Function dB_dV_Build(A:TVector; B:TVector; fun:byte):boolean;
  var temp:TVectorShottky;
@@ -7382,61 +6167,18 @@ begin
  temp.Free;
 end;
 
-
-//Function FuncLimit(A:Pvector; var B:Pvector):boolean;
-//var    Light:boolean;
-//       Diap:TDiapazon;
-//begin
-//  Result:=False;
-//  Light:=false;
-//  Diap:=D[diDE];
-//
-//  if (Form1.LabIsc.Caption= FunctionPhotoDiod)or
-//     (Form1.LabIsc.Caption= FunctionPhotoDiodLSM)or
-//     (Form1.LabIsc.Caption= FunctionPhotoDiodLambert)or
-//     (Form1.LabIsc.Caption= FunctionPhotoDDiod)
-//              then Light:=true;
-//
-//
-//  if (Form1.LabIsc.Caption= FunctionPhotoDiodLSM)or
-//     (Form1.LabIsc.Caption= FunctionDiodLSM)
-//              then Diap:=D[diExp];
-//
-//  if (Form1.LabIsc.Caption= FunctionPhotoDiodLambert)or
-//     (Form1.LabIsc.Caption= FunctionDiodLambert)
-//              then Diap:=D[diLam];
-//
-// try
-//  A_B_Diapazon(A,B,Diap,Light);
-//  if (B^.T=0)or(B^.n<3) then  Exit;
-// finally
-// end;
-// Result:=True;
-//end;
-
-
-
 Function FuncLimit(A:TVectorTransform; B:TVector):boolean;
-var   // Light:boolean;
-       Diap:TDiapazon;
+var   Diap:TDiapazon;
 begin
   Result:=False;
-//  Light:=false;
   Diap:=D[diDE];
 
-//  if (Form1.LabIsc.Caption= FunctionPhotoDiod)or
-//     (Form1.LabIsc.Caption= FunctionPhotoDiodLSM)or
-//     (Form1.LabIsc.Caption= FunctionPhotoDiodLambert)or
-//     (Form1.LabIsc.Caption= FunctionPhotoDDiod)
-//              then Light:=true;
-
-
-  if (Form1.LabIsc.Caption= FunctionPhotoDiodLSM)or
-     (Form1.LabIsc.Caption= FunctionDiodLSM)
+  if (Form1.LabIsc.Caption= FFFunctionPhotoDiodLSM)or
+     (Form1.LabIsc.Caption= FFFunctionDiodLSM)
               then Diap:=D[diExp];
 
-  if (Form1.LabIsc.Caption= FunctionPhotoDiodLambert)or
-     (Form1.LabIsc.Caption= FunctionDiodLambert)
+  if (Form1.LabIsc.Caption= FFFunctionPhotoDiodLambert)or
+     (Form1.LabIsc.Caption= FFFunctionDiodLambert)
               then Diap:=D[diLam];
 
  try
@@ -7447,75 +6189,6 @@ begin
  end;
  Result:=True;
 end;
-
-//Procedure dB_dV_Fun(A:Pvector; var B:Pvector; fun:byte;
-//                    FitName:string;Rbool:boolean);
-//{по даним у векторі А будує залежність похідної
-//диференційного нахилу ВАХ від напруги (метод Булярського)
-//fun - кількість зглажувань
-//Rbool=true - потрібно враховувати послідовний
-//та шунтуючі опори;
-//FitName - назва функції, якв буде використовуватись
-//для апроксимації}
-//   Procedure Rs_Modification(InitPoint:Pvector; var FunctionPoint:Pvector;
-//                             Action:TFunCorrection);
-//        {модифікація точок, отриманих з InitPoint в FunctionPoint
-//        за допомогою Action, яка полягає в тому, що враховується значення
-//        послідовного та шунтуючого опорів }
-//      var A_apr,B_apr:Pvector;
-//    begin
-//      new(A_apr);
-//       if not(FuncFitting(InitPoint,A_apr,FitName)) then
-//         begin
-//           dispose(A_apr);
-//           Exit;
-//         end;
-//      new(B_apr);
-//      if not(Action(A_apr,B_apr,fun)) then
-//         begin
-//         dispose(A_apr);
-//         dispose(B_apr);
-//         Exit;
-//         end;
-//      dispose(A_apr);
-//      FunctionPoint.DeltaY(B_apr^);
-//     dispose(B_apr);
-//    end;
-//
-//   Procedure BaseAdd(A:PVector);
-//    var Atemp:PVector;
-//        i:integer;
-//   begin
-//    new(Atemp);
-//    IVchar(A,Atemp);
-//    for i:=0 to 9 do SmoothingA(Atemp);
-//    A.DeltaY(Atemp^);
-//    dispose(Atemp);
-//   end;
-//
-//
-//var
-//    Alim:Pvector;
-//    Action:TFunCorrection;
-//begin
-//  Action:= FunCorrectionDefine();
-//
-// new(Alim);
-// A^.Copy(Alim^);;
-//
-// if Form1.CBoxRCons.Checked then
-//     RsRshIphModification(Alim,FitName);
-// if not(Action(Alim,B,fun)) then
-//     begin
-//     dispose(Alim);
-//     Exit;
-//     end;
-//// if Form1.CBBaseAuto.Checked then BaseAdd(B);
-//
-// //  if Rbool then Rs_Modification(Alim,B,Action);
-//  dispose(Alim);
-//end;
-//
 
 Procedure dB_dV_Fun(A:TVectorShottky;B:TVector; fun:byte;
                     FitName:string;Rbool:boolean);overload;
@@ -7562,7 +6235,6 @@ begin
   Action:= FunCorrectionDefineNew();
 
  Alim:=TVectorTransform.Create(A);
-// A^.Copy(Alim^);;
 
  if Form1.CBoxRCons.Checked then
      RsRshIphModification(Alim,FitName);
@@ -7570,15 +6242,6 @@ begin
  Alim.Free;
 end;
 
-
-//Function FunCorrectionDefine():TFunCorrection;
-//begin
-//  Result:=dB_dV_Build;
-//  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='Rnp' then  Result:=Rnp_Build;
-//  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='dRnp/dV' then  Result:=dRnp_dV_Build;
-//  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Result:=Rnp2_exp_Build;
-//  if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Result:=Gamma_Build;
-//end;
 
 Function FunCorrectionDefineNew():TFunCorrectionNew;
 begin
@@ -7588,6 +6251,5 @@ begin
   if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Result:=Rnp2_exp_Build;
   if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Result:=Gamma_Build;
 end;
-
 
 end.

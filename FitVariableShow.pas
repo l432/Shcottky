@@ -29,7 +29,6 @@ type
 
   TSimpleStringFrame=class(TNumberFrame)
    protected
-//    fDataVariants: TStringList;
     fSPShow:TStringParameterShow;
    public
     property SPShow:TStringParameterShow read fSPShow;
@@ -52,27 +51,17 @@ type
 
 
   TSimpleIntFrame=class(TSimpleNumberFrame)
-   protected
-//    fIPShow:TIntegerParameterShow;
    public
-//    property IPShow:TIntegerParameterShow read fIPShow;
     constructor Create(AOwner: TComponent;
                        const LabelCaption:string='None';
                        InitValue:Integer=0);
-//    destructor Destroy;override;
-//    procedure DateUpdate;override;
  end;
 
   TSimpleDoubleFrame=class(TSimpleNumberFrame)
-   protected
-//    fDPShow:TDoubleParameterShow;
    public
-//    property DPShow:TDoubleParameterShow read fDPShow;
     constructor Create(AOwner: TComponent;
                        const LabelCaption:string='None';
                        InitValue:double=ErResult);
-//    destructor Destroy;override;
-//    procedure DateUpdate;override;
  end;
 
  TIntFrame=class(TNumberFrame)
@@ -82,7 +71,6 @@ type
    public
     constructor Create(AOwner: TComponent;VarInteger:TVarInteger);
     destructor Destroy;override;
-//    procedure SizeDetermination (Form: TForm);override;
     procedure DateUpdate;override;
  end;
 
@@ -189,12 +177,6 @@ begin
                       else
       Frame.Width:=fStext.Left+fStext.Width+MarginFrame;
  Frame.Height:=fStext.Top+fStext.Height+MarginFrame;
-
-// if fOneRow then
-//  begin
-//     fSText.Top:=fLabel.Top;
-//     fStext.Left:=fLabel.Left+fLabel.Width+2*MarginFrame;
-//  end;
 end;
 
 { TIntFrame }
@@ -219,141 +201,10 @@ begin
   inherited;
 end;
 
-//procedure TIntFrame.SizeDetermination(Form: TForm);
-//begin
-// inherited SizeDetermination(Form);
-//
-//// fSText.Top:=fLabel.Top+fLabel.Height+MarginFrame;
-//// fStext.Left:=fLabel.Left+Round((fLabel.Width-fStext.Width)/2);
-//// if fStext.Left<fLabel.Left then
-////  begin
-////   fLabel.Left:=2*fLabel.Left-fStext.Left;
-////   fStext.Left:=fStext.Left+abs(fStext.Left)+MarginFrame;
-////  end;
-//
-// Frame.Width:=max(fLabel.Left+fLabel.Width,
-//                 fSText.Left+fSText.Width)+MarginFrame;
-// Frame.Height:=fSText.Top+fSText.Height+MarginFrame;
-//end;
-
 procedure TIntFrame.DateUpdate;
 begin
  fVarInteger.Value:=fIPShow.Data;
 end;
-
-{ TVarIntArrayFrame }
-
-//function TVarIntArrayFrame.ColumnNumberDetermination: byte;
-//begin
-// case High(fIntFrames) of
-//  -1..1:Result:=1;
-//   2..5:Result:=2;
-//   6..8:Result:=3;
-//  else  Result:=4;
-// end;
-//end;
-
-//constructor TVarIntArrayFrame.Create(VarIntArray: TVarIntArray);
-// var i:integer;
-//begin
-// inherited Create;
-//// Frame:=TFrame.Create(nil);
-// Frame.Name:='IntPar';
-//
-// SetLength(fSubFrames,VarIntArray.HighIndex+1);
-//
-// for I := 0 to VarIntArray.HighIndex do
-//   begin
-//     fSubFrames[i]:=TIntFrame.Create(Frame,(VarIntArray.Parametr[i] as TVarInteger));
-//     fSubFrames[i].Frame.Parent:=Frame;
-//   end;
-//end;
-
-//procedure TVarIntArrayFrame.DateUpdate;
-//  var i:integer;
-//begin
-//  for I := 0 to High(fIntFrames) do fIntFrames[i].DateUpdate;
-//end;
-
-//destructor TVarIntArrayFrame.Destroy;
-//  var i:integer;
-//begin
-//  for I := 0 to High(fIntFrames) do fIntFrames[i].Free;
-//  Frame.Free;
-//  inherited;
-//end;
-
-//procedure TVarIntArrayFrame.SizeAndLocationDetermination(Form: TForm);
-//begin
-//
-// SubFramesResize(Form);
-// SubFramesLocate;
-// FrameLocate(Form);
-//
-// Frame.Parent:=Form;
-// Form.Height:=max(Frame.Top+Frame.Height,Form.Height);
-// Form.Width:=max(Form.Width,Frame.Left+Frame.Width);
-//end;
-
-//procedure TVarIntArrayFrame.FrameLocate(Form: TForm);
-//var
-//  i: Integer;
-//begin
-//  Frame.Top := Form.Height + MarginTop;
-//  Frame.Left := MarginLeft;
-//  try
-//    for i := Form.ComponentCount - 1 downto 0 do
-//      if (Form.Components[i].Name = 'Bool')
-//         and (Form.Components[i] is TCheckBox)
-//         and (((Form.Components[i] as TCheckBox).Left
-//               + (Form.Components[i] as TCheckBox).Width) < (Form.Width / 2)) then
-//      begin
-//        Frame.Left := ((Form.Components[i] as TCheckBox).Left + (Form.Components[i] as TCheckBox).Width) + MarginBetween;
-//        Frame.Top := (Form.Components[i] as TCheckBox).Top;
-//        Exit;
-//      end;
-//  except
-//  end;
-//end;
-
-//procedure TVarIntArrayFrame.SubFramesLocate;
-//var
-//  i: Integer;
-//  ColNumber: Byte;
-//begin
-//  ColNumber := ColumnNumberDetermination;
-//  for I := 0 to High(fIntFrames) do
-//  begin
-//    fIntFrames[i].Frame.Top := (i div ColNumber) * fIntFrames[0].Frame.Height;
-//    fIntFrames[i].Frame.Left := (i mod ColNumber) * fIntFrames[0].Frame.Width;
-//  end;
-//  Frame.Height := fIntFrames[High(fIntFrames)].Frame.Top + fIntFrames[0].Frame.Height;
-//  Frame.Width := ColNumber * fIntFrames[0].Frame.Width;
-//end;
-
-//procedure TVarIntArrayFrame.SubFramesResize(Form: TForm);
-//var
-//  i: Integer;
-//  MaxHeight: Integer;
-//  MaxWidth: Integer;
-//begin
-//  for I := 0 to High(fIntFrames) do fIntFrames[i].SizeDetermination(Form);
-//  if High(fIntFrames)<1 then Exit;
-//
-//  MaxWidth := 0;
-//  MaxHeight := 0;
-//  for I := 0 to High(fIntFrames) do
-//  begin
-//    MaxWidth := max(MaxWidth, fIntFrames[i].Frame.Width);
-//    MaxHeight := max(MaxHeight, fIntFrames[i].Frame.Height);
-//
-//  end;
-//  for I := 0 to High(fIntFrames) do
-//  begin
-//    fIntFrames[i].Frame.Width := MaxWidth;
-//    fIntFrames[i].Frame.Height := MaxHeight;
-//  end;
-//end;
 
 { TDecVarIntArrayParameter }
 
@@ -369,11 +220,8 @@ begin
  if fFrame.Frame<>nil then
   begin
    fFrame.Frame.Parent:=nil;
-  // Form.RemoveComponent(fFrame.Frame);
-//   FreeAndNil(fFrame);
-  // fFrame.Free;
   end;
- FreeAndNil(fFrame); 
+ FreeAndNil(fFrame);
  fFFParameter.FormClear;
 end;
 
@@ -382,19 +230,16 @@ begin
   fFFParameter.FormPrepare(Form);
   fFrame := TVarNumberArrayFrame.Create(fVarArray);
   if fFrame.Frame=nil then Exit;
-  
+
   fFrame.SizeAndLocationDetermination(Form);
   Form.InsertComponent(fFrame.Frame);
 
 end;
 
 function TDecVarNumberArrayParameter.IsReadyToFitDetermination: boolean;
-// var i:integer;
 begin
  Result:=fFFParameter.IsReadyToFitDetermination;
  Result:=Result and fVarArray.AllValuesIsPresent;
-// for I := 0 to fVarArray.HighIndex do
-//   Result:=Result and fVarArray.ValueIsPresent[i];
 end;
 
 procedure TDecVarNumberArrayParameter.ReadFromIniFile;
@@ -431,13 +276,11 @@ constructor TDoubleFrame.Create(AOwner: TComponent; VarDouble: TVarDouble);
 begin
  inherited  Create(AOwner);
  fLabel.Font.Color:=clNavy;
-// fLabel.Font.Style:=[fsBold];
 
  fCheckBox:=TCheckBox.Create(Frame);
  fCheckBox.Parent:=Frame;
  fCheckBox.WordWrap:=False;
  fCheckBox.Font.Color:=clNavy;
-// fCheckBox.Font.Style:=[fsBold];
  fCheckBox.Alignment:=taRightJustify;
  fCheckBox.Caption:='Auto';
  fCheckBox.OnClick:=CBClick;
@@ -479,9 +322,6 @@ begin
  inherited ;
  fCheckBox.Width:=Form.Canvas.TextWidth(fCheckBox.Caption)+20;
  fCheckBox.Height:=Form.Canvas.TextHeight(fCheckBox.Caption);
-
-// fSText.Top:=fLabel.Top;
-// fStext.Left:=fLabel.Left+fLabel.Width+2*MarginFrame;
 
  fCheckBox.Top:=fLabel.Top+fLabel.Height+MarginFrame;
  fCheckBox.Left:=Round((fStext.Left+fStext.Width-fCheckBox.Width)/2);
@@ -555,9 +395,7 @@ destructor TVarNumberArrayFrame.Destroy;
  var i:integer;
 begin
   for I := 0 to High(fSubFrames) do FreeAndNil(fSubFrames[i]);
-//  fSubFrames[i].Free;
   FreeAndNil(Frame);
-//  Frame.Free;
   inherited;
 end;
 
@@ -597,7 +435,7 @@ end;
 procedure TVarNumberArrayFrame.SizeAndLocationDetermination(Form: TForm);
 begin
  if High(fSubFrames)<0 then Exit;
- 
+
  SubFramesResize(Form);
  SubFramesLocate;
  FrameLocate(Form);
@@ -658,24 +496,6 @@ begin
            LabelCaption,InitValue);
 end;
 
-//procedure TSimpleDoubleFrame.DateUpdate;
-//begin
-//
-//end;
-//
-//destructor TSimpleDoubleFrame.Destroy;
-//begin
-//  fDPShow.Free;
-//  inherited;
-//end;
-
-//procedure TSimpleDoubleFrame.DPShowCreate(const LabelCaption:string='None';
-//                                       InitValue:double=ErResult);
-//begin
-// fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
-//           LabelCaption,InitValue);
-//end;
-
 { TSimpleIntFrame }
 
 constructor TSimpleIntFrame.Create(AOwner: TComponent;
@@ -685,17 +505,6 @@ begin
   fPShow:=TIntegerParameterShow.Create(fSText,fLabel,
            LabelCaption,InitValue);
 end;
-
-//procedure TSimpleIntFrame.DateUpdate;
-//begin
-//
-//end;
-//
-//destructor TSimpleIntFrame.Destroy;
-//begin
-//  fIPShow.Free;
-//  inherited;
-//end;
 
 { TSimpleNumberFrame }
 
@@ -716,7 +525,6 @@ constructor TSimpleStringFrame.Create(AOwner: TComponent;
   DataVariants: TStringList; const LabelCaption: string);
 begin
   inherited Create(AOwner);
-//  fDataVariants:=DataVariants;
   fSPShow:=TStringParameterShow.Create(fSText,fLabel,
            LabelCaption,DataVariants);
  fLabel.Font.Color:=clBlue;
@@ -730,7 +538,6 @@ end;
 
 destructor TSimpleStringFrame.Destroy;
 begin
-//  fDataVariants:=nil;
   fSPShow.Free;
   inherited;
 end;

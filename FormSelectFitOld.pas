@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,OlegApprox,Unit1new,FrameButtons;
+  Dialogs, StdCtrls, ExtCtrls,OlegApprox,Unit1new,FrameButtons, OlegFunction;
 
 type
   TFormSF = class(TForm)
@@ -127,7 +127,7 @@ procedure TFormSF.FormShow(Sender: TObject);
 var i:integer;
 begin
  for I := 0 to CB.Count-1 do
- if CB.Items[i]=Form1.SButFit.Caption then
+ if CB.Items[i]=Form1.SButFitNew.Caption then
      begin
        CB.Selected[i]:=True;
        Form1.ApproxHide;

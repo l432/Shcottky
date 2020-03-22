@@ -3,7 +3,7 @@ unit FitSimple;
 interface
 
 uses
-  OApproxNew, FitVariable, OlegApprox, Classes, OlegType, OlegMath, OlegVector, 
+  OApproxNew, FitVariable, Classes, OlegType, OlegMath, OlegVector,
   TeEngine, FitIteration;
 
 type
@@ -60,6 +60,12 @@ TFFSimple=class (TFitFunctionWithArbitraryArgument)
  public
   property DParamArray:TDParamArray read fDParamArray;
   Procedure DataToStrings(OutStrings:TStrings);override;
+  Procedure ParameterNamesToArray(var Arr:TArrStr);override;
+  function ParametersNumber:byte;override;
+  function ParameterName(i:byte):string;override;
+  procedure OutputDataImport(Source:TArrSingle);override;
+  procedure OutputDataExport(Target:TArrSingle);override;
+  function ParameterIndexByName(Name:string):integer;override;
 end;
 
 
@@ -124,24 +130,6 @@ TFFPolinom=class (TFFSimple)
   function RealFinalFunc(X:double):double;override;
 public
 end; //TFFPolinom=class (TFFSimple)
-
-
-//TFitFunctionWithArbitraryArgument =class(TFitFunctionNew)
-//  {абстрактний клас для випадку, коли апроксимуюча
-//  функція може бути розрахована у будь-якій точці...ну практично}
-// private
-//  fIntVars:TVarIntArray;
-// protected
-//  procedure RealFitting;override;
-//  Procedure RealToFile (suf:string;NumberDigit: Byte=8);override;
-//  procedure DipazonCreate;override;
-//  procedure DiapazonDestroy;override;
-//  function ParameterCreate:TFFParameter;override;
-//  procedure  FittingCalculation;virtual;abstract;
-//  procedure FittingDataFilling;virtual;abstract;
-//  procedure FileFilling;virtual;abstract;
-//end;
-
 
 
 
@@ -275,18 +263,10 @@ end; //TFFPolinom=class (TFFSimple)
 implementation
 
 uses
-  FitVariableShow, Graphics, Dialogs, SysUtils, Math;
+  FitVariableShow, Graphics, Dialogs, SysUtils, Math, OlegFunction;
 
 
 { TFFSplain }
-
-
-
-//constructor TFFSplain.Create;
-//begin
-//  inherited Create;
-//  SetNameCaption('Splain','Approximation by cubic splines');
-//end;
 
 procedure TFFSplain.NamesDefine;
 begin
@@ -308,19 +288,12 @@ end;
 
 { TNoiseSmoothingNew }
 
-//constructor TFFNoiseSmoothing.Create;
-//begin
-// inherited Create;
-// SetNameCaption('NoiseSmoothing','Noise Smoothing on Np point')
-//end;
-
 procedure TFFNoiseSmoothing.AccessorialDataCreate;
 begin
   inherited;
   fIntVars.ParametrByName['Npoint'].Description:=
         'Number of smoothing poins';
 end;
-
 
 procedure TFFNoiseSmoothing.NamesDefine;
 begin
@@ -344,7 +317,6 @@ end;
 procedure TFitFunctionWithArbitraryArgument.AccessorialDataDestroy;
 begin
  FreeAndNil(fIntVars);
-// fIntVars.Free;
  inherited;
 end;
 
@@ -377,20 +349,6 @@ end;
 
 { TFFSimple }
 
-//constructor TFFSimple.Create(FunctionName, FunctionCaption: string;
-//             const MainParamNames: array of string);
-//begin
-// inherited Create(FunctionName, FunctionCaption);
-// fDParamArray:=TDParamArray.Create(MainParamNames);
-//end;
-//
-//constructor TFFSimple.Create(FunctionName, FunctionCaption: string;
-//  const MainParamNames, AddParamNames: array of string);
-//begin
-// inherited Create(FunctionName, FunctionCaption);
-//   fDParamArray:=TDParamArray.Create(MainParamNames, AddParamNames);
-//end;
-
 procedure TFFSimple.AccessorialDataCreate;
 begin
   inherited AccessorialDataCreate;
@@ -406,8 +364,14 @@ end;
 procedure TFFSimple.AdditionalParamDetermination;
 begin
  fDParamArray.OutputData[High(fDParamArray.OutputData)]:=Deviation;
-// fDParamArray.ParametrByName['dev'].Value:=Deviation;
-// fDParamArray.OutputDataCoordinate;
+end;
+
+procedure TFFSimple.OutputDataImport(Source: TArrSingle);
+ var i:integer;
+begin
+ for I := 0 to min(High(Source),High(DParamArray.OutputData)) do
+   DParamArray.OutputData[i]:=Source[i];
+ inherited OutputDataImport(Source);
 end;
 
 procedure TFFSimple.DataToStrings(OutStrings: TStrings);
@@ -423,22 +387,8 @@ begin
   fDataToFit.ToFill(FittingData,RealFinalFunc);
   for I := 0 to fDataToFit.HighNumber
      do Result:=Result+SqrRelativeDifference(fDataToFit.Y[i],FittingData.Y[i]);
-//   do
-//   begin
-//    if fDataToFit.Y[i]<>0 then
-//         Result:=Result+sqr((fDataToFit.Y[i]-FittingData.Y[i])/fDataToFit.Y[i])
-//                            else
-//         if FittingData.Y[i]<>0 then
-//                  Result:=Result+sqr((fDataToFit.Y[i]-FittingData.Y[i])/FittingData.Y[i])
-//   end;
  Result:=sqrt(Result)/fDataToFit.Count;
 end;
-
-//function TFFSimple.FinalFunc(X: double): double;
-//begin
-// if fResultsIsReady then Result:=fFun(X,fDParamArray.OutputData)
-//                    else Result:=ErResult;
-//end;
 
 procedure TFFSimple.FittingDataFilling;
 begin
@@ -448,9 +398,51 @@ begin
      FittingData.name:=fDataToFit.name;
      FittingData.Filling(RealFinalFunc,fDataToFit.MinX,fDataToFit.MaxX,fIntVars[0])
      end;
-//                   else
-//     fDataToFit.ToFill(FittingData,fFun,fDParamArray.OutputData);
+end;
 
+procedure TFFSimple.OutputDataExport(Target: TArrSingle);
+ var i:integer;
+begin
+ if ResultsIsReady then
+  begin
+   SetLength(Target,High(DParamArray.OutputData)+1);
+   for I := 0 to High(Target) do
+     Target[i]:=DParamArray.OutputData[i];
+  end              else
+   inherited  OutputDataExport(Target);
+end;
+
+function TFFSimple.ParameterIndexByName(Name: string): integer;
+ var i:integer;
+begin
+ Result:=inherited ParameterIndexByName(Name);
+ for I := 0 to High(DParamArray.OutputData) do
+  if DParamArray.fParams[i].Name=Name then
+   begin
+    Result:=i;
+    Break;
+   end;
+end;
+
+function TFFSimple.ParameterName(i: byte): string;
+begin
+  if i<High(DParamArray.fParams)
+   then Result:=DParamArray.fParams[i].Name
+   else Result:=inherited ParameterName(i);
+end;
+
+procedure TFFSimple.ParameterNamesToArray(var Arr: TArrStr);
+ var i,temp:integer;
+begin
+ temp:=High(Arr);
+ SetLength(Arr,temp+High(DParamArray.fParams)+2);
+ for I := 0 to High(DParamArray.fParams) do
+   Arr[i+temp+1]:=DParamArray.fParams[i].Description;
+end;
+
+function TFFSimple.ParametersNumber: byte;
+begin
+  Result:=High(DParamArray.fParams)+1;
 end;
 
 procedure TFFSimple.RealFitting;
@@ -462,20 +454,7 @@ begin
   end;
 end;
 
-//destructor TFFSimple.Destroy;
-//begin
-//  fDParamArray.Free;
-//  inherited;
-//end;
-
 { TFFLinear }
-
-//constructor TFFLinear.Create;
-//begin
-//  inherited Create;
-//  fHasPicture:=True;
-//  fFun:=Linear;
-//end;
 
 function TFFLinear.FittingCalculation: boolean;
 begin
@@ -557,7 +536,6 @@ end;
 function TFFGromov.FittingCalculation: boolean;
 begin
   Result:=fDataToFit.GromovAprox(fDParamArray.OutputData);
-//  showmessage(booltostr(Result));
 end;
 
 procedure TFFGromov.NamesDefine;

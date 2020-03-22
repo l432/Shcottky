@@ -29,7 +29,6 @@ I01 та I02 виражаються через часи життя}
   Igen0,Igen1,Iscr0:double;
   procedure IgenIscrDetermine(tau_n,tau_g, Rs:double;Point:TPointDouble);
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -45,7 +44,6 @@ TFFDoubleDiodLight=class (TFFIlluminatedDiode)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]
          +(V-IRs)/Rsh-Iph}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -63,7 +61,6 @@ I01 та I02 виражаються через часи життя}
   Igen0,Igen1,Iscr0:double;
   procedure IgenIscrDetermine(tau_n,tau_g, Rs:double;Point:TPointDouble);
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -78,7 +75,6 @@ TFFTripleDiod=class (TFFHeuristic)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+
     I03[exp((V-IRs)/n3kT)-1]+(V-IRs)/Rsh}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -91,7 +87,6 @@ TFFTripleDiodLight=class (TFFIlluminatedDiode)
 {I01[exp((V-IRs)/n1kT)-1]+I02[exp((V-IRs)/n2kT)-1]+
     I03[exp((V-IRs)/n3kT)-1]+(V-IRs)/Rsh}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -269,7 +264,7 @@ end; // TFFBarierHeigh=class (TFFHeuristic)
 implementation
 
 uses
-  FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegApprox;
+  FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegFunction;
 
 { TFFDoubleDiod }
 
@@ -323,12 +318,7 @@ procedure TFFDoubleDiodTau.IgenIscrDetermine(tau_n, tau_g, Rs: double;
                                             Point:TPointDouble);
 begin
   Igen:=Igen0*sqrt(Igen1/tau_n);
-//  Igen:=PN_Diode.Igen(tau_n,
-//                     (DoubVars.Parametr[0] as TVarDouble).Value);
   Iscr:=Iscr0*PN_Diode.W((DoubVars.Parametr[0] as TVarDouble).Value,Point[cX]-Point[cY]*Rs)/tau_g;
-//  Iscr:=PN_Diode.Iscr(tau_g,
-//                     (DoubVars.Parametr[0] as TVarDouble).Value,
-//                     Point[cX]-Point[cY]*Rs);
 end;
 
 procedure TFFDoubleDiodTau.NamesDefine;
@@ -685,7 +675,7 @@ end;
 procedure TFFTunnel.ParamArrayCreate;
 begin
  fDParamArray:=TDParamsHeuristic.Create(Self,
-                 ['Io','A','B']);  
+                 ['Io','A','B']);
 end;
 
 procedure TFFTunnel.TuningBeforeAccessorialDataCreate;
@@ -850,9 +840,7 @@ procedure TFFTEandTAHT_kT1.AddDoubleVars;
 begin
   inherited;
   DoubVars.Add(Self,'m');
-//  DoubVars.ParametrByName['m'].Description:='temperature power-law parameter (m)';
   DoubVars.Add(Self,'p');
-//  DoubVars.ParametrByName['m'].Description:='temperature power-law parameter (m)';
 end;
 
 function TFFTEandTAHT_kT1.FuncForFitness(Point: TPointDouble;
@@ -1056,8 +1044,6 @@ end;
 procedure TFFTAU_Fei_FeB.AddDoubleVars;
 begin
   inherited;
-//  DoubVars.Add(Self,'T');
-//  DoubVars.ParametrByName['T'].Limits.SetLimits(0.1);
   DoubVars.Add(Self,'delN');
   DoubVars.ParametrByName['delN'].Limits.SetLimits(0);
 end;
@@ -1101,7 +1087,6 @@ end;
 procedure TFFTAU_Fei_FeB.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
-// fTemperatureIsRequired:=False;
  fFei:=TDefect.Create(Fei);
  fFeB:=TDefect.Create(FeB_ac);
 end;

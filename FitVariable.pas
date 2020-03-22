@@ -24,10 +24,7 @@ TFFVar=class(TNamedAndDescripObject)
 {базовий класс для змінних}
  private
   fFF:TFitFunctionNew;
-//  fDescription:string;
-// {опис при виведенні на форму}
  public
-//  property Description:string read fDescription write fDescription;
   constructor Create(Nm:string;FF:TFitFunctionNew);
   procedure ReadFromIniFile;virtual;abstract;
   procedure WriteToIniFile;virtual;abstract;
@@ -189,7 +186,6 @@ uses
 constructor TVarBool.Create(FF: TFitFunctionNew;Description:string);
 begin
  inherited Create('VarBool',FF);
-// fFF:=FF;
  fDescription:=Description;
 end;
 
@@ -201,7 +197,6 @@ end;
 procedure TVarBool.WriteToIniFile;
 begin
  WriteIniDef(fFF.ConfigFile,fFF.Name, Name,fValue);
-// fFF.ConfigFile.WriteBool(fFF.Name,Name,fValue);
 end;
 
 
@@ -237,7 +232,6 @@ constructor TDecBoolVarParameter.Create(VB:TVarBool;
                        FFParam:TFFParameter);
 begin
  fFFParameter:=FFParam;
-// fBoolVarCB := TBoolVarCheckBox.Create(VB);
  fVB:=VB;
 end;
 
@@ -253,16 +247,9 @@ procedure TDecBoolVarParameter.FormPrepare(Form:TForm);
 begin
   fFFParameter.FormPrepare(Form);
   fBoolVarCB := TBoolVarCheckBox.Create(Form,fVB);
-//  fBoolVarCB.CB.Parent := Form;
   fBoolVarCB.CB.Width:=Form.Canvas.TextWidth(fBoolVarCB.CB.Caption)+20;
 
   AddControlToForm(fBoolVarCB.CB,Form);
-
-//  fBoolVarCB.CB.Top:=Form.Height+MarginTop;
-//  fBoolVarCB.CB.Left:=MarginLeft;
-//  Form.Height:=fBoolVarCB.CB.Top+fBoolVarCB.CB.Height;
-//  Form.Width:=max(Form.Width,
-//                fBoolVarCB.CB.Left+fBoolVarCB.CB.Width);
 end;
 
 function TDecBoolVarParameter.IsReadyToFitDetermination: boolean;
@@ -295,7 +282,6 @@ constructor TFFVar.Create(Nm:string;FF: TFitFunctionNew);
 begin
  inherited Create(Nm);
  fFF:=FF;
-// fDescription:=Nm;
 end;
 
 { TVarInteger }
@@ -303,17 +289,8 @@ end;
 constructor TVarInteger.Create(Nm:string;FF: TFitFunctionNew);
 begin
  inherited Create(Nm,FF);
-// fDefaultValue:=DefaultValue;
-// fLimits:=TLimits.Create();
  fIsNoOdd:=False;
-// fDescription:=Nm;
 end;
-
-//destructor TVarInteger.Destroy;
-//begin
-//  fLimits.Free;
-//  inherited;
-//end;
 
 procedure TVarInteger.ReadFromIniFile;
 begin
@@ -323,7 +300,6 @@ end;
 procedure TVarInteger.WriteToIniFile;
 begin
   WriteIniDef(fFF.ConfigFile,fFF.Name, Name,fValue,0);
-//  fFF.ConfigFile.WriteInteger(fFF.Name,Name,fValue);
 end;
 
 { TVarIntArray }
@@ -359,37 +335,6 @@ begin
  fVars[0]:=TVarInteger.Create(Name,FF);
 end;
 
-//destructor TVarIntArray.Destroy;
-// var I:integer;
-//begin
-//  for I := 0 to High(fVarIntegers) do fVarIntegers[i].Free;
-//  inherited;
-//end;
-
-//function TVarIntArray.GetHighIndex: integer;
-//begin
-// result:=High(fVarIntegers);
-//end;
-
-//function TVarIntArray.GetParameterByName(str: string): TVarInteger;
-// var I:integer;
-//begin
-//  for I := 0 to High(fVarIntegers) do
-//    if fVarIntegers[i].Name=str then
-//      begin
-//        Result:=fVarIntegers[i];
-//        Exit;
-//      end;
-//  Result:=nil;
-//end;
-//
-//function TVarIntArray.GetParametr(index: integer): TVarInteger;
-//begin
-// if InRange(index,0,High(fVarIntegers))
-//          then Result:=fVarIntegers[index]
-//          else Result:=nil;
-//end;
-
 function TVarIntArray.GetAllValuesIsPresent: boolean;
  var i:integer;
 begin
@@ -423,179 +368,6 @@ begin
        then (fVars[index] as TVarInteger).Value:=Value;
 end;
 
-//procedure TVarIntArray.ReadFromIniFile;
-// var I:integer;
-//begin
-//  for I := 0 to High(fVarIntegers) do fVarIntegers[i].ReadFromIniFile;
-//end;
-//
-//procedure TVarIntArray.WriteToIniFile;
-// var I:integer;
-//begin
-//  for I := 0 to High(fVarIntegers) do fVarIntegers[i].WriteToIniFile;
-//end;
-
-//{ TVarIntArrayGroupBox }
-//
-//function TVarIntArrayGroupBox.ColumnNumberDetermination:byte;
-//begin
-//  if High(fLabels)<2
-//    then Result:=1
-//    else if High(fLabels)<5
-//           then Result:=2
-//           else if High(fLabels)<8
-//             then Result:=3
-//             else Result:=4;
-//end;
-//
-//constructor TVarIntArrayGroupBox.Create(VarIntArray:TVarIntArray);
-// var I:integer;
-//begin
-//  fVarIntArray:=VarIntArray;
-//  Frame:=TFrame.Create(nil);
-//  Frame.Name:='IntPar';
-//  SetLength(fLabels,fVarIntArray.HighIndex+1);
-//  SetLength(fSTexts,fVarIntArray.HighIndex+1);
-//  SetLength(fIPShow,fVarIntArray.HighIndex+1);
-//
-//  for I := 0 to fVarIntArray.HighIndex do
-//   begin
-//     fLabels[i]:=TLabel.Create(Frame);
-//     fLabels[i].AutoSize:=True;
-//     fLabels[i].Parent:=Frame;
-//     fSTexts[i]:=TStaticText.Create(Frame);
-//     fSTexts[i].AutoSize:=True;
-//     fSTexts[i].Parent:=Frame;
-//     fIPShow[i]:=TIntegerParameterShow.Create(fSTexts[i],
-//                fLabels[i],fVarIntArray.Parametr[i].Description,fVarIntArray[i]);
-//     fIPShow[i].IsNoOdd:=fVarIntArray.IsNoOdd[i];
-//     fIPShow[i].Limits:=fVarIntArray.Parametr[i].Limits;
-//     fLabels[i].WordWrap:=False;
-//     fLabels[i].Font.Color:=clMaroon;
-//     fLabels[i].Font.Style:=[fsBold];
-//   end;
-//end;
-//
-//destructor TVarIntArrayGroupBox.Destroy;
-// var i:integer;
-//begin
-//  for I := 0 to High(fLabels)do
-//   begin
-//     fIPShow[i].Limits:=nil;
-//     fIPShow[i].Free;
-//     fLabels[i].Free;
-//     fSTexts[i].Free;
-//   end;
-//  inherited;
-//end;
-//
-//procedure TVarIntArrayGroupBox.SizeDetermination(MaxLabelWidth: Integer; MaxSTextWidth: Byte);
-//var
-//  Row: Byte;
-//  Col: Byte;
-//  I: Integer;
-//  ColNumber:byte;
-//begin
-// ColNumber:=ColumnNumberDetermination;
-//
-//  for I := 0 to fVarIntArray.HighIndex do
-//  begin
-//    Row := i div ColNumber;
-//    Col := i mod ColNumber;
-//    fLabels[i].Top := 5 + Row * (fLabels[0].Height + 10);
-//    fLabels[i].Left := MarginLeft + Col * (MaxLabelWidth + MaxSTextWidth+10);
-//    fSTexts[i].Top := fLabels[i].Top;
-//    fSTexts[i].Left := fLabels[i].Left + MaxLabelWidth + 5;
-//  end;
-//  Frame.Height := fSTexts[fVarIntArray.HighIndex].Top + fSTexts[fVarIntArray.HighIndex].Height + 5;
-//  Frame.Width := 25 + ColNumber * (MaxLabelWidth + MaxSTextWidth+15);
-//end;
-//
-//function TVarIntArrayGroupBox.MaxLabelCaptionDetermination: string;
-// var i,MaxWidth:integer;
-//begin
-// Result:='';
-// MaxWidth:=0;
-// for I := 0 to High(fLabels) do
-//    if fLabels[i].Width>MaxWidth then
-//      begin
-//       MaxWidth:=fLabels[i].Width;
-//       Result:=fLabels[i].Caption;
-//      end;
-//end;
-//
-//function TVarIntArrayGroupBox.MaxSTextCaptionDetermination: string;
-// var i,MaxWidth:integer;
-//begin
-// Result:='';
-// MaxWidth:=0;
-// for I := 0 to High(fSTexts) do
-//    if fSTexts[i].Width>MaxWidth then
-//      begin
-//       MaxWidth:=fSTexts[i].Width;
-//       Result:=fSTexts[i].Caption;
-//      end;
-//end;
-//
-//procedure TVarIntArrayGroupBox.UpDate;
-// var i:integer;
-//begin
-// for I := 0 to High(fLabels) do
-//    fVarIntArray[i]:=fIPShow[i].Data;
-//end;
-//
-//{ TDeVarIntArrayParameter }
-//
-//constructor TDeVarIntArrayParameter.Create(VarIntArray: TVarIntArray;
-//  FFParam: TFFParameter);
-//begin
-// fFFParameter:=FFParam;
-// fVarIntArray:=VarIntArray;
-//end;
-//
-//
-//procedure TDeVarIntArrayParameter.FormClear;
-//begin
-// fVarIntArrayGroupBox.Frame.Parent:=nil;
-// fVarIntArrayGroupBox.Free;
-// fFFParameter.FormClear;
-//end;
-//
-//procedure TDeVarIntArrayParameter.FormPrepare(Form: TForm);
-//begin
-//  fFFParameter.FormPrepare(Form);
-//  fVarIntArrayGroupBox := TVarIntArrayGroupBox.Create(fVarIntArray);
-//  fVarIntArrayGroupBox.SizeDetermination(Form.Canvas.TextWidth(fVarIntArrayGroupBox.MaxLabelCaption),
-//                                         Form.Canvas.TextWidth(fVarIntArrayGroupBox.MaxSTextCaption));
-//  AddControlToForm(fVarIntArrayGroupBox.Frame,Form);
-//end;
-//
-//function TDeVarIntArrayParameter.IsReadyToFitDetermination: boolean;
-// var i:integer;
-//begin
-// Result:=fFFParameter.IsReadyToFitDetermination;
-// for I := 0 to fVarIntArray.HighIndex do
-//   Result:=Result and (fVarIntArray[i]<>ErResult);
-//end;
-//
-//procedure TDeVarIntArrayParameter.ReadFromIniFile;
-//begin
-//  fFFParameter.ReadFromIniFile;
-//  fVarIntArray.ReadFromIniFile;
-//end;
-//
-//procedure TDeVarIntArrayParameter.UpDate;
-//begin
-//  fFFParameter.UpDate;
-//  fVarIntArrayGroupBox.UpDate;
-//end;
-//
-//procedure TDeVarIntArrayParameter.WriteToIniFile;
-//begin
-// fFFParameter.WriteToIniFile;
-// fVarIntArray.WriteToIniFile;
-//end;
-
 { TVarNumber }
 
 constructor TVarNumber.Create(Nm: string; FF: TFitFunctionNew);
@@ -606,7 +378,6 @@ end;
 
 destructor TVarNumber.Destroy;
 begin
-//  FreeAndNil(fLimits);
   fLimits.Free;
   inherited;
 end;

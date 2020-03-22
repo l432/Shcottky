@@ -30,9 +30,6 @@
     <DelphiCompile Include="Shottky.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
-    <DCCReference Include="ApprWindows.pas">
-      <Form>App</Form>
-    </DCCReference>
     <DCCReference Include="FitDigital.pas" />
     <DCCReference Include="FitGradient.pas" />
     <DCCReference Include="FitHeuristic.pas" />
@@ -44,23 +41,14 @@
     <DCCReference Include="FitTransform.pas" />
     <DCCReference Include="FitVariable.pas" />
     <DCCReference Include="FitVariableShow.pas" />
-    <DCCReference Include="FormSelectFit.pas">
-      <Form>FormSF</Form>
-    </DCCReference>
     <DCCReference Include="FormSelectFitNew.pas">
       <Form>FormSFNew</Form>
     </DCCReference>
     <DCCReference Include="FrameButtons.pas">
       <Form>FrBut</Form>
     </DCCReference>
-    <DCCReference Include="FrApprPar.pas">
-      <Form>FrApprP</Form>
-    </DCCReference>
     <DCCReference Include="FrDiap.pas">
       <Form>FrDp</Form>
-    </DCCReference>
-    <DCCReference Include="FrParam.pas">
-      <Form>FrParamP</Form>
     </DCCReference>
     <DCCReference Include="HighResolutionTimer.pas" />
     <DCCReference Include="OApproxCaption.pas" />
@@ -69,7 +57,6 @@
     <DCCReference Include="OApproxFunction3.pas" />
     <DCCReference Include="OApproxNew.pas" />
     <DCCReference Include="OApproxShow.pas" />
-    <DCCReference Include="OlegApprox.pas" />
     <DCCReference Include="OlegDefectsSi.pas" />
     <DCCReference Include="OlegDigitalManipulation.pas" />
     <DCCReference Include="OlegFunction.pas" />

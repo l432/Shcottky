@@ -108,7 +108,6 @@ type
      TMaterialShow=class
        private
          LShowData:array[TMaterialParametersName]of TLabel;
-//         LInputData:array[TMaterialParametersName]of TLabel;
          CBSelect:TComboBox;
          Prefix:string;//префікс, щоб відрізняти записи в ini-файлі
          ConfigFile:TIniFile;
@@ -117,7 +116,7 @@ type
          procedure ShowData();
        public
         Material:TMaterial;
-        Constructor Create(LSD{,LID}:array of TLabel;
+        Constructor Create(LSD:array of TLabel;
                            CBSel:TComboBox;
                            Pr:string;
                            CF:TIniFile
@@ -224,7 +223,6 @@ type
                          CBNT:TCheckBox;
                          STData: TStaticText;
                          STCaption:TLabel
-//                         BChange:TButton
           );
       procedure Free;
 
@@ -248,17 +246,14 @@ type
      procedure SetThick(value:double);
      procedure SetEps (value:double);
      procedure SetMaterialLayer(value:TMaterialLayer);
-//     function GetMaterial():TMaterial;
      function Get_nu():double;
 
      public
      Constructor Create;
      destructor Destroy;override;
-//     Procedure Free;
      property Eps_i:double read FEps_i write SetEps;
      property Thick_i:double read FThick_i write SetThick;
      property Semiconductor:TMaterialLayer read FSemiconductor write SetMaterialLayer;
-//     property Material:TMaterial read GetMaterial;
      property nu:double read Get_nu;
 
      procedure ReadFromIniFile(ConfigFile:TIniFile); override;
@@ -401,8 +396,6 @@ var
   Diod:TDiod_Schottky;
   DiodPN:TDiod_PN;
 
-//Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
-
 Procedure AllSCR(DiodPN:TDiod_PN;
                  Vec:TVector;
                  Func:TFunTriple;
@@ -532,7 +525,6 @@ end;
 function TMaterial.Varshni(F0,T:double):double;
 begin
   Result:=VarshniFull(F0,T,VarshA,VarshB);
-//  Result:=F0-sqr(T)*VarshB/(T+VarshA);
 end;
 
 class function TMaterial.VarshniFull(F0,T:double;
@@ -594,7 +586,6 @@ begin
  if Name='Si' then
       begin
        Result:=Silicon.Ei(T);
-//       Result:=EgT(T)+Kb*T*ln(n_i(T)/Nc(T));
        Exit;
       end;
  if (Eg0=ErResult)or
@@ -602,7 +593,6 @@ begin
     (Mh=ErResult)   then Result:=ErResult
                     else
                     Result:=0.5*(EgT(T)+Kb*T*ln(Nv(T)/Nc(T)));
-
 end;
 
 class function TMaterial.FDIntegral_05(const eta: double): double;
@@ -675,177 +665,8 @@ begin
                           FParameters.Parameters[i]);
  end;
 
-//--------------------------- TDiodSample ----------------------
-
-//procedure TDiodSample.SetAbsValue(Index:integer; value: Double);
-//begin
-//case Index of
-// 1: FArea:=abs(value);
-// 2: FNd:=abs(value);
-// 3: FThick_i:=abs(value);
-// end;
-//end;
-//
-//procedure TDiodSample.SetEpsValue(value: Double);
-//begin
-// if value>1 then FEps_i:=value
-//            else FEps_i:=1;
-//end;
-//
-//procedure TDiodSample.ReadFromIniFile(ConfigFile:TIniFile);
-//begin
-//  Area:=ConfigFile.ReadFloat(SecDiod,'Square',3.14e-6);
-//  Nd:=ConfigFile.ReadFloat(SecDiod,'Concentration',5e21);
-//  Eps_i:=ConfigFile.ReadFloat(SecDiod,'InsulPerm',4.1);
-//  Thick_i:=ConfigFile.ReadFloat(SecDiod,'InsulDepth',3e-9);
-//end;
-//
-//procedure TDiodSample.WriteToIniFile(ConfigFile:TIniFile);
-//begin
-//  ConfigFile.EraseSection(SecDiod);
-//  ConfigFile.WriteFloat(SecDiod,'Square',Area);
-//  ConfigFile.WriteFloat(SecDiod,'Concentration',Nd);
-//  ConfigFile.WriteFloat(SecDiod,'InsulPerm',Eps_i);
-//  ConfigFile.WriteFloat(SecDiod,'InsulDepth',Thick_i);
-//end;
-//
-//procedure TDiodSample.SetMaterial(value:TMaterial);
-//  begin
-//   if Value = nil then
-//      Value:=TMaterial.Create(High(TMaterialName));
-//   FMaterial:=value;
-//  end;
-//
-//function TDiodSample.Get_nu():double;
-//begin
-//  Result:=Eps0*Material.Eps/Qelem/Nd;
-//end;
-//
-//function TDiodSample.kTln(T:double):double;
-//{повертає значення kT ln(Area*ARich*T^2)}
-//  begin
-//    Result:=Kb*T*ln(Area*Material.ARich*sqr(T));
-//  end;
-//
-//function TDiodSample.I0(T,Fb:double):double;
-//{повертає струму насичення
-//I0=Area*Arich*T^*exp(-Fb/Kb/T)}
-//begin
-// try
-//  Result:=Area*Material.Arich*sqr(T)*exp(-Fb/Kb/T);
-// except
-//     Result:=ErResult;
-// end;
-//end;
-//
-//function TDiodSample.Fb(T,I0:double):double;
-//{повертає висоту бар'єру
-//Fb=kT*ln(Area*ARich*T^2/I0)}
-//  begin
-//    try
-//     Result:=Kb*T*ln(Area*Material.Arich*sqr(T)/I0);
-//    except
-//     Result:=ErResult;
-//    end;
-//  end;
-//
-//function TDiodSample.Vbi(T:double):double;
-//{об'ємний потенціал (build in)}
-//  begin
-//   try
-//    Result:=Kb*T*ln(Material.Nc(T)/Nd);
-//    except
-//     Result:=ErResult;
-//   end;
-//  end;
-//
-////function TDiodSample.Em(T,Fb0:double;Vrev:double=0):double;
-////{максимальне значення електричного поля}
-////begin
-//// try
-////  Result:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
-////            (Material.Varshni(Fb0,T)-Vbi(T)+Vrev));
-//// except
-////  Result:=ErResult;
-//// end;
-////end;
-//
-//function TDiodSample.Em(T,Fb0:double;Vrev:double=0;C1:double=0):double;
-//{максимальне значення електричного поля}
-// var a,b,c,Fb,Fa:double;
-//     i:integer;
-// function FunEmTemp(Emtemp:double):double;
-//  begin
-//   try
-//    Result:=Emtemp-sqrt(2*Qelem*Nd/Material.Eps/Eps0*
-//            (Material.Varshni(Fb0,T)-C1*Emtemp-Vbi(T)+Vrev));
-//   except
-//    Result:=ErResult;
-//   end;
-//  end;
-//
-//begin
-// Result:=ErResult;
-// try
-//  if (C1=0) then
-//   begin
-//   Result:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
-//            (Material.Varshni(Fb0,T)-Vbi(T)+Vrev));
-//   end
-//                     else
-//   begin
-//    a:=0;
-//    b:=sqrt(2*Qelem*Nd/Material.Eps/Eps0*
-//            (Material.Varshni(Fb0,T)-Vbi(T)+Vrev));
-//
-//    Fa:=FunEmTemp(a);
-//    Fb:=FunEmTemp(b);
-//    if (Fa=ErResult)or(Fb=ErResult) then Exit;
-//    repeat
-//     if Fb*Fa<=0 then Break;
-//     b:=2*b;
-//     Fb:=FunEmTemp(b);
-//    until false;
-//    i:=0;
-//    repeat
-//      inc(i);
-//      c:=(a+b)/2;
-//      Fb:=FunEmTemp(c);
-//      Fa:=FunEmTemp(a);
-//      if (Fb*Fa<=0) or (Fb=ErResult)
-//        then b:=c
-//        else a:=c;
-//    until (i>1e5)or(abs((b-a)/c)<1e-4);
-//    if (i>1e5) then Exit;
-//    Result:=c;
-//   end;
-// except
-////  Result:=ErResult;
-// end;
-//end;
-
-
-//Function PAT(V,kT1,Fb0,a,hw,Nss{Parameters[0]},E{Parameters[1]}:double;Sample:TDiod_Schottky):double;
-//var g,gam,gam1,qE,Et:double;
-//begin
-//
-//
-//  qE:=Qelem*Sample.Em(1/(kT1*Kb),Fb0,V);
-//
-//  Et:=E*Qelem;
-//
-//  g:=a*sqr(hw*Qelem)*(1+2/(exp(hw*kT1)-1));
-//  gam:=sqrt(2*m0*Sample.Semiconductor.Meff)*g/(Hpl*qE*sqrt(Et));
-//  gam1:=sqrt(1+sqr(gam));
-//  Result:=Sample.Area*Nss*qE/sqrt(8*m0*Sample.Semiconductor.Meff*E)*sqrt(1-gam/gam1)*
-//          exp(-4*sqrt(2*m0*Sample.Semiconductor.Meff)*Et*sqrt(Et)/(3*Hpl*qE)*
-//              sqr(gam1-gam)*(gam1+0.5*gam));
-//// showmessage('gam1='+floattostr(gam1)+'  Res='+floattostr(Result));
-//
-//end;
 
 Procedure AllSCR(DiodPN:TDiod_PN;
-//                 var Vec:PVector;
                  Vec:TVector;
                  Func:TFunTriple;
                  T:double=300;V:double=0;
@@ -867,7 +688,6 @@ begin
     X:=step*i;
     Vec.Add(X,Func(X,T,V));
    end;
-// if FileName<>'' then Vec.Write_File(FileName);
  if FileName<>'' then Vec.WriteToFile(FileName);
 end;
 
@@ -882,7 +702,7 @@ begin
  Vec:=TVector.Create;
  AllSCR(DiodPN,Vec,Func,T,V,FileName,Npoint);
  Vec.Free;
-end;                 
+end;
 
 { TMaterialShow }
 
@@ -914,11 +734,7 @@ begin
 
 
   for I := ord(Low(TMaterialParametersName)) to ord(High(TMaterialParametersName)) do
-//   begin
     LShowData[TMaterialParametersName(i)]:=LSD[i];
-//    LInputData[TMaterialParametersName(i)]:=LID[i];
-//    LInputData[TMaterialParametersName(i)].OnClick:=LInputDataClick;
-//  end;
 
   for IMPN := Low(TMaterialParametersName) to High(TMaterialParametersName) do
        case iMPN of
@@ -951,12 +767,10 @@ end;
 
 procedure TMaterialShow.LInputDataClick(Sender: TObject);
  var
-//     Value:double;
      st:string;
      i:TMaterialParametersName;
 begin
   for I := Low(TMaterialParametersName) to High(TMaterialParametersName) do
-//    if (Sender as TLabel)=LInputData[i] then
     if (Sender as TLabel)=LShowData[i] then
       begin
         st:=LShowData[i].Caption;
@@ -965,7 +779,6 @@ begin
                      'the material parameter value is expected',
                      st);
         StrToNumber(st, ErResult, Material.FParameters.Parameters[i]);
-//        Material.FParameters.Parameters[i]:=Value;
       end;
   ShowData();
 end;
@@ -976,12 +789,10 @@ procedure TMaterialShow.ShowData;
 begin
   for I := Low(TMaterialParametersName) to High(TMaterialParametersName) do
    begin
-
     if Material.FParameters.Parameters[i]<>ErResult then
      begin
        case i of
         nEg0,nEps,nMe,nMh:temp:=FloatToStrF(Material.FParameters.Parameters[i],ffFixed,3,2);
-//        nARich_n,nArich_p,nVarshB:temp:=FloatToStrF(Material.FParameters.Parameters[i],ffExponent,3,2);
         nVarshA:temp:=FloatToStrF(Material.FParameters.Parameters[i],ffgeneral,5,1);
         else temp:=FloatToStrF(Material.FParameters.Parameters[i],ffExponent,3,2);
        end;
@@ -994,14 +805,12 @@ begin
   if Material.Name=Materials[High(TMaterialName)].Name then
    for I := Low(TMaterialParametersName) to High(TMaterialParametersName) do
      begin
-//       LInputData[i].Visible:=True;
        LShowData[i].OnClick:=LInputDataClick;
        LShowData[i].Cursor:=crHandPoint;
      end
                                                        else
    for I := Low(TMaterialParametersName) to High(TMaterialParametersName) do
      begin
-//       LInputData[i].Visible:=False;
        LShowData[i].OnClick:=nil;
        LShowData[i].Cursor:=crDefault;
      end;
@@ -1063,12 +872,6 @@ begin
  inherited Create;
  FSemiconductor:=TMaterialLayer.Create;
 end;
-
-//procedure TDiod_Schottky.Free;
-//begin
-// FSemiconductor.Free;
-// inherited Free;
-//end;
 
 procedure TDiod_Schottky.ReadFromIniFile(ConfigFile: TIniFile);
 begin
@@ -1173,7 +976,6 @@ begin
     Result:=c;
    end;
  except
-//  Result:=ErResult;
  end;
 end;
 
@@ -1191,11 +993,6 @@ Fb=kT*ln(Area*ARich*T^2/I0)}
    Result:=ErResult;
   end;
  end;
-
-//function TDiod_Schottky.GetMaterial: TMaterial;
-//begin
-// Result:=FSemiconductor.Material;
-//end;
 
 function TDiod_Schottky.Get_nu: double;
 begin
@@ -1245,7 +1042,6 @@ constructor TMaterialLayerShow.Create(ML: TMaterialLayer;
                                       CBNT: TCheckBox;
                                       STData: TStaticText;
                                       STCaption:TLabel
-//                                      BChange: TButton
                                       );
 begin
   inherited Create;
@@ -1257,11 +1053,10 @@ begin
 
   NdShow:=TParameterShow.Create(STData,STCaption,
                                'Carrier concentration, m^(-3):',
-//                               BChange,'input',
                                'Carrier concentration',
                                'Input carrier concentration, [ ] = m^(-3)',
                                MaterialLayer.Nd);
-  NdShow.Hook:=NdRead;                             
+  NdShow.Hook:=NdRead;
 end;
 
 procedure TMaterialLayerShow.Free;
@@ -1286,7 +1081,6 @@ constructor TDiod_SchottkyShow.Create(DSc: TDiod_Schottky;
              CBNT: TCheckBox;
              STDataNd, STDataArea, STDataEps, STDataThick: TStaticText; STCaptionNd,
              STCaptionArea, STCaptionEps, STCaptionThick: TLabel
-//             BChangeNd, BChangeArea,BChangeEps, BChangeThick: TButton
              );
 begin
  inherited Create;
@@ -1382,15 +1176,10 @@ function TDiod_PN.Iscr_rec(T, V: double): double;
  var tau_n, Kpn, Et: double;
 begin
  Result:=0;
-// tau_n:=1e-6;
-// Kpn:=1e-3;
-// Et:=0.75;
-// Result:=Iscr_rec(T, V, tau_n, Kpn, Et){+Igen(1e-7,T)*exp(V/Kb/T)};
  tau_n:=1e-9;
  Kpn:=1e-2;
  Et:=0.5;
  Result:=Result+Iscr_rec(T, V, tau_n, Kpn, Et){+Igen(1e-7,T)*exp(V/Kb/T)};
-
 end;
 
 function TDiod_PN.Iscr_rec(T, V, tau_n, Kpn, Et: double): double;
@@ -1416,26 +1205,12 @@ begin
 end;
 
 function TDiod_PN.I_Shockley(T, V: double): double;
-// var Vec:PVector;
  var Vec:TVector;
 begin
   Vec:=TVector.Create;
   AllSCR(Self,Vec,R_Shockley,T,V);
-//  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
-//  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
-//  AllSCR(Self,Vec,R_DAP,T,V);
   Result:=Area*Qelem*Vec.Int_Trap;
   Vec.Free;
-
-
-
-//  new(Vec);
-//  AllSCR(Self,Vec,R_Shockley,T,V);
-////  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat',10);
-////  AllSCR(Self,Vec,R_DAP,T,V,'dd.dat');
-////  AllSCR(Self,Vec,R_DAP,T,V);
-//  Result:=Area*Qelem*Int_Trap(Vec);
-//  dispose(Vec);
 end;
 
 
@@ -1473,8 +1248,6 @@ end;
 
 function TDiod_PN.p_SCR(x, T: double;V:double=0): double;
 begin
-// Result:=FLayerP.Material.Nv(T)*FLayerN.Material.Nc(T)/FLayerN.Nd*
-//         exp(-(FLayerP.Material.EgT(T)-fi(x,T))/Kb/T);
  Result:=FLayerP.Nd*exp(-(Vdif(T,V)-fi(x,T,V))/Kb/T);
 end;
 
@@ -1540,8 +1313,6 @@ begin
  Rad:=Cad0*L(r)*sqr(Nt);
 
 
-
-
  //--------JApplPhys_78_3185.pdf
 //  ee:=exp((Etd-Eta)/Kb/T);
 // Rad:=1e35;
@@ -1573,20 +1344,6 @@ begin
 //          tau_pA*(n+n1)/rrA;
 //--------------------------
 
-// Result:=Rad*(n*p-sqr(ni))/(n+n1)/(p+p2);
-
-// showmessage('x='+ floattostr(x)+#13+
-//             '(np-ni^2)='+ floattostr((n*p-sqr(ni))/(tau_nA*tau_pD*(1-ee))/2/R12)+#13+
-//              floattostr(Result)+#13+
-//             'Ra='+ floattostr(Ra)+#13+
-//             'R12='+ floattostr(R12)+#13+
-//             'p1='+ floattostr(p1)+#13+
-//             'n1='+ floattostr(n1)+#13+
-//             'p2='+ floattostr(p2)+#13+
-//             'n2='+ floattostr(n2)+#13+
-//             'p='+ floattostr(p)+#13+
-//             'n='+ floattostr(n)+#13+
-//             'ee='+floattostr(ee));
 end;
 
 function TDiod_PN.R_Shockley(x, T, V: double): double;
@@ -1604,10 +1361,7 @@ begin
 end;
 
 function TDiod_PN.TauRec(Igen, T: Double): double;
-// var mu:double;
-
 begin
-//  mu:=0.1448*Power((300/T),2.33);
     Result:=Power(Qelem*Area,2)*Power(n_i(T),4)*mu(T)*Kb*T/sqr(Nd*Igen);
 end;
 
@@ -2210,8 +1964,6 @@ begin
 
   Result:=Result-Parameters[0];
 
-//  if High(Parameters)<2 then Exit;
-
   SetLength(tempParameters,2*(Nd+Nt)+4);
   for I := 0 to 2*(Nd+Nt) do tempParameters[i]:=Parameters[i];
   tempParameters[High(tempParameters)]:=T;
@@ -2266,10 +2018,7 @@ begin
 
 
  Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
-//         Diod.FSemiconductor.FMaterial.Nc(T)*exp(-Ef/T/Kb);
          Diod.FSemiconductor.FMaterial.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
-
-// if High(Parameters)<1 then Exit;
 
  Result:=Result-Parameters[0];
 
@@ -2307,7 +2056,6 @@ Function FermiLevelDeterminationSimple(const n:double;const T:double):double;
 {обчислюється значення рівня Фермі в електронному напівпровіднику
 по значенням концентрації та температури}
 begin
-//  showmessage('FLD '+floattostr());
   Result:=Bisection(FermiLevelEquationSimple,[n,T],
                  Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4);
 end;

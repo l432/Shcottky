@@ -10,11 +10,9 @@ type
 
 TFFDiod=class (TFFHeuristic)
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
-//  procedure AdditionalParamDetermination;override;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
  published
@@ -60,7 +58,6 @@ end; // TFFTunReversRs=class (TFFHeuristic))
 
 TFFPhotoDiod=class (TFFIlluminatedDiode)
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
@@ -82,7 +79,6 @@ end; //  TFFPhotoDiodTun=class (TFFIlluminatedDiode)
 TFFDiodTwoFull=class (TFFHeuristic)
 {I=I01[exp((V-IRs1)/n1kT)-1]+I02[exp((V-IRs2)/n2kT)-1]}
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
  public
@@ -143,14 +139,12 @@ end; //  TFFMobility=class (TFFHeuristic)
 
 TFFElectronConcentration=class (TFFHeuristic)
  private
-//  fFermiLevelData:TVector;
   Function FermiLevelEquationS(Ef:double;
                             Parameters:array of double):double;
  protected
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
-//  function FittingCalculation:boolean;override;
   procedure RealFitting;override;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
@@ -214,18 +208,6 @@ uses
 
 { TFFTDiod }
 
-//procedure TFFDiod.FittingAgentCreate;
-//begin
-//
-//end;
-
-//procedure TFFDiod.AdditionalParamDetermination;
-//begin
-// fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((DoubVars.ParametrByName['T'] as TVarDouble).Value,
-//                                                        fDParamArray.ParametrByName['Io'].Value);
-// inherited AdditionalParamDetermination;
-//end;
-
 function TFFDiod.FuncForFitness(Point:TPointDouble; Data: TArrSingle): double;
 begin
  Result:=IV_Diod(Point[cX],[Data[0],Data[1],Data[2],
@@ -252,12 +234,6 @@ begin
                  fDParamArray.OutputData[1],fDParamArray.OutputData[2]],fDParamArray.OutputData[3]);
 end;
 
-//procedure TFFDiod.TuningBeforeAccessorialDataCreate;
-//begin
-//  inherited;
-//  FPictureName:='DiodFig';
-//end;
-
 { TFFDiodTun }
 
 function TFFDiodTun.FuncForFitness(Point: TPointDouble;
@@ -265,8 +241,6 @@ function TFFDiodTun.FuncForFitness(Point: TPointDouble;
 begin
   Result:=Data[2]*(exp((Point[cX]-Point[cY]*Data[1])*Data[0]))
       +(Point[cX]-Point[cY]*Data[1])/Data[3];
-// Result:=Full_IV(IV_DiodTunnel,Point[cX],[Data[0],
-//                 Data[1],Data[2]],Data[3]);
 end;
 
 procedure TFFDiodTun.NamesDefine;
@@ -290,7 +264,6 @@ end;
 procedure TFFDiodTun.TuningBeforeAccessorialDataCreate;
 begin
   inherited;
-//  FPictureName:='diodtunFig';
   fTemperatureIsRequired:=False;
 end;
 
@@ -322,7 +295,6 @@ end;
 procedure TFFTunRevers.TuningBeforeAccessorialDataCreate;
 begin
   inherited;
-//  FPictureName:='TunRevFig';
   fTemperatureIsRequired:=False;
 end;
 
@@ -332,13 +304,6 @@ function TFFTunReversRs.FuncForFitness(Point: TPointDouble;
   Data: TArrSingle): double;
   var F:double;
 begin
-// Result:=Full_IV(IV_DiodTATrev,Point[cX],[Data[0],
-//                 Data[3],Data[2],Data[1],
-//                 fMaterialLayer.Meff,
-//                 fMaterialLayer.Nd,
-//                 fMaterialLayer.Material.Eps]);
-
-
  F:=sqrt(Qelem*fMaterialLayer.Nd*(Data[2]+Point[cX]-Point[cY]*Data[3])/
                   (2*fMaterialLayer.Material.Eps*Eps0));
 
@@ -407,12 +372,6 @@ begin
                  fDParamArray.OutputData[3],fDParamArray.OutputData[4]);
 end;
 
-//procedure TFFPhotoDiod.TuningBeforeAccessorialDataCreate;
-//begin
-// inherited;
-// FPictureName:='PhotoDiodFig';
-//end;
-
 { TFFPhotoDiodTun }
 
 function TFFPhotoDiodTun.FuncForFitness(Point: TPointDouble;
@@ -466,12 +425,6 @@ begin
                  ['n1','Rs1','Io1','n2','Rs2','Io2']);
 end;
 
-//procedure TFFDiodTwoFull.TuningBeforeAccessorialDataCreate;
-//begin
-// inherited;
-// FPictureName:='DiodTwoFullFig';
-//end;
-
 { TFFDGaus }
 
 function TFFDGaus.FuncForFitness(Point: TPointDouble; Data: TArrSingle): double;
@@ -480,10 +433,6 @@ begin
  temp:=Kb*Point[cX];
  Result:=-temp*ln(Data[0]*exp(-Material.Varshni(Data[1],Point[cX])/temp+sqr(Data[2])/2/sqr(temp))
                  +(1-Data[0])*exp(-Material.Varshni(Data[3],Point[cX])/temp+sqr(Data[4])/2/sqr(temp)));
-
-// Result:=-temp*ln(Data[0]*exp(-Layer.Material.Varshni(Data[1],Point[cX])/temp+sqr(Data[2])/2/sqr(temp))
-//                 +(1-Data[0])*exp(-Layer.Material.Varshni(Data[3],Point[cX])/temp+sqr(Data[4])/2/sqr(temp)));
-
 end;
 
 procedure TFFDGaus.NamesDefine;
@@ -502,7 +451,6 @@ procedure TFFDGaus.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
  fTemperatureIsRequired:=False;
-// FPictureName:='DGausFig';
 end;
 
 { TFFLinEg }
@@ -532,7 +480,6 @@ procedure TFFLinEg.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
  fTemperatureIsRequired:=False;
-// FPictureName:='LinEgFig';
 end;
 
 { TFFTauG }
@@ -541,10 +488,8 @@ procedure TFFTauG.AddDoubleVars;
 begin
   inherited;
   DoubVars.Add(Self,'Tr');
-//  (DoubVars.ParametrByName['Tr'] as TVarDouble).ManualDetermOnly:=False;
   DoubVars.ParametrByName['Tr'].Description:='recombination time (Tr)';
   DoubVars.ParametrByName['Tr'].Limits.SetLimits(0);
-
   DoubVars.Add(Self,'m');
   DoubVars.ParametrByName['m'].Description:='power-law parameter (m)';
 end;
@@ -580,10 +525,7 @@ procedure TFFTwoPower.AddDoubleVars;
 begin
   inherited;
   DoubVars.Add(Self,'m1');
-//  (DoubVars.ParametrByName['Tr'] as TVarDouble).ManualDetermOnly:=False;
   DoubVars.ParametrByName['m1'].Description:='First power-law parameter (m1)';
-//  DoubVars.ParametrByName['Tr'].Limits.SetLimits(0);
-
   DoubVars.Add(Self,'m2');
   DoubVars.ParametrByName['m2'].Description:='Second power-law parameter (m2)';
 end;
@@ -665,11 +607,8 @@ end;
 function TFFElectronConcentration.FuncForFitness(Point: TPointDouble;
   Data: TArrSingle): double;
 begin
-//  Result:=ElectronConcentration(Point[cX],Data,4,3,
-//                     FermiLevelDeterminationSimple(Point[cY],Point[cX]));
   Result:=ElectronConcentrationSimple(Point[cX],Data,4,3,
                      ftempVector.Yvalue(Point[cX]),Material);
-
 end;
 
 procedure TFFElectronConcentration.NamesDefine;
@@ -700,17 +639,12 @@ end;
 procedure TFFElectronConcentration.RealFitting;
  var i:integer;
 begin
-// fFermiLevelData:=TVector.Create;
  ftempVector.CopyFrom(fDataToFit);
  for i := 0 to ftempVector.HighNumber do
    ftempVector.Y[i]:=Bisection(FermiLevelEquationS,
                            [ftempVector.Y[i],ftempVector.X[i]],
                             Material.EgT(ftempVector.X[i]),0,5e-4);
-
-// ftempVector.CopyTo(fFermiLevelData);
-
  inherited RealFitting;
-// FreeAndNil(fFermiLevelData);
 end;
 
 procedure TFFElectronConcentration.TuningBeforeAccessorialDataCreate;

@@ -3,7 +3,7 @@ unit OlegFunction;
 interface
 
 uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
- Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector;
+ Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector, Grids, ExtCtrls;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -38,23 +38,11 @@ procedure StrToNumber(St:TCaption; Def:double; var Num:double);
 якщо рядок порожній - Num  буде присвоєне
 значення Def}
 
-//procedure IVC(Func:TFunDouble;
-//              T:double;
-//              ResultFileName:string='';
-//              Vmin:double=0.01;
-//              Vmax:double=0.6;
-//              delV:double=0.01);
-//{розраховується ВАХ за законом I=Func(T,V)
-//і записується у файл ResultFileName}
-
-
 Function SomeSpaceToOne(str:string):string;
 {замінює декілька пробілів на один}
 
 Function Acronym(str:string):string;
 {створюється аббревіатура рядка}
-
-
 
 Function StringDataFromRow(str:string;Number:word):string;
 {вважається, що частини рядка відділені один від одного пробілами;
@@ -125,11 +113,7 @@ DoubleArrayPointer - вказівник на масив даних (на початковий елемент),
 HighDoubleArray - найбільше значення індексу масиву
 }
 
-//Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
 Function  ImpulseNoiseSmoothing(const Data:  TVector; ItIsXVector:boolean=False): Double;overload;
-//function TVectorTransform.ImpulseNoiseSmoothing(
-//                   const Coord: TCoord_type): Double;
-
 {якщо ItIsXVector=True, то середнє рахується
 по значенням  координати X, інакше - по Y}
 
@@ -141,11 +125,6 @@ Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
 зглажування (див ImpulseNoiseSmoothingByNpoint) Source
 по Npoint точкам}
 
-//Procedure ImNoiseSmoothedArray(Source:Pvector;
-//                               Target:Pvector;
-//                               Npoint:Word=0);overload;
-//procedure TVectorTransform.ImNoiseSmoothedArray(Target: TVector;
-//                            Npoint: Word);
 
 Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
                                        Npoint:Word=0): Double;overload;
@@ -155,18 +134,9 @@ Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
 по Npoint штук на наборі яких розраховується середнє,
 потім середні розбиваються на порції ....}
 
-//Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean=False;
-//                                       Npoint:Word=0): Double;overload;
-//function TVectorTransform.ImpulseNoiseSmoothingByNpoint(
-//           const Coord: TCoord_type; Npoint: Word): Double;
-
-
 Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;
                    const eps:double=1e-6):double;overload;
-//Function Bisection(const F:TFun; const Parameters:TArrSingle;
-//                   const Xmax:double=5; const Xmin:double=0;
-//                   const eps:double=1e-6):double;
 {метод ділення навпіл для функції F на інтервалі [Xmin,Xmax]
 eps - відносна точність розв'язку
 (ширина кінцевого інтервалу по відношенню до величини його границь)}
@@ -208,9 +178,6 @@ Procedure CreateDirSafety(DirName: string);
 в поточному каталозі, ігноруються можливі помилки;
 як правило, ці помилки викликані тим, що директорія з такою назвою вже є}
 
-//Function CasrtoIV(I:double;Parameters:array of double):double;
-
-
 Function MilliSecond:integer;
 {повертає поточне значення мілісекунд з
 врахуванням хвилин та секунд}
@@ -234,10 +201,30 @@ procedure StringArrayToStringList(const Arr:array of string;
 
 Function FileNameToVoltage(name:string):double;
 
+procedure AddRowToFileFromStringGrid(FileName:string;
+                   StrGridData: TStringGrid;
+                   RowNumber:integer);
+{до файла FileName додається рядок з номером RowNumber з StrGridData}
+
+procedure  StringGridToFile(FileName:string;
+                   StrGridData: TStringGrid);
+{всі дані з StrGridData заносяться у файл}
+
+
+procedure PictLoadScale(Img: TImage; ResName:String);
+{в Img завантажується bmp-картинка з ресурсу з назвою
+ResName і масштабується зображення, щоб не вийшо
+за межі розмірів Img, які були перед цим}
+
+Function FitName(V: TVector; st:string='fit'):string;//overload;
+{повертає змінене значення V.name,
+зміна полягає у дописуванні st перед першою крапкою}
+
+
 implementation
 
 uses
-  SysUtils, Math, ExtCtrls, Graphics;
+  SysUtils, Math, Graphics;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -305,18 +292,12 @@ finally
 end; //try
 end;
 
-
-//Procedure ElementsFromForm(Form:TForm);
 Procedure ElementsFromForm(WinControl:TWinControl);
 var i:integer;
 begin
    for I := WinControl.ComponentCount-1 downto 0 do
      WinControl.Components[i].Free;
-//   for I := Form.ComponentCount-1 downto 0 do
-//     Form.Components[i].Free;
 end;
-
-
 
 Procedure CompEnable(Fm:TForm;Tag:integer;State:boolean);
 {для всіх елементів, що знаходяться на формі Fm та мають таг Tag,
@@ -352,25 +333,6 @@ if St='' then Num:=Def
            Num:=temp;
           end;//else
 end;
-
-//procedure IVC(Func:TFunDouble;
-//              T:double;
-//              ResultFileName:string='';
-//              Vmin:double=0.01;
-//              Vmax:double=0.6;
-//              delV:double=0.01);
-// Var V:double;
-//     Vax:TVector;
-//begin
-// Vax:=TVector.Create;
-// V:=Vmin;
-// repeat
-//   Vax.Add(V,Func(T,V));
-//   V:=V+delV;
-// until (V>Vmax);
-// if ResultFileName<>'' then Vax.WriteToFile(ResultFileName);
-// Vax.Free;
-//end;
 
 Function SomeSpaceToOne(str:string):string;
 begin
@@ -420,7 +382,6 @@ Function NumberOfSubstringInRow(row:string):integer;
 {визначається частин у рядку row, відділених
 пробілами}
  var tempstr:string;
-//     i:integer;
 begin
   tempstr:=SomeSpaceToOne(row);
   if tempstr='' then Result:=0
@@ -509,7 +470,6 @@ begin
   end;
 end;
 
-
 Function PointDistance(t:double;Parameters:array of double):double;
  var fi,omega,delta:double;
 begin
@@ -546,7 +506,7 @@ Function OverageValue(Fun:TFun;Parameters:array of double):double;
 
 Procedure DegreeDependence();
   var Param:array of double;
-      fi,delta{,r2_over,L_over,L0}:double;
+      fi,delta:double;
       Str,str1:TStringList;
       strg,strg1:string;
 
@@ -812,107 +772,6 @@ begin
  dispose(temp);
 end;
 
-
-//Function  ImpulseNoiseSmoothing(const Data:  PVector; ItIsXVector:boolean=False): Double;overload;
-// var i,i_min,i_max,j,PositivDeviationCount,NegativeDeviationCount:integer;
-//     Value_min,Value_max,PositivDeviation,Value_Mean:double;
-//     temp_Data:PTArrSingle;
-//begin
-//
-//  if Data^.n<1 then
-//    begin
-//      Result:=ErResult;
-//      Exit;
-//    end;
-//  if Data^.n<5 then
-//    begin
-//      if ItIsXVector then Result:=Mean(Data^.X)
-//                     else Result:=Mean(Data^.Y);
-//      Exit;
-//    end;
-//
-//  new(temp_Data);
-//  i_min:=0;
-//  i_max:=Data^.n-1;
-//  if ItIsXVector
-//   then
-//    begin
-//      Value_min:=Data^.X[0];
-//      Value_max:=Data^.X[Data^.n-1];
-//    end
-//   else
-//    begin
-//      Value_min:=Data^.Y[0];
-//      Value_max:=Data^.Y[Data^.n-1];
-//    end;
-//
-//
-//  for i := 0 to Data^.n-1 do
-//    begin
-//      if ItIsXVector
-//       then
-//        begin
-//          if Data^.X[i]>Value_max then
-//            begin
-//              Value_max:=Data^.X[i];
-//              i_max:=i;
-//            end;
-//          if Data^.X[i]<Value_min then
-//            begin
-//              Value_min:=Data^.X[i];
-//              i_min:=i;
-//            end;
-//        end
-//       else
-//        begin
-//          if Data^.Y[i]>Value_max then
-//            begin
-//              Value_max:=Data^.Y[i];
-//              i_max:=i;
-//            end;
-//          if Data^.Y[i]<Value_min then
-//            begin
-//              Value_min:=Data^.Y[i];
-//              i_min:=i;
-//            end;
-//        end;
-//    end;
-//
-//
-//
-//  SetLength(temp_Data^,Data^.n-2);
-//  j:=0;
-//  for i:=0 to Data^.n-1 do
-//     if (i<>i_min)and(i<>i_max) then
-//      begin
-//       if ItIsXVector then temp_Data^[j]:=Data^.X[i]
-//                      else temp_Data^[j]:=Data^.Y[i];
-//       inc(j);
-//      end;
-//
-// Value_Mean:=Mean(temp_Data^);
-// PositivDeviationCount:=0;
-// NegativeDeviationCount:=0;
-// PositivDeviation:=0;
-// for j := 0 to High(temp_Data^) do
-//  begin
-//   if temp_Data^[j]>Value_Mean then
-//    begin
-//      inc(PositivDeviationCount);
-//      PositivDeviation:=PositivDeviation+(temp_Data^[j]-Value_Mean);
-//    end;
-//   if temp_Data^[j]<Value_Mean then
-//      inc(NegativeDeviationCount);
-//  end;
-// Result:=Value_Mean+
-//        (PositivDeviationCount-NegativeDeviationCount)
-//        *PositivDeviation/sqr(High(temp_Data^)+1);
-// dispose(temp_Data);
-//end;
-//
-
-
-
 Procedure ImNoiseSmoothedArray(const Source:PTArrSingle;
                                Target:PTArrSingle;
                                Npoint:Word=0);overload;
@@ -935,8 +794,6 @@ begin
    Target^[0]:=ImpulseNoiseSmoothing(Source);
    Exit;
   end;
-
-
   SetLength(Target^,CountTargetElement);
 
   new(TG);
@@ -957,60 +814,6 @@ begin
   dispose(TG);
 end;
 
-
-//Procedure ImNoiseSmoothedArray(Source:Pvector;
-//                               Target:Pvector;
-//                               Npoint:Word=0);overload;
-// var TG:PVector;
-//     CountTargetElement,i:integer;
-//     j:Word;
-//begin
-//
-// Target^.SetLenVector(0);
-// if Source^.n<1 then Exit;
-//
-// if Npoint=0 then Npoint:=Trunc(sqrt(Source^.n+1));
-//
-// if Npoint=0 then Exit;
-//
-// CountTargetElement:=Source^.n div Npoint;
-// if CountTargetElement=0
-//  then
-//    begin
-//    Target^.Add(ImpulseNoiseSmoothing(Source,True),ImpulseNoiseSmoothing(Source));
-//    Exit;
-//    end;
-//
-//
-//  Target^.SetLenVector(CountTargetElement);
-//
-//  new(TG);
-//  TG^.SetLenVector(Npoint);
-//  for I := 0 to CountTargetElement - 2 do
-//   begin
-//     for j := 0 to Npoint - 1 do
-//       begin
-//        TG^.X[j]:=Source^.X[I*Npoint+j];
-//        TG^.Y[j]:=Source^.Y[I*Npoint+j];
-//       end;
-//     Target^.X[I]:=ImpulseNoiseSmoothing(TG,True);
-//     Target^.Y[I]:=ImpulseNoiseSmoothing(TG);
-//   end;
-//
-//  I:=Source^.n mod Npoint;
-//  TG^.SetLenVector(I+Npoint);
-//  for j := 0 to Npoint+I-1 do
-//   begin
-//    TG^.X[j]:=Source^.X[(CountTargetElement - 1)*Npoint+j];
-//    TG^.Y[j]:=Source^.Y[(CountTargetElement - 1)*Npoint+j];
-//   end;
-//
-//  Target^.X[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG,True);
-//  Target^.Y[CountTargetElement - 1]:=ImpulseNoiseSmoothing(TG);
-//  dispose(TG);
-//end;
-
-
 Function ImpulseNoiseSmoothingByNpoint(Data:  PTArrSingle;
                                        Npoint:Word=0): Double;
  var temp:PTArrSingle;
@@ -1028,34 +831,6 @@ begin
                   else Result:=ImpulseNoiseSmoothingByNpoint(temp,Npoint);
  dispose(temp);
 end;
-
-
-//Function ImpulseNoiseSmoothingByNpoint(const Data:  PVector; ItIsXVector:boolean=False;
-//                                       Npoint:Word=0): Double;overload;
-// var temp:PVector;
-//begin
-// Result:=ErResult;
-// if Data^.n<1 then Exit;
-//
-// if Npoint=0 then Npoint:=Trunc(sqrt(Data^.n));
-//
-// if Npoint=0 then Exit;
-//
-// new(temp);
-//
-// ImNoiseSmoothedArray(Data, temp, Npoint);
-// if temp^.n=1
-//  then
-//    if ItIsXVector then Result:=temp^.X[0]
-//                   else Result:=temp^.Y[0]
-//  else Result:=ImpulseNoiseSmoothingByNpoint(temp,ItIsXVector,Npoint);
-// dispose(temp);
-//end;
-
-
-//Function Bisection(const F:TFun; const Parameters:TArrSingle;
-//                   const Xmax:double=5; const Xmin:double=0;
-//                   const eps:double=1e-6):double;
 
 Function Bisection(const F:TFun; const Parameters:array of double;
                    const Xmax:double=5; const Xmin:double=0;
@@ -1082,11 +857,6 @@ begin
      inc(i);
       c:=(a+b)/2;
       Fc:=F(c,Parameters);
-//     showmessage(floattostr(c)+#10+
-//                 'Fc='+floattostr(Fc)+#10+
-//                 'a='+floattostr(a)+#10+
-//                 'Fa='+floattostr(Fa)+#10+
-//                 'b='+floattostr(b));
       if (Fc*Fa<=0)
          then b:=c
          else begin
@@ -1136,7 +906,7 @@ begin
   except
 
   end;
-end;                   
+end;
 
 
 Function Hord(const F:TFun; const Parameters:array of double;
@@ -1165,12 +935,6 @@ begin
      c_old:=c;
      c:=(a*Fb-b*Fa)/(Fb-Fa);
      Fc:=F(c,Parameters);
-//     showmessage(floattostr(c)+#10+
-//                 'Fc='+floattostr(Fc)+#10+
-//                 'a='+floattostr(a)+#10+
-//                 'Fa='+floattostr(Fa)+#10+
-//                 'b='+floattostr(b)+#10+
-//                 'Fb='+floattostr(Fb));
       if (Fc*Fa<=0)
          then begin
               b:=c;
@@ -1294,17 +1058,10 @@ Var
 _VolumeName,_FileSystemName:array [0..MAX_PATH-1] of Char;
 _VolumeSerialNo,_MaxComponentLength,_FileSystemFlags:LongWord;
 
-//Function GetHDDInfo(Disk : Char;Var VolumeName, FileSystemName : String;
-//          Var VolumeSerialNo, MaxComponentLength, FileSystemFlags:LongWord) : Boolean;
-
 begin
   if GetVolumeInformation(nil,_VolumeName,MAX_PATH,@_VolumeSerialNo,
          _MaxComponentLength,_FileSystemFlags,_FileSystemName,MAX_PATH)
           then
-
-
-//  if GetVolumeInformation(PChar(Disk+':\'),_VolumeName,MAX_PATH,@_VolumeSerialNo,
-//  _MaxComponentLength,_FileSystemFlags,_FileSystemName,MAX_PATH) then
   begin
     Result:=_VolumeSerialNo;
   end
@@ -1319,37 +1076,6 @@ begin
      ;
   end;
 end;
-
-//Function CasrtoIV(I:double;Parameters:array of double):double;
-// var Vt,temp10,temp20,temp11,temp21,x1,x2:double;
-//
-//begin
-// Vt:=Kb*Parameters[8];
-//
-// temp10:=1/Vt/Parameters[1];// q/kTn
-// temp20:=1/Vt/Parameters[4];
-//
-// temp11:=Parameters[2]*temp10; // Rsh q/kTn
-// temp21:=Parameters[5]*temp20;
-//
-//// Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
-////        -Lambert(temp11*Parameters[0]
-////                 *exp(temp11*(I+Parameters[7]+Parameters[0])))
-////         /temp10
-////        +Lambert(temp21*Parameters[3]
-////                 *exp(-temp21*(I-Parameters[3])))
-////         /temp20
-////         +(I-Parameters[3])*Parameters[5]
-////         +I*Parameters[6];
-//
-// x1:=log10(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
-// x2:=log10(temp21*Parameters[3])-temp21*(I-Parameters[3]);
-// Result:=I*Parameters[6]+gLambert(x1)/temp10
-//         -gLambert(x2)/temp20
-//         -log10(temp11*Parameters[0])/temp10
-//         +log10(temp21*Parameters[3])/temp20;
-//
-//end;
 
 Function MilliSecond:integer;
  var Hour,Min,Sec,MSec:word;
@@ -1419,5 +1145,88 @@ begin
   Result:=ErResult;
  end;
 end;
+
+procedure AddRowToFileFromStringGrid(FileName:string;
+                   StrGridData: TStringGrid;
+                   RowNumber:integer);
+ var f:TextFile;
+     i:integer;
+begin
+
+   AssignFile(f,FileName);
+  try
+   Append (f);
+  except
+   Rewrite(f);
+  end;
+
+   for I := 0 to StrGridData.ColCount-1 do
+                    write(f,StrGridData.Cells[i,RowNumber],' ');
+   writeln(f);
+   CloseFile(f);
+end;
+
+procedure  StringGridToFile(FileName:string;
+                   StrGridData: TStringGrid);
+ var f:TextFile;
+     i,j:integer;
+begin
+  try
+   AssignFile(f,FileName);
+   Rewrite(f);
+   for j := 0 to StrGridData.RowCount-1 do
+     begin
+     for I := 0 to StrGridData.ColCount-1 do
+                           write(f,StrGridData.Cells[i,j],' ');
+     writeln(f);
+     end;
+   CloseFile(f);
+  finally
+
+  end;
+end;
+
+procedure PictLoadScale(Img: TImage; ResName:String);
+{в Img завантажується bmp-картинка з ресурсу з назвою
+ResName і масштабується зображення, щоб не вийшо
+за межі розмірів Img, які були перед цим}
+var
+  scaleY: double;
+  scaleX: double;
+  scale: double;
+begin
+  try
+  Img.Picture.Bitmap.LoadFromResourceName(hInstance,ResName);
+  if Img.Picture.Width > Img.Width then
+    scaleX := Img.Width / Img.Picture.Width
+  else
+    scaleX := 1;
+  if Img.Picture.Height > Img.Height then
+    scaleY := Img.Height / Img.Picture.Height
+  else
+    scaleY := 1;
+  if scaleX < scaleY then
+    scale := scaleX
+  else
+    scale := scaleY;
+  Img.Height := Round(Img.Picture.Height * scale);
+  Img.Width := Round(Img.Picture.Width * scale);
+  finally
+
+  end;
+end;
+
+
+Function FitName(V: TVector; st:string='fit'):string;overload;
+begin
+  if V.name = '' then
+    Result := st+'.dat'
+  else
+  begin
+    Result := V.name;
+    Insert(st, Result, Pos('.', Result));
+  end;
+end;
+
 
 end.

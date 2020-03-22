@@ -193,15 +193,6 @@ implementation
 uses
   Graphics, Math, OApproxShow, Dialogs, SysUtils;
 
-//{ TMaterialFit }
-//
-//constructor TMaterialFit.Create(MaterialName: TMaterialName;
-//  FF: TFitFunctionNew);
-//begin
-//  inherited Create(MaterialName);
-//  fFF:=FF;
-//end;
-
 { TMaterialFrame }
 
 constructor TMaterialFrame.Create(AOwner: TComponent; Material: TMaterial);
@@ -212,11 +203,6 @@ begin
  fMaterial:=Material;
 
  Frame:=TFrame.Create(AOwner);
-// Frame.Color:=clInfoBk;
-// Frame.Font.Name:='Tahoma';
-// Frame.Font.Size:=10;
-// Frame.Font.Height:=-13;
-
 
  fCBSelect:=TComboBox.Create(Frame);
  fCBSelect.Style:=csDropDownList;
@@ -387,23 +373,12 @@ begin
 
  fDiod:=Schottky;
  fOrientation:=oCol;
-
-// DPShowCreate('Area',fDiod.Area);
 end;
 
 procedure TDAreaFrame.DateUpdate;
 begin
  fDiod.Area:=(fPShow as TDoubleParameterShow).Data;
 end;
-
-
-//procedure TDAreaFrame.DPShowCreate;
-//begin
-// fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
-//           'Area',fDiod.Area);
-// fDPShow.Limits.SetLimits(0);
-//end;
-
 
 { TTDSchottkyGroupBox }
 
@@ -461,8 +436,6 @@ begin
   Area:=fFF.ConfigFile.ReadFloat(fFF.Name,'Square pn-Diod',3.14e-6);
   LayerP.Nd:=fFF.ConfigFile.ReadFloat(fFF.Name,'p-layer Concentration',5e21);
   LayerN.Nd:=fFF.ConfigFile.ReadFloat(fFF.Name,'n-layer Concentration',5e21);
-//  LayerP.IsNType:=fFF.ConfigFile.ReadBool(fFF.Name,'p-layer type',True);
-//  LayerN.IsNType:=fFF.ConfigFile.ReadBool(fFF.Name,'n-layer type',True);
   LayerP.Material.ChangeMaterial(TMaterialName(
    fFF.ConfigFile.ReadInteger(fFF.Name,'p-layer Material Name',0)));
   LayerN.Material.ChangeMaterial(TMaterialName(
@@ -474,8 +447,6 @@ begin
   fFF.ConfigFile.WriteFloat(fFF.Name,'Square pn-Diod',Area);
   fFF.ConfigFile.WriteFloat(fFF.Name,'p-layer Concentration',LayerP.Nd);
   fFF.ConfigFile.WriteFloat(fFF.Name,'n-layer Concentration',LayerN.Nd);
-//  fFF.ConfigFile.WriteBool(fFF.Name,'p-layer type',LayerP.IsNType);
-//  fFF.ConfigFile.WriteBool(fFF.Name,'n-layer type',LayerN.IsNType);
   fFF.ConfigFile.WriteInteger(fFF.Name,'p-layer Material Name',
           ord(LayerP.Material.MaterialName));
   fFF.ConfigFile.WriteInteger(fFF.Name,'n-layer Material Name',
@@ -512,7 +483,6 @@ begin
  fLayerFrame.RG.OnClick:=RGOnClick;
  fSecondLayerFrame.RG.Tag:=fSecondLayerFrame.RG.ItemIndex;
  fSecondLayerFrame.RG.OnClick:=RGOnClick;
-
 end;
 
 procedure TD_PNGroupBox.DateUpdate;

@@ -14,6 +14,8 @@ TFFVariabSet =class(TFFSimple)
   додаткові дійсні параметри}
  private
   fDoubVars:TVarDoubArray;
+  procedure SetT(const Value: double);
+  Function GetT():double;
  protected
   fTemperatureIsRequired:boolean;
   fVoltageIsRequired:boolean;
@@ -34,19 +36,10 @@ TFFVariabSet =class(TFFSimple)
   не задаються в ручному режимі}
   procedure AdditionalParamDetermination;override;
  public
-// published
+  property T:double read GetT write SetT;
   property DoubVars:TVarDoubArray read fDoubVars;
  end;
 {$M-}
-
-//TFFVariabSetSchottky=class (TFFVariabSet)
-// private
-//  fSchottky:TDSchottkyFit;
-// protected
-//  procedure AccessorialDataCreate;override;
-//  procedure AccessorialDataDestroy;override;
-//  function ParameterCreate:TFFParameter;override;
-//end;
 
 TFFVariabSetSchottky=class (TFFVariabSet)
  published
@@ -98,41 +91,12 @@ TFFIteration =class(TFFVariabSet)
   property FittingAgent:TFittingAgent read fFittingAgent;
 end;
 
-
-//TFFIterationLSM =class(TFFIteration)
-// private
-////  procedure FittingAgentCreate;virtual;abstract;
-// protected
-//  function ParameterCreate:TFFParameter;override;
-//end;
-
-//TFFIterationLSMSchottky=class (TFFIterationLSM)
-//{для функцій, які апроксимуються
-//ітераційно і потрібен зразок}
-// private
-//  fSchottky:TDSchottkyFit;
-// protected
-//  procedure AccessorialDataCreate;override;
-//  procedure AccessorialDataDestroy;override;
-//  function ParameterCreate:TFFParameter;override;
-//  procedure AdditionalParamDetermination;override;
-//end;
-
-
-//TFFDiodLSM=class (TFFIterationLSMSchottky)
 TFFDiodLSM=class (TFFIteration)
- private
-//  fSchottky:TDSchottkyFit;
  protected
   procedure FittingAgentCreate;override;
-//  procedure AccessorialDataCreate;override;
-//  procedure AccessorialDataDestroy;override;
-//  function ParameterCreate:TFFParameter;override;
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   function RealFinalFunc(X:double):double;override;
-//  procedure AdditionalParamDetermination;override;
  published
   property Schottky:TDSchottkyFit read fSchottky;
 end; // TFFDiodLSM=class (TFFIterationLSMSchottky)
@@ -157,7 +121,6 @@ end;
 
 TFFPhotoDiodLam=class (TFFIteration)
  protected
-//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure FittingAgentCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
@@ -168,14 +131,13 @@ end; // TFFTPhotoDiodLSM=class (TFFIterationLSM)
 implementation
 
 uses
-  FitVariableShow, SysUtils, OlegMathShottky, FitIterationShow, 
+  FitVariableShow, SysUtils, OlegMathShottky, FitIterationShow,
   HighResolutionTimer, TypInfo;
 
 { TFFVariabSet }
 
 procedure TFFVariabSet.AccessorialDataCreate;
 begin
-//  inherited;
   fDoubVars:=TVarDoubArray.Create(Self,[]);
   if fTemperatureIsRequired then
       begin
@@ -231,14 +193,13 @@ begin
  if (fVoltageIsRequired)
     and (fDoubVars.ParametrByName['V'] as TVarDouble).AutoDeterm then
      (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=FileNameToVoltage(fDataToFit.name);
-//     begin
-//      try
-//       (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=
-//       StrToFloat(copy(fDataToFit.name,1,length(fDataToFit.name)-4))/10;
-//      except
-//       (fDoubVars.ParametrByName['V'] as TVarDouble).Value:=ErResult;
-//      end;
-//     end;
+end;
+
+function TFFVariabSet.GetT: double;
+begin
+ if Assigned(fDoubVars.ParametrByName['T'])
+  then Result:=(fDoubVars.ParametrByName['T'] as TVarDouble).Value
+  else Result:=ErResult;
 end;
 
 function TFFVariabSet.ParameterCreate: TFFParameter;
@@ -270,6 +231,13 @@ begin
     Result:=TDecD_PNParameter.Create(fPNDiode,Result);
    end;
 
+end;
+
+procedure TFFVariabSet.SetT(const Value: double);
+begin
+ if Assigned(fDoubVars.ParametrByName['T'])
+    and (Value>0)
+  then (fDoubVars.ParametrByName['T'] as TVarDouble).Value:=Value;
 end;
 
 procedure TFFVariabSet.TuningBeforeAccessorialDataCreate;
@@ -310,26 +278,6 @@ begin
                *(fDoubVars.ParametrByName['T'] as TVarDouble).Value));
 end;
 
-//{ TFFVariabSetSchottky }
-//
-//procedure TFFVariabSetSchottky.AccessorialDataCreate;
-//begin
-//  inherited;
-//  fSchottky:=TDSchottkyFit.Create(Self);
-//end;
-//
-//procedure TFFVariabSetSchottky.AccessorialDataDestroy;
-//begin
-//  fSchottky.Free;
-//  inherited;
-//end;
-//
-//function TFFVariabSetSchottky.ParameterCreate: TFFParameter;
-//begin
-//  Result:=TDecDSchottkyParameter.Create(fSchottky,
-//                         inherited ParameterCreate);
-//end;
-
 { TFFIvanov }
 
 function TFFIvanov.Deviation: double;
@@ -359,9 +307,7 @@ begin
 end;
 
 function TFFIvanov.IvanovFun(X: double): TPointDouble;
-// var Vd,x0:double;
 begin
-//  x0:=X;
   Result[cX]:=X+fDParamArray.OutputData[1]
                *sqrt(2*Qelem*fSchottky.Semiconductor.Nd
                      *fSchottky.Semiconductor.Material.Eps/Eps0)
@@ -383,11 +329,6 @@ end;
 
 { TFFIteration }
 
-//procedure TFFIteration.FittingAgentCreate;
-//begin
-// fFittingAgent:=TFittingAgent.Create;
-//end;
-
 procedure TFFIteration.AdditionalParamDetermination;
 begin
  fDParamArray.OutputDataCoordinate;
@@ -402,7 +343,6 @@ begin
   fWindowAgent.Show;
   try
    Result:=False;
-//   fFittingAgent.IsDone:=False;
    fFittingAgent.StartAction;
    Timer.StartTimer;
    fFittingAgent.DataCoordination;
@@ -411,7 +351,6 @@ begin
 
        repeat
         fFittingAgent.IterationAction;
-//        Timer.StartTimer;
 
         if fFittingAgent.IstimeToShow
            or(Timer.ReadTimer>15000) then
@@ -428,25 +367,19 @@ begin
    if fWindowAgent.Form.Visible then
     begin
       Result:=True;
-//      fFittingAgent.IsDone:=True;
       fFittingAgent.DataCoordination;
       fDParamArray.OutputDataCoordinate;
     end;
-//   fFittingAgent.EndAction;
 
   finally
    fWindowAgent.Hide;
   end;
  finally
   fWindowAgent.Free;
-//  Result:=fFittingAgent.IsDone;
   fFittingAgent.Free;
  end;
 
 end;
-
-
-
 
 
 function TFFIteration.ParameterCreate: TFFParameter;
@@ -468,25 +401,6 @@ end;
 
 { TFFDiodLSM }
 
-//procedure TFFDiodLSM.AccessorialDataCreate;
-//begin
-//  inherited;
-//  fSchottky:=TDSchottkyFit.Create(Self);
-//end;
-//
-//procedure TFFDiodLSM.AccessorialDataDestroy;
-//begin
-//  fSchottky.Free;
-//  inherited;
-//end;
-
-//procedure TFFDiodLSM.AdditionalParamDetermination;
-//begin
-// fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((fDoubVars.ParametrByName['T'] as TVarDouble).Value,
-//                                                        fDParamArray.ParametrByName['Io'].Value);
-// inherited AdditionalParamDetermination;
-//end;
-
 procedure TFFDiodLSM.FittingAgentCreate;
 begin
  fFittingAgent:=TFittingAgentLSM.Create((fDParamArray as TDParamsGradient),
@@ -507,12 +421,6 @@ begin
                  ['Fb']);
 end;
 
-//function TFFDiodLSM.ParameterCreate: TFFParameter;
-//begin
-//   Result:=TDecDSchottkyParameter.Create(fSchottky,
-//                         inherited ParameterCreate);
-//end;
-
 function TFFDiodLSM.RealFinalFunc(X: double): double;
 begin
  Result:=Full_IV(IV_Diod,X,[fDParamArray.OutputData[0]
@@ -521,47 +429,6 @@ begin
                             fDParamArray.OutputData[2]],
                             fDParamArray.OutputData[3]);
 end;
-
-//procedure TFFDiodLSM.TuningBeforeAccessorialDataCreate;
-//begin
-//  inherited;
-//  FPictureName:='DiodLSM'+'Fig';
-//end;
-
-{ TFFIterationLSM }
-
-//function TFFIterationLSM.ParameterCreate: TFFParameter;
-//begin
-//  Result:=TDecParamsIteration.Create((fDParamArray as TDParamsIteration),
-//                         inherited ParameterCreate);
-//end;
-
-//{ TFFIterationLSMSchottky }
-//
-//procedure TFFIterationLSMSchottky.AccessorialDataCreate;
-//begin
-//  inherited;
-//  fSchottky:=TDSchottkyFit.Create(Self);
-//end;
-//
-//procedure TFFIterationLSMSchottky.AccessorialDataDestroy;
-//begin
-//  fSchottky.Free;
-//  inherited;
-//end;
-//
-//procedure TFFIterationLSMSchottky.AdditionalParamDetermination;
-//begin
-// fDParamArray.ParametrByName['Fb'].Value:=fSchottky.Fb((fDoubVars.ParametrByName['T'] as TVarDouble).Value,
-//                                                        fDParamArray.ParametrByName['Io'].Value);
-// inherited AdditionalParamDetermination;
-//end;
-//
-//function TFFIterationLSMSchottky.ParameterCreate: TFFParameter;
-//begin
-//   Result:=TDecDSchottkyParameter.Create(fSchottky,
-//                         inherited ParameterCreate);
-//end;
 
 { TFFTPhotoDiodLSM }
 
@@ -601,12 +468,6 @@ begin
                             fDParamArray.OutputData[4]);
 end;
 
-//procedure TFFPhotoDiodLSM.TuningBeforeAccessorialDataCreate;
-//begin
-//  inherited;
-//  FPictureName:='PhotoDiodLSMFig';
-//end;
-
 { TFFDiodLam }
 
 procedure TFFDiodLam.FittingAgentCreate;
@@ -631,12 +492,6 @@ begin
                         fDParamArray.OutputData[3]);
 end;
 
-//procedure TFFDiodLam.TuningBeforeAccessorialDataCreate;
-//begin
-//  inherited;
-//  FPictureName:='DiodLamFig';
-//end;
-
 { TFFPhotoDiodLam }
 
 procedure TFFPhotoDiodLam.AdditionalParamDetermination;
@@ -655,7 +510,6 @@ begin
        *(exp(fDParamArray.ParametrByName['Voc'].Value/fDParamArray.ParametrByName['n'].Value
        /Kb/(fDoubVars.ParametrByName['T'] as TVarDouble).Value)-1)
        +fDParamArray.ParametrByName['Voc'].Value/fDParamArray.ParametrByName['Rsh'].Value);
-// fDParamArray.OutputDataCoordinate;
  inherited AdditionalParamDetermination;
 end;
 
@@ -688,11 +542,5 @@ begin
                           fDParamArray.OutputData[2],
                           fDParamArray.OutputData[4]);
 end;
-
-//procedure TFFPhotoDiodLam.TuningBeforeAccessorialDataCreate;
-//begin
-//  inherited;
-//  FPictureName:='PhotoDiodLamFig';
-//end;
 
 end.

@@ -614,7 +614,8 @@ var
 implementation
 
 uses
-  Math, Dialogs, SysUtils, OlegMath, OlegApprox;
+  Math, Dialogs, SysUtils, OlegMath, {OlegApprox,} OApproxNew, FitGradient, 
+  OApproxFunction, FitSimple;
 
 
 { TVectorShottky }
@@ -622,17 +623,12 @@ uses
 procedure TVectorShottky.MikhAlpha_Fun(Target: TVector);
  var i:word;
      temp:TVectorShottky;
-//     verytemp:TVector;
 begin
  InitTargetToFun(Target);
  if Target.Count=0 then Exit;
  temp:=TVectorShottky.Create();
  InitTargetToFun(temp);
 
-// verytemp:=TVector.Create;
-// InitTargetToFun(verytemp);
-// temp:=TVectorShottky.Create(verytemp);
-// verytemp.Free;
  for I := 0 to Target.HighNumber do
    begin
      temp.X[i]:=ln(Self.X[i+Target.N_begin]);
@@ -927,7 +923,6 @@ begin
    end;
   for I := 0 to Target.HighNumber do
    begin
-//     Target.X[i]:=exp(temp.Vector.x[i]);
      Target.X[i]:=Self.Y[i+Target.N_begin];
      Target.Y[i]:=temp.DerivateAtPoint(i);
    end;
@@ -1079,11 +1074,7 @@ begin
   for j:=0 to Target.HighNumber do
         Target.Y[j]:=1/Target.Y[j]*temp.X[j]/kT;
 
-//  for j:=0 to Target.HighNumber do
-//        Target.Y[j]:=1/Target.Y[j]*Vector.Y[j]/kT;
-
   Target.CopyTo(temp);
-//  temp:=TVectorTransform.Create(Target);
   temp.Itself(temp.PositiveX);
   for j:=1 to fun do temp.Itself(temp.Smoothing);
   temp.Derivate(Target);
@@ -1100,7 +1091,6 @@ procedure TVectorShottky.Dit_Fun(Target: TVector; Rs: Double;
 var i:integer;
     Vs,Vcal,del,Fb:double;
     temp:TVectorShottky;
-//    aproxData:TArrSingle;
 begin
   InitTarget(Target);
 
@@ -1596,42 +1586,42 @@ begin
    fnDiodLSM:
      begin
       IphNeeded:=GraphParameters.Iph_Exp;
-      if IphNeeded then FitFunction:=TPhotoDiodLSM.Create
-                   else FitFunction:=TDiodLSM.Create;
+      if IphNeeded then FitFunctionNew:=TFFPhotoDiodLSM.Create
+                   else FitFunctionNew:=TFFDiodLSM.Create;
      end;
    fnDiodLambert:
      begin
       IphNeeded:=GraphParameters.Iph_Lam;
-      if IphNeeded then FitFunction:=TPhotoDiodLam.Create
-                   else FitFunction:=TDiodLam.Create;
+      if IphNeeded then FitFunctionNew:=TFFPhotoDiodLam.Create
+                   else FitFunctionNew:=TFFDiodLam.Create;
      end;
    fnDiodEvolution:
      begin
       IphNeeded:=GraphParameters.Iph_DE;
-      if IphNeeded then FitFunction:=TPhotoDiod.Create
-                   else FitFunction:=TDiod.Create;
+      if IphNeeded then FitFunctionNew:=TFFPhotoDiod.Create
+                   else FitFunctionNew:=TFFDiod.Create;
      end;
   else Exit;
  end;
-  FitFunction.FittingDiapazon(Self,EvolParam,
-                              GraphParameters.Diapazon);
-  FitFunction.Free;
-  if EvolParam[0]=ErResult then
+  FitFunctionNew.Fitting(Self);
+  if FitFunctionNew.ResultsIsReady then
    begin
-    GraphParameters.Clear();
-    Exit;
-   end;
-  GraphParameters.n:=EvolParam[0];
-  GraphParameters.Rs:=EvolParam[1];
-  GraphParameters.I0:=EvolParam[2];
-  GraphParameters.Rsh:=EvolParam[3];
+  GraphParameters.n:=(FitFunctionNew as TFFSimple).DParamArray.ParametrByName['n'].Value;
+  GraphParameters.Rs:=(FitFunctionNew as TFFSimple).DParamArray.ParametrByName['Rs'].Value;
+  GraphParameters.I0:=(FitFunctionNew as TFFSimple).DParamArray.ParametrByName['Io'].Value;
+  GraphParameters.Rsh:=(FitFunctionNew as TFFSimple).DParamArray.ParametrByName['Rsh'].Value;
   if IphNeeded then
                 begin
-                GraphParameters.Iph:=EvolParam[4];
+                GraphParameters.Iph:=(FitFunctionNew as TFFSimple).DParamArray.ParametrByName['Iph'].Value;;
                 GraphParameters.Fb:=ErResult;
                 end
-               else GraphParameters.Fb:=EvolParam[4];
+               else GraphParameters.Fb:=(FitFunctionNew as TFFSimple).DParamArray.ParametrByName['Fb'].Value;;
 
+   end                             else
+   begin
+     GraphParameters.Clear();
+   end;
+  FreeAndNil(FitFunctionNew);
 end;
 
 procedure TVectorShottky.HFun(Target: TVector; DD: TDiod_Schottky;

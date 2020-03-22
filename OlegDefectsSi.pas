@@ -55,8 +55,6 @@ type
     Constructor Create(DefectName:TDefectName);
     Procedure Free;
     property Name:string read FParameters.Name;
-//    property Sn:double read FParameters.Parameters[nSn];
-//    property Sp:double read FParameters.Parameters[nSp];
     property Et:double read FParameters.Parameters[nEt];
     property ToValenceBand:boolean read FParameters.ToValenceBand;
     property DefectType:string read GetDefectType;
@@ -131,7 +129,6 @@ begin
   case fDefectName of
     Fei: Result:=ThermallyPower(3.47e-15,-1.48,T);
     FeB_ac: Result:=ThermallyPower(5.1e-13,-2.5,T);
-//    Fe_don: Result:=FParameters.Parameters[nSn];
     else Result:=FParameters.Parameters[nSn];
   end;
 end;
@@ -141,7 +138,6 @@ begin
   case fDefectName of
     Fei: Result:=ThermallyActivated(4.54e-20,0.05,T);
     FeB_ac: Result:=ThermallyActivated(3.32e-14,0.262,T);
-//    Fe_don: Result:=FParameters.Parameters[nSp];
     else Result:=FParameters.Parameters[nSp];
   end;
 end;

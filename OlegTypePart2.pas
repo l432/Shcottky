@@ -23,7 +23,7 @@ end;
 //  end;
 
 
-{як варіан позбавлення від проблеми знищення інтерфейсу-змінної
+{як варіант позбавлення від проблеми знищення інтерфейсу-змінної
 при виході з процедури - див.https://habr.com/ru/post/181107/
 є ще інший варіант(??? а може й ні) https://habr.com/ru/post/219685/}
 TSimpleFreeAndAiniObject=class(TObject)
@@ -32,10 +32,8 @@ TSimpleFreeAndAiniObject=class(TObject)
     function _Release: Integer; stdcall;
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
   public
-//   procedure Free;//virtual;
    procedure ReadFromIniFile(ConfigFile: TIniFile);virtual;
    procedure WriteToIniFile(ConfigFile: TIniFile);virtual;
-//   destructor Destroy;override;
   end;
 
 
@@ -46,8 +44,6 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
    function GetName:string;
   public
    property Name:string read GetName;
-//   destructor Destroy;override;
-//   procedure Free; override;
   end;
 
 TNamedObject=class(TObject)
@@ -57,17 +53,7 @@ TNamedObject=class(TObject)
   public
    property Name:string read GetName;
    Constructor Create(Nm:string);
-end;  
-
-//  TObjectArray=class
-//    private
-//    public
-//     ObjectArray:array of TObject;
-//     Constructor Create();overload;
-//     Constructor Create(InitArray:array of TObject);overload;
-//     procedure Add(AddedArray:array of TObject);overload;
-//     procedure Add(AddedObject:TObject);overload;
-//  end;
+end;
 
   TObjectArray=class
     private
@@ -86,26 +72,12 @@ end;
      procedure ObjectFree;
   end;
 
-//Procedure AppendINamesArray(var InitArray,SecondArray:array of IName);
-
-
 implementation
 
 uses
   Math, Dialogs, SysUtils, OlegFunction;
 
 { TNamedDevice }
-
-//destructor TNamedInterfacedObject.Destroy;
-//begin
-////  HelpForMe(Name);
-//  inherited;
-//end;
-
-//procedure TNamedInterfacedObject.Free;
-//begin
-// inherited;
-//end;
 
 function TNamedInterfacedObject.GetName: string;
 begin
@@ -114,26 +86,6 @@ end;
 
 
 { TSimpleFreeAndAiniObject }
-
-//destructor TSimpleFreeAndAiniObject.Destroy;
-//begin
-//// HelpForMe(inttostr(MilliSecond));
-//// sleep(1);
-//// inherited;
-//end;
-
-
-
-//procedure TSimpleFreeAndAiniObject.Free;
-//begin
-////  inherited;
-//end;
-
-//destructor TSimpleFreeAndAiniObject.Destroy;
-//begin
-//
-////  inherited;
-//end;
 
 function TSimpleFreeAndAiniObject.QueryInterface(const IID: TGUID;
   out Obj): HResult;
@@ -163,8 +115,6 @@ procedure TSimpleFreeAndAiniObject.WriteToIniFile(ConfigFile: TIniFile);
 begin
 
 end;
-
-
 
 Constructor TObjectArray.Create();
 begin
@@ -225,14 +175,6 @@ begin
   for I := 0 to High(AddedArray) do
    ObjectArray[High(ObjectArray)-High(AddedArray)+i]:=AddedArray[i];
 end;
-
-//Procedure AppendINamesArray(var InitArray,SecondArray:array of IName);
-// var i:integer;
-//begin
-//  SetLength(InitArray,High(InitArray)+High(SecondArray)+2);
-//  for I := 0 to High(SecondArray) do
-//    InitArray[High(InitArray)-High(SecondArray)+i]:=SecondArray[i];
-//end;
 
 { TNamedObject }
 

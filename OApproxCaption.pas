@@ -14,12 +14,21 @@ type
   TFitFunctionNew_Class=class of TFitFunctionNew;
 
 
-//  TFitFunctionNames=array of string;
 const
   FitFuncCategoryNames:array[TFitFuncCategory]of string=
            ('None','Transform','Digital filter','Simple',
            'Schottky diode','Complex current','n-p diode','Double Diode',
            'Triple diode','Thin film diode','Custom','Fe-B');
+
+  FFFunctionDiod='Diode';
+  FFFunctionPhotoDiod='PhotoDiode';
+  FFFunctionDiodLSM='Diode, LSM';
+  FFFunctionPhotoDiodLSM='PhotoDiode, LSM';
+  FFFunctionDiodLambert='Diode, Lambert';
+  FFFunctionPhotoDiodLambert='PhotoDiode, Lambert';
+  FFFunctionDDiod='2-Diode';
+  FFFunctionPhotoDDiod='2-Diode, illum';
+
 
 //  FitFuncCategoryNumbers:array[TFitFuncCategory]of integer=
 //           (-1,  //ffc_none
@@ -77,16 +86,16 @@ const
 
   DiodNumber=5;
   DiodNames:array[0..DiodNumber] of string=
-   ('Diode','Diode, LSM','Diode, Lambert',
-    'PhotoDiode','PhotoDiode, LSM','PhotoDiode, Lambert');
+   (FFFunctionDiod,FFFunctionDiodLSM,FFFunctionDiodLambert,
+    FFFunctionPhotoDiod,FFFunctionPhotoDiodLSM,FFFunctionPhotoDiodLambert);
   DiodClasses:array[0..DiodNumber]of TFitFunctionNew_Class=
    (TFFDiod,TFFDiodLSM,TFFDiodLam,
     TFFPhotoDiod,TFFPhotoDiodLSM,TFFPhotoDiodLam);
 
   TwoDiodNumber=4;
   TwoDiodNames:array[0..TwoDiodNumber] of string=
-   ('2-Diode','2-Diode, Tau','Two Diode Full',
-    '2-Diode, illum','2-Diode, Tau, illum');
+   (FFFunctionDDiod,'2-Diode, Tau','Two Diode Full',
+    FFFunctionPhotoDDiod,'2-Diode, Tau, illum');
   TwoDiodClasses:array[0..TwoDiodNumber]of TFitFunctionNew_Class=
    (TFFDoubleDiod,TFFDoubleDiodTau,TFFDiodTwoFull,
     TFFDoubleDiodLight,TFFDoubleDiodTauLight);
@@ -137,11 +146,6 @@ Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
 
 
 procedure FitFuncNames_trans_Filling;
-//procedure FitFuncNames_digital_Filling;
-//procedure FitFuncNames_simple_Filling;
-//procedure FitFuncNames_schottky_Filling;
-//procedure FitFuncNames_diod_Filling;
-//procedure FitFuncNames_ThinDiode_Filling;
 
 procedure FitFuncNames_Filling(ffc:TFitFuncCategory;
                                Names:array of string);
@@ -290,15 +294,7 @@ initialization
  FitFuncNames_Filling(ffc_2diode,TwoDiodNames);
  FitFuncNames_Filling(ffc_3diode,ThreeDiodNames);
  FitFuncNames_Filling(ffc_ThinDiode,ThinDiodeNames);
- FitFuncNames_Filling(ffc_Custom,CustomNames); 
+ FitFuncNames_Filling(ffc_Custom,CustomNames);
  FitFuncNames_Filling(ffc_fb,FeBNames);
-
-// FitFuncNames_digital_Filling;
-// FitFuncNames_simple_Filling;
-// FitFuncNames_schottky_Filling;
-// FitFuncNames_diod_Filling;
-// FitFuncNames_ThinDiode_Filling;
-
-
 
 end.

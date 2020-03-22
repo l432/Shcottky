@@ -3,63 +3,17 @@ unit OApproxNew;
 interface
 
 uses
-  IniFiles, OlegApprox, OlegVector, OlegType,
+  IniFiles, OlegVector, OlegType,
   OlegVectorManipulation, TeEngine, OlegTypePart2,
   Forms, FrameButtons, OlegFunction, Classes, OlegMathShottky;
 
-//uses OlegType,Dialogs,SysUtils,Math,Forms,FrApprPar,Windows,
-//      Messages,Controls,FrameButtons,IniFiles,ExtCtrls,Graphics,
-//      OlegMath,ApprWindows,StdCtrls,FrParam,Series,Classes,
-//      OlegGraph,OlegMaterialSamples,OlegFunction,OlegDefectsSi,
-//      OlegVector;
-//
-//const
-//  FunctionDiod='Diod';
-//  FunctionPhotoDiod='PhotoDiod';
-//  FunctionDiodLSM='Diod, LSM';
-//  FunctionPhotoDiodLSM='PhotoDiod, LSM';
-//  FunctionDiodLambert='Diod, Lambert';
-//  FunctionPhotoDiodLambert='PhotoDiod, Lambert';
-//  FunctionDDiod='D-Diod';
-//  FunctionPhotoDDiod='Photo D-Diod';
-//  FunctionOhmLaw='Ohm law';
-//  FuncName:array[0..62]of string=
-//           ('None','Linear',FunctionOhmLaw,'Quadratic','Exponent','Smoothing',
-//           'Median filtr','Noise Smoothing','Derivative','Gromov / Lee','Ivanov',
-//           FunctionDiod,FunctionPhotoDiod,FunctionDiodLSM,FunctionPhotoDiodLSM,
-//           FunctionDiodLambert,FunctionPhotoDiodLambert,'Two Diod',
-//           'Two Diod Full','D-Gaussian','Patch Barrier',
-//           FunctionDDiod, FunctionPhotoDDiod,'Tunneling',
-//           'Two power','TE and SCLC on V',
-//           'TE and SCLC on V (II)','TE and SCLC on V (III)','TE reverse',
-//           'TE and SCLC on 1/kT','TE and SCLCexp on 1/kT',
-//           'TEstrict and SCLCexp on 1/kT','TE and TAHT on 1/kT',
-//           'Brailsford on T','Brailsford on w',
-//           'Phonon Tunneling on 1/kT','Phonon Tunneling on V',
-//           'PAT and TE on 1/kT','PAT and TE on V',
-//           'PAT and TEsoft on 1/kT','Tunneling trapezoidal','Lifetime in SCR',
-//           'Tunneling diod forward','Illuminated tunneling diod',
-//           'Tunneling diod revers','Tunneling diod revers with Rs',
-//           'Barrier height',
-//           'T-Diod','Photo T-Diod','Shot-circuit Current',
-//           'D-Diod-Tau','Photo D-Diod-Tau','Tau DAP','Tau Fei-FeB',
-//           'Rsh vs T','Rsh,2 vs T','Variated Polinom','Mobility',
-//           'n vs T (donors and traps)',
-//           'Ideal. Factor vs T & N_B & N_Fe','Ideal. Factor vs T & N_B',
-//           'Ideal. Factor vs T','IV thin SC');
-//  Voc_min=0.0002;
-//  Isc_min=1e-11;
-//
-//
 type
 
   TVar_RandNew=(vr_lin,vr_ln,vr_const);
   {для змінних, які використовуються у еволюційних методах,
-  norm - еволюціонує значення змінної
-  logar - еволюціонує значення натурального логарифму змінної
-  сons - змінна залишається сталою}
-//  TArrVar_Rand=array of TVar_Rand;
-//  PTArrVar_Rand=^TArrVar_Rand;
+  vr_lin - еволюціонує значення змінної
+  vr_ln - еволюціонує значення натурального логарифму змінної
+  vr_const - змінна залишається сталою}
 
   TEvolutionTypeNew= //еволюційний метод, який використовується для апроксимації
     (etDE, //differential evolution
@@ -134,10 +88,7 @@ TWindowShow=class
 TFFWindowShow=class(TWindowShow)
   protected
    fPS:TFFParameter;
-//   fForm:TForm;
-//   fButtons:TFrBut;
   public
-//   procedure Show;virtual;abstract;
    constructor Create(PS:TFFParameter);
 end;
 
@@ -147,9 +98,6 @@ TFitFunctionNew=class(TObject)
 private
  FName:string;//ім'я функції
  FCaption:string; // опис функції
-// FPictureName:string;//ім'я  рисунку в ресурсах, за замовчуванням FName+'Fig';
-// fHasPicture:boolean;//наявність картинки
-// fDataToFit:TVectorTransform; //дані для апроксимації
  fIsReadyToFit:boolean; //True, коли все готове для проведення апроксимації
  fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
  fConfigFile:TOIniFileNew;//для роботи з .ini-файлом
@@ -162,10 +110,7 @@ private
  //кількість цифр, які виводяться при записі даних, за замовчуванням 8
  fFileSuffix:string;
  //те, що додається до імені файла при записі результатів, за замовчуванням 'fit'
-
-
  procedure ParameterDestroy;virtual;
-// procedure RealFitting;virtual;//abstract;
  function FittingBegin:boolean;
 protected
  fResultsIsReady:boolean; //True, коли апроксимація вдало закінчена
@@ -196,23 +141,19 @@ public
  property Name:string read FName;
  property PictureName:string read FPictureName;
  property Caption:string read FCaption;
- property ResultsIsReady:boolean read fResultsIsReady;
-// property Xname:TArrStr read FXname;
+ property ResultsIsReady:boolean read fResultsIsReady write fResultsIsReady;
  property HasPicture:boolean read fHasPicture;
  property IsReadyToFit:boolean read fIsReadyToFit;
  property Diapazon:TDiapazon read fDiapazon;
  property ConfigFile:TOIniFileNew read fConfigFile;
  property DigitNumber:byte read fDigitNumber write fDigitNumber;
  property FileSuffix:string read fFileSuffix write fFileSuffix;
-// Constructor Create(FunctionName,FunctionCaption:string);//overload;
  Constructor Create;//virtual;//overload;
  destructor Destroy;override;
- procedure SetParametersGR;virtual;
+ procedure SetParametersGR;//virtual;
  Procedure IsReadyToFitDetermination;//virtual;
  {по значенням полів визначається, чи готові дані до
  апроксимації}
-// Procedure WriteToIniFile;virtual;
- {записує дані в ini-файл, в цьому класі - для fDiapazon}
  Procedure Fitting (InputData:TVector);overload;//virtual;abstract;
  Procedure Fitting (InputFileName:string);overload;//virtual;abstract;
  Procedure FittingToGraphAndFile(InputData:TVector;
@@ -224,7 +165,18 @@ public
  Procedure DataToStrings(OutStrings:TStrings);virtual;
  {виводиться в OutStrings результати апроксимації...
  щонайменше назву вихідного файлу та апроксимуючої функції}
- end;   // TFitFunctionNew=class
+ Procedure ParameterNamesToArray(var Arr:TArrStr);virtual;
+ {додаються назви параметрів, які визначаються при апроксимації,
+ до Arr; якщо нічого не визначається, то і змін Arr не відбувається}
+ function ParametersNumber:byte;virtual;
+ {кількість параметрів, які визначаються при апроксимації}
+ function ParameterName(i:byte):string;virtual;
+ {повертає назву і-го параметра, що
+ визначається при апроксимації}
+ function ParameterIndexByName(Name:string):integer;virtual;
+ procedure OutputDataImport(Source:TArrSingle);virtual;
+ procedure OutputDataExport(Target:TArrSingle);virtual;
+end;   // TFitFunctionNew=class
 
 //--------------------------------------------------------------------
 
@@ -235,79 +187,27 @@ TFFWindowShowBase=class(TFFWindowShow)
   procedure UpDate;override;
   procedure AdditionalFormClear;override;
   procedure AdditionalFormPrepare;override;
-//  procedure CreateForm;
  public
   constructor Create(FF:TFitFunctionNew);
-//  procedure Show;override;
 end;
 
 
 
-////----------------------------------------------
-//TFitSumFunction=class(TFitVoltageIsUsed)
-//{для функцій, які є сумою двох інших і
-//потрібно при занесенні апроксимації у файл
-//окремо також показувати кожну складову}
-//private
-// fSumFunctionIsUsed:boolean;
-// {за умовчанням - False,
-// щоб використовувати передбачуваний у класі функціонал
-// потрібно для спадкоємців у Сreate змінити на True}
-// Constructor Create(FunctionName,FunctionCaption:string;
-//                     Npar,Nvar:byte);
-// Function Func(Parameters:TArrSingle):double; override;
-// Function Sum1(Parameters:TArrSingle):double; virtual;
-// Function Sum2(Parameters:TArrSingle):double; virtual;
-//// Function StringToFile(InputData:PVector;Number:integer;OutputData:TArrSingle;
-////              Xlog,Ylog:boolean):string;override;
-// Function StringToFile(InputData:TVector;Number:integer;OutputData:TArrSingle;
-//              Xlog,Ylog:boolean):string;override;
-//public
-//end; //TFitSumFunction=class(TFitVoltageIsUsed)
-//
-////----------------------------------------------
-//
-
 var
  FitFunctionNew:TFitFunctionNew;
-// EvolParam:TArrSingle;
-//{масив з double, використовується в еволюційних процедурах}
-//
-////-------------------------------------------------
-//procedure PictLoadScale(Img: TImage; ResName:String);
-//{в Img завантажується bmp-картинка з ресурсу з назвою
-//ResName і масштабується зображення, щоб не вийшо
-//за межі розмірів Img, які були перед цим}
-//
-//Procedure FunCreate(str:string; var F:TFitFunction;
-//          FileName:string='');
-//{створює F того чи іншого типу залежно
-//від значення str}
-//
-////Function FitName(V: PVector; st:string='fit'):string;overload;
-//Function FitName(V: TVector; st:string='fit'):string;//overload;
-//{повертає змінене значення V^.name,
-//зміна полягає у дописуванні st перед першою крапкою}
-//
-////Function Parametr(V: PVector; FunName,ParName:string):double;overload;
-//Function Parametr(V: TVector; FunName,ParName:string):double;//overload;
-//{повертає параметр з іменем ParName,
-//який знаходиться в результаті апроксимації даних в V
-//за допомогою функції FunName}
-//
-//
-//Function StepDetermination(Xmin,Xmax:double;Npoint:integer;
-//                   Var_Rand:TVar_Rand):double;
-//{крок для зміни величини в інтервалі
-//[Xmin, Xmax] з загальною кількістю
-//вузлів Npoint;
-//Var_Rand  задає масштаб зміни (лінійний чи логарифмічний)
-//в останньомц випадку повертається
-//десятковий логарифм кроку
-//}
-//
-//--------------------------------------------------------------------
-//--------------------------------------------------------------------
+ EvolParam:TArrSingle;
+{масив з double, використовується в еволюційних процедурах}
+
+Function StepDeterminationNew(Xmin,Xmax:double;Npoint:integer;
+                   Var_Rand:TVar_RandNew):double;
+{крок для зміни величини в інтервалі
+[Xmin, Xmax] з загальною кількістю
+вузлів Npoint;
+Var_Rand  задає масштаб зміни (лінійний чи логарифмічний)
+в останньомц випадку повертається
+десятковий логарифм кроку
+}
+
 
 
 implementation
@@ -380,14 +280,11 @@ end;
 
 { TFitFunctionNew }
 
-//constructor TFitFunctionNew.Create(FunctionName, FunctionCaption: string);
 constructor TFitFunctionNew.Create;
 begin
  inherited Create;
  DecimalSeparator:='.';
  NamesDefine;
-// FName:=FunctionName;
-// FCaption:=FunctionCaption;
  fDigitNumber:=8;
  fFileSuffix:='fit';
  fHasPicture:=True;
@@ -408,10 +305,6 @@ begin
  IsReadyToFitDetermination;
 
  TuningAfterReadFromIni;
-
-// fDataToFit:TVector; //дані для апроксимації
-// fDiapazon:TDiapazon; //межі в яких відбувається апроксимація
-
 end;
 
 
@@ -462,21 +355,25 @@ begin
  fDiapazon.Free;
 end;
 
-//constructor TFitFunctionNew.Create;
-//begin
-// Create('','');
-//end;
-
 procedure TFitFunctionNew.AccessorialDataCreate;
 begin
  fDiapazon:=TDiapazon.Create;
-// fDiapazon.Clear;
 end;
 
 procedure TFitFunctionNew.IsReadyToFitDetermination;
 begin
  fIsReadyToFit:=fParameter.IsReadyToFitDetermination;
-// fIsReadyToFit:=True;
+end;
+
+procedure TFitFunctionNew.OutputDataExport(Target: TArrSingle);
+begin
+  SetLength(Target,1);
+  Target[0]:=ErResult;
+end;
+
+procedure TFitFunctionNew.OutputDataImport(Source: TArrSingle);
+begin
+ fResultsIsReady:=True;
 end;
 
 function TFitFunctionNew.FinalFunc(X: double): double;
@@ -489,7 +386,7 @@ procedure TFitFunctionNew.Fitting(InputFileName: string);
 begin
  DataPreraration(InputFileName);
  if FittingBegin then RealFitting;
- if not(FittingData.IsEmpty) then fResultsIsReady:=True; 
+ if not(FittingData.IsEmpty) then fResultsIsReady:=True;
 end;
 
 procedure TFitFunctionNew.Fitting(InputData: TVector);
@@ -553,11 +450,6 @@ begin
  IsReadyToFitDetermination;
 end;
 
-//procedure TFitFunctionNew.WriteToIniFile;
-//begin
-// fDiapazon.WriteToIniFile(fConfigFile,FName,'DiapazonFit');
-//end;
-
 function TFitFunctionNew.FittingBegin: boolean;
 begin
  VariousPreparationBeforeFitting;
@@ -603,6 +495,25 @@ begin
 end;
 
 
+function TFitFunctionNew.ParameterIndexByName(Name: string): integer;
+begin
+ Result:=-1;
+end;
+
+function TFitFunctionNew.ParameterName(i: byte): string;
+begin
+ Result:='None';
+end;
+
+procedure TFitFunctionNew.ParameterNamesToArray(var Arr: TArrStr);
+begin
+end;
+
+function TFitFunctionNew.ParametersNumber: byte;
+begin
+ Result:=0;
+end;
+
 { TWindowShow }
 
 constructor TFFWindowShow.Create(PS: TFFParameter);
@@ -610,7 +521,6 @@ begin
   inherited Create;
   fPS:=PS;
 end;
-
 
 { TWindowShowBase }
 
@@ -633,55 +543,6 @@ begin
  inherited Create(fFF.fParameter);
 end;
 
-//procedure TFFWindowShowBase.CreateForm;
-//begin
-////  inherited
-////  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
-//
-//  fForm := TForm.Create(Application);
-//  fForm.Position := poMainFormCenter;
-//  fForm.AutoScroll := True;
-//  fForm.BorderIcons := [biSystemMenu];
-//  fForm.ParentFont := True;
-//  fForm.Font.Style := [fsBold];
-//  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
-//  fForm.Color := clLtGray;
-//end;
-
-//procedure TFFWindowShowBase.Show;
-//begin
-// CreateForm;
-// fPS.FormPrepare(fForm);
-//
-// fButtons := TFrBut.Create(fForm);
-// fButtons.Parent := fForm;
-// fButtons.Left := 10;
-// fButtons.Top := fForm.Height+MarginTop;
-//
-// fForm.Width:=max(fForm.Width,fButtons.Width)+MarginLeft+10;
-// fForm.Height:=fButtons.Top+fButtons.Height+2*MarginTop+10;
-//
-// if fForm.ShowModal=mrOk then
-//   begin
-//     fPS.UpDate;
-//     fFF.IsReadyToFitDetermination;
-//     if fFF.IsReadyToFit then  fFF.fParameter.WriteToIniFile;
-//   end;
-//
-// fPS.FormClear;
-// fButtons.Parent:=nil;
-// fButtons.Free;
-// ElementsFromForm(fForm);
-//
-// fForm.Hide;
-// fForm.Release;
-//
-//end;
-
-
-
-
-
 procedure TFFWindowShowBase.UpDate;
 begin
   inherited;
@@ -694,7 +555,6 @@ end;
 
 procedure TWindowShow.AdditionalFormPrepare;
 begin
-
 end;
 
 procedure TWindowShow.CreateForm;
@@ -721,12 +581,10 @@ end;
 
 procedure TWindowShow.UpDate;
 begin
-
 end;
 
 procedure TWindowShow.AdditionalFormClear;
 begin
-
 end;
 
 procedure TWindowShow.Show;
@@ -742,6 +600,20 @@ begin
 
  fForm.Hide;
  fForm.Release;
+end;
+
+
+Function StepDeterminationNew(Xmin,Xmax:double;Npoint:integer;
+                   Var_Rand:TVar_RandNew):double;
+begin
+ if Npoint<1 then Result:=ErResult
+   else if (Npoint=1)or(Var_Rand=vr_const) then Result:=(Xmax-Xmin)+1
+        else if (Xmax=Xmin) then Result:=1
+         else
+         case Var_Rand of
+          vr_lin:Result:=(Xmax-Xmin)/(Npoint-1);
+          else Result:=(Log10(Xmax)-Log10(Xmin))/(Npoint-1);
+         end;
 end;
 
 end.

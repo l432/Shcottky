@@ -4,13 +4,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls, FrameButtons, OlegApprox;
+  Dialogs, ExtCtrls, StdCtrls, ComCtrls, FrameButtons{, OlegApprox};
 
-const //MarginLeft=20;
-      //MarginRight=30;
-      //Marginbetween=20;
-      //MarginTop=20;
-      ImgHeightNew=500;
+const ImgHeightNew=500;
       ImgWidthNew=500;
 
 type
@@ -38,7 +34,7 @@ var
 implementation
 
 uses
-  OApproxCaption, OApproxNew, OApproxShow;
+  OApproxCaption, OApproxNew, OApproxShow, OlegFunction;
 
 {$R *.dfm}
 
@@ -143,7 +139,6 @@ begin
 
  if  Assigned(F) then
   begin
-//   showmessage(F.ClassName);
   SizeInit;
   if F.HasPicture then
    begin

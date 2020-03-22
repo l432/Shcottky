@@ -25,12 +25,16 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Directory operation'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox13: TGroupBox
         Left = 3
         Top = 413
@@ -95,14 +99,14 @@ object Form1: TForm1
         end
         object ScrollBox4: TScrollBox
           Left = 3
-          Top = 15
+          Top = 14
           Width = 238
           Height = 160
-          VertScrollBar.Position = 312
+          VertScrollBar.Position = 156
           TabOrder = 2
           object GroupBox15: TGroupBox
             Left = 12
-            Top = 149
+            Top = -65
             Width = 197
             Height = 77
             Caption = ' I=I0[exp(eV/nkT)-1]'
@@ -159,7 +163,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 14
+                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -171,7 +175,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -179,7 +183,7 @@ object Form1: TForm1
           end
           object GroupBox19: TGroupBox
             Left = 12
-            Top = 309
+            Top = 95
             Width = 197
             Height = 75
             Caption = 'Norde'#39's function'
@@ -226,7 +230,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 14
+                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -238,7 +242,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -246,7 +250,7 @@ object Form1: TForm1
           end
           object GroupBox18: TGroupBox
             Left = 12
-            Top = 232
+            Top = 18
             Width = 197
             Height = 75
             Caption = 'H funcion'
@@ -293,7 +297,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 14
+                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -305,7 +309,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -313,7 +317,7 @@ object Form1: TForm1
           end
           object GroupBox14: TGroupBox
             Left = 12
-            Top = 66
+            Top = -148
             Width = 197
             Height = 77
             Caption = 'I=I0exp(eV/nkT)'
@@ -370,7 +374,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 14
+                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -382,7 +386,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -390,7 +394,7 @@ object Form1: TForm1
           end
           object GroupBox31: TGroupBox
             Left = 12
-            Top = 386
+            Top = 172
             Width = 197
             Height = 76
             Caption = 'I/[1-exp(-qV/kT)], forward'
@@ -447,7 +451,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 14
+                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -459,7 +463,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -467,7 +471,7 @@ object Form1: TForm1
           end
           object GroupBox35: TGroupBox
             Left = 12
-            Top = 467
+            Top = -747
             Width = 197
             Height = 77
             Caption = 'I/[1-exp(-qV/kT)], reverse'
@@ -524,7 +528,7 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 14
+                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -536,504 +540,10 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
-            end
-          end
-          object GroupBox39: TGroupBox
-            Left = 12
-            Top = -308
-            Width = 197
-            Height = 80
-            Caption = 'I=I0[exp((V-IRs)/E)-1]+(V-I Rs)/Rsh-Iph'
-            TabOrder = 6
-            object LExN: TLabel
-              Left = 52
-              Top = 40
-              Width = 100
-              Height = 14
-              Caption = 'Direct Approximation'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clHotLight
-              Font.Height = -11
-              Font.Name = 'Arial'
-              Font.Style = []
-              ParentFont = False
-            end
-            object CBDateRs_ExN: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = 'Rs'
-              TabOrder = 0
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDaten_ExN: TCheckBox
-              Tag = 200
-              Left = 60
-              Top = 20
-              Width = 25
-              Height = 17
-              Caption = 'n'
-              TabOrder = 1
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIs_ExN: TCheckBox
-              Tag = 200
-              Left = 109
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = 'I0'
-              TabOrder = 2
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateFb_ExN: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = #1060'b'
-              TabOrder = 3
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIf_ExN: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Iph'
-              TabOrder = 4
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIsc_ExN: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'Isc'
-              TabOrder = 5
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateVoc_ExN: TCheckBox
-              Tag = 200
-              Left = 60
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Voc'
-              TabOrder = 6
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDatePm_ExN: TCheckBox
-              Tag = 200
-              Left = 109
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Pm'
-              TabOrder = 7
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateFF_ExN: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'FF'
-              TabOrder = 8
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateRsh_ExN: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Rsh'
-              TabOrder = 9
-              OnClick = CBDateRs_ChClick
-            end
-          end
-          object GroupBox40: TGroupBox
-            Left = 12
-            Top = -217
-            Width = 197
-            Height = 80
-            Caption = 'I=I0[exp((V-IRs)/E)-1]+(V-I Rs)/Rsh-Iph'
-            TabOrder = 7
-            object LLam: TLabel
-              Left = 60
-              Top = 40
-              Width = 81
-              Height = 14
-              Caption = 'Lambert function'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clHotLight
-              Font.Height = -11
-              Font.Name = 'Arial'
-              Font.Style = []
-              ParentFont = False
-            end
-            object CBDateRs_Lam: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = 'Rs'
-              TabOrder = 0
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDaten_Lam: TCheckBox
-              Tag = 200
-              Left = 60
-              Top = 20
-              Width = 25
-              Height = 17
-              Caption = 'n'
-              TabOrder = 1
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIs_Lam: TCheckBox
-              Tag = 200
-              Left = 109
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = 'I0'
-              TabOrder = 2
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateFb_Lam: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = #1060'b'
-              TabOrder = 3
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIf_Lam: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Iph'
-              TabOrder = 4
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIsc_Lam: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'Isc'
-              TabOrder = 5
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateVoc_Lam: TCheckBox
-              Tag = 200
-              Left = 60
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Voc'
-              TabOrder = 6
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDatePm_Lam: TCheckBox
-              Tag = 200
-              Left = 109
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Pm'
-              TabOrder = 7
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateFF_Lam: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'FF'
-              TabOrder = 8
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateRsh_Lam: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Rsh'
-              TabOrder = 9
-              OnClick = CBDateRs_ChClick
-            end
-          end
-          object GroupBox41: TGroupBox
-            Left = 12
-            Top = -126
-            Width = 197
-            Height = 80
-            Caption = 'I=I0[exp((V-IRs)/E)-1]+(V-I Rs)/Rsh-Iph'
-            TabOrder = 8
-            object LDE: TLabel
-              Left = 52
-              Top = 40
-              Width = 97
-              Height = 14
-              Caption = 'Evoluation Algorithm'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clHotLight
-              Font.Height = -11
-              Font.Name = 'Arial'
-              Font.Style = []
-              ParentFont = False
-            end
-            object CBDateRs_DE: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = 'Rs'
-              TabOrder = 0
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDaten_DE: TCheckBox
-              Tag = 200
-              Left = 60
-              Top = 20
-              Width = 25
-              Height = 17
-              Caption = 'n'
-              TabOrder = 1
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIs_DE: TCheckBox
-              Tag = 200
-              Left = 109
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = 'I0'
-              TabOrder = 2
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateFb_DE: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = #1060'b'
-              TabOrder = 3
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIf_DE: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Iph'
-              TabOrder = 4
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIsc_DE: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'Isc'
-              TabOrder = 5
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateVoc_DE: TCheckBox
-              Tag = 200
-              Left = 60
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Voc'
-              TabOrder = 6
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDatePm_DE: TCheckBox
-              Tag = 200
-              Left = 109
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Pm'
-              TabOrder = 7
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateFF_DE: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'FF'
-              TabOrder = 8
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateRsh_DE: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Rsh'
-              TabOrder = 9
-              OnClick = CBDateRs_ChClick
-            end
-          end
-          object GroupBox42: TGroupBox
-            Left = 12
-            Top = -30
-            Width = 197
-            Height = 80
-            Caption = 'Double Diod'
-            TabOrder = 9
-            object LEA: TLabel
-              Left = 52
-              Top = 40
-              Width = 97
-              Height = 14
-              Caption = 'Evoluation Algorithm'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clHotLight
-              Font.Height = -11
-              Font.Name = 'Arial'
-              Font.Style = []
-              ParentFont = False
-            end
-            object CBDateRs_EA: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 18
-              Width = 30
-              Height = 17
-              Caption = 'Rs'
-              TabOrder = 0
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDaten1_EA: TCheckBox
-              Tag = 200
-              Left = 45
-              Top = 20
-              Width = 38
-              Height = 17
-              Caption = 'n1'
-              TabOrder = 1
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIs1_EA: TCheckBox
-              Tag = 200
-              Left = 85
-              Top = 20
-              Width = 30
-              Height = 17
-              Caption = 'I01'
-              TabOrder = 2
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIs2_EA: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 20
-              Width = 36
-              Height = 17
-              Caption = 'I02'
-              TabOrder = 3
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIf_EA: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Iph'
-              TabOrder = 4
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateIsc_EA: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'Isc'
-              TabOrder = 5
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateVoc_EA: TCheckBox
-              Tag = 200
-              Left = 60
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Voc'
-              TabOrder = 6
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDatePm_EA: TCheckBox
-              Tag = 200
-              Left = 109
-              Top = 60
-              Width = 43
-              Height = 17
-              Caption = 'Pm'
-              TabOrder = 7
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateFF_EA: TCheckBox
-              Tag = 200
-              Left = 158
-              Top = 60
-              Width = 30
-              Height = 17
-              Caption = 'FF'
-              TabOrder = 8
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDateRsh_EA: TCheckBox
-              Tag = 200
-              Left = 10
-              Top = 40
-              Width = 36
-              Height = 17
-              Caption = 'Rsh'
-              TabOrder = 9
-              OnClick = CBDateRs_ChClick
-            end
-            object CBDaten2_EA: TCheckBox
-              Tag = 200
-              Left = 123
-              Top = 20
-              Width = 29
-              Height = 17
-              Caption = 'n2'
-              TabOrder = 10
-              OnClick = CBDateRs_ChClick
             end
           end
         end
@@ -1449,7 +959,7 @@ object Form1: TForm1
           Height = 25
           Caption = 'Select'
           TabOrder = 4
-          OnClick = ButFitSelectClick
+          OnClick = ButFitSelectNewClick
         end
         object ButDateOption: TButton
           Left = 601
@@ -1459,7 +969,7 @@ object Form1: TForm1
           Caption = 'Option'
           Enabled = False
           TabOrder = 5
-          OnClick = ButFitOptionClick
+          OnClick = ButFitOptionNewClick
         end
         object CBDateFun: TCheckBox
           Left = 530
@@ -4262,7 +3772,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4274,7 +3784,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4301,7 +3811,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4313,7 +3823,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4340,7 +3850,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4352,7 +3862,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4379,7 +3889,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4391,7 +3901,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4418,7 +3928,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4430,7 +3940,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4450,7 +3960,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 0
             end
           end
@@ -4521,7 +4031,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4533,7 +4043,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4580,7 +4090,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4592,7 +4102,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4619,7 +4129,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4631,7 +4141,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4851,6 +4361,10 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = 'File operation'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object DirLabel: TLabel
         Left = 664
         Top = 62
@@ -4908,34 +4422,17 @@ object Form1: TForm1
         Caption = 'ooo'
       end
       object GroupBox4: TGroupBox
-        Left = 577
+        Left = 568
         Top = 385
         Width = 169
         Height = 165
         Caption = 'Fitting'
         TabOrder = 9
-        object SButFit: TSpeedButton
+        object SButFitNew: TSpeedButton
           Tag = 55
           Left = 3
           Top = 12
-          Width = 94
-          Height = 22
-          AllowAllUp = True
-          GroupIndex = 2
-          Caption = 'None'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Arial'
-          Font.Style = [fsBold]
-          ParentFont = False
-          OnClick = SButFitClick
-        end
-        object SButFitNew: TSpeedButton
-          Tag = 55
-          Left = 75
-          Top = 12
-          Width = 106
+          Width = 160
           Height = 22
           AllowAllUp = True
           GroupIndex = 2
@@ -4968,7 +4465,7 @@ object Form1: TForm1
           TabOrder = 1
           OnClick = BApprClearClick
         end
-        object ButFitSelect: TButton
+        object ButFitSelectNew: TButton
           Tag = 55
           Left = 10
           Top = 35
@@ -4976,9 +4473,9 @@ object Form1: TForm1
           Height = 25
           Caption = 'Select'
           TabOrder = 2
-          OnClick = ButFitSelectClick
+          OnClick = ButFitSelectNewClick
         end
-        object ButFitOption: TButton
+        object ButFitOptionNew: TButton
           Left = 115
           Top = 35
           Width = 44
@@ -4986,26 +4483,6 @@ object Form1: TForm1
           Caption = 'Option'
           Enabled = False
           TabOrder = 3
-          OnClick = ButFitOptionClick
-        end
-        object ButFitSelectNew: TButton
-          Tag = 55
-          Left = 47
-          Top = 40
-          Width = 44
-          Height = 25
-          Caption = 'Select'
-          TabOrder = 4
-          OnClick = ButFitSelectNewClick
-        end
-        object ButFitOptionNew: TButton
-          Left = 97
-          Top = 47
-          Width = 44
-          Height = 25
-          Caption = 'Option'
-          Enabled = False
-          TabOrder = 5
           OnClick = ButFitOptionNewClick
         end
       end
@@ -5473,7 +4950,7 @@ object Form1: TForm1
           Height = 22
           Style = csDropDownList
           DropDownCount = 21
-          ItemHeight = 14
+          ItemHeight = 0
           TabOrder = 0
           OnChange = CBKalkChange
         end
@@ -5888,7 +5365,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 0
               OnChange = ComboBoxRSChange
             end
@@ -5908,7 +5385,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
                 OnChange = ComboBoxRSChange
               end
@@ -5937,7 +5414,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
                 OnChange = ComboBoxNChange
               end
@@ -5950,7 +5427,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 1
               OnChange = ComboBoxNChange
             end
@@ -5970,7 +5447,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 0
               OnChange = ComboBoxNssRsChange
             end
@@ -5989,7 +5466,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
+                ItemHeight = 0
                 TabOrder = 0
                 OnChange = ComboBoxNssFbChange
               end
@@ -6041,7 +5518,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
+              ItemHeight = 0
               TabOrder = 0
               OnChange = ComboBoxNssFbChange
             end
@@ -6284,6 +5761,10 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'Diode'#39's parameters'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Close2: TBitBtn
         Left = 534
         Top = 562
@@ -6779,7 +6260,7 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 16
+            ItemHeight = 0
             TabOrder = 0
           end
         end
@@ -7113,7 +6594,7 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 16
+            ItemHeight = 0
             TabOrder = 0
           end
         end
@@ -7375,7 +6856,7 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 16
+            ItemHeight = 0
             TabOrder = 0
           end
         end
@@ -7384,6 +6865,10 @@ object Form1: TForm1
     object TabSheet4: TTabSheet
       Caption = 'Deep Level'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox36: TGroupBox
         Left = 3
         Top = 0
@@ -7487,7 +6972,7 @@ object Form1: TForm1
           Caption = 'Option'
           Enabled = False
           TabOrder = 4
-          OnClick = ButFitOptionClick
+          OnClick = ButFitOptionNewClick
         end
         object CBBaseAuto: TCheckBox
           Left = 99
@@ -8087,7 +7572,7 @@ object Form1: TForm1
         Width = 114
         Height = 22
         Style = csDropDownList
-        ItemHeight = 14
+        ItemHeight = 0
         TabOrder = 12
         OnClick = CBDLFunctionClick
       end

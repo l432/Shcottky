@@ -11,8 +11,6 @@ TFFManyArguments=class (TFFHeuristic)
  private
   fFileName:string;
   fSL:TStringList;
-//  fCAN:integer;
-  {fCurrentArgumentsNumber}
   fAllArguments:array of array of double;
   fArgumentsName:array of string;
   fArgumentNumber:byte;
@@ -64,9 +62,6 @@ uses
 
 { TFFManyArguments }
 
-
-{ TFFManyArguments }
-
 procedure TFFManyArguments.AccessorialDataCreate;
 begin
   inherited AccessorialDataCreate;
@@ -74,7 +69,6 @@ begin
   fIntVars.ParametrByName['FCN'].Limits.SetLimits(fArgumentNumber+1);
   fIntVars.ParametrByName['FCN'].Description:=
         'Function column number';
-
 end;
 
 procedure TFFManyArguments.AditionalRealToFile;
@@ -172,7 +166,6 @@ begin
   Str1.Free;
 
   AditionalRealToFile();
-
 end;
 
 procedure TFFManyArguments.SetArgumentNames(Names: array of string);
@@ -268,7 +261,6 @@ procedure TFFn_FeBNew.AditionalRealToFile;
      Str1:TStringList;
      i,j:integer;
      FCN:byte;
-
 begin
  FCN:=(fIntVars.ParametrByName['FCN'] as TVarInteger).Value;
  data:=1;
@@ -351,9 +343,6 @@ begin
  Str1.SaveToFile(AnsiLeftStr(fFileName,Length(fFileName)-4)
                     +'Allfit.dat');
  Str1.Free;
-
-
-
 end;
 
 procedure TFFn_FeBNew.DataCorrection;
@@ -401,7 +390,6 @@ procedure TFFn_FeBNew.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
  fTemperatureIsRequired:=False;
-
 end;
 
 end.

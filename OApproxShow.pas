@@ -4,7 +4,7 @@ interface
 
 uses
   OlegShowTypes, OlegType, StdCtrls, Forms, FrameButtons,
-  OApproxNew, ExtCtrls, OlegApprox, OlegFunction, Controls, Graphics;
+  OApproxNew, ExtCtrls, OlegFunction, Controls, Graphics;
 
 const MarginLeft=20;
       MarginRight=30;
@@ -13,7 +13,6 @@ const MarginLeft=20;
       MarginFrame=2;
 
       NoLimit='No';
-
 
 type
  TDiapazonDoubleParameterShow=class(TDoubleParameterShow)
@@ -63,7 +62,7 @@ procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
                            Margin:integer=MarginFrame);
 {розташовує ControlSecond відносно ControlFirst відповідно
 до Orientation;
-Margin - відстань мід об'єктами}
+Margin - відстань між об'єктами}
 
 Procedure AddControlToForm(Control:TControl;
                            Form:TForm);
@@ -101,7 +100,6 @@ begin
      temp:=ErResult;
     end;
     Result:=ValueToString(temp);
-//    Result:=ValueToString(StrToFloat(str));
   except
     Result:=NoLimit;
   end;
@@ -143,7 +141,6 @@ begin
  fLabels[dlYMin].Left:=fLabels[dlXMin].Left;
  fSTexts[dlYMin].Top:=fLabels[dlYMin].Top;
  fSTexts[dlYMin].Left:=fSTexts[dlXMin].Left;
-// fSTexts[dlXMin].Left:=100;
 
  fLabels[dlXMax].Top:=fLabels[dlXMin].Top;
  fLabels[dlXMax].Left:=fSTexts[dlXMin].Left+70;
@@ -158,9 +155,6 @@ begin
  GB.Height:= fSTexts[dlYMax].Top+ fSTexts[dlYMax].Height+MarginTop;
  GB.Width:=fSTexts[dlYMax].Left+fSTexts[dlYMax].Width+MarginRight;
  GB.Caption:='Fitting range'
-//  GB.Height:= 100;
-// GB.Width:=100;
-
 end;
 
 destructor TDiapazoneGroupBox.Destroy;
@@ -192,28 +186,6 @@ begin
  fFF:=FF;
 end;
 
-//destructor TFitFunctionParameterShow.Destroy;
-//begin
-////  fFF:=nil;
-//  inherited;
-//end;
-
-//procedure TFitFunctionParameterShow.ButtonsToForm(Top,Left: Integer);
-//begin
-//  fButtons := TFrBut.Create(fForm);
-//  fButtons.Parent := fForm;
-//  fButtons.Left := Left;
-//  fButtons.Top := Top;
-//end;
-
-//procedure TFitFunctionParameterShow.DiapazonToForm(Top,Left: Integer);
-//begin
-//  fDiapazoneGB := TDiapazoneGroupBox.Create(fFF.Diapazon);
-//  fDiapazoneGB.GB.Parent := fFF.Form;
-//  fDiapazoneGB.GB.Top:=Top;
-//  fDiapazoneGB.GB.Left:=Left;
-//end;
-
 procedure TFFParameterBase.FormClear;
 begin
  fDiapazoneGB.GB.Parent:=nil;
@@ -233,7 +205,6 @@ begin
  if fFF.HasPicture then
   begin
    fImg:=TImage.Create(Form);
-//   fImg.Name:='Image';
    fImg.Parent:=Form;
    fImg.Top:=10;
    fImg.Left:=10;
@@ -258,82 +229,16 @@ begin
   fFF.Diapazon.ReadFromIniFile(FFF.ConfigFile,fFF.Name,'DiapazonFit');
 end;
 
-//procedure TFitFunctionParameterShow.CreateForm;
-//begin
-//  fForm := TForm.Create(Application);
-//  fForm.Position := poMainFormCenter;
-//  fForm.AutoScroll := True;
-//  fForm.BorderIcons := [biSystemMenu];
-//  fForm.ParentFont := True;
-//  fForm.Font.Style := [fsBold];
-//  // fForm.Font.Height:=-16;
-//  fForm.Caption := 'Parameters of ' + fFF.Name + ' function';
-//  fForm.Color := clLtGray;
-//end;
-
-//procedure TFitFunctionParameterShow.PictureToForm(
-//               maxWidth, maxHeight, Top, Left: integer);
-//begin
-// if fFF.HasPicture then
-//  begin
-//   fImg:=TImage.Create(fFF.Form);
-////   fImg.Name:='Image';
-//   fImg.Parent:=fFF.Form;
-//   fImg.Top:=Top;
-//   fImg.Left:=Left;
-//   fImg.Height:=maxHeight;
-//   fImg.Width:=maxWidth;
-//   fImg.Stretch:=True;
-//   PictLoadScale(fImg,fFF.PictureName);
-//  end;
-//end;
-
-//procedure TFitFunctionParameterShow.Show;
-//begin
-// CreateForm;
-// DiapazonToForm(10,460);
-// PictureToForm(450,fDiapazoneGB.GB.Height,10,10);
-//// ButtonsToForm(fDiapazoneGB.GB.Top
-////               + fDiapazoneGB.GB.Height
-////               + MarginTop,10);
-//
-// fForm.Width:=max(fDiapazoneGB.GB.Left+fDiapazoneGB.GB.Width,fButtons.Width)+2*MarginLeft;
-// fForm.Height:=fButtons.Top+fButtons.Height+MarginTop+50;
-//
-// if fForm.ShowModal=mrOk then
-//   begin
-//     fDiapazoneGB.UpDate;
-////     GRFieldFormExchange(Form,False);
-//     fFF.IsReadyToFitDetermination;
-//     if fFF.IsReadyToFit then  fFF.WriteToIniFile;
-//   end;
-//
-// fButtons.Parent:=nil;
-// fButtons.Free;
-// fDiapazoneGB.GB.Parent:=nil;
-// fDiapazoneGB.Free;
-// ElementsFromForm(fForm);
-//
-// fForm.Hide;
-// fForm.Release;
-//
-//end;
-
 procedure TFFParameterBase.UpDate;
 begin
  fDiapazoneGB.UpDate;
 end;
-
-
 
 procedure TFFParameterBase.WriteToIniFile;
 begin
   fFF.ConfigFile.EraseSection(fFF.Name);
   fFF.Diapazon.WriteToIniFile(fFF.ConfigFile,fFF.Name,'DiapazonFit');
 end;
-
-
-
 
 procedure RelativeLocation(ControlFirst,ControlSecond:TControl;
                            Orientation:TOrientation=oRow;
@@ -377,7 +282,6 @@ Procedure AddControlToForm(Control:TControl;
  Form.Height:=Control.Top+Control.Height;
  Form.Width:=max(Form.Width,
                 Control.Left+Control.Width);
-
  end;
 
 procedure ResizeElement(Lab:TLabel;Canvas: TCanvas);
