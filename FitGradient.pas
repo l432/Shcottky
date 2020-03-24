@@ -78,6 +78,8 @@ TWindowIterationAbstract=class
  end;
 
 TFFIteration =class(TFFVariabSet)
+  private
+    function GetNrep: byte;
  protected
   fWindowAgent:TWindowIterationAbstract;
   fFittingAgent:TFittingAgent;
@@ -87,8 +89,12 @@ TFFIteration =class(TFFVariabSet)
   procedure VariousPreparationBeforeFitting;override;
   function ParameterCreate:TFFParameter;override;
   procedure AdditionalParamDetermination;override;
+  procedure AccessorialDataCreate;override;
+  procedure TuningAfterReadFromIni;override;
+  published
  public
   property FittingAgent:TFittingAgent read fFittingAgent;
+  property Nrep:byte read GetNrep; 
 end;
 
 TFFDiodLSM=class (TFFIteration)
@@ -132,7 +138,7 @@ implementation
 
 uses
   FitVariableShow, SysUtils, OlegMathShottky, FitIterationShow,
-  HighResolutionTimer, TypInfo;
+  HighResolutionTimer, TypInfo, Math;
 
 { TFFVariabSet }
 
@@ -329,6 +335,15 @@ end;
 
 { TFFIteration }
 
+procedure TFFIteration.AccessorialDataCreate;
+begin
+  inherited;
+  fIntVars.Add(Self,'Nrep');
+  fIntVars.ParametrByName['Nrep'].Limits.SetLimits(1);
+  fIntVars.ParametrByName['Nrep'].Description:=
+        'Number of repetitions';
+end;
+
 procedure TFFIteration.AdditionalParamDetermination;
 begin
  fDParamArray.OutputDataCoordinate;
@@ -382,10 +397,24 @@ begin
 end;
 
 
+function TFFIteration.GetNrep: byte;
+begin
+ if Assigned(fIntVars.ParametrByName['Nrep'])
+   then Result:=(fIntVars.ParametrByName['Nrep'] as TVarInteger).Value
+   else Result:=0;
+end;
+
 function TFFIteration.ParameterCreate: TFFParameter;
 begin
   Result:=TDecParamsIteration.Create((fDParamArray as TDParamsIteration),
                          inherited ParameterCreate);
+end;
+
+procedure TFFIteration.TuningAfterReadFromIni;
+begin
+  inherited;
+ (fIntVars.ParametrByName['Nrep'] as TVarInteger).Value:=max(1,
+              (fIntVars.ParametrByName['Nrep'] as TVarInteger).Value);
 end;
 
 procedure TFFIteration.VariousPreparationBeforeFitting;

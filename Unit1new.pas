@@ -3656,10 +3656,11 @@ var
   ShotName,DatesFileName:string;
   Vax:TVectorShottky;
   Rs,n:double;
-  i:integer;
+  i,j:integer;
   T_bool:boolean;
   dat:TArrStr;
   CL:TColName;
+  Nrep:byte;
 
 begin
 DecimalSeparator:='.';
@@ -3881,28 +3882,40 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       end;
 
 
+    Nrep:=1;
     //обчислення за допомогою обраної функції
     if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
      begin
       FitFunctionNew:=FitFunctionFactory(LDateFun.Caption);
-      FitFunctionNew.Fitting(Vax);
 
-      if FitFunctionNew.ResultsIsReady then
-       for i:=0 to FitFunctionNew.ParametersNumber-1 do
-        StrGridData.Cells[StrGridData.ColCount-1-i,StrGridData.RowCount-1]:=
-           FloatToStrF((FitFunctionNew as TFFSimple).DParamArray.OutputData[FitFunctionNew.ParametersNumber-1-i],ffExponent,10,2);
+      if (FitFunctionNew is TFFIteration)
+        then  Nrep:=(FitFunctionNew as TFFIteration).Nrep;
+
+
+      for j := 1 to Nrep do
+      begin
+        FitFunctionNew.Fitting(Vax);
+        if FitFunctionNew.ResultsIsReady then
+         for i:=0 to FitFunctionNew.ParametersNumber-1 do
+          StrGridData.Cells[StrGridData.ColCount-1-i,StrGridData.RowCount-1]:=
+             FloatToStrF((FitFunctionNew as TFFSimple).DParamArray.OutputData[FitFunctionNew.ParametersNumber-1-i],ffExponent,10,2);
+        StrGridData.RowCount:=StrGridData.RowCount+1;
+      end;
       FreeAndNil(FitFunctionNew);
+      StrGridData.RowCount:=StrGridData.RowCount-1;
      end;
 
     i:=0;
     for CL:=Low(CL) to High(CL) do
       if (CL in ColNames) then
         begin
-        StrGridData.Cells[i,StrGridData.RowCount-1]:=dat[ord(CL)];
+        for j := 1 to Nrep do
+         StrGridData.Cells[i,StrGridData.RowCount-Nrep-1+j]:=dat[ord(CL)];
         i:=i+1;
         end;
 //_________________________
-   AddRowToFileFromStringGrid(DatesFileName,StrGridData,StrGridData.RowCount-1);
+   for I := 1 to Nrep do
+   AddRowToFileFromStringGrid(DatesFileName,StrGridData,StrGridData.RowCount-Nrep-1+i);
 //___________________________
     StrGridData.RowCount:=StrGridData.RowCount+1;
 
