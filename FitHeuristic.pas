@@ -241,6 +241,8 @@ TToolKit=class
                         const Parameter:double);virtual;abstract;
   function TLBO_ToMeanValue(X:double):double;virtual;abstract;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;virtual;abstract;
+  function IJAYA_CEL(X,Xb,F:double):double;virtual;abstract;
+  function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;virtual;abstract;
 end;
 
 
@@ -257,7 +259,8 @@ TToolKitLinear=class(TToolKit)
                         const Parameter:double);override;
   function TLBO_ToMeanValue(X:double):double;override;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
-
+  function IJAYA_CEL(X,Xb,F:double):double;override;
+  function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
 end;
 
 TToolKitLog=class(TToolKit)
@@ -275,7 +278,8 @@ TToolKitLog=class(TToolKit)
                         const Parameter:double);override;
   function TLBO_ToMeanValue(X:double):double;override;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
-
+  function IJAYA_CEL(X,Xb,F:double):double;override;
+  function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
 end;
 
 TToolKitConst=class(TToolKit)
@@ -290,7 +294,8 @@ TToolKitConst=class(TToolKit)
                         const Parameter:double);override;
   function TLBO_ToMeanValue(X:double):double;override;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
-
+  function IJAYA_CEL(X,Xb,F:double):double;override;
+  function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -340,24 +345,68 @@ TFA_Heuristic=class(TFittingAgent)
   procedure DataCoordination;override;
 end;
 
+TFA_ConsecutiveGeneration=class(TFA_Heuristic)
+ private
+  ParametersNew:TArrArrSingle;
+  FitnessDataNew:TArrSingle;
+  procedure NewPopulationCreate(i:integer);virtual;abstract;
+  procedure GreedySelectionAll;
+  procedure CreateFields;override;
+  procedure NewPopulationCreateAll;
+  procedure BeforeNewPopulationCreate;virtual;
+  procedure AfterNewPopulationCreate;virtual;
+ public
+  procedure IterationAction;override;
+end;
 
-TFA_DE=class(TFA_Heuristic)
+
+//TFA_DE=class(TFA_Heuristic)
+TFA_DE=class(TFA_ConsecutiveGeneration)
  private
   F:double;
   CR:double;
   r:array [1..3] of integer;
-  Mutation:TArrArrSingle;
-  FitnessDataMutation:TArrSingle;
+//  Mutation:TArrArrSingle;
+//  FitnessDataMutation:TArrSingle;
   function NpDetermination:integer;override;
+  procedure BeforeNewPopulationCreate;override;
+  procedure NewPopulationCreate(i:integer);override;
   procedure MutationCreate(i:integer);
   {створення і-го вектора мутації}
   procedure Crossover(i:integer);
   procedure MutationCreateAll;
-  procedure CrossoverAll;
-  procedure GreedySelectionAll;
+//  procedure CrossoverAll;
+//  procedure GreedySelectionAll;
+  procedure CreateFields;override;
+// public
+//  procedure IterationAction;override;
+end;
+
+
+//TFA_IJAYA=class(TFA_Heuristic)
+TFA_IJAYA=class(TFA_ConsecutiveGeneration)
+// Energy Conversion and Management 150 (2017) 742–753
+ private
+  NumberBest:integer;
+  NumberWorst:integer;
+  Weight:double;
+  Z:double;
+//  ParametersNew:TArrArrSingle;
+//  FitnessDataNew:TArrSingle;
+  function NewZ:double;
+  function NpDetermination:integer;override;
+  procedure AfterNewPopulationCreate;override;
+  procedure NewPopulationCreate(i:integer);override;
+  procedure KoefDetermination;
+  procedure ChaoticEliteLearning(i:integer);
+  procedure SelfAdaptiveWeight(i:integer);
+  procedure ExperienceBasedLearning(i:integer);
+//  procedure NewPopulationCreateAll;
+//  procedure GreedySelectionAll;
   procedure CreateFields;override;
  public
-  procedure IterationAction;override;
+  procedure StartAction;override;
+//  procedure IterationAction;override;
 end;
 
 
@@ -416,7 +465,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
-  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_PSO);
+  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_PSO,TFA_IJAYA);
 
 
 Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
@@ -791,6 +840,16 @@ begin
  Penalty(Result);
 end;
 
+function TToolKitLinear.IJAYA_CEL(X,Xb, F: double): double;
+begin
+  Result:=X+F*(Xb-X);
+end;
+
+function TToolKitLinear.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
+begin
+ Result:=X+R1*(Xb-abs(X))-R2*(Xw-abs(X));
+end;
+
 procedure TToolKitLinear.Penalty(var X: double);
  var temp:double;
 begin
@@ -876,6 +935,33 @@ begin
  Result:=exp(temp);
 end;
 
+function TToolKitLog.IJAYA_CEL(X,Xb, F: double): double;
+begin
+ Result:=ln(X)+F*(ln(Xb)-ln(X));
+// if InRange(Result,lnXmin,lnXmax) then
+//   begin
+//   Result:=exp(Result);
+//   Exit;
+//   end;
+// if not(InRange(Result,lnXmin-lnXmax_Xmin,lnXmax+lnXmax_Xmin))
+//    then
+//      begin
+//       Result:=RandValue;
+//       Exit;
+//      end;
+// repeat
+//    if Result>lnXmax then temp:=Result-Random*lnXmax_Xmin
+//                     else temp:=Result+Random*lnXmax_Xmin;
+//    if InRange(temp,lnXmin,lnXmax) then  Break;
+// until False;
+ Result:=exp(Result);
+end;
+
+function TToolKitLog.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
+begin
+ Result:=ln(X)+R1*(ln(Xb)-abs(ln(X)))-R2*(ln(Xw)-abs(ln(X)));
+end;
+
 procedure TToolKitLog.Penalty(var X: double);
  var temp,lnX:double;
 begin
@@ -944,6 +1030,16 @@ begin
  Result:=Xmin;
 end;
 
+function TToolKitConst.IJAYA_CEL(X,Xb, F: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
+begin
+  Result:=Xmin;
+end;
+
 procedure TToolKitConst.Penalty(var X: double);
 begin
 end;
@@ -989,11 +1085,16 @@ end;
 
 { TFA_DE }
 
+procedure TFA_DE.BeforeNewPopulationCreate;
+begin
+ MutationCreateAll;
+end;
+
 procedure TFA_DE.CreateFields;
 begin
  inherited;
- SetLength(FitnessDataMutation,fNp);
- SetLength(Mutation,fNp,fFF.DParamArray.MainParamHighIndex+1);
+// SetLength(FitnessDataMutation,fNp);
+// SetLength(Mutation,fNp,fFF.DParamArray.MainParamHighIndex+1);
  fDescription:='Differential Evolution';
  F:=0.8;
  CR:=0.3;
@@ -1006,40 +1107,41 @@ begin
  for j := 0 to High(fToolKitArr) do
   if not(fFF.DParamArray.Parametr[j].IsConstant)
      and(Random>CR)
-     and (j<>r[2]) then Mutation[i,j]:=Parameters[i,j];
+//     and (j<>r[2]) then Mutation[i,j]:=Parameters[i,j];
+     and (j<>r[2]) then ParametersNew[i,j]:=Parameters[i,j];
 end;
 
-procedure TFA_DE.CrossoverAll;
- var i:integer;
-begin
-  i:=0;
-  repeat
-   ConditionalRandomize;
-   Crossover(i);
-   try
-    FitnessDataMutation[i]:=FitnessFunc(Mutation[i]);
-   except
-    Continue;
-   end;
-    inc(i);
-  until (i>High(Mutation));
+//procedure TFA_DE.CrossoverAll;
+// var i:integer;
+//begin
+//  i:=0;
+//  repeat
+//   ConditionalRandomize;
+//   Crossover(i);
+//   try
+//    FitnessDataMutation[i]:=FitnessFunc(Mutation[i]);
+//   except
+//    Continue;
+//   end;
+//    inc(i);
+//  until (i>High(Mutation));
+//
+//end;
 
-end;
+//procedure TFA_DE.GreedySelectionAll;
+// var i:integer;
+//begin
+// for I := 0 to High(FitnessData) do
+//   GreedySelection(i,FitnessDataMutation[i],Mutation[i]);
+//end;
 
-procedure TFA_DE.GreedySelectionAll;
- var i:integer;
-begin
- for I := 0 to High(FitnessData) do
-   GreedySelection(i,FitnessDataMutation[i],Mutation[i]);
-end;
-
-procedure TFA_DE.IterationAction;
-begin
-   MutationCreateAll;
-   CrossoverAll;
-   GreedySelectionAll;
-   inherited;
-end;
+//procedure TFA_DE.IterationAction;
+//begin
+//   MutationCreateAll;
+//   CrossoverAll;
+//   GreedySelectionAll;
+//   inherited;
+//end;
 
 procedure TFA_DE.MutationCreate(i: integer);
  var j:integer;
@@ -1049,9 +1151,10 @@ begin
    r[j]:=Random(fNp);
   until (r[j]<>i);
  for j := 0 to High(fToolKitArr) do
-  Mutation[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[r[1],j],
-                                             Parameters[r[2],j],
-                                             Parameters[r[3],j],F);
+//  Mutation[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[r[1],j],
+  ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[r[1],j],
+                                                  Parameters[r[2],j],
+                                                  Parameters[r[3],j],F);
 end;
 
 procedure TFA_DE.MutationCreateAll;
@@ -1062,12 +1165,19 @@ begin
    ConditionalRandomize;
    MutationCreate(i);
    try
-    FitnessFunc(Mutation[i]);
+//    FitnessFunc(Mutation[i]);
+    FitnessFunc(ParametersNew[i]);
    except
     Continue;
    end;
     inc(i);
-  until (i>High(Mutation));
+//  until (i>High(Mutation));
+  until (i>High(ParametersNew));
+end;
+
+procedure TFA_DE.NewPopulationCreate(i: integer);
+begin
+  Crossover(i);
 end;
 
 function TFA_DE.NpDetermination: integer;
@@ -1535,6 +1645,196 @@ procedure TFitnessCalculationData.SomeActions(FF:TFFHeuristic);
 begin
   inherited;
   fData:=TVector.Create(FF.DataToFit);
+end;
+
+{ TFA_IJAYA }
+
+procedure TFA_IJAYA.AfterNewPopulationCreate;
+begin
+ KoefDetermination;
+end;
+
+procedure TFA_IJAYA.ChaoticEliteLearning(i: integer);
+ var mult:double;
+     j:integer;
+begin
+// ConditionalRandomize;
+ mult:=Random*(2*Z-1);
+ for j := 0 to High(fToolKitArr) do
+  ParametersNew[i][j]:=fToolKitArr[j].IJAYA_CEL(Parameters[i,j],
+                                                Parameters[NumberBest,j],
+                                                mult);
+end;
+
+procedure TFA_IJAYA.CreateFields;
+begin
+ inherited;
+// SetLength(FitnessDataNew,fNp);
+// SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
+ fDescription:='Improved JAYA';
+ Z:=Random;
+end;
+
+procedure TFA_IJAYA.ExperienceBasedLearning(i: integer);
+ var r:double;
+     k,l,j:integer;
+begin
+ repeat
+   k:=Random(fNp);
+ until (k<>i);
+ repeat
+   l:=Random(fNp);
+ until (l<>i)and(l<>k);
+ r:=Random;
+
+ if FitnessData[k]<FitnessData[l]
+   then
+    for j := 0 to High(fToolKitArr) do
+     ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[i,j],
+                                                     Parameters[k,j],
+                                                     Parameters[l,j],
+                                                     r)
+   else
+    for j := 0 to High(fToolKitArr) do
+     ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[i,j],
+                                                     Parameters[l,j],
+                                                     Parameters[k,j],
+                                                     r);
+end;
+
+//procedure TFA_IJAYA.GreedySelectionAll;
+// var i:integer;
+//begin
+// for I := 0 to High(FitnessData) do
+//   GreedySelection(i,FitnessDataNew[i],ParametersNew[i]);
+//end;
+
+//procedure TFA_IJAYA.IterationAction;
+//begin
+//
+////   MutationCreateAll;
+////   CrossoverAll;
+//  NewPopulationCreateAll;
+//  GreedySelectionAll;
+//  KoefDetermination;
+//  inherited;
+//end;
+
+procedure TFA_IJAYA.KoefDetermination;
+begin
+ NumberBest:=MinElemNumber(FitnessData);
+ NumberWorst:=MaxElemNumber(FitnessData);
+ if FitnessData[NumberWorst]=0
+   then Weight:=1
+   else Weight:=sqr(FitnessData[NumberBest]/FitnessData[NumberWorst]);
+ Z:=NewZ;
+end;
+
+procedure TFA_IJAYA.NewPopulationCreate(i: integer);
+begin
+  if i=NumberBest then ChaoticEliteLearning(i)
+                else
+     if Random<Random then SelfAdaptiveWeight(i)
+                      else ExperienceBasedLearning(i);
+end;
+
+//procedure TFA_IJAYA.NewPopulationCreateAll;
+// var i:integer;
+//begin
+//  i:=0;
+//  repeat
+//   ConditionalRandomize;
+//    if i=NumberBest then ChaoticEliteLearning(i)
+//                    else
+//         if Random<Random then SelfAdaptiveWeight(i)
+//                          else ExperienceBasedLearning(i);
+//   try
+//    FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);
+//   except
+//    Continue;
+//   end;
+//    inc(i);
+//  until (i>High(FitnessDataNew));
+//end;
+
+function TFA_IJAYA.NewZ: double;
+begin
+ Result:=4*Z*(1-Z);
+end;
+
+function TFA_IJAYA.NpDetermination: integer;
+begin
+  Result:=(fFF.DParamArray.MainParamHighIndex+1)*4;
+end;
+
+procedure TFA_IJAYA.SelfAdaptiveWeight(i: integer);
+ var r1,Wr2:double;
+     j:integer;
+begin
+// ConditionalRandomize;
+ r1:=Random;
+ Wr2:=Random*Weight;
+
+ for j := 0 to High(fToolKitArr) do
+    ParametersNew[i][j]:=fToolKitArr[j].IJAYA_SAW(Parameters[i,j],
+                                                  Parameters[NumberBest,j],
+                                                  Parameters[NumberWorst,j],
+                                                  r1,Wr2);
+end;
+
+procedure TFA_IJAYA.StartAction;
+begin
+  inherited;
+  KoefDetermination;
+end;
+
+{ TFA_ConsecutiveGeneration }
+
+procedure TFA_ConsecutiveGeneration.AfterNewPopulationCreate;
+begin
+end;
+
+procedure TFA_ConsecutiveGeneration.BeforeNewPopulationCreate;
+begin
+end;
+
+procedure TFA_ConsecutiveGeneration.CreateFields;
+begin
+ inherited;
+ SetLength(FitnessDataNew,fNp);
+ SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
+end;
+
+procedure TFA_ConsecutiveGeneration.GreedySelectionAll;
+ var i:integer;
+begin
+ for I := 0 to High(FitnessData) do
+   GreedySelection(i,FitnessDataNew[i],ParametersNew[i]);
+end;
+
+procedure TFA_ConsecutiveGeneration.IterationAction;
+begin
+  BeforeNewPopulationCreate;
+  NewPopulationCreateAll;
+  GreedySelectionAll;
+  AfterNewPopulationCreate;
+  inherited;
+end;
+
+procedure TFA_ConsecutiveGeneration.NewPopulationCreateAll;
+ var i:integer;
+begin
+  i:=0;
+  repeat
+   ConditionalRandomize;
+   NewPopulationCreate(i);
+   try
+    FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);
+   except
+    Continue;
+   end;
+    inc(i);
+  until (i>High(FitnessDataNew));
 end;
 
 end.

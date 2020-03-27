@@ -1,3 +1,54 @@
+function TFFIteration.FittingCalculation: boolean;
+begin
+ FittingAgentCreate;
+ WindowAgentCreate;
+ try
+  fWindowAgent.Show;
+  try
+   Result:=False;
+   fFittingAgent.StartAction;
+   Timer.StartTimer;
+   fFittingAgent.DataCoordination;
+   fWindowAgent.UpDate;
+   Application.ProcessMessages;
+
+       repeat
+        fFittingAgent.IterationAction;
+
+        if fFittingAgent.IstimeToShow
+           or(Timer.ReadTimer>15000) then
+           begin
+            fFittingAgent.DataCoordination;
+            fWindowAgent.UpDate;
+            Application.ProcessMessages;
+            Timer.StartTimer;
+           end;
+
+       until (fFittingAgent.ToStop
+            or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsIteration).Nit)
+            or not(fWindowAgent.Form.Visible));
+   if fWindowAgent.Form.Visible then
+    begin
+      Result:=True;
+      fFittingAgent.DataCoordination;
+      fDParamArray.OutputDataCoordinate;
+    end;
+
+  finally
+   fWindowAgent.Hide;
+  end;
+ finally
+  fWindowAgent.Free;
+  fFittingAgent.Free;
+ end;
+
+end;
+
+
+
+
+
+
 procedure TFFTwoPower.AddDoubleVars;
 begin
   inherited;

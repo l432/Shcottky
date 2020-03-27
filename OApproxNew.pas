@@ -19,7 +19,8 @@ type
     (etDE, //differential evolution
      etMABC, // modified artificial bee colony
      etTLBO,  //teaching learning based optimization algorithm
-     etPSO    // particle swarm optimization
+     etPSO,    // particle swarm optimization
+     etIJAYA
      );
   {}
   TFitnessType=
@@ -38,7 +39,7 @@ const
 
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
-         ('DE','MABC','TLBO','PSO');
+         ('DE','MABC','TLBO','PSO','IJAYA');
 
  FitTypeNames:array[TFitnessType]of string=
          ('Sq.Res.','Rel.Sq.Res.','Abs.Res.','Rel.Abs.Res.',
