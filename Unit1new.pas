@@ -3566,9 +3566,28 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
+//var
+//  number, zero : double;
 begin
+//  number:=85;
+//  zero:=-7;
+//  try
+//   number:=ln(zero);
+//  except
+//   on EZeroDivide do
+//     begin
+//       number:=222;
+//     end;
+//   on EInvalidOp do
+//     begin
+//       number:=333;
+//     end;
+//  end;
+//  showmessage(floattostr(number));
 
- showmessage(floattostr(FileNameToVoltage('13.dat')));
+ TextFileEquals('ResultAllold.dat','ResultAll.dat');
+
+// showmessage(floattostr(FileNameToVoltage('13.dat')));
 // Silicon.mu_n();
 // showmessage(floattostr(Pi));
 ////

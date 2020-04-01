@@ -20,7 +20,8 @@ type
      etMABC, // modified artificial bee colony
      etTLBO,  //teaching learning based optimization algorithm
      etPSO,    // particle swarm optimization
-     etIJAYA
+     etIJAYA, //improved JAVA
+     etISCA   //improved sine cosine algorithm
      );
   {}
   TFitnessType=
@@ -39,10 +40,10 @@ const
 
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
-         ('DE','MABC','TLBO','PSO','IJAYA');
+         ('DE','MABC','TLBO','PSO','IJAYA','ISCA');
 
  FitTypeNames:array[TFitnessType]of string=
-         ('Sq.Res.','Rel.Sq.Res.','Abs.Res.','Rel.Abs.Res.',
+         ('Sq.Err.','Rel.Sq.Res.','Abs.Err.','Rel.Abs.Err.',
           'Area');
 
  RegTypeNames:array[TRegulationType]of string=

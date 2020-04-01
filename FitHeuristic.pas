@@ -243,6 +243,8 @@ TToolKit=class
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;virtual;abstract;
   function IJAYA_CEL(X,Xb,F:double):double;virtual;abstract;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;virtual;abstract;
+  function GetOppPopul(X:double):double;virtual;abstract;
+  function ISCA_Update(X,Xb,R1,R2,R3,R4,Weight:double):double;virtual;abstract;
 end;
 
 
@@ -261,6 +263,9 @@ TToolKitLinear=class(TToolKit)
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
   function IJAYA_CEL(X,Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
+  function GetOppPopul(X:double):double;override;
+  function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
+
 end;
 
 TToolKitLog=class(TToolKit)
@@ -280,6 +285,9 @@ TToolKitLog=class(TToolKit)
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
   function IJAYA_CEL(X,Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
+  function GetOppPopul(X:double):double;override;
+  function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
+
 end;
 
 TToolKitConst=class(TToolKit)
@@ -296,6 +304,9 @@ TToolKitConst=class(TToolKit)
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
   function IJAYA_CEL(X,Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
+  function GetOppPopul(X:double):double;override;
+  function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
+
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -349,14 +360,20 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
  private
   ParametersNew:TArrArrSingle;
   FitnessDataNew:TArrSingle;
+  VectorForOppositePopulation:TVector;
   procedure NewPopulationCreate(i:integer);virtual;abstract;
-  procedure GreedySelectionAll;
+  procedure GenerateOppositePopulation(i:integer);
+  procedure GenerateOppositePopulationAll;
+  procedure VectorForOppositePopulationFilling;
+  procedure OppositePopulationSelection;
+  procedure GreedySelectionAll;virtual;
   procedure CreateFields;override;
-  procedure NewPopulationCreateAll;
+  procedure NewPopulationCreateAll;virtual;
   procedure BeforeNewPopulationCreate;virtual;
   procedure AfterNewPopulationCreate;virtual;
  public
   procedure IterationAction;override;
+  destructor Destroy;override;
 end;
 
 
@@ -366,8 +383,6 @@ TFA_DE=class(TFA_ConsecutiveGeneration)
   F:double;
   CR:double;
   r:array [1..3] of integer;
-//  Mutation:TArrArrSingle;
-//  FitnessDataMutation:TArrSingle;
   function NpDetermination:integer;override;
   procedure BeforeNewPopulationCreate;override;
   procedure NewPopulationCreate(i:integer);override;
@@ -375,11 +390,7 @@ TFA_DE=class(TFA_ConsecutiveGeneration)
   {створенн€ ≥-го вектора мутац≥њ}
   procedure Crossover(i:integer);
   procedure MutationCreateAll;
-//  procedure CrossoverAll;
-//  procedure GreedySelectionAll;
   procedure CreateFields;override;
-// public
-//  procedure IterationAction;override;
 end;
 
 
@@ -391,8 +402,6 @@ TFA_IJAYA=class(TFA_ConsecutiveGeneration)
   NumberWorst:integer;
   Weight:double;
   Z:double;
-//  ParametersNew:TArrArrSingle;
-//  FitnessDataNew:TArrSingle;
   function NewZ:double;
   function NpDetermination:integer;override;
   procedure AfterNewPopulationCreate;override;
@@ -401,13 +410,44 @@ TFA_IJAYA=class(TFA_ConsecutiveGeneration)
   procedure ChaoticEliteLearning(i:integer);
   procedure SelfAdaptiveWeight(i:integer);
   procedure ExperienceBasedLearning(i:integer);
-//  procedure NewPopulationCreateAll;
-//  procedure GreedySelectionAll;
   procedure CreateFields;override;
  public
   procedure StartAction;override;
-//  procedure IterationAction;override;
 end;
+
+
+TFA_ISCA=class(TFA_ConsecutiveGeneration)
+{ основа - Knowledge-Based Systems 96 (2016) 120Ц133
+поращенн€ - з Expert Systems With Applications 123 (2019) 108Ц126  (все що там Ї)
+ та  Expert Systems With Applications 119 (2019) 210Ц230 (opposite population)
+також додав Greedy Selection - його там спочатку не було,
+але в €к≥йсь робот≥ бачив рекомендац≥њ таки долучити}
+ private
+  NumberBest:integer;
+  Weight:double;
+  R1,R2,R3,R4:double;
+  Wstart,Wend:double;
+  Astart,Aend:double;
+  k:integer;
+  Jr:double;
+  ItIsOppositeGeneration:boolean;
+  function NewR1:double;
+  function NewWeight:double;
+  function NpDetermination:integer;override;
+
+  procedure AfterNewPopulationCreate;override;
+  procedure NewPopulationCreate(i:integer);override;
+  procedure KoefDetermination;
+  procedure SinCosinUpdate(i:integer);
+  procedure NewPopulationCreateAll;override;
+  procedure GreedySelectionAll;override;
+  procedure GreedySelectionSimple;
+  procedure CreateFields;override;
+  procedure RandomKoefDetermination;
+ public
+  procedure StartAction;override;
+end;
+
 
 
 TFA_MABC=class(TFA_Heuristic)
@@ -465,7 +505,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
-  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_PSO,TFA_IJAYA);
+  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_PSO,TFA_IJAYA,TFA_ISCA);
 
 
 Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
@@ -534,10 +574,10 @@ end;
 
 procedure TFA_Heuristic.ConditionalRandomize;
 begin
-  if (fNfit > 100) then
+  if (fNfit > 100)or(fNfit=0) then
      begin
      Randomize;
-     fNfit:=0;
+     fNfit:=1;
      end;
 end;
 
@@ -658,7 +698,17 @@ end;
 
 function TFitnessTermRSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
-  Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
+  try
+   Result:=1/Point[cY];
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])*Result);
+//  Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
 end;
 
 { TFitnessTermAR }
@@ -672,35 +722,129 @@ end;
 
 function TFitnessTermRAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
-  Result:=abs((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
+  try
+   Result:=1/Point[cY];
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=abs((fFuncForFitness(Point,Parameters)-Point[cY])*Result);
+//  Result:=abs((fFuncForFitness(Point,Parameters)-Point[cY])/Point[cY]);
 end;
 
 { TFitnessTermLogSR }
 
 function TFitnessTermLnSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
-  Result:=sqr(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
+  try
+   Result:=ln(Point[cY]);
+  except
+   on EZeroDivide do
+    begin
+    Result:=0;
+    Exit;
+    end;
+   on EInvalidOp  do
+    begin
+    Result:=0;
+    Exit;
+    end;
+  end;
+  Result:=sqr(ln(fFuncForFitness(Point,Parameters))-Result);
+//  Result:=sqr(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
 end;
 
 { TFitnessTermLnRSR }
 
 function TFitnessTermLnRSR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
+ var temp:double;
 begin
-  Result:=sqr((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
+  try
+   temp:=ln(Point[cY]);
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+   on EInvalidOp  do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+
+  try
+   Result:=1/temp;
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=sqr((ln(fFuncForFitness(Point,Parameters))-temp)*Result);
+
+//  Result:=sqr((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
 end;
 
 { TFitnessTermLnAR }
 
 function TFitnessTermLnAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
 begin
-  Result:=abs(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
+  try
+   Result:=ln(Point[cY]);
+  except
+   on EZeroDivide do
+    begin
+    Result:=0;
+    Exit;
+    end;
+   on EInvalidOp  do
+    begin
+    Result:=0;
+    Exit;
+    end;
+  end;
+  Result:=abs(ln(fFuncForFitness(Point,Parameters))-Result);
+//  Result:=abs(ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]));
 end;
 
 { TFitnessTermLnRAR }
 
 function TFitnessTermLnRAR.Term(Point:TPointDouble; Parameters: TArrSingle): double;
+ var temp:double;
 begin
-  Result:=abs((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
+  try
+   temp:=ln(Point[cY]);
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+   on EInvalidOp  do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+
+  try
+   Result:=1/temp;
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=abs((ln(fFuncForFitness(Point,Parameters))-temp)*Result);
+
+//  Result:=abs((ln(fFuncForFitness(Point,Parameters))-ln(Point[cY]))/ln(Point[cY]));
 end;
 
 { TRegTerm }
@@ -840,6 +984,11 @@ begin
  Penalty(Result);
 end;
 
+function TToolKitLinear.GetOppPopul(X: double): double;
+begin
+ Result:=Xmin+Xmax-X;
+end;
+
 function TToolKitLinear.IJAYA_CEL(X,Xb, F: double): double;
 begin
   Result:=X+F*(Xb-X);
@@ -848,6 +997,15 @@ end;
 function TToolKitLinear.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
 begin
  Result:=X+R1*(Xb-abs(X))-R2*(Xw-abs(X));
+end;
+
+function TToolKitLinear.ISCA_Update(X, Xb, R1, R2, R3, R4,
+  Weight: double): double;
+begin
+ if R4<0.5 then
+   Result:=Weight*X+R1*sin(R2)*abs(R3*Xb-X)
+           else
+   Result:=Weight*X+R1*cos(R2)*abs(R3*Xb-X);
 end;
 
 procedure TToolKitLinear.Penalty(var X: double);
@@ -935,6 +1093,12 @@ begin
  Result:=exp(temp);
 end;
 
+function TToolKitLog.GetOppPopul(X: double): double;
+begin
+ Result:=lnXmin+lnXmax-ln(X);
+ Result:=exp(Result);
+end;
+
 function TToolKitLog.IJAYA_CEL(X,Xb, F: double): double;
 begin
  Result:=ln(X)+F*(ln(Xb)-ln(X));
@@ -960,6 +1124,18 @@ end;
 function TToolKitLog.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
 begin
  Result:=ln(X)+R1*(ln(Xb)-abs(ln(X)))-R2*(ln(Xw)-abs(ln(X)));
+ Result:=exp(Result);
+end;
+
+function TToolKitLog.ISCA_Update(X, Xb, R1, R2, R3, R4, Weight: double): double;
+ var lnX:double;
+begin
+ lnX:=ln(X);
+ if R4<0.5 then
+   Result:=Weight*lnX+R1*sin(R2)*abs(R3*ln(Xb)-lnX)
+           else
+   Result:=Weight*lnX+R1*cos(R2)*abs(R3*ln(Xb)-lnX);
+ Result:=exp(Result);
 end;
 
 procedure TToolKitLog.Penalty(var X: double);
@@ -1030,6 +1206,11 @@ begin
  Result:=Xmin;
 end;
 
+function TToolKitConst.GetOppPopul(X: double): double;
+begin
+ Result:=Xmin;
+end;
+
 function TToolKitConst.IJAYA_CEL(X,Xb, F: double): double;
 begin
  Result:=Xmin;
@@ -1038,6 +1219,12 @@ end;
 function TToolKitConst.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
 begin
   Result:=Xmin;
+end;
+
+function TToolKitConst.ISCA_Update(X, Xb, R1, R2, R3, R4,
+  Weight: double): double;
+begin
+ Result:=Xmin;
 end;
 
 procedure TToolKitConst.Penalty(var X: double);
@@ -1803,6 +1990,42 @@ begin
  inherited;
  SetLength(FitnessDataNew,fNp);
  SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
+ VectorForOppositePopulation:=TVector.Create;
+ VectorForOppositePopulation.SetLenVector(fNp);
+end;
+
+destructor TFA_ConsecutiveGeneration.Destroy;
+begin
+  FreeAndNil(VectorForOppositePopulation);
+  inherited;
+end;
+
+procedure TFA_ConsecutiveGeneration.GenerateOppositePopulation(i: integer);
+ var j:integer;
+begin
+ for j := 0 to High(fToolKitArr) do
+  ParametersNew[i][j]:=fToolKitArr[j].GetOppPopul(Parameters[i,j]);
+end;
+
+procedure TFA_ConsecutiveGeneration.GenerateOppositePopulationAll;
+ var i:integer;
+     maxFitness:double;
+begin
+  maxFitness:=FitnessData[MaxElemNumber(FitnessData)];
+  i:=0;
+  repeat
+   ConditionalRandomize;
+   GenerateOppositePopulation(i);
+   try
+    FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);
+   except
+    FitnessDataNew[i]:=maxFitness+1;
+   end;
+    inc(i);
+  until (i>High(FitnessDataNew));
+  VectorForOppositePopulationFilling;
+  VectorForOppositePopulation.Sorting();
+//  OppositePopulationSelection;
 end;
 
 procedure TFA_ConsecutiveGeneration.GreedySelectionAll;
@@ -1835,6 +2058,136 @@ begin
    end;
     inc(i);
   until (i>High(FitnessDataNew));
+end;
+
+procedure TFA_ConsecutiveGeneration.OppositePopulationSelection;
+ var i:integer;
+begin
+  for I := 0 to fNp - 1 do
+   begin
+     if VectorForOppositePopulation.Y[i]<fNp
+       then Parameters[i]:=Copy(Parameters[round(VectorForOppositePopulation.Y[i])])
+       else Parameters[i]:=Copy(ParametersNew[round(VectorForOppositePopulation.Y[i]-fNp)]);
+     FitnessData[i]:=VectorForOppositePopulation.X[i]
+   end;
+end;
+
+procedure TFA_ConsecutiveGeneration.VectorForOppositePopulationFilling;
+ var i:integer;
+begin
+ for I := 0 to fNp - 1 do
+   begin
+    VectorForOppositePopulation.X[i]:=FitnessData[i];
+    VectorForOppositePopulation.Y[i]:=i;
+    VectorForOppositePopulation.X[i+fNp]:=FitnessDataNew[i];
+    VectorForOppositePopulation.Y[i+fNp]:=i+fNp;
+   end;
+end;
+
+{ TFA_ISCA }
+
+procedure TFA_ISCA.AfterNewPopulationCreate;
+begin
+ KoefDetermination;
+end;
+
+procedure TFA_ISCA.CreateFields;
+begin
+  inherited;
+ inherited;
+// SetLength(FitnessDataNew,fNp);
+// SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
+ fDescription:='Improved sine cosine algorithm';
+ Astart:=2;
+ Aend:=0;
+ Wstart:=1;
+ Wend:=0;
+ k:=15;
+ Jr:=0.1;
+end;
+
+procedure TFA_ISCA.GreedySelectionAll;
+begin
+ if ItIsOppositeGeneration
+   then OppositePopulationSelection
+//   else GreedySelectionSimple;
+   else inherited GreedySelectionAll;
+ end;
+
+procedure TFA_ISCA.GreedySelectionSimple;
+ var i:integer;
+begin
+ for I := 0 to fNp do
+  begin
+    Parameters[i]:=Copy(ParametersNew[i]);
+    FitnessData[i]:=FitnessDataNew[i];
+  end;
+end;
+
+procedure TFA_ISCA.KoefDetermination;
+begin
+ NumberBest:=MinElemNumber(FitnessData);
+ R1:=NewR1();
+// RandomKoefDetermination;
+ ItIsOppositeGeneration:=(Random<Jr);
+ Weight:=NewWeight();
+end;
+
+procedure TFA_ISCA.NewPopulationCreate(i: integer);
+begin
+ SinCosinUpdate(i);
+end;
+
+procedure TFA_ISCA.NewPopulationCreateAll;
+begin
+ if ItIsOppositeGeneration
+   then GenerateOppositePopulationAll
+   else inherited NewPopulationCreateAll;
+end;
+
+function TFA_ISCA.NewR1: double;
+begin
+ Result:=(Astart-Aend)
+   *exp(-sqr(fCurrentIteration/k/(fFF.fDParamArray as TDParamsIteration).Nit))
+   +Aend;
+end;
+
+function TFA_ISCA.NewWeight: double;
+begin
+ Result:=Wend+(Wstart-Wend)
+ *((fFF.fDParamArray as TDParamsIteration).Nit-fCurrentIteration)/(fFF.fDParamArray as TDParamsIteration).Nit;
+end;
+
+function TFA_ISCA.NpDetermination: integer;
+begin
+   Result:=30;
+end;
+
+procedure TFA_ISCA.SinCosinUpdate(i:integer);
+ var j:integer;
+begin
+// if i=NumberBest then  ParametersNew[i]:=Copy(Parameters[i])
+//                 else
+//   begin
+     RandomKoefDetermination;
+     for j := 0 to High(fToolKitArr) do
+      ParametersNew[i][j]:=fToolKitArr[j].ISCA_Update(Parameters[i,j],
+                                                     Parameters[NumberBest,j],
+                                                      R1,R2,R3,R4,Weight);
+//   end;
+end;
+
+procedure TFA_ISCA.StartAction;
+begin
+  inherited;
+  KoefDetermination;
+end;
+
+procedure TFA_ISCA.RandomKoefDetermination;
+begin
+  R2 := Random * 2 * Pi;
+  R3 := Random * 2;
+  R4 := Random;
 end;
 
 end.

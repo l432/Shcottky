@@ -11,11 +11,13 @@ function ArrayToString(ArrSingle:TArrSingle):string;overload;
 
 function ArrayToString(ArrSingle:TArrSingle;TitelsArr:array of string):string;overload;
 
+procedure TextFileEquals(const fileName1, fileName2:string);
+
 
 implementation
 
 uses
-  Dialogs, SysUtils;
+  Dialogs, SysUtils, Classes;
 
 procedure VectorEquals(const VectorOld:PVector; const VectorNew:TVector);
  var Rez:boolean;
@@ -34,6 +36,30 @@ begin
 
  if Rez then  showmessage('OK')
         else  showmessage('Fault!!!');
+end;
+
+procedure TextFileEquals(const fileName1, fileName2:string);
+var  Str1,str2:TStringList;
+     i:integer;
+     Rez:boolean;
+begin
+ Str1:=TStringList.Create;
+ Str2:=TStringList.Create;
+ Str1.LoadFromFile(fileName1);
+ Str2.LoadFromFile(fileName2);
+ Rez:=True;
+ try
+ for I := 0 to Str1.Count-1 do
+  Rez:=(Rez and (Str1[i]=Str2[i]));
+ except
+  Rez:=False;
+ end;
+
+ if Rez then  showmessage('OK')
+        else  showmessage('Fault!!!');
+
+ FreeAndNil(Str1);
+ FreeAndNil(Str2);
 end;
 
 
