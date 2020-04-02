@@ -241,7 +241,7 @@ TToolKit=class
                         const Parameter:double);virtual;abstract;
   function TLBO_ToMeanValue(X:double):double;virtual;abstract;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;virtual;abstract;
-  function IJAYA_CEL(X,Xb,F:double):double;virtual;abstract;
+  function IJAYA_CEL(Xb,F:double):double;virtual;abstract;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;virtual;abstract;
   function GetOppPopul(X:double):double;virtual;abstract;
   function ISCA_Update(X,Xb,R1,R2,R3,R4,Weight:double):double;virtual;abstract;
@@ -261,7 +261,7 @@ TToolKitLinear=class(TToolKit)
                         const Parameter:double);override;
   function TLBO_ToMeanValue(X:double):double;override;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
-  function IJAYA_CEL(X,Xb,F:double):double;override;
+  function IJAYA_CEL(Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
   function GetOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
@@ -276,14 +276,14 @@ TToolKitLog=class(TToolKit)
   procedure DataSave(const Param: TFFParamHeuristic);override;
  public
   function RandValue:double;override;
-  procedure Penalty(var X:double);override;
+  procedure Penalty(var lnX:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);override;
   function TLBO_ToMeanValue(X:double):double;override;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
-  function IJAYA_CEL(X,Xb,F:double):double;override;
+  function IJAYA_CEL(Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
   function GetOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
@@ -302,7 +302,7 @@ TToolKitConst=class(TToolKit)
                         const Parameter:double);override;
   function TLBO_ToMeanValue(X:double):double;override;
   function TLBO_Transform(X1,X2,Xmean,r:double;Tf:integer):double;override;
-  function IJAYA_CEL(X,Xb,F:double):double;override;
+  function IJAYA_CEL(Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
   function GetOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
@@ -441,7 +441,7 @@ TFA_ISCA=class(TFA_ConsecutiveGeneration)
   procedure SinCosinUpdate(i:integer);
   procedure NewPopulationCreateAll;override;
   procedure GreedySelectionAll;override;
-  procedure GreedySelectionSimple;
+//  procedure GreedySelectionSimple;
   procedure CreateFields;override;
   procedure RandomKoefDetermination;
  public
@@ -989,14 +989,16 @@ begin
  Result:=Xmin+Xmax-X;
 end;
 
-function TToolKitLinear.IJAYA_CEL(X,Xb, F: double): double;
+function TToolKitLinear.IJAYA_CEL(Xb, F: double): double;
 begin
-  Result:=X+F*(Xb-X);
+  Result:=Xb*(1+F);
+  Penalty(Result);
 end;
 
 function TToolKitLinear.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
 begin
  Result:=X+R1*(Xb-abs(X))-R2*(Xw-abs(X));
+  Penalty(Result);
 end;
 
 function TToolKitLinear.ISCA_Update(X, Xb, R1, R2, R3, R4,
@@ -1006,6 +1008,7 @@ begin
    Result:=Weight*X+R1*sin(R2)*abs(R3*Xb-X)
            else
    Result:=Weight*X+R1*cos(R2)*abs(R3*Xb-X);
+ Penalty(Result);
 end;
 
 procedure TToolKitLinear.Penalty(var X: double);
@@ -1071,37 +1074,10 @@ begin
 end;
 
 function TToolKitLog.DE_Mutation(X1, X2, X3, F: double): double;
- var temp:double;
+// var temp:double;
 begin
  Result:=ln(X1)+F*(ln(X2)-ln(X3));
- if InRange(Result,lnXmin,lnXmax) then
-   begin
-   Result:=exp(Result);
-   Exit;
-   end;
- if not(InRange(Result,lnXmin-lnXmax_Xmin,lnXmax+lnXmax_Xmin))
-    then
-      begin
-       Result:=RandValue;
-       Exit;
-      end;
- repeat
-    if Result>lnXmax then temp:=Result-Random*lnXmax_Xmin
-                     else temp:=Result+Random*lnXmax_Xmin;
-    if InRange(temp,lnXmin,lnXmax) then  Break;
- until False;
- Result:=exp(temp);
-end;
-
-function TToolKitLog.GetOppPopul(X: double): double;
-begin
- Result:=lnXmin+lnXmax-ln(X);
- Result:=exp(Result);
-end;
-
-function TToolKitLog.IJAYA_CEL(X,Xb, F: double): double;
-begin
- Result:=ln(X)+F*(ln(Xb)-ln(X));
+ Penalty(Result);
 // if InRange(Result,lnXmin,lnXmax) then
 //   begin
 //   Result:=exp(Result);
@@ -1118,12 +1094,27 @@ begin
 //                     else temp:=Result+Random*lnXmax_Xmin;
 //    if InRange(temp,lnXmin,lnXmax) then  Break;
 // until False;
+// Result:=exp(temp);
+ Result:=exp(Result);
+end;
+
+function TToolKitLog.GetOppPopul(X: double): double;
+begin
+ Result:=lnXmin+lnXmax-ln(X);
+ Result:=exp(Result);
+end;
+
+function TToolKitLog.IJAYA_CEL(Xb, F: double): double;
+begin
+  Result:=ln(Xb)*(1+F);
+  Penalty(Result);
  Result:=exp(Result);
 end;
 
 function TToolKitLog.IJAYA_SAW(X, Xb, Xw, R1, R2:double): double;
 begin
  Result:=ln(X)+R1*(ln(Xb)-abs(ln(X)))-R2*(ln(Xw)-abs(ln(X)));
+ Penalty(Result);
  Result:=exp(Result);
 end;
 
@@ -1135,18 +1126,19 @@ begin
    Result:=Weight*lnX+R1*sin(R2)*abs(R3*ln(Xb)-lnX)
            else
    Result:=Weight*lnX+R1*cos(R2)*abs(R3*ln(Xb)-lnX);
+
+ Penalty(Result);
  Result:=exp(Result);
 end;
 
-procedure TToolKitLog.Penalty(var X: double);
- var temp,lnX:double;
+procedure TToolKitLog.Penalty(var lnX: double);
+ var temp:double;
 begin
- if InRange(X,Xmin,Xmax) then Exit;
- lnX:=ln(X);
+ if InRange(lnX,lnXmin,lnXmax) then Exit;
  if not(InRange(lnX,lnXmin-lnXmax_Xmin,lnXmax+lnXmax_Xmin))
     then
       begin
-       X:=RandValue;
+       lnX:=ln(RandValue);
        Exit;
       end;
  repeat
@@ -1154,7 +1146,7 @@ begin
                   else temp:=lnX+Random*lnXmax_Xmin;
     if InRange(temp,lnXmin,lnXmax) then  Break;
  until False;
- X:=exp(temp);
+ lnX:=temp;
 end;
 
 procedure TToolKitLog.PSO_Penalty(var X, Velocity: double;
@@ -1211,7 +1203,7 @@ begin
  Result:=Xmin;
 end;
 
-function TToolKitConst.IJAYA_CEL(X,Xb, F: double): double;
+function TToolKitConst.IJAYA_CEL(Xb, F: double): double;
 begin
  Result:=Xmin;
 end;
@@ -1849,7 +1841,6 @@ begin
  mult:=Random*(2*Z-1);
  for j := 0 to High(fToolKitArr) do
   ParametersNew[i][j]:=fToolKitArr[j].IJAYA_CEL(Parameters[i,j],
-                                                Parameters[NumberBest,j],
                                                 mult);
 end;
 
@@ -1859,7 +1850,10 @@ begin
 // SetLength(FitnessDataNew,fNp);
 // SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
  fDescription:='Improved JAYA';
- Z:=Random;
+ repeat
+  Z:=Random;
+ until not((Z=0.25)or(Z=0.5)or(Z=0.75));
+
 end;
 
 procedure TFA_IJAYA.ExperienceBasedLearning(i: integer);
@@ -2114,15 +2108,15 @@ begin
    else inherited GreedySelectionAll;
  end;
 
-procedure TFA_ISCA.GreedySelectionSimple;
- var i:integer;
-begin
- for I := 0 to fNp do
-  begin
-    Parameters[i]:=Copy(ParametersNew[i]);
-    FitnessData[i]:=FitnessDataNew[i];
-  end;
-end;
+//procedure TFA_ISCA.GreedySelectionSimple;
+// var i:integer;
+//begin
+// for I := 0 to fNp do
+//  begin
+//    Parameters[i]:=Copy(ParametersNew[i]);
+//    FitnessData[i]:=FitnessDataNew[i];
+//  end;
+//end;
 
 procedure TFA_ISCA.KoefDetermination;
 begin
