@@ -19,6 +19,8 @@ type
     (etDE, //differential evolution
      etMABC, // modified artificial bee colony
      etTLBO,  //teaching learning based optimization algorithm
+     etGOTLBO,//generalized oppositional  TLBO
+     etSTLBO,//Simplified TLBO
      etPSO,    // particle swarm optimization
      etIJAYA, //improved JAVA
      etISCA   //improved sine cosine algorithm
@@ -40,7 +42,8 @@ const
 
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
-         ('DE','MABC','TLBO','PSO','IJAYA','ISCA');
+         ('DE','MABC','TLBO','GOTLBO','STLBO',
+         'PSO','IJAYA','ISCA');
 
  FitTypeNames:array[TFitnessType]of string=
          ('Sq.Err.','Rel.Sq.Res.','Abs.Err.','Rel.Abs.Err.',

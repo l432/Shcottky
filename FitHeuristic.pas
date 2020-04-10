@@ -229,12 +229,14 @@ TToolKit=class
   Xmin:double;
   Xmax:double;
   procedure DataSave(const Param: TFFParamHeuristic);virtual;
+  function  ChaoticMutation(Xb,F:double):double;virtual;
  public
   constructor Create(const Param:TFFParamHeuristic);
   function RandValue:double;virtual;abstract;
  {повертає випадкове з інтервалу Xmin-Xmax}
   procedure Penalty(var X:double);virtual;abstract;
  {якщо Х за межами інтервалу, то повертає його туди}
+  procedure PenaltySimple(var X:double);virtual;abstract;
   function DE_Mutation(X1,X2,X3,F:double):double;virtual;abstract;
   function PSO_Transform(X2,X3,F:double):double;virtual;abstract;
   procedure PSO_Penalty(var X:double;var Velocity:double;
@@ -244,7 +246,9 @@ TToolKit=class
   function IJAYA_CEL(Xb,F:double):double;virtual;abstract;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;virtual;abstract;
   function GetOppPopul(X:double):double;virtual;abstract;
+  function GetGenOppPopul(X:double):double;virtual;abstract;
   function ISCA_Update(X,Xb,R1,R2,R3,R4,Weight:double):double;virtual;abstract;
+  function STLBO_Teach(Xb,F:double):double;virtual;abstract;
 end;
 
 
@@ -252,9 +256,11 @@ TToolKitLinear=class(TToolKit)
  private
   Xmax_Xmin:double;
   procedure DataSave(const Param: TFFParamHeuristic);override;
+  function  ChaoticMutation(Xb,F:double):double;override;  
  public
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
+  procedure PenaltySimple(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
@@ -264,8 +270,9 @@ TToolKitLinear=class(TToolKit)
   function IJAYA_CEL(Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
   function GetOppPopul(X:double):double;override;
+  function GetGenOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
-
+  function STLBO_Teach(Xb,F:double):double;override;
 end;
 
 TToolKitLog=class(TToolKit)
@@ -274,9 +281,11 @@ TToolKitLog=class(TToolKit)
   lnXmin:double;
   lnXmax_Xmin:double;
   procedure DataSave(const Param: TFFParamHeuristic);override;
+  function  ChaoticMutation(Xb,F:double):double;override;  
  public
   function RandValue:double;override;
   procedure Penalty(var lnX:double);override;
+  procedure PenaltySimple(var lnX:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
@@ -286,8 +295,9 @@ TToolKitLog=class(TToolKit)
   function IJAYA_CEL(Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
   function GetOppPopul(X:double):double;override;
+  function GetGenOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
-
+  function STLBO_Teach(Xb,F:double):double;override;
 end;
 
 TToolKitConst=class(TToolKit)
@@ -296,6 +306,7 @@ TToolKitConst=class(TToolKit)
  public
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
+  procedure PenaltySimple(var X:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
@@ -305,8 +316,9 @@ TToolKitConst=class(TToolKit)
   function IJAYA_CEL(Xb,F:double):double;override;
   function IJAYA_SAW(X,Xb,Xw,R1,R2:double):double;override;
   function GetOppPopul(X:double):double;override;
+  function GetGenOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
-
+  function STLBO_Teach(Xb,F:double):double;override;
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -363,17 +375,24 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
   VectorForOppositePopulation:TVector;
   procedure NewPopulationCreate(i:integer);virtual;abstract;
   procedure GenerateOppositePopulation(i:integer);
-  procedure GenerateOppositePopulationAll;
+  procedure GenerateGeneralOppositePopulation(i:integer);
+  procedure GenerateOppositePopulationAll(OnePopulationCreate:TOnePopulationCreate);
   procedure VectorForOppositePopulationFilling;
   procedure OppositePopulationSelection;
   procedure GreedySelectionAll;virtual;
   procedure CreateFields;override;
-  procedure NewPopulationCreateAll;virtual;
+  procedure NewPopulationCreateAll;overload;virtual;
+  procedure NewPopulationCreateAll(OnePopulationCreate:TOnePopulationCreate;
+                                   ToFillFitnessDataNew:boolean=true);overload;virtual;
   procedure BeforeNewPopulationCreate;virtual;
-  procedure AfterNewPopulationCreate;virtual;
+//  procedure AfterNewPopulationCreate;virtual;
+  procedure KoefDetermination;virtual;
  public
   procedure IterationAction;override;
+  procedure StartAction;override;
   destructor Destroy;override;
+  class function LogisticMap(Z:double):Double;
+  class function NewLogisticMap:Double;
 end;
 
 
@@ -389,7 +408,7 @@ TFA_DE=class(TFA_ConsecutiveGeneration)
   procedure MutationCreate(i:integer);
   {створення і-го вектора мутації}
   procedure Crossover(i:integer);
-  procedure MutationCreateAll;
+//  procedure MutationCreateAll;
   procedure CreateFields;override;
 end;
 
@@ -402,17 +421,17 @@ TFA_IJAYA=class(TFA_ConsecutiveGeneration)
   NumberWorst:integer;
   Weight:double;
   Z:double;
-  function NewZ:double;
+//  function NewZ:double;
   function NpDetermination:integer;override;
-  procedure AfterNewPopulationCreate;override;
+//  procedure AfterNewPopulationCreate;override;
   procedure NewPopulationCreate(i:integer);override;
-  procedure KoefDetermination;
+  procedure KoefDetermination;override;
   procedure ChaoticEliteLearning(i:integer);
   procedure SelfAdaptiveWeight(i:integer);
   procedure ExperienceBasedLearning(i:integer);
   procedure CreateFields;override;
- public
-  procedure StartAction;override;
+// public
+//  procedure StartAction;override;
 end;
 
 
@@ -435,17 +454,67 @@ TFA_ISCA=class(TFA_ConsecutiveGeneration)
   function NewWeight:double;
   function NpDetermination:integer;override;
 
-  procedure AfterNewPopulationCreate;override;
+//  procedure AfterNewPopulationCreate;override;
   procedure NewPopulationCreate(i:integer);override;
-  procedure KoefDetermination;
+  procedure KoefDetermination;override;
   procedure SinCosinUpdate(i:integer);
   procedure NewPopulationCreateAll;override;
   procedure GreedySelectionAll;override;
 //  procedure GreedySelectionSimple;
   procedure CreateFields;override;
   procedure RandomKoefDetermination;
- public
-  procedure StartAction;override;
+// public
+//  procedure StartAction;override;
+end;
+
+TFA_TLBO=class(TFA_ConsecutiveGeneration)
+//TFA_TLBO=class(TFA_Heuristic)
+ private
+  NumberBest:integer;
+  r:double;
+  Tf:integer;
+//  temp:double;
+  ParameterMean:TArrSingle;
+//  ParameterNew:TArrSingle;
+  function NpDetermination:integer;override;
+  procedure NewPopulationCreate(i:integer);override;
+  procedure CreateFields;override;
+  procedure KoefDetermination;override;
+  procedure BeforeNewPopulationCreate;override;
+  procedure ParameterMeanCalculate;
+  procedure TeacherPhase(i:integer);
+  procedure LearnerPhase(i:integer);
+//  procedure TeacherPhase;
+//  procedure LearnerPhase;
+// public
+//  procedure IterationAction;override;
+end;
+
+
+TFA_GOTLBO=class(TFA_TLBO)
+{Energy 99 (2016) p.170-180}
+ private
+ procedure CreateFields;override;
+ function NpDetermination:integer;override;
+ procedure KoefDetermination;override;
+end;
+
+TFA_STLBO=class(TFA_ConsecutiveGeneration)
+{International journal of hydrogen energy 39 (2014) p.3837-3854}
+ private
+  NumberBest:integer;
+  NumberWorst:integer;
+  NewP:TArrSingle;
+  Z:double;
+  mu:double;
+  function New_mu:double;
+  procedure CreateFields;override;
+  function NpDetermination:integer;override;
+  procedure KoefDetermination;override;
+  procedure SimplifiedTeacherPhase;
+  procedure BeforeNewPopulationCreate;override;
+  procedure LearnerPhase(i:integer); 
+  procedure NewPopulationCreate(i:integer);override;       
 end;
 
 
@@ -484,28 +553,15 @@ TFA_PSO=class(TFA_Heuristic)
 end;
 
 
-TFA_TLBO=class(TFA_Heuristic)
- private
-  r:double;
-  Tf:integer;
-  temp:double;
-  ParameterMean:TArrSingle;
-  ParameterNew:TArrSingle;
-  function NpDetermination:integer;override;
-  procedure CreateFields;override;
-  procedure ParameterMeanCalculate;
-  procedure TeacherPhase;
-  procedure LearnerPhase;
- public
-  procedure IterationAction;override;
-end;
+
 
 
 TFA_Heuristic_Class=class of TFA_Heuristic;
 
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
-  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_PSO,TFA_IJAYA,TFA_ISCA);
+  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
+   TFA_PSO,TFA_IJAYA,TFA_ISCA);
 
 
 Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
@@ -972,6 +1028,11 @@ end;
 
 { TToolKitLinear }
 
+function TToolKitLinear.ChaoticMutation(Xb, F: double): double;
+begin
+  Result:=Xb*(1+F);
+end;
+
 procedure TToolKitLinear.DataSave(const Param: TFFParamHeuristic);
 begin
   inherited;
@@ -984,6 +1045,14 @@ begin
  Penalty(Result);
 end;
 
+function TToolKitLinear.GetGenOppPopul(X: double): double;
+begin
+  Result:=Random*(Xmin+Xmax)-X;
+  if InRange(Result,Xmin,Xmax)
+     then Exit
+     else Result:=RandValue;
+end;
+
 function TToolKitLinear.GetOppPopul(X: double): double;
 begin
  Result:=Xmin+Xmax-X;
@@ -991,7 +1060,8 @@ end;
 
 function TToolKitLinear.IJAYA_CEL(Xb, F: double): double;
 begin
-  Result:=Xb*(1+F);
+  Result:=ChaoticMutation(Xb, F);
+//  Result:=Xb*(1+F);
   Penalty(Result);
 end;
 
@@ -1029,6 +1099,11 @@ begin
  X:=temp;
 end;
 
+procedure TToolKitLinear.PenaltySimple(var X: double);
+begin
+  X:=EnsureRange(X,Xmin,Xmax);
+end;
+
 procedure TToolKitLinear.PSO_Penalty(var X, Velocity: double;
   const Parameter: double);
 begin
@@ -1052,6 +1127,12 @@ begin
    Result:=Xmin+Xmax_Xmin*Random;
 end;
 
+function TToolKitLinear.STLBO_Teach(Xb, F: double): double;
+begin
+  Result:=ChaoticMutation(Xb, F);
+  PenaltySimple(Result);
+end;
+
 function TToolKitLinear.TLBO_ToMeanValue(X: double): double;
 begin
  Result:=X;
@@ -1060,10 +1141,15 @@ end;
 function TToolKitLinear.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
 begin
  Result:=X1+r*(X2-Tf*Xmean);
- Penalty(Result);
+ PenaltySimple(Result);
 end;
 
 { TToolKitLog }
+
+function TToolKitLog.ChaoticMutation(Xb, F: double): double;
+begin
+ Result:=ln(Xb)*(1+F);
+end;
 
 procedure TToolKitLog.DataSave(const Param: TFFParamHeuristic);
 begin
@@ -1098,6 +1184,14 @@ begin
  Result:=exp(Result);
 end;
 
+function TToolKitLog.GetGenOppPopul(X: double): double;
+begin
+ Result:=Random*(lnXmin+lnXmax)-ln(X);
+ if InRange(Result,lnXmin,lnXmax)
+    then Result:=exp(Result)
+    else Result:=RandValue;
+end;
+
 function TToolKitLog.GetOppPopul(X: double): double;
 begin
  Result:=lnXmin+lnXmax-ln(X);
@@ -1106,7 +1200,8 @@ end;
 
 function TToolKitLog.IJAYA_CEL(Xb, F: double): double;
 begin
-  Result:=ln(Xb)*(1+F);
+  Result:=ChaoticMutation(Xb, F);
+//  Result:=ln(Xb)*(1+F);
   Penalty(Result);
  Result:=exp(Result);
 end;
@@ -1149,6 +1244,11 @@ begin
  lnX:=temp;
 end;
 
+procedure TToolKitLog.PenaltySimple(var lnX: double);
+begin
+ lnX:=EnsureRange(lnX,lnXmin,lnXmax);
+end;
+
 procedure TToolKitLog.PSO_Penalty(var X, Velocity: double;
                                  const Parameter: double);
 begin
@@ -1173,6 +1273,13 @@ begin
  Result:=exp(lnXmin+lnXmax_Xmin*Random);
 end;
 
+function TToolKitLog.STLBO_Teach(Xb, F: double): double;
+begin
+ Result:=ChaoticMutation(Xb, F);
+ PenaltySimple(Result);
+ Result:=exp(Result);
+end;
+
 function TToolKitLog.TLBO_ToMeanValue(X: double): double;
 begin
  Result:=ln(X);
@@ -1181,8 +1288,9 @@ end;
 function TToolKitLog.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
 // var temp:double;
 begin
- Result:=exp(ln(X1)+r*(ln(X2)-Tf*Xmean));
- Penalty(Result);
+ Result:=ln(X1)+r*(ln(X2)-Tf*Xmean);
+ PenaltySimple(Result);
+ Result:=exp(Result)
 end;
 
 { TToolKitConst }
@@ -1194,6 +1302,11 @@ begin
 end;
 
 function TToolKitConst.DE_Mutation(X1, X2, X3, F: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.GetGenOppPopul(X: double): double;
 begin
  Result:=Xmin;
 end;
@@ -1223,6 +1336,10 @@ procedure TToolKitConst.Penalty(var X: double);
 begin
 end;
 
+procedure TToolKitConst.PenaltySimple(var X: double);
+begin
+end;
+
 procedure TToolKitConst.PSO_Penalty(var X, Velocity: double;
                                    const Parameter: double);
 begin
@@ -1238,6 +1355,11 @@ begin
  Result:=Xmin;
 end;
 
+function TToolKitConst.STLBO_Teach(Xb, F: double): double;
+begin
+ Result:=Xmin;
+end;
+
 function TToolKitConst.TLBO_ToMeanValue(X: double): double;
 begin
  Result:=Xmin;
@@ -1249,6 +1371,11 @@ begin
 end;
 
 { TToolKit }
+
+function TToolKit.ChaoticMutation(Xb, F: double): double;
+begin
+ Result:=0;
+end;
 
 constructor TToolKit.Create(const Param: TFFParamHeuristic);
 begin
@@ -1266,7 +1393,8 @@ end;
 
 procedure TFA_DE.BeforeNewPopulationCreate;
 begin
- MutationCreateAll;
+ NewPopulationCreateAll(MutationCreate,false);
+// MutationCreateAll;
 end;
 
 procedure TFA_DE.CreateFields;
@@ -1330,29 +1458,26 @@ begin
    r[j]:=Random(fNp);
   until (r[j]<>i);
  for j := 0 to High(fToolKitArr) do
-//  Mutation[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[r[1],j],
   ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[r[1],j],
                                                   Parameters[r[2],j],
                                                   Parameters[r[3],j],F);
 end;
 
-procedure TFA_DE.MutationCreateAll;
- var i:integer;
-begin
-  i:=0;
-  repeat
-   ConditionalRandomize;
-   MutationCreate(i);
-   try
-//    FitnessFunc(Mutation[i]);
-    FitnessFunc(ParametersNew[i]);
-   except
-    Continue;
-   end;
-    inc(i);
-//  until (i>High(Mutation));
-  until (i>High(ParametersNew));
-end;
+//procedure TFA_DE.MutationCreateAll;
+// var i:integer;
+//begin
+//  i:=0;
+//  repeat
+//   ConditionalRandomize;
+//   MutationCreate(i);
+//   try
+//    FitnessFunc(ParametersNew[i]);
+//   except
+//    Continue;
+//   end;
+//    inc(i);
+//  until (i>High(ParametersNew));
+//end;
 
 procedure TFA_DE.NewPopulationCreate(i: integer);
 begin
@@ -1548,51 +1673,83 @@ end;
 
 { TFA_TLBO }
 
+procedure TFA_TLBO.BeforeNewPopulationCreate;
+begin
+  NewPopulationCreateAll(TeacherPhase);
+  GreedySelectionAll;
+end;
+
 procedure TFA_TLBO.CreateFields;
 begin
   inherited CreateFields;
   fDescription:='Teaching Learning Based Optimization';
   SetLength(ParameterMean,fFF.DParamArray.MainParamHighIndex + 1);
-  SetLength(ParameterNew,fFF.DParamArray.MainParamHighIndex + 1);
-  temp:=1e10;
+//  SetLength(ParameterNew,fFF.DParamArray.MainParamHighIndex + 1);
+//  temp:=1e10;
 end;
 
-procedure TFA_TLBO.IterationAction;
+//procedure TFA_TLBO.IterationAction;
+//begin
+//  TeacherPhase;
+//  LearnerPhase;
+//  inherited IterationAction;
+//end;
+
+procedure TFA_TLBO.KoefDetermination;
 begin
-  TeacherPhase;
-  LearnerPhase;
-  inherited;
+  NumberBest:=MinElemNumber(FitnessData);
+  ParameterMeanCalculate;
 end;
 
-procedure TFA_TLBO.LearnerPhase;
- var i,k:integer;
+procedure TFA_TLBO.LearnerPhase(i: integer);
+ var k:integer;
 begin
-  i:=0;
+  r:=Random;
   repeat
-   ConditionalRandomize;
-   r:=Random;
-   repeat
-     Tf:=Random(fNp);
-    until (Tf<>i);
-    if FitnessData[i]>FitnessData[Tf] then r:=-1*r;
-    for k := 0 to High(fToolKitArr) do
-     ParameterNew[k]:=fToolKitArr[k].DE_Mutation(Parameters[i,k],
-                                                 Parameters[i,k],
-                                                 Parameters[Tf,k],
-                                                 r);
-   try
-    temp:=FitnessFunc(ParameterNew)
-   except
-    Continue;
-   end;
-   GreedySelection(i,temp, ParameterNew);
-   inc(i);
-  until i>High(FitnessData);
+   Tf:=Random(fNp);
+  until (Tf<>i);
+  if FitnessData[i]>FitnessData[Tf] then r:=-1*r;
+  for k := 0 to High(fToolKitArr) do
+   ParametersNew[i,k]:=fToolKitArr[k].DE_Mutation(Parameters[i,k],
+                                               Parameters[i,k],
+                                               Parameters[Tf,k],
+                                               r);
+end;
+
+//procedure TFA_TLBO.LearnerPhase;
+// var i,k:integer;
+//begin
+//  i:=0;
+//  repeat
+//   ConditionalRandomize;
+//   r:=Random;
+//   repeat
+//     Tf:=Random(fNp);
+//    until (Tf<>i);
+//    if FitnessData[i]>FitnessData[Tf] then r:=-1*r;
+//    for k := 0 to High(fToolKitArr) do
+//     ParameterNew[k]:=fToolKitArr[k].DE_Mutation(Parameters[i,k],
+//                                                 Parameters[i,k],
+//                                                 Parameters[Tf,k],
+//                                                 r);
+//   try
+//    temp:=FitnessFunc(ParameterNew)
+//   except
+//    Continue;
+//   end;
+//   GreedySelection(i,temp, ParameterNew);
+//   inc(i);
+//  until i>High(FitnessData);
+//end;
+
+procedure TFA_TLBO.NewPopulationCreate(i: integer);
+begin
+  LearnerPhase(i);
 end;
 
 function TFA_TLBO.NpDetermination: integer;
 begin
- Result:=1000;
+ Result:=100;
 end;
 
 procedure TFA_TLBO.ParameterMeanCalculate;
@@ -1607,38 +1764,55 @@ begin
    ParameterMean[k]:=ParameterMean[k]/fNp;
 end;
 
-procedure TFA_TLBO.TeacherPhase;
- var j,i,k:integer;
+procedure TFA_TLBO.TeacherPhase(i: integer);
+ var k:integer;
 begin
- ParameterMeanCalculate;
- j:=MaxElemNumber(FitnessData);
-
- i:=0;
- repeat
-  ConditionalRandomize;
-  if i=j then
+  if i=NumberBest
+   then ParametersNew[i]:=Copy(Parameters[i])
+   else
     begin
-      inc(i);
-      Continue;
-    end;
-
-  r:=Random;
-  Tf:=1+Random(2);
-  for k := 0 to High(fToolKitArr) do
-   ParameterNew[k]:=fToolKitArr[k].TLBO_Transform(Parameters[i,k],
-                                                  Parameters[j,k],
+    r:=Random;
+    Tf:=1+Random(2);
+    for k := 0 to High(fToolKitArr) do
+    ParametersNew[i,k]:=fToolKitArr[k].TLBO_Transform(Parameters[i,k],
+                                                  Parameters[NumberBest,k],
                                                   ParameterMean[k],
                                                   r,Tf);
-   try
-    temp:=FitnessFunc(ParameterNew);
-   except
-    Continue;
-   end;
-
-   GreedySelection(i,temp, ParameterNew);
-   inc(i);
-  until i>High(FitnessData);
+    end;
 end;
+
+//procedure TFA_TLBO.TeacherPhase;
+// var j,i,k:integer;
+//begin
+// ParameterMeanCalculate;
+// j:=MinElemNumber(FitnessData);
+//
+// i:=0;
+// repeat
+//  ConditionalRandomize;
+//  if i=j then
+//    begin
+//      inc(i);
+//      Continue;
+//    end;
+//
+//  r:=Random;
+//  Tf:=1+Random(2);
+//  for k := 0 to High(fToolKitArr) do
+//   ParameterNew[k]:=fToolKitArr[k].TLBO_Transform(Parameters[i,k],
+//                                                  Parameters[j,k],
+//                                                  ParameterMean[k],
+//                                                  r,Tf);
+//   try
+//    temp:=FitnessFunc(ParameterNew);
+//   except
+//    Continue;
+//   end;
+//
+//   GreedySelection(i,temp, ParameterNew);
+//   inc(i);
+//  until i>High(FitnessData);
+//end;
 
 { TFFIlluminatedDiode }
 
@@ -1828,10 +2002,10 @@ end;
 
 { TFA_IJAYA }
 
-procedure TFA_IJAYA.AfterNewPopulationCreate;
-begin
- KoefDetermination;
-end;
+//procedure TFA_IJAYA.AfterNewPopulationCreate;
+//begin
+// KoefDetermination;
+//end;
 
 procedure TFA_IJAYA.ChaoticEliteLearning(i: integer);
  var mult:double;
@@ -1847,13 +2021,8 @@ end;
 procedure TFA_IJAYA.CreateFields;
 begin
  inherited;
-// SetLength(FitnessDataNew,fNp);
-// SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
  fDescription:='Improved JAYA';
- repeat
-  Z:=Random;
- until not((Z=0.25)or(Z=0.5)or(Z=0.75));
-
+ Z:=NewLogisticMap;
 end;
 
 procedure TFA_IJAYA.ExperienceBasedLearning(i: integer);
@@ -1908,7 +2077,7 @@ begin
  if FitnessData[NumberWorst]=0
    then Weight:=1
    else Weight:=sqr(FitnessData[NumberBest]/FitnessData[NumberWorst]);
- Z:=NewZ;
+ Z:=LogisticMap(Z);
 end;
 
 procedure TFA_IJAYA.NewPopulationCreate(i: integer);
@@ -1938,10 +2107,10 @@ end;
 //  until (i>High(FitnessDataNew));
 //end;
 
-function TFA_IJAYA.NewZ: double;
-begin
- Result:=4*Z*(1-Z);
-end;
+//function TFA_IJAYA.NewZ: double;
+//begin
+// Result:=4*Z*(1-Z);
+//end;
 
 function TFA_IJAYA.NpDetermination: integer;
 begin
@@ -1963,17 +2132,17 @@ begin
                                                   r1,Wr2);
 end;
 
-procedure TFA_IJAYA.StartAction;
-begin
-  inherited;
-  KoefDetermination;
-end;
+//procedure TFA_IJAYA.StartAction;
+//begin
+//  inherited StartAction;
+//  KoefDetermination;
+//end;
 
 { TFA_ConsecutiveGeneration }
 
-procedure TFA_ConsecutiveGeneration.AfterNewPopulationCreate;
-begin
-end;
+//procedure TFA_ConsecutiveGeneration.AfterNewPopulationCreate;
+//begin
+//end;
 
 procedure TFA_ConsecutiveGeneration.BeforeNewPopulationCreate;
 begin
@@ -1985,13 +2154,21 @@ begin
  SetLength(FitnessDataNew,fNp);
  SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
  VectorForOppositePopulation:=TVector.Create;
- VectorForOppositePopulation.SetLenVector(fNp);
+ VectorForOppositePopulation.SetLenVector(2*fNp);
 end;
 
 destructor TFA_ConsecutiveGeneration.Destroy;
 begin
   FreeAndNil(VectorForOppositePopulation);
   inherited;
+end;
+
+procedure TFA_ConsecutiveGeneration.GenerateGeneralOppositePopulation(
+  i: integer);
+ var j:integer;
+begin
+ for j := 0 to High(fToolKitArr) do
+  ParametersNew[i][j]:=fToolKitArr[j].GetGenOppPopul(Parameters[i,j]);
 end;
 
 procedure TFA_ConsecutiveGeneration.GenerateOppositePopulation(i: integer);
@@ -2001,7 +2178,7 @@ begin
   ParametersNew[i][j]:=fToolKitArr[j].GetOppPopul(Parameters[i,j]);
 end;
 
-procedure TFA_ConsecutiveGeneration.GenerateOppositePopulationAll;
+procedure TFA_ConsecutiveGeneration.GenerateOppositePopulationAll(OnePopulationCreate:TOnePopulationCreate);
  var i:integer;
      maxFitness:double;
 begin
@@ -2009,7 +2186,7 @@ begin
   i:=0;
   repeat
    ConditionalRandomize;
-   GenerateOppositePopulation(i);
+   OnePopulationCreate(i);
    try
     FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);
    except
@@ -2034,19 +2211,40 @@ begin
   BeforeNewPopulationCreate;
   NewPopulationCreateAll;
   GreedySelectionAll;
-  AfterNewPopulationCreate;
+  KoefDetermination;
+//  AfterNewPopulationCreate;
   inherited;
 end;
 
-procedure TFA_ConsecutiveGeneration.NewPopulationCreateAll;
+procedure TFA_ConsecutiveGeneration.KoefDetermination;
+begin
+end;
+
+class function TFA_ConsecutiveGeneration.LogisticMap(Z: double): Double;
+begin
+ Result:=4*Z*(1-Z);
+end;
+
+class function TFA_ConsecutiveGeneration.NewLogisticMap: Double;
+begin
+ repeat
+  Result:=Random;
+ until not((Result=0.25)or(Result=0.5)or(Result=0.75)or(Result=1));
+end;
+
+procedure TFA_ConsecutiveGeneration.NewPopulationCreateAll(
+                            OnePopulationCreate: TOnePopulationCreate;
+                            ToFillFitnessDataNew:boolean=true);
  var i:integer;
 begin
   i:=0;
   repeat
    ConditionalRandomize;
-   NewPopulationCreate(i);
+   OnePopulationCreate(i);
    try
-    FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);
+    if ToFillFitnessDataNew
+      then FitnessDataNew[i]:=FitnessFunc(ParametersNew[i])
+      else FitnessFunc(ParametersNew[i])
    except
     Continue;
    end;
@@ -2054,16 +2252,73 @@ begin
   until (i>High(FitnessDataNew));
 end;
 
-procedure TFA_ConsecutiveGeneration.OppositePopulationSelection;
- var i:integer;
+procedure TFA_ConsecutiveGeneration.NewPopulationCreateAll;
+// var i:integer;
 begin
+  NewPopulationCreateAll(NewPopulationCreate);
+//  i:=0;
+//  repeat
+//   ConditionalRandomize;
+//   NewPopulationCreate(i);
+//   try
+//    FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);
+//   except
+//    Continue;
+//   end;
+//    inc(i);
+//  until (i>High(FitnessDataNew));
+end;
+
+procedure TFA_ConsecutiveGeneration.OppositePopulationSelection;
+ var i,j,Num:integer;
+     Vec:TVector;
+begin
+//  VectorForOppositePopulation.WriteToFile('ss.dat');
+  Vec:=TVector.Create;
+  Vec.SetLenVector(fNp);
   for I := 0 to fNp - 1 do
-   begin
+    begin
+    Vec.X[i]:=i;
+    Vec.Y[i]:=i;
+    end;
+
+  for I := 0 to fNp - 1 do
      if VectorForOppositePopulation.Y[i]<fNp
-       then Parameters[i]:=Copy(Parameters[round(VectorForOppositePopulation.Y[i])])
-       else Parameters[i]:=Copy(ParametersNew[round(VectorForOppositePopulation.Y[i]-fNp)]);
-     FitnessData[i]:=VectorForOppositePopulation.X[i]
-   end;
+       then Vec.Y[round(VectorForOppositePopulation.Y[i])]:=-1;
+
+  for I := 0 to fNp - 1 do
+     begin
+      Num:=round(VectorForOppositePopulation.Y[i]);
+      if Num>=fNp then
+        begin
+          Num:=Num-fNp;
+          for j := 0 to fNp - 1 do
+             if Vec.Y[j]>=0 then
+               begin
+                Parameters[j]:=Copy(ParametersNew[Num]);
+                FitnessData[j]:=VectorForOppositePopulation.X[i];
+                Vec.Y[j]:=-1;
+                Break;
+               end;
+        end;
+     end;
+
+
+//  for I := 0 to fNp - 1 do
+//   begin
+//     if VectorForOppositePopulation.Y[i]<fNp
+//       then Parameters[i]:=Copy(Parameters[round(VectorForOppositePopulation.Y[i])])
+//       else Parameters[i]:=Copy(ParametersNew[round(VectorForOppositePopulation.Y[i]-fNp)]);
+//     FitnessData[i]:=VectorForOppositePopulation.X[i]
+//   end;
+  FreeAndNil(Vec);
+end;
+
+procedure TFA_ConsecutiveGeneration.StartAction;
+begin
+  inherited;
+  KoefDetermination;
+VectorForOppositePopulation.WriteToFile('ss.dat');  
 end;
 
 procedure TFA_ConsecutiveGeneration.VectorForOppositePopulationFilling;
@@ -2080,10 +2335,10 @@ end;
 
 { TFA_ISCA }
 
-procedure TFA_ISCA.AfterNewPopulationCreate;
-begin
- KoefDetermination;
-end;
+//procedure TFA_ISCA.AfterNewPopulationCreate;
+//begin
+// KoefDetermination;
+//end;
 
 procedure TFA_ISCA.CreateFields;
 begin
@@ -2135,7 +2390,7 @@ end;
 procedure TFA_ISCA.NewPopulationCreateAll;
 begin
  if ItIsOppositeGeneration
-   then GenerateOppositePopulationAll
+   then GenerateOppositePopulationAll(GenerateOppositePopulation)
    else inherited NewPopulationCreateAll;
 end;
 
@@ -2171,17 +2426,115 @@ begin
 //   end;
 end;
 
-procedure TFA_ISCA.StartAction;
-begin
-  inherited;
-  KoefDetermination;
-end;
+//procedure TFA_ISCA.StartAction;
+//begin
+//  inherited;
+//  KoefDetermination;
+//end;
 
 procedure TFA_ISCA.RandomKoefDetermination;
 begin
   R2 := Random * 2 * Pi;
   R3 := Random * 2;
   R4 := Random;
+end;
+
+{ TFA_GOTLBO }
+
+procedure TFA_GOTLBO.CreateFields;
+begin
+  inherited;
+    fDescription:='Generalized Oppositional TLBO';
+end;
+
+procedure TFA_GOTLBO.KoefDetermination;
+begin
+  GenerateOppositePopulationAll(GenerateGeneralOppositePopulation);
+  OppositePopulationSelection;
+  inherited KoefDetermination;
+end;
+
+function TFA_GOTLBO.NpDetermination: integer;
+begin
+  Result:=20;
+end;
+
+{ TFA_STLBO }
+
+procedure TFA_STLBO.BeforeNewPopulationCreate;
+begin
+ SimplifiedTeacherPhase;
+end;
+
+procedure TFA_STLBO.CreateFields;
+begin
+ inherited;
+ fDescription:='Simplified TLBO';
+ SetLength(NewP,fFF.DParamArray.MainParamHighIndex+1);
+ Z:=NewLogisticMap;
+end;
+
+procedure TFA_STLBO.KoefDetermination;
+begin
+ inherited;
+ NumberBest:=MinElemNumber(FitnessData);
+ NumberWorst:=MaxElemNumber(FitnessData);
+ Z:=LogisticMap(Z);
+ mu:=New_mu;
+end;
+
+procedure TFA_STLBO.LearnerPhase(i: integer);
+ var k,m,n:integer;
+     r:double;
+begin
+  r:=Random;
+  repeat
+   m:=Random(fNp);
+  until (m<>i);
+  repeat
+   n:=Random(fNp);
+  until (n<>i)and(n<>m);
+  
+  if FitnessData[m]>FitnessData[n] then r:=-1*r;
+  for k := 0 to High(fToolKitArr) do
+   ParametersNew[i,k]:=fToolKitArr[k].DE_Mutation(Parameters[i,k],
+                                               Parameters[m,k],
+                                               Parameters[n,k],
+                                               r);
+end;
+
+procedure TFA_STLBO.NewPopulationCreate(i: integer);
+begin
+ LearnerPhase(i);
+end;
+
+function TFA_STLBO.New_mu: double;
+begin
+  Result:=1-fCurrentIteration/(fFF.fDParamArray as TDParamsIteration).Nit;
+end;
+
+function TFA_STLBO.NpDetermination: integer;
+begin
+  Result:=20;
+end;
+
+procedure TFA_STLBO.SimplifiedTeacherPhase;
+ var mult:double;
+     j:integer;
+begin
+ mult:=(2*Z-1);
+ for j := 0 to High(fToolKitArr) do
+  if Random<mu then
+   NewP[j]:=fToolKitArr[j].STLBO_Teach(Parameters[NumberBest,j],
+                                                mult)
+                else
+   NewP[j]:=Parameters[NumberBest,j];
+ try
+  mult:=FitnessFunc(NewP);
+ except
+  Exit;
+ end;  
+  GreedySelection(NumberWorst,mult,NewP);
 end;
 
 end.

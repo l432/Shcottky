@@ -92,7 +92,7 @@ type
 
   TSimpleEvent = procedure() of object;
   TByteEvent = procedure(B: byte) of object;
-
+  TOnePopulationCreate = procedure (i:integer)of object;
 
 
   TArrArrSingle=array of TArrSingle;
