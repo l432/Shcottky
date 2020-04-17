@@ -278,6 +278,9 @@ Function ThermallyActivated(A0,Eact,T:double):double;
 
 Function ThermallyPower(A0,PowerLaw,T:double):double;
 
+Procedure NormalArray(Arr:TArrSingle);
+{сума елементів стає рівною 1, кожен з них в [0..1]}
+
 
 implementation
 
@@ -1349,5 +1352,22 @@ begin
         else Result:=ErResult;
 end;
 
+
+Procedure NormalArray(Arr:TArrSingle);
+
+ var i:integer;
+     summa:Extended;
+     minVal:double;
+begin
+ minVal:=MinValue(Arr);
+ if minVal<0 then
+   begin
+    minVal:=abs(minVal);
+    for i:=0 to High(Arr) do Arr[i]:=Arr[i]+minVal;
+   end;
+ summa:=Sum(Arr);
+ if summa=0 then Exit;
+ for i:=0 to High(Arr) do Arr[i]:=Arr[i]/Summa;
+end;
 
 end.

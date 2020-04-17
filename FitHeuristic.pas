@@ -249,6 +249,9 @@ TToolKit=class
   function GetGenOppPopul(X:double):double;virtual;abstract;
   function ISCA_Update(X,Xb,R1,R2,R3,R4,Weight:double):double;virtual;abstract;
   function STLBO_Teach(Xb,F:double):double;virtual;abstract;
+  function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
+                            j,k:integer):double;virtual;abstract;
+   {j - номер набору; k - номер змінної}
 end;
 
 
@@ -256,7 +259,7 @@ TToolKitLinear=class(TToolKit)
  private
   Xmax_Xmin:double;
   procedure DataSave(const Param: TFFParamHeuristic);override;
-  function  ChaoticMutation(Xb,F:double):double;override;  
+  function  ChaoticMutation(Xb,F:double):double;override;
  public
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
@@ -273,6 +276,10 @@ TToolKitLinear=class(TToolKit)
   function GetGenOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
   function STLBO_Teach(Xb,F:double):double;override;
+  function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
+                            j,k:integer):double;override;
+   {j - номер набору; k - номер змінної}
+
 end;
 
 TToolKitLog=class(TToolKit)
@@ -281,7 +288,7 @@ TToolKitLog=class(TToolKit)
   lnXmin:double;
   lnXmax_Xmin:double;
   procedure DataSave(const Param: TFFParamHeuristic);override;
-  function  ChaoticMutation(Xb,F:double):double;override;  
+  function  ChaoticMutation(Xb,F:double):double;override;
  public
   function RandValue:double;override;
   procedure Penalty(var lnX:double);override;
@@ -298,6 +305,10 @@ TToolKitLog=class(TToolKit)
   function GetGenOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
   function STLBO_Teach(Xb,F:double):double;override;
+  function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
+                            j,k:integer):double;override;
+   {j - номер набору; k - номер змінної}
+  
 end;
 
 TToolKitConst=class(TToolKit)
@@ -319,6 +330,9 @@ TToolKitConst=class(TToolKit)
   function GetGenOppPopul(X:double):double;override;
   function ISCA_Update(X,Xb,R1,R2,R3,R4:double;Weight:double=1):double;override;
   function STLBO_Teach(Xb,F:double):double;override;
+  function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
+                            j,k:integer):double;override;
+   {j - номер набору; k - номер змінної}
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -385,7 +399,7 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
   procedure NewPopulationCreateAll(OnePopulationCreate:TOnePopulationCreate;
                                    ToFillFitnessDataNew:boolean=true);overload;virtual;
   procedure BeforeNewPopulationCreate;virtual;
-//  procedure AfterNewPopulationCreate;virtual;
+  procedure AfterNewPopulationCreate;virtual;
   procedure KoefDetermination;virtual;
  public
   procedure IterationAction;override;
@@ -395,6 +409,31 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
   class function NewLogisticMap:Double;
 end;
 
+
+TFA_NNA=class(TFA_ConsecutiveGeneration)
+{Applied Soft Computing 71 (2018) 747–782,
+додав GreedySelection}
+ private
+  NumberBest:integer;
+  Weights:TArrArrSingle;
+  betta:double;
+  ItIsBias:boolean;
+  function NpDetermination:integer;override;
+  procedure KoefDetermination;override;
+  procedure NewPopulationCreate(i:integer);override;
+  procedure UpdatePattern(i:integer);
+  procedure UpdateWeights(i:integer);
+  procedure BiasPattern(i:integer);
+  procedure TransferFunction(i:integer);
+  procedure BiasWeights(i:integer);
+  procedure CreateFields;override;
+  procedure WeightsInitialization;
+  procedure WeightsNormalisation;
+  procedure BeforeNewPopulationCreate;override;
+  procedure AfterNewPopulationCreate;override;
+ public
+  procedure StartAction;override;
+end;
 
 //TFA_DE=class(TFA_Heuristic)
 TFA_DE=class(TFA_ConsecutiveGeneration)
@@ -437,7 +476,7 @@ end;
 
 TFA_ISCA=class(TFA_ConsecutiveGeneration)
 { основа - Knowledge-Based Systems 96 (2016) 120–133
-поращення - з Expert Systems With Applications 123 (2019) 108–126  (все що там є)
+покращення - з Expert Systems With Applications 123 (2019) 108–126  (все що там є)
  та  Expert Systems With Applications 119 (2019) 210–230 (opposite population)
 також додав Greedy Selection - його там спочатку не було,
 але в якійсь роботі бачив рекомендації таки долучити}
@@ -513,10 +552,9 @@ TFA_STLBO=class(TFA_ConsecutiveGeneration)
   procedure KoefDetermination;override;
   procedure SimplifiedTeacherPhase;
   procedure BeforeNewPopulationCreate;override;
-  procedure LearnerPhase(i:integer); 
-  procedure NewPopulationCreate(i:integer);override;       
+  procedure LearnerPhase(i:integer);
+  procedure NewPopulationCreate(i:integer);override;
 end;
-
 
 
 TFA_MABC=class(TFA_Heuristic)
@@ -561,7 +599,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
   (TFA_DE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
-   TFA_PSO,TFA_IJAYA,TFA_ISCA);
+   TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA);
 
 
 Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
@@ -1081,6 +1119,16 @@ begin
  Penalty(Result);
 end;
 
+function TToolKitLinear.NNA_UpdatePattern(Parameters, Weights: TArrArrSingle;
+                       j,k: integer): double;
+ var i:integer;
+begin
+ Result:=Parameters[j,k];
+ for I := 0 to High(Parameters) do
+     Result:=Result+Weights[i,j]*Parameters[i,k];
+  PenaltySimple(Result);
+end;
+
 procedure TToolKitLinear.Penalty(var X: double);
  var temp:double;
 begin
@@ -1226,6 +1274,17 @@ begin
  Result:=exp(Result);
 end;
 
+function TToolKitLog.NNA_UpdatePattern(Parameters, Weights: TArrArrSingle; j,
+  k: integer): double;
+ var i:integer;
+begin
+ Result:=ln(Parameters[j,k]);
+ for I := 0 to High(Parameters) do
+     Result:=Result+Weights[i,j]*ln(Parameters[i,k]);
+ PenaltySimple(Result);
+ Result:=exp(Result);
+end;
+
 procedure TToolKitLog.Penalty(var lnX: double);
  var temp:double;
 begin
@@ -1328,6 +1387,12 @@ end;
 
 function TToolKitConst.ISCA_Update(X, Xb, R1, R2, R3, R4,
   Weight: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.NNA_UpdatePattern(Parameters, Weights: TArrArrSingle; j,
+  k: integer): double;
 begin
  Result:=Xmin;
 end;
@@ -2140,9 +2205,9 @@ end;
 
 { TFA_ConsecutiveGeneration }
 
-//procedure TFA_ConsecutiveGeneration.AfterNewPopulationCreate;
-//begin
-//end;
+procedure TFA_ConsecutiveGeneration.AfterNewPopulationCreate;
+begin
+end;
 
 procedure TFA_ConsecutiveGeneration.BeforeNewPopulationCreate;
 begin
@@ -2211,8 +2276,8 @@ begin
   BeforeNewPopulationCreate;
   NewPopulationCreateAll;
   GreedySelectionAll;
+  AfterNewPopulationCreate;
   KoefDetermination;
-//  AfterNewPopulationCreate;
   inherited;
 end;
 
@@ -2318,7 +2383,7 @@ procedure TFA_ConsecutiveGeneration.StartAction;
 begin
   inherited;
   KoefDetermination;
-VectorForOppositePopulation.WriteToFile('ss.dat');  
+//VectorForOppositePopulation.WriteToFile('ss.dat');
 end;
 
 procedure TFA_ConsecutiveGeneration.VectorForOppositePopulationFilling;
@@ -2535,6 +2600,128 @@ begin
   Exit;
  end;  
   GreedySelection(NumberWorst,mult,NewP);
+end;
+
+{ TFA_NNA }
+
+procedure TFA_NNA.AfterNewPopulationCreate;
+ var i:integer;
+begin
+ if ItIsBias then
+  begin
+   for I := 0 to fNp - 1 do
+     BiasWeights(i);
+   WeightsNormalisation;
+  end;
+end;
+
+procedure TFA_NNA.BeforeNewPopulationCreate;
+ var i:integer;
+begin
+ Randomize;
+ for I := 0 to fNp - 1 do
+  begin
+   UpdatePattern(i);
+   UpdateWeights(i);
+  end;
+ WeightsNormalisation;
+ ItIsBias:=(Random<=betta);
+end;
+
+procedure TFA_NNA.BiasPattern(i: integer);
+ var j,number:integer;
+begin
+ for j := 0 to round(betta*High(fToolKitArr)) do
+   begin
+    number:=random(High(fToolKitArr)+1);
+    ParametersNew[i][number]:=fToolKitArr[number].RandValue;
+   end;
+end;
+
+procedure TFA_NNA.BiasWeights(i: integer);
+ var j:integer;
+begin
+ Randomize;
+ for j := 1 to round(betta*fNp) do
+    Weights[i][random(fNp)]:=Random;
+end;
+
+procedure TFA_NNA.CreateFields;
+begin
+  inherited;
+  fDescription:='Neural Network  Algorithm';
+  SetLength(Weights,fNp,fNp);
+  betta:=1;
+end;
+
+procedure TFA_NNA.KoefDetermination;
+begin
+  inherited;
+  betta:=betta*0.99;
+  NumberBest:=MinElemNumber(FitnessData);
+end;
+
+procedure TFA_NNA.NewPopulationCreate(i: integer);
+begin
+ if ItIsBias then BiasPattern(i)
+             else TransferFunction(i);
+end;
+
+function TFA_NNA.NpDetermination: integer;
+begin
+ Result:=50;
+end;
+
+procedure TFA_NNA.StartAction;
+begin
+  inherited;
+  WeightsInitialization;
+end;
+
+procedure TFA_NNA.TransferFunction(i: integer);
+ var j:integer;
+     r:double;
+begin
+ r:=2*Random;
+ for j := 0 to High(fToolKitArr) do
+  ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation(ParametersNew[i][j],
+                                                  Parameters[NumberBest,j],
+                                                  ParametersNew[i][j],r);
+end;
+
+procedure TFA_NNA.UpdatePattern(i: integer);
+ var k:integer;
+begin
+  for k := 0 to High(fToolKitArr) do
+   ParametersNew[i,k]:=fToolKitArr[k].NNA_UpdatePattern(Parameters,
+                                                        Weights,
+                                                        i,k);
+end;
+
+procedure TFA_NNA.UpdateWeights(i: integer);
+ var j:integer;
+     r:double;
+begin
+  r:=Random;
+  for j := 0 to fNp-1 do 
+    Weights[i,j]:=Weights[i,j]+2*r*(Weights[NumberBest,j]-Weights[i,j]);
+end;
+
+procedure TFA_NNA.WeightsInitialization;
+ var i,j:integer;
+begin
+ for I := 0 to fNp-1 do
+  begin
+    Randomize;
+    for j := 0 to fNp-1 do Weights[i,j]:=Random;
+  end;
+ WeightsNormalisation;
+end;
+
+procedure TFA_NNA.WeightsNormalisation;
+ var i:integer;
+begin
+ for I := 0 to fNp-1 do NormalArray(Weights[i]);
 end;
 
 end.

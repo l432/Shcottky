@@ -23,7 +23,8 @@ type
      etSTLBO,//Simplified TLBO
      etPSO,    // particle swarm optimization
      etIJAYA, //improved JAVA
-     etISCA   //improved sine cosine algorithm
+     etISCA,   //improved sine cosine algorithm
+     etNNA  //Neural network  algorithm
      );
   {}
   TFitnessType=
@@ -43,7 +44,7 @@ const
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
          ('DE','MABC','TLBO','GOTLBO','STLBO',
-         'PSO','IJAYA','ISCA');
+         'PSO','IJAYA','ISCA','NNA');
 
  FitTypeNames:array[TFitnessType]of string=
          ('Sq.Err.','Rel.Sq.Res.','Abs.Err.','Rel.Abs.Err.',
