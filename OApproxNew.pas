@@ -24,7 +24,8 @@ type
      etPSO,    // particle swarm optimization
      etIJAYA, //improved JAVA
      etISCA,   //improved sine cosine algorithm
-     etNNA  //Neural network  algorithm
+     etNNA,  //Neural network  algorithm
+     et_CWOA  // Chaotic Whale Optimization Algorithm
      );
   {}
   TFitnessType=
@@ -44,7 +45,7 @@ const
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
          ('DE','MABC','TLBO','GOTLBO','STLBO',
-         'PSO','IJAYA','ISCA','NNA');
+         'PSO','IJAYA','ISCA','NNA','CWOA');
 
  FitTypeNames:array[TFitnessType]of string=
          ('Sq.Err.','Rel.Sq.Res.','Abs.Err.','Rel.Abs.Err.',

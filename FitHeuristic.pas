@@ -252,6 +252,8 @@ TToolKit=class
   function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
                             j,k:integer):double;virtual;abstract;
    {j - номер набору; k - номер змінної}
+  function WOA_SearchFP(X1,X2,A,C:double):double;virtual;abstract;
+  function WOA_BubleNA(X,Xb,l:double):double;virtual;abstract;
 end;
 
 
@@ -279,7 +281,8 @@ TToolKitLinear=class(TToolKit)
   function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
                             j,k:integer):double;override;
    {j - номер набору; k - номер змінної}
-
+  function WOA_SearchFP(X1,X2,A,C:double):double;override;
+  function WOA_BubleNA(X,Xb,l:double):double;override;
 end;
 
 TToolKitLog=class(TToolKit)
@@ -308,7 +311,8 @@ TToolKitLog=class(TToolKit)
   function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
                             j,k:integer):double;override;
    {j - номер набору; k - номер змінної}
-  
+  function WOA_SearchFP(X1,X2,A,C:double):double;override;
+  function WOA_BubleNA(X,Xb,l:double):double;override;
 end;
 
 TToolKitConst=class(TToolKit)
@@ -333,6 +337,8 @@ TToolKitConst=class(TToolKit)
   function NNA_UpdatePattern(Parameters,Weights:TArrArrSingle;
                             j,k:integer):double;override;
    {j - номер набору; k - номер змінної}
+  function WOA_SearchFP(X1,X2,A,C:double):double;override;
+  function WOA_BubleNA(X,Xb,l:double):double;override;
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -371,7 +377,17 @@ TFA_Heuristic=class(TFittingAgent)
   procedure ConditionalRandomize;
   procedure CreateFields;virtual;
   function GreedySelection(i:integer;NewFitnessData:double;
-                             NewParameter:TArrSingle):boolean;
+                             NewParameter:TArrSingle):boolean;//overload;
+//  function GreedySelection(OldParameter,NewParameter:TArrSingle;
+//                           var OldFitnessData,NewFitnessData:double):boolean;overload;
+//  function GreedySelectionToLocalBest(var OldParameter:TArrSingle;
+//                           var OldFitnessData:double;
+//                           ItIsAlways:boolean=false):boolean;virtual;
+//  {замінює те, що в OldParameter та OldFitnessData кращим з поточних
+//  значень в Parameters;
+//  при ItIsAlways=true заміна відбувається незалежно від OldFitnessData,
+//  при ItIsAlways=falde тільки тоді, коли OldFitnessData більша
+//  ніж в кращого з поточних}
  protected
   function GetIstimeToShow:boolean;override;
   procedure ArrayToHeuristicParam(Data:TArrSingle);
@@ -384,6 +400,7 @@ end;
 
 TFA_ConsecutiveGeneration=class(TFA_Heuristic)
  private
+  GreedySelectionRequired:boolean;
   ParametersNew:TArrArrSingle;
   FitnessDataNew:TArrSingle;
   VectorForOppositePopulation:TVector;
@@ -405,21 +422,68 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
   procedure IterationAction;override;
   procedure StartAction;override;
   destructor Destroy;override;
-  class function LogisticMap(Z:double):Double;
-  class function NewLogisticMap:Double;
+  class function LogisticChaoticMap(Z:double):Double;
+  class function NewLogisticChaoticMap:Double;
+  class function SingerChaoticMap(Z:double):Double;
+end;
+
+TFA_WithoutGreedySelection=class(TFA_ConsecutiveGeneration)
+{насправді GreedySelection можна ввімкнути,
+поставивши GreedySelectionRequired=true в CreateFields}
+ private
+  GlobalBest:TArrSingle;
+  GlobalBestFitness:double;
+  procedure CreateFields;override;
+  procedure KoefDetermination;override;
+  function GreedySelectionToLocalBest(ItIsAlways:boolean=false):integer;virtual;
+  {замінює те, що в GlobalBest та GlobalBestFitness кращим з поточних
+  значень в Parameters;
+  при ItIsAlways=true заміна відбувається незалежно від GlobalBestFitness,
+  при ItIsAlways=false тільки тоді, коли GlobalBestFitness більша
+  ніж в кращого з поточних;
+  якщо заміна відбулася - повертається номер найкращого,
+  якщо ні, то -1}
+ public
+  procedure StartAction;override;
+  procedure DataCoordination;override;
 end;
 
 
-TFA_NNA=class(TFA_ConsecutiveGeneration)
-{Applied Soft Computing 71 (2018) 747–782,
-додав GreedySelection}
+//TFA_CWOA=class(TFA_ConsecutiveGeneration)
+TFA_CWOA=class(TFA_WithoutGreedySelection)
+{Applied Energy 200 (2017) 141–154}
  private
-  NumberBest:integer;
+  a:double;
+  prob:double;
+  Avec,Cvec:double;
+//  Prey:TArrSingle;
+//  PreyFitness:double;
+  function NpDetermination:integer;override;
+  procedure UpDate(i:integer);
+  procedure SearchForPrey(i:integer);
+  procedure BubbleNetAttacking(i:integer);
+  procedure CreateFields;override;
+  procedure KoefDetermination;override;
+  procedure NewPopulationCreate(i:integer);override;
+// public
+//  procedure StartAction;override;
+//  procedure DataCoordination;override;
+end;
+
+
+//TFA_NNA=class(TFA_ConsecutiveGeneration)
+TFA_NNA=class(TFA_WithoutGreedySelection)
+{Applied Soft Computing 71 (2018) 747–782,
+додав GreedySelection - пробував без цього для подвійного діода, виходить гірше}
+ private
+//  NumberBest:integer;
   Weights:TArrArrSingle;
+  GlobalBestWeights:TArrSingle;
   betta:double;
   ItIsBias:boolean;
   function NpDetermination:integer;override;
   procedure KoefDetermination;override;
+  function GreedySelectionToLocalBest(ItIsAlways:boolean=false):integer;override;
   procedure NewPopulationCreate(i:integer);override;
   procedure UpdatePattern(i:integer);
   procedure UpdateWeights(i:integer);
@@ -431,8 +495,10 @@ TFA_NNA=class(TFA_ConsecutiveGeneration)
   procedure WeightsNormalisation;
   procedure BeforeNewPopulationCreate;override;
   procedure AfterNewPopulationCreate;override;
+//  procedure GreedySelectionAll;override;
  public
   procedure StartAction;override;
+//  procedure DataCoordination;override;
 end;
 
 //TFA_DE=class(TFA_Heuristic)
@@ -599,7 +665,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
   (TFA_DE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
-   TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA);
+   TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA,TFA_CWOA);
 
 
 Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
@@ -718,6 +784,32 @@ function TFA_Heuristic.GetIstimeToShow: boolean;
 begin
   Result:=((fCurrentIteration mod 100)=0);
 end;
+
+//function TFA_Heuristic.GreedySelection(OldParameter, NewParameter: TArrSingle;
+//                   var OldFitnessData, NewFitnessData: double): boolean;
+//begin
+// if OldFitnessData>NewFitnessData then
+//   begin
+//    OldParameter:=Copy(NewParameter);
+//    OldFitnessData:=NewFitnessData;
+//    Result:=True;
+//   end                             else
+//    Result:=False;
+//end;
+
+//function TFA_Heuristic.GreedySelectionToLocalBest(var OldParameter: TArrSingle;
+//     var OldFitnessData: double; ItIsAlways: boolean): boolean;
+// var NumberBest:integer;
+//begin
+// NumberBest:=MinElemNumber(FitnessData);
+// if (ItIsAlways) or (FitnessData[NumberBest]<OldFitnessData) then
+//   begin
+//    OldParameter:=Copy(Parameters[NumberBest]);
+//    OldFitnessData:=FitnessData[NumberBest];
+//    Result:=True;
+//   end                             else
+//    Result:=False;
+//end;
 
 function TFA_Heuristic.GreedySelection(i:integer;NewFitnessData:double;
                              NewParameter:TArrSingle):boolean;
@@ -1192,6 +1284,18 @@ begin
  PenaltySimple(Result);
 end;
 
+function TToolKitLinear.WOA_BubleNA(X, Xb, l: double): double;
+begin
+ Result:=abs(Xb-X)*exp(l)*cos(2*Pi*l)+Xb;
+ PenaltySimple(Result);
+end;
+
+function TToolKitLinear.WOA_SearchFP(X1, X2, A, C: double): double;
+begin
+ Result:=X2-A*abs(C*X2-X1);
+ PenaltySimple(Result);
+end;
+
 { TToolKitLog }
 
 function TToolKitLog.ChaoticMutation(Xb, F: double): double;
@@ -1352,6 +1456,24 @@ begin
  Result:=exp(Result)
 end;
 
+function TToolKitLog.WOA_BubleNA(X, Xb, l: double): double;
+ var lnXb:double;
+begin
+ lnXb:=ln(Xb);
+ Result:=abs(lnXb-ln(X))*exp(l)*cos(2*Pi*l)+lnXb;
+ PenaltySimple(Result);
+ Result:=exp(Result)
+end;
+
+function TToolKitLog.WOA_SearchFP(X1, X2, A, C: double): double;
+ var lnX2:double;
+begin
+ lnX2:=ln(X2);
+ Result:=lnX2-A*abs(C*lnX2-ln(X1));
+ PenaltySimple(Result);
+ Result:=exp(Result)
+end;
+
 { TToolKitConst }
 
 procedure TToolKitConst.DataSave(const Param: TFFParamHeuristic);
@@ -1431,6 +1553,16 @@ begin
 end;
 
 function TToolKitConst.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.WOA_BubleNA(X, Xb, l: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.WOA_SearchFP(X1, X2, A, C: double): double;
 begin
  Result:=Xmin;
 end;
@@ -2087,7 +2219,7 @@ procedure TFA_IJAYA.CreateFields;
 begin
  inherited;
  fDescription:='Improved JAYA';
- Z:=NewLogisticMap;
+ Z:=NewLogisticChaoticMap;
 end;
 
 procedure TFA_IJAYA.ExperienceBasedLearning(i: integer);
@@ -2142,7 +2274,7 @@ begin
  if FitnessData[NumberWorst]=0
    then Weight:=1
    else Weight:=sqr(FitnessData[NumberBest]/FitnessData[NumberWorst]);
- Z:=LogisticMap(Z);
+ Z:=LogisticChaoticMap(Z);
 end;
 
 procedure TFA_IJAYA.NewPopulationCreate(i: integer);
@@ -2218,6 +2350,7 @@ begin
  inherited;
  SetLength(FitnessDataNew,fNp);
  SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
+ GreedySelectionRequired:=true;
  VectorForOppositePopulation:=TVector.Create;
  VectorForOppositePopulation.SetLenVector(2*fNp);
 end;
@@ -2267,8 +2400,15 @@ end;
 procedure TFA_ConsecutiveGeneration.GreedySelectionAll;
  var i:integer;
 begin
- for I := 0 to High(FitnessData) do
-   GreedySelection(i,FitnessDataNew[i],ParametersNew[i]);
+ if GreedySelectionRequired then
+   for I := 0 to High(FitnessData) do
+     GreedySelection(i,FitnessDataNew[i],ParametersNew[i])
+                            else
+   for I := 0 to High(FitnessData) do
+    begin
+     Parameters[i]:=Copy(ParametersNew[i]);
+     FitnessData[i]:=FitnessDataNew[i];
+    end;
 end;
 
 procedure TFA_ConsecutiveGeneration.IterationAction;
@@ -2285,12 +2425,12 @@ procedure TFA_ConsecutiveGeneration.KoefDetermination;
 begin
 end;
 
-class function TFA_ConsecutiveGeneration.LogisticMap(Z: double): Double;
+class function TFA_ConsecutiveGeneration.LogisticChaoticMap(Z: double): Double;
 begin
  Result:=4*Z*(1-Z);
 end;
 
-class function TFA_ConsecutiveGeneration.NewLogisticMap: Double;
+class function TFA_ConsecutiveGeneration.NewLogisticChaoticMap: Double;
 begin
  repeat
   Result:=Random;
@@ -2379,9 +2519,14 @@ begin
   FreeAndNil(Vec);
 end;
 
+class function TFA_ConsecutiveGeneration.SingerChaoticMap(Z: double): Double;
+begin
+ Result:=z*(7.86+Z*(-23.31+Z*(28.75-13.3*Z)));
+end;
+
 procedure TFA_ConsecutiveGeneration.StartAction;
 begin
-  inherited;
+  inherited StartAction;
   KoefDetermination;
 //VectorForOppositePopulation.WriteToFile('ss.dat');
 end;
@@ -2536,7 +2681,7 @@ begin
  inherited;
  fDescription:='Simplified TLBO';
  SetLength(NewP,fFF.DParamArray.MainParamHighIndex+1);
- Z:=NewLogisticMap;
+ Z:=NewLogisticChaoticMap;
 end;
 
 procedure TFA_STLBO.KoefDetermination;
@@ -2544,7 +2689,7 @@ begin
  inherited;
  NumberBest:=MinElemNumber(FitnessData);
  NumberWorst:=MaxElemNumber(FitnessData);
- Z:=LogisticMap(Z);
+ Z:=LogisticChaoticMap(Z);
  mu:=New_mu;
 end;
 
@@ -2648,17 +2793,47 @@ end;
 
 procedure TFA_NNA.CreateFields;
 begin
-  inherited;
+  inherited CreateFields;
   fDescription:='Neural Network  Algorithm';
   SetLength(Weights,fNp,fNp);
+  SetLength(GlobalBestWeights,fNp);
   betta:=1;
+  GreedySelectionRequired:=true;
+
 end;
+
+function TFA_NNA.GreedySelectionToLocalBest(ItIsAlways: boolean): integer;
+begin
+  Result:=inherited GreedySelectionToLocalBest(ItIsAlways);
+  if Result>-1  then  GlobalBestWeights:=Copy(Weights[Result]);
+end;
+
+//procedure TFA_NNA.DataCoordination;
+//begin
+// ArrayToHeuristicParam(BestParameters);
+//end;
+//
+//procedure TFA_NNA.GreedySelectionAll;
+// var i:integer;
+//begin
+// for I := 0 to High(FitnessData) do
+//   begin
+//    Parameters[i]:=Copy(ParametersNew[i]);
+//    FitnessData[i]:=FitnessDataNew[i];
+//   end;
+//end;
 
 procedure TFA_NNA.KoefDetermination;
 begin
   inherited;
   betta:=betta*0.99;
-  NumberBest:=MinElemNumber(FitnessData);
+//  NumberBest:=MinElemNumber(FitnessData);
+
+//  if FitnessData[NumberBest]<BestParametersFitness then
+//   begin
+//     BestParameters:=Copy(Parameters[NumberBest]);
+//     BestParametersFitness:=FitnessData[NumberBest];
+//   end;
 end;
 
 procedure TFA_NNA.NewPopulationCreate(i: integer);
@@ -2685,7 +2860,8 @@ begin
  r:=2*Random;
  for j := 0 to High(fToolKitArr) do
   ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation(ParametersNew[i][j],
-                                                  Parameters[NumberBest,j],
+//                                                  Parameters[NumberBest,j],
+                                                  GlobalBest[j],
                                                   ParametersNew[i][j],r);
 end;
 
@@ -2704,7 +2880,8 @@ procedure TFA_NNA.UpdateWeights(i: integer);
 begin
   r:=Random;
   for j := 0 to fNp-1 do 
-    Weights[i,j]:=Weights[i,j]+2*r*(Weights[NumberBest,j]-Weights[i,j]);
+//    Weights[i,j]:=Weights[i,j]+2*r*(Weights[NumberBest,j]-Weights[i,j]);
+    Weights[i,j]:=Weights[i,j]+2*r*(GlobalBestWeights[j]-Weights[i,j]);
 end;
 
 procedure TFA_NNA.WeightsInitialization;
@@ -2722,6 +2899,132 @@ procedure TFA_NNA.WeightsNormalisation;
  var i:integer;
 begin
  for I := 0 to fNp-1 do NormalArray(Weights[i]);
+end;
+
+{ TFA_CWOA }
+
+procedure TFA_CWOA.BubbleNetAttacking(i: integer);
+ var l:double;
+     j:integer;
+begin
+ l:=2*random-1;
+ for j := 0 to High(fToolKitArr) do
+   ParametersNew[i][j]:=fToolKitArr[j].WOA_BubleNA(Parameters[i][j],
+//                                                    Prey[j],
+                                                    GlobalBest[j],
+                                                    l);
+end;
+
+procedure TFA_CWOA.CreateFields;
+begin
+  inherited;
+  fDescription:='Chaotic Whale Optimization Algorithm';
+  GreedySelectionRequired:=false;
+//  SetLength(Prey,fFF.DParamArray.MainParamHighIndex+1);
+//  PreyFitness:=1e10;
+  Randomize;
+  prob:=Random;
+end;
+
+//procedure TFA_CWOA.DataCoordination;
+//begin
+// ArrayToHeuristicParam(Prey);
+//end;
+
+procedure TFA_CWOA.KoefDetermination;
+begin
+  inherited;
+  a:=2*(1-fCurrentIteration/(fFF.fDParamArray as TDParamsIteration).Nit);
+//  GreedySelectionToLocalBest(Prey,PreyFitness);
+  prob:=SingerChaoticMap(prob);
+end;
+
+procedure TFA_CWOA.NewPopulationCreate(i: integer);
+begin
+ UpDate(i);
+end;
+
+function TFA_CWOA.NpDetermination: integer;
+begin
+ Result:=100;
+end;
+
+procedure TFA_CWOA.SearchForPrey(i: integer);
+ var j:integer;
+     r:integer;
+begin
+ if abs(Avec)>=1 then
+  begin
+    r:=Random(fNp);
+    for j := 0 to High(fToolKitArr) do
+     ParametersNew[i][j]:=fToolKitArr[j].WOA_SearchFP(Parameters[i][j],
+                                                      Parameters[r,j],
+                                                       Avec,Cvec);
+  end             else
+    for j := 0 to High(fToolKitArr) do
+     ParametersNew[i][j]:=fToolKitArr[j].WOA_SearchFP(Parameters[i][j],
+//                                                      Prey[j],
+                                                      GlobalBest[j],
+                                                      Avec,Cvec);
+end;
+
+//procedure TFA_CWOA.StartAction;
+//begin
+//  inherited StartAction;
+//  GreedySelectionToLocalBest(Prey,PreyFitness,true);
+//end;
+
+procedure TFA_CWOA.UpDate(i: integer);
+ var r:double;
+begin
+ r:=Random;
+ Cvec:=2*r;
+ Avec:=a*(Cvec-1);
+ if prob<0.5 then SearchForPrey(i)
+             else BubbleNetAttacking(i);
+end;
+
+{ TFA_WithoutGreedySelection }
+
+procedure TFA_WithoutGreedySelection.CreateFields;
+begin
+  inherited;
+  GreedySelectionRequired:=false;
+  SetLength(GlobalBest,fFF.DParamArray.MainParamHighIndex+1);
+  GlobalBestFitness:=1e10;
+end;
+
+procedure TFA_WithoutGreedySelection.DataCoordination;
+begin
+ ArrayToHeuristicParam(GlobalBest);
+end;
+
+function TFA_WithoutGreedySelection.GreedySelectionToLocalBest(
+  ItIsAlways: boolean): integer;
+ var NumberBest:integer;
+begin
+ NumberBest:=MinElemNumber(FitnessData);
+ if (ItIsAlways) or (FitnessData[NumberBest]<GlobalBestFitness) then
+   begin
+    GlobalBest:=Copy(Parameters[NumberBest]);
+    GlobalBestFitness:=FitnessData[NumberBest];
+    Result:=NumberBest;
+   end                             else
+    Result:=-1;
+end;
+
+procedure TFA_WithoutGreedySelection.KoefDetermination;
+begin
+  inherited;
+//  GreedySelectionToLocalBest(GlobalBest,GlobalBestFitness);
+  GreedySelectionToLocalBest();
+end;
+
+procedure TFA_WithoutGreedySelection.StartAction;
+begin
+  inherited;
+//  GreedySelectionToLocalBest(GlobalBest,GlobalBestFitness,true);
+  GreedySelectionToLocalBest(true);
 end;
 
 end.
