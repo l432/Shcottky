@@ -3567,23 +3567,19 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 //var
+//  i,j:integer;
+//  Vec:TVector;
 //  number, zero : double;
 begin
-//  number:=85;
-//  zero:=-7;
-//  try
-//   number:=ln(zero);
-//  except
-//   on EZeroDivide do
-//     begin
-//       number:=222;
-//     end;
-//   on EInvalidOp do
-//     begin
-//       number:=333;
-//     end;
-//  end;
-//  showmessage(floattostr(number));
+// Vec:=TVector.Create;
+// for j := 0 to 10 do
+// begin
+// Randomize;
+// for I := 0 to 200 do
+//   Vec.Add(i,RandCauchy(2,0.1));
+// end;
+// Vec.WriteToFile('tt.dat',10);
+// Vec.Free;
 
  TextFileEquals('ResultAllold.dat','ResultAll.dat');
 

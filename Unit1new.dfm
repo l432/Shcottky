@@ -31,6 +31,10 @@ object Form1: TForm1
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Directory operation'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox13: TGroupBox
         Left = 3
         Top = 413

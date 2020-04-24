@@ -237,7 +237,9 @@ TToolKit=class
   procedure Penalty(var X:double);virtual;abstract;
  {якщо Х за межами інтервалу, то повертає його туди}
   procedure PenaltySimple(var X:double);virtual;abstract;
+  procedure RenaltySHADE(var V:double;Xold:double);virtual;abstract;
   function DE_Mutation(X1,X2,X3,F:double):double;virtual;abstract;
+  function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;virtual;abstract;
   function PSO_Transform(X2,X3,F:double):double;virtual;abstract;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);virtual;abstract;
@@ -254,6 +256,7 @@ TToolKit=class
    {j - номер набору; k - номер змінної}
   function WOA_SearchFP(X1,X2,A,C:double):double;virtual;abstract;
   function WOA_BubleNA(X,Xb,l:double):double;virtual;abstract;
+  function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;virtual;abstract;
 end;
 
 
@@ -266,7 +269,9 @@ TToolKitLinear=class(TToolKit)
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   procedure PenaltySimple(var X:double);override;
+  procedure RenaltySHADE(var V:double;Xold:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
+  function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);override;
@@ -283,6 +288,7 @@ TToolKitLinear=class(TToolKit)
    {j - номер набору; k - номер змінної}
   function WOA_SearchFP(X1,X2,A,C:double):double;override;
   function WOA_BubleNA(X,Xb,l:double):double;override;
+  function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
 end;
 
 TToolKitLog=class(TToolKit)
@@ -296,7 +302,9 @@ TToolKitLog=class(TToolKit)
   function RandValue:double;override;
   procedure Penalty(var lnX:double);override;
   procedure PenaltySimple(var lnX:double);override;
+  procedure RenaltySHADE(var lnV:double;Xold:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
+  function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);override;
@@ -313,6 +321,7 @@ TToolKitLog=class(TToolKit)
    {j - номер набору; k - номер змінної}
   function WOA_SearchFP(X1,X2,A,C:double):double;override;
   function WOA_BubleNA(X,Xb,l:double):double;override;
+  function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
 end;
 
 TToolKitConst=class(TToolKit)
@@ -322,7 +331,9 @@ TToolKitConst=class(TToolKit)
   function RandValue:double;override;
   procedure Penalty(var X:double);override;
   procedure PenaltySimple(var X:double);override;
+  procedure RenaltySHADE(var V:double;Xold:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
+  function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);override;
@@ -339,6 +350,7 @@ TToolKitConst=class(TToolKit)
    {j - номер набору; k - номер змінної}
   function WOA_SearchFP(X1,X2,A,C:double):double;override;
   function WOA_BubleNA(X,Xb,l:double):double;override;
+  function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -356,13 +368,12 @@ TFA_Heuristic=class(TFittingAgent)
   {кількість викликів FitnessFunc}
   fNp:integer;
   {кількість наборів параметрів}
+  fDim:integer;
+  {кількість змінних в наборі,
+  витягуємо сюди, щоб зручніше}
   fFF:TFFHeuristic;
   fFitCalcul:TFitnessCalculation;
   fToolKitArr:array of TToolKit;
-  Parameters:TArrArrSingle;
-  {набори параметрів}
-  FitnessData:TArrSingle;
-  {значення цільової функції для різних наборів параметрів}
   procedure RandomValueToParameter(i:integer);
   {заповненя випадковим даними
   і-го набору з Parameters}
@@ -392,6 +403,12 @@ TFA_Heuristic=class(TFittingAgent)
   function GetIstimeToShow:boolean;override;
   procedure ArrayToHeuristicParam(Data:TArrSingle);
  public
+  Parameters:TArrArrSingle;
+  {набори параметрів}
+  FitnessData:TArrSingle;
+  {значення цільової функції для різних наборів параметрів}
+  property Np:integer read fNp;
+  property Dim:integer read fDim;
   constructor Create(FF:TFFHeuristic);
   destructor Destroy;override;
   procedure StartAction;override;
@@ -402,13 +419,12 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
  private
   GreedySelectionRequired:boolean;
   ParametersNew:TArrArrSingle;
-  FitnessDataNew:TArrSingle;
   VectorForOppositePopulation:TVector;
   procedure NewPopulationCreate(i:integer);virtual;abstract;
   procedure GenerateOppositePopulation(i:integer);
   procedure GenerateGeneralOppositePopulation(i:integer);
   procedure GenerateOppositePopulationAll(OnePopulationCreate:TOnePopulationCreate);
-  procedure VectorForOppositePopulationFilling;
+  procedure VectorForOppositePopulationFilling;virtual;
   procedure OppositePopulationSelection;
   procedure GreedySelectionAll;virtual;
   procedure CreateFields;override;
@@ -419,6 +435,7 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
   procedure AfterNewPopulationCreate;virtual;
   procedure KoefDetermination;virtual;
  public
+  FitnessDataNew:TArrSingle;
   procedure IterationAction;override;
   procedure StartAction;override;
   destructor Destroy;override;
@@ -510,11 +527,114 @@ TFA_DE=class(TFA_ConsecutiveGeneration)
   function NpDetermination:integer;override;
   procedure BeforeNewPopulationCreate;override;
   procedure NewPopulationCreate(i:integer);override;
-  procedure MutationCreate(i:integer);
+  procedure MutationCreate(i:integer);virtual;
   {створення і-го вектора мутації}
   procedure Crossover(i:integer);
 //  procedure MutationCreateAll;
   procedure CreateFields;override;
+end;
+
+TDE_Memory=class
+ private
+  fFA_DE:TFA_DE;
+  fk:integer;
+  fH:integer;
+  Mdata:TVector;
+  {розмір - fH,
+  зберігаються значення M-коефіцієнтів}
+ public
+  constructor Create(FA_DE:TFA_DE;H:integer=5);
+  destructor Destroy;override;
+  procedure GenerateData();virtual;abstract;
+  procedure UpDate;virtual;
+end;
+
+TFandCrCreator=class(TDE_Memory)
+ private
+//  fFA_DE:TFA_DE;
+//  fk:integer;
+//  fH:integer;
+  Data:TVector;
+  {розмір - Np,
+  зберігаються значення F (X) та Сr (Y),
+  які використовуються в розрахунках}
+//  Mdata:TVector;
+  {розмір - fH,
+  зберігаються значення M-коефіцієнтів,
+  на основі яких розраховуються F  та Cr}
+  Koef:TVector;
+  {розмір - змінний, числу замін у цьому поколінні,
+  містить різниці старої та нової цільвої функцій (Х)
+  та номер екземляра, для якого ці дані (Y)}
+  function GetF(index:integer):double;
+  function GetCr(index:integer):double;
+  function GenerateF(k:integer):double;
+  function GenerateCr(k:integer):double;
+ public
+  property F[index:integer]:double read GetF;
+  property Cr[index:integer]:double read GetCr;
+  constructor Create(FA_DE:TFA_DE;H:integer=5);
+  destructor Destroy;override;
+  procedure GenerateData();override;
+  function NewIsBetter(const i:integer):boolean;
+  procedure UpDate;override;
+end;
+
+TFCP=class(TDE_Memory)
+ private
+  fLearningRate:double;
+  Koef:TVector;
+  fIsFirstAlgorithm:array of boolean;
+  function GetIsFirstAlgorithm(index:integer):boolean;
+ public
+  property IsFirstAlgorithm[index:integer]:boolean read GetIsFirstAlgorithm;
+  constructor Create(FA_DE:TFA_DE;H:integer=5;LR:double=0.8);
+  procedure GenerateData();override;
+  procedure UpDate;override;
+  destructor Destroy;override;
+  procedure AddData(i:integer);
+end;
+
+TDEArchiv=class
+ private
+  fFA_DE:TFA_DE;
+  fArc_rate:double;
+  function GetSize:integer;
+  function GetMaxSize:integer;
+ public
+  Archiv:TArrArrSingle;
+  property Size:integer read GetSize;
+  {кількість записів у архіві}
+  property MaxSize:integer read GetMaxSize;
+  constructor Create(FA_DE:TFA_DE;const Arc_rate:double=1);
+  procedure AddToArchiv(i:integer);
+  procedure ResizeToMaxSize;
+end;
+
+TFA_EBLSHADE =class(TFA_DE)
+{Swarm and Evolutionary Computation 50 (2019) 100455}
+ private
+  Archiv:TDEArchiv;
+  FCP:TFCP;
+  FandCrCreator:TFandCrCreator;
+  NPinit:integer;
+  NPmin:integer;
+  p_init:double;
+  p_min:double;
+  pbestNumber:integer;
+  function NewpbestNumber:integer;
+  function NewNp:integer;
+  procedure VectorForOppositePopulationFilling;override;
+  procedure KoefDetermination;override;
+  procedure Datatransform;
+  procedure NewPopulationCreate(i:integer);override;
+  procedure GreedySelectionAll;override;
+  procedure MutationCreate(i:integer);override;
+ public
+  function NpDetermination:integer;override;
+  procedure CreateFields;override;
+  destructor Destroy;override;
+  procedure DataCoordination;override;
 end;
 
 
@@ -664,7 +784,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
-  (TFA_DE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
+  (TFA_DE,TFA_EBLSHADE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
    TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA,TFA_CWOA);
 
 
@@ -751,8 +871,8 @@ begin
    then fFitCalcul:=FitnessCalculationFactory(FF)
    else fFitCalcul:=TFitnessCalculationWithRegalation.Create(FF,FitnessCalculationFactory(FF));
 
-
- SetLength(fToolKitArr,FF.DParamArray.MainParamHighIndex+1);
+ fDim:=FF.DParamArray.MainParamHighIndex+1;
+ SetLength(fToolKitArr,fDim);
  for I := 0 to High(fToolKitArr) do
    fToolKitArr[i]:=ToolKitClasses[(FF.DParamArray.Parametr[i] as TFFParamHeuristic).Mode].Create((FF.DParamArray.Parametr[i] as TFFParamHeuristic));
 
@@ -826,7 +946,7 @@ end;
 procedure TFA_Heuristic.RandomValueToParameter(i: integer);
  var j:integer;
 begin
- for j := 0 to High(fToolKitArr) do
+ for j := 0 to fDim-1 do
   Parameters[i][j]:=fToolKitArr[j].RandValue;
 end;
 
@@ -840,7 +960,7 @@ end;
 procedure TFA_Heuristic.CreateFields;
 begin
   SetLength(FitnessData, fNp);
-  SetLength(Parameters, fNp, fFF.DParamArray.MainParamHighIndex + 1);
+  SetLength(Parameters, fNp, fDim);
 end;
 
 procedure TFA_Heuristic.Initiation;
@@ -856,7 +976,7 @@ begin
       Continue;
      end;
     inc(i);
-  until (i>High(Parameters));
+  until (i>=fNp);
 end;
 
 { TFitnessTerm }
@@ -1175,6 +1295,17 @@ begin
  Penalty(Result);
 end;
 
+function TToolKitLinear.DE_Mutation2(X1, X2, X3, X4, X5, F: double): double;
+begin
+ Result:=X1+F*(X2-X3)+F*(X4-X5);
+end;
+
+function TToolKitLinear.EBLSHADE_Mutation(X, Xbp, Xm, Xw, F: double): double;
+begin
+ Result:=DE_Mutation2(X,Xbp,X,Xm,Xw,F);
+ RenaltySHADE(Result,X);
+end;
+
 function TToolKitLinear.GetGenOppPopul(X: double): double;
 begin
   Result:=Random*(Xmin+Xmax)-X;
@@ -1267,6 +1398,13 @@ begin
    Result:=Xmin+Xmax_Xmin*Random;
 end;
 
+procedure TToolKitLinear.RenaltySHADE(var V: double; Xold: double);
+begin
+ if InRange(V,Xmin,Xmax) then Exit;
+ if V>Xmax then V:=0.5*(Xmax+Xold)
+           else V:=0.5*(Xmin+Xold);
+end;
+
 function TToolKitLinear.STLBO_Teach(Xb, F: double): double;
 begin
   Result:=ChaoticMutation(Xb, F);
@@ -1333,6 +1471,18 @@ begin
 //    if InRange(temp,lnXmin,lnXmax) then  Break;
 // until False;
 // Result:=exp(temp);
+ Result:=exp(Result);
+end;
+
+function TToolKitLog.DE_Mutation2(X1, X2, X3, X4, X5, F: double): double;
+begin
+ Result:=ln(X1)+F*(ln(X2)-ln(X3))+F*(ln(X4)-ln(X5));
+end;
+
+function TToolKitLog.EBLSHADE_Mutation(X, Xbp, Xm, Xw, F: double): double;
+begin
+ Result:=DE_Mutation2(X,Xbp,X,Xm,Xw,F);
+ RenaltySHADE(Result,X);
  Result:=exp(Result);
 end;
 
@@ -1436,6 +1586,13 @@ begin
  Result:=exp(lnXmin+lnXmax_Xmin*Random);
 end;
 
+procedure TToolKitLog.RenaltySHADE(var lnV: double; Xold: double);
+begin
+ if InRange(lnV,lnXmin,lnXmax) then Exit;
+ if lnV>lnXmax then lnV:=0.5*(lnXmax+ln(Xold))
+               else lnV:=0.5*(lnXmin+ln(Xold));
+end;
+
 function TToolKitLog.STLBO_Teach(Xb, F: double): double;
 begin
  Result:=ChaoticMutation(Xb, F);
@@ -1483,6 +1640,16 @@ begin
 end;
 
 function TToolKitConst.DE_Mutation(X1, X2, X3, F: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.DE_Mutation2(X1, X2, X3, X4, X5, F: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.EBLSHADE_Mutation(X, Xbp, Xm, Xw, F: double): double;
 begin
  Result:=Xmin;
 end;
@@ -1540,6 +1707,10 @@ end;
 function TToolKitConst.RandValue: double;
 begin
  Result:=Xmin;
+end;
+
+procedure TToolKitConst.RenaltySHADE(var V: double; Xold: double);
+begin
 end;
 
 function TToolKitConst.STLBO_Teach(Xb, F: double): double;
@@ -2349,7 +2520,7 @@ procedure TFA_ConsecutiveGeneration.CreateFields;
 begin
  inherited;
  SetLength(FitnessDataNew,fNp);
- SetLength(ParametersNew,fNp,fFF.DParamArray.MainParamHighIndex+1);
+ SetLength(ParametersNew,fNp,fDim);
  GreedySelectionRequired:=true;
  VectorForOppositePopulation:=TVector.Create;
  VectorForOppositePopulation.SetLenVector(2*fNp);
@@ -2365,14 +2536,14 @@ procedure TFA_ConsecutiveGeneration.GenerateGeneralOppositePopulation(
   i: integer);
  var j:integer;
 begin
- for j := 0 to High(fToolKitArr) do
+ for j := 0 to fDim-1 do
   ParametersNew[i][j]:=fToolKitArr[j].GetGenOppPopul(Parameters[i,j]);
 end;
 
 procedure TFA_ConsecutiveGeneration.GenerateOppositePopulation(i: integer);
  var j:integer;
 begin
- for j := 0 to High(fToolKitArr) do
+ for j := 0 to fDim-1 do
   ParametersNew[i][j]:=fToolKitArr[j].GetOppPopul(Parameters[i,j]);
 end;
 
@@ -2391,7 +2562,7 @@ begin
     FitnessDataNew[i]:=maxFitness+1;
    end;
     inc(i);
-  until (i>High(FitnessDataNew));
+  until (i>=fNp);
   VectorForOppositePopulationFilling;
   VectorForOppositePopulation.Sorting();
 //  OppositePopulationSelection;
@@ -2401,10 +2572,10 @@ procedure TFA_ConsecutiveGeneration.GreedySelectionAll;
  var i:integer;
 begin
  if GreedySelectionRequired then
-   for I := 0 to High(FitnessData) do
+   for I := 0 to fNp-1 do
      GreedySelection(i,FitnessDataNew[i],ParametersNew[i])
                             else
-   for I := 0 to High(FitnessData) do
+   for I := 0 to fNp-1 do
     begin
      Parameters[i]:=Copy(ParametersNew[i]);
      FitnessData[i]:=FitnessDataNew[i];
@@ -2454,7 +2625,7 @@ begin
     Continue;
    end;
     inc(i);
-  until (i>High(FitnessDataNew));
+  until (i>=fNp);
 end;
 
 procedure TFA_ConsecutiveGeneration.NewPopulationCreateAll;
@@ -2478,7 +2649,6 @@ procedure TFA_ConsecutiveGeneration.OppositePopulationSelection;
  var i,j,Num:integer;
      Vec:TVector;
 begin
-//  VectorForOppositePopulation.WriteToFile('ss.dat');
   Vec:=TVector.Create;
   Vec.SetLenVector(fNp);
   for I := 0 to fNp - 1 do
@@ -3025,6 +3195,382 @@ begin
   inherited;
 //  GreedySelectionToLocalBest(GlobalBest,GlobalBestFitness,true);
   GreedySelectionToLocalBest(true);
+end;
+
+{ TFandCrCreator }
+
+constructor TFandCrCreator.Create(FA_DE:TFA_DE;H: integer=5);
+// var i:integer;
+begin
+ inherited;
+// fFA_DE:=FA_DE;
+// Mdata:=TVector.Create;
+ data:=TVector.Create;
+ Koef:=TVector.Create;
+// fH:=H;
+// for I := 0 to fH - 1 do
+//  Mdata.Add(0.5,0.5);
+// fk:=0;
+ data.SetLenVector(fFA_DE.Np);
+end;
+
+destructor TFandCrCreator.Destroy;
+begin
+  FreeAndNil(data);
+  FreeAndNil(Koef);
+//  FreeAndNil(Mdata);
+  inherited;
+end;
+
+function TFandCrCreator.GenerateCr(k: integer): double;
+begin
+ Result:=RandG(Mdata.Y[k],0.1);
+ Result:=EnsureRange(Result,0.0,1.0);
+end;
+
+procedure TFandCrCreator.GenerateData;
+ var k,i:integer;
+begin
+ randomize;
+ for i := 0 to fFA_DE.Np - 1 do
+  begin
+   k:=random(fH);
+   Data.X[i]:=GenerateF(k);
+   Data.Y[i]:=GenerateCr(k);
+  end;
+end;
+
+function TFandCrCreator.GenerateF(k: integer): double;
+begin
+ repeat
+  Result:=RandCauchy(Mdata.X[k],0.1);
+ until Result>=0;
+ Result:=min(Result,1.0);
+end;
+
+function TFandCrCreator.GetCr(index:integer): double;
+begin
+ Result:=Data.Y[index];
+end;
+
+function TFandCrCreator.GetF(index:integer): double;
+begin
+ Result:=Data.X[index];
+end;
+
+function TFandCrCreator.NewIsBetter(const i:integer): boolean;
+begin
+ Result:=fFA_DE.FitnessData[i]>fFA_DE.FitnessDataNew[i];
+ if Result then Koef.Add((fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]),i);
+end;
+
+procedure TFandCrCreator.UpDate;
+ var summa,sumF,sumCr:double;
+     i,number:integer;
+begin
+ if Koef.HighNumber<0 then Exit;
+ summa:=Koef.SumX;
+ for I := 0 to Koef.HighNumber do
+   Koef.X[i]:=Koef.X[i]/summa;
+ summa:=0;
+ sumF:=0;
+ sumCr:=0;
+ for I := 0 to Koef.HighNumber do
+   begin
+    number:=round(Koef.Y[i]);
+    summa:=summa+Koef.X[i]*sqr(Data.X[number]);
+    sumF:=sumF+Koef.X[i]*Data.X[number];
+    sumCr:=sumCr+Koef.X[i]*Data.Y[number];
+   end;
+ Mdata.X[fk]:=summa/sumF;
+ Mdata.Y[fk]:=sumCr;
+ Koef.Clear;
+ inherited UpDate;
+// inc(fk);
+// if fk>=fH then fk:=0;
+
+end;
+
+{ TDEArchiv }
+
+procedure TDEArchiv.AddToArchiv(i: integer);
+ var j:integer;
+begin
+ SetLength(Archiv,High(Archiv)+2);
+ SetLength(Archiv[High(Archiv)],fFA_DE.Dim+1);
+ for j := 0 to fFA_DE.Dim-1 do
+    Archiv[High(Archiv),j]:=fFA_DE.Parameters[i,j];
+ Archiv[High(Archiv),fFA_DE.Dim]:=fFA_DE.FitnessData[i];
+end;
+
+constructor TDEArchiv.Create(FA_DE: TFA_DE;const Arc_rate:double=1);
+begin
+ fFA_DE:=FA_DE;
+ SetLength(Archiv,0);
+end;
+
+function TDEArchiv.GetMaxSize: integer;
+begin
+ Result:=max(1,Ceil(fFA_DE.Np*fArc_rate));
+end;
+
+function TDEArchiv.GetSize: integer;
+begin
+ Result:=High(Archiv)+1;
+end;
+
+procedure TDEArchiv.ResizeToMaxSize;
+ var num:integer;
+begin
+ while Size>MaxSize do
+  begin
+   num:=random(High(Archiv)+1);
+   if num<High(Archiv) then
+     Archiv[num]:=Copy(Archiv[High(Archiv)]);
+   SetLength(Archiv,High(Archiv));
+  end;
+end;
+
+{ TDE_Memory }
+
+constructor TDE_Memory.Create(FA_DE: TFA_DE; H: integer);
+ var i:integer;
+begin
+ inherited Create;
+ fFA_DE:=FA_DE;
+ Mdata:=TVector.Create;
+ fH:=H;
+ for I := 0 to fH - 1 do
+  Mdata.Add(0.5,0.5);
+ fk:=0;
+end;
+
+destructor TDE_Memory.Destroy;
+begin
+  FreeAndNil(Mdata);
+  inherited;
+end;
+
+procedure TDE_Memory.UpDate;
+begin
+ inc(fk);
+ if fk>=fH then fk:=0;
+end;
+
+{ TTCP }
+
+procedure TFCP.AddData(i: integer);
+begin
+ if fIsFirstAlgorithm[i]
+   then Koef.Add(fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i],0)
+   else Koef.Add(0,fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]);
+end;
+
+constructor TFCP.Create(FA_DE: TFA_DE; H: integer=5;LR:double=0.8);
+begin
+ inherited Create(FA_DE,H);
+ SetLength(fIsFirstAlgorithm,FA_DE.Np);
+ fLearningRate:=LR;
+ Koef:=TVector.Create;
+end;
+
+destructor TFCP.Destroy;
+begin
+  FreeAndNil(Koef);
+  inherited;
+end;
+
+procedure TFCP.GenerateData;
+ var i:integer;
+begin
+ randomize;
+ for i := 0 to fFA_DE.Np - 1 do
+  fIsFirstAlgorithm[i]:=(random<Mdata.X[random(fH)])
+end;
+
+function TFCP.GetIsFirstAlgorithm(index: integer): boolean;
+begin
+ Result:=fIsFirstAlgorithm[index];
+end;
+
+procedure TFCP.UpDate;
+ var summa,del_m:double;
+begin
+ if Koef.HighNumber<0 then Exit;
+ summa:=Koef.SumX;
+ if summa=0 then del_m:=0.2
+           else del_m:=min(0.8,max(0.2,summa/(summa+Koef.SumY)));
+ Mdata.X[fk]:=(1-fLearningRate)*Mdata.X[fk]
+              +fLearningRate*del_m;
+ Koef.Clear;
+ inherited UpDate;
+end;
+
+{ TFA_ELSHADE }
+
+procedure TFA_EBLSHADE.CreateFields;
+begin
+  inherited;
+  fDescription:='EBLSHADE';
+  NPinit:=Np;
+  NPmin:=4;
+  p_init:=0.30;
+  p_min:=0.15;
+  Archiv:=TDEArchiv.Create(Self);
+  FCP:=TFCP.Create(Self);
+  FandCrCreator:=TFandCrCreator.Create(Self);
+  VectorForOppositePopulation.SetLenVector(fNp);
+  {в цьому методі використовується для
+  сортування елементів в популяції}
+end;
+
+procedure TFA_EBLSHADE.DataCoordination;
+begin
+ ArrayToHeuristicParam(Parameters[round(VectorForOppositePopulation.Y[0])]);
+end;
+
+procedure TFA_EBLSHADE.Datatransform;
+ var i,k:integer;
+begin
+ for I := fNp to VectorForOppositePopulation.HighNumber do
+  begin
+    k:=round(VectorForOppositePopulation.Y[i]);
+    Parameters[k]:=Copy(Parameters[i]);
+    FitnessData[k]:=FitnessData[i];
+  end; 
+end;
+
+destructor TFA_EBLSHADE.Destroy;
+begin
+  FreeAndNil(FandCrCreator);
+  FreeAndNil(FCP);
+  FreeAndNil(Archiv);
+  inherited;
+end;
+
+procedure TFA_EBLSHADE.GreedySelectionAll;
+ var i:integer;
+begin
+   for I := 0 to fNp-1 do
+    if FandCrCreator.NewIsBetter(i) then
+     begin
+      Archiv.AddToArchiv(i);
+      FCP.AddData(i);
+      Parameters[i]:=Copy(ParametersNew[i]);
+      FitnessData[i]:=FitnessDataNew[i];
+     end;
+end;
+
+procedure TFA_EBLSHADE.KoefDetermination;
+begin
+ inherited;
+ VectorForOppositePopulationFilling;
+ fNp:=NewNp;
+ if fNp<=VectorForOppositePopulation.HighNumber then
+   begin
+     Datatransform;
+     VectorForOppositePopulation.SetLenVector(fNp);
+     VectorForOppositePopulationFilling;
+   end;
+ pbestNumber:=NewpbestNumber;
+ FCP.UpDate;
+ FandCrCreator.UpDate;
+ Fcp.GenerateData;
+ FandCrCreator.GenerateData;
+ Archiv.ResizeToMaxSize;
+end;
+
+procedure TFA_EBLSHADE.MutationCreate(i: integer);
+ var j:integer;
+begin
+  repeat
+   r[1]:=Random(pbestNumber);
+   r[1]:=round(VectorForOppositePopulation.Y[r[1]]);
+  until (r[1]<>i);
+
+  repeat
+   r[2]:=Random(Np);
+  until (r[2]<>i)and(r[2]<>r[1]);
+
+  repeat
+   if FCP.IsFirstAlgorithm[i]
+     then r[3]:=Random(Np+Archiv.Size)
+     else r[3]:=Random(Np);
+  until (r[3]<>i)and(r[3]<>r[1])and(r[3]<>r[2]);
+
+ if FCP.IsFirstAlgorithm[i] then
+  begin
+    repeat
+      Random(Np+Archiv.Size)
+    until (r[3]<>i)and(r[3]<>r[1])and(r[3]<>r[2]);
+    if r[3]<Np then
+     for j := 0 to High(fToolKitArr) do
+      ParametersNew[i][j]:=fToolKitArr[j].EBLSHADE_Mutation(Parameters[i,j],
+                          Parameters[r[1],j],
+                          Parameters[r[2],j],
+                          Parameters[r[3],j],
+                          FandCrCreator.F[i])
+               else
+     for j := 0 to High(fToolKitArr) do
+      ParametersNew[i][j]:=fToolKitArr[j].EBLSHADE_Mutation(Parameters[i,j],
+                          Parameters[r[1],j],
+                          Parameters[r[2],j],
+                          Archiv.Archiv[r[3]-Np,j],
+                          FandCrCreator.F[i]);
+  end                      else  //if FCP.IsFirstAlgorithm[i] then
+  begin
+    repeat
+     r[3]:=Random(Np);
+    until (r[3]<>i)and(r[3]<>r[1])and(r[3]<>r[2]);
+
+    if FitnessData[r[1]]>FitnessData[r[2]] then Swap(r[1],r[2]);
+    if FitnessData[r[2]]>FitnessData[r[3]] then Swap(r[2],r[3]);
+    if FitnessData[r[1]]>FitnessData[r[2]] then Swap(r[1],r[2]);
+
+    for j := 0 to High(fToolKitArr) do
+      ParametersNew[i][j]:=fToolKitArr[j].EBLSHADE_Mutation(Parameters[i,j],
+                          Parameters[r[1],j],
+                          Parameters[r[2],j],
+                          Parameters[r[3],j],
+                          FandCrCreator.F[i])
+  end;
+
+end;
+
+function TFA_EBLSHADE.NewNp: integer;
+begin
+ Result:=round((NPmin-NPinit)*fCurrentIteration
+          /(fFF.fDParamArray as TDParamsIteration).Nit
+            +NPinit);
+end;
+
+function TFA_EBLSHADE.NewpbestNumber: integer;
+begin
+ Result:=max(2,Ceil(Np*(p_min-p_init)*fCurrentIteration
+          /(fFF.fDParamArray as TDParamsIteration).Nit
+            +p_init));
+end;
+
+procedure TFA_EBLSHADE.NewPopulationCreate(i: integer);
+begin
+  CR:=FandCrCreator.Cr[i];
+  Crossover(i);
+end;
+
+function TFA_EBLSHADE.NpDetermination: integer;
+begin
+ Result:=(fFF.DParamArray.MainParamHighIndex+1)*18;
+end;
+
+procedure TFA_EBLSHADE.VectorForOppositePopulationFilling;
+ var i:integer;
+begin
+ for I := 0 to fNp - 1 do
+   begin
+    VectorForOppositePopulation.X[i]:=FitnessData[i];
+    VectorForOppositePopulation.Y[i]:=i;
+   end;
+ VectorForOppositePopulation.Sorting();
 end;
 
 end.

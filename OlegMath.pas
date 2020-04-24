@@ -281,6 +281,9 @@ Function ThermallyPower(A0,PowerLaw,T:double):double;
 Procedure NormalArray(Arr:TArrSingle);
 {сума елементів стає рівною 1, кожен з них в [0..1]}
 
+Function RandCauchy(const x0,gamma:double):double;
+{повертає випадкове число, що
+підкоряється розподілу Коші}
 
 implementation
 
@@ -1368,6 +1371,12 @@ begin
  summa:=Sum(Arr);
  if summa=0 then Exit;
  for i:=0 to High(Arr) do Arr[i]:=Arr[i]/Summa;
+end;
+
+
+Function RandCauchy(const x0,gamma:double):double;
+begin
+  Result:=x0+gamma*tan(Pi*(Random-0.5)); 
 end;
 
 end.

@@ -17,6 +17,7 @@ type
 
   TEvolutionTypeNew= //еволюційний метод, який використовується для апроксимації
     (etDE, //differential evolution
+     etEBLSHADE, //
      etMABC, // modified artificial bee colony
      etTLBO,  //teaching learning based optimization algorithm
      etGOTLBO,//generalized oppositional  TLBO
@@ -44,7 +45,7 @@ const
 
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
-         ('DE','MABC','TLBO','GOTLBO','STLBO',
+         ('DE','EBLSHADE','MABC','TLBO','GOTLBO','STLBO',
          'PSO','IJAYA','ISCA','NNA','CWOA');
 
  FitTypeNames:array[TFitnessType]of string=
