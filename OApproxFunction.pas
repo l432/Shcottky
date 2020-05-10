@@ -153,6 +153,26 @@ TFFElectronConcentration=class (TFFHeuristic)
 end; //  TFFElectronConcentration=class (TFFHeuristic)
 
 
+TFFElectronConcentrationDX=class (TFFElectronConcentration)
+ private
+  fTemperature:double;
+  Function FermiLevelEq(Ef:double;
+                        Parameters:array of double):double;
+  function Concentration(const T:double;
+                         const Ef:double;
+                         Data:array of double):double;
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+//  procedure RealFitting;override;
+//  procedure TuningAfterReadFromIni;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+// published
+//  property Material:TMaterialFit read fMaterial;
+end; //  TFFElectronConcentration=class (TFFHeuristic)
+
 TFFnFeBPart=class (TFFHeuristic)
  protected
   procedure TuningBeforeAccessorialDataCreate;override;
@@ -644,6 +664,7 @@ begin
    ftempVector.Y[i]:=Bisection(FermiLevelEquationS,
                            [ftempVector.Y[i],ftempVector.X[i]],
                             Material.EgT(ftempVector.X[i]),0,5e-4);
+// ftempVector.WriteToFile(FitName(fDataToFit,'F'),8);
  inherited RealFitting;
 end;
 
@@ -804,6 +825,81 @@ procedure TFFRsh2_T.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
  fTemperatureIsRequired:=False;
+end;
+
+{ TFFElectronConcentrationDX }
+
+procedure TFFElectronConcentrationDX.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+//              ['N0','NCl','Ed0','al']);
+//              ['N0','NCl','Ed0','al','Eb']);
+              ['N0','NCl','Ed0','Eb','N2','Ed2']);
+//              ['N0','NCl','Ed0','al','N2','Ed2']);
+//              ['N0','NCl','Ed','Et','Eb']);
+end;
+
+function TFFElectronConcentrationDX.Concentration(const T, Ef: double;
+  Data: array of double): double;
+
+begin
+ Result:=0;
+ Result:=Result+Material.n_i(T);
+ Result:=Result+Data[0];
+// Result:=Result+Data[1]
+//         /(1+exp(-Data[4]/Kb/T))
+//        *(1-TMaterial.FermiDiracDonor(Data[2]-Data[3]*T,Ef,T));
+
+ Result:=Result+Data[1]
+         /(1+exp(-Data[3]/Kb/T))
+        *(1-TMaterial.FermiDiracDonor(Data[2],Ef,T));
+
+ Result:=Result+Data[4]
+        *(1-TMaterial.FermiDiracDonor(Data[5],Ef,T));
+
+
+// Result:=Result+Data[4]
+//        *(1-TMaterial.FermiDiracDonor(Data[5],Ef,T));
+
+// Result:=Result+Data[1]
+//         /(1+exp(-Data[4]/Kb/T))
+//        *(1-TMaterial.FermiDiracDonor(Data[2],Ef,T));
+// Result:=Result-Data[1]
+//         /(1+exp(Data[4]/Kb/T))
+//        *TMaterial.FermiDiracDonor(Data[3],Ef,T);
+
+end;
+
+function TFFElectronConcentrationDX.FermiLevelEq(Ef: double;
+  Parameters: array of double): double;
+begin
+ Result:=Concentration(fTemperature,Ef,Parameters)
+         -Material.Nc(fTemperature)
+          *TMaterial.FDIntegral_05(-Ef/fTemperature/Kb);
+end;
+
+function TFFElectronConcentrationDX.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+ var Ef:double;
+begin
+ fTemperature:=Point[cX];
+ Ef:=Bisection(FermiLevelEq,Data,
+                 Material.EgT(fTemperature),0,5e-4);
+ Result:=Concentration(fTemperature,Ef,Data);
+end;
+
+
+procedure TFFElectronConcentrationDX.NamesDefine;
+begin
+  SetNameCaption('n_vs_T_CdTe',
+      'Electron concentration in n-type semiconductors with donors and traps');
+end;
+
+
+procedure TFFElectronConcentrationDX.TuningBeforeAccessorialDataCreate;
+begin
+  inherited;
+  fHasPicture:=False;
 end;
 
 end.
