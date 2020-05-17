@@ -19,6 +19,16 @@ procedure Swap(var A:double; var B:double); overload;
 procedure Swap(var A:real; var B:real); overload;
 {процедура обміну значеннями між дійсними змінними А та В}
 
+procedure SwapRound (var A:integer; var B:integer); overload;
+{процедура обміну значеннями між цілими змінними А та В}
+
+procedure SwapRound (var A:double; var B:double); overload;
+{процедура обміну значеннями між дійсними змінними А та В}
+
+procedure SwapRound (var A:string; var B:string); overload;
+{процедура обміну значеннями між дійсними змінними А та В}
+
+
 Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
 {знаходить ординату точки з абсцисою Х3,
 яка знаходиться між точками (Х1,Y1) та (X2,Y2) -
@@ -310,6 +320,29 @@ procedure Swap(var A:real; var B:real); overload;
 begin
   C:=A; A:=B; B:=C;
 end;
+
+procedure SwapRound (var A:integer; var B:integer); overload;
+{процедура обміну значеннями між цілими змінними А та В}
+  var C:integer;
+begin
+  C:=A; A:=B; B:=C;
+end;
+
+procedure SwapRound (var A:double; var B:double); overload;
+{процедура обміну значеннями між дійсними змінними А та В}
+  var C:double;
+begin
+  C:=A; A:=B; B:=C;
+end;
+
+procedure SwapRound (var A:string; var B:string); overload;
+{процедура обміну значеннями між дійсними змінними А та В}
+  var C:string;
+begin
+  C:=A; A:=B; B:=C;
+end;
+
+
 
 Function Y_X0 (X1,Y1,X2,Y2,X3:double):double;overload;
 {знаходить ординату точки з абсцисою Х3,

@@ -3571,6 +3571,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 //  Vec:TVector;
 //  number, zero : double;
 begin
+
 // Vec:=TVector.Create;
 // for j := 0 to 10 do
 // begin
@@ -3581,7 +3582,8 @@ begin
 // Vec.WriteToFile('tt.dat',10);
 // Vec.Free;
 
- TextFileEquals('ResultAllold.dat','ResultAll.dat');
+showmessage(inttostr(1+Random(26)));
+// TextFileEquals('ResultAllold.dat','ResultAll.dat');
 
 // showmessage(floattostr(FileNameToVoltage('13.dat')));
 // Silicon.mu_n();
