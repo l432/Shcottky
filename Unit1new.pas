@@ -3570,7 +3570,78 @@ procedure TForm1.Button1Click(Sender: TObject);
 //  i,j:integer;
 //  Vec:TVector;
 //  number, zero : double;
+var dpn:TDiod_PN;
+    Nd,Ndmin,NdMax,delNd:double;
+    stepNd,delT,T,Tmin,Tmax:integer;
+    Str:TStringList;
+    tempstr:string;
 begin
+
+ dpn:=TDiod_PN.Create;
+ dpn.LayerN.Material:=TMaterial.Create(TMaterialName(0));
+ dpn.LayerP.Material:=TMaterial.Create(TMaterialName(0));
+ dpn.LayerN.Nd:=1e25;
+ Ndmin:=1e21;
+ NdMax:=1e23;
+ stepNd:=33;
+ delNd:=(Log10(NdMax)-Log10(NdMin))/(stepNd-1);
+ Tmin:=290;
+ Tmax:=340;
+ delT:=1;
+ Str:=TStringList.Create;
+
+ tempstr:='Na';
+ for T := Tmin to Tmax do
+   tempstr:=tempstr+' '+'T'+inttostr(T);
+ Str.Add(tempstr);
+ tempstr:='T';
+ for T := Tmin to Tmax do
+   tempstr:=tempstr+' '+inttostr(T);
+ Str.Add(tempstr);
+
+ Nd:=Log10(Ndmin);
+ repeat
+   tempstr:=FloatToStrF((Nd-6),ffExponent,10,0);
+   dpn.LayerP.Nd:=Power(10,Nd);
+   for T := Tmin to Tmax do
+     tempstr:=tempstr+' '+FloatToStrF(dpn.Wp(T),ffExponent,10,0);
+   Str.Add(tempstr);
+  nd:=Nd+delNd;
+ until Nd>Log10(Ndmax*1.01);
+ str.SaveToFile('Lop.dat');
+
+ str.Clear;
+ tempstr:='T';
+ Nd:=Log10(Ndmin);
+ repeat
+   tempstr:=tempstr+' '+'Na'+FloatToStrF((Nd-6),ffExponent,3,0);
+  nd:=Nd+delNd;
+ until Nd>Log10(Ndmax*1.01);
+ Str.Add(tempstr);
+
+ tempstr:='Na';
+ Nd:=Log10(Ndmin);
+ repeat
+   tempstr:=tempstr+' '+FloatToStrF((Nd-6),ffExponent,10,0);
+  nd:=Nd+delNd;
+ until Nd>Log10(Ndmax*1.01);
+ Str.Add(tempstr);
+
+ for T := Tmin to Tmax do
+  begin
+   tempstr:=inttostr(T);
+   Nd:=Log10(Ndmin);
+   repeat
+    dpn.LayerP.Nd:=Power(10,Nd);
+    tempstr:=tempstr+' '+FloatToStrF(dpn.Wp(T),ffExponent,10,0);
+    nd:=Nd+delNd;
+   until Nd>Log10(Ndmax*1.01);
+   Str.Add(tempstr);
+  end;
+ str.SaveToFile('Lop_Na.dat');
+
+ str.Free;
+ dpn.Free;
 
 // Vec:=TVector.Create;
 // for j := 0 to 10 do
@@ -3582,7 +3653,7 @@ begin
 // Vec.WriteToFile('tt.dat',10);
 // Vec.Free;
 
-showmessage(inttostr(1+Random(26)));
+//showmessage(inttostr(1+Random(26)));
 // TextFileEquals('ResultAllold.dat','ResultAll.dat');
 
 // showmessage(floattostr(FileNameToVoltage('13.dat')));
