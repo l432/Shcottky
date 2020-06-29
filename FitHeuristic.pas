@@ -257,6 +257,9 @@ TToolKit=class
   function WOA_SearchFP(X1,X2,A,C:double):double;virtual;abstract;
   function WOA_BubleNA(X,Xb,l:double):double;virtual;abstract;
   function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;virtual;abstract;
+  function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;virtual;abstract;
+  function ADELI_LagrangeOtherwise(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;virtual;
+  function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;virtual;abstract;
 end;
 
 
@@ -289,6 +292,8 @@ TToolKitLinear=class(TToolKit)
   function WOA_SearchFP(X1,X2,A,C:double):double;override;
   function WOA_BubleNA(X,Xb,l:double):double;override;
   function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
+  function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;override;
+  function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;override;
 end;
 
 TToolKitLog=class(TToolKit)
@@ -322,6 +327,8 @@ TToolKitLog=class(TToolKit)
   function WOA_SearchFP(X1,X2,A,C:double):double;override;
   function WOA_BubleNA(X,Xb,l:double):double;override;
   function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
+  function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;override;
+  function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;override;
 end;
 
 TToolKitConst=class(TToolKit)
@@ -351,6 +358,8 @@ TToolKitConst=class(TToolKit)
   function WOA_SearchFP(X1,X2,A,C:double):double;override;
   function WOA_BubleNA(X,Xb,l:double):double;override;
   function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
+  function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;override;
+  function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;override;
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -532,6 +541,49 @@ TFA_DE=class(TFA_ConsecutiveGeneration)
   procedure Crossover(i:integer);
 //  procedure MutationCreateAll;
   procedure CreateFields;override;
+end;
+
+TADELI_FandCrCreator=class
+ private
+  tau1:double;
+  tau2:double;
+  Flow:double;
+  Fup:double;
+  fFA_DE:TFA_DE;
+  Data:TVector;
+  {розмір - Np,
+  зберігаються значення F (X) та Сr (Y),
+  які використовуються в розрахунках}
+  function GetF(index:integer):double;
+  function GetCr(index:integer):double;
+ public
+  property F[index:integer]:double read GetF;
+  property Cr[index:integer]:double read GetCr;
+  constructor Create(FA_DE:TFA_DE);
+  destructor Destroy;override;
+  procedure GenerateData();
+end;
+
+TFA_ADELI=class(TFA_DE)
+{Information Sciences 472 (2019) 180–202}
+ private
+  LR:double;
+  LRmin:double;
+  LRmax:double;
+  ParXLagr:TArrArrSingle;
+  {набори параметрів, які використовуються в Лагранжевій інтерполяції}
+  FitDataLagr:TArrSingle;
+  {значення цільової функції для ParXLagr}
+  FandCrCreator:TADELI_FandCrCreator;
+  procedure RsearchDetermination;
+  procedure LagrangeInterpolation;
+  procedure BeforeNewPopulationCreate;override;
+  procedure CreateFields;override;
+  procedure KoefDetermination;override;
+  procedure MutationCreate(i:integer);override;
+  procedure NewPopulationCreate(i:integer);override;
+ public
+  destructor Destroy;override;
 end;
 
 TDE_Memory=class
@@ -784,7 +836,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
-  (TFA_DE,TFA_EBLSHADE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
+  (TFA_DE,TFA_EBLSHADE,TFA_ADELI,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
    TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA,TFA_CWOA);
 
 
@@ -952,7 +1004,7 @@ end;
 
 procedure TFA_Heuristic.StartAction;
 begin
- inherited;
+ inherited StartAction;
  fNfit:=0;
  Initiation;
 end;
@@ -1278,6 +1330,37 @@ end;
 
 { TToolKitLinear }
 
+function TToolKitLinear.ADELI_Lagrange(Xb, X1, X2,Fitb,Fit1,Fit2: double): double;
+ var I,a,b:double;
+begin
+ I:=(X1-Xb)*(X1-X2)*(X2-Xb);
+ if I=0
+  then  Result:=ADELI_LagrangeOtherwise(Xb, X1, X2,Fitb, Fit1, Fit2)
+  else
+   begin
+     a:=((X2-X1)*Fitb+(Xb-X2)*Fit1+(X1-Xb)*Fit2);
+     b:=((sqr(X1)-sqr(X2))*Fitb+(sqr(X2)-sqr(Xb))*Fit1+(sqr(Xb)-sqr(X1))*Fit2);
+     if a>0 then Result:=-b/2/a
+            else
+            if (a=0)and(b=0)
+              then Result:=0.5*(X1+X2)+(random-0.5)*(X1-X2)
+              else Result:=ADELI_LagrangeOtherwise(Xb, X1, X2,Fitb, Fit1, Fit2);
+   end;
+ if InRange(Result,Xmin,Xmax) then Exit;
+ Result:=RandValue;
+end;
+
+
+function TToolKitLinear.ADELI_LocalSearch(X, Xpmin, Xpmax: double; Np: integer;
+               ToUp: boolean): double;
+  var R:double;
+begin
+  R:=(Xpmax-Xpmin)*random/Np;
+  if ToUp then Result:=X+R
+          else Result:=X-R;
+  PenaltySimple(Result);
+end;
+
 function TToolKitLinear.ChaoticMutation(Xb, F: double): double;
 begin
   Result:=Xb*(1+F);
@@ -1435,6 +1518,44 @@ begin
 end;
 
 { TToolKitLog }
+
+function TToolKitLog.ADELI_Lagrange(Xb, X1, X2, Fitb, Fit1,
+  Fit2: double): double;
+ var lnXb,lnX1,lnX2,
+     I,a,b:double;
+begin
+ lnXb:=ln(Xb);
+ lnX1:=ln(X1);
+ lnX2:=ln(X2);
+ I:=(X1-Xb)*(X1-X2)*(X2-Xb);
+ if I=0
+  then  Result:=ADELI_LagrangeOtherwise(lnXb, lnX1, lnX2,Fitb, Fit1, Fit2)
+  else
+   begin
+     a:=((lnX2-lnX1)*Fitb+(lnXb-lnX2)*Fit1+(lnX1-lnXb)*Fit2);
+     b:=((sqr(lnX1)-sqr(lnX2))*Fitb+(sqr(lnX2)-sqr(lnXb))*Fit1+(sqr(lnXb)-sqr(lnX1))*Fit2);
+     if a>0 then Result:=-b/2/a
+            else
+            if (a=0)and(b=0)
+              then Result:=0.5*(lnX1+lnX2)+(random-0.5)*(lnX1-lnX2)
+              else Result:=ADELI_LagrangeOtherwise(lnXb, lnX1, lnX2,Fitb, Fit1, Fit2);
+   end;
+ if InRange(Result,lnXmin,lnXmax)
+   then Result:=exp(Result)
+   else Result:=RandValue;
+end;
+
+
+function TToolKitLog.ADELI_LocalSearch(X, Xpmin, Xpmax: double; Np: integer;
+  ToUp: boolean): double;
+  var R:double;
+begin
+ R:=(ln(Xpmax)-ln(Xpmin))*random/Np;
+ if ToUp then Result:=ln(X)+R
+         else Result:=ln(X)-R;
+ PenaltySimple(Result);
+ Result:=exp(Result);
+end;
 
 function TToolKitLog.ChaoticMutation(Xb, F: double): double;
 begin
@@ -1633,6 +1754,18 @@ end;
 
 { TToolKitConst }
 
+function TToolKitConst.ADELI_Lagrange(Xb, X1, X2, Fitb, Fit1,
+  Fit2: double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.ADELI_LocalSearch(X, Xpmin, Xpmax: double; Np: integer;
+  ToUp: boolean): double;
+begin
+ Result:=Xmin;
+end;
+
 procedure TToolKitConst.DataSave(const Param: TFFParamHeuristic);
 begin
  inherited;
@@ -1740,6 +1873,23 @@ end;
 
 { TToolKit }
 
+function TToolKit.ADELI_LagrangeOtherwise(Xb, X1, X2, Fitb, Fit1,
+  Fit2: double): double;
+ const c3=0.25;
+       c4=0.25;
+ var Xj:TVector;
+begin
+  Xj:=TVector.Create;
+  Xj.Add(Fitb,Xb);
+  Xj.Add(Fit1,X1);
+  Xj.Add(Fit2,X2);
+  Xj.Sorting;
+  Result:=Xj.Y[0]+random*c3*(Xj.Y[0]-Xj.Y[1])
+                 +random*c4*(Xj.Y[0]-Xj.Y[2]);
+  FreeAndNil(Xj);
+//  Xj.Free;
+end;
+
 function TToolKit.ChaoticMutation(Xb, F: double): double;
 begin
  Result:=0;
@@ -1767,7 +1917,7 @@ end;
 
 procedure TFA_DE.CreateFields;
 begin
- inherited;
+ inherited CreateFields;
 // SetLength(FitnessDataMutation,fNp);
 // SetLength(Mutation,fNp,fFF.DParamArray.MainParamHighIndex+1);
  fDescription:='Differential Evolution';
@@ -2518,7 +2668,7 @@ end;
 
 procedure TFA_ConsecutiveGeneration.CreateFields;
 begin
- inherited;
+ inherited CreateFields;
  SetLength(FitnessDataNew,fNp);
  SetLength(ParametersNew,fNp,fDim);
  GreedySelectionRequired:=true;
@@ -2589,7 +2739,7 @@ begin
   GreedySelectionAll;
   AfterNewPopulationCreate;
   KoefDetermination;
-  inherited;
+  inherited IterationAction;
 end;
 
 procedure TFA_ConsecutiveGeneration.KoefDetermination;
@@ -3185,7 +3335,7 @@ end;
 
 procedure TFA_WithoutGreedySelection.KoefDetermination;
 begin
-  inherited;
+  inherited KoefDetermination;
 //  GreedySelectionToLocalBest(GlobalBest,GlobalBestFitness);
   GreedySelectionToLocalBest();
 end;
@@ -3571,6 +3721,182 @@ begin
     VectorForOppositePopulation.Y[i]:=i;
    end;
  VectorForOppositePopulation.Sorting();
+end;
+
+{ TFA_ADELI }
+
+procedure TFA_ADELI.BeforeNewPopulationCreate;
+begin
+ LagrangeInterpolation;
+ inherited BeforeNewPopulationCreate;
+end;
+
+procedure TFA_ADELI.CreateFields;
+begin
+ inherited CreateFields;
+ fDescription:='DE with the Lagrange interpolation';
+ F:=0.5;
+ CR:=0.9;
+ LRmin:=0.1;
+ LRmax:=0.9;
+ LR:=LRmax;
+ VectorForOppositePopulation.SetLenVector(fDim);
+  {в цьому методі використовується для
+  збереження мах (Х) та min (Y) значень
+  змінних у популяції}
+ SetLength(FitDataLagr,3);
+ SetLength(ParXLagr,3,fDim);
+ FandCrCreator:=TADELI_FandCrCreator.Create(Self);
+end;
+
+destructor TFA_ADELI.Destroy;
+begin
+  FreeAndNil(FandCrCreator);
+  inherited;
+end;
+
+procedure TFA_ADELI.KoefDetermination;
+begin
+ FandCrCreator.GenerateData;
+end;
+
+procedure TFA_ADELI.LagrangeInterpolation;
+  var NumberBest,j,i:integer;
+      LagrangeInterIsSuccessful:boolean;
+begin
+ if random>=LR then Exit;
+ LagrangeInterIsSuccessful:=False;
+ RsearchDetermination;
+ NumberBest:=MinElemNumber(FitnessData);
+
+ for I := 0 to 2 do
+  begin
+   ParXLagr[i]:=Copy(Parameters[NumberBest]);
+   FitDataLagr[i]:=FitnessData[NumberBest];
+  end;
+
+ for j := 0 to High(fToolKitArr) do
+  if not(fFF.DParamArray.Parametr[j].IsConstant) then
+   begin
+
+    ParXLagr[1,j]:=fToolKitArr[j].ADELI_LocalSearch(ParXLagr[1,j],VectorForOppositePopulation.Y[j],
+                    VectorForOppositePopulation.X[j],Np,True);
+    try
+     FitDataLagr[1]:=FitnessFunc(ParXLagr[1]);
+    except
+     ParXLagr[1,j]:=Parameters[NumberBest,j];
+     Continue;
+    end;
+
+    ParXLagr[2,j]:=fToolKitArr[j].ADELI_LocalSearch(ParXLagr[2,j],VectorForOppositePopulation.Y[j],
+                    VectorForOppositePopulation.X[j],Np,False);
+    try
+     FitDataLagr[2]:=FitnessFunc(ParXLagr[2]);
+    except
+     ParXLagr[2,j]:=Parameters[NumberBest,j];
+     Continue;
+    end;
+
+    ParXLagr[0,j]:=fToolKitArr[j].ADELI_Lagrange(Parameters[NumberBest,j],
+                                         ParXLagr[1,j],ParXLagr[2,j],
+                                         FitnessData[NumberBest],
+                                         FitDataLagr[1],
+                                         FitDataLagr[2]);
+    try
+     FitDataLagr[0]:=FitnessFunc(ParXLagr[0]);
+    except
+     ParXLagr[0,j]:=Parameters[NumberBest,j];
+     Continue;
+    end;
+
+    for I := 0 to 2 do
+     if FitDataLagr[i]<FitnessData[NumberBest] then
+     begin
+      Parameters[NumberBest,j]:=ParXLagr[i,j];
+      FitnessData[NumberBest]:=FitDataLagr[i];
+      LagrangeInterIsSuccessful:=True;
+     end;
+
+    for I := 0 to 2 do
+      ParXLagr[i,j]:=Parameters[NumberBest,j];
+
+   end;
+
+  if LagrangeInterIsSuccessful
+    then LR:=LRmax
+    else LR:=LRmin;
+end;
+
+procedure TFA_ADELI.MutationCreate(i: integer);
+begin
+ F:=FandCrCreator.F[i];
+ inherited MutationCreate(i);
+end;
+
+procedure TFA_ADELI.NewPopulationCreate(i: integer);
+begin
+  CR:=FandCrCreator.Cr[i];
+  Crossover(i);
+end;
+
+procedure TFA_ADELI.RsearchDetermination;
+ var i,j:integer;
+begin
+ for I := 0 to Dim - 1 do
+  begin
+    VectorForOppositePopulation.X[i]:=Parameters[0,i];
+    VectorForOppositePopulation.Y[i]:=Parameters[0,i];
+    for j := 1 to Np - 1 do
+     begin
+      VectorForOppositePopulation.X[i]:=max(VectorForOppositePopulation.X[i],
+                                            Parameters[j,i]);
+      VectorForOppositePopulation.Y[i]:=min(VectorForOppositePopulation.Y[i],
+                                            Parameters[j,i]);
+     end;
+  end;
+end;
+
+{ TSimpleFandCrCreator }
+
+constructor TADELI_FandCrCreator.Create(FA_DE: TFA_DE);
+ var i:integer;
+begin
+ inherited Create;
+ fFA_DE:=FA_DE;
+ Data:=TVector.Create;
+ for I := 0 to Data.HighNumber do
+  Data.Add(fFA_DE.F,fFA_DE.CR);
+ tau1:=0.1;
+ tau2:=0.1;
+ Flow:=0.1;
+ Fup:=0.9;
+end;
+
+destructor TADELI_FandCrCreator.Destroy;
+begin
+  FreeAndNil(Data);
+  inherited;
+end;
+
+procedure TADELI_FandCrCreator.GenerateData;
+ var i:integer;
+begin
+ randomize;
+ for i := 0 to fFA_DE.Np - 1 do
+  begin
+   if random<tau1 then Data.X[i]:=Flow+random*Fup;
+   if random<tau2 then Data.Y[i]:=random;
+  end;
+end;
+
+function TADELI_FandCrCreator.GetCr(index: integer): double;
+begin
+ Result:=Data.Y[index];
+end;
+
+function TADELI_FandCrCreator.GetF(index: integer): double;
+begin
+ Result:=Data.X[index];
 end;
 
 end.

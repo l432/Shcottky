@@ -25,16 +25,12 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Directory operation'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox13: TGroupBox
         Left = 3
         Top = 413
@@ -4361,10 +4357,6 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = 'File operation'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object DirLabel: TLabel
         Left = 664
         Top = 62
@@ -4950,7 +4942,7 @@ object Form1: TForm1
           Height = 22
           Style = csDropDownList
           DropDownCount = 21
-          ItemHeight = 0
+          ItemHeight = 14
           TabOrder = 0
           OnChange = CBKalkChange
         end
@@ -5365,7 +5357,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxRSChange
             end
@@ -5385,7 +5377,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxRSChange
               end
@@ -5414,7 +5406,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxNChange
               end
@@ -5427,7 +5419,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 1
               OnChange = ComboBoxNChange
             end
@@ -5447,7 +5439,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxNssRsChange
             end
@@ -5466,7 +5458,7 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
+                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxNssFbChange
               end
@@ -5518,7 +5510,7 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
+              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxNssFbChange
             end
@@ -5761,10 +5753,6 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'Diode'#39's parameters'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Close2: TBitBtn
         Left = 534
         Top = 562
@@ -6260,7 +6248,7 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 0
+            ItemHeight = 16
             TabOrder = 0
           end
         end
@@ -6594,7 +6582,7 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 0
+            ItemHeight = 16
             TabOrder = 0
           end
         end
@@ -6856,7 +6844,7 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 0
+            ItemHeight = 16
             TabOrder = 0
           end
         end
@@ -6865,10 +6853,6 @@ object Form1: TForm1
     object TabSheet4: TTabSheet
       Caption = 'Deep Level'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox36: TGroupBox
         Left = 3
         Top = 0
