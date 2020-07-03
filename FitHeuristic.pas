@@ -543,13 +543,17 @@ TFA_DE=class(TFA_ConsecutiveGeneration)
   procedure CreateFields;override;
 end;
 
-TADELI_FandCrCreator=class
+TDE_Supplementary=class
  private
-  tau1:double;
-  tau2:double;
-  Flow:double;
-  Fup:double;
   fFA_DE:TFA_DE;
+ public
+  constructor Create(FA_DE:TFA_DE);
+  procedure GenerateData();virtual;abstract;
+end;
+
+TFandCrCreatorSimple=class(TDE_Supplementary)
+ private
+//  fFA_DE:TFA_DE;
   Data:TVector;
   {розмір - Np,
   зберігаються значення F (X) та Сr (Y),
@@ -561,7 +565,19 @@ TADELI_FandCrCreator=class
   property Cr[index:integer]:double read GetCr;
   constructor Create(FA_DE:TFA_DE);
   destructor Destroy;override;
-  procedure GenerateData();
+//  procedure GenerateData();virtual;abstract;
+end;
+
+//TADELI_FandCrCreator=class
+TADELI_FandCrCreator=class(TFandCrCreatorSimple)
+ private
+  tau1:double;
+  tau2:double;
+  Flow:double;
+  Fup:double;
+ public
+  constructor Create(FA_DE:TFA_DE);
+  procedure GenerateData();override;
 end;
 
 TFA_ADELI=class(TFA_DE)
@@ -586,54 +602,116 @@ TFA_ADELI=class(TFA_DE)
   destructor Destroy;override;
 end;
 
-TDE_Memory=class
+TDE_Mem=class
  private
-  fFA_DE:TFA_DE;
   fk:integer;
   fH:integer;
   Mdata:TVector;
   {розмір - fH,
   зберігаються значення M-коефіцієнтів}
+  function GetData(Index:Integer):double;
+  procedure SetData(Index: Integer;Value:double);
  public
-  constructor Create(FA_DE:TFA_DE;H:integer=5);
+  property X:double Index ord(cX) read GetData write SetData;
+  property Y:double Index ord(cY) read GetData write SetData;
+  property Len:integer read fH;
+  constructor Create(H:integer=5);
   destructor Destroy;override;
-  procedure GenerateData();virtual;abstract;
   procedure UpDate;virtual;
+  function GetX(i:integer):double;
+  function GetY(i:integer):double;
 end;
 
-TFandCrCreator=class(TDE_Memory)
- private
+TDE_MemSimple=class(TDE_Mem)
+ public
+  constructor Create();
+  procedure UpDate;override;
+end;
+
+//TDE_Memory=class
+// private
 //  fFA_DE:TFA_DE;
 //  fk:integer;
 //  fH:integer;
-  Data:TVector;
-  {розмір - Np,
-  зберігаються значення F (X) та Сr (Y),
-  які використовуються в розрахунках}
 //  Mdata:TVector;
-  {розмір - fH,
-  зберігаються значення M-коефіцієнтів,
+//  {розмір - fH,
+//  зберігаються значення M-коефіцієнтів}
+// public
+//  constructor Create(FA_DE:TFA_DE;H:integer=5);
+//  destructor Destroy;override;
+//  procedure GenerateData();virtual;abstract;
+//  procedure UpDate;virtual;
+//end;
+
+TFandCrCreatorCauchyNormal=class(TFandCrCreatorSimple)
+ private
+  Mem:TDE_Mem;
+{ зберігаються значення M-коефіцієнтів,
   на основі яких розраховуються F  та Cr}
   Koef:TVector;
   {розмір - змінний, числу замін у цьому поколінні,
   містить різниці старої та нової цільвої функцій (Х)
   та номер екземляра, для якого ці дані (Y)}
-  function GetF(index:integer):double;
-  function GetCr(index:integer):double;
-  function GenerateF(k:integer):double;
-  function GenerateCr(k:integer):double;
+  function GenerateF(mean:double):double;
+  function GenerateCr(mean:double):double;
+  procedure MemCreate;virtual;
+  procedure MemUpDate(sumF2,sumF,sumCr:double);virtual;
  public
-  property F[index:integer]:double read GetF;
-  property Cr[index:integer]:double read GetCr;
-  constructor Create(FA_DE:TFA_DE;H:integer=5);
+  constructor Create(FA_DE:TFA_DE);
   destructor Destroy;override;
-  procedure GenerateData();override;
+//  procedure GenerateData();override;
   function NewIsBetter(const i:integer):boolean;
-  procedure UpDate;override;
+  procedure UpDate;virtual;
 end;
 
-TFCP=class(TDE_Memory)
+TEBLSHADE_FandCrCreator=class(TFandCrCreatorCauchyNormal)
  private
+ public
+  procedure GenerateData();override;
+end;
+
+TNDE_FandCrCreator=class(TFandCrCreatorCauchyNormal)
+ private
+  fc:double;
+  procedure MemCreate;override;
+  procedure MemUpDate(sumF2,sumF,sumCr:double);override;
+ public
+  constructor Create(FA_DE:TFA_DE);
+  procedure GenerateData();override;
+end;
+
+
+//TFandCrCreator=class(TDE_Memory)
+// private
+//  Data:TVector;
+//  {розмір - Np,
+//  зберігаються значення F (X) та Сr (Y),
+//  які використовуються в розрахунках}
+////  Mdata:TVector;
+//  {розмір - fH,
+//  зберігаються значення M-коефіцієнтів,
+//  на основі яких розраховуються F  та Cr}
+//  Koef:TVector;
+//  {розмір - змінний, числу замін у цьому поколінні,
+//  містить різниці старої та нової цільвої функцій (Х)
+//  та номер екземляра, для якого ці дані (Y)}
+//  function GetF(index:integer):double;
+//  function GetCr(index:integer):double;
+//  function GenerateF(k:integer):double;
+//  function GenerateCr(k:integer):double;
+// public
+//  property F[index:integer]:double read GetF;
+//  property Cr[index:integer]:double read GetCr;
+//  constructor Create(FA_DE:TFA_DE;H:integer=5);
+//  destructor Destroy;override;
+//  procedure GenerateData();override;
+//  function NewIsBetter(const i:integer):boolean;
+//  procedure UpDate;override;
+//end;
+
+TEBLSHADE_FCP=class(TDE_Supplementary)
+ private
+  Mem:TDE_Mem;
   fLearningRate:double;
   Koef:TVector;
   fIsFirstAlgorithm:array of boolean;
@@ -642,10 +720,26 @@ TFCP=class(TDE_Memory)
   property IsFirstAlgorithm[index:integer]:boolean read GetIsFirstAlgorithm;
   constructor Create(FA_DE:TFA_DE;H:integer=5;LR:double=0.8);
   procedure GenerateData();override;
-  procedure UpDate;override;
+  procedure UpDate;
   destructor Destroy;override;
   procedure AddData(i:integer);
 end;
+
+
+//TFCP=class(TDE_Memory)
+// private
+//  fLearningRate:double;
+//  Koef:TVector;
+//  fIsFirstAlgorithm:array of boolean;
+//  function GetIsFirstAlgorithm(index:integer):boolean;
+// public
+//  property IsFirstAlgorithm[index:integer]:boolean read GetIsFirstAlgorithm;
+//  constructor Create(FA_DE:TFA_DE;H:integer=5;LR:double=0.8);
+//  procedure GenerateData();override;
+//  procedure UpDate;override;
+//  destructor Destroy;override;
+//  procedure AddData(i:integer);
+//end;
 
 TDEArchiv=class
  private
@@ -663,25 +757,51 @@ TDEArchiv=class
   procedure ResizeToMaxSize;
 end;
 
-TFA_EBLSHADE =class(TFA_DE)
-{Swarm and Evolutionary Computation 50 (2019) 100455}
+TFA_DEcomplex =class(TFA_DE)
  private
-  Archiv:TDEArchiv;
-  FCP:TFCP;
-  FandCrCreator:TFandCrCreator;
+  FandCrCreator:TFandCrCreatorCauchyNormal;
   NPinit:integer;
   NPmin:integer;
-  p_init:double;
-  p_min:double;
-  pbestNumber:integer;
-  function NewpbestNumber:integer;
   function NewNp:integer;
   procedure VectorForOppositePopulationFilling;override;
   procedure KoefDetermination;override;
   procedure Datatransform;
   procedure NewPopulationCreate(i:integer);override;
   procedure GreedySelectionAll;override;
+  procedure PopulationReSize;virtual;
+  procedure PopulationUpDate(i: Integer);virtual;
+  procedure FandCrCreatorCreate;virtual;abstract;
+//  procedure MutationCreate(i:integer);override;
+ public
+//  function NpDetermination:integer;override;
+  procedure CreateFields;override;
+  destructor Destroy;override;
+  procedure DataCoordination;override;
+end;
+
+
+//TFA_EBLSHADE =class(TFA_DE)
+TFA_EBLSHADE =class(TFA_DEcomplex)
+{Swarm and Evolutionary Computation 50 (2019) 100455}
+ private
+  Archiv:TDEArchiv;
+  FCP:TEBLSHADE_FCP;
+//  FandCrCreator:TEBLSHADE_FandCrCreator;
+//  NPinit:integer;
+//  NPmin:integer;
+  p_init:double;
+  p_min:double;
+  pbestNumber:integer;
+  function NewpbestNumber:integer;
+//  function NewNp:integer;
+//  procedure VectorForOppositePopulationFilling;override;
+  procedure KoefDetermination;override;
+//  procedure Datatransform;
+//  procedure NewPopulationCreate(i:integer);override;
+//  procedure GreedySelectionAll;override;
   procedure MutationCreate(i:integer);override;
+  procedure FandCrCreatorCreate;override;
+  procedure PopulationUpDate(i: Integer);override;
  public
   function NpDetermination:integer;override;
   procedure CreateFields;override;
@@ -690,7 +810,65 @@ TFA_EBLSHADE =class(TFA_DE)
 end;
 
 
-//TFA_IJAYA=class(TFA_Heuristic)
+TNDE_neighborhood=class
+ private
+  fNrsize: integer;
+  fNsize: integer;
+  procedure SetNrsize(Value:integer);
+ public
+  Numg: integer;
+  Nums: integer;
+  fit_best: double;
+  fit_worst: double;
+  fit_aver: Extended;
+  Std: Extended;
+  fit_bestOld: double;
+  fit_worstOld: double;
+  fit_averOld: Extended;
+  StdOld: Extended;
+  Eps1: double;
+  nr1: integer;
+  nr2: integer;
+  property Nrsize: integer read fNrsize write SetNrsize;
+  property Nsize: integer read fNsize;
+  constructor Create;
+  procedure ClearNum;
+  procedure ToOld;
+end;
+
+
+TNDE_neighborhoods=class
+ private
+  fFA_DE:TFA_DE;
+  group_fits:array of double;
+  group_index:array of integer;
+  fneighborhoods:array of TNDE_neighborhood;
+  fStd_aver:double;
+  procedure GroupIndexDetermine(i:integer);
+  procedure GroupFitsDetermine(i:integer);
+  function GetNB(index:integer):TNDE_neighborhood;
+ public
+  property Std_aver:double read fStd_aver;
+  property NB[index:integer]:TNDE_neighborhood read GetNB;
+  constructor Create(FA_DE:TFA_DE);
+  destructor Destroy;override;
+  procedure IncreaseNrsize(i:integer);
+  procedure DataDetermine(i:integer);
+  procedure UpDate;
+end;
+
+TFA_NDE =class(TFA_DEcomplex)
+ private
+  NBs:TNDE_neighborhoods;
+  procedure FandCrCreatorCreate;override;
+  procedure PopulationReSize;override;
+ public
+  function NpDetermination:integer;override;
+  procedure CreateFields;override;
+  destructor Destroy;override;
+end;
+
+
 TFA_IJAYA=class(TFA_ConsecutiveGeneration)
 // Energy Conversion and Management 150 (2017) 742–753
  private
@@ -698,17 +876,13 @@ TFA_IJAYA=class(TFA_ConsecutiveGeneration)
   NumberWorst:integer;
   Weight:double;
   Z:double;
-//  function NewZ:double;
   function NpDetermination:integer;override;
-//  procedure AfterNewPopulationCreate;override;
   procedure NewPopulationCreate(i:integer);override;
   procedure KoefDetermination;override;
   procedure ChaoticEliteLearning(i:integer);
   procedure SelfAdaptiveWeight(i:integer);
   procedure ExperienceBasedLearning(i:integer);
   procedure CreateFields;override;
-// public
-//  procedure StartAction;override;
 end;
 
 
@@ -730,18 +904,13 @@ TFA_ISCA=class(TFA_ConsecutiveGeneration)
   function NewR1:double;
   function NewWeight:double;
   function NpDetermination:integer;override;
-
-//  procedure AfterNewPopulationCreate;override;
   procedure NewPopulationCreate(i:integer);override;
   procedure KoefDetermination;override;
   procedure SinCosinUpdate(i:integer);
   procedure NewPopulationCreateAll;override;
   procedure GreedySelectionAll;override;
-//  procedure GreedySelectionSimple;
   procedure CreateFields;override;
   procedure RandomKoefDetermination;
-// public
-//  procedure StartAction;override;
 end;
 
 TFA_TLBO=class(TFA_ConsecutiveGeneration)
@@ -2848,7 +3017,6 @@ procedure TFA_ConsecutiveGeneration.StartAction;
 begin
   inherited StartAction;
   KoefDetermination;
-//VectorForOppositePopulation.WriteToFile('ss.dat');
 end;
 
 procedure TFA_ConsecutiveGeneration.VectorForOppositePopulationFilling;
@@ -3347,99 +3515,99 @@ begin
   GreedySelectionToLocalBest(true);
 end;
 
-{ TFandCrCreator }
-
-constructor TFandCrCreator.Create(FA_DE:TFA_DE;H: integer=5);
-// var i:integer;
-begin
- inherited;
-// fFA_DE:=FA_DE;
-// Mdata:=TVector.Create;
- data:=TVector.Create;
- Koef:=TVector.Create;
-// fH:=H;
-// for I := 0 to fH - 1 do
-//  Mdata.Add(0.5,0.5);
-// fk:=0;
- data.SetLenVector(fFA_DE.Np);
-end;
-
-destructor TFandCrCreator.Destroy;
-begin
-  FreeAndNil(data);
-  FreeAndNil(Koef);
-//  FreeAndNil(Mdata);
-  inherited;
-end;
-
-function TFandCrCreator.GenerateCr(k: integer): double;
-begin
- Result:=RandG(Mdata.Y[k],0.1);
- Result:=EnsureRange(Result,0.0,1.0);
-end;
-
-procedure TFandCrCreator.GenerateData;
- var k,i:integer;
-begin
- randomize;
- for i := 0 to fFA_DE.Np - 1 do
-  begin
-   k:=random(fH);
-   Data.X[i]:=GenerateF(k);
-   Data.Y[i]:=GenerateCr(k);
-  end;
-end;
-
-function TFandCrCreator.GenerateF(k: integer): double;
-begin
- repeat
-  Result:=RandCauchy(Mdata.X[k],0.1);
- until Result>=0;
- Result:=min(Result,1.0);
-end;
-
-function TFandCrCreator.GetCr(index:integer): double;
-begin
- Result:=Data.Y[index];
-end;
-
-function TFandCrCreator.GetF(index:integer): double;
-begin
- Result:=Data.X[index];
-end;
-
-function TFandCrCreator.NewIsBetter(const i:integer): boolean;
-begin
- Result:=fFA_DE.FitnessData[i]>fFA_DE.FitnessDataNew[i];
- if Result then Koef.Add((fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]),i);
-end;
-
-procedure TFandCrCreator.UpDate;
- var summa,sumF,sumCr:double;
-     i,number:integer;
-begin
- if Koef.HighNumber<0 then Exit;
- summa:=Koef.SumX;
- for I := 0 to Koef.HighNumber do
-   Koef.X[i]:=Koef.X[i]/summa;
- summa:=0;
- sumF:=0;
- sumCr:=0;
- for I := 0 to Koef.HighNumber do
-   begin
-    number:=round(Koef.Y[i]);
-    summa:=summa+Koef.X[i]*sqr(Data.X[number]);
-    sumF:=sumF+Koef.X[i]*Data.X[number];
-    sumCr:=sumCr+Koef.X[i]*Data.Y[number];
-   end;
- Mdata.X[fk]:=summa/sumF;
- Mdata.Y[fk]:=sumCr;
- Koef.Clear;
- inherited UpDate;
-// inc(fk);
-// if fk>=fH then fk:=0;
-
-end;
+//{ TFandCrCreator }
+//
+//constructor TFandCrCreator.Create(FA_DE:TFA_DE;H: integer=5);
+//// var i:integer;
+//begin
+// inherited;
+//// fFA_DE:=FA_DE;
+//// Mdata:=TVector.Create;
+// data:=TVector.Create;
+// Koef:=TVector.Create;
+//// fH:=H;
+//// for I := 0 to fH - 1 do
+////  Mdata.Add(0.5,0.5);
+//// fk:=0;
+// data.SetLenVector(fFA_DE.Np);
+//end;
+//
+//destructor TFandCrCreator.Destroy;
+//begin
+//  FreeAndNil(data);
+//  FreeAndNil(Koef);
+////  FreeAndNil(Mdata);
+//  inherited;
+//end;
+//
+//function TFandCrCreator.GenerateCr(k: integer): double;
+//begin
+// Result:=RandG(Mdata.Y[k],0.1);
+// Result:=EnsureRange(Result,0.0,1.0);
+//end;
+//
+//procedure TFandCrCreator.GenerateData;
+// var k,i:integer;
+//begin
+// randomize;
+// for i := 0 to fFA_DE.Np - 1 do
+//  begin
+//   k:=random(fH);
+//   Data.X[i]:=GenerateF(k);
+//   Data.Y[i]:=GenerateCr(k);
+//  end;
+//end;
+//
+//function TFandCrCreator.GenerateF(k: integer): double;
+//begin
+// repeat
+//  Result:=RandCauchy(Mdata.X[k],0.1);
+// until Result>=0;
+// Result:=min(Result,1.0);
+//end;
+//
+//function TFandCrCreator.GetCr(index:integer): double;
+//begin
+// Result:=Data.Y[index];
+//end;
+//
+//function TFandCrCreator.GetF(index:integer): double;
+//begin
+// Result:=Data.X[index];
+//end;
+//
+//function TFandCrCreator.NewIsBetter(const i:integer): boolean;
+//begin
+// Result:=fFA_DE.FitnessData[i]>fFA_DE.FitnessDataNew[i];
+// if Result then Koef.Add((fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]),i);
+//end;
+//
+//procedure TFandCrCreator.UpDate;
+// var summa,sumF,sumCr:double;
+//     i,number:integer;
+//begin
+// if Koef.HighNumber<0 then Exit;
+// summa:=Koef.SumX;
+// for I := 0 to Koef.HighNumber do
+//   Koef.X[i]:=Koef.X[i]/summa;
+// summa:=0;
+// sumF:=0;
+// sumCr:=0;
+// for I := 0 to Koef.HighNumber do
+//   begin
+//    number:=round(Koef.Y[i]);
+//    summa:=summa+Koef.X[i]*sqr(Data.X[number]);
+//    sumF:=sumF+Koef.X[i]*Data.X[number];
+//    sumCr:=sumCr+Koef.X[i]*Data.Y[number];
+//   end;
+// Mdata.X[fk]:=summa/sumF;
+// Mdata.Y[fk]:=sumCr;
+// Koef.Clear;
+// inherited UpDate;
+//// inc(fk);
+//// if fk>=fH then fk:=0;
+//
+//end;
 
 { TDEArchiv }
 
@@ -3481,97 +3649,97 @@ begin
   end;
 end;
 
-{ TDE_Memory }
+//{ TDE_Memory }
+//
+//constructor TDE_Memory.Create(FA_DE: TFA_DE; H: integer);
+// var i:integer;
+//begin
+// inherited Create;
+// fFA_DE:=FA_DE;
+// Mdata:=TVector.Create;
+// fH:=H;
+// for I := 0 to fH - 1 do
+//  Mdata.Add(0.5,0.5);
+// fk:=0;
+//end;
+//
+//destructor TDE_Memory.Destroy;
+//begin
+//  FreeAndNil(Mdata);
+//  inherited;
+//end;
+//
+//procedure TDE_Memory.UpDate;
+//begin
+// inc(fk);
+// if fk>=fH then fk:=0;
+//end;
 
-constructor TDE_Memory.Create(FA_DE: TFA_DE; H: integer);
- var i:integer;
-begin
- inherited Create;
- fFA_DE:=FA_DE;
- Mdata:=TVector.Create;
- fH:=H;
- for I := 0 to fH - 1 do
-  Mdata.Add(0.5,0.5);
- fk:=0;
-end;
-
-destructor TDE_Memory.Destroy;
-begin
-  FreeAndNil(Mdata);
-  inherited;
-end;
-
-procedure TDE_Memory.UpDate;
-begin
- inc(fk);
- if fk>=fH then fk:=0;
-end;
-
-{ TTCP }
-
-procedure TFCP.AddData(i: integer);
-begin
- if fIsFirstAlgorithm[i]
-   then Koef.Add(fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i],0)
-   else Koef.Add(0,fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]);
-end;
-
-constructor TFCP.Create(FA_DE: TFA_DE; H: integer=5;LR:double=0.8);
-begin
- inherited Create(FA_DE,H);
- SetLength(fIsFirstAlgorithm,FA_DE.Np);
- fLearningRate:=LR;
- Koef:=TVector.Create;
-end;
-
-destructor TFCP.Destroy;
-begin
-  FreeAndNil(Koef);
-  inherited;
-end;
-
-procedure TFCP.GenerateData;
- var i:integer;
-begin
- randomize;
- for i := 0 to fFA_DE.Np - 1 do
-  fIsFirstAlgorithm[i]:=(random<Mdata.X[random(fH)])
-end;
-
-function TFCP.GetIsFirstAlgorithm(index: integer): boolean;
-begin
- Result:=fIsFirstAlgorithm[index];
-end;
-
-procedure TFCP.UpDate;
- var summa,del_m:double;
-begin
- if Koef.HighNumber<0 then Exit;
- summa:=Koef.SumX;
- if summa=0 then del_m:=0.2
-           else del_m:=min(0.8,max(0.2,summa/(summa+Koef.SumY)));
- Mdata.X[fk]:=(1-fLearningRate)*Mdata.X[fk]
-              +fLearningRate*del_m;
- Koef.Clear;
- inherited UpDate;
-end;
+//{ TTCP }
+//
+//procedure TFCP.AddData(i: integer);
+//begin
+// if fIsFirstAlgorithm[i]
+//   then Koef.Add(fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i],0)
+//   else Koef.Add(0,fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]);
+//end;
+//
+//constructor TFCP.Create(FA_DE: TFA_DE; H: integer=5;LR:double=0.8);
+//begin
+// inherited Create(FA_DE,H);
+// SetLength(fIsFirstAlgorithm,FA_DE.Np);
+// fLearningRate:=LR;
+// Koef:=TVector.Create;
+//end;
+//
+//destructor TFCP.Destroy;
+//begin
+//  FreeAndNil(Koef);
+//  inherited;
+//end;
+//
+//procedure TFCP.GenerateData;
+// var i:integer;
+//begin
+// randomize;
+// for i := 0 to fFA_DE.Np - 1 do
+//  fIsFirstAlgorithm[i]:=(random<Mdata.X[random(fH)])
+//end;
+//
+//function TFCP.GetIsFirstAlgorithm(index: integer): boolean;
+//begin
+// Result:=fIsFirstAlgorithm[index];
+//end;
+//
+//procedure TFCP.UpDate;
+// var summa,del_m:double;
+//begin
+// if Koef.HighNumber<0 then Exit;
+// summa:=Koef.SumX;
+// if summa=0 then del_m:=0.2
+//           else del_m:=min(0.8,max(0.2,summa/(summa+Koef.SumY)));
+// Mdata.X[fk]:=(1-fLearningRate)*Mdata.X[fk]
+//              +fLearningRate*del_m;
+// Koef.Clear;
+// inherited UpDate;
+//end;
 
 { TFA_ELSHADE }
 
 procedure TFA_EBLSHADE.CreateFields;
 begin
-  inherited;
+  inherited CreateFields;
   fDescription:='EBLSHADE';
-  NPinit:=Np;
-  NPmin:=4;
+//  NPinit:=Np;
+//  NPmin:=4;
   p_init:=0.30;
   p_min:=0.15;
   Archiv:=TDEArchiv.Create(Self);
-  FCP:=TFCP.Create(Self);
-  FandCrCreator:=TFandCrCreator.Create(Self);
-  VectorForOppositePopulation.SetLenVector(fNp);
-  {в цьому методі використовується для
-  сортування елементів в популяції}
+  FCP:=TEBLSHADE_FCP.Create(Self);
+//  FandCrCreator:=TEBLSHADE_FandCrCreator.Create(Self);
+//  VectorForOppositePopulation.SetLenVector(fNp);
+//  {в цьому методі використовується для
+//  сортування елементів в популяції}
 end;
 
 procedure TFA_EBLSHADE.DataCoordination;
@@ -3579,54 +3747,66 @@ begin
  ArrayToHeuristicParam(Parameters[round(VectorForOppositePopulation.Y[0])]);
 end;
 
-procedure TFA_EBLSHADE.Datatransform;
- var i,k:integer;
-begin
- for I := fNp to VectorForOppositePopulation.HighNumber do
-  begin
-    k:=round(VectorForOppositePopulation.Y[i]);
-    Parameters[k]:=Copy(Parameters[i]);
-    FitnessData[k]:=FitnessData[i];
-  end; 
-end;
+//procedure TFA_EBLSHADE.Datatransform;
+// var i,k:integer;
+//begin
+// for I := fNp to VectorForOppositePopulation.HighNumber do
+//  begin
+//    k:=round(VectorForOppositePopulation.Y[i]);
+//    Parameters[k]:=Copy(Parameters[i]);
+//    FitnessData[k]:=FitnessData[i];
+//  end;
+//end;
 
 destructor TFA_EBLSHADE.Destroy;
 begin
-  FreeAndNil(FandCrCreator);
+//  FreeAndNil(FandCrCreator);
   FreeAndNil(FCP);
   FreeAndNil(Archiv);
   inherited;
 end;
 
-procedure TFA_EBLSHADE.GreedySelectionAll;
- var i:integer;
+procedure TFA_EBLSHADE.FandCrCreatorCreate;
 begin
-   for I := 0 to fNp-1 do
-    if FandCrCreator.NewIsBetter(i) then
-     begin
-      Archiv.AddToArchiv(i);
-      FCP.AddData(i);
-      Parameters[i]:=Copy(ParametersNew[i]);
-      FitnessData[i]:=FitnessDataNew[i];
-     end;
+ FandCrCreator:=TEBLSHADE_FandCrCreator.Create(Self);
 end;
+
+//procedure TFA_EBLSHADE.GreedySelectionAll;
+// var i:integer;
+//begin
+//   for I := 0 to fNp-1 do
+//    if FandCrCreator.NewIsBetter(i) then
+//     begin
+//      Archiv.AddToArchiv(i);
+//      FCP.AddData(i);
+//      Parameters[i]:=Copy(ParametersNew[i]);
+//      FitnessData[i]:=FitnessDataNew[i];
+//     end;
+//end;
 
 procedure TFA_EBLSHADE.KoefDetermination;
 begin
- inherited;
- VectorForOppositePopulationFilling;
- fNp:=NewNp;
- if fNp<=VectorForOppositePopulation.HighNumber then
-   begin
-     Datatransform;
-     VectorForOppositePopulation.SetLenVector(fNp);
-     VectorForOppositePopulationFilling;
-   end;
+ inherited KoefDetermination;
+
+// VectorForOppositePopulationFilling;
+// PopulationReSize;
+// FandCrCreator.UpDate;
+// FandCrCreator.GenerateData;
+
+// VectorForOppositePopulationFilling;
+// fNp:=NewNp;
+// if fNp<=VectorForOppositePopulation.HighNumber then
+//   begin
+//     Datatransform;
+//     VectorForOppositePopulation.SetLenVector(fNp);
+//     VectorForOppositePopulationFilling;
+//   end;
+
  pbestNumber:=NewpbestNumber;
  FCP.UpDate;
- FandCrCreator.UpDate;
+// FandCrCreator.UpDate;
  Fcp.GenerateData;
- FandCrCreator.GenerateData;
+// FandCrCreator.GenerateData;
  Archiv.ResizeToMaxSize;
 end;
 
@@ -3687,12 +3867,12 @@ begin
 
 end;
 
-function TFA_EBLSHADE.NewNp: integer;
-begin
- Result:=round((NPmin-NPinit)*fCurrentIteration
-          /(fFF.fDParamArray as TDParamsIteration).Nit
-            +NPinit);
-end;
+//function TFA_EBLSHADE.NewNp: integer;
+//begin
+// Result:=round((NPmin-NPinit)*fCurrentIteration
+//          /(fFF.fDParamArray as TDParamsIteration).Nit
+//            +NPinit);
+//end;
 
 function TFA_EBLSHADE.NewpbestNumber: integer;
 begin
@@ -3701,27 +3881,34 @@ begin
             +p_init));
 end;
 
-procedure TFA_EBLSHADE.NewPopulationCreate(i: integer);
-begin
-  CR:=FandCrCreator.Cr[i];
-  Crossover(i);
-end;
+//procedure TFA_EBLSHADE.NewPopulationCreate(i: integer);
+//begin
+//  CR:=FandCrCreator.Cr[i];
+//  Crossover(i);
+//end;
 
 function TFA_EBLSHADE.NpDetermination: integer;
 begin
  Result:=(fFF.DParamArray.MainParamHighIndex+1)*18;
 end;
 
-procedure TFA_EBLSHADE.VectorForOppositePopulationFilling;
- var i:integer;
+procedure TFA_EBLSHADE.PopulationUpDate(i: Integer);
 begin
- for I := 0 to fNp - 1 do
-   begin
-    VectorForOppositePopulation.X[i]:=FitnessData[i];
-    VectorForOppositePopulation.Y[i]:=i;
-   end;
- VectorForOppositePopulation.Sorting();
+  Archiv.AddToArchiv(i);
+  FCP.AddData(i);
+  inherited PopulationUpDate(i);
 end;
+
+//procedure TFA_EBLSHADE.VectorForOppositePopulationFilling;
+// var i:integer;
+//begin
+// for I := 0 to fNp - 1 do
+//   begin
+//    VectorForOppositePopulation.X[i]:=FitnessData[i];
+//    VectorForOppositePopulation.Y[i]:=i;
+//   end;
+// VectorForOppositePopulation.Sorting();
+//end;
 
 { TFA_ADELI }
 
@@ -3861,21 +4048,17 @@ end;
 constructor TADELI_FandCrCreator.Create(FA_DE: TFA_DE);
  var i:integer;
 begin
- inherited Create;
- fFA_DE:=FA_DE;
- Data:=TVector.Create;
+ inherited Create(FA_DE);
  for I := 0 to Data.HighNumber do
-  Data.Add(fFA_DE.F,fFA_DE.CR);
+  begin
+    Data.X[i]:=fFA_DE.F;
+    Data.Y[i]:=fFA_DE.CR;
+  end;
  tau1:=0.1;
  tau2:=0.1;
  Flow:=0.1;
  Fup:=0.9;
-end;
 
-destructor TADELI_FandCrCreator.Destroy;
-begin
-  FreeAndNil(Data);
-  inherited;
 end;
 
 procedure TADELI_FandCrCreator.GenerateData;
@@ -3889,14 +4072,527 @@ begin
   end;
 end;
 
-function TADELI_FandCrCreator.GetCr(index: integer): double;
+
+{ TNDE_neighborhood }
+
+constructor TNDE_neighborhood.Create;
+begin
+ inherited;
+ Nrsize:=1;
+ ClearNum;
+end;
+
+procedure TNDE_neighborhood.ClearNum;
+begin
+  Numg := 0;
+  Nums := 0;
+end;
+
+
+procedure TNDE_neighborhood.SetNrsize(Value: integer);
+begin
+ if Value<0 then Exit;
+ fNrsize:=Value;
+ fNsize:=fNrsize*2+1;
+end;
+
+procedure TNDE_neighborhood.ToOld;
+begin
+  fit_bestOld:=fit_best;
+  fit_worstOld:=fit_worst;
+  fit_averOld:=fit_aver;
+  StdOld:=Std;
+end;
+
+{ TNDE_neighborhoods }
+
+constructor TNDE_neighborhoods.Create(FA_DE: TFA_DE);
+ var i:integer;
+begin
+ inherited Create;
+ fFA_DE:=FA_DE;
+ SetLength(fneighborhoods,fFA_DE.Np);
+ for I := 0 to High(fneighborhoods) do
+  fneighborhoods[i]:=TNDE_neighborhood.Create;
+end;
+
+procedure TNDE_neighborhoods.DataDetermine(i: integer);
+begin
+ GroupIndexDetermine(i);
+ GroupFitsDetermine(i);
+ fneighborhoods[i].fit_best:=MinValue(group_fits);
+ fneighborhoods[i].fit_worst:=MaxValue(group_fits);
+// fneighborhoods[i].fit_aver:=Mean(group_fits);
+// fneighborhoods[i].Std:=StdDev(group_fits);
+ MeanAndStdDev(group_fits,fneighborhoods[i].fit_aver,
+                 fneighborhoods[i].Std);
+ fneighborhoods[i].Eps1:=1/(1+exp(20
+       *(fneighborhoods[i].fit_aver-fFA_DE.FitnessData[i])
+       /(fneighborhoods[i].fit_worst-fneighborhoods[i].fit_best)));
+ repeat
+  fneighborhoods[i].nr1:=group_index[random(fneighborhoods[i].Nsize)];
+ until (fneighborhoods[i].nr1<>i);
+
+ repeat
+  fneighborhoods[i].nr2:=group_index[random(fneighborhoods[i].Nsize)];
+ until (fneighborhoods[i].nr2<>i)
+       and(fneighborhoods[i].nr2<>fneighborhoods[i].nr1);
+end;
+
+destructor TNDE_neighborhoods.Destroy;
+  var i:integer;
+begin
+  for I := 0 to High(fneighborhoods) do
+    FreeAndNil(fneighborhoods[i]);
+  inherited;
+end;
+
+function TNDE_neighborhoods.GetNB(index: integer): TNDE_neighborhood;
+begin
+ Result:=fneighborhoods[index];
+end;
+
+procedure TNDE_neighborhoods.IncreaseNrsize(i: integer);
+begin
+ fneighborhoods[i].Nrsize:=min(fneighborhoods[i].Nrsize+1,
+                                Floor(0.5*(fFA_DE.Np-1)));
+end;
+
+procedure TNDE_neighborhoods.GroupFitsDetermine(i: integer);
+ var j:integer;
+begin
+ SetLength(group_fits,fneighborhoods[i].Nsize);
+ for j :=0 to High(group_fits) do
+  group_fits[j]:=fFA_DE.FitnessData[group_index[j]];
+end;
+
+procedure TNDE_neighborhoods.GroupIndexDetermine(i: integer);
+ var j,k:integer;
+begin
+ SetLength(group_index,fneighborhoods[i].Nsize);
+ for j := i-fneighborhoods[i].Nrsize to i+fneighborhoods[i].Nrsize do
+  begin
+    k:=j-i+fneighborhoods[i].Nrsize;
+    if j<0 then
+      begin
+       group_index[k]:=fFA_DE.Np+j;
+       Continue;
+      end;
+    if j>=fFA_DE.Np then
+      begin
+       group_index[k]:=j-fFA_DE.Np;
+       Continue;
+      end;
+    group_index[k]:=j;
+  end;
+
+end;
+
+procedure TNDE_neighborhoods.UpDate;
+ var maxNrsize,i:integer;
+begin
+ maxNrsize:=Floor(0.5*(fFA_DE.Np-1));
+ for I := 0 to High(fneighborhoods) do
+  fneighborhoods[i].Nrsize:=min(fneighborhoods[i].Nrsize,maxNrsize);
+end;
+
+{ TFandCrCreatorSimple }
+
+constructor TFandCrCreatorSimple.Create(FA_DE: TFA_DE);
+begin
+ inherited Create(FA_DE);
+// fFA_DE:=FA_DE;
+ Data:=TVector.Create;
+ Data.SetLenVector(fFA_DE.Np);
+end;
+
+destructor TFandCrCreatorSimple.Destroy;
+begin
+  FreeAndNil(Data);
+  inherited;
+end;
+
+function TFandCrCreatorSimple.GetCr(index: integer): double;
 begin
  Result:=Data.Y[index];
 end;
 
-function TADELI_FandCrCreator.GetF(index: integer): double;
+function TFandCrCreatorSimple.GetF(index: integer): double;
 begin
  Result:=Data.X[index];
+end;
+
+{ TDE_Supplementary }
+
+constructor TDE_Supplementary.Create(FA_DE: TFA_DE);
+begin
+ inherited Create;
+ fFA_DE:=FA_DE;
+end;
+
+{ TDE_Mem }
+
+constructor TDE_Mem.Create(H: integer);
+ var i:integer;
+begin
+ inherited Create;
+ Mdata:=TVector.Create;
+ fH:=H;
+ for I := 0 to fH - 1 do
+  Mdata.Add(0.5,0.5);
+ fk:=0;
+end;
+
+destructor TDE_Mem.Destroy;
+begin
+  FreeAndNil(Mdata);
+  inherited;
+end;
+
+function TDE_Mem.GetData(Index: Integer): double;
+begin
+ Result:=Mdata[fk][TCoord_type(Index)];
+end;
+
+function TDE_Mem.GetX(i: integer): double;
+begin
+ Result:=Mdata.X[EnsureRange(i,0,fH-1)];
+end;
+
+function TDE_Mem.GetY(i: integer): double;
+begin
+ Result:=Mdata.Y[EnsureRange(i,0,fH-1)];
+end;
+
+procedure TDE_Mem.SetData(Index: Integer; Value: double);
+begin
+ if Index=0 then Mdata.X[fk]:=Value
+            else Mdata.Y[fk]:=Value;
+end;
+
+
+procedure TDE_Mem.UpDate;
+begin
+ inc(fk);
+ if fk>=fH then fk:=0;
+end;
+
+{ TDE_MemSimple }
+
+constructor TDE_MemSimple.Create;
+begin
+ inherited Create(1);
+end;
+
+procedure TDE_MemSimple.UpDate;
+begin
+end;
+
+{ TFandCrCreatorCauchyNormal }
+
+constructor TFandCrCreatorCauchyNormal.Create(FA_DE: TFA_DE);
+begin
+ inherited Create(FA_DE);
+ Koef:=TVector.Create;
+ MemCreate;
+end;
+
+destructor TFandCrCreatorCauchyNormal.Destroy;
+begin
+  FreeAndNil(Mem);
+  FreeAndNil(Koef);
+  inherited;
+end;
+
+function TFandCrCreatorCauchyNormal.GenerateCr(mean: double): double;
+begin
+ Result:=RandG(mean,0.1);
+ Result:=EnsureRange(Result,0.0,1.0);
+end;
+
+//procedure TFandCrCreatorCauchyNormal.GenerateData;
+// var k,i:integer;
+//begin
+// randomize;
+// for i := 0 to fFA_DE.Np - 1 do
+//  begin
+//   k:=random(Mem.Len);
+//   Data.X[i]:=GenerateF(Mem.GetX(k));
+//   Data.Y[i]:=GenerateCr(Mem.GetY(k));
+//  end;
+//end;
+
+function TFandCrCreatorCauchyNormal.GenerateF(mean: double): double;
+begin
+ repeat
+  Result:=RandCauchy(mean,0.1);
+ until Result>=0;
+ Result:=min(Result,1.0);
+end;
+
+procedure TFandCrCreatorCauchyNormal.MemCreate;
+begin
+ Mem:=TDE_Mem.Create;
+end;
+
+procedure TFandCrCreatorCauchyNormal.MemUpDate(sumF2, sumF, sumCr: double);
+begin
+ Mem.X:=sumF2/sumF;
+ Mem.Y:=sumCr;
+ Mem.UpDate;
+end;
+
+function TFandCrCreatorCauchyNormal.NewIsBetter(const i: integer): boolean;
+begin
+ Result:=fFA_DE.FitnessData[i]>fFA_DE.FitnessDataNew[i];
+ if Result then Koef.Add((fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]),i);
+end;
+
+procedure TFandCrCreatorCauchyNormal.UpDate;
+ var summa,sumF2,sumF,sumCr:double;
+     i,number:integer;
+begin
+ if Koef.HighNumber<0 then Exit;
+ summa:=Koef.SumX;
+ for I := 0 to Koef.HighNumber do
+   Koef.X[i]:=Koef.X[i]/summa;
+ sumF2:=0;
+ sumF:=0;
+ sumCr:=0;
+ for I := 0 to Koef.HighNumber do
+   begin
+    number:=round(Koef.Y[i]);
+    sumF2:=sumF2+Koef.X[i]*sqr(Data.X[number]);
+    sumF:=sumF+Koef.X[i]*Data.X[number];
+    sumCr:=sumCr+Koef.X[i]*Data.Y[number];
+   end;
+
+ MemUpDate(sumF2,sumF,sumCr);
+
+ Koef.Clear;
+end;
+
+{ TEBLSHADE_FandCrCreator }
+
+procedure TEBLSHADE_FandCrCreator.GenerateData;
+ var k,i:integer;
+begin
+ randomize;
+ for i := 0 to fFA_DE.Np - 1 do
+  begin
+   k:=random(Mem.Len);
+   Data.X[i]:=GenerateF(Mem.GetX(k));
+   Data.Y[i]:=GenerateCr(Mem.GetY(k));
+  end;
+end;
+
+{ TNDE_FandCrCreator }
+
+constructor TNDE_FandCrCreator.Create(FA_DE: TFA_DE);
+begin
+ inherited;
+ fc:=0.1;
+end;
+
+procedure TNDE_FandCrCreator.GenerateData;
+ var i:integer;
+begin
+ randomize;
+ for i := 0 to fFA_DE.Np - 1 do
+  begin
+   Data.X[i]:=GenerateF(Mem.X);
+   Data.Y[i]:=GenerateCr(Mem.Y);
+  end;
+end;
+
+procedure TNDE_FandCrCreator.MemCreate;
+begin
+ Mem:=TDE_MemSimple.Create;
+end;
+
+procedure TNDE_FandCrCreator.MemUpDate(sumF2, sumF, sumCr: double);
+begin
+ Mem.X:=(1-fc)*Mem.X+fc*sumF2/sumF;
+ Mem.Y:=(1-fc)*Mem.Y+fc*sumCr;
+end;
+
+{ TEBLSHADE_FCP }
+
+procedure TEBLSHADE_FCP.AddData(i: integer);
+begin
+ if fIsFirstAlgorithm[i]
+   then Koef.Add(fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i],0)
+   else Koef.Add(0,fFA_DE.FitnessData[i]-fFA_DE.FitnessDataNew[i]);
+end;
+
+constructor TEBLSHADE_FCP.Create(FA_DE: TFA_DE; H: integer; LR: double);
+begin
+ inherited Create(FA_DE);
+ Mem:=TDE_Mem.Create(H);
+ SetLength(fIsFirstAlgorithm,FA_DE.Np);
+ fLearningRate:=LR;
+ Koef:=TVector.Create;
+end;
+
+destructor TEBLSHADE_FCP.Destroy;
+begin
+  FreeAndNil(Koef);
+  FreeAndNil(Mem);
+  inherited;
+end;
+
+procedure TEBLSHADE_FCP.GenerateData;
+ var i:integer;
+begin
+ randomize;
+ for i := 0 to fFA_DE.Np - 1 do
+  fIsFirstAlgorithm[i]:=(random<Mem.GetX(random(Mem.Len)));
+end;
+
+function TEBLSHADE_FCP.GetIsFirstAlgorithm(index: integer): boolean;
+begin
+  Result:=fIsFirstAlgorithm[index];
+end;
+
+procedure TEBLSHADE_FCP.UpDate;
+ var summa,del_m:double;
+begin
+ if Koef.HighNumber<0 then Exit;
+ summa:=Koef.SumX;
+ if summa=0 then del_m:=0.2
+           else del_m:=min(0.8,max(0.2,summa/(summa+Koef.SumY)));
+ Mem.X:=(1-fLearningRate)*Mem.X+fLearningRate*del_m;
+ Koef.Clear;
+ Mem.UpDate;
+end;
+
+{ TFA_DEcomplex }
+
+procedure TFA_DEcomplex.CreateFields;
+begin
+  inherited;
+  NPinit:=Np;
+  NPmin:=4;
+  FandCrCreatorCreate;
+  VectorForOppositePopulation.SetLenVector(fNp);
+  {в цьому методі використовується для
+  сортування елементів в популяції}
+
+end;
+
+procedure TFA_DEcomplex.DataCoordination;
+begin
+ ArrayToHeuristicParam(Parameters[round(VectorForOppositePopulation.Y[0])]);
+end;
+
+
+procedure TFA_DEcomplex.PopulationUpDate(i: Integer);
+begin
+  //      Archiv.AddToArchiv(i);
+  //      FCP.AddData(i);
+  Parameters[i] := Copy(ParametersNew[i]);
+  FitnessData[i] := FitnessDataNew[i];
+end;
+
+procedure TFA_DEcomplex.PopulationReSize;
+begin
+  fNp := NewNp;
+  if fNp <= VectorForOppositePopulation.HighNumber then
+  begin
+    Datatransform;
+    VectorForOppositePopulation.SetLenVector(fNp);
+    VectorForOppositePopulationFilling;
+  end;
+end;
+
+procedure TFA_DEcomplex.Datatransform;
+ var i,k:integer;
+begin
+ for I := fNp to VectorForOppositePopulation.HighNumber do
+  begin
+    k:=round(VectorForOppositePopulation.Y[i]);
+    Parameters[k]:=Copy(Parameters[i]);
+    FitnessData[k]:=FitnessData[i];
+  end;
+end;
+
+destructor TFA_DEcomplex.Destroy;
+begin
+  FreeAndNil(FandCrCreator);
+  inherited;
+end;
+
+procedure TFA_DEcomplex.GreedySelectionAll;
+ var i:integer;
+begin
+ for I := 0 to fNp-1 do
+  if FandCrCreator.NewIsBetter(i)
+   then PopulationUpDate(i);
+end;
+
+procedure TFA_DEcomplex.KoefDetermination;
+begin
+ inherited;
+ VectorForOppositePopulationFilling;
+ PopulationReSize;
+ FandCrCreator.UpDate;
+ FandCrCreator.GenerateData;
+end;
+
+function TFA_DEcomplex.NewNp: integer;
+begin
+ Result:=round((NPmin-NPinit)*fCurrentIteration
+          /(fFF.fDParamArray as TDParamsIteration).Nit
+            +NPinit);
+end;
+
+procedure TFA_DEcomplex.NewPopulationCreate(i: integer);
+begin
+  CR:=FandCrCreator.Cr[i];
+  Crossover(i);
+end;
+
+procedure TFA_DEcomplex.VectorForOppositePopulationFilling;
+ var i:integer;
+begin
+ for I := 0 to fNp - 1 do
+   begin
+    VectorForOppositePopulation.X[i]:=FitnessData[i];
+    VectorForOppositePopulation.Y[i]:=i;
+   end;
+ VectorForOppositePopulation.Sorting();
+end;
+
+{ TFA_NDE }
+
+procedure TFA_NDE.CreateFields;
+begin
+  inherited;
+  fDescription:='NDE';
+  NPmin:=5;
+  NBs:=TNDE_neighborhoods.Create(Self);
+end;
+
+destructor TFA_NDE.Destroy;
+begin
+  FreeAndNil(NBs);
+  inherited;
+end;
+
+procedure TFA_NDE.FandCrCreatorCreate;
+begin
+ FandCrCreator:=TNDE_FandCrCreator.Create(Self);
+end;
+
+function TFA_NDE.NpDetermination: integer;
+begin
+  Result:=(fFF.DParamArray.MainParamHighIndex+1)*10;
+end;
+
+procedure TFA_NDE.PopulationReSize;
+begin
+  inherited;
+//ToDo.....
 end;
 
 end.

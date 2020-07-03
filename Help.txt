@@ -45,7 +45,21 @@ begin
 end;
 
 
+procedure TFA_ConsecutiveGeneration.IterationAction;
+begin
+  BeforeNewPopulationCreate;
+  NewPopulationCreateAll;
+  GreedySelectionAll;
+  AfterNewPopulationCreate;
+  KoefDetermination;
+  inherited IterationAction;
+end;
 
+procedure TFA_ConsecutiveGeneration.StartAction;
+begin
+  inherited StartAction;
+  KoefDetermination;
+end;
 
 
 
