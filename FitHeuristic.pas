@@ -240,6 +240,7 @@ TToolKit=class
   procedure RenaltySHADE(var V:double;Xold:double);virtual;abstract;
   function DE_Mutation(X1,X2,X3,F:double):double;virtual;abstract;
   function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;virtual;abstract;
+  function DE_Mutation3(X1,X2,X3,X4,X5,X6,X7,F:double):double;virtual;abstract;
   function PSO_Transform(X2,X3,F:double):double;virtual;abstract;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);virtual;abstract;
@@ -275,6 +276,7 @@ TToolKitLinear=class(TToolKit)
   procedure RenaltySHADE(var V:double;Xold:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
   function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;override;
+  function DE_Mutation3(X1,X2,X3,X4,X5,X6,X7,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);override;
@@ -310,6 +312,7 @@ TToolKitLog=class(TToolKit)
   procedure RenaltySHADE(var lnV:double;Xold:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
   function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;override;
+  function DE_Mutation3(X1,X2,X3,X4,X5,X6,X7,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);override;
@@ -341,6 +344,7 @@ TToolKitConst=class(TToolKit)
   procedure RenaltySHADE(var V:double;Xold:double);override;
   function DE_Mutation(X1,X2,X3,F:double):double;override;
   function DE_Mutation2(X1,X2,X3,X4,X5,F:double):double;override;
+  function DE_Mutation3(X1,X2,X3,X4,X5,X6,X7,F:double):double;override;
   function PSO_Transform(X2,X3,F:double):double;override;
   procedure PSO_Penalty(var X:double;var Velocity:double;
                         const Parameter:double);override;
@@ -829,6 +833,8 @@ TNDE_neighborhood=class
   Eps1: double;
   nr1: integer;
   nr2: integer;
+  Num_best:integer;
+  IsNeededToRecalculate:boolean;
   property Nrsize: integer read fNrsize write SetNrsize;
   property Nsize: integer read fNsize;
   constructor Create;
@@ -839,6 +845,7 @@ end;
 
 TNDE_neighborhoods=class
  private
+  fgm:integer;
   fFA_DE:TFA_DE;
   group_fits:array of double;
   group_index:array of integer;
@@ -848,20 +855,31 @@ TNDE_neighborhoods=class
   procedure GroupFitsDetermine(i:integer);
   function GetNB(index:integer):TNDE_neighborhood;
  public
+  property gm:integer read fgm;
   property Std_aver:double read fStd_aver;
   property NB[index:integer]:TNDE_neighborhood read GetNB;
   constructor Create(FA_DE:TFA_DE);
   destructor Destroy;override;
   procedure IncreaseNrsize(i:integer);
-  procedure DataDetermine(i:integer);
+  procedure DataCalculate(i:integer;IsAlways:boolean);
   procedure UpDate;
+  procedure DataCalculateAll;
+  procedure ReSize;
+  procedure ChangeNums;
+  procedure CalculateStdaver;
 end;
 
 TFA_NDE =class(TFA_DEcomplex)
+{Information Sciences 478 (2019) 422–448}
  private
   NBs:TNDE_neighborhoods;
+  ParameterTemp:TArrSingle;
+  Eps2:double;
   procedure FandCrCreatorCreate;override;
   procedure PopulationReSize;override;
+  procedure MutationCreate(i:integer);override;
+  procedure AfterNewPopulationCreate;override;
+  procedure NDE_IndividualsGenerate(i:integer; IsRandomUsed:boolean);
  public
   function NpDetermination:integer;override;
   procedure CreateFields;override;
@@ -1005,7 +1023,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
-  (TFA_DE,TFA_EBLSHADE,TFA_ADELI,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
+  (TFA_DE,TFA_EBLSHADE,TFA_ADELI,TFA_NDE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
    TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA,TFA_CWOA);
 
 
@@ -1549,7 +1567,14 @@ end;
 
 function TToolKitLinear.DE_Mutation2(X1, X2, X3, X4, X5, F: double): double;
 begin
- Result:=X1+F*(X2-X3)+F*(X4-X5);
+ Result:=X1+F*(X2-X3+X4-X5);
+end;
+
+function TToolKitLinear.DE_Mutation3(X1, X2, X3, X4, X5, X6, X7,
+  F: double): double;
+begin
+ Result:=X1+F*(X2-X3+X4-X5+X6-X7);
+ Penalty(Result);
 end;
 
 function TToolKitLinear.EBLSHADE_Mutation(X, Xbp, Xm, Xw, F: double): double;
@@ -1766,7 +1791,15 @@ end;
 
 function TToolKitLog.DE_Mutation2(X1, X2, X3, X4, X5, F: double): double;
 begin
- Result:=ln(X1)+F*(ln(X2)-ln(X3))+F*(ln(X4)-ln(X5));
+ Result:=ln(X1)+F*(ln(X2)-ln(X3)+ln(X4)-ln(X5));
+end;
+
+function TToolKitLog.DE_Mutation3(X1, X2, X3, X4, X5, X6, X7,
+  F: double): double;
+begin
+ Result:=ln(X1)+F*(ln(X2)-ln(X3)+ln(X4)-ln(X5)+ln(X6)+ln(X7));
+ Penalty(Result);
+ Result:=exp(Result);
 end;
 
 function TToolKitLog.EBLSHADE_Mutation(X, Xbp, Xm, Xw, F: double): double;
@@ -1949,6 +1982,12 @@ end;
 function TToolKitConst.DE_Mutation2(X1, X2, X3, X4, X5, F: double): double;
 begin
  Result:=Xmin;
+end;
+
+function TToolKitConst.DE_Mutation3(X1, X2, X3, X4, X5, X6, X7,
+  F: double): double;
+begin
+  Result:=Xmin;
 end;
 
 function TToolKitConst.EBLSHADE_Mutation(X, Xbp, Xm, Xw, F: double): double;
@@ -4080,6 +4119,7 @@ begin
  inherited;
  Nrsize:=1;
  ClearNum;
+ IsNeededToRecalculate:=True;
 end;
 
 procedure TNDE_neighborhood.ClearNum;
@@ -4106,6 +4146,34 @@ end;
 
 { TNDE_neighborhoods }
 
+procedure TNDE_neighborhoods.CalculateStdaver;
+ var i:integer;
+     temp:double;
+begin
+ temp:=0;
+ for i := 0 to fFA_DE.Np-1 do
+   temp:=temp+fneighborhoods[i].Std;
+ fStd_aver:=temp/(fFA_DE.Np-1);
+end;
+
+procedure TNDE_neighborhoods.ChangeNums;
+ var i:integer;
+begin
+ for I := 0 to fFA_DE.Np-1 do
+  begin
+   DataCalculate(i,true);
+   if fneighborhoods[i].fit_best<fneighborhoods[i].fit_bestOld
+    then fneighborhoods[i].ClearNum
+    else
+     begin
+       Inc(fneighborhoods[i].Numg);
+        if fneighborhoods[i].fit_aver>=fneighborhoods[i].fit_averOld
+          then Inc(fneighborhoods[i].Nums);
+     end;
+  end;
+
+end;
+
 constructor TNDE_neighborhoods.Create(FA_DE: TFA_DE);
  var i:integer;
 begin
@@ -4114,29 +4182,44 @@ begin
  SetLength(fneighborhoods,fFA_DE.Np);
  for I := 0 to High(fneighborhoods) do
   fneighborhoods[i]:=TNDE_neighborhood.Create;
+ fgm:=10;
 end;
 
-procedure TNDE_neighborhoods.DataDetermine(i: integer);
+procedure TNDE_neighborhoods.DataCalculate(i: integer;IsAlways:boolean);
 begin
- GroupIndexDetermine(i);
- GroupFitsDetermine(i);
- fneighborhoods[i].fit_best:=MinValue(group_fits);
- fneighborhoods[i].fit_worst:=MaxValue(group_fits);
-// fneighborhoods[i].fit_aver:=Mean(group_fits);
-// fneighborhoods[i].Std:=StdDev(group_fits);
- MeanAndStdDev(group_fits,fneighborhoods[i].fit_aver,
-                 fneighborhoods[i].Std);
- fneighborhoods[i].Eps1:=1/(1+exp(20
-       *(fneighborhoods[i].fit_aver-fFA_DE.FitnessData[i])
-       /(fneighborhoods[i].fit_worst-fneighborhoods[i].fit_best)));
- repeat
-  fneighborhoods[i].nr1:=group_index[random(fneighborhoods[i].Nsize)];
- until (fneighborhoods[i].nr1<>i);
+ if (IsAlways or fneighborhoods[i].IsNeededToRecalculate) then
+ begin
+   GroupIndexDetermine(i);
+   GroupFitsDetermine(i);
+   fneighborhoods[i].fit_best:=MinValue(group_fits);
+   fneighborhoods[i].fit_worst:=MaxValue(group_fits);
+  // fneighborhoods[i].fit_aver:=Mean(group_fits);
+  // fneighborhoods[i].Std:=StdDev(group_fits);
+   MeanAndStdDev(group_fits,fneighborhoods[i].fit_aver,
+                   fneighborhoods[i].Std);
+   if IsEqual(fneighborhoods[i].fit_best,fneighborhoods[i].fit_worst)
+      then  fneighborhoods[i].Eps1:=1/(1+exp(20))
+      else  fneighborhoods[i].Eps1:=1/(1+exp(20
+         *(fneighborhoods[i].fit_aver-fFA_DE.FitnessData[i])
+         /(fneighborhoods[i].fit_worst-fneighborhoods[i].fit_best)));
+   fneighborhoods[i].Num_best:=MinElemNumber(group_fits);
+   repeat
+    fneighborhoods[i].nr1:=group_index[random(fneighborhoods[i].Nsize)];
+   until (fneighborhoods[i].nr1<>i);
 
- repeat
-  fneighborhoods[i].nr2:=group_index[random(fneighborhoods[i].Nsize)];
- until (fneighborhoods[i].nr2<>i)
-       and(fneighborhoods[i].nr2<>fneighborhoods[i].nr1);
+   repeat
+    fneighborhoods[i].nr2:=group_index[random(fneighborhoods[i].Nsize)];
+   until (fneighborhoods[i].nr2<>i)
+         and(fneighborhoods[i].nr2<>fneighborhoods[i].nr1);
+   fneighborhoods[i].IsNeededToRecalculate:=False;
+ end;
+end;
+
+procedure TNDE_neighborhoods.DataCalculateAll;
+  var i:integer;
+begin
+  for I := 0 to fFA_DE.Np-1
+    do  DataCalculate(i,False);
 end;
 
 destructor TNDE_neighborhoods.Destroy;
@@ -4156,6 +4239,20 @@ procedure TNDE_neighborhoods.IncreaseNrsize(i: integer);
 begin
  fneighborhoods[i].Nrsize:=min(fneighborhoods[i].Nrsize+1,
                                 Floor(0.5*(fFA_DE.Np-1)));
+ fneighborhoods[i].IsNeededToRecalculate:=True;
+end;
+
+
+procedure TNDE_neighborhoods.ReSize;
+ var maxNrsize,i:integer;
+begin
+ maxNrsize:=Floor(0.5*(fFA_DE.Np-1));
+ for I := 0 to fFA_DE.Np-1 do
+   begin
+     fneighborhoods[i].Nrsize:=min(maxNrsize,
+                               fneighborhoods[i].Nrsize);
+     fneighborhoods[i].IsNeededToRecalculate:=True;
+   end;
 end;
 
 procedure TNDE_neighborhoods.GroupFitsDetermine(i: integer);
@@ -4470,7 +4567,7 @@ end;
 
 procedure TFA_DEcomplex.CreateFields;
 begin
-  inherited;
+  inherited CreateFields;
   NPinit:=Np;
   NPmin:=4;
   FandCrCreatorCreate;
@@ -4488,21 +4585,19 @@ end;
 
 procedure TFA_DEcomplex.PopulationUpDate(i: Integer);
 begin
-  //      Archiv.AddToArchiv(i);
-  //      FCP.AddData(i);
   Parameters[i] := Copy(ParametersNew[i]);
   FitnessData[i] := FitnessDataNew[i];
 end;
 
 procedure TFA_DEcomplex.PopulationReSize;
 begin
-  fNp := NewNp;
-  if fNp <= VectorForOppositePopulation.HighNumber then
-  begin
+//  fNp := NewNp;
+//  if fNp <= VectorForOppositePopulation.HighNumber then
+//  begin
     Datatransform;
     VectorForOppositePopulation.SetLenVector(fNp);
     VectorForOppositePopulationFilling;
-  end;
+//  end;
 end;
 
 procedure TFA_DEcomplex.Datatransform;
@@ -4534,7 +4629,9 @@ procedure TFA_DEcomplex.KoefDetermination;
 begin
  inherited;
  VectorForOppositePopulationFilling;
- PopulationReSize;
+ fNp := NewNp;
+ if fNp <= VectorForOppositePopulation.HighNumber
+   then PopulationReSize;
  FandCrCreator.UpDate;
  FandCrCreator.GenerateData;
 end;
@@ -4565,12 +4662,44 @@ end;
 
 { TFA_NDE }
 
+procedure TFA_NDE.AfterNewPopulationCreate;
+ var i:integer;
+begin
+ VectorForOppositePopulationFilling;
+ NBs.ChangeNums();
+ NBs.CalculateStdaver;
+ for I := 0 to fNp - 1 do
+  if NBs.NB[i].Numg=NBs.gm then
+   if random>(NBs.NB[i].Nums/NBs.NB[i].Numg)
+     then NBs.IncreaseNrsize(i)
+     else
+      begin
+       Eps2:=1-min(fCurrentIteration
+                   /(fFF.fDParamArray as TDParamsIteration).Nit,
+                   (VectorForOppositePopulation.X[VectorForOppositePopulation.HighNumber]
+                   -FitnessData[i])
+                   /(VectorForOppositePopulation.X[VectorForOppositePopulation.HighNumber]
+                   -VectorForOppositePopulation.X[0]));
+       ParameterTemp:=Copy(Parameters[i]);
+       if NBs.NB[i].Std<NBs.Std_aver then
+        begin
+         NDE_IndividualsGenerate(i, true);
+        end                          else
+        begin
+         Parameters[i]:=Copy(Parameters[NBs.NB[i].Num_best]);
+         NDE_IndividualsGenerate(i, false);
+        end;
+        NBs.NB[i].ClearNum;
+      end;
+end;
+
 procedure TFA_NDE.CreateFields;
 begin
-  inherited;
+  inherited CreateFields;
   fDescription:='NDE';
   NPmin:=5;
   NBs:=TNDE_neighborhoods.Create(Self);
+  SetLength(ParameterTemp,fDim);
 end;
 
 destructor TFA_NDE.Destroy;
@@ -4584,6 +4713,58 @@ begin
  FandCrCreator:=TNDE_FandCrCreator.Create(Self);
 end;
 
+procedure TFA_NDE.MutationCreate(i: integer);
+ var j:integer;
+begin
+// inherited MutationCreate(i);
+ F:=FandCrCreator.F[i];
+ NBs.DataCalculate(i,false);
+ NBs.NB[i].ToOld;
+  repeat
+   r[1]:=Random(Np);
+  until (r[1]<>i);
+  repeat
+   r[2]:=Random(Np);
+  until (r[2]<>i){and(r[2]<>r[1])};
+
+ if random<NBs.NB[i].Eps1 then
+    for j := 0 to High(fToolKitArr) do
+    ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation(Parameters[NBs.NB[i].nr1,j],
+                                                   Parameters[r[1],j],
+                                                   Parameters[r[2],j],F)
+                         else
+    for j := 0 to High(fToolKitArr) do
+    ParametersNew[i][j]:=fToolKitArr[j].DE_Mutation3(Parameters[i,j],
+                                                   Parameters[NBs.NB[i].Num_best,j],
+                                                   Parameters[i,j],
+                                                   Parameters[NBs.NB[i].nr1,j],
+                                                   Parameters[NBs.NB[i].nr2,j],
+                                                   Parameters[r[1],j],
+                                                   Parameters[r[2],j],F);
+
+end;
+
+procedure TFA_NDE.NDE_IndividualsGenerate(i: integer; IsRandomUsed: boolean);
+ var j:integer;
+begin
+  repeat
+     ConditionalRandomize;
+     if IsRandomUsed then RandomValueToParameter(i);
+     for j := 0 to fDim-1 do
+      begin
+      if random>=Eps2 then
+        Parameters[i][j]:=ParameterTemp[j];
+//      if (fToolKitArr[j] is TToolKitLog)and(Parameters[i][j]<0) then showmessage('oops!');
+
+      end;
+     try
+      FitnessData[i]:=FitnessFunc(Parameters[i]);
+     except
+      Continue;
+     end;
+  until (true);
+end;
+
 function TFA_NDE.NpDetermination: integer;
 begin
   Result:=(fFF.DParamArray.MainParamHighIndex+1)*10;
@@ -4591,8 +4772,8 @@ end;
 
 procedure TFA_NDE.PopulationReSize;
 begin
-  inherited;
-//ToDo.....
+  inherited PopulationReSize;
+  NBs.ReSize;
 end;
 
 end.

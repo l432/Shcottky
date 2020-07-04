@@ -19,6 +19,7 @@ type
     (etDE, //differential evolution
      etEBLSHADE, //
      etADELI,//DE with the Lagrange interpolation argument
+     etNDE,// DE with  with neighborhood-based adaptive mechanism
      etMABC, // modified artificial bee colony
      etTLBO,  //teaching learning based optimization algorithm
      etGOTLBO,//generalized oppositional  TLBO
@@ -46,7 +47,7 @@ const
 
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
-         ('DE','EBLSHADE','ADELI','MABC','TLBO','GOTLBO','STLBO',
+         ('DE','EBLSHADE','ADELI','NDE','MABC','TLBO','GOTLBO','STLBO',
          'PSO','IJAYA','ISCA','NNA','CWOA');
 
  FitTypeNames:array[TFitnessType]of string=
