@@ -261,6 +261,8 @@ TToolKit=class
   function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;virtual;abstract;
   function ADELI_LagrangeOtherwise(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;virtual;
   function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;virtual;abstract;
+  function WaterWave_Prop(X,WL:double):double;virtual;abstract;
+  function WaterWave_Refrac(X,Xbest:double):double;virtual;abstract;
 end;
 
 
@@ -296,6 +298,8 @@ TToolKitLinear=class(TToolKit)
   function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
   function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;override;
   function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;override;
+  function WaterWave_Prop(X,WL:double):double;override;
+  function WaterWave_Refrac(X,Xbest:double):double;override;
 end;
 
 TToolKitLog=class(TToolKit)
@@ -332,6 +336,8 @@ TToolKitLog=class(TToolKit)
   function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
   function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;override;
   function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;override;
+  function WaterWave_Prop(X,WL:double):double;override;
+  function WaterWave_Refrac(X,Xbest:double):double;override;
 end;
 
 TToolKitConst=class(TToolKit)
@@ -364,6 +370,8 @@ TToolKitConst=class(TToolKit)
   function EBLSHADE_Mutation(X,Xbp,Xm,Xw,F:double):double;override;
   function ADELI_LocalSearch(X,Xpmin,Xpmax:double;Np:integer;ToUp:boolean):double;override;
   function ADELI_Lagrange(Xb,X1,X2,Fitb,Fit1,Fit2:double):double;override;
+  function WaterWave_Prop(X,WL:double):double;override;
+  function WaterWave_Refrac(X,Xbest:double):double;override;
 end;
 
 TToolKit_Class=class of TToolKit;
@@ -447,6 +455,7 @@ TFA_ConsecutiveGeneration=class(TFA_Heuristic)
   procedure BeforeNewPopulationCreate;virtual;
   procedure AfterNewPopulationCreate;virtual;
   procedure KoefDetermination;virtual;
+  function LinearDecrease(InitValue,EndValue:double):double;
  public
   FitnessDataNew:TArrSingle;
   procedure IterationAction;override;
@@ -530,6 +539,7 @@ TFA_NNA=class(TFA_WithoutGreedySelection)
   procedure StartAction;override;
 //  procedure DataCoordination;override;
 end;
+
 
 //TFA_DE=class(TFA_Heuristic)
 TFA_DE=class(TFA_ConsecutiveGeneration)
@@ -887,6 +897,33 @@ TFA_NDE =class(TFA_DEcomplex)
 end;
 
 
+TFA_WaterWave=class(TFA_ConsecutiveGeneration)
+{Computers & Operations Research 55 (2015) 1–11}
+ private
+  NumberBest:integer;
+  betta_init:double;
+  betta_end:double;
+  betta:double;
+  alpha:double;
+  h_max:integer;
+  k_max:integer;
+  WaveLengths:TArrSingle;
+  Amplitudes:array of integer;
+  function NpDetermination:integer;override;
+  procedure CreateFields;override;
+  function NewBetta:double;
+  procedure KoefDetermination;override;
+  procedure Propagation(i:integer);
+  procedure Refraction(i:integer);
+  procedure Breaking(i:integer);
+  procedure NewPopulationCreate(i:integer);override;
+  procedure AfterNewPopulationCreate;override;
+  procedure GreedySelectionAll;override;
+ public
+  procedure DataCoordination;override;
+  procedure StartAction;override;
+end;
+
 TFA_IJAYA=class(TFA_ConsecutiveGeneration)
 // Energy Conversion and Management 150 (2017) 742–753
  private
@@ -1024,7 +1061,7 @@ TFA_Heuristic_Class=class of TFA_Heuristic;
 const
   FA_HeuristicClasses:array[TEvolutionTypeNew]of TFA_Heuristic_Class=
   (TFA_DE,TFA_EBLSHADE,TFA_ADELI,TFA_NDE,TFA_MABC,TFA_TLBO,TFA_GOTLBO,TFA_STLBO,
-   TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA,TFA_CWOA);
+   TFA_PSO,TFA_IJAYA,TFA_ISCA,TFA_NNA,TFA_CWOA,TFA_WaterWave);
 
 
 Function FitnessCalculationFactory(FF: TFFHeuristic):TFitnessCalculation;
@@ -1699,6 +1736,18 @@ begin
  PenaltySimple(Result);
 end;
 
+function TToolKitLinear.WaterWave_Prop(X, WL:double): double;
+begin
+ Result:=X+WL*Xmax_Xmin;
+ PenaltySimple(Result);
+end;
+
+function TToolKitLinear.WaterWave_Refrac(X, Xbest: double): double;
+begin
+ Result:=RandG((X+Xbest)/2,abs((X-Xbest)/2));
+ PenaltySimple(Result);
+end;
+
 function TToolKitLinear.WOA_BubleNA(X, Xb, l: double): double;
 begin
  Result:=abs(Xb-X)*exp(l)*cos(2*Pi*l)+Xb;
@@ -1936,6 +1985,23 @@ begin
  Result:=exp(Result)
 end;
 
+function TToolKitLog.WaterWave_Prop(X, WL:double): double;
+begin
+ Result:=ln(X)+WL*lnXmax_Xmin;
+ PenaltySimple(Result);
+ Result:=exp(Result)
+end;
+
+function TToolKitLog.WaterWave_Refrac(X, Xbest: double): double;
+ var lnX,lnXb:double;
+begin
+ lnXb:=ln(Xbest);
+ lnX:=ln(X);
+ Result:=RandG((lnX+lnXb)/2,abs((lnX-lnXb)/2));
+ PenaltySimple(Result);
+ Result:=exp(Result)
+end;
+
 function TToolKitLog.WOA_BubleNA(X, Xb, l: double): double;
  var lnXb:double;
 begin
@@ -2065,6 +2131,16 @@ begin
 end;
 
 function TToolKitConst.TLBO_Transform(X1, X2, Xmean,r:double;Tf:integer): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.WaterWave_Prop(X, WL:double): double;
+begin
+ Result:=Xmin;
+end;
+
+function TToolKitConst.WaterWave_Refrac(X, Xbest: double): double;
 begin
  Result:=Xmin;
 end;
@@ -2952,6 +3028,13 @@ end;
 
 procedure TFA_ConsecutiveGeneration.KoefDetermination;
 begin
+end;
+
+function TFA_ConsecutiveGeneration.LinearDecrease(InitValue,EndValue:double): double;
+begin
+ Result:=(EndValue-InitValue)*fCurrentIteration
+          /(fFF.fDParamArray as TDParamsIteration).Nit
+            +InitValue
 end;
 
 class function TFA_ConsecutiveGeneration.LogisticChaoticMap(Z: double): Double;
@@ -4638,9 +4721,10 @@ end;
 
 function TFA_DEcomplex.NewNp: integer;
 begin
- Result:=round((NPmin-NPinit)*fCurrentIteration
-          /(fFF.fDParamArray as TDParamsIteration).Nit
-            +NPinit);
+ Result:=round(LinearDecrease(NPinit,NPmin));
+// Result:=round((NPmin-NPinit)*fCurrentIteration
+//          /(fFF.fDParamArray as TDParamsIteration).Nit
+//            +NPinit);
 end;
 
 procedure TFA_DEcomplex.NewPopulationCreate(i: integer);
@@ -4774,6 +4858,164 @@ procedure TFA_NDE.PopulationReSize;
 begin
   inherited PopulationReSize;
   NBs.ReSize;
+end;
+
+{ TFA_WaterWave }
+
+procedure TFA_WaterWave.AfterNewPopulationCreate;
+ var f_max,f_min:double;
+     i:integer;
+     IsEquals:boolean;
+begin
+ f_max:=MaxValue(FitnessData);
+ f_min:=MinValue(FitnessData);
+ IsEquals:=IsEqual(f_max,f_min);
+ for I := 0 to Np - 1 do
+  if IsEquals
+   then WaveLengths[i]:=WaveLengths[i]/alpha
+   else WaveLengths[i]:=WaveLengths[i]
+             *Power(alpha,-(f_max-FitnessData[i])/(f_max-f_min))
+end;
+
+procedure TFA_WaterWave.Breaking(i: integer);
+ var Ks:array of integer;
+     l,j,k:integer;
+     bool:boolean;
+begin
+ SetLength(Ks,random(k_max)+1);
+ for l := 0 to High(Ks) do
+  begin
+  repeat
+    k:=random(fDim);
+    bool:=true;
+    for j := 0 to l - 1 do
+      bool:=bool and (k<>Ks[j])
+  until bool;
+  Ks[l]:=k;
+  end;
+
+ ParametersNew[i]:=Copy(Parameters[i]);
+ for j := 0 to High(Ks) do
+  begin
+    repeat
+      ConditionalRandomize;
+      ParametersNew[i][Ks[j]]:=fToolKitArr[j].WaterWave_Prop(ParametersNew[i][Ks[j]],
+                                                             betta*RandG(0,1));
+     try
+      FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);
+     except
+      Continue;
+     end;
+    until (true);
+    if FitnessDataNew[i]<FitnessData[i] then
+     begin
+       Parameters[i,Ks[j]]:=ParametersNew[i][Ks[j]];
+       FitnessData[i]:=FitnessDataNew[i];
+     end                                else
+       ParametersNew[i,Ks[j]]:=Parameters[i][Ks[j]];
+  end;
+end;
+
+procedure TFA_WaterWave.CreateFields;
+ var i:integer;
+begin
+ inherited;
+ fDescription:='Water Waves';
+ h_max:=6;
+ SetLength(WaveLengths,Np);
+ SetLength(Amplitudes,Np);
+ for i := 0 to Np - 1 do
+  begin
+   Amplitudes[i]:=h_max;
+   WaveLengths[i]:=0.5;
+  end;
+ k_max:=min(12,round(Dim/2));
+ alpha:=1.026;
+ betta_init:=0.25;
+ betta_end:=0.001;
+end;
+
+procedure TFA_WaterWave.DataCoordination;
+begin
+  ArrayToHeuristicParam(Parameters[NumberBest]);
+end;
+
+procedure TFA_WaterWave.GreedySelectionAll;
+ var i:integer;
+begin
+ for I := 0 to fNp-1 do
+   if GreedySelection(i,FitnessDataNew[i],ParametersNew[i])
+     then
+      begin
+       if FitnessData[i]<=FitnessData[NumberBest] then
+         begin
+           Breaking(i);
+           NumberBest:=i;
+         end;
+      end
+     else
+      begin
+       Amplitudes[i]:=Amplitudes[i]-1;
+       if Amplitudes[i]=0 then Refraction(i);
+      end;
+end;
+
+procedure TFA_WaterWave.KoefDetermination;
+begin
+ inherited;
+// NumberBest:=MinElemNumber(FitnessData);
+ betta:=NewBetta();
+end;
+
+function TFA_WaterWave.NewBetta: double;
+begin
+ Result:=LinearDecrease(betta_init,betta_end);
+end;
+
+procedure TFA_WaterWave.NewPopulationCreate(i: integer);
+begin
+ Propagation(i);
+end;
+
+function TFA_WaterWave.NpDetermination: integer;
+begin
+ Result:=10;
+end;
+
+procedure TFA_WaterWave.Propagation(i: integer);
+ var    j:integer;
+begin
+ for j := 0 to High(fToolKitArr) do
+  ParametersNew[i][j]:=fToolKitArr[j].WaterWave_Prop(Parameters[i,j],
+                                                WaveLengths[i]*(Random*2-1));
+end;
+
+procedure TFA_WaterWave.Refraction(i: integer);
+ var    j:integer;
+begin
+  FitnessDataNew[i]:=FitnessData[i];
+  repeat
+     ConditionalRandomize;
+     for j := 0 to High(fToolKitArr) do
+      ParametersNew[i][j]:=fToolKitArr[j].WaterWave_Refrac(Parameters[i,j],
+                                                    Parameters[NumberBest,j]);
+     try
+      FitnessData[i]:=FitnessFunc(Parameters[i]);
+     except
+      Continue;
+     end;
+  until (true);
+  Amplitudes[i]:=h_max;
+  if FitnessDataNew[i]=0
+   then WaveLengths[i]:=WaveLengths[i]
+   else
+     WaveLengths[i]:=WaveLengths[i]*FitnessData[i]/FitnessDataNew[i];
+end;
+
+procedure TFA_WaterWave.StartAction;
+begin
+  inherited StartAction;
+  NumberBest:=MinElemNumber(FitnessData);
 end;
 
 end.

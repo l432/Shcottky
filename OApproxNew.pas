@@ -28,7 +28,8 @@ type
      etIJAYA, //improved JAVA
      etISCA,   //improved sine cosine algorithm
      etNNA,  //Neural network  algorithm
-     et_CWOA  // Chaotic Whale Optimization Algorithm
+     et_CWOA,  // Chaotic Whale Optimization Algorithm
+     et_WaterWave// Water wave optimization
      );
   {}
   TFitnessType=
@@ -48,7 +49,7 @@ const
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
          ('DE','EBLSHADE','ADELI','NDE','MABC','TLBO','GOTLBO','STLBO',
-         'PSO','IJAYA','ISCA','NNA','CWOA');
+         'PSO','IJAYA','ISCA','NNA','CWOA','WaterWave');
 
  FitTypeNames:array[TFitnessType]of string=
          ('Sq.Err.','Rel.Sq.Res.','Abs.Err.','Rel.Abs.Err.',
