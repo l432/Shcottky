@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\Embarcadero\Studio\20.0\bin\brcc32.exe" Fig.rc

@@ -8,7 +8,8 @@ uses
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
   OlegTests, OlegVector, OlegMathShottky,
-  OlegVectorManipulation,OApproxCaption, FitTransform;
+  OlegVectorManipulation,OApproxCaption, FitTransform, VclTee.TeeGDIPlus,
+  System.UITypes;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -1213,7 +1214,7 @@ uses FormSelectFitNew, OApproxNew, FitSimple,
   OApproxFunction2, FitGradient;
 
 {$R *.dfm}
-{$R Fig.RES}
+{$R Res\Fig.RES}
 
 
 procedure TForm1.Close1Click(Sender: TObject);
@@ -1325,7 +1326,8 @@ begin
  GroupBox12.ParentBackground:=False;
  GroupBox12.Color:=RGB(222,254,233);
  Directory0:= GetCurrentDir;
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
 
   CBKalk.Sorted:=False;
   CBKalk.Items.Add('Method');
@@ -1790,7 +1792,8 @@ var
     DR:TDirName;
     CL:TColName;
 begin
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
  ChDir(Directory0);
 
  ConfigFile.WriteBool('Volts2','LnIT2',CheckBoxLnIT2.Checked);
@@ -2042,7 +2045,8 @@ begin
    if OpenDialog1.Execute()
      then
        begin
-       DecimalSeparator:='.';
+       FormatSettings.DecimalSeparator:='.';
+//       DecimalSeparator:='.';
        ProcessPath(OpenDialog1.FileName, drive, path, fileName);
        Directory:=drive + ':' + path;
        CurDirectory:=Directory;
@@ -2158,7 +2162,7 @@ GraphParameters.n:=ErResult;
    if nDefineCB(VaxFile,Form1.ComboBoxN,Form1.ComboBoxN_Rs)=ErResult
      then
         begin
-         'H-function'+cnbb+#10'because n'+cnbd;
+         str:='H-function'+cnbb+#10'because n'+cnbd;
          tg:=fnEmpty;
         end;
 
@@ -2589,8 +2593,9 @@ begin
 end;
 
 procedure TForm1.ButDelClick(Sender: TObject);
-var I:integer;
+var //I:integer;
     filename:string;
+    i:TDateTime;
 begin
  if MessageDlg('Are you sure?'#10#13'The selected data removing is irreversible!',
                  mtWarning,mbOkCancel,0)=mrOK
@@ -2601,9 +2606,12 @@ begin
    CurDirectory:=Directory;
    ChooseDirect(Form1);
    filename:=VaxFile.name;
-   i:=FileAge(filename);
+//   i:=FileAge(filename);
+   FileAge(filename,i);
+//   ShowMessage(DateToStr(i));
    VaxFile.WriteToFile(filename);
-   if i>-1 then FileSetDate(filename,i);
+//   if i>-1 then FileSetDate(filename,i);
+   if i>-1 then FileSetDate(filename,DateTimeToFileDate(i));
    VaxFile.ReadFromFile(filename);
    GraphShow(Form1);
    end;
@@ -3245,7 +3253,8 @@ Procedure ReadFileToVectorArray(VectorArray:array of TVectorTransform);
   SR : TSearchRec;
   i:integer;
 begin
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
  if not(SetCurrentDir(CurDirectory)) then Exit;
  i:=-1;
  if FindFirst(mask, faAnyFile, SR) = 0 then
@@ -3356,7 +3365,8 @@ begin
   ;
   end; //try
   FileEnd:=FileEnd+'.dat';
-  DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
   Comments:=TStringList.Create;
   for j := 0 to High(VectorArray) do
    begin
@@ -3572,7 +3582,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 //  number, zero : double;
 var dpn:TDiod_PN;
     Nd,Ndmin,NdMax,delNd:double;
-    stepNd,delT,T,Tmin,Tmax:integer;
+    stepNd,{delT,}T,Tmin,Tmax:integer;
     Str:TStringList;
     tempstr:string;
 begin
@@ -3587,7 +3597,7 @@ begin
  delNd:=(Log10(NdMax)-Log10(NdMin))/(stepNd-1);
  Tmin:=290;
  Tmax:=340;
- delT:=1;
+// delT:=1;
  Str:=TStringList.Create;
 
  tempstr:='Na';
@@ -3751,7 +3761,8 @@ var
   Nrep:byte;
 
 begin
-DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
 SetLength(dat,ord(High(TColName))+1);
 if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
@@ -5990,7 +6001,8 @@ if Key=#13 then
     SelectNext((Sender as TForm).ActiveControl,True,True);
     Key:=#0;
     end;
-if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
+if not(ANSIChar(Key) in [#8,'0'..'9','+','-','E','e',FormatSettings.DecimalSeparator])
+//if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
  then Key:=#0;
 end;
 

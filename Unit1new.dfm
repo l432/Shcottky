@@ -18,14 +18,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -159,7 +159,6 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -171,7 +170,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -226,7 +224,6 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -238,7 +235,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -293,7 +289,6 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -305,7 +300,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -370,7 +364,6 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -382,7 +375,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -447,7 +439,6 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -459,7 +450,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -524,7 +514,6 @@ object Form1: TForm1
                   Height = 22
                   Style = csDropDownList
                   DropDownCount = 15
-                  ItemHeight = 0
                   TabOrder = 0
                 end
               end
@@ -536,7 +525,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 1
                 OnChange = ComBForwRsChange
               end
@@ -982,8 +970,6 @@ object Form1: TForm1
         Width = 70
         Height = 25
         Caption = '&Close'
-        TabOrder = 0
-        OnClick = Close1Click
         Glyph.Data = {
           42020000424D4202000000000000420000002800000010000000100000000100
           1000030000000002000000000000000000000000000000000000007C0000E003
@@ -1004,6 +990,8 @@ object Form1: TForm1
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C0000EF3DEF3DEF3DEF3DEF3DEF3DFF03
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C00000000000000000000000000000000
           00001F7C1F7C}
+        TabOrder = 0
+        OnClick = Close1Click
       end
       object GroupBox11: TGroupBox
         Left = 2
@@ -1089,7 +1077,6 @@ object Form1: TForm1
           Font.Height = -13
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemHeight = 16
           Items.Strings = (
             '-1'
             '-3'
@@ -1257,9 +1244,9 @@ object Form1: TForm1
             ParentColor = False
             TabOrder = 0
             object LabelExp: TLabel
-              Left = 4
+              Left = 6
               Top = 13
-              Width = 192
+              Width = 190
               Height = 14
               Caption = 'I0[exp(e(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph'
             end
@@ -2252,9 +2239,9 @@ object Form1: TForm1
             ParentColor = False
             TabOrder = 19
             object LabelLam: TLabel
-              Left = 4
+              Left = 6
               Top = 13
-              Width = 192
+              Width = 190
               Height = 14
               Caption = 'I0[exp(e(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph'
             end
@@ -2335,9 +2322,9 @@ object Form1: TForm1
             ParentColor = False
             TabOrder = 20
             object LabelDE: TLabel
-              Left = 4
+              Left = 6
               Top = 13
-              Width = 192
+              Width = 190
               Height = 14
               Caption = 'I0[exp(e(V-IRs)/nkT)-1]+(V-IRs)/Rsh-Iph'
             end
@@ -3768,7 +3755,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -3780,7 +3766,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -3807,7 +3792,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -3819,7 +3803,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -3846,7 +3829,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -3858,7 +3840,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -3885,7 +3866,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -3897,7 +3877,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -3924,7 +3903,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -3936,7 +3914,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -3956,7 +3933,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 0
             end
           end
@@ -4027,7 +4003,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4039,7 +4014,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4086,7 +4060,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4098,7 +4071,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4125,7 +4097,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 0
                 TabOrder = 0
               end
             end
@@ -4137,7 +4108,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 0
               TabOrder = 1
               OnChange = ComBForwRsChange
             end
@@ -4381,7 +4351,7 @@ object Form1: TForm1
       object Temper: TLabel
         Left = 585
         Top = 123
-        Width = 36
+        Width = 35
         Height = 14
         Caption = 'Temper'
       end
@@ -4389,7 +4359,7 @@ object Form1: TForm1
         Tag = 55
         Left = 590
         Top = 294
-        Width = 85
+        Width = 84
         Height = 14
         Caption = 'Y-Axis Log Scale'
         OnClick = LabelYLogClick
@@ -4515,18 +4485,17 @@ object Form1: TForm1
         View3D = False
         View3DWalls = False
         TabOrder = 0
+        DefaultCanvas = 'TGDIPlusCanvas'
         PrintMargins = (
           15
           12
           15
           12)
+        ColorPaletteIndex = 13
         object Series1: TPointSeries
-          Marks.Callout.Brush.Color = clBlack
-          Marks.Visible = False
           ClickableLine = False
           Pointer.InflateMargins = True
           Pointer.Style = psRectangle
-          Pointer.Visible = True
           XValues.Name = 'X'
           XValues.Order = loAscending
           YValues.Name = 'Y'
@@ -4535,12 +4504,10 @@ object Form1: TForm1
         object Series2: TLineSeries
           Active = False
           ColorEachPoint = True
-          Marks.Callout.Brush.Color = clBlack
-          Marks.Visible = False
           SeriesColor = clRed
+          Brush.BackColor = clDefault
           Pointer.InflateMargins = True
           Pointer.Style = psRectangle
-          Pointer.Visible = False
           XValues.Name = 'X'
           XValues.Order = loAscending
           YValues.Name = 'Y'
@@ -4548,13 +4515,11 @@ object Form1: TForm1
         end
         object Series3: TLineSeries
           Active = False
-          Marks.Callout.Brush.Color = clBlack
-          Marks.Visible = False
           SeriesColor = clLime
+          Brush.BackColor = clDefault
           LinePen.Width = 4
           Pointer.InflateMargins = True
           Pointer.Style = psRectangle
-          Pointer.Visible = False
           XValues.Name = 'X'
           XValues.Order = loAscending
           YValues.Name = 'Y'
@@ -4562,13 +4527,11 @@ object Form1: TForm1
         end
         object Series4: TLineSeries
           Active = False
-          Marks.Callout.Brush.Color = clBlack
-          Marks.Visible = False
           SeriesColor = clBlue
+          Brush.BackColor = clDefault
           ClickableLine = False
           Pointer.InflateMargins = True
           Pointer.Style = psRectangle
-          Pointer.Visible = False
           XValues.Name = 'X'
           XValues.Order = loAscending
           YValues.Name = 'Y'
@@ -4581,8 +4544,6 @@ object Form1: TForm1
         Width = 66
         Height = 25
         Caption = '&Close'
-        TabOrder = 1
-        OnClick = Close1Click
         Glyph.Data = {
           42020000424D4202000000000000420000002800000010000000100000000100
           1000030000000002000000000000000000000000000000000000007C0000E003
@@ -4603,6 +4564,8 @@ object Form1: TForm1
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C0000EF3DEF3DEF3DEF3DEF3DEF3DFF03
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C00000000000000000000000000000000
           00001F7C1F7C}
+        TabOrder = 1
+        OnClick = Close1Click
       end
       object OpenFile: TButton
         Left = 677
@@ -4942,7 +4905,6 @@ object Form1: TForm1
           Height = 22
           Style = csDropDownList
           DropDownCount = 21
-          ItemHeight = 14
           TabOrder = 0
           OnChange = CBKalkChange
         end
@@ -5008,7 +4970,7 @@ object Form1: TForm1
             Tag = 55
             Left = 718
             Top = 43
-            Width = 26
+            Width = 25
             Height = 14
             Caption = 'Va = '
           end
@@ -5357,7 +5319,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxRSChange
             end
@@ -5377,7 +5338,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxRSChange
               end
@@ -5406,7 +5366,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxNChange
               end
@@ -5419,7 +5378,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
               TabOrder = 1
               OnChange = ComboBoxNChange
             end
@@ -5439,7 +5397,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxNssRsChange
             end
@@ -5458,7 +5415,6 @@ object Form1: TForm1
                 Height = 22
                 Style = csDropDownList
                 DropDownCount = 15
-                ItemHeight = 14
                 TabOrder = 0
                 OnChange = ComboBoxNssFbChange
               end
@@ -5510,7 +5466,6 @@ object Form1: TForm1
               Height = 22
               Style = csDropDownList
               DropDownCount = 15
-              ItemHeight = 14
               TabOrder = 0
               OnChange = ComboBoxNssFbChange
             end
@@ -5759,8 +5714,6 @@ object Form1: TForm1
         Width = 75
         Height = 25
         Caption = '&Close'
-        TabOrder = 0
-        OnClick = Close1Click
         Glyph.Data = {
           42020000424D4202000000000000420000002800000010000000100000000100
           1000030000000002000000000000000000000000000000000000007C0000E003
@@ -5781,6 +5734,8 @@ object Form1: TForm1
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C0000EF3DEF3DEF3DEF3DEF3DEF3DFF03
           00001F7C1F7C1F7C1F7C1F7C1F7C1F7C00000000000000000000000000000000
           00001F7C1F7C}
+        TabOrder = 0
+        OnClick = Close1Click
       end
       object GroupBoxRsPar: TGroupBox
         Left = 23
@@ -6248,7 +6203,6 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 16
             TabOrder = 0
           end
         end
@@ -6582,7 +6536,6 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 16
             TabOrder = 0
           end
         end
@@ -6844,7 +6797,6 @@ object Form1: TForm1
             Width = 80
             Height = 24
             Style = csDropDownList
-            ItemHeight = 16
             TabOrder = 0
           end
         end
@@ -6988,7 +6940,7 @@ object Form1: TForm1
           Tag = 56
           Left = 35
           Top = 14
-          Width = 93
+          Width = 91
           Height = 14
           Caption = 'y = A + B x + C x^2'
         end
@@ -6996,7 +6948,7 @@ object Form1: TForm1
           Tag = 56
           Left = 64
           Top = 33
-          Width = 20
+          Width = 19
           Height = 14
           Caption = 'A = '
           Visible = False
@@ -7556,7 +7508,6 @@ object Form1: TForm1
         Width = 114
         Height = 22
         Style = csDropDownList
-        ItemHeight = 0
         TabOrder = 12
         OnClick = CBDLFunctionClick
       end

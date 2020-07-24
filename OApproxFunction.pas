@@ -184,7 +184,7 @@ end; // TFFTnFeBPart=class (TFFHeuristic)
 
 TFFIV_thin=class (TFFXYSwap)
  protected
-  procedure TuningBeforeAccessorialDataCreate;override;
+//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   procedure AdditionalParamDetermination;override;
@@ -303,7 +303,7 @@ end;
 procedure TFFTunRevers.NamesDefine;
 begin
  SetNameCaption('TunRev',
-      'Trap-assisted tunneling,  reverse diode');
+      'Trap-assisted tunneling,  reverse diode, illuminated');
 end;
 
 procedure TFFTunRevers.ParamArrayCreate;
@@ -358,7 +358,6 @@ end;
 procedure TFFTunReversRs.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
- fHasPicture:=False;
  fTemperatureIsRequired:=False;
 end;
 
@@ -734,11 +733,11 @@ begin
                  ['Voc','Isc','FF','Pm','Vm','Im']);
 end;
 
-procedure TFFIV_thin.TuningBeforeAccessorialDataCreate;
-begin
-  inherited;
-  fHasPicture:=False;
-end;
+//procedure TFFIV_thin.TuningBeforeAccessorialDataCreate;
+//begin
+//  inherited;
+//  fHasPicture:=False;
+//end;
 
 { TFFTauDAP }
 

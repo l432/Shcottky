@@ -247,9 +247,11 @@ begin
   ReadTextFile(F);
   if High(Points)<0 then
     begin
-      DecimalSeparator:=',';
+      FormatSettings.DecimalSeparator:=',';
+//      DecimalSeparator:=',';
       ReadTextFile(F);
-      DecimalSeparator:='.';
+      FormatSettings.DecimalSeparator:=',';
+//      DecimalSeparator:='.';
     end;
   if High(Points)<0 then Exit;
 

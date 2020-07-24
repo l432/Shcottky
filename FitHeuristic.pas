@@ -834,8 +834,8 @@ TNDE_neighborhood=class
   Nums: integer;
   fit_best: double;
   fit_worst: double;
-  fit_aver: Extended;
-  Std: Extended;
+  fit_aver: double;
+  Std: double;
   fit_bestOld: double;
   fit_worstOld: double;
   fit_averOld: Extended;
@@ -2424,7 +2424,7 @@ procedure TFA_PSO.IterationAction;
  var temp,W:double;
      i,j:integer;
 begin
-   temp:=0;
+//   temp:=0;
    W:=Wmax-(Wmax-Wmin)*fCurrentIteration/(fFF.fDParamArray as TDParamsIteration).Nit;
    i:=0;
    repeat

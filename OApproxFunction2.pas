@@ -97,6 +97,7 @@ end; //  TFFDoubleDiodLight=class (TFFIlluminatedDiode)
 TFFNGausian=class (TFFHeuristic)
  private
   fNgaus:byte;
+  fRealNgaus:byte;
   procedure SetNGaus(Value:byte);
  protected
   procedure TuningBeforeAccessorialDataCreate;override;
@@ -264,7 +265,8 @@ end; // TFFBarierHeigh=class (TFFHeuristic)
 implementation
 
 uses
-  FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegFunction;
+  FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegFunction,
+  Vcl.Dialogs;
 
 { TFFDoubleDiod }
 
@@ -571,10 +573,13 @@ function TFFNGausian.FittingCalculation: boolean;
      aRegType:TRegulationType;
      aLogFitness:boolean;
 begin
-  if Ngaus>0 then fIntVars.Value[1]:=Ngaus;
+  if Ngaus>0
+   then (fIntVars.ParametrByName['Ng'] as TVarInteger).Value:=Ngaus;
 
-  SetLength(Names,3*fIntVars.Value[1]);
-  for I := 1 to fIntVars.Value[1] do
+  fRealNgaus:=(fIntVars.ParametrByName['Ng'] as TVarInteger).Value;
+
+  SetLength(Names,3*fRealNgaus);
+  for I := 1 to fRealNgaus do
    begin
     Names[3*i-3]:='A'+inttostr(i);
     Names[3*i-2]:='X0'+inttostr(i);
@@ -607,7 +612,7 @@ begin
   Xmax:=fDataToFit.MaxX;
   delY:=fDataToFit.MaxY-fDataToFit.MinY;
   delX:=Xmax-Xmin;
-  for I := 1 to fIntVars.Value[1] do
+  for I := 1 to fRealNgaus do
    begin
     (fDParamArray.fParams[3*i-3] as TFFParamHeuristic).fMinLim:=0;
     (fDParamArray.fParams[3*i-3] as TFFParamHeuristic).fMaxLim:=delY*10;
@@ -616,7 +621,7 @@ begin
     (fDParamArray.fParams[3*i-1] as TFFParamHeuristic).fMinLim:=delX/1000;
     (fDParamArray.fParams[3*i-1] as TFFParamHeuristic).fMaxLim:=10*delX;
    end;
-  (fDParamArray as TDParamsIteration).Nit:=2000*(4+sqr(fIntVars.Value[1]));
+  (fDParamArray as TDParamsIteration).Nit:=2000*(4+sqr(fRealNgaus));
 
   Result:=Inherited FittingCalculation;
 
@@ -627,9 +632,10 @@ function TFFNGausian.FuncForFitness(Point: TPointDouble;
  var i:byte;
 begin
  Result:=0;
- for I := 1 to fIntVars.Value[1] do
+ for I := 1 to fRealNgaus do
    Result:=Result+
-     Data[3*i-3]*exp(-sqr((Point[cX]-Data[3*i-2]))/2/sqr(Data[3*i-1]));
+     Data[3*i-3]/sqrt(2*Pi)/Data[3*i-1]
+     *exp(-sqr((Point[cX]-Data[3*i-2]))/2/sqr(Data[3*i-1]));
 end;
 
 procedure TFFNGausian.NamesDefine;
@@ -654,7 +660,7 @@ procedure TFFNGausian.TuningBeforeAccessorialDataCreate;
 begin
  inherited;
  fTemperatureIsRequired:=False;
- fHasPicture:=False;
+// fHasPicture:=False;
  Ngaus:=0;
 end;
 

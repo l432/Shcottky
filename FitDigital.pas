@@ -17,7 +17,6 @@ type
  TLP_IIR_Chebyshev=(ch_p2f01,ch_p2f025,ch_p2f45,
              ch_p4f025,ch_p4f075,ch_p6f075,ch_p6f45);
 
-//const
 
 TLP_IIR_ChebyshevType=class
  private
@@ -71,7 +70,6 @@ TFFDigitalFiltr=class(TFitFunctionNew)
   procedure RealFitting;override;
   function ParameterCreate:TFFParameter;override;
   Procedure RealToFile;override;
-  procedure TuningAfterReadFromIni;override;
  public
 end;
 
@@ -401,7 +399,6 @@ begin
                inherited ParameterCreate);
 end;
 
-
 { TMovingAverageFilter }
 
 procedure TFFMovingAverageFilter.AccessorialDataDestroy;
@@ -436,7 +433,6 @@ begin
  Result:=TDecVarNumberArrayParameter.Create(fIntParameters,
                          inherited ParameterCreate);
 end;
-
 
 { TFFDigitalFiltr }
 
@@ -475,12 +471,6 @@ begin
      Inherited  RealToFile;
 end;
 
-procedure TFFDigitalFiltr.TuningAfterReadFromIni;
-begin
-  inherited;
-  fHasPicture:=False;
-end;
-
 { TFFLP_UniformIIRFilter }
 
 procedure TFFLP_UniformBase.AccessorialDataDestroy;
@@ -516,7 +506,7 @@ end;
 
 procedure TFFLP_UniformIIRFilter.NamesDefine;
 begin
- SetNameCaption('LP_Uniform ',
+ SetNameCaption('LP_Uniform',
    FD_LP+'uniform recursive '
    +'filter (exponential averaging) '+FD_IIR
    +', 1 cascade; '+FD_CutOff);

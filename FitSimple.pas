@@ -30,7 +30,7 @@ TFFNoiseSmoothing=class(TFitFunctionWithArbitraryArgument)
   procedure RealFitting;override;
   procedure AccessorialDataCreate;override;
   procedure NamesDefine;override;
-  procedure TuningAfterReadFromIni;override;
+//  procedure TuningAfterReadFromIni;override;
  public
 // constructor Create;
 end;
@@ -39,7 +39,7 @@ TFFSplain=class(TFitFunctionWithArbitraryArgument)
  protected
   procedure RealFitting;override;
   procedure NamesDefine;override;
-  procedure TuningAfterReadFromIni;override;
+//  procedure TuningAfterReadFromIni;override;
  public
 //  constructor Create;
 end;
@@ -280,11 +280,11 @@ end;
 
 
 
-procedure TFFSplain.TuningAfterReadFromIni;
-begin
-  inherited;
-  fHasPicture:=False;
-end;
+//procedure TFFSplain.TuningAfterReadFromIni;
+//begin
+//  inherited;
+//  fHasPicture:=False;
+//end;
 
 { TNoiseSmoothingNew }
 
@@ -306,11 +306,11 @@ begin
 end;
 
 
-procedure TFFNoiseSmoothing.TuningAfterReadFromIni;
-begin
-  inherited;
-  fHasPicture:=False;
-end;
+//procedure TFFNoiseSmoothing.TuningAfterReadFromIni;
+//begin
+//  inherited;
+////  fHasPicture:=False;
+//end;
 
 { TFitFunctionWithArbitraryArgument }
 
@@ -585,7 +585,7 @@ procedure TFFPolinom.TuningAfterReadFromIni;
      i:integer;
 begin
   inherited;
-  fHasPicture:=False;
+//  fHasPicture:=False;
   SetLength(Names,(fIntVars.ParametrByName['N'] as TVarInteger).Value+1);
   for I := 0 to High(Names) do Names[i]:='A'+inttostr(i);
   fDParamArray:=TDParamArray.Create(Self,Names);

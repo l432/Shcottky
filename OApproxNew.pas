@@ -5,7 +5,8 @@ interface
 uses
   IniFiles, OlegVector, OlegType,
   OlegVectorManipulation, TeEngine, OlegTypePart2,
-  Forms, FrameButtons, OlegFunction, Classes, OlegMathShottky;
+  Forms, FrameButtons, OlegFunction, Classes, OlegMathShottky,
+  System.UITypes;
 
 type
 
@@ -294,7 +295,8 @@ end;
 constructor TFitFunctionNew.Create;
 begin
  inherited Create;
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
  NamesDefine;
  fDigitNumber:=8;
  fFileSuffix:='fit';

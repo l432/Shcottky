@@ -65,7 +65,7 @@ type
            function PoinValide(Point:TPointDouble): boolean;
            {визначає, чи задовільняють координати точки Point межам}
            procedure SetLimits(const XmMin,XmMax,YmMin,YmMax:double);
-           function ToString:string;
+           function ToStringMy:string;
            procedure Clear;
            class function LimitCaption(DL:TDiapazonLimits):string;
            function LimitValue(DL:TDiapazonLimits):double;
@@ -281,7 +281,7 @@ begin
  end;
 end;
 
-function TDiapazon.ToString: string;
+function TDiapazon.ToStringMy: string;
 begin
  Result:='Xmin='+floattostr(fXMin)
          +#10+'Xmax='+floattostr(fXMax)

@@ -3,7 +3,8 @@ unit OlegFunction;
 interface
 
 uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
- Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector, Grids, ExtCtrls;
+ Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector, Grids, ExtCtrls,
+ VCLTee.TeEngine;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -1134,13 +1135,13 @@ begin
  tempstr:='';
  for I := 1 to Length(name) do
   begin
-  if (name[i] in ['0'..'9']) then tempstr:=tempstr+name[i];
+  if (ANSIChar(name[i]) in ['0'..'9']) then tempstr:=tempstr+name[i];
   if (name[i]='m') then tempstr:=tempstr+'-';
   if (name[i]='_') then tempstr:=tempstr+'.';
   end;
  try
   Result:=StrToFloat(tempstr);
-  if (name[1] in ['0'..'9']) then Result:=Result/10;
+  if (ANSIChar(name[1]) in ['0'..'9']) then Result:=Result/10;
  except
   Result:=ErResult;
  end;
