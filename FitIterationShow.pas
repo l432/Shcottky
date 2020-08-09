@@ -895,8 +895,10 @@ if Key=#13 then
     PostMessage( Frame.Handle, WM_NEXTDLGCTL, 0, 0);
     Key:=#0;
     end;
-//if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
-if not(ANSIChar(Key) in [#8,'0'..'9','+','-','E','e', FormatSettings.DecimalSeparator])
+
+if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
+{XP Win}
+//if not(ANSIChar(Key) in [#8,'0'..'9','+','-','E','e', FormatSettings.DecimalSeparator])
  then Key:=#0;
 end;
 

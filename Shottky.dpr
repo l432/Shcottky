@@ -14,7 +14,6 @@ uses
   OlegShowTypes in 'OlegShowTypes.pas',
   OlegTypePart2 in 'OlegTypePart2.pas',
   OlegVector in 'OlegVector.pas',
-  OlegVectorOld in 'OlegVectorOld.pas',
   OlegVectorManipulation in 'OlegVectorManipulation.pas',
   OlegTests in 'OlegTests.pas',
   OlegMathShottky in 'OlegMathShottky.pas',

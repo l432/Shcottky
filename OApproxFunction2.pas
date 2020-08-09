@@ -265,8 +265,10 @@ end; // TFFBarierHeigh=class (TFFHeuristic)
 implementation
 
 uses
-  FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegFunction,
-  Vcl.Dialogs;
+  FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegFunction
+  {XP Win}
+//  ,Vcl.Dialogs
+  ;
 
 { TFFDoubleDiod }
 

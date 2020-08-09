@@ -8,8 +8,11 @@ uses
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
   OlegTests, OlegVector, OlegMathShottky,
-  OlegVectorManipulation,OApproxCaption, FitTransform, VclTee.TeeGDIPlus,
-  System.UITypes;
+  OlegVectorManipulation,OApproxCaption, FitTransform
+  {XP Win}
+//  , VclTee.TeeGDIPlus,
+//  System.UITypes
+  ;
 
 type
   TDirName=(ForwRs,Cheung,Hfunct,Norde,Ideal,Nss,Reverse,
@@ -1326,8 +1329,9 @@ begin
  GroupBox12.ParentBackground:=False;
  GroupBox12.Color:=RGB(222,254,233);
  Directory0:= GetCurrentDir;
- FormatSettings.DecimalSeparator:='.';
-// DecimalSeparator:='.';
+ {XP Win}
+// FormatSettings.DecimalSeparator:='.';
+ DecimalSeparator:='.';
 
   CBKalk.Sorted:=False;
   CBKalk.Items.Add('Method');
@@ -1792,8 +1796,9 @@ var
     DR:TDirName;
     CL:TColName;
 begin
- FormatSettings.DecimalSeparator:='.';
-// DecimalSeparator:='.';
+ {XP Win}
+// FormatSettings.DecimalSeparator:='.';
+ DecimalSeparator:='.';
  ChDir(Directory0);
 
  ConfigFile.WriteBool('Volts2','LnIT2',CheckBoxLnIT2.Checked);
@@ -2045,8 +2050,9 @@ begin
    if OpenDialog1.Execute()
      then
        begin
-       FormatSettings.DecimalSeparator:='.';
-//       DecimalSeparator:='.';
+{XP Win}
+//       FormatSettings.DecimalSeparator:='.';
+       DecimalSeparator:='.';
        ProcessPath(OpenDialog1.FileName, drive, path, fileName);
        Directory:=drive + ':' + path;
        CurDirectory:=Directory;
@@ -3253,8 +3259,9 @@ Procedure ReadFileToVectorArray(VectorArray:array of TVectorTransform);
   SR : TSearchRec;
   i:integer;
 begin
- FormatSettings.DecimalSeparator:='.';
-// DecimalSeparator:='.';
+{XP Win}
+// FormatSettings.DecimalSeparator:='.';
+ DecimalSeparator:='.';
  if not(SetCurrentDir(CurDirectory)) then Exit;
  i:=-1;
  if FindFirst(mask, faAnyFile, SR) = 0 then
@@ -3365,8 +3372,9 @@ begin
   ;
   end; //try
   FileEnd:=FileEnd+'.dat';
- FormatSettings.DecimalSeparator:='.';
-// DecimalSeparator:='.';
+{XP Win}
+// FormatSettings.DecimalSeparator:='.';
+ DecimalSeparator:='.';
   Comments:=TStringList.Create;
   for j := 0 to High(VectorArray) do
    begin
@@ -3761,8 +3769,10 @@ var
   Nrep:byte;
 
 begin
- FormatSettings.DecimalSeparator:='.';
-// DecimalSeparator:='.';
+
+{XP Win}
+// FormatSettings.DecimalSeparator:='.';
+ DecimalSeparator:='.';
 SetLength(dat,ord(High(TColName))+1);
 if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
@@ -6001,8 +6011,9 @@ if Key=#13 then
     SelectNext((Sender as TForm).ActiveControl,True,True);
     Key:=#0;
     end;
-if not(ANSIChar(Key) in [#8,'0'..'9','+','-','E','e',FormatSettings.DecimalSeparator])
-//if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
+{XP Win}
+//if not(ANSIChar(Key) in [#8,'0'..'9','+','-','E','e',FormatSettings.DecimalSeparator])
+if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
  then Key:=#0;
 end;
 

@@ -2,7 +2,10 @@
 interface
 uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
      Forms,Controls,WinProcs,OlegMaterialSamples, StdCtrls, IniFiles,
-     OlegVector,VCLTee.TeEngine;
+     OlegVector
+//     {XP Win}
+//     ,VCLTee.TeEngine
+     ;
 
 Procedure ToFileFromArrays(NameFile:string;
                              Data:array of TArrSingle;

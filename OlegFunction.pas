@@ -3,8 +3,10 @@ unit OlegFunction;
 interface
 
 uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
- Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector, Grids, ExtCtrls,
- VCLTee.TeEngine;
+ Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector, Grids, ExtCtrls
+//{XP Win}
+// ,VCLTee.TeEngine
+ ;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
