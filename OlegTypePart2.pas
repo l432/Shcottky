@@ -46,6 +46,15 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
    property Name:string read GetName;
   end;
 
+//TNamedInterfacedMeasObject=class(TNamedInterfacedObject)
+//  protected
+//   fName:string;
+//   function GetDeviceKod:byte;virtual;
+//  public
+//   property DeviceKod:byte read GetDeviceKod;
+//  end;
+
+
 TNamedObject=class(TObject)
   private
    fName:string;
@@ -188,5 +197,12 @@ function TNamedObject.GetName: string;
 begin
    Result:=fName;
 end;
+
+//{ TNamedInterfacedMeasObject }
+//
+//function TNamedInterfacedMeasObject.GetDeviceKod: byte;
+//begin
+// Result:=0;
+//end;
 
 end.
