@@ -3763,7 +3763,7 @@ var
   Vax:TVectorShottky;
   Rs,n:double;
   i,j:integer;
-  T_bool:boolean;
+  T_bool,ToStop:boolean;
   dat:TArrStr;
   CL:TColName;
   Nrep:byte;
@@ -3781,7 +3781,7 @@ if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
   FreeAndNil(FitFunctionNew);
  end;
 
-
+ToStop:=False;
 T_bool:=False;
 if not(SetCurrentDir(CurDirectory)) then
    begin
@@ -4007,12 +4007,22 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         if FitFunctionNew.ResultsIsReady then
          for i:=0 to FitFunctionNew.ParametersNumber-1 do
           StrGridData.Cells[StrGridData.ColCount-1-i,StrGridData.RowCount-1]:=
-             FloatToStrF((FitFunctionNew as TFFSimple).DParamArray.OutputData[FitFunctionNew.ParametersNumber-1-i],ffExponent,10,2);
+             FloatToStrF((FitFunctionNew as TFFSimple).DParamArray.OutputData[FitFunctionNew.ParametersNumber-1-i],ffExponent,10,2)
+                                         else
+         begin
+           ToStop:=True;
+           Break;
+         end;
         StrGridData.RowCount:=StrGridData.RowCount+1;
+//        if ToStop then Break;
+
       end;
       FreeAndNil(FitFunctionNew);
       StrGridData.RowCount:=StrGridData.RowCount-1;
      end;
+
+    if ToStop then Break;
+
 
     i:=0;
     for CL:=Low(CL) to High(CL) do
@@ -4023,12 +4033,14 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
         i:=i+1;
         end;
 //_________________________
+//  if not(ToStop) then
+
    for I := 1 to Nrep do
    AddRowToFileFromStringGrid(DatesFileName,StrGridData,StrGridData.RowCount-Nrep-1+i);
 //___________________________
     StrGridData.RowCount:=StrGridData.RowCount+1;
 
-    until FindNext(SR) <> 0;
+    until (FindNext(SR) <> 0);
 
    StrGridData.RowCount:=StrGridData.RowCount-1;
    SortGrid(StrGridData,0);

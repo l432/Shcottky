@@ -4749,6 +4749,7 @@ end;
 
 procedure TFA_NDE.AfterNewPopulationCreate;
  var i:integer;
+     temp:double;
 begin
  VectorForOppositePopulationFilling;
  NBs.ChangeNums();
@@ -4759,12 +4760,23 @@ begin
      then NBs.IncreaseNrsize(i)
      else
       begin
-       Eps2:=1-min(fCurrentIteration
+       temp:=(VectorForOppositePopulation.X[VectorForOppositePopulation.HighNumber]
+             -VectorForOppositePopulation.X[0]);
+       if temp=0 then
+          Eps2:=1-fCurrentIteration/(fFF.fDParamArray as TDParamsIteration).Nit
+                 else
+          Eps2:=1-min(fCurrentIteration
                    /(fFF.fDParamArray as TDParamsIteration).Nit,
                    (VectorForOppositePopulation.X[VectorForOppositePopulation.HighNumber]
-                   -FitnessData[i])
-                   /(VectorForOppositePopulation.X[VectorForOppositePopulation.HighNumber]
-                   -VectorForOppositePopulation.X[0]));
+                   -FitnessData[i])/temp);
+
+
+//       Eps2:=1-min(fCurrentIteration
+//                   /(fFF.fDParamArray as TDParamsIteration).Nit,
+//                   (VectorForOppositePopulation.X[VectorForOppositePopulation.HighNumber]
+//                   -FitnessData[i])
+//                   /(VectorForOppositePopulation.X[VectorForOppositePopulation.HighNumber]
+//                   -VectorForOppositePopulation.X[0]));
        ParameterTemp:=Copy(Parameters[i]);
        if NBs.NB[i].Std<NBs.Std_aver then
         begin
@@ -4900,7 +4912,7 @@ begin
   begin
     repeat
       ConditionalRandomize;
-      ParametersNew[i][Ks[j]]:=fToolKitArr[j].WaterWave_Prop(ParametersNew[i][Ks[j]],
+      ParametersNew[i][Ks[j]]:=fToolKitArr[Ks[j]].WaterWave_Prop(ParametersNew[i][Ks[j]],
                                                              betta*RandG(0,1));
      try
       FitnessDataNew[i]:=FitnessFunc(ParametersNew[i]);

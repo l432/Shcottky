@@ -415,14 +415,23 @@ end;
 
 function TConstParDetermination.GetArgument: Double;
 begin
- try
   Result:=fVarArray[fIndex];
   if Result=ErResult
-    then Raise Exception.Create('Fault!!!!');
+    then
+     begin
+      Result:=0;
+      Exit;
+     end;
   if not(fIsNotReverse) then  Result:=1/Result;
- except
-  Result:=0;
- end;
+
+// try
+//  Result:=fVarArray[fIndex];
+//  if Result=ErResult
+//    then Raise Exception.Create('Fault!!!!');
+//  if not(fIsNotReverse) then  Result:=1/Result;
+// except
+//  Result:=0;
+// end;
 end;
 
 function TConstParDetermination.GetValue: Double;
