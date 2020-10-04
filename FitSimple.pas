@@ -387,7 +387,7 @@ begin
   fDataToFit.ToFill(FittingData,RealFinalFunc);
   for I := 0 to fDataToFit.HighNumber
      do Result:=Result+SqrRelativeDifference(fDataToFit.Y[i],FittingData.Y[i]);
- Result:=sqrt(Result)/fDataToFit.Count;
+ Result:=sqrt(Result/fDataToFit.Count);
 end;
 
 procedure TFFSimple.FittingDataFilling;

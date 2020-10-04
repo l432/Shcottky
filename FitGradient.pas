@@ -293,7 +293,7 @@ begin
   fDataToFit.ToFill(FittingData,IvanovFun);
   for I := 0 to fDataToFit.HighNumber
    do Result:=Result+SqrRelativeDifference(fDataToFit.Y[i],FittingData.Y[i]);
- Result:=sqrt(Result)/fDataToFit.Count;
+ Result:=sqrt(Result/fDataToFit.Count);
 end;
 
 function TFFIvanov.FittingCalculation: boolean;

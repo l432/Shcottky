@@ -973,7 +973,16 @@ end;
 
 function TVector.PointInDiapazon(Lim: Limits; PointNumber: integer): boolean;
 begin
+// if PointNumber>HighNumber then
+//   begin
+//     Result:=False;
+//     Exit;
+//   end;
+ try
  Result:=Lim.PoinValide(Self[PointNumber]);
+ except
+ Result:=False;
+ end;
 end;
 
 function TVector.PointInDiapazon(Diapazon: TDiapazon; PointNumber: integer): boolean;

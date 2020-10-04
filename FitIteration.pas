@@ -347,7 +347,7 @@ end;
 procedure TDParamArray.LastParamCreate;
 begin
  SetLength(fParams,High(fParams)+2);
- fParams[High(fParams)]:=TFFDParam.Create('dev');
+ fParams[High(fParams)]:=TFFDParam.Create('rmsre');
  SetLength(OutputData,High(fParams)+1);
 end;
 
