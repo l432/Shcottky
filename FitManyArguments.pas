@@ -27,7 +27,7 @@ TFFManyArguments=class (TFFHeuristic)
   Procedure RealToFile;override;
  public
    Procedure FittingToGraphAndFile(InputData:TVector;
-              Series: TChartSeries);override;
+              Series: TChartSeries; SaveFile:boolean=True);override;
 end;
 
 TFFn_FeB=class (TFFManyArguments)
@@ -136,10 +136,10 @@ begin
 end;
 
 procedure TFFManyArguments.FittingToGraphAndFile(InputData: TVector;
-  Series: TChartSeries);
+  Series: TChartSeries; SaveFile:boolean=True);
 begin
   Fitting('');
-  if fResultsIsReady then RealToFile;
+  if fResultsIsReady and SaveFile then RealToFile;
 end;
 
 procedure TFFManyArguments.RealToFile;

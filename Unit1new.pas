@@ -793,6 +793,7 @@ type
     SButFitNew: TSpeedButton;
     ButFitSelectNew: TButton;
     ButFitOptionNew: TButton;
+    CB_SFF: TCheckBox;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -1738,6 +1739,9 @@ end; //with Form1 do
 
 CBDateFun.Checked:=ConfigFile.ReadBool('Column',
       'SelectFun',False);
+CB_SFF.Checked:=ConfigFile.ReadBool('Column',
+      'SaveFit',False);
+
 
 RadioButtonNssNvM.Checked:=ConfigFile.ReadBool('Graph','Nss_N(V)',False);
 RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
@@ -1844,7 +1848,7 @@ begin
       (CL in ColNames));
 
  ConfigFile.WriteBool('Column','SelectFun',CBDateFun.Checked);
-
+ ConfigFile.WriteBool('Column','SaveFit',CB_SFF.Checked);
 
 
 with Form1 do
@@ -2330,7 +2334,7 @@ begin
     if (FitFunctionNew is TFFSimpleLogEnable) then
         (FitFunctionNew as TFFSimpleLogEnable).SetAxisScale(XLogCheck.Checked,
                                                             YLogCheck.Checked);
-    FitFunctionNew.FittingToGraphAndFile(VaxGraph,Series4);
+    FitFunctionNew.FittingToGraphAndFile(VaxGraph,Series4,CB_SFF.Checked);
 
     if not(FitFunctionNew.ResultsIsReady) then Exit;
     Series4.Active:=True;

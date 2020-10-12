@@ -18,7 +18,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
     Left = 0
@@ -4424,7 +4424,7 @@ object Form1: TForm1
           Tag = 55
           Left = 3
           Top = 12
-          Width = 160
+          Width = 94
           Height = 22
           AllowAllUp = True
           GroupIndex = 2
@@ -4476,6 +4476,15 @@ object Form1: TForm1
           Enabled = False
           TabOrder = 3
           OnClick = ButFitOptionNewClick
+        end
+        object CB_SFF: TCheckBox
+          Left = 103
+          Top = 9
+          Width = 60
+          Height = 26
+          Caption = 'Save fit File'
+          TabOrder = 4
+          WordWrap = True
         end
       end
       object Graph: TChart

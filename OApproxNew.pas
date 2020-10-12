@@ -171,7 +171,7 @@ public
  Procedure Fitting (InputData:TVector);overload;//virtual;abstract;
  Procedure Fitting (InputFileName:string);overload;//virtual;abstract;
  Procedure FittingToGraphAndFile(InputData:TVector;
-              Series: TChartSeries);virtual;
+              Series: TChartSeries; SaveFile:boolean=True);virtual;
  Function FinalFunc(X:double):double;
  {обчислюються значення апроксимуючої функції в
  точці з абсцисою Х;
@@ -491,12 +491,13 @@ begin
 end;
 
 procedure TFitFunctionNew.FittingToGraphAndFile(InputData: TVector;
-                    Series: TChartSeries);
+                    Series: TChartSeries; SaveFile:boolean=True);
 begin
   Fitting(InputData);
   if not(fResultsIsReady) then Exit;
   RealToGraph(Series);
-  RealToFile;
+  if SaveFile then
+          RealToFile;
 end;
 
 function TFitFunctionNew.ParameterCreate:TFFParameter;

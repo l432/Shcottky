@@ -168,7 +168,7 @@ Function SelectFromVariants(Variants:TStringList;
 Procedure AccurateCheckBoxCheckedChange(CB:TCheckBox;Value:boolean);
 //зміна значення  CheckBox.Checked без виклику процедури onClick
 
-Procedure HelpForMe(str:string);
+Procedure HelpForMe(str:string; filname:string='');
 
 Procedure DecimationArray(var Data:  TArrSingle; const N:word);
 {у масиві залишається лише 0-й, ?-й, 2N-й.... елементи,
@@ -1030,12 +1030,13 @@ begin
  CB.OnClick:=temp;
 end;
 
-Procedure HelpForMe(str:string);
+Procedure HelpForMe(str:string; filname:string='');
  var ST:TStringList;
 begin
  ST:=TStringList.Create;
  ST.Add(str);
- ST.SaveToFile(str+'.dat');
+ if filname='' then ST.SaveToFile(str+'.dat')
+               else ST.SaveToFile(filname+'.dat');
  ST.Free;
 end;
 
