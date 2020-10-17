@@ -1026,6 +1026,8 @@ begin
  Self.CopyDiapazonPoint(temp,D);
  Self.PointSupplement(temp,3,False);
  OutputData[0]:=temp.NPolinomZero(2);
+ if OutputData[0]=ErResult then OutputData[0]:=Self.Xvalue(0);
+ 
 
  D.SetLimits(P_V.MinX,P_V.X[Number_Vmax - 1],P_V.MinY,Pmax*0.82);
  P_V.CopyDiapazonPoint(temp,D);
