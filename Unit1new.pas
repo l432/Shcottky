@@ -8,10 +8,9 @@ uses
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
   OlegTests, OlegVector, OlegMathShottky,
-  OlegVectorManipulation,OApproxCaption, FitTransform
+  OlegVectorManipulation,OApproxCaption, FitTransform, VclTee.TeeGDIPlus
   {XP Win}
-//  , VclTee.TeeGDIPlus,
-//  System.UITypes
+  , System.UITypes
   ;
 
 type
@@ -1331,8 +1330,8 @@ begin
  GroupBox12.Color:=RGB(222,254,233);
  Directory0:= GetCurrentDir;
  {XP Win}
-// FormatSettings.DecimalSeparator:='.';
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
 
   CBKalk.Sorted:=False;
   CBKalk.Items.Add('Method');
@@ -1801,8 +1800,8 @@ var
     CL:TColName;
 begin
  {XP Win}
-// FormatSettings.DecimalSeparator:='.';
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
  ChDir(Directory0);
 
  ConfigFile.WriteBool('Volts2','LnIT2',CheckBoxLnIT2.Checked);
@@ -2055,8 +2054,8 @@ begin
      then
        begin
 {XP Win}
-//       FormatSettings.DecimalSeparator:='.';
-       DecimalSeparator:='.';
+       FormatSettings.DecimalSeparator:='.';
+//       DecimalSeparator:='.';
        ProcessPath(OpenDialog1.FileName, drive, path, fileName);
        Directory:=drive + ':' + path;
        CurDirectory:=Directory;
@@ -3264,8 +3263,8 @@ Procedure ReadFileToVectorArray(VectorArray:array of TVectorTransform);
   i:integer;
 begin
 {XP Win}
-// FormatSettings.DecimalSeparator:='.';
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
  if not(SetCurrentDir(CurDirectory)) then Exit;
  i:=-1;
  if FindFirst(mask, faAnyFile, SR) = 0 then
@@ -3377,8 +3376,8 @@ begin
   end; //try
   FileEnd:=FileEnd+'.dat';
 {XP Win}
-// FormatSettings.DecimalSeparator:='.';
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
   Comments:=TStringList.Create;
   for j := 0 to High(VectorArray) do
    begin
@@ -3588,82 +3587,125 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
-//var
+var
 //  i,j:integer;
-//  Vec:TVector;
+  Vec:TVector;
+  ro:double;
 //  number, zero : double;
-var dpn:TDiod_PN;
-    Nd,Ndmin,NdMax,delNd:double;
-    stepNd,{delT,}T,Tmin,Tmax:integer;
-    Str:TStringList;
-    tempstr:string;
+//var dpn:TDiod_PN;
+//    Nd,Ndmin,NdMax,delNd:double;
+//    stepNd,{delT,}T,Tmin,Tmax:integer;
+//    Str:TStringList;
+//    tempstr:string;
+//function NvsRo(Nd:double;param:array of double):double;
+//{param[0] - Ro
+// param[1] - T
+//}
+// begin
+//  Result:=Nd-1/(Qelem*0.1*param[0]*Silicon.mu_n(param[1],Nd))
+// end;
 begin
+// showmessage(floattostr(DiodPN.LayerN.Nd)+#10+floattostr(DiodPN.LayerP.Nd))
 
- dpn:=TDiod_PN.Create;
- dpn.LayerN.Material:=TMaterial.Create(TMaterialName(0));
- dpn.LayerP.Material:=TMaterial.Create(TMaterialName(0));
- dpn.LayerN.Nd:=1e25;
- Ndmin:=1e21;
- NdMax:=1e23;
- stepNd:=33;
- delNd:=(Log10(NdMax)-Log10(NdMin))/(stepNd-1);
- Tmin:=290;
- Tmax:=340;
-// delT:=1;
- Str:=TStringList.Create;
 
- tempstr:='Na';
- for T := Tmin to Tmax do
-   tempstr:=tempstr+' '+'T'+inttostr(T);
- Str.Add(tempstr);
- tempstr:='T';
- for T := Tmin to Tmax do
-   tempstr:=tempstr+' '+inttostr(T);
- Str.Add(tempstr);
+  Vec:=TVector.Create;
+//  ro:=0.5;
+//  repeat
+//    Vec.Add(ro,Silicon.CarrierConcentration(ro));
+//    ro:=ro+0.5;
+//  until (ro>15);
+//  Vec.WriteToFile('Na_vs_ro.dat',5,'ro Na');
+  ro:=1e-6;
+  repeat
+    Vec.Add(ro,DiodPN.LdifToTauRec(ro,300));
+    ro:=ro+1e-6;
+  until (ro>200e-6);
+  Vec.WriteToFile('tau_vs_Ln_300_45.dat',5,'ro Na');
 
- Nd:=Log10(Ndmin);
- repeat
-   tempstr:=FloatToStrF((Nd-6),ffExponent,10,0);
-   dpn.LayerP.Nd:=Power(10,Nd);
-   for T := Tmin to Tmax do
-     tempstr:=tempstr+' '+FloatToStrF(dpn.Wp(T),ffExponent,10,0);
-   Str.Add(tempstr);
-  nd:=Nd+delNd;
- until Nd>Log10(Ndmax*1.01);
- str.SaveToFile('Lop.dat');
+  Vec.Clear;
+  ro:=1e-6;
+  repeat
+    Vec.Add(ro,DiodPN.LdifToTauRec(ro,295));
+    ro:=ro+1e-6;
+  until (ro>200e-6);
+  Vec.WriteToFile('tau_vs_Ln_295_45.dat',5,'ro Na');
 
- str.Clear;
- tempstr:='T';
- Nd:=Log10(Ndmin);
- repeat
-   tempstr:=tempstr+' '+'Na'+FloatToStrF((Nd-6),ffExponent,3,0);
-  nd:=Nd+delNd;
- until Nd>Log10(Ndmax*1.01);
- Str.Add(tempstr);
+  Vec.Clear;
+  ro:=1e-6;
+  repeat
+    Vec.Add(ro,DiodPN.LdifToTauRec(ro,330));
+    ro:=ro+1e-6;
+  until (ro>200e-6);
+  Vec.WriteToFile('tau_vs_Ln_330_45.dat',5,'ro Na');
 
- tempstr:='Na';
- Nd:=Log10(Ndmin);
- repeat
-   tempstr:=tempstr+' '+FloatToStrF((Nd-6),ffExponent,10,0);
-  nd:=Nd+delNd;
- until Nd>Log10(Ndmax*1.01);
- Str.Add(tempstr);
 
- for T := Tmin to Tmax do
-  begin
-   tempstr:=inttostr(T);
-   Nd:=Log10(Ndmin);
-   repeat
-    dpn.LayerP.Nd:=Power(10,Nd);
-    tempstr:=tempstr+' '+FloatToStrF(dpn.Wp(T),ffExponent,10,0);
-    nd:=Nd+delNd;
-   until Nd>Log10(Ndmax*1.01);
-   Str.Add(tempstr);
-  end;
- str.SaveToFile('Lop_Na.dat');
+  Vec.Free;
 
- str.Free;
- dpn.Free;
+// dpn:=TDiod_PN.Create;
+// dpn.LayerN.Material:=TMaterial.Create(TMaterialName(0));
+// dpn.LayerP.Material:=TMaterial.Create(TMaterialName(0));
+// dpn.LayerN.Nd:=1e25;
+// Ndmin:=1e21;
+// NdMax:=1e23;
+// stepNd:=33;
+// delNd:=(Log10(NdMax)-Log10(NdMin))/(stepNd-1);
+// Tmin:=290;
+// Tmax:=340;
+//// delT:=1;
+// Str:=TStringList.Create;
+//
+// tempstr:='Na';
+// for T := Tmin to Tmax do
+//   tempstr:=tempstr+' '+'T'+inttostr(T);
+// Str.Add(tempstr);
+// tempstr:='T';
+// for T := Tmin to Tmax do
+//   tempstr:=tempstr+' '+inttostr(T);
+// Str.Add(tempstr);
+//
+// Nd:=Log10(Ndmin);
+// repeat
+//   tempstr:=FloatToStrF((Nd-6),ffExponent,10,0);
+//   dpn.LayerP.Nd:=Power(10,Nd);
+//   for T := Tmin to Tmax do
+//     tempstr:=tempstr+' '+FloatToStrF(dpn.Wp(T),ffExponent,10,0);
+//   Str.Add(tempstr);
+//  nd:=Nd+delNd;
+// until Nd>Log10(Ndmax*1.01);
+// str.SaveToFile('Lop.dat');
+//
+// str.Clear;
+// tempstr:='T';
+// Nd:=Log10(Ndmin);
+// repeat
+//   tempstr:=tempstr+' '+'Na'+FloatToStrF((Nd-6),ffExponent,3,0);
+//  nd:=Nd+delNd;
+// until Nd>Log10(Ndmax*1.01);
+// Str.Add(tempstr);
+//
+// tempstr:='Na';
+// Nd:=Log10(Ndmin);
+// repeat
+//   tempstr:=tempstr+' '+FloatToStrF((Nd-6),ffExponent,10,0);
+//  nd:=Nd+delNd;
+// until Nd>Log10(Ndmax*1.01);
+// Str.Add(tempstr);
+//
+// for T := Tmin to Tmax do
+//  begin
+//   tempstr:=inttostr(T);
+//   Nd:=Log10(Ndmin);
+//   repeat
+//    dpn.LayerP.Nd:=Power(10,Nd);
+//    tempstr:=tempstr+' '+FloatToStrF(dpn.Wp(T),ffExponent,10,0);
+//    nd:=Nd+delNd;
+//   until Nd>Log10(Ndmax*1.01);
+//   Str.Add(tempstr);
+//  end;
+// str.SaveToFile('Lop_Na.dat');
+//
+// str.Free;
+// dpn.Free;
 
 // Vec:=TVector.Create;
 // for j := 0 to 10 do
@@ -3775,8 +3817,8 @@ var
 begin
 
 {XP Win}
-// FormatSettings.DecimalSeparator:='.';
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
 SetLength(dat,ord(High(TColName))+1);
 if (LDateFun.Caption<>'None')and(CBDateFun.Checked) then
  begin
@@ -4243,7 +4285,7 @@ procedure TForm1.ButtonCurDirClick(Sender: TObject);
 var st:string;
 begin
 st:=CurDirectory;
-SelectDirectory('Chose Directory','C:', CurDirectory);
+SelectDirectory('Chose Directory','', CurDirectory);
 ChooseDirect(Form1);
 Directory:=CurDirectory;
 end;
@@ -6028,8 +6070,8 @@ if Key=#13 then
     Key:=#0;
     end;
 {XP Win}
-//if not(ANSIChar(Key) in [#8,'0'..'9','+','-','E','e',FormatSettings.DecimalSeparator])
-if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
+if not(ANSIChar(Key) in [#8,'0'..'9','+','-','E','e',FormatSettings.DecimalSeparator])
+//if not(Key in [#8,'0'..'9','+','-','E','e',DecimalSeparator])
  then Key:=#0;
 end;
 

@@ -7,7 +7,7 @@ uses
   OlegVectorManipulation, TeEngine, OlegTypePart2,
   Forms, FrameButtons, OlegFunction, Classes, OlegMathShottky
   {XP Win}
-//  ,System.UITypes
+  ,System.UITypes
   ;
 
 type
@@ -298,8 +298,8 @@ constructor TFitFunctionNew.Create;
 begin
  inherited Create;
 {XP Win}
-// FormatSettings.DecimalSeparator:='.';
- DecimalSeparator:='.';
+ FormatSettings.DecimalSeparator:='.';
+// DecimalSeparator:='.';
  NamesDefine;
  fDigitNumber:=8;
  fFileSuffix:='fit';

@@ -267,7 +267,7 @@ implementation
 uses
   FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegFunction
   {XP Win}
-//  ,Vcl.Dialogs
+  ,Vcl.Dialogs
   ;
 
 { TFFDoubleDiod }

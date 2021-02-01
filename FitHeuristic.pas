@@ -4279,8 +4279,8 @@ begin
    fneighborhoods[i].fit_aver:=Mean(group_fits);
    fneighborhoods[i].Std:=StdDev(group_fits);
    {XP Win}
-//   MeanAndStdDev(group_fits,fneighborhoods[i].fit_aver,
-//                   fneighborhoods[i].Std);
+   MeanAndStdDev(group_fits,fneighborhoods[i].fit_aver,
+                   fneighborhoods[i].Std);
    if IsEqual(fneighborhoods[i].fit_best,fneighborhoods[i].fit_worst)
       then  fneighborhoods[i].Eps1:=1/(1+exp(20))
       else  fneighborhoods[i].Eps1:=1/(1+exp(20

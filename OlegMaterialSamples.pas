@@ -126,6 +126,12 @@ type
 
     Silicon=class
       private
+       class function CCDod(Concentration:double;Parameters:array of double):double;
+       {допоміжна функція, використовується в CarrierConcentration,
+       Parameters[0] - Resistivity
+       Parameters[1] - T,
+       Parameters[2] > 0 p-тип
+                     <=0 n-тип}
        class function Rajkanan(Ephoton:double;T:double=300):double;
        {розраховується коефіцієнт поглинання за складною
        формулою, []=1/m}
@@ -187,6 +193,13 @@ type
       {звуження забороненої зони,
       []=eV,
       {Ndoping]=1/m^3}
+      class function CarrierConcentration(Resistivity:double;
+                                          ItIsHoleMaterial:boolean=true;
+                                          T:double=300):double;
+      {концентрація носіїв за величиною питомого опору
+      []=m^-3,
+      [Resistivity]=Ohm cm}
+
     end;
 
     TMaterialLayer=class
@@ -1520,6 +1533,27 @@ begin
         +4.9057776424E-4*Power(T,3)-8.0347065425E-7*Power(T,4)
         +5.2400039351E-10*Power(T,5))*1e-21;
 {APPLIED PHYSICS LETTERS 104, 112105 (2014), Nguyen}
+end;
+
+class function Silicon.CarrierConcentration(Resistivity: double;
+         ItIsHoleMaterial: boolean; T: double): double;
+begin
+ if Resistivity<0.001 then
+  begin
+    Result:=ErResult;
+    Exit;
+  end;
+ if ItIsHoleMaterial then Result:=Bisection(CCDod,[Resistivity,T,1],5e24,5e16,1e-8)
+                     else Result:=Bisection(CCDod,[Resistivity,T,-1],5e24,5e16,1e-8)
+end;
+
+class function Silicon.CCDod(Concentration: double;
+  Parameters: array of double): double;
+begin
+ if Parameters[2]>0 then
+      Result:=Concentration-1/(Qelem*0.01*Parameters[0]*Silicon.mu_p(Parameters[1],Concentration))
+                    else
+      Result:=Concentration-1/(Qelem*0.01*Parameters[0]*Silicon.mu_n(Parameters[1],Concentration))
 end;
 
 class function Silicon.Cn_Auger(n, T: double): double;

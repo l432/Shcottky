@@ -248,12 +248,12 @@ begin
   if High(Points)<0 then
     begin
 //{XP Win}
-//      FormatSettings.DecimalSeparator:=',';
-      DecimalSeparator:=',';
+      FormatSettings.DecimalSeparator:=',';
+//      DecimalSeparator:=',';
       ReadTextFile(F);
 //{XP Win}
-//      FormatSettings.DecimalSeparator:=',';
-      DecimalSeparator:='.';
+      FormatSettings.DecimalSeparator:=',';
+//      DecimalSeparator:='.';
     end;
   if High(Points)<0 then Exit;
 

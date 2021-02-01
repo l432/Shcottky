@@ -5,7 +5,7 @@ interface
 uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
  Dialogs, OlegMath, StrUtils, Classes, Windows, OlegVector, Grids, ExtCtrls
 //{XP Win}
-// ,VCLTee.TeEngine
+ ,VCLTee.TeEngine
  ;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
@@ -223,11 +223,15 @@ Function FitName(V: TVector; st:string='fit'):string;//overload;
 {повертаЇ зм≥нене значенн€ V.name,
 зм≥на пол€гаЇ у дописуванн≥ st перед першою крапкою}
 
+function NvsRo(Nd:double;param:array of double):double;
+{param[0] - Ro
+ param[1] - T
+}
 
 implementation
 
 uses
-  SysUtils, Math, Graphics;
+  SysUtils, Math, Graphics, OlegMaterialSamples;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюЇтьс€ значенн€ Spin та позиц≥€ Track в≥дпов≥дно до
@@ -1232,5 +1236,12 @@ begin
   end;
 end;
 
+function NvsRo(Nd:double;param:array of double):double;
+{param[0] - Ro
+ param[1] - T
+}
+ begin
+  Result:=Nd-1/(Qelem*0.1*param[0]*Silicon.mu_p(param[1],Nd))
+ end;
 
 end.

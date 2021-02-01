@@ -4,7 +4,7 @@ uses OlegType, OlegMath, SysUtils, Dialogs, Classes, Series,
      Forms,Controls,WinProcs,OlegMaterialSamples, StdCtrls, IniFiles,
      OlegVector
 //     {XP Win}
-//     ,VCLTee.TeEngine
+     ,VCLTee.TeEngine
      ;
 
 Procedure ToFileFromArrays(NameFile:string;
