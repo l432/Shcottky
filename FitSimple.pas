@@ -322,7 +322,7 @@ end;
 
 procedure TFitFunctionWithArbitraryArgument.AccessorialDataCreate;
 begin
-  inherited;
+  inherited AccessorialDataCreate;
   fIntVars:=TVarIntArray.Create(Self,'Npoint');
   fIntVars.ParametrByName['Npoint'].Limits.SetLimits(0);
   fIntVars.ParametrByName['Npoint'].Description:=

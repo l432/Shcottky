@@ -192,14 +192,36 @@ type
       class function BGN(Ndoping: Double=1e21; itIsDonor:Boolean=True):double;
       {звуження забороненої зони,
       []=eV,
-      {Ndoping]=1/m^3}
+      [Ndoping]=1/m^3}
       class function CarrierConcentration(Resistivity:double;
                                           ItIsHoleMaterial:boolean=true;
                                           T:double=300):double;
       {концентрація носіїв за величиною питомого опору
       []=m^-3,
       [Resistivity]=Ohm cm}
-
+      class function TAUbtb(Ndop,delN:double;T:double=300):double;
+     {час життя, пов'язаний з міжзонною рекомбінацією
+      Ndop - рівень легування; delN - нерівноважні носії
+      [Ndop,delN]=1/m^3
+      []=c
+      J. Appl. Phys. 110, 053713}
+      class function TAUceager(Na,delN:double;T:double=300):double;
+      {час життя, пов'язаний з Coulomb-enhanced Auger recombination
+       для р-напівпровідника
+       Na - рівень легування; delN - нерівноважні носії
+      [Nа,delN]=1/m^3
+      []=c
+      J. Appl. Phys. 110, 053713}
+      class function TAUager_n(n:double;T:double=300):double;
+      {час життя, пов'язаний з Оже рекомбінацією в n-матеріалі
+      при низькому рівні інжекції
+      [n]=m^-3
+      []=c}
+      class function TAUager_p(p:double;T:double=300):double;
+      {час життя, пов'язаний з Оже рекомбінацією в p-матеріалі
+      при низькому рівні інжекції
+      [p]=m^-3
+      []=c}
     end;
 
     TMaterialLayer=class
@@ -385,6 +407,12 @@ type
        Et - положення рівня відносно Ev
        }
        function Iscr_rec(T,V:double):double;overload;
+       function delN(V:double;I:double=0;R:double=0;T:double=300):double;
+       {концентрація нерівноважних (надлишкових) носіїв,
+       справедлива при однорідній генерації у зразку
+       V - напруга, I - струм, R - опір,
+       формула від Костильова
+       }
     end; // TDiod_PN=class(TDiodMaterial)
 
     TDiod_PNShow=class
@@ -1148,6 +1176,20 @@ begin
  FLayerN.IsNType:=True;
  FLayerP:=TMaterialLayer.Create;
  FLayerP.IsNType:=False;
+end;
+
+function TDiod_PN.delN(V, I, R, T: double): double;
+begin
+ if FLayerN.Nd>FLayerP.Nd then
+    Result:=-FLayerP.Nd/2
+         +sqrt(sqr(FLayerP.Nd)/4
+             +sqr(FLayerP.Material.n_i(T))
+              *(exp((V-I*R)/T/Kb)-1))
+                          else
+    Result:=-FLayerN.Nd/2
+         +sqrt(sqr(FLayerN.Nd)/4
+             +sqr(FLayerN.Material.n_i(T))
+              *(exp((V-I*R)/T/Kb)-1))
 end;
 
 function TDiod_PN.fi(x, T: double;V:double=0): double;
@@ -1929,6 +1971,29 @@ begin
 end;
 
 
+
+class function Silicon.TAUager_n(n, T: double): double;
+begin
+ Result:=1/(Cn_Auger(n,T)*n*n);
+end;
+
+class function Silicon.TAUager_p(p, T: double): double;
+begin
+   Result:=1/(Cp_Auger(p,T)*p*p);
+end;
+
+class function Silicon.TAUbtb(Ndop, delN, T: double): double;
+begin
+ Result:=1/(Brad(T)*(Ndop+MinorityN(Ndop,T)+delN))
+end;
+
+class function Silicon.TAUceager(Na, delN, T: double): double;
+ var n0:double;
+begin
+ n0:=MinorityN(Na,T)/1e6;
+ Result:=delN/((n0+delN/1e6)*(Na+delN)
+               *(1.8e-24*Power(n0,0.65)+6e-25*Power(Na/1e6,0.65)+3e-27*Power(delN/1e6,0.8)));
+end;
 
 class function Silicon.Vth_n(T: double): double;
 begin

@@ -57,13 +57,15 @@ TVarInteger=class(TVarNumber)
 {ціла змінна, потрібна
 для проведення апроксимації}
  private
+  fDefaultValue:Integer;
   fValue:Integer;
   fIsNoOdd:boolean;
  protected
  public
   property Value:Integer read fValue write fValue;
   property IsNoOdd:boolean read fIsNoOdd write fIsNoOdd;
-  constructor Create(Nm:string;FF:TFitFunctionNew);
+  property DefaultValue:Integer read fDefaultValue write fDefaultValue;
+  constructor Create(Nm:string;FF:TFitFunctionNew;DefaultValue:Integer=0);
   procedure ReadFromIniFile;override;
   procedure WriteToIniFile;override;
 end;
@@ -73,6 +75,7 @@ TVarDouble=class(TVarNumber)
 для проведення апроксимації}
  private
   fValue:Double;
+  fDefaultValue:Double;
   fAutoDeterm:boolean;
   {True якщо значення параметру
   визначається автоматично, з параметрів fDataToFit}
@@ -82,8 +85,9 @@ TVarDouble=class(TVarNumber)
   Value:Double;
   property ManualValue:double read fValue write fValue;
   property AutoDeterm:boolean read fAutoDeterm write fAutoDeterm;
+  property DefaultValue:double read fDefaultValue write fDefaultValue;
   property ManualDetermOnly:boolean read fManualDetermOnly write fManualDetermOnly;
-  constructor Create(Nm:string;FF:TFitFunctionNew);
+  constructor Create(Nm:string;FF:TFitFunctionNew;DefaultValue:double=ErResult);
   procedure ReadFromIniFile;override;
   procedure WriteToIniFile;override;
   procedure UpDataValue;
@@ -286,20 +290,24 @@ end;
 
 { TVarInteger }
 
-constructor TVarInteger.Create(Nm:string;FF: TFitFunctionNew);
+constructor TVarInteger.Create(Nm:string;FF: TFitFunctionNew;
+                               DefaultValue:Integer=0);
 begin
  inherited Create(Nm,FF);
  fIsNoOdd:=False;
+ fDefaultValue:=DefaultValue;
 end;
 
 procedure TVarInteger.ReadFromIniFile;
 begin
- fValue:=fFF.ConfigFile.ReadInteger(fFF.Name,Name,0);
+// fValue:=fFF.ConfigFile.ReadInteger(fFF.Name,Name,0);
+ fValue:=fFF.ConfigFile.ReadInteger(fFF.Name,Name,fDefaultValue);
 end;
 
 procedure TVarInteger.WriteToIniFile;
 begin
-  WriteIniDef(fFF.ConfigFile,fFF.Name, Name,fValue,0);
+//  WriteIniDef(fFF.ConfigFile,fFF.Name, Name,fValue,0);
+  WriteIniDef(fFF.ConfigFile,fFF.Name, Name,fValue,fDefaultValue);
 end;
 
 { TVarIntArray }
@@ -384,17 +392,19 @@ end;
 
 { TVarDouble }
 
-constructor TVarDouble.Create(Nm: string; FF: TFitFunctionNew);
+constructor TVarDouble.Create(Nm: string; FF: TFitFunctionNew;DefaultValue:double=ErResult);
 begin
  inherited Create(Nm,FF);
  fAutoDeterm:=False;
  fManualDetermOnly:=True;
  Value:=ErResult;
+ fDefaultValue:=DefaultValue;
 end;
 
 procedure TVarDouble.ReadFromIniFile;
 begin
- fValue:=fFF.ConfigFile.ReadFloat(fFF.Name,'Var'+Name+'Val',ErResult);
+// fValue:=fFF.ConfigFile.ReadFloat(fFF.Name,'Var'+Name+'Val',ErResult);
+ fValue:=fFF.ConfigFile.ReadFloat(fFF.Name,'Var'+Name+'Val',fDefaultValue);
  fAutoDeterm:=fFF.ConfigFile.ReadBool(fFF.Name,'Var'+Name+'Auto',False);
  if fManualDetermOnly then fAutoDeterm:=False;
  UpDataValue;
@@ -407,7 +417,8 @@ end;
 
 procedure TVarDouble.WriteToIniFile;
 begin
-  WriteIniDef(fFF.ConfigFile,fFF.Name,'Var'+Name+'Val',fValue);
+//  WriteIniDef(fFF.ConfigFile,fFF.Name,'Var'+Name+'Val',fValue);
+  WriteIniDef(fFF.ConfigFile,fFF.Name,'Var'+Name+'Val',fValue,fDefaultValue);
   WriteIniDef(fFF.ConfigFile,fFF.Name,'Var'+Name+'Auto',fAutoDeterm);
 end;
 

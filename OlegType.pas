@@ -10,6 +10,7 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Qelem=1.6e-19; {елементарний заряд, []=Кл}
       Hpl=1.05457e-34; {постійна Планка перекреслена, []=Дж c}
       m0=9.11e-31; {маса електрону []=кг}
+      Clight=3e8;
       ErResult=555;
       DoubleConstantSection='DoubleConstant';
       Voc_min=0.0002;

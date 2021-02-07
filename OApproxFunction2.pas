@@ -260,7 +260,48 @@ tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r)
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
   destructor Destroy;override;
-end; // TFFBarierHeigh=class (TFFHeuristic)
+end; //TFFTAU_Fei_FeB=class (TFFHeuristic)
+
+
+TFFIsc_Fei_FeB=class (TFFHeuristic)
+{часова залежність струму короткого замикання,
+якщо відбувається перехід міжвузольного
+заліза в комплекс FeB
+час життя неосновних носіїв розраховується як
+tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r+1/tau_band-to-band+1/tau_ceauger)
+де tau_r - час життя, що задаєься іншими механізмами
+рекомбінації, окрім на рівнях, зв'язаними з Fei та FeB;
+параметри, які підбираються:
+ Nfe - сумарна концентрація атомів заліза (міжвузольних та в парах FeB)
+ tau_r
+ Wph - інтенсивність освітлення
+ Em - енергія міграції міжвузольного заліза
+  (в літературі 0,68 еВ)}
+ private
+  fFei:TDefect;
+  fFeB:TDefect;
+  fAbsorp:double;
+  fNph:double;
+  fT:double;
+  mukT:double;
+  ftau_btb:double;
+  ftau_auger:double;
+//  Igen,Iscr:double;
+//  Igen0,Igen1,Iscr0:double;
+//  procedure IgenIscrDetermine(tau_n,tau_g, Rs:double;Point:TPointDouble);
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+  procedure AddDoubleVars;override;
+  procedure VariousPreparationBeforeFitting;override;
+ published
+  property PN_Diode:TD_PNFit read fPNDiode;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+ destructor Destroy;override;
+end; // TFFIsc_Fei_FeB=class (TFFHeuristic)
+
 
 implementation
 
@@ -354,7 +395,7 @@ end;
 
 procedure TFFDoubleDiodTau.VariousPreparationBeforeFitting;
 begin
- inherited;
+ inherited VariousPreparationBeforeFitting;
  Igen0:=Qelem*PN_Diode.Area
         *Power(PN_Diode.n_i((DoubVars.Parametr[0] as TVarDouble).Value),2)
         /PN_Diode.Nd;
@@ -1094,9 +1135,83 @@ end;
 
 procedure TFFTAU_Fei_FeB.TuningBeforeAccessorialDataCreate;
 begin
- inherited;
+ inherited TuningBeforeAccessorialDataCreate;
  fFei:=TDefect.Create(Fei);
  fFeB:=TDefect.Create(FeB_ac);
+end;
+
+{ TFFIsc_Fei_FeB }
+
+procedure TFFIsc_Fei_FeB.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.Add(Self,'L_nm');
+  DoubVars.ParametrByName['L_nm'].Description:='Illumination wave length (nm)';
+  DoubVars.ParametrByName['L_nm'].Limits.SetLimits(0);
+  (DoubVars.ParametrByName['T'] as TVarDouble).ManualDetermOnly:=True;
+end;
+
+destructor TFFIsc_Fei_FeB.Destroy;
+begin
+ FreeAndNil(fFei);
+ FreeAndNil(fFeB);
+ inherited;
+end;
+
+function TFFIsc_Fei_FeB.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+  var L,AlL,tau:double;
+begin
+  fFei.Nd:=Fe_i_t(Point[cX],PN_Diode.LayerP,
+                  Data[0], fT,Data[3]);
+ fFeB.Nd:=Data[0]-fFei.Nd;
+ tau:=1/(1/Data[1]
+           +1/fFei.TAUsrh(PN_Diode.LayerP.Nd,
+                    0,fT)
+           +1/fFeB.TAUsrh(PN_Diode.LayerP.Nd,
+                    0,fT)
+           +1/ftau_btb
+           +1/ftau_auger);
+// Result:=tau;
+ L:=sqrt(tau*mukT);
+// Result:=L;
+  AlL:=fAbsorp*L;
+ Result:=Data[2]*fNph*AlL/(1+AlL);
+end;
+
+procedure TFFIsc_Fei_FeB.NamesDefine;
+begin
+  SetNameCaption('IscFeiFeB',
+      'Time dependence of short circuit current '+
+      'for monochromatic llumination '+
+                'if Fei -> FeB');
+end;
+
+procedure TFFIsc_Fei_FeB.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nfe','tau_r','Wph','Em']);
+end;
+
+procedure TFFIsc_Fei_FeB.TuningBeforeAccessorialDataCreate;
+begin
+ inherited TuningBeforeAccessorialDataCreate;
+ fFei:=TDefect.Create(Fei);
+ fFeB:=TDefect.Create(FeB_ac);
+ fHasPicture:=False;
+end;
+
+procedure TFFIsc_Fei_FeB.VariousPreparationBeforeFitting;
+begin
+  inherited VariousPreparationBeforeFitting;
+  fT:=(DoubVars.ParametrByName['T'] as TVarDouble).Value;
+  fAbsorp:=Silicon.Absorption((DoubVars.ParametrByName['L_nm'] as TVarDouble).Value,
+                              fT);
+  fNph:=Qelem*(DoubVars.ParametrByName['L_nm'] as TVarDouble).Value*1e-9
+        {*PN_Diode.Area}/Hpl/Clight/2/Pi;
+  mukT:=PN_Diode.mu(fT)*Kb*fT;
+  ftau_btb:=Silicon.TAUbtb(PN_Diode.LayerP.Nd,0,fT);
+  ftau_auger:=Silicon.TAUager_p(PN_Diode.LayerP.Nd,fT);
 end;
 
 end.

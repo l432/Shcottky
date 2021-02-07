@@ -128,13 +128,13 @@ const
    TFFTunnelFNmy,TFFBrailsford,TFFBrailsfordw,
    TFFCurrentSC,TFFElectronConcentrationDX);
 
-  FeBNumber=3;
+  FeBNumber=4;
   FeBNames:array[0..FeBNumber] of string=
    ('Ideal. Factor vs T','Ideal. Factor vs T & N_B & N_Fe',
-   'Ideal. Factor vs T & N_B','Tau Fei-FeB');
+   'Ideal. Factor vs T & N_B','Tau Fei-FeB','Isc Fei->FeB');
   FeBClasses:array[0..FeBNumber]of TFitFunctionNew_Class=
    (TFFnFeBPart,TFFn_FeB,
-   TFFn_FeBNew,TFFTAU_Fei_FeB);
+   TFFn_FeBNew,TFFTAU_Fei_FeB,TFFIsc_Fei_FeB);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;

@@ -3607,39 +3607,41 @@ var
 begin
 // showmessage(floattostr(DiodPN.LayerN.Nd)+#10+floattostr(DiodPN.LayerP.Nd))
 
-
-  Vec:=TVector.Create;
+showmessage(floattostr(DiodPN.delN(0.4)));
+//  Vec:=TVector.Create;
 //  ro:=0.5;
 //  repeat
 //    Vec.Add(ro,Silicon.CarrierConcentration(ro));
 //    ro:=ro+0.5;
 //  until (ro>15);
 //  Vec.WriteToFile('Na_vs_ro.dat',5,'ro Na');
-  ro:=1e-6;
-  repeat
-    Vec.Add(ro,DiodPN.LdifToTauRec(ro,300));
-    ro:=ro+1e-6;
-  until (ro>200e-6);
-  Vec.WriteToFile('tau_vs_Ln_300_45.dat',5,'ro Na');
-
-  Vec.Clear;
-  ro:=1e-6;
-  repeat
-    Vec.Add(ro,DiodPN.LdifToTauRec(ro,295));
-    ro:=ro+1e-6;
-  until (ro>200e-6);
-  Vec.WriteToFile('tau_vs_Ln_295_45.dat',5,'ro Na');
-
-  Vec.Clear;
-  ro:=1e-6;
-  repeat
-    Vec.Add(ro,DiodPN.LdifToTauRec(ro,330));
-    ro:=ro+1e-6;
-  until (ro>200e-6);
-  Vec.WriteToFile('tau_vs_Ln_330_45.dat',5,'ro Na');
 
 
-  Vec.Free;
+//  ro:=1e-6;
+//  repeat
+//    Vec.Add(ro,DiodPN.LdifToTauRec(ro,300));
+//    ro:=ro+1e-6;
+//  until (ro>200e-6);
+//  Vec.WriteToFile('tau_vs_Ln_300_45.dat',5,'ro Na');
+//
+//  Vec.Clear;
+//  ro:=1e-6;
+//  repeat
+//    Vec.Add(ro,DiodPN.LdifToTauRec(ro,295));
+//    ro:=ro+1e-6;
+//  until (ro>200e-6);
+//  Vec.WriteToFile('tau_vs_Ln_295_45.dat',5,'ro Na');
+//
+//  Vec.Clear;
+//  ro:=1e-6;
+//  repeat
+//    Vec.Add(ro,DiodPN.LdifToTauRec(ro,330));
+//    ro:=ro+1e-6;
+//  until (ro>200e-6);
+//  Vec.WriteToFile('tau_vs_Ln_330_45.dat',5,'ro Na');
+//
+//
+//  Vec.Free;
 
 // dpn:=TDiod_PN.Create;
 // dpn.LayerN.Material:=TMaterial.Create(TMaterialName(0));

@@ -76,9 +76,11 @@ Function Fe_i_eq(MaterialLayer:TMaterialLayer;
   Fe_i_all - повна концентрація домішкового заліза}
 
 Function Fe_i_t(time:double;MaterialLayer:TMaterialLayer;
-                 Fe_i_all:double; T:double=300):double;
+                 Fe_i_all:double; T:double=300;
+                 Em:double=0.68):double;
 {концентрація міжвузольного заліза через час time
-після припинення освітлення}
+після припинення освітлення;
+Em - енергія міграціїї міжвузольного заліза}
 
 implementation
 
@@ -170,12 +172,13 @@ begin
 end;
 
 Function Fe_i_t(time:double;MaterialLayer:TMaterialLayer;
-                 Fe_i_all:double; T:double=300):double;
+                 Fe_i_all:double; T:double=300;Em:double=0.68):double;
  var Fe_i_e:double;
 begin
  Fe_i_e:=Fe_i_eq(MaterialLayer,Fe_i_all,T);
  Result:=(Fe_i_all-Fe_i_e)*
-          exp(-1.3e-3*exp(-0.68/Kb/T)*time*Power(1e-6*MaterialLayer.Nd,2.0/3.0))
+          exp(-1.3e-3*exp(-Em/Kb/T)*time*Power(1e-6*MaterialLayer.Nd,2.0/3.0))
+//          exp(-time*exp(-Em/Kb/T)*MaterialLayer.Nd/T/5.7e11)
          +Fe_i_e;
 end;
 
