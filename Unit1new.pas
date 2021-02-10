@@ -3590,7 +3590,8 @@ procedure TForm1.Button1Click(Sender: TObject);
 var
 //  i,j:integer;
   Vec:TVector;
-  ro:double;
+  delN,T:double;
+  Fe:TDefect;
 //  number, zero : double;
 //var dpn:TDiod_PN;
 //    Nd,Ndmin,NdMax,delNd:double;
@@ -3608,7 +3609,28 @@ begin
 // showmessage(floattostr(DiodPN.LayerN.Nd)+#10+floattostr(DiodPN.LayerP.Nd))
 
 showmessage(floattostr(DiodPN.delN(0.4)));
-//  Vec:=TVector.Create;
+
+  Vec:=TVector.Create;
+   Fe:=TDefect.Create(FeB_ac);
+   Fe.Nd:=1e18;
+  T:=290;
+  repeat
+   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
+   T:=T+1;
+//    Voc:=0.15;
+//    Vec.Clear;
+//    repeat
+//      Vec.Add(Voc,DiodPN.delN(Voc,0,0,T));
+//      Voc:=Voc+0.005;
+//    until Voc>0.5;
+//    Vec.WriteToFile('dN_vs_Voc_'+inttostr(round(T))+'.dat',5,'Voc delN');
+//    T:=T+5;
+  until T>350;
+
+   Vec.WriteToFile('Tfeb18n0.dat',5,'T TAUfeb');
+   FreeAndNil(Fe);
+   FreeAndNil(Vec);
+
 //  ro:=0.5;
 //  repeat
 //    Vec.Add(ro,Silicon.CarrierConcentration(ro));
