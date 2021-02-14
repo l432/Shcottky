@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -4327,10 +4327,6 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = 'File operation'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object DirLabel: TLabel
         Left = 664
         Top = 62
@@ -4540,9 +4536,11 @@ object Form1: TForm1
         end
         object Series4: TLineSeries
           Active = False
+          ColorEachLine = False
           SeriesColor = clBlue
           Brush.BackColor = clDefault
           ClickableLine = False
+          Dark3D = False
           Pointer.InflateMargins = True
           Pointer.Style = psRectangle
           XValues.Name = 'X'
@@ -5721,10 +5719,6 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'Diode'#39's parameters'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Close2: TBitBtn
         Left = 534
         Top = 562
@@ -6822,10 +6816,6 @@ object Form1: TForm1
     object TabSheet4: TTabSheet
       Caption = 'Deep Level'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox36: TGroupBox
         Left = 3
         Top = 0

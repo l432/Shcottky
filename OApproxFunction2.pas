@@ -238,7 +238,19 @@ TFFCurrentSC=class (TFFHeuristic)
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
 end; // TFFCurrentSC=class (TFFHeuristic)
 
-TFFTAU_Fei_FeB=class (TFFHeuristic)
+TFFFei_FeB=class (TFFHeuristic)
+{базовий клас для функцій, що передбачають перетворення
+Fei->FeB}
+ private
+  fFei:TDefect;
+  fFeB:TDefect;
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+ public
+  destructor Destroy;override;
+end;
+
+TFFTAU_Fei_FeB=class (TFFFei_FeB)
 {часова залежність часу життя неосновних носіїв,
 якщо відбувається перехід міжвузольного
 заліза в комплекс FeB
@@ -247,11 +259,11 @@ tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r)
 рекомбінації, окрім на рівнях, зв'язаними з Fei та FeB;
 параметри, які підбираються - сумарна концентрація
 атомів заліза (міжвузольних та в парах FeB) та tau_r}
- private
-  fFei:TDefect;
-  fFeB:TDefect;
+// private
+//  fFei:TDefect;
+//  fFeB:TDefect;
  protected
-  procedure TuningBeforeAccessorialDataCreate;override;
+//  procedure TuningBeforeAccessorialDataCreate;override;
   procedure ParamArrayCreate;override;
   procedure NamesDefine;override;
   procedure AddDoubleVars;override;
@@ -259,49 +271,66 @@ tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r)
   property Layer:TMaterialLayerFit read fMaterialLayer;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
-  destructor Destroy;override;
+//  destructor Destroy;override;
 end; //TFFTAU_Fei_FeB=class (TFFHeuristic)
 
-
-TFFIsc_Fei_FeB=class (TFFHeuristic)
-{часова залежність струму короткого замикання,
+TFFIsc_shablon=class (TFFFei_FeB)
+ {базовий клас для функцій, що описують
+часова залежність струму короткого замикання,
 якщо відбувається перехід міжвузольного
 заліза в комплекс FeB
 час життя неосновних носіїв розраховується як
 tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r+1/tau_band-to-band+1/tau_ceauger)
 де tau_r - час життя, що задаєься іншими механізмами
 рекомбінації, окрім на рівнях, зв'язаними з Fei та FeB;
-параметри, які підбираються:
- Nfe - сумарна концентрація атомів заліза (міжвузольних та в парах FeB)
- tau_r
- Wph - інтенсивність освітлення
- Em - енергія міграції міжвузольного заліза
-  (в літературі 0,68 еВ)}
+ }
  private
-  fFei:TDefect;
-  fFeB:TDefect;
   fAbsorp:double;
   fNph:double;
   fT:double;
   mukT:double;
   ftau_btb:double;
   ftau_auger:double;
-//  Igen,Iscr:double;
-//  Igen0,Igen1,Iscr0:double;
-//  procedure IgenIscrDetermine(tau_n,tau_g, Rs:double;Point:TPointDouble);
  protected
   procedure TuningBeforeAccessorialDataCreate;override;
-  procedure ParamArrayCreate;override;
-  procedure NamesDefine;override;
   procedure AddDoubleVars;override;
   procedure VariousPreparationBeforeFitting;override;
  published
   property PN_Diode:TD_PNFit read fPNDiode;
+end;
+
+
+TFFIsc_Fei_FeB=class (TFFIsc_shablon)
+{параметри, які підбираються:
+ Nfe - сумарна концентрація атомів заліза (міжвузольних та в парах FeB)
+ tau_r
+ Wph - інтенсивність освітлення
+ Em - енергія міграції міжвузольного заліза
+  (в літературі 0,68 еВ)}
+ protected
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+// published
+//  property PN_Diode:TD_PNFit read fPNDiode;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
- destructor Destroy;override;
 end; // TFFIsc_Fei_FeB=class (TFFHeuristic)
 
+
+TFFIsc2_Fei_FeB=class (TFFIsc_shablon)
+{параметри, які підбираються:
+ Nfe - сумарна концентрація атомів заліза (міжвузольних та в парах FeB)
+ tau_r
+ Wph - інтенсивність освітлення
+ t_asos - характерний час поєднання
+ Kr - частка міжвузольних атомів в початковий момент
+ (Nfei(o)=Kr*Nfe)}
+ protected
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFIsc_Fei_FeB=class (TFFHeuristic)
 
 implementation
 
@@ -1097,14 +1126,6 @@ begin
   DoubVars.ParametrByName['delN'].Limits.SetLimits(0);
 end;
 
-
-destructor TFFTAU_Fei_FeB.Destroy;
-begin
- FreeAndNil(fFei);
- FreeAndNil(fFeB);
- inherited;
-end;
-
 function TFFTAU_Fei_FeB.FuncForFitness(Point: TPointDouble;
   Data: TArrSingle): double;
 begin
@@ -1133,30 +1154,7 @@ begin
                  ['Fe','tau_r']);
 end;
 
-procedure TFFTAU_Fei_FeB.TuningBeforeAccessorialDataCreate;
-begin
- inherited TuningBeforeAccessorialDataCreate;
- fFei:=TDefect.Create(Fei);
- fFeB:=TDefect.Create(FeB_ac);
-end;
-
 { TFFIsc_Fei_FeB }
-
-procedure TFFIsc_Fei_FeB.AddDoubleVars;
-begin
-  inherited;
-  DoubVars.Add(Self,'L_nm');
-  DoubVars.ParametrByName['L_nm'].Description:='Illumination wave length (nm)';
-  DoubVars.ParametrByName['L_nm'].Limits.SetLimits(0);
-  (DoubVars.ParametrByName['T'] as TVarDouble).ManualDetermOnly:=True;
-end;
-
-destructor TFFIsc_Fei_FeB.Destroy;
-begin
- FreeAndNil(fFei);
- FreeAndNil(fFeB);
- inherited;
-end;
 
 function TFFIsc_Fei_FeB.FuncForFitness(Point: TPointDouble;
   Data: TArrSingle): double;
@@ -1172,9 +1170,7 @@ begin
                     0,fT)
            +1/ftau_btb
            +1/ftau_auger);
-// Result:=tau;
  L:=sqrt(tau*mukT);
-// Result:=L;
   AlL:=fAbsorp*L;
  Result:=Data[2]*fNph*AlL/(1+AlL);
 end;
@@ -1193,15 +1189,41 @@ begin
                  ['Nfe','tau_r','Wph','Em']);
 end;
 
-procedure TFFIsc_Fei_FeB.TuningBeforeAccessorialDataCreate;
+
+{ TFFFei_FeB }
+
+destructor TFFFei_FeB.Destroy;
+begin
+ FreeAndNil(fFei);
+ FreeAndNil(fFeB);
+ inherited;
+end;
+
+procedure TFFFei_FeB.TuningBeforeAccessorialDataCreate;
 begin
  inherited TuningBeforeAccessorialDataCreate;
  fFei:=TDefect.Create(Fei);
  fFeB:=TDefect.Create(FeB_ac);
+end;
+
+{ TFFIsc_shablon }
+
+procedure TFFIsc_shablon.AddDoubleVars;
+begin
+  inherited;
+  DoubVars.Add(Self,'L_nm');
+  DoubVars.ParametrByName['L_nm'].Description:='Illumination wave length (nm)';
+  DoubVars.ParametrByName['L_nm'].Limits.SetLimits(0);
+  (DoubVars.ParametrByName['T'] as TVarDouble).ManualDetermOnly:=True;
+end;
+
+procedure TFFIsc_shablon.TuningBeforeAccessorialDataCreate;
+begin
+ inherited TuningBeforeAccessorialDataCreate;
  fHasPicture:=False;
 end;
 
-procedure TFFIsc_Fei_FeB.VariousPreparationBeforeFitting;
+procedure TFFIsc_shablon.VariousPreparationBeforeFitting;
 begin
   inherited VariousPreparationBeforeFitting;
   fT:=(DoubVars.ParametrByName['T'] as TVarDouble).Value;
@@ -1212,6 +1234,42 @@ begin
   mukT:=PN_Diode.mu(fT)*Kb*fT;
   ftau_btb:=Silicon.TAUbtb(PN_Diode.LayerP.Nd,0,fT);
   ftau_auger:=Silicon.TAUager_p(PN_Diode.LayerP.Nd,fT);
+end;
+
+{ TFFIsc2_Fei_FeB }
+
+function TFFIsc2_Fei_FeB.FuncForFitness(Point: TPointDouble;
+  Data: TArrSingle): double;
+  var L,AlL,tau,Fe_i_e:double;
+begin
+ Fe_i_e:=Fe_i_eq(PN_Diode.LayerP,Data[0],T);
+ fFei.Nd:=(Data[0]*Data[4]-Fe_i_e)*
+           exp(-Point[cX]/Data[3])+Fe_i_e;
+ fFeB.Nd:=Data[0]-fFei.Nd;
+ tau:=1/(1/Data[1]
+           +1/fFei.TAUsrh(PN_Diode.LayerP.Nd,
+                    0,fT)
+           +1/fFeB.TAUsrh(PN_Diode.LayerP.Nd,
+                    0,fT)
+           +1/ftau_btb
+           +1/ftau_auger);
+ L:=sqrt(tau*mukT);
+  AlL:=fAbsorp*L;
+ Result:=Data[2]*fNph*AlL/(1+AlL);
+end;
+
+procedure TFFIsc2_Fei_FeB.NamesDefine;
+begin
+  SetNameCaption('IscFeiFeB-2',
+      'Time dependence of short circuit current '+
+      'for monochromatic llumination '+
+                'if Fei -> FeB');
+end;
+
+procedure TFFIsc2_Fei_FeB.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['Nfe','tau_r','Wph','t_asos','Kr']);
 end;
 
 end.

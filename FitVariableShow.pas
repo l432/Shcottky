@@ -287,7 +287,7 @@ begin
 
  fVarDouble:=VarDouble;
  fDPShow:=TDoubleParameterShow.Create(fSText,fLabel,
-           fVarDouble.Description,fVarDouble.ManualValue);
+           fVarDouble.Description,fVarDouble.ManualValue,5);
  fDPShow.Limits:=fVarDouble.Limits;
 
 
