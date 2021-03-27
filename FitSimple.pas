@@ -92,6 +92,16 @@ TFFLinear=class (TFFSimpleLogEnable)
 public
 end; // TFFLinear=class (TFFSimpleLogEnable)
 
+TFFPVParareters=class (TFFSimpleLogEnable)
+ protected
+  procedure ParamArrayCreate;override;
+  function FittingCalculation:boolean;override;
+  procedure NamesDefine;override;
+  function RealFinalFunc(X:double):double;override;
+  procedure TuningBeforeAccessorialDataCreate;override;
+public
+end; // TFFPVParareters=class (TFFSimpleLogEnable)
+
 
 TFFOhmLaw=class (TFFSimpleLogEnable)
  protected
@@ -636,6 +646,35 @@ begin
   inherited;
   fXlog:=False;
   fYlog:=False;
+end;
+
+{ TFFPVParareters }
+
+function TFFPVParareters.FittingCalculation: boolean;
+begin
+ Result:=fDataToFit.PVParareters(fDParamArray.OutputData);
+end;
+
+procedure TFFPVParareters.NamesDefine;
+begin
+ SetNameCaption('SC Parameters',
+                  'Determination Voc, Isc, Pm, Vm, Im, FF (Prog. Photovolt: Res. Appl. v.25, p.623)');
+end;
+
+procedure TFFPVParareters.ParamArrayCreate;
+begin
+  fDParamArray:=TDParamArray.Create(Self,['Voc','Isc','Pm','Vm','Im','FF']);
+end;
+
+function TFFPVParareters.RealFinalFunc(X: double): double;
+begin
+ Result:=fDataToFit.Yvalue(X);
+end;
+
+procedure TFFPVParareters.TuningBeforeAccessorialDataCreate;
+begin
+  inherited;
+  fHasPicture:=False;
 end;
 
 end.

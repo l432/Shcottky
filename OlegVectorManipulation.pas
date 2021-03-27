@@ -123,7 +123,10 @@ type
       Pm - OutputData[2],
       Vm - OutputData[3],
       Im - OutputData[4],
-      FF - OutputData[5]}
+      FF - OutputData[5]
+      Prog. Photovolt: Res. Appl. (2017)
+      Volume 25, Issue 7, pages 623-635,
+      для signal-to-noise ratio 80dB}
      Function NPolinomAprox (N:word;var  OutputData:TArrSingle):boolean;
       {апроксимуються дані  поліномом N-го ступеня
       y=OutputData[0]+OutputData[1]*x+OutputData[2]*x^2+...+OutputData[N]*x^N}
@@ -997,13 +1000,14 @@ function TVectorTransform.PVParareters(var OutputData: TArrSingle): boolean;
  var P_V,temp:TVectorTransform;
      D:TDiapazon;
      Pmax,Imax:double;
-     Number_Vmax:integer;
+     Number_Vmax,i:integer;
 begin
  Result:=False;
  InitArray(OutputData,6,0);
 
  P_V:=TVectorTransform.Create();
  Self.Power(P_V);
+ P_V.N_begin:=0;
  Pmax:=P_V.MinY;
 
  if (P_V.Count<5)or(Pmax>=0) then Exit;
@@ -1022,15 +1026,18 @@ begin
  OutputData[1]:=-temp.NPolinomA0(1);
 
  D.SetLimits(Self.MinX,ErResult,
-            -0.11*Imax,0.33*Imax);
+            -0.25*Imax,0.33*Imax);
  Self.CopyDiapazonPoint(temp,D);
  Self.PointSupplement(temp,3,False);
  OutputData[0]:=temp.NPolinomZero(2);
  if OutputData[0]=ErResult then OutputData[0]:=Self.Xvalue(0);
- 
 
- D.SetLimits(P_V.MinX,P_V.X[Number_Vmax - 1],P_V.MinY,Pmax*0.82);
+ D.SetLimits(P_V.MinX,P_V.X[Number_Vmax - 1]*1.001,Pmax,Pmax*0.82);
  P_V.CopyDiapazonPoint(temp,D);
+// for i := Number_Vmax to P_V.HighNumber do
+//    if P_V.Y[i]<=Pmax*0.94
+//       then temp.Add(P_V.X[i],P_V.y[i])
+//       else Break;
  D.SetLimits(P_V.X[Number_Vmax],ErResult,P_V.MinY,Pmax*0.94);
  P_V.CopyDiapazonPoint(temp,D,False);
  p_V.PointSupplement(temp,5);

@@ -189,7 +189,7 @@ type
       function ValueNumberPrecise (Coord: TCoord_type; CoordValue: Double):integer;
       {повертає номер першої точки вектора, координата якої
       співпадає з CoordValue з точність IsEqual:
-      якщо не входить в діапазон зміни - повервається -1}
+      якщо не входить в діапазон зміни - повертається -1}
 
       procedure MultiplyY(const A:double);
          {Y всіх точок множиться на A}
@@ -252,7 +252,7 @@ begin
 //      DecimalSeparator:=',';
       ReadTextFile(F);
 //{XP Win}
-      FormatSettings.DecimalSeparator:=',';
+      FormatSettings.DecimalSeparator:='.';
 //      DecimalSeparator:='.';
     end;
   if High(Points)<0 then Exit;

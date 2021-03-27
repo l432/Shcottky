@@ -445,6 +445,10 @@ begin
                    Point[cY])
                    +(Point[cX]-Point[cY]*Data[1])/Data[3]
                    -Data[6];
+
+//  Result:=IV_Diod(Point[cX],[Data[0],Data[1],Data[2],
+//                 (DoubVars.Parametr[0] as TVarDouble).Value],Point[cY])
+//      +(Point[cX]-Point[cY]*Data[1])/Data[3]-Data[4];
 end;
 
 procedure TFFDoubleDiodLight.NamesDefine;
