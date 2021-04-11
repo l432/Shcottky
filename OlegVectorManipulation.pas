@@ -1008,8 +1008,8 @@ begin
  P_V:=TVectorTransform.Create();
  Self.Power(P_V);
  P_V.N_begin:=0;
- Pmax:=P_V.MinY;
 
+ Pmax:=P_V.MinY;
  if (P_V.Count<5)or(Pmax>=0) then Exit;
 
  Number_Vmax:=P_V.ValueNumberPrecise(cY,Pmax);
@@ -1025,9 +1025,19 @@ begin
  Self.PointSupplement(temp,2);
  OutputData[1]:=-temp.NPolinomA0(1);
 
+
  D.SetLimits(Self.MinX,ErResult,
             -0.25*Imax,0.33*Imax);
  Self.CopyDiapazonPoint(temp,D);
+
+ if temp.IsEmpty then
+   begin
+     i:=Self.ValueNumber(cY,0);
+     temp.Add(Self[i]);
+     temp.N_begin:=i;
+   end;
+
+
  Self.PointSupplement(temp,3,False);
  OutputData[0]:=temp.NPolinomZero(2);
  if OutputData[0]=ErResult then OutputData[0]:=Self.Xvalue(0);
@@ -1041,7 +1051,12 @@ begin
  D.SetLimits(P_V.X[Number_Vmax],ErResult,P_V.MinY,Pmax*0.94);
  P_V.CopyDiapazonPoint(temp,D,False);
  p_V.PointSupplement(temp,5);
+ if IsEqual(temp.X[temp.HighNumber],P_V.X[Number_Vmax])
+    then   temp.Add(P_V[Number_Vmax+1]);
+
+//    temp.WriteToFile('my1.dat');
  OutputData[3]:=temp.NPolinomExtremum(4);
+// showmessage(floattostr(OutputData[3]));
  OutputData[2]:=-P_V.YvalueSplain3(OutputData[3]);
  OutputData[4]:=-Self.YvalueSplain3(OutputData[3]);
  if (OutputData[0]>Voc_min)
