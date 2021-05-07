@@ -82,6 +82,11 @@ Function Fe_i_t(time:double;MaterialLayer:TMaterialLayer;
 після припинення освітлення;
 Em - енергія міграціїї міжвузольного заліза}
 
+ Function t_assFeB(N_A:double;T:double=300;
+                 Em:double=0.68):double;
+{характерний час спарювання пари залізо-бор,
+N_A - концентрація бору, []=см-3}
+
 implementation
 
 { TDefect }
@@ -176,10 +181,18 @@ Function Fe_i_t(time:double;MaterialLayer:TMaterialLayer;
  var Fe_i_e:double;
 begin
  Fe_i_e:=Fe_i_eq(MaterialLayer,Fe_i_all,T);
- Result:=(Fe_i_all-Fe_i_e)*
-          exp(-1.3e-3*exp(-Em/Kb/T)*time*Power(1e-6*MaterialLayer.Nd,2.0/3.0))
+ Result:=(Fe_i_all-Fe_i_e)
+          *exp(-time/t_assFeB(1e-6*MaterialLayer.Nd,T,Em))
+//          exp(-1.3e-3*exp(-Em/Kb/T)*time*Power(1e-6*MaterialLayer.Nd,2.0/3.0))
 //          exp(-time*exp(-Em/Kb/T)*MaterialLayer.Nd/T/5.7e11)
          +Fe_i_e;
+end;
+
+ Function t_assFeB(N_A:double;T:double=300;
+                 Em:double=0.68):double;
+begin
+//  Result:=1/(1.3e-3*exp(-Em/Kb/T)*Power(N_A,2.0/3.0));
+  Result:=5.7e5*exp(Em/Kb/T)*T/N_A;
 end;
 
 end.

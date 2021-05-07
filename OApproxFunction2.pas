@@ -312,6 +312,7 @@ TFFIsc_Fei_FeB=class (TFFIsc_shablon)
   procedure NamesDefine;override;
 // published
 //  property PN_Diode:TD_PNFit read fPNDiode;
+  procedure AdditionalParamDetermination;override;
  public
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
 end; // TFFIsc_Fei_FeB=class (TFFHeuristic)
@@ -1160,6 +1161,15 @@ end;
 
 { TFFIsc_Fei_FeB }
 
+procedure TFFIsc_Fei_FeB.AdditionalParamDetermination;
+begin
+   fDParamArray.ParametrByName['t_ass'].Value:=
+              t_assFeB(PN_Diode.LayerP.Nd*1e-6,
+                          fT,fDParamArray.ParametrByName['Em'].Value);
+  fDParamArray.OutputDataCoordinateByName('t_ass');
+  inherited;
+end;
+
 function TFFIsc_Fei_FeB.FuncForFitness(Point: TPointDouble;
   Data: TArrSingle): double;
   var L,AlL,tau:double;
@@ -1190,7 +1200,8 @@ end;
 procedure TFFIsc_Fei_FeB.ParamArrayCreate;
 begin
  fDParamArray:=TDParamsHeuristic.Create(Self,
-                 ['Nfe','tau_r','Wph','Em']);
+                 ['Nfe','tau_r','Wph','Em'],
+                 ['t_ass']);
 end;
 
 
