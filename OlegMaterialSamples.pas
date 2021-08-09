@@ -1533,26 +1533,31 @@ class function Silicon.Absorption(Lambda:double;T:double=300): double;
  var
      Ephoton,GreenAbs,Result300:double;
 begin
-//  Result:=ErResult;
-//  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
-//  GreenAbs:=Green(Lambda);
+  Ephoton:=Hpl*2*Pi*Clight/(Lambda*1e-9*Qelem);//[]=eV
 
-//  if T=300 then
-//   begin
-//     Result:=GreenAbs;
-//     Exit;
-//   end;
+//розрахунок за складною формулою (книжка)
+//  Result:=Rajkanan(Ephoton,T);
 
-  Ephoton:=Hpl*2*Pi*3e8/(Lambda*1e-9*Qelem);//[]=eV
+// розрахунок за статею Green + врахування температурної
+//залежності з книжки
 
-//  Result300:=Rajkanan(Ephoton);
-//  if Result300=0 then Exit;
+  Result:=ErResult;
+  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
+  GreenAbs:=Green(Lambda);
+
+  if T=300 then
+   begin
+     Result:=GreenAbs;
+     Exit;
+   end;
+
+  Result300:=Rajkanan(Ephoton);
+  if Result300=0 then Exit;
 
   Result:=Rajkanan(Ephoton,T);
 
-//  if Result=0 then Exit;
-//
-//  Result:=Result/Result300*GreenAbs;
+  if Result=0 then Exit;
+  Result:=Result/Result300*GreenAbs;
 end;
 
 class function Silicon.BGN(Ndoping: Double; itIsDonor:Boolean): double;
@@ -1779,7 +1784,7 @@ class function Silicon.Green(Lambda: double): double;
                     1450,	1.2E-8);
  var Vect:TVectorTransform;
 
-     i:integer;
+     i,HN:integer;
 begin
   if Lambda=900 then
    begin
@@ -1788,8 +1793,8 @@ begin
    end;
 
   Vect:=TVectorTransform.Create;
-  Vect.SetLenVector(trunc(High(Si_absorption)/2));
-  for I := 0 to Vect.HighNumber
+  HN:=trunc(High(Si_absorption)/2);
+  for I := 0 to HN
      do Vect.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
   Result:=Vect.YvalueSplain3(Lambda)*100;
   Vect.Free;

@@ -27,9 +27,12 @@ TWindowIterationShowID=class(TWindowIterationShow)
  end;
 
 TFFIlluminatedDiode=class(TFFHeuristic)
+ private
+  fIsc:double;
  protected
   procedure WindowAgentCreate;override;
   function FittingCalculation:boolean;override;
+//  procedure AdditionalParamDetermination;override;
 end;
 
 TFFXYSwap=class(TFFHeuristic)
@@ -2618,9 +2621,27 @@ end;
 
 { TFFIlluminatedDiode }
 
+//procedure TFFIlluminatedDiode.AdditionalParamDetermination;
+// var tempV:TVectorTransform;
+//begin
+//  tempV:=TVectorTransform.Create;
+//  tempV.Filling(RealFinalFunc,fDataToFit.MinX,fDataToFit.MaxX,1000);
+//  tempV.AdditionY(-fIsc);
+//  PVparameteres(tempV,fDParamArray);
+//  tempV.Free;
+//  inherited;
+//end;
+
 function TFFIlluminatedDiode.FittingCalculation: boolean;
 begin
   PVparameteres(fDataToFit,fDParamArray);
+//  fIsc:=fDParamArray.ParametrByName['Isc'].Value;
+//  fDataToFit.AdditionY(fIsc);
+//  Result:=Inherited FittingCalculation;
+//  fDParamArray.ParametrByName['Iph'].Value:=fDParamArray.ParametrByName['Iph'].Value
+//                                           +fIsc;
+//  fDataToFit.AdditionY(-fIsc);
+
   fDataToFit.AdditionY(fDParamArray.ParametrByName['Isc'].Value);
   Result:=Inherited FittingCalculation;
   fDParamArray.ParametrByName['Iph'].Value:=fDParamArray.ParametrByName['Iph'].Value

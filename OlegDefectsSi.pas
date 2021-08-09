@@ -180,7 +180,8 @@ Function Fe_i_t(time:double;MaterialLayer:TMaterialLayer;
                  Fe_i_all:double; T:double=300;Em:double=0.68):double;
  var Fe_i_e:double;
 begin
- Fe_i_e:=Fe_i_eq(MaterialLayer,Fe_i_all,T);
+// Fe_i_e:=Fe_i_eq(MaterialLayer,Fe_i_all,T);
+ Fe_i_e:=0;
  Result:=(Fe_i_all-Fe_i_e)
           *exp(-time/t_assFeB(1e-6*MaterialLayer.Nd,T,Em))
 //          exp(-1.3e-3*exp(-Em/Kb/T)*time*Power(1e-6*MaterialLayer.Nd,2.0/3.0))

@@ -3590,7 +3590,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 var
 //  i,j:integer;
   Vec:TVector;
-  delN,T,Voc:double;
+  delN,T,Voc,delNd:double;
   Fe:TDefect;
 //  number, zero : double;
 //var dpn:TDiod_PN;
@@ -3607,29 +3607,45 @@ var
 // end;
 begin
 // showmessage(floattostr(DiodPN.LayerN.Nd)+#10+floattostr(DiodPN.LayerP.Nd))
-
-showmessage(floattostr(DiodPN.delN(0.4)));
-
-  Vec:=TVector.Create;
-   Fe:=TDefect.Create(FeB_ac);
+ Vec:=TVector.Create;
+ Fe:=TDefect.Create(Fei);
+ T:=300;
+ delNd:=(14-12)/20;
+ repeat
    Fe.Nd:=1e18;
-  T:=290;
-  repeat
-//   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
-//   T:=T+1;
-    Voc:=0.15;
-    Vec.Clear;
-    repeat
-      Vec.Add(Voc,DiodPN.delN(Voc,0,0,T));
-      Voc:=Voc+0.005;
-    until Voc>0.651;
-    Vec.WriteToFile('dN_vs_Voc_'+inttostr(round(T))+'.dat',5,'Voc delN');
-    T:=T+5;
-  until T>350;
+   Vec.Clear;
+   repeat
+    Vec.Add(Fe.Nd,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
+    Fe.Nd:=power(10,(log10(Fe.Nd)+delNd));
+   until (Fe.Nd>1.01e20);
+   Vec.WriteToFile('tsrhFe_vs_Nt_'+inttostr(round(T))+'.dat',5,'Nt t_srh');
+   T:=T+5;
+ until T>340;
+ FreeAndNil(Fe);
+ FreeAndNil(Vec);
 
-//   Vec.WriteToFile('Tfeb18n0.dat',5,'T TAUfeb');
-   FreeAndNil(Fe);
-   FreeAndNil(Vec);
+//showmessage(floattostr(DiodPN.delN(0.4)));
+//
+//  Vec:=TVector.Create;
+//   Fe:=TDefect.Create(FeB_ac);
+//   Fe.Nd:=1e18;
+//  T:=290;
+//  repeat
+////   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
+////   T:=T+1;
+//    Voc:=0.15;
+//    Vec.Clear;
+//    repeat
+//      Vec.Add(Voc,DiodPN.delN(Voc,0,0,T));
+//      Voc:=Voc+0.005;
+//    until Voc>0.651;
+//    Vec.WriteToFile('dN_vs_Voc_'+inttostr(round(T))+'.dat',5,'Voc delN');
+//    T:=T+5;
+//  until T>350;
+//
+////   Vec.WriteToFile('Tfeb18n0.dat',5,'T TAUfeb');
+//   FreeAndNil(Fe);
+//   FreeAndNil(Vec);
 
 //  ro:=0.5;
 //  repeat

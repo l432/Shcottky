@@ -1163,10 +1163,16 @@ end;
 
 procedure TFFIsc_Fei_FeB.AdditionalParamDetermination;
 begin
+//   fDParamArray.ParametrByName['Fei_eq'].Value:=
+//              Fe_i_eq(PN_Diode.LayerP,
+//                 fDParamArray.ParametrByName['Nfe'].Value, fT);
+//  fDParamArray.OutputDataCoordinateByName('Fei_eq');
+
    fDParamArray.ParametrByName['t_ass'].Value:=
               t_assFeB(PN_Diode.LayerP.Nd*1e-6,
                           fT,fDParamArray.ParametrByName['Em'].Value);
   fDParamArray.OutputDataCoordinateByName('t_ass');
+
   inherited;
 end;
 
@@ -1201,7 +1207,7 @@ procedure TFFIsc_Fei_FeB.ParamArrayCreate;
 begin
  fDParamArray:=TDParamsHeuristic.Create(Self,
                  ['Nfe','tau_r','Wph','Em'],
-                 ['t_ass']);
+                 ['t_ass'{,'Fei_eq'}]);
 end;
 
 
@@ -1229,6 +1235,10 @@ begin
   DoubVars.Add(Self,'L_nm');
   DoubVars.ParametrByName['L_nm'].Description:='Illumination wave length (nm)';
   DoubVars.ParametrByName['L_nm'].Limits.SetLimits(0);
+  DoubVars.Add(Self,'R_ph');
+  DoubVars.ParametrByName['R_ph'].Description:='Photon reflection coefficient';
+  DoubVars.ParametrByName['R_ph'].Limits.SetLimits(0,1);
+  (DoubVars.ParametrByName['R_ph'] as TVarDouble).DefaultValue:=0;
   (DoubVars.ParametrByName['T'] as TVarDouble).ManualDetermOnly:=True;
 end;
 
@@ -1244,7 +1254,8 @@ begin
   fT:=(DoubVars.ParametrByName['T'] as TVarDouble).Value;
   fAbsorp:=Silicon.Absorption((DoubVars.ParametrByName['L_nm'] as TVarDouble).Value,
                               fT);
-  fNph:=Qelem*(DoubVars.ParametrByName['L_nm'] as TVarDouble).Value*1e-9
+  fNph:=(1-(DoubVars.ParametrByName['R_ph'] as TVarDouble).Value)
+        *Qelem*(DoubVars.ParametrByName['L_nm'] as TVarDouble).Value*1e-9
         {*PN_Diode.Area}/Hpl/Clight/2/Pi;
   mukT:=PN_Diode.mu(fT)*Kb*fT;
   ftau_btb:=Silicon.TAUbtb(PN_Diode.LayerP.Nd,0,fT);
