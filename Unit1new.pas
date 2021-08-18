@@ -3592,6 +3592,9 @@ var
   Vec:TVector;
   delN,T,Voc,delNd:double;
   Fe:TDefect;
+  drive:char;
+  path,fname:string;
+  i:integer;
 //  number, zero : double;
 //var dpn:TDiod_PN;
 //    Nd,Ndmin,NdMax,delNd:double;
@@ -3607,20 +3610,38 @@ var
 // end;
 begin
 // showmessage(floattostr(DiodPN.LayerN.Nd)+#10+floattostr(DiodPN.LayerP.Nd))
+    Try    ChDir(Directory);
+          OpenDialog1.InitialDir:=Directory;
+   Except ChDir(Directory0);
+          OpenDialog1.InitialDir:=Directory0;
+   End;
+if OpenDialog1.Execute() then
+ begin
+  ProcessPath(OpenDialog1.FileName, drive, path, fName);
  Vec:=TVector.Create;
- Fe:=TDefect.Create(Fei);
- T:=300;
- delNd:=(14-12)/20;
- repeat
-   Fe.Nd:=1e18;
-   Vec.Clear;
-   repeat
-    Vec.Add(Fe.Nd,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
-    Fe.Nd:=power(10,(log10(Fe.Nd)+delNd));
-   until (Fe.Nd>1.01e20);
-   Vec.WriteToFile('tsrhFe_vs_Nt_'+inttostr(round(T))+'.dat',5,'Nt t_srh');
-   T:=T+5;
- until T>340;
+ Fe:=TDefect.Create(FeB_ac);
+ T:=340;
+ Vec.ReadFromFile(fname);
+ for I := 0 to Vec.HighNumber do
+  begin
+    Fe.Nd:=Vec.Y[i];
+    Vec.Y[i]:=Fe.TAUsrh(DiodPN.LayerP.Nd,0,T);
+  end;
+  Vec.WriteToFile(FitName(Vec,'N'));
+ end;
+
+// Fe.Nd:=1e19;
+// delNd:=(14-12)/20;
+// repeat
+//   Fe.Nd:=1e18;
+//   Vec.Clear;
+//   repeat
+//    Vec.Add(Fe.Nd,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
+//    Fe.Nd:=power(10,(log10(Fe.Nd)+delNd));
+//   until (Fe.Nd>1.01e20);
+//   Vec.WriteToFile('tsrhFe_vs_Nt_'+inttostr(round(T))+'.dat',5,'Nt t_srh');
+//   T:=T+5;
+// until T>340;
  FreeAndNil(Fe);
  FreeAndNil(Vec);
 
