@@ -87,7 +87,18 @@ Em - енергія міграціїї міжвузольного заліза}
 {характерний час спарювання пари залізо-бор,
 N_A - концентрація бору, []=см-3}
 
+Function TauFeEq(MaterialLayer:TMaterialLayer;
+                 Fe_i_all:double; T:double=300):double;
+{час, пов'язаний з рекомбінацією на FeB та Fei
+в рівновазі: вважається, що більшвсть заліза в парах,
+але рівноважна частина (див. Function Fe_i_eq) неспарена
+  Fe_i_all - повна концентрація домішкового заліза}
+
+
 implementation
+
+uses
+  System.SysUtils;
 
 { TDefect }
 
@@ -195,5 +206,28 @@ begin
 //  Result:=1/(1.3e-3*exp(-Em/Kb/T)*Power(N_A,2.0/3.0));
   Result:=5.7e5*exp(Em/Kb/T)*T/N_A;
 end;
+
+Function TauFeEq(MaterialLayer:TMaterialLayer;
+                 Fe_i_all:double; T:double=300):double;
+ var   dFei,dFeB:TDefect;
+       t_Fei,t_FeB:double;
+begin
+  dFei:=TDefect.Create(Fei);
+  dFeB:=TDefect.Create(FeB_ac);
+  try
+//   dFei.Nd:=Fe_i_all;
+    dFei.Nd:=Fe_i_eq(MaterialLayer,Fe_i_all,T);
+    dFeB.Nd:=Fe_i_all-dFei.Nd;
+    t_Fei:=dFei.TAUsrh(MaterialLayer.Nd,0,T);
+    t_FeB:=dFeB.TAUsrh(MaterialLayer.Nd,0,T);
+    Result:=1/(1/t_Fei+1/t_FeB);
+//    Result:=10;
+  except
+    Result:=ErResult;
+  end;
+  FreeAndNil(dFei);
+  FreeAndNil(dFeB);
+end;
+
 
 end.

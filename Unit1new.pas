@@ -3610,6 +3610,7 @@ var
 // end;
 begin
 // showmessage(floattostr(DiodPN.LayerN.Nd)+#10+floattostr(DiodPN.LayerP.Nd))
+ Vec:=TVector.Create;
     Try    ChDir(Directory);
           OpenDialog1.InitialDir:=Directory;
    Except ChDir(Directory0);
@@ -3617,19 +3618,15 @@ begin
    End;
 if OpenDialog1.Execute() then
  begin
-  ProcessPath(OpenDialog1.FileName, drive, path, fName);
- Vec:=TVector.Create;
- Fe:=TDefect.Create(FeB_ac);
+ ProcessPath(OpenDialog1.FileName, drive, path, fName);
  T:=340;
  Vec.ReadFromFile(fname);
  for I := 0 to Vec.HighNumber do
-  begin
-    Fe.Nd:=Vec.Y[i];
-    Vec.Y[i]:=Fe.TAUsrh(DiodPN.LayerP.Nd,0,T);
-  end;
-  Vec.WriteToFile(FitName(Vec,'N'));
+  Vec.Y[i]:=TauFeEq(DiodPN.LayerP,Vec.Y[i],T);
+ Vec.WriteToFile(FitName(Vec,'NN'));
  end;
 
+// Fe:=TDefect.Create(FeB_ac);
 // Fe.Nd:=1e19;
 // delNd:=(14-12)/20;
 // repeat
@@ -3642,7 +3639,7 @@ if OpenDialog1.Execute() then
 //   Vec.WriteToFile('tsrhFe_vs_Nt_'+inttostr(round(T))+'.dat',5,'Nt t_srh');
 //   T:=T+5;
 // until T>340;
- FreeAndNil(Fe);
+// FreeAndNil(Fe);
  FreeAndNil(Vec);
 
 //showmessage(floattostr(DiodPN.delN(0.4)));
