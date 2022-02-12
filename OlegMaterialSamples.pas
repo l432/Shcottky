@@ -135,7 +135,7 @@ type
        class function Rajkanan(Ephoton:double;T:double=300):double;
        {розраховується коефіцієнт поглинання за складною
        формулою, []=1/m}
-       class function Green(Lambda:double):double;
+       class function Green(Lambda:double;T:double=300):double;
        {визначається коефіцієнт поглинання
        pа даними роботи Green & Keevers при 300 К
        [Lambda]=нм, [Result]=1/м}
@@ -167,6 +167,12 @@ type
       class function Absorption(Lambda:double;T:double=300):double;
       {коефіцієнт поглинання світла,
       [Lambda]=нм, [Result]=1/м}
+      class function AbsorptionFC(Lambda:double;n,p:double;T:double=300):double;
+      {коефіцієнт поглинання світла вільними носіями,
+      [Lambda]=нм,
+      [n,p]=1/м^3, концентрації носіїв
+      [Result]=1/м,
+      за роботою IEEE_JPV 11 p73}
       class function Nc(T:double=300):double;
       class function Nv(T:double=300):double;
       //    ефективні густини станів
@@ -1530,34 +1536,24 @@ begin
 end;
 
 class function Silicon.Absorption(Lambda:double;T:double=300): double;
- var
-     Ephoton,GreenAbs,Result300:double;
+// var  Ephoton:double;
 begin
-  Ephoton:=Hpl*2*Pi*Clight/(Lambda*1e-9*Qelem);//[]=eV
+  Result:=ErResult;
+  if (T<200)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
+  Result:=Green(Lambda,T);
 
-//розрахунок за складною формулою (книжка)
+//  Ephoton:=Hpl*2*Pi*Clight/(Lambda*1e-9*Qelem);//[]=eV
 //  Result:=Rajkanan(Ephoton,T);
 
-// розрахунок за статею Green + врахування температурної
-//залежності з книжки
+end;
 
-  Result:=ErResult;
-  if (T<20)or(T>500)or(Lambda<250)or(Lambda>=1450) then Exit;
-  GreenAbs:=Green(Lambda);
-
-  if T=300 then
-   begin
-     Result:=GreenAbs;
-     Exit;
-   end;
-
-  Result300:=Rajkanan(Ephoton);
-  if Result300=0 then Exit;
-
-  Result:=Rajkanan(Ephoton,T);
-
-  if Result=0 then Exit;
-  Result:=Result/Result300*GreenAbs;
+class function Silicon.AbsorptionFC(Lambda, n, p, T: double): double;
+      {коефіцієнт поглинання світла вільними носіями,
+      [Lambda]=нм,
+      [n,p]=1/м^3, концентрації носіїв
+      [Result]=1/м}
+begin
+ Result:=T*1e-13*(5.6*Power(Lambda*1e-7,2.88)*n+6.1e-3*Power(Lambda*1e-7,2.18)*p);
 end;
 
 class function Silicon.BGN(Ndoping: Double; itIsDonor:Boolean): double;
@@ -1658,7 +1654,7 @@ begin
    Result:=Eg(T)+Kb*T*ln(n_i(T)/Nc(T));
 end;
 
-class function Silicon.Green(Lambda: double): double;
+class function Silicon.Green(Lambda: double;T:double): double;
 //M.A. Green / Solar Energy Materials & Solar Cells 92 (2008) 1305–1310 1306
   const  Si_absorption:array [0..241]of double=(
                     250,	1.84E6,
@@ -1782,22 +1778,149 @@ class function Silicon.Green(Lambda: double): double;
                     1430,	2.5E-8,
                     1440,	1.8E-8,
                     1450,	1.2E-8);
- var Vect:TVectorTransform;
+  const  Si_absTcoef:array [0..241]of double=(
+                    250,	-0.9,
+                    260,	-1.5,
+                    270,	-3.1,
+                    280,	-3.3,
+                    290,	0.8,
+                    300,	2.5,
+                    310,	3.2,
+                    320,	1.5,
+                    330,	0.7,
+                    340,	0.3,
+                    350,	0,
+                    360,	-1.4,
+                    370,	4.2,
+                    380,	9.1,
+                    390,	26,
+                    400,	33,
+                    410,	31,
+                    420,	29,
+                    430,	29,
+                    440,	28,
+                    450,	28,
+                    460,	29,
+                    470,	29,
+                    480,	30,
+                    490,	30,
+                    500,	31,
+                    510,	31,
+                    520,	32,
+                    530,	33,
+                    540,	33,
+                    550,	33,
+                    560,	34,
+                    570,	34,
+                    580,	34,
+                    590,	34,
+                    600,	34,
+                    610,	35,
+                    620,	35,
+                    630,	35,
+                    640,	35,
+                    650,	35,
+                    660,	35,
+                    670,	36,
+                    680,	36,
+                    690,	36,
+                    700,	37,
+                    710,	37,
+                    720,	37,
+                    730,	37,
+                    740,	37,
+                    750,	37,
+                    760,	37,
+                    770,	37,
+                    780,	37,
+                    790,	38,
+                    800,	40,
+                    810,	41,
+                    820,	42,
+                    830,	44,
+                    840,	45,
+                    850,	46,
+                    860,	47,
+                    870,	49,
+                    880,	51,
+                    890,	52,
+                    900,	54,
+                    910,	56,
+                    920,	57,
+                    930,	59,
+                    940,	62,
+                    950,	65,
+                    960,	69,
+                    970,	73,
+                    980,	78,
+                    990,	83,
+                    1000,	90,
+                    1010,	97,
+                    1020,	105,
+                    1030,	112,
+                    1040,	120,
+                    1050,	135,
+                    1060,	145,
+                    1070,	155,
+                    1080,	160,
+                    1090,	165,
+                    1100,	175,
+                    1110,	180,
+                    1120,	185,
+                    1130,	190,
+                    1140,	200,
+                    1150,	210,
+                    1160,	230,
+                    1170,	260,
+                    1180,	320,
+                    1190,	345,
+                    1200,	355,
+                    1210,	380,
+                    1220,	390,
+                    1230,	405,
+                    1240,	410,
+                    1250,	430,
+                    1260,	440,
+                    1270,	455,
+                    1280,	470,
+                    1290,	500,
+                    1300,	525,
+                    1310,	550,
+                    1320,	580,
+                    1330,	610,
+                    1340,	650,
+                    1350,	670,
+                    1360,	675,
+                    1370,	680,
+                    1380,	685,
+                    1390,	690,
+                    1400,	700,
+                    1410,	710,
+                    1420,	720,
+                    1430,	730,
+                    1440,	740,
+                    1450,	750);
+ var Vect,VectKoef:TVectorTransform;
 
      i,HN:integer;
 begin
-  if Lambda=900 then
+  if (Lambda=900)and(T=300) then
    begin
      Result:=30300;
      Exit;
    end;
 
   Vect:=TVectorTransform.Create;
+  VectKoef:=TVectorTransform.Create;
   HN:=trunc(High(Si_absorption)/2);
-  for I := 0 to HN
-     do Vect.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
-  Result:=Vect.YvalueSplain3(Lambda)*100;
+  for I := 0 to HN do
+   begin
+     Vect.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
+     VectKoef.Add(Si_absTcoef[2*i],Si_absTcoef[2*i+1]);
+   end;
+  Result:=(Vect.YvalueSplain3(Lambda)*Power(T/300,VectKoef.YvalueSplain3(T)*300))*100;
   Vect.Free;
+  VectKoef.Free;
 end;
 
 class function Silicon.Meff_e(T: double): double;

@@ -295,6 +295,12 @@ Function RandCauchy(const x0,gamma:double):double;
 {повертає випадкове число, що
 підкоряється розподілу Коші}
 
+Function IntegralRomberg(Fun:TFunS;a,b:double;eps:double=1e-4):double;
+{розраховується визначений інтеграл за методом Ромберга
+від функції Fun в межах від а до b
+з відносною точністю eps}
+
+
 implementation
 
 uses
@@ -1409,7 +1415,51 @@ end;
 
 Function RandCauchy(const x0,gamma:double):double;
 begin
-  Result:=x0+gamma*tan(Pi*(Random-0.5)); 
+  Result:=x0+gamma*tan(Pi*(Random-0.5));
 end;
+
+
+Function IntegralRomberg(Fun:TFunS;a,b:double;eps:double=1e-4):double;
+{розраховується визначений інтеграл за методом Ромберга
+від функції Fun в межах від а до b
+з відносною точністю eps}
+ var step:double;
+     koef:array of double;
+     IterationNumber,Nstep,i:integer;
+     Integ,Kf_temp,Kf_temp2:double;
+
+begin
+//  Result:=ErResult;
+  Nstep:=10;
+  step:=(b-a)/Nstep;
+  Integ:=0;
+  for I := 1 to Nstep-1 do
+    Integ:=Integ+Fun(a+i*step);
+  Integ:=(Integ+0.5*(Fun(a)+Fun(b)))*step;
+  IterationNumber:=1;
+  SetLength(koef,IterationNumber);
+  koef[0]:=Integ;
+  repeat
+    Nstep:=2*Nstep;
+    step:=(b-a)/Nstep;
+    inc(IterationNumber);
+    SetLength(koef,IterationNumber);
+    Integ:=0;
+    for I := 1 to round(Nstep/2) do
+      Integ:=Integ+Fun(a+(2*i-1)*step);
+    Integ:=0.5*koef[0]+step*Integ;
+    Kf_temp:=koef[0];
+    Kf_temp2:=0;
+    koef[0]:=Integ;
+    for I := 1 to High(koef) do
+     begin
+       if i<High(koef) then Kf_temp2:=koef[i];
+       koef[i]:=(power(2,2*i)*koef[i-1]-Kf_temp)/(power(2,2*i)-1);
+       if i<High(koef) then Kf_temp:=Kf_temp2;
+     end;
+  until IsEqual(koef[High(koef)],koef[High(koef)-1],eps);
+  Result:=koef[High(koef)];
+end;
+
 
 end.

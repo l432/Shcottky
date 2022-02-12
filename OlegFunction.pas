@@ -70,6 +70,29 @@ Function  DeleteStringDataFromRow(str:string;Number:word):string;
 {повертає рядок з видаленою частиною (відділеною пробілами - див.
 попередні) з номером Number}
 
+Function NumberDetermine(Names:array of string;
+                          Source:string;
+                          var Numbers:TArrInteger):boolean;
+{визначення номерів позицій елементів з Names в рядку Source;
+якщо хоча б одного елементу немає - результат False}
+
+Procedure ShowArrarOfString(AOS:array of string);
+
+Function NewStringByNumbers(Source:string;
+                           Numbers:TArrInteger):string;
+{створюється новий рядок з тих частин Source, номери яких вказані в Numbers,
+частини розділені пробілами, крайній пробіл видалено}
+
+Function NewStringFromStringArray(Source:array of string;
+                                 Syffix:string=''):string;
+{створюється новий рядок з усіх значень Source,
+до кожного елемента дописується Syffix,
+елементи розділені пробілами, крайній пробіл видалено}
+
+Function DeleteLastDir(LongPath:string):string;
+{з довгого шляху LongPath, що закінчується '\',
+видаляє останню папку}
+
 //-----використовуються при моделюванні DAP-----------
 Function PointDistance(t:double;Parameters:array of double):double;
 {відстань, між двома точками, які коливаються з однаковою частотою
@@ -476,6 +499,70 @@ begin
    Result:=ErResult;
   end;
 end;
+
+
+Function NumberDetermine(Names:array of string;
+                          Source:string;
+                          var Numbers:TArrInteger):boolean;
+{визначення номерів позицій елементів з Names в рядку Source;
+якщо хоча б одного елементу немає - результат False}
+ var i:integer;
+begin
+ SetLength(Numbers,High(Names)+1);
+ Result:=True;
+ for I := Low(Names) to High(Names) do
+  begin
+  Numbers[i]:=SubstringNumberFromRow(Names[i],Source);
+  Result:=Result and  (Numbers[i]<>0);
+  end;
+end;
+
+Procedure ShowArrarOfString(AOS:array of string);
+ var temp:string;
+     i:integer;
+begin
+  temp:='';
+  for I := Low(AOS) to High(AOS) do
+    temp:=temp+AOS[i]+' ';
+  showmessage(temp);
+end;
+
+Function NewStringByNumbers(Source:string;
+                           Numbers:TArrInteger):string;
+{створюється новий рядок з тих частин Source, номери яких вказані в Numbers,
+частини розділені пробілами, крайній пробіл видалено}
+ var i:integer;
+begin
+  Result:='';
+  for I := Low(Numbers) to High(Numbers) do
+    Result:=Result+StringDataFromRow(Source,Numbers[i])+' ';
+  Result:=TrimRight(Result);
+end;
+
+Function NewStringFromStringArray(Source:array of string;
+                                 Syffix:string=''):string;
+{створюється новий рядок з усіх значень Source,
+до кожного елемента дописується Syffix,
+елементи розділені пробілами, крайній пробіл видалено}
+ var i:integer;
+begin
+  Result:='';
+  for I := Low(Source) to High(Source) do
+    Result:=Result+Source[i]+Syffix+' ';
+  Result:=TrimRight(Result);
+end;
+
+Function DeleteLastDir(LongPath:string):string;
+{з довгого шляху LongPath, що закінчується '\',
+видаляє останню папку}
+begin
+  Result:=LongPath;
+  SetLength (Result, Length(Result)-1);
+  Delete(Result,LastDelimiter('\', Result),Length(Result)-LastDelimiter('\', Result)+1);
+  Result:=Result+'\';
+end;
+
+
 
 Function PointDistance(t:double;Parameters:array of double):double;
  var fi,omega,delta:double;

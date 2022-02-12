@@ -3608,8 +3608,10 @@ var
 // begin
 //  Result:=Nd-1/(Qelem*0.1*param[0]*Silicon.mu_n(param[1],Nd))
 // end;
+
+
 begin
-// showmessage(floattostr(DiodPN.LayerN.Nd)+#10+floattostr(DiodPN.LayerP.Nd))
+// showmessage(DeleteLastDir('D:\'));
  Vec:=TVector.Create;
     Try    ChDir(Directory);
           OpenDialog1.InitialDir:=Directory;
