@@ -3611,7 +3611,8 @@ var
 
 
 begin
-// showmessage(DeleteLastDir('D:\'));
+// showmessage(floattostr(ImproperIntegral(FF,[2],False)));
+ showmessage(DeleteLastDir('D:\'));
  Vec:=TVector.Create;
     Try    ChDir(Directory);
           OpenDialog1.InitialDir:=Directory;

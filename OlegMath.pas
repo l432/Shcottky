@@ -300,6 +300,17 @@ Function IntegralRomberg(Fun:TFunS;a,b:double;eps:double=1e-4):double;
 від функції Fun в межах від а до b
 з відносною точністю eps}
 
+Function  ImproperIntegral(Fun:TFun;Parameters:array of double;SemiInfinity:boolean):double;
+{розрахунок невизначеного інтегралу від функції Fun
+в межах від 0 до нескінченності (при SemiInfinity=True)
+або від -нескінченності до нескінченності (при SemiInfinity=False);
+Parameters - параметри функції;
+використовується підхід із застосуванням формул Гауса-Крістофеля -
+див. Зализняк В.Е. Основы научных вычислений;
+звичайно і для випадку, коли інтеграл розходиться щось порахує -
+тобто вибір функції за людиною}
+
+//Function FF(Argument:double;Parameters:array of double):double;
 
 implementation
 
@@ -1461,5 +1472,49 @@ begin
   Result:=koef[High(koef)];
 end;
 
+Function  ImproperIntegral(Fun:TFun;Parameters:array of double;SemiInfinity:boolean):double;
+{розрахунок невизначеного інтегралу від функції Fun
+в межах від 0 до нескінченності (при SemiInfinity=True)
+або від -нескінченності до нескінченності (при SemiInfinity=False);
+Parameters - параметри функції}
+  const
+  {нулі та вагові коефіцієнти для поліномів Лагера}
+  Lager:array [0..19]of double=(
+                    0.137793,	0.354010,
+                    0.729455,	0.831902,
+                    1.808343,	1.330289,
+                    3.401433,	1.863064,
+                    5.552496,	2.450256,
+                    8.330153,	3.122764,
+                    11.843786, 3.934153,
+                    16.279258, 4.992415,
+                    21.996586, 6.572202,
+                    29.920697, 9.784696);
+  {нулі та вагові коефіцієнти для поліномів Eрміта}
+  Hermit:array [0..5]of double=(
+                    2.350605,	1.136908,
+                    1.335849,	0.935581,
+                    0.436077,	0.876401);
+  var i:byte;
+begin
+  Result:=0;
+  if SemiInfinity then
+   for I := 0 to trunc(High(Lager)/2) do
+     Result:=Result+Lager[2*i+1]*Fun(Lager[2*i],Parameters)
+                  else
+   begin
+   for I := 0 to trunc(High(Hermit)/2) do
+     begin
+//     showmessage(floattostr());
+     Result:=Result+Hermit[2*i+1]
+        *(Fun(Hermit[2*i],Parameters)+Fun(-Hermit[2*i],Parameters))
+     end;
+   end;
+end;
+
+//Function FF(Argument:double;Parameters:array of double):double;
+//begin
+//  Result:=exp(-sqr(Argument/Parameters[0]));
+//end;
 
 end.
