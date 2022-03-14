@@ -1918,7 +1918,7 @@ begin
      Vect.Add(Si_absorption[2*i],Si_absorption[2*i+1]);
      VectKoef.Add(Si_absTcoef[2*i],Si_absTcoef[2*i+1]);
    end;
-  Result:=(Vect.YvalueSplain3(Lambda)*Power(T/300,VectKoef.YvalueSplain3(T)*300))*100;
+  Result:=(Vect.YvalueSplain3(Lambda)*Power(T/300,VectKoef.YvalueSplain3(T)*1e-4*300))*100;
   Vect.Free;
   VectKoef.Free;
 end;
