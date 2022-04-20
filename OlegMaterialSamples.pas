@@ -167,12 +167,35 @@ type
       class function Absorption(Lambda:double;T:double=300):double;
       {коефіцієнт поглинання світла,
       [Lambda]=нм, [Result]=1/м}
-      class function AbsorptionFC(Lambda:double;n,p:double;T:double=300):double;
+      class function AbsorptionFC_complex(Lambda:double;n,p:double;T:double=300):double;
       {коефіцієнт поглинання світла вільними носіями,
       [Lambda]=нм,
       [n,p]=1/м^3, концентрації носіїв
       [Result]=1/м,
-      за роботою IEEE_JPV 11 p73}
+      за роботою IEEE_JPV 11 p73,
+      фактично в цій роботі запропоновано враховувати поглинання
+      і основними, і неосновними носіями,
+      використані формули з роботи JApplPhys_116_063106 (2014)
+      (хоча там запропоновано окремі вирази для n та p
+      напівпровідника зі словами, що формули справедливі для
+      концентрацій 10^18-5 10^20 см^-3),
+      крім того використано результати роботи
+      JPhysCSolStPhys_12_p3837 (1979), де показано,
+      що коеф. поглинання вільними носіями має бути лінійним по
+      температурі; в більш пізніх роботах я залежності від температури
+      не зустрічав... тому можливо краще використовувати більш прості
+      варіанти як у функції AbsorptionFC}
+      class function AbsorptionFC(Lambda:double;N:double;n_Type:boolean=True):double;
+      {коефіцієнт поглинання світла вільними носіями,
+      [Lambda]=нм,
+      [N]=1/м^3, концентрації носіїв,
+      поява n_Type викликана тим, що для n та p напівпровідників
+      формули трохи різні
+      [Result]=1/м,
+      за роботою JApplPhys_116_063106 (2014)
+      також всередині передбачено використання варіанту
+      згідно з роботою
+      IEEETransElecDev_60_p2156 (2013)}
       class function Nc(T:double=300):double;
       class function Nv(T:double=300):double;
       //    ефективні густини станів
@@ -1547,7 +1570,23 @@ begin
 
 end;
 
-class function Silicon.AbsorptionFC(Lambda, n, p, T: double): double;
+class function Silicon.AbsorptionFC(Lambda, N: double; n_Type: boolean): double;
+      {коефіцієнт поглинання світла вільними носіями,
+      [Lambda]=нм,
+      [N]=1/м^3, концентрації носіїв,
+      поява n_Type викликана тим, що для n та p напівпровідників
+      формули трохи різні
+      [Result]=1/м}
+begin
+//  JApplPhys_116_063106 (2014):
+  if n_Type then Result:=1.68e-10*Power(Lambda*1e-7,2.88)*N
+            else Result:=1.82e-13*Power(Lambda*1e-7,2.18)*N;
+//  IEEETransElecDev_60_p2156 (2013):
+//  if n_Type then Result:=1.8e-22*Power(Lambda*1e-3,2.6)*N
+//            else Result:=2.6e-22*Power(Lambda*1e-3,2.4)*N;
+end;
+
+class function Silicon.AbsorptionFC_complex(Lambda, n, p, T: double): double;
       {коефіцієнт поглинання світла вільними носіями,
       [Lambda]=нм,
       [n,p]=1/м^3, концентрації носіїв
