@@ -51,6 +51,253 @@ const
 //   ім'я секції в .ini-файлі,
 //   де зберігаються параметри діода
 
+//M.A. Green / Solar Energy Materials & Solar Cells 92 (2008) 1305–1310 1306
+  const  Si_absorption:array [0..241]of double=(
+                    250,	1.84E6,
+                    260,	1.97E6,
+                    270,	2.18E6,
+                    280,	2.37E6,
+                    290,	2.29E6,
+                    300,	1.77E6,
+                    310,	1.46E6,
+                    320,	1.3E6,
+                    330,	1.18E6,
+                    340,	1.1E6,
+                    350,	1.06E6,
+                    360,	1.04E6,
+                    370,	737000,
+                    380,	313000,
+                    390,	143000,
+                    400,	93000,
+                    410,	69500,
+                    420,	52700,
+                    430,	40200,
+                    440,	30700,
+                    450,	24100,
+                    460,	19500,
+                    470,	16600,
+                    480,	14400,
+                    490,	12600,
+                    500,	11100,
+                    510,	9700,
+                    520,	8800,
+                    530,	7850,
+                    540,	7050,
+                    550,	6390,
+                    560,	5780,
+                    570,	5320,
+                    580,	4880,
+                    590,	4490,
+                    600,	4175,
+                    610,	3800,
+                    620,	3520,
+                    630,	3280,
+                    640,	3030,
+                    650,	2790,
+                    660,	2570,
+                    670,	2390,
+                    680,	2200,
+                    690,	2040,
+                    700,	1890,
+                    710,	1780,
+                    720,	1680,
+                    730,	1540,
+                    740,	1420,
+                    750,	1310,
+                    760,	1190,
+                    770,	1100,
+                    780,	1030,
+                    790,	928,
+                    800,	850,
+                    810,	775,
+                    820,	707,
+                    830,	647,
+                    840,	590,
+                    850,	534,
+                    860,	479,
+                    870,	431,
+                    880,	383,
+                    890,	343,
+                    900,	303,
+                    910,	271,
+                    920,	240,
+                    930,	209,
+                    940,	183,
+                    950,	156,
+                    960,	134,
+                    970,	113,
+                    980,	96,
+                    990,	79,
+                    1000,	64,
+                    1010,	51.1,
+                    1020,	39.9,
+                    1030,	30.2,
+                    1040,	22.6,
+                    1050,	16.3,
+                    1060,	11.1,
+                    1070,	8,
+                    1080,	6.2,
+                    1090,	4.7,
+                    1100,	3.5,
+                    1110,	2.7,
+                    1120,	2,
+                    1130,	1.5,
+                    1140,	1,
+                    1150,	0.68,
+                    1160,	0.42,
+                    1170,	0.22,
+                    1180,	0.065,
+                    1190,	0.036,
+                    1200,	0.022,
+                    1210,	0.013,
+                    1220,	0.0082,
+                    1230,	0.0047,
+                    1240,	0.0024,
+                    1250,	1E-3,
+                    1260,	3.6E-4,
+                    1270,	2E-4,
+                    1280,	1.2E-4,
+                    1290,	7.1E-5,
+                    1300,	4.5E-5,
+                    1310,	2.7E-5,
+                    1320,	1.6E-5,
+                    1330,	8E-6,
+                    1340,	3.5E-6,
+                    1350,	1.7E-6,
+                    1360,	9.5E-7,
+                    1370,	6E-7,
+                    1380,	3.8E-7,
+                    1390,	2.3E-7,
+                    1400,	1.4E-7,
+                    1410,	8.5E-8,
+                    1420,	5E-8,
+                    1430,	2.5E-8,
+                    1440,	1.8E-8,
+                    1450,	1.2E-8);
+  const  Si_absTcoef:array [0..241]of double=(
+                    250,	-0.9,
+                    260,	-1.5,
+                    270,	-3.1,
+                    280,	-3.3,
+                    290,	0.8,
+                    300,	2.5,
+                    310,	3.2,
+                    320,	1.5,
+                    330,	0.7,
+                    340,	0.3,
+                    350,	0,
+                    360,	-1.4,
+                    370,	4.2,
+                    380,	9.1,
+                    390,	26,
+                    400,	33,
+                    410,	31,
+                    420,	29,
+                    430,	29,
+                    440,	28,
+                    450,	28,
+                    460,	29,
+                    470,	29,
+                    480,	30,
+                    490,	30,
+                    500,	31,
+                    510,	31,
+                    520,	32,
+                    530,	33,
+                    540,	33,
+                    550,	33,
+                    560,	34,
+                    570,	34,
+                    580,	34,
+                    590,	34,
+                    600,	34,
+                    610,	35,
+                    620,	35,
+                    630,	35,
+                    640,	35,
+                    650,	35,
+                    660,	35,
+                    670,	36,
+                    680,	36,
+                    690,	36,
+                    700,	37,
+                    710,	37,
+                    720,	37,
+                    730,	37,
+                    740,	37,
+                    750,	37,
+                    760,	37,
+                    770,	37,
+                    780,	37,
+                    790,	38,
+                    800,	40,
+                    810,	41,
+                    820,	42,
+                    830,	44,
+                    840,	45,
+                    850,	46,
+                    860,	47,
+                    870,	49,
+                    880,	51,
+                    890,	52,
+                    900,	54,
+                    910,	56,
+                    920,	57,
+                    930,	59,
+                    940,	62,
+                    950,	65,
+                    960,	69,
+                    970,	73,
+                    980,	78,
+                    990,	83,
+                    1000,	90,
+                    1010,	97,
+                    1020,	105,
+                    1030,	112,
+                    1040,	120,
+                    1050,	135,
+                    1060,	145,
+                    1070,	155,
+                    1080,	160,
+                    1090,	165,
+                    1100,	175,
+                    1110,	180,
+                    1120,	185,
+                    1130,	190,
+                    1140,	200,
+                    1150,	210,
+                    1160,	230,
+                    1170,	260,
+                    1180,	320,
+                    1190,	345,
+                    1200,	355,
+                    1210,	380,
+                    1220,	390,
+                    1230,	405,
+                    1240,	410,
+                    1250,	430,
+                    1260,	440,
+                    1270,	455,
+                    1280,	470,
+                    1290,	500,
+                    1300,	525,
+                    1310,	550,
+                    1320,	580,
+                    1330,	610,
+                    1340,	650,
+                    1350,	670,
+                    1360,	675,
+                    1370,	680,
+                    1380,	685,
+                    1390,	690,
+                    1400,	700,
+                    1410,	710,
+                    1420,	720,
+                    1430,	730,
+                    1440,	740,
+                    1450,	750);
+
+
 type
 
     TMaterial=class
@@ -139,11 +386,29 @@ type
        {визначається коефіцієнт поглинання
        pа даними роботи Green & Keevers при 300 К
        [Lambda]=нм, [Result]=1/м}
-       function g_e (gmax,p,n,N0,Tetta:double):double;
+       class function g_e (gmax,p,n,N0,Tetta:double):double;
        {допоміжна функція при обчисленні коеф. Оже рекомбінації,
        розрахунок коеф. підсилення внаслідок
        кулонівської взаємодії, використовується
        в SolEnerMatSC_234_111428 (2022)}
+       class function g_e2 (gmax,p,n,N0,Tetta:double):double;
+       {ще один варіант цієї функції, використовується
+       в SolEnerMatSC_235_111467 (2022)}
+       class function gmax_n(g0:double;T:double=300):double;
+       {описує температурну залежність gmax (див. попередні)
+       для випадку Сn
+       відповідно до J.Appl.Phys, 82, p.4938 (1997)}
+       class function gmax_p(g0:double;T:double=300):double;
+       {описує температурну залежність gmax (див. попередні)
+       для випадку Сp
+       відповідно до J.Appl.Phys, 82, p.4938 (1997)}
+       class function Cp0_vs_T(ScaleFactor:double;T:double=300):double;
+       {описує температурну залежність Cp0 для коеф.
+       Оже рекомбінації відповідно до J.Appl.Phys, 82, p.4938 (1997);
+       якщо рахувати за даними цієї роботи ScaleFactor=1,
+       для інших (де нема своєї температурної залежності)
+       ScaleFactor визначаємо індивідуально)
+       []- м6/с}
       public
       class function Eg(T:double=300):double;
       class function Meff_e(T:double=300):double;
@@ -212,17 +477,55 @@ type
      {теплова швидкість електронів та дірок}
       class function MinorityN(majority:double;T:double=300):double;
       {концентрація неосновних носіїв }
-      class function Brad(T:double=300):double;
+      class function Fpr(w:double;IsTextured:boolean=True;del_n:double=0):double;
+      {fraction of radiatively emitted photons
+      reabsorbed via band-to-band processes,
+      використовується при розрахунку Brad,
+      обчислення відповідно до SolEnerMatSC_235_111467 (2022)
+      []=1
+      w - товщина зразка, [w]=m
+      IsTextured бо вирази різні для planar surfaces та surface texture
+      del_n - нерівноважні носії, [del_n]=m^-3}
+      class function Brel(Ndoping: Double=1e21; itIsDonor:Boolean=True;
+                     T:double=300):double;
+      {розрахунок поправочного коеф. для Brad
+      []=1
+      [Ndoping]=1/m^3
+       Sol. Energy Mater. Sol. Cell. 230 (2021) 111198}
+      class function Brad_low(T:double=300):double;
+      {допоміжна функція для обчислення Brad
+      Sol. Energy Mater. Sol. Cell. 230 (2021) 111198}
+//      class function Brad(T:double=300):double;
+      class function Brad(T:double=300;Ndoping: Double=1e21; itIsDonor:Boolean=True;
+                          w:double=3e-4;IsTextured:boolean=True;del_n:double=0):double;
       {коефіцієнт міжзонної випромінювальної рекомбінації,
-      []=м3/с}
+      []=м3/с;
+      параметри див. у попередніх трьох функціях}
       class function Cn_Auger(n:double;T:double=300):double;
       {коефіцієнт Оже-рекомбінації електронів,
       []=м6/с
-      n - рівноважна концентрація електронів, []=1/m^3}
+      n - рівноважна концентрація електронів, []=1/m^3;
+      раніше це був розрахунок відповідно до
+      J. Appl. Phys. 82, p.4938 (1997),
+      зараз модифікований варіант Cn_AugerNew для
+      випадку, коли надлишкових носіїв
+      значно менше ніж основних}
       class function Cp_Auger(p:double;T:double=300):double;
       {коефіцієнт Оже-рекомбінації дірок,
       []=м6/с
-      p - рівноважна концентрація дірок, []=1/m^3}
+      p - рівноважна концентрація дірок, []=1/m^3;
+      див. попередню}
+      class function Cp_AugerNew(n,p:double;T:double=300):double;
+      class function Cn_AugerNew(n,p:double;T:double=300):double;
+      {коефіцієнти Оже-рекомбінації,
+      []=м^6/с
+      n - концентрація електронів, []=1/m^3
+      p - концентрація дірок, []=1/m^3;
+      використовуються дані з нових робіт, але там
+      нічого немає про температурну залежність -
+      пишуть про 300 К, або взагалі не згадують;
+      тому в цих функціях передбачено гібрид:
+      температурну залежність беремо з J.Appl.Phys, 82, p.4938 (1997)}
       class function BGN(Ndoping: Double=1e21; itIsDonor:Boolean=True):double;
       {звуження забороненої зони,
       []=eV,
@@ -1615,12 +1918,31 @@ begin
 //  Result:=6.92e-3*(Ln(Ndoping/1.3e17)+sqrt(0.5+sqr(Ln(Ndoping/1.3e17))));
 end;
 
-class function Silicon.Brad(T: double): double;
+class function Silicon.Brad(T:double=300;Ndoping: Double=1e21; itIsDonor:Boolean=True;
+                          w:double=3e-4;IsTextured:boolean=True;del_n:double=0): double;
 begin
- Result:=(-1336.5550952225+22.4496406414*T-0.148937976*sqr(T)
-        +4.9057776424E-4*Power(T,3)-8.0347065425E-7*Power(T,4)
-        +5.2400039351E-10*Power(T,5))*1e-21;
+
+ Result:=Brad_low(T)*Brel(Ndoping,itIsDonor,T)*(1-Fpr(w,IsTextured,del_n));
+{SolEnerMatSC_235_111467 (2022)}
+
+// Result:=(-1336.5550952225+22.4496406414*T-0.148937976*sqr(T)
+//        +4.9057776424E-4*Power(T,3)-8.0347065425E-7*Power(T,4)
+//        +5.2400039351E-10*Power(T,5))*1e-21;
 {APPLIED PHYSICS LETTERS 104, 112105 (2014), Nguyen}
+end;
+
+class function Silicon.Brad_low(T: double): double;
+begin
+ Result:=Power(10,
+         -176.98+2.68812*T-0.018137*sqr(T)+6.56769e-5*Power(T,3)
+         -1.21382e-7*Power(T,4)+8.99086e-11*Power(T,5))
+         /sqr(n_i(T))*1e6;
+end;
+
+class function Silicon.Brel(Ndoping: Double; itIsDonor: Boolean;
+  T: double): double;
+begin
+  Result:=exp(-BGN(Ndoping,itIsDonor)/T/Kb);
 end;
 
 class function Silicon.CarrierConcentration(Resistivity: double;
@@ -1646,18 +1968,54 @@ end;
 
 class function Silicon.Cn_Auger(n, T: double): double;
 begin
- Result:=2.8e-43*(1+(ThermallyPower(235548,-1.5013,T)-1)*
-                    (1-tanh(Power(n/5e22,0.34))));
+ Result:=Cn_AugerNew(n, MinorityN(n, T), T);
 
+// Result:=2.8e-43*g_e(gmax_n(235548,T),
+//                     0,n,5e22,0.34);
+// Result:=2.8e-43*(1+(ThermallyPower(235548,-1.5013,T)-1)*
+//                    (1-tanh(Power(n/5e22,0.34))));
  {J. Appl. Phys. 82, p.4938 (1997)}
+end;
+
+class function Silicon.Cn_AugerNew(n, p, T: double): double;
+begin
+ Result:=3.41e-43*g_e(gmax_n(23923.15,T),
+                     p,n,3.2e23,2);
+ {SolEnerMatSC_234_111428 (2022)}
+
+// Result:=3.41e-43*g_e2(gmax_n(22928.53,T),
+//                     p,n,4e23,2);
+ {SolEnerMatSC_235_111467 (2022)}
+end;
+
+class function Silicon.Cp0_vs_T(ScaleFactor, T: double): double;
+begin
+ Result:=ScaleFactor*(7.91e-44-4.13e-47*T+3.59e-49*sqr(T));
 end;
 
 class function Silicon.Cp_Auger(p, T: double): double;
 begin
-  Result:=(7.91e-44-4.13e-47*T+3.59e-49*sqr(T))
-        *(1+(ThermallyPower(564812,-1.6546,T)-1)*
-                    (1-tanh(Power(p/5e22,0.29))));
+  Result:=Cp_AugerNew(MinorityN(p, T), p, T);
+
+
+//  Result:=Cp0_vs_T(1, T)
+//        *g_e(gmax_p(564812,T), p,0,5e22,0.29);
+//  Result:=(7.91e-44-4.13e-47*T+3.59e-49*sqr(T))
+//        *(1+(ThermallyPower(564812,-1.6546,T)-1)*
+//                    (1-tanh(Power(p/5e22,0.29))));
  {J. Appl. Phys. 82, p.4938 (1997)}
+end;
+
+class function Silicon.Cp_AugerNew(n, p, T: double): double;
+begin
+  Result:=Cp0_vs_T(1.17/1.238, T)
+        *g_e(gmax_p(59487.146,T), p,n,3.2e23,2);
+ {SolEnerMatSC_234_111428 (2022)}
+
+// Result:=Cp0_vs_T(1.17/1.238, T)
+//         *g_e2(gmax_p(61244.15,T),
+//                     p,n,4e23,2);
+ {SolEnerMatSC_235_111467 (2022)}
 end;
 
 class function Silicon.D_n(T: Double=300; Ndoping: Double=1e21): double;
@@ -1696,6 +2054,16 @@ end;
 class function Silicon.Ei(T: double): double;
 begin
    Result:=Eg(T)+Kb*T*ln(n_i(T)/Nc(T));
+end;
+
+class function Silicon.Fpr(w: double; IsTextured: boolean;
+  del_n: double): double;
+  var w1:double;
+begin
+  w1:=Log10(w*100);
+  if IsTextured
+    then Result:=0.8681-0.0411*Power(w1,3)-0.2393*Power(w1,2)-0.117*w1
+    else Result:=0.9835+0.006841*w1-4.554e-9*Power(del_n*1e-6,0.4612);
 end;
 
 class function Silicon.Green(Lambda: double;T:double): double;
@@ -1967,9 +2335,24 @@ begin
   VectKoef.Free;
 end;
 
-function Silicon.g_e(gmax, p, n, N0, Tetta: double): double;
+class function Silicon.g_e(gmax, p, n, N0, Tetta: double): double;
 begin
   Result:=1+(gmax-1)*(1-tanh(Power((p+n)/N0,Tetta)));
+end;
+
+class function Silicon.g_e2(gmax, p, n, N0, Tetta: double): double;
+begin
+  Result:=1+(gmax-1)*1/(1+Power((p+n)/N0,Tetta));
+end;
+
+class function Silicon.gmax_n(g0, T: double): double;
+begin
+ Result:=ThermallyPower(g0,-1.5013,T);
+end;
+
+class function Silicon.gmax_p(g0, T: double): double;
+begin
+ Result:=ThermallyPower(g0,-1.6546,T);
 end;
 
 class function Silicon.Meff_e(T: double): double;

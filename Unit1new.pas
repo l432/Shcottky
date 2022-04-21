@@ -3611,7 +3611,8 @@ var
 
 
 begin
-// showmessage(floattostr(ImproperIntegral(FF,[2],False)));
+// showmessage(floattostr(Silicon.Brad_low(300))+#10+floattostr(Silicon.Brad(300)));
+
  showmessage(DeleteLastDir('D:\'));
  Vec:=TVector.Create;
     Try    ChDir(Directory);
@@ -3643,6 +3644,7 @@ if OpenDialog1.Execute() then
 //   T:=T+5;
 // until T>340;
 // FreeAndNil(Fe);
+
  FreeAndNil(Vec);
 
 //showmessage(floattostr(DiodPN.delN(0.4)));
