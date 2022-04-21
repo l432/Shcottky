@@ -139,6 +139,11 @@ type
        {визначається коефіцієнт поглинання
        pа даними роботи Green & Keevers при 300 К
        [Lambda]=нм, [Result]=1/м}
+       function g_e (gmax,p,n,N0,Tetta:double):double;
+       {допоміжна функція при обчисленні коеф. Оже рекомбінації,
+       розрахунок коеф. підсилення внаслідок
+       кулонівської взаємодії, використовується
+       в SolEnerMatSC_234_111428 (2022)}
       public
       class function Eg(T:double=300):double;
       class function Meff_e(T:double=300):double;
@@ -185,11 +190,11 @@ type
       температурі; в більш пізніх роботах я залежності від температури
       не зустрічав... тому можливо краще використовувати більш прості
       варіанти як у функції AbsorptionFC}
-      class function AbsorptionFC(Lambda:double;N:double;n_Type:boolean=True):double;
+      class function AbsorptionFC(Lambda:double;N:double;itIsDonor:boolean=True):double;
       {коефіцієнт поглинання світла вільними носіями,
       [Lambda]=нм,
       [N]=1/м^3, концентрації носіїв,
-      поява n_Type викликана тим, що для n та p напівпровідників
+      поява itIsDonor викликана тим, що для n та p напівпровідників
       формули трохи різні
       [Result]=1/м,
       за роботою JApplPhys_116_063106 (2014)
@@ -1570,19 +1575,19 @@ begin
 
 end;
 
-class function Silicon.AbsorptionFC(Lambda, N: double; n_Type: boolean): double;
+class function Silicon.AbsorptionFC(Lambda, N: double; itIsDonor: boolean): double;
       {коефіцієнт поглинання світла вільними носіями,
       [Lambda]=нм,
       [N]=1/м^3, концентрації носіїв,
-      поява n_Type викликана тим, що для n та p напівпровідників
+      поява itIsDonor викликана тим, що для n та p напівпровідників
       формули трохи різні
       [Result]=1/м}
 begin
 //  JApplPhys_116_063106 (2014):
-  if n_Type then Result:=1.68e-10*Power(Lambda*1e-7,2.88)*N
-            else Result:=1.82e-13*Power(Lambda*1e-7,2.18)*N;
+  if itIsDonor then Result:=1.68e-10*Power(Lambda*1e-7,2.88)*N
+               else Result:=1.82e-13*Power(Lambda*1e-7,2.18)*N;
 //  IEEETransElecDev_60_p2156 (2013):
-//  if n_Type then Result:=1.8e-22*Power(Lambda*1e-3,2.6)*N
+//  if itIsDonor then Result:=1.8e-22*Power(Lambda*1e-3,2.6)*N
 //            else Result:=2.6e-22*Power(Lambda*1e-3,2.4)*N;
 end;
 
@@ -1960,6 +1965,11 @@ begin
   Result:=(Vect.YvalueSplain3(Lambda)*Power(T/300,VectKoef.YvalueSplain3(T)*1e-4*300))*100;
   Vect.Free;
   VectKoef.Free;
+end;
+
+function Silicon.g_e(gmax, p, n, N0, Tetta: double): double;
+begin
+  Result:=1+(gmax-1)*(1-tanh(Power((p+n)/N0,Tetta)));
 end;
 
 class function Silicon.Meff_e(T: double): double;
