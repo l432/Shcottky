@@ -3611,7 +3611,7 @@ var
 
 
 begin
-// showmessage(floattostr(T23_Siabsorb[abSchinke][0]));
+ showmessage(floattostr(Silicon.Absorption(940,295)));
 
 // showmessage(DeleteLastDir('D:\'));
 // Vec:=TVector.Create;
