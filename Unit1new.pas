@@ -3611,41 +3611,25 @@ var
 
 
 begin
-// showmessage(floattostr(Silicon.Brad_low(300))+#10+floattostr(Silicon.Brad(300)));
+// showmessage(floattostr(T23_Siabsorb[abSchinke][0]));
 
- showmessage(DeleteLastDir('D:\'));
- Vec:=TVector.Create;
-    Try    ChDir(Directory);
-          OpenDialog1.InitialDir:=Directory;
-   Except ChDir(Directory0);
-          OpenDialog1.InitialDir:=Directory0;
-   End;
-if OpenDialog1.Execute() then
- begin
- ProcessPath(OpenDialog1.FileName, drive, path, fName);
- T:=340;
- Vec.ReadFromFile(fname);
- for I := 0 to Vec.HighNumber do
-  Vec.Y[i]:=TauFeEq(DiodPN.LayerP,Vec.Y[i],T);
- Vec.WriteToFile(FitName(Vec,'NN'));
- end;
-
-// Fe:=TDefect.Create(FeB_ac);
-// Fe.Nd:=1e19;
-// delNd:=(14-12)/20;
-// repeat
-//   Fe.Nd:=1e18;
-//   Vec.Clear;
-//   repeat
-//    Vec.Add(Fe.Nd,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
-//    Fe.Nd:=power(10,(log10(Fe.Nd)+delNd));
-//   until (Fe.Nd>1.01e20);
-//   Vec.WriteToFile('tsrhFe_vs_Nt_'+inttostr(round(T))+'.dat',5,'Nt t_srh');
-//   T:=T+5;
-// until T>340;
-// FreeAndNil(Fe);
-
- FreeAndNil(Vec);
+// showmessage(DeleteLastDir('D:\'));
+// Vec:=TVector.Create;
+//    Try    ChDir(Directory);
+//          OpenDialog1.InitialDir:=Directory;
+//   Except ChDir(Directory0);
+//          OpenDialog1.InitialDir:=Directory0;
+//   End;
+//if OpenDialog1.Execute() then
+// begin
+// ProcessPath(OpenDialog1.FileName, drive, path, fName);
+// T:=340;
+// Vec.ReadFromFile(fname);
+// for I := 0 to Vec.HighNumber do
+//  Vec.Y[i]:=TauFeEq(DiodPN.LayerP,Vec.Y[i],T);
+// Vec.WriteToFile(FitName(Vec,'NN'));
+// end;
+// FreeAndNil(Vec);
 
 //showmessage(floattostr(DiodPN.delN(0.4)));
 //
