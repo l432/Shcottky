@@ -3611,7 +3611,14 @@ var
 
 
 begin
- showmessage(floattostr(Silicon.Absorption(940,295)));
+  Vec:=TVector.Create;
+  i:=500;
+  repeat
+    Vec.Add(i,Silicon.Abb(i,1.4e22,110e-6,False,300));
+    i:=i+10;
+  until i>1250;
+  Vec.WriteToFile('Abb.dat');
+  FreeAndNil(Vec);
 
 // showmessage(DeleteLastDir('D:\'));
 // Vec:=TVector.Create;
