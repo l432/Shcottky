@@ -3611,13 +3611,15 @@ var
 
 
 begin
+//showmessage(floattostr(2*NormalCDF(38-0.5,162.5,sqrt(25*26*51/24))));
+
   Vec:=TVector.Create;
-  i:=500;
+  T:=0;
   repeat
-    Vec.Add(i,Silicon.Abb(i,1.4e22,110e-6,False,300));
-    i:=i+10;
-  until i>1250;
-  Vec.WriteToFile('Abb.dat');
+    Vec.Add(T,BettaRegularizedIncomplete(T,4.5,1.5));
+    T:=T+0.02;
+  until T>1;
+  Vec.WriteToFile('Abb.dat',8);
   FreeAndNil(Vec);
 
 // showmessage(DeleteLastDir('D:\'));
