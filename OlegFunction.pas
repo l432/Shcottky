@@ -58,7 +58,7 @@ Function FloatDataFromRow(str:string;Number:word):double;
 якщо там не число - то повертається ErResult}
 
 Function NumberOfSubstringInRow(row:string):integer;
-{визначається частин у рядку row, відділених
+{визначається кількість частин у рядку row, відділених
 пробілами}
 
 Function SubstringNumberFromRow(substring,row:string):integer;

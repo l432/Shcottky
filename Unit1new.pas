@@ -3611,16 +3611,18 @@ var
 
 
 begin
-showmessage(floattostr(2*(1-NormalCDF(1.281529))));
+//showmessage(floattostr(2*(1-NormalCDF(1.281529))));
 
-//  Vec:=TVector.Create;
+  Vec:=TVector.Create;
+  Vec.ReadFromFile('Abb.dat',['Wen']);
 //  T:=0;
 //  repeat
 //    Vec.Add(T,BettaRegularizedIncomplete(T,4.5,1.5));
 //    T:=T+0.02;
 //  until T>1;
 //  Vec.WriteToFile('Abb.dat',8);
-//  FreeAndNil(Vec);
+  showmessage(Vec.XYtoString());
+  FreeAndNil(Vec);
 
 // showmessage(DeleteLastDir('D:\'));
 // Vec:=TVector.Create;

@@ -63,7 +63,7 @@ type
       property Point[Index:Integer]:TPointDouble read PointGet;default;
       property Count:Integer read GetN;
       {кількість точок,
-      в масивaх нумерація від 0 до n-1}
+      в масивaх нумерація від 0 до Count-1}
       property HighNumber:Integer read GetHigh;
       property name:string read fName write fName;
       {назва файлу, звідки завантажені дані}
@@ -117,11 +117,31 @@ type
          {просто зануляється кількість точок, інших операцій не проводиться}
       procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
       procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-      procedure ReadFromFile (NameFile:string);
+      procedure ReadFromFile (NameFile:string);overload;
       {читає дані з файлу з коротким ім'ям sfile
        з файлу comments в тій самій директорії
        зчитується значення температури в a.T}
-      procedure WriteToFile(NameFile:string; NumberDigit:Byte=4;
+      procedure ReadFromFile(NameFile:string;ColumnNumbers:array of byte;XisSequenceNumber:boolean=False);overload;
+      {читає з файлу, у якому дані розташовані в колонках;
+      зчитуються дані з колонок, номери яких в ColumnNumbers, вважається, що
+      колонки нумеруються з одиниці;
+      ті рядки файлу, які не містять достатньої кількості колонок просто пропускаються;
+      якщо XisSequenceNumber=True, то в Х буде порядковий номер (починаючи з 1);
+      залежно від кількості цифр в ColumnNumbers буде
+      0 - в Х з першої колонки, в Y з другої (XisSequenceNumber=False)
+          в Х - номер, в Y з першої (XisSequenceNumber=True)
+      1 - в Х з першої колонки, в Y з колонки, номер якої присутній (XisSequenceNumber=False)
+          в Х - номер, в Y з колонки, номер якої присутній (XisSequenceNumber=True)
+      2 і більше - в Х з колонки, номер якої першим стоїть в масиві, в Y з колонки,
+                   номер якої стоїть другим (XisSequenceNumber=False)
+                   в Х - номер, в Y з колонки, номер якої першим стоїть в масиві (XisSequenceNumber=True)
+      додаткові поля залишаються порожніми}
+      procedure ReadFromFile(NameFile:string;ColumnNames:array of string;XisSequenceNumber:boolean=False);overload;
+      {подібне до попереднього, але зчитуються дані з колонок,
+      назви яких в ColumnNames;
+      якщо колонки з якоюсь назвою немає у файлі, то вважається,
+      що така назва просто відсутня в ColumnNames}
+      procedure WriteToFile(NameFile:string=''; NumberDigit:Byte=4;
                            Header:string='');
       {записує у файл з іменем sfile дані;
       якщо .Count=0, то запис у файл не відбувається;
@@ -225,7 +245,7 @@ type
 
 
 implementation
-uses OlegMath, Classes, Dialogs, Controls, Math;
+uses OlegMath, Classes, Dialogs, Controls, Math, OlegFunction;
 
 
 
@@ -297,6 +317,78 @@ begin
  Sorting;
 end;
 
+procedure TVector.ReadFromFile(NameFile: string; ColumnNumbers: array of byte;
+  XisSequenceNumber: boolean);
+ var   Str:TStringList;
+       XNum,Ynum,maxNumber:word;
+       i:integer;
+       x,y:double;
+begin
+  XNum:=0;YNum:=0;
+  Clear;
+  Self.fName:=NameFile;
+  Str:=TStringList.Create;
+  Str.LoadFromFile(NameFile);
+  if High(ColumnNumbers)<0 then
+     begin
+       if XisSequenceNumber
+          then YNum:=1
+          else begin
+               YNum:=2;
+               XNum:=1;
+               end;
+     end;
+  if High(ColumnNumbers)=0 then
+     begin
+       YNum:=ColumnNumbers[0];
+       if not(XisSequenceNumber)
+          then XNum:=1;
+     end;
+  if High(ColumnNumbers)>0 then
+     begin
+       if XisSequenceNumber
+          then YNum:=ColumnNumbers[0]
+          else begin
+               YNum:=ColumnNumbers[1];
+               XNum:=ColumnNumbers[0];
+               end;
+     end;
+   maxNumber:=max(YNum,XNum);
+  for I := 0 to Str.Count-1 do
+    begin
+     if NumberOfSubstringInRow(Str[i])<maxNumber then Continue;
+     try
+      if XisSequenceNumber
+       then x:=Self.Count+1
+       else x:=StrToFloat(StringDataFromRow(Str[i],XNum));
+      y:=StrToFloat(StringDataFromRow(Str[i],YNum));
+      Add(x,y);
+     except
+     end;
+    end;
+  Str.Free;
+end;
+
+procedure TVector.ReadFromFile(NameFile: string; ColumnNames: array of string;
+   XisSequenceNumber: boolean);
+ var   Str:TStringList;
+       i:word;
+       ColumnNumbers:array of byte;
+       Numbers:TArrInteger;
+begin
+  Str:=TStringList.Create;
+  Str.LoadFromFile(NameFile);
+  NumberDetermine(ColumnNames,Str[0],Numbers);
+  for I := 0 to High(Numbers) do
+   if Numbers[i]<>0 then
+       begin
+         SetLength(ColumnNumbers,High(ColumnNumbers)+2);
+         ColumnNumbers[High(ColumnNumbers)]:=word(Numbers[i]);
+       end;
+  ReadFromFile(NameFile,ColumnNumbers,XisSequenceNumber);
+  Str.Free;
+end;
+
 procedure TVector.ReadFromGraph(Series: TCustomSeries);
  var i:integer;
 begin
@@ -333,7 +425,13 @@ begin
  if Header<>'' then Str.Add(Header);
  for I := 0 to High(Points)
    do  Str.Add(PoinToString(Points[i],NumberDigit));
- Str.SaveToFile(NameFile);
+ if NameFile<>'' then Str.SaveToFile(NameFile)
+                 else
+                 begin
+                  if Self.fName=''
+                    then Str.SaveToFile('noname.dat')
+                    else Str.SaveToFile(Self.fName);
+                 end;
  Str.Free;
 end;
 
