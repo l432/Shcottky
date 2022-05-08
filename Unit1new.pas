@@ -3595,6 +3595,9 @@ var
   drive:char;
   path,fname:string;
   i,N:word;
+  MethodVector:array[TMetaMethod] of TVector;
+  im:TMetaMethod;
+//  TMetaMethod=(mmPSO, mmIPOPES, mmCHC, mmSSGA, mmSSBLX, mmSSArit, mmDEBin, mmDEExp, mmSaDE);
 //  number, zero : double;
 //var dpn:TDiod_PN;
 //    Nd,Ndmin,NdMax,delNd:double;
@@ -3611,7 +3614,28 @@ var
 
 
 begin
-showmessage(floattostr(2*(1-NormalCDF(7,3.5,sqrt(7)/2))));
+
+for im := Low(TMetaMethod) to High(TMetaMethod) do
+  MethodVector[im]:=TVector.Create;
+
+  MethodVector[mmPSO].ReadFromFile('Abb1.dat',['PSO'],True);
+  MethodVector[mmIPOPES].ReadFromFile('Abb1.dat',['IPOPES'],True);
+  MethodVector[mmCHC].ReadFromFile('Abb1.dat',['CHC'],True);
+  MethodVector[mmSSGA].ReadFromFile('Abb1.dat',['SSGA'],True);
+  MethodVector[mmSSBLX].ReadFromFile('Abb1.dat',['SSBLX'],True);
+  MethodVector[mmSSArit].ReadFromFile('Abb1.dat',['SSArit'],True);
+  MethodVector[mmDEBin].ReadFromFile('Abb1.dat',['DEBin'],True);
+  MethodVector[mmDEExp].ReadFromFile('Abb1.dat',['DEExp'],True);
+  MethodVector[mmSaDE].ReadFromFile('Abb1.dat',['SaDE'],True);
+
+//  showmessage(floattostr(SignTestPvalue(MethodVector[mmSaDE],MethodVector[mmSSGA])));
+ showmessage(booltostr(SignTestAbetterB(MethodVector[mmSaDE],MethodVector[mmSSArit],0.1),True));
+for im := Low(TMetaMethod) to High(TMetaMethod) do
+  MethodVector[im].Free;
+
+
+
+//showmessage(floattostr(2*(1-NormalCDF(13,12.5,sqrt(25)/2))));
 
 //  Vec:=TVector.Create;
 ////  Vec.ReadFromFile('Abb.dat',['Wen']);

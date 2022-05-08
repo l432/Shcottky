@@ -2,8 +2,15 @@ unit OlegStatistic;
 
 interface
 
-uses OlegType, OlegMath;
+uses OlegType, OlegMath, OlegVector;
 
+type
+
+TMetaMethod=(mmPSO, mmIPOPES, mmCHC, mmSSGA, mmSSBLX, mmSSArit, mmDEBin, mmDEExp, mmSaDE);
+
+{Alpha - рівень значущості (level of significance)
+p-value - ймовірність отримання такого як є результату за умови,
+що гіпотеза H0 (про те, що різниці нема) справедлива}
 
 Function NormalCDF(x:double;mu:double=0;sigma:double=1):double;
 {функція розподілу ймовірності для нормального розподілу,
@@ -76,12 +83,22 @@ Function BinomialCDF(n,k:word;p:double):double;
 {функція розподілу ймовірності при біноміальному розподілі,
 ймовірність того, що вдалих випробувань не більше k}
 
+Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
+{кількість перемог в A.Y порівняно з B.Y,
+при ItIsError=True перемога означає менше значення;
+має бути A.X[i]=B.X[i], A.Count=B.Count,
+інакше перемог 0}
 
+Function SignTestPvalue(A,B:TVector;ItIsError:boolean=True):double;
+
+Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
+{результат парного тесту про те, що А краще при щонайбільшому p-value,
+0<p<1}
 
 implementation
 
 uses
-  System.Math;
+  System.Math, Vcl.Dialogs, System.SysUtils;
 
 Function NormalCDF(x,mu,sigma:double):double;
 {функція розподілу ймовірності для нормального розподілу,
@@ -227,6 +244,52 @@ begin
  Result:=0;
  for I := 0 to k do
    Result:=Result+BinomialPDF(n,i,p);
+end;
+
+Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
+{кількість перемог в A.Y порівняно з B.Y,
+при ItIsError=True перемога означає менше значення;
+має бути A.X[i]=B.X[i], A.Count=B.Count,
+інакше перемог 0}
+ var WinsTemp:double;
+     i:integer;
+begin
+  Result:=0;
+  if A.Count<>B.Count  then Exit;
+  WinsTemp:=0;
+  for I := 0 to A.HighNumber do
+   if IsEqual(A.X[i],B.X[i]) then
+    begin
+      if IsEqual(A.Y[i],B.Y[i]) then
+                   begin
+                    WinsTemp:=WinsTemp+0.5;
+                    Continue;
+                   end;
+      if ItIsError and (A.Y[i]<B.Y[i]) then WinsTemp:=WinsTemp+1;
+      if not(ItIsError) and (A.Y[i]>B.Y[i]) then WinsTemp:=WinsTemp+1;
+//      showmessage(floattostr(A.Y[i])+' '+floattostr(B.Y[i])+' '+floattostr(WinsTemp));
+    end                      else Exit;
+   Result:=Floor(WinsTemp);
+end;
+
+Function SignTestPvalue(A,B:TVector;ItIsError:boolean):double;
+ var Wins:word;
+begin
+  Wins:=WinsNumber(A,B,ItIsError);
+//  Result:=2*(1-NormalCDF(Wins,A.Count/2.0,sqrt(A.Count)/2.0));
+//  showmessage(floattostr(Wins)+' '+floattostr(A.Count/2.0)+' '+floattostr(A.Count));
+  if Wins>A.Count/2.0 then Result:=2*(1-NormalCDF(Wins,A.Count/2.0,sqrt(A.Count)/2.0))
+                      else Result:=1;
+end;
+
+Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
+begin
+  if (p<=0) or (p>=1) then
+     begin
+       Result:=False;
+       Exit;
+     end;
+  Result:= (SignTestPvalue(A,B,ItIsError)<p);
 end;
 
 end.
