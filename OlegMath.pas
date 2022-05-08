@@ -351,23 +351,23 @@ Function Erf(x:double):double;
 {функція помилок
 2/sqrt(Pi)*int_0^x exp(-t^2) dt}
 
-Function NormalCDF(x:double;mu:double=0;sigma:double=1):double;
-{функція розподілу ймовірності для нормального розподілу,
-ймовірність того, що величина має значення не більше-рівно x
-mu - середнє,
-sigma^2 - дисперсія;
-FCD - cumulative distribution function}
-
-Function NormalCDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
-{ймовірність того, що величина має значення a<x<=b при
-нормальному розподілу з середнім mu та дисперсією sigma^2}
-
-Function NormalPDF(x:double;mu:double=0;sigma:double=1):double;
-{густина розподілу ймовірності при нормальному розподілі
-(функція Гауса)
-mu - середнє,
-sigma^2 - дисперсія;
-PDF -  probability density function}
+//Function NormalCDF(x:double;mu:double=0;sigma:double=1):double;
+//{функція розподілу ймовірності для нормального розподілу,
+//ймовірність того, що величина має значення не більше-рівно x
+//mu - середнє,
+//sigma^2 - дисперсія;
+//FCD - cumulative distribution function}
+//
+//Function NormalCDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
+//{ймовірність того, що величина має значення a<x<=b при
+//нормальному розподілу з середнім mu та дисперсією sigma^2}
+//
+//Function NormalPDF(x:double;mu:double=0;sigma:double=1):double;
+//{густина розподілу ймовірності при нормальному розподілі
+//(функція Гауса)
+//mu - середнє,
+//sigma^2 - дисперсія;
+//PDF -  probability density function}
 
 Function GammaDod(x:double;Parameters:array of double):double;
 {Result=exp(-x)*x^(Parameters[0]-1),
@@ -380,24 +380,27 @@ Result=integral_0^inf t^(x-1) exp(-t) dt
 
 Function Gamma(n:word):double;overload;
 
-Function Factorial(n:word):Int64;
-{обчислення факторіалу}
+Function Factorial(n:word):double;
+{обчислення факторіалу,
+якщо взяти тип результату Int64, то більше чим факторіал 20 не рахує...
+бачив підхід "арифметика великих чисел" - збереження
+розрядів числа в масиві, але розрахунків таке не дуже виправдано}
 
 Function GammaLowerIncomplete(s,x:double):double;
 {Result=inegral_0^x t^(s-1)*exp(-t)dt
 неідеальна, особливо при малих значеннях s}
 
-Function ChiSquaredPDF(x:double;k:word):double;
-{густина розподілу ймовірності при хі-квадрат розподілі
-x>=0,
-k - кількість ступенів вільності}
-
-Function ChiSquaredCDF(x:double;k:word):double;
-{функція розподілу ймовірності при хі-квадрат розподілі,
-ймовірність того, що величина має значення не більше-рівно x,
-x>=0,
-k - кількість ступенів вільності, для k=1 рахувало препаршиво,
-тому поставив обмеження, що k>1}
+//Function ChiSquaredPDF(x:double;k:word):double;
+//{густина розподілу ймовірності при хі-квадрат розподілі
+//x>=0,
+//k - кількість ступенів вільності}
+//
+//Function ChiSquaredCDF(x:double;k:word):double;
+//{функція розподілу ймовірності при хі-квадрат розподілі,
+//ймовірність того, що величина має значення не більше-рівно x,
+//x>=0,
+//k - кількість ступенів вільності, для k=1 рахувало препаршиво,
+//тому поставив обмеження, що k>1}
 
 Function BettaDod(x:double;Parameters:array of double):double;
 {Result=x^(Parameters[0]-1)*(1-x)^(Parameters[1]-1),
@@ -416,17 +419,17 @@ Result=integral_0^x t^(a-1)*(1-t)^(b-1) dt
 
 Function BettaRegularizedIncomplete(x,a,b:double):double;
 
-Function FisherPDF(x:double;k1,k2:word):double;
-{густина розподілу ймовірності при F-розподілі (розподілі Фішера),
-x>=0,
-k1, k2 - кількість ступенів вільності}
-
-Function FisherCDF(x:double;k1,k2:word):double;
-{функція розподілу ймовірності при F-розподілі,
-ймовірність того, що величина має значення не більше-рівно x,
-x>=0,
-k1, k2 - кількість ступенів вільності,
-про всяк випадок поставив обмеження k1>1, k2>1}
+//Function FisherPDF(x:double;k1,k2:word):double;
+//{густина розподілу ймовірності при F-розподілі (розподілі Фішера),
+//x>=0,
+//k1, k2 - кількість ступенів вільності}
+//
+//Function FisherCDF(x:double;k1,k2:word):double;
+//{функція розподілу ймовірності при F-розподілі,
+//ймовірність того, що величина має значення не більше-рівно x,
+//x>=0,
+//k1, k2 - кількість ступенів вільності,
+//про всяк випадок поставив обмеження k1>1, k2>1}
 
 
 implementation
@@ -1699,39 +1702,39 @@ begin
 end;
 
 
-Function NormalCDF(x,mu,sigma:double):double;
-{функція розподілу ймовірності для нормального розподілу,
-ймовірність того, що величина має значення не більше-рівно x
-mu - середнє,
-sigma^2 - дисперсія}
-begin
-  try
-   Result:=0.5*(1+Erf((x-mu)/sqrt(2)/sigma))
-  except
-   Result:=ErResult;
-  end;
-end;
-
-Function NormalCDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
-{ймовірність того, що величина має значення a<x<=b при
-нормальному розподілу з середнім mu та дисперсією sigma^2}
-begin
-  if sigma=0 then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
-  Result:=NormalCDF(b,mu,sigma)-NormalCDF(a,mu,sigma);
-end;
-
-Function NormalPDF(x:double;mu:double=0;sigma:double=1):double;
-begin
-  try
-   Result:=1/sigma/sqrt(2*Pi)*exp(-sqr((x-mu)/sigma)/2);
-  except
-   Result:=ErResult;
-  end;
-end;
+//Function NormalCDF(x,mu,sigma:double):double;
+//{функція розподілу ймовірності для нормального розподілу,
+//ймовірність того, що величина має значення не більше-рівно x
+//mu - середнє,
+//sigma^2 - дисперсія}
+//begin
+//  try
+//   Result:=0.5*(1+Erf((x-mu)/sqrt(2)/sigma))
+//  except
+//   Result:=ErResult;
+//  end;
+//end;
+//
+//Function NormalCDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
+//{ймовірність того, що величина має значення a<x<=b при
+//нормальному розподілу з середнім mu та дисперсією sigma^2}
+//begin
+//  if sigma=0 then
+//   begin
+//     Result:=ErResult;
+//     Exit
+//   end;
+//  Result:=NormalCDF(b,mu,sigma)-NormalCDF(a,mu,sigma);
+//end;
+//
+//Function NormalPDF(x:double;mu:double=0;sigma:double=1):double;
+//begin
+//  try
+//   Result:=1/sigma/sqrt(2*Pi)*exp(-sqr((x-mu)/sigma)/2);
+//  except
+//   Result:=ErResult;
+//  end;
+//end;
 
 Function GammaDod(x:double;Parameters:array of double):double;
 {Result=exp(-x)*x^(Parameters[0]-1),
@@ -1761,11 +1764,15 @@ begin
   Result:=Factorial(n-1);
 end;
 
-Function Factorial(n:word):Int64;
+Function Factorial(n:word):double;
 {обчислення факторіалу}
+ var k:word;
 begin
-  if n=0 then Result:=1
-         else Result:=n*Factorial(n-1);
+//  if n=0 then Result:=1
+//         else Result:=n*Factorial(n-1);
+  Result:=1;
+  for k := 2 to n do
+        Result:=Result*k;
 end;
 
 Function GammaLowerIncomplete(s,x:double):double;
@@ -1779,39 +1786,39 @@ begin
   Result:=IntegralRomberg(GammaDod,[s],0,x,1e-8);
 end;
 
-Function ChiSquaredPDF(x:double;k:word):double;
-{густина розподілу ймовірності при хі-квадрат розподілі
-k - кількість ступенів вільності}
- var G,k2:double;
-begin
- if (k<1)or(x<0)or((k=1)and(x<=0)) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- k2:=k/2.0;
- if odd(k) then G:=Gamma(k2)
-           else G:=Gamma(round(k2));
- Result:=Power(x,k2-1)*exp(-x/2.0)
-         /Power(2,k2)/G;
-end;
-
-Function ChiSquaredCDF(x:double;k:word):double;
-{функція розподілу ймовірності при хі-квадрат розподілі,
-ймовірність того, що величина має значення не більше-рівно x
-k - кількість ступенів вільності}
-  var G,k2:double;
-begin
- if (k<2)or(x<0) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- k2:=k/2.0;
- if odd(k) then G:=Gamma(k2)
-           else G:=Gamma(round(k2));
- Result:=GammaLowerIncomplete(k2,x/2.0)/G;
-end;
+//Function ChiSquaredPDF(x:double;k:word):double;
+//{густина розподілу ймовірності при хі-квадрат розподілі
+//k - кількість ступенів вільності}
+// var G,k2:double;
+//begin
+// if (k<1)or(x<0)or((k=1)and(x<=0)) then
+//   begin
+//     Result:=ErResult;
+//     Exit
+//   end;
+// k2:=k/2.0;
+// if odd(k) then G:=Gamma(k2)
+//           else G:=Gamma(round(k2));
+// Result:=Power(x,k2-1)*exp(-x/2.0)
+//         /Power(2,k2)/G;
+//end;
+//
+//Function ChiSquaredCDF(x:double;k:word):double;
+//{функція розподілу ймовірності при хі-квадрат розподілі,
+//ймовірність того, що величина має значення не більше-рівно x
+//k - кількість ступенів вільності}
+//  var G,k2:double;
+//begin
+// if (k<2)or(x<0) then
+//   begin
+//     Result:=ErResult;
+//     Exit
+//   end;
+// k2:=k/2.0;
+// if odd(k) then G:=Gamma(k2)
+//           else G:=Gamma(round(k2));
+// Result:=GammaLowerIncomplete(k2,x/2.0)/G;
+//end;
 
 Function BettaDod(x:double;Parameters:array of double):double;
 {Result=x^(Parameters[0]-1)*(1-x)^(Parameters[1]-1),
@@ -1847,34 +1854,34 @@ begin
  Result:=BettaIncomplete(x,a,b)/Betta(a,b);
 end;
 
-Function FisherPDF(x:double;k1,k2:word):double;
-{густина розподілу ймовірності при F-розподілі (розподілі Фішера),
-x>=0,
-k1, k2 - кількість ступенів вільності}
-begin
- if (x<0)or(x>1) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- Result:=Power(k1/k2,k1/2.0)*Power(x,k1/2.0-1)
-         *Power((1+k1/k2*x),-(k1+k2)/2.0)/Betta(k1/2.0,k2/2.0);
-end;
-
-Function FisherCDF(x:double;k1,k2:word):double;
-{функція розподілу ймовірності при F-розподілі,
-ймовірність того, що величина має значення не більше-рівно x,
-x>=0,
-k1, k2 - кількість ступенів вільності,
-про всяк випадок поставив обмеження k1>1, k2>1}
-begin
- if (x<0)or(x>1) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- Result:=BettaRegularizedIncomplete(k1*x/(k1*x+k2),k1/2.0,k2/2.0);
-end;
+//Function FisherPDF(x:double;k1,k2:word):double;
+//{густина розподілу ймовірності при F-розподілі (розподілі Фішера),
+//x>=0,
+//k1, k2 - кількість ступенів вільності}
+//begin
+// if (x<0)or(x>1) then
+//   begin
+//     Result:=ErResult;
+//     Exit
+//   end;
+// Result:=Power(k1/k2,k1/2.0)*Power(x,k1/2.0-1)
+//         *Power((1+k1/k2*x),-(k1+k2)/2.0)/Betta(k1/2.0,k2/2.0);
+//end;
+//
+//Function FisherCDF(x:double;k1,k2:word):double;
+//{функція розподілу ймовірності при F-розподілі,
+//ймовірність того, що величина має значення не більше-рівно x,
+//x>=0,
+//k1, k2 - кількість ступенів вільності,
+//про всяк випадок поставив обмеження k1>1, k2>1}
+//begin
+// if (x<0)or(x>1) then
+//   begin
+//     Result:=ErResult;
+//     Exit
+//   end;
+// Result:=BettaRegularizedIncomplete(k1*x/(k1*x+k2),k1/2.0,k2/2.0);
+//end;
 
 
 end.

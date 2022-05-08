@@ -1214,7 +1214,7 @@ var
 implementation
 
 uses FormSelectFitNew, OApproxNew, FitSimple,
-  OApproxFunction2, FitGradient;
+  OApproxFunction2, FitGradient, OlegStatistic;
 
 {$R *.dfm}
 {$R Res\Fig.RES}
@@ -3594,7 +3594,7 @@ var
   Fe:TDefect;
   drive:char;
   path,fname:string;
-  i:integer;
+  i,N:word;
 //  number, zero : double;
 //var dpn:TDiod_PN;
 //    Nd,Ndmin,NdMax,delNd:double;
@@ -3611,18 +3611,22 @@ var
 
 
 begin
-//showmessage(floattostr(2*(1-NormalCDF(1.281529))));
+showmessage(floattostr(2*(1-NormalCDF(7,3.5,sqrt(7)/2))));
 
-  Vec:=TVector.Create;
-  Vec.ReadFromFile('Abb.dat',['Wen']);
+//  Vec:=TVector.Create;
+////  Vec.ReadFromFile('Abb.dat',['Wen']);
 //  T:=0;
+//  N:=24;
+//  i:=0;
 //  repeat
-//    Vec.Add(T,BettaRegularizedIncomplete(T,4.5,1.5));
-//    T:=T+0.02;
-//  until T>1;
-//  Vec.WriteToFile('Abb.dat',8);
-  showmessage(Vec.XYtoString());
-  FreeAndNil(Vec);
+////    Vec.Add(T,BettaRegularizedIncomplete(T,4.5,1.5));
+//    Vec.Add(i,BinomialCDF(N,i,0.5));
+//    i:=i+1;
+////    T:=T+0.02;
+////  until T>1;
+//  until i>N;
+//  Vec.WriteToFile('Atemp.dat',8);
+//  FreeAndNil(Vec);
 
 // showmessage(DeleteLastDir('D:\'));
 // Vec:=TVector.Create;

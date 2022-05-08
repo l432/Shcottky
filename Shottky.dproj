@@ -1031,6 +1031,7 @@
         <DCCReference Include="OApproxFunction2.pas"/>
         <DCCReference Include="OApproxFunction3.pas"/>
         <DCCReference Include="FitManyArguments.pas"/>
+        <DCCReference Include="OlegStatistic.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
