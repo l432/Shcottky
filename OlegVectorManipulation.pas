@@ -50,6 +50,9 @@ type
      procedure AbsY(Target:TVector);
          {заносить в Target точки, для яких Y дорівнює модулю Y даного
          вектора, а X таке саме; якщо Y=0, то точка викидається}
+     Procedure MinMax(Target:TVector;MinMaxData:TVector);
+     {Target.Y[i]=(Self.Y[i]-MinMaxData.X[i])/(MinMaxData.Y[i]-MinMaxData.X[i]);
+     якщо для якоїсь точки MinMaxData.Y[i]=MinMaxData.X[i], то вона просто відкидається}
      Procedure PositiveX(Target:TVector);//overload;
          {заносить в Target ті точки, для яких X більше нуля}
      procedure PositiveY(Target:TVector);
@@ -342,6 +345,18 @@ begin
   Self.CopyTo(Target);
   for i:=1 to Target.HighNumber-1 do
     Target.y[i]:=MedianFiltr(Self.y[i-1],Self.y[i],Self.y[i+1]);;
+end;
+
+procedure TVectorTransform.MinMax(Target, MinMaxData: TVector);
+ var i:integer;
+begin
+ InitTarget(Target);
+ if (MinMaxData.Count<>Self.Count) then Exit;
+ for i:=0 to MinMaxData.HighNumber do
+  begin
+   if IsEqual(MinMaxData.X[i],MinMaxData.Y[i]) then Continue;
+   Target.Add(Self.X[i],(Self.Y[i]-MinMaxData.X[i])/(MinMaxData.Y[i]-MinMaxData.X[i]));
+  end;
 end;
 
 procedure TVectorTransform.Module(Coord: TCoord_type; Target: TVector);

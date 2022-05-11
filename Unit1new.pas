@@ -3595,7 +3595,7 @@ var
   drive:char;
   path,fname:string;
   i,N:word;
-  MethodVector:array[TMetaMethod] of TVector;
+  MethodVector:array[TMetaMethod] of TVectorTransform;
   im:TMetaMethod;
 //  TMetaMethod=(mmPSO, mmIPOPES, mmCHC, mmSSGA, mmSSBLX, mmSSArit, mmDEBin, mmDEExp, mmSaDE);
 //  number, zero : double;
@@ -3616,7 +3616,7 @@ var
 begin
 
 for im := Low(TMetaMethod) to High(TMetaMethod) do
-  MethodVector[im]:=TVector.Create;
+  MethodVector[im]:=TVectorTransform.Create;
 
   MethodVector[mmPSO].ReadFromFile('Abb1.dat',['PSO'],True);
   MethodVector[mmIPOPES].ReadFromFile('Abb1.dat',['IPOPES'],True);
@@ -3629,7 +3629,23 @@ for im := Low(TMetaMethod) to High(TMetaMethod) do
   MethodVector[mmSaDE].ReadFromFile('Abb1.dat',['SaDE'],True);
 
 //  showmessage(floattostr(SignTestPvalue(MethodVector[mmSaDE],MethodVector[mmSSGA])));
- showmessage(booltostr(SignTestAbetterB(MethodVector[mmSaDE],MethodVector[mmSSArit],0.1),True));
+// showmessage(booltostr(SignTestAbetterB(MethodVector[mmSaDE],MethodVector[mmSSArit],0.1),True));
+// showmessage(inttostr(WilcoxonNmin(34,0.051)));
+ Vec:=TVector.Create;
+ MinMaxValues([MethodVector[mmPSO],MethodVector[mmIPOPES],MethodVector[mmCHC],MethodVector[mmSSGA],
+               MethodVector[mmSSBLX],MethodVector[mmSSArit],MethodVector[mmDEBin],MethodVector[mmDEExp],
+               MethodVector[mmSaDE]],Vec);
+
+//  MethodVector[mmSaDE].MinMax(MethodVector[mmPSO],Vec);
+//  MethodVector[mmCHC].MinMax(MethodVector[mmDEExp],Vec);
+//  showmessage(MethodVector[mmSaDE].XYtoString);
+
+// WilcoxonT(MethodVector[mmSaDE],MethodVector[mmCHC]);
+// WilcoxonT(MethodVector[mmPSO],MethodVector[mmDEExp]);
+// showmessage(booltostr(WilcoxonTestAbetterB(MethodVector[mmSaDE],MethodVector[mmCHC],Vec),True));
+ showmessage(inttostr(MultipleSignValues[5,3,0]));
+
+ FreeAndNil(Vec);
 for im := Low(TMetaMethod) to High(TMetaMethod) do
   MethodVector[im].Free;
 
