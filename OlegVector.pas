@@ -35,6 +35,9 @@ type
       function Stat(Coord:TCoord_type;FunVector:TFunVectorInt;minPointNumber:Integer=1):integer;overload;
       function MaxValue(Coord:TCoord_type):double;
       function MinValue(Coord:TCoord_type):double;
+      function NumberNegative(Coord:TCoord_type):integer;
+      function NumberPositive(Coord:TCoord_type):integer;
+      function NumberZero(Coord:TCoord_type):integer;
       function Sum(Coord:TCoord_type):double;
       function StandartDeviation(Coord:TCoord_type):double;
       function Value (Coord: TCoord_type; CoordValue: Double):double;
@@ -87,6 +90,13 @@ type
       property SumX:double Index 5 read GetInformation;
       property SumY:double Index 6 read GetInformation;
          {повертаються суми елементів масивів X та Y відповідно}
+      property NegativeInX:integer Index 5 read GetInformationInt;
+         {кількість від'ємних елементів в масиві X}
+      property NegativeInY:integer Index 6 read GetInformationInt;
+      property PositiveInX:integer Index 7 read GetInformationInt;
+      property PositiveInY:integer Index 8 read GetInformationInt;
+      property ZeroInX:integer Index 9 read GetInformationInt;
+      property ZeroInY:integer Index 10 read GetInformationInt;
       property MeanX:double Index 7 read GetInformation;
          {повертає середнє арифметичне значень в масиві X}
       property MeanY:double Index 8 read GetInformation;
@@ -783,6 +793,34 @@ begin
   Points[i,cY]:=Points[i,cY]*A;
 end;
 
+function TVector.NumberNegative(Coord: TCoord_type): integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to High(Points) do
+    if Points[i,Coord]<0 then inc(Result)
+end;
+
+function TVector.NumberPositive(Coord: TCoord_type): integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to High(Points) do
+    if Points[i,Coord]>0 then inc(Result)
+
+end;
+
+function TVector.NumberZero(Coord: TCoord_type): integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to High(Points) do
+    if Points[i,Coord]=0 then inc(Result)
+end;
+
 Procedure TVector.DeltaY(deltaVector:TVector);
  var i:integer;
 begin
@@ -965,6 +1003,12 @@ begin
   2:Result:=Stat(cY,Self.MaxNumber);
   3:Result:=Stat(cX,Self.MinNumber);
   4:Result:=Stat(cY,Self.MinNumber);
+  5:Result:=Stat(cX,Self.NumberNegative);
+  6:Result:=Stat(cY,Self.NumberNegative);
+  7:Result:=Stat(cX,Self.NumberPositive);
+  8:Result:=Stat(cY,Self.NumberPositive);
+  9:Result:=Stat(cX,Self.NumberZero);
+  10:Result:=Stat(cY,Self.NumberZero);
   else Result:=ErResult;
  end;
 end;

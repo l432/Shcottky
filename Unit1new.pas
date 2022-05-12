@@ -3643,7 +3643,11 @@ for im := Low(TMetaMethod) to High(TMetaMethod) do
 // WilcoxonT(MethodVector[mmSaDE],MethodVector[mmCHC]);
 // WilcoxonT(MethodVector[mmPSO],MethodVector[mmDEExp]);
 // showmessage(booltostr(WilcoxonTestAbetterB(MethodVector[mmSaDE],MethodVector[mmCHC],Vec),True));
- showmessage(inttostr(MultipleSignNmin(2,13,0.15)));
+ MultipleSignTest(MethodVector[mmDEExp],[MethodVector[mmPSO],MethodVector[mmIPOPES],
+               MethodVector[mmCHC],MethodVector[mmSSGA],
+               MethodVector[mmSSBLX],MethodVector[mmSSArit],
+               MethodVector[mmDEBin],MethodVector[mmSaDE]],Vec);
+  showmessage(Vec.XYtoString);
 
  FreeAndNil(Vec);
 for im := Low(TMetaMethod) to High(TMetaMethod) do

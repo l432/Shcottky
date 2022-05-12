@@ -205,13 +205,14 @@ n задачах і р-value відповідно до
 відсутнє повертається -1}
 
 Procedure MultipleSignTest(ControlAlgorithm:TVector;OtherAlgorithms:array of TVector;
-                           Results:TVector;ItIsError:boolean=True);
+                           Results:TVector;p:double=0.05;ItIsError:boolean=True);
 {перевірка гіпотез щодо співвідношення медіанних відгуків
 контрольного алгоритму з іншими;
 Results.Count=High(OtherAlgorithms)+1 - кількість алгоритмів для порівняння,
 Results.X[i] = номер алгоритму в OtherAlgorithms,
 Results.Y[i] = 1 якщо можна відкинути гіпотезу про те,
 що медіанний відгук  OtherAlgorithms[i] кращий, ніж у ControlAlgorithm;
+(лишається гіпотеза, що ControlAlgorithm кращий);
               -1 якщо можна відкинути гіпотезу про те,
 що медіанний відгук  ControlAlgorithm кращий, ніж у OtherAlgorithms[i];
              =0 якщо відкинути гіпотези не вдалося;
@@ -601,23 +602,12 @@ begin
 end;
 
 Procedure MultipleSignTest(ControlAlgorithm:TVector;OtherAlgorithms:array of TVector;
-                           Results:TVector;ItIsError:boolean=True);
-{перевірка гіпотез щодо співвідношення медіанних відгуків
-контрольного алгоритму з іншими;
-Results.Count=High(OtherAlgorithms)+1 - кількість алгоритмів для порівняння,
-Results.X[i] = номер алгоритму в OtherAlgorithms,
-Results.Y[i] = 1 якщо можна відкинути гіпотезу про те,
-що медіанний відгук  OtherAlgorithms[i] кращий, ніж у ControlAlgorithm;
-              -1 якщо можна відкинути гіпотезу про те,
-що медіанний відгук  ControlAlgorithm кращий, ніж у OtherAlgorithms[i];
-             =0 якщо відкинути гіпотези не вдалося;
-розміри  ControlAlgorithm та OtherAlgorithms мають бути однаковими,
-інакше в  Results.Y одні нулі
-}
+                           Results:TVector;p:double=0.05;ItIsError:boolean=True);
  var i:integer;
      d:TVector;
 begin
  Results.Clear;
+ if High(OtherAlgorithms)<0 then Exit;
  for I := 0 to High(OtherAlgorithms) do
     Results.Add(i,0);
  if ExtremCountVectorArray(OtherAlgorithms,True)<> ExtremCountVectorArray(OtherAlgorithms,False)
@@ -626,10 +616,24 @@ begin
     then Exit;
  d:=TVector.Create;
 
-
-//   d:=TVector.Create(B);
-//  d.DeltaY(A);
-
+// showmessage(inttostr(MultipleSignNmin(High(OtherAlgorithms)+1,ControlAlgorithm.Count,p)));
+ for I := 0 to High(OtherAlgorithms) do
+   begin
+    if ItIsError then
+           begin
+            OtherAlgorithms[i].CopyTo(d);
+            d.DeltaY(ControlAlgorithm);
+           end   else
+           begin
+            ControlAlgorithm.CopyTo(d);
+            d.DeltaY(OtherAlgorithms[i]);
+           end;
+//     showmessage(inttostr(i)+' '+d.XYtoString+' r-='+inttostr(d.NegativeInY)+' r+='+inttostr(d.PositiveInY));
+     if d.NegativeInY<=MultipleSignNmin(High(OtherAlgorithms)+1,d.Count,p)
+         then Results.Y[i]:=1;
+     if d.PositiveInY<=MultipleSignNmin(High(OtherAlgorithms)+1,d.Count,p)
+         then Results.Y[i]:=-1;
+   end;
  FreeAndNil(d);
 end;
 
