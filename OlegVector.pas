@@ -95,8 +95,8 @@ type
       property StandartDeviationY:double Index 10 read GetInformation;
          {повертає стандартне відхилення значень в масиві Y
          SD=(sum[(yi-<y>)^2]/(n-1))^0.5}
-       property StandartErrorX:double Index 11 read GetInformation;
-       property StandartErrorY:double Index 12 read GetInformation;
+      property StandartErrorX:double Index 11 read GetInformation;
+      property StandartErrorY:double Index 12 read GetInformation;
          {повертає стандартну похибку значень в масиві Y
          SЕ=SD/n^0.5}
       property MaxXnumber:integer Index 1 read GetInformationInt;

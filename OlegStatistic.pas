@@ -177,7 +177,7 @@ Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):bool
 
 Function WilcoxonNmin(n:word;p:double):integer;
 {критичне значення для розподілу Wilcoxon при
-n алгоритмах і р-value відповідно до
+n задачах і р-value відповідно до
 таблиці, якщо для даних n та р значення
 відсутнє повертається -1}
 
@@ -196,6 +196,32 @@ Function WilcoxonTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):
 
 Function WilcoxonTestAbetterB(A,B:TVectorTransform;MinMax:Tvector;p:double=0.05;ItIsError:boolean=True):boolean;overload;
 {на відміну від попереднього, ще й нормалізує дані в А та В відповідно до MinMax}
+
+Function MultipleSignNmin(m,n:word;p:double=0.05):integer;
+{критичне значення для Multiple Sign Test при
+(m+1) алгоритмах (всього, порівняння відбувається якогось з рештою m),
+n задачах і р-value відповідно до
+таблиці, якщо для даних m, n та р значення
+відсутнє повертається -1}
+
+Procedure MultipleSignTest(ControlAlgorithm:TVector;OtherAlgorithms:array of TVector;
+                           Results:TVector;ItIsError:boolean=True);
+{перевірка гіпотез щодо співвідношення медіанних відгуків
+контрольного алгоритму з іншими;
+Results.Count=High(OtherAlgorithms)+1 - кількість алгоритмів для порівняння,
+Results.X[i] = номер алгоритму в OtherAlgorithms,
+Results.Y[i] = 1 якщо можна відкинути гіпотезу про те,
+що медіанний відгук  OtherAlgorithms[i] кращий, ніж у ControlAlgorithm;
+              -1 якщо можна відкинути гіпотезу про те,
+що медіанний відгук  ControlAlgorithm кращий, ніж у OtherAlgorithms[i];
+             =0 якщо відкинути гіпотези не вдалося;
+розміри  ControlAlgorithm та OtherAlgorithms мають бути однаковими,
+інакше в  Results.Y одні нулі
+}
+
+Function ExtremCountVectorArray(Arr:array of TVector;ItIsMin:boolean=true):integer;
+{мінімальний чи максимальний розмір весторів з Arr}
+
 
 implementation
 
@@ -494,15 +520,11 @@ Procedure MinMaxValues(Arr:array of TVector; Target:TVector);
 {Target.X[i]=min(Arr[].Y[i]),Target.Y[i]=max(Arr[].Y[i]),
 кількість точок в Target визначається найменшим розміром Arr}
  var temp:TVector;
-     i,j,targetSize:integer;
+     i,j:integer;
 begin
   Target.Clear;
   temp:=TVector.Create;
-  for I := 0 to High(Arr) do
-    temp.Add(i,Arr[i].HighNumber);
-  targetSize:=round(temp.MinY);
-  temp.Clear;
-  for I := 0 to targetSize do
+  for I := 0 to ExtremCountVectorArray(Arr)-1 do
     begin
      for j := 0 to High(Arr) do temp.Add(j,Arr[j].Y[i]);
      Target.Add(temp.MinY,temp.MaxY);
@@ -532,9 +554,6 @@ begin
            end;
   if ItIsError then  Result:= Result and (T>0)
                else  Result:= Result and (T<0);
-
-//  showmessage(floattostr(p_lim));
-//  Result:= (SignTestPvalue(A,B,ItIsError)<p);
 end;
 
 Function WilcoxonTestAbetterB(A,B:TVectorTransform;MinMax:Tvector;p:double=0.05;ItIsError:boolean=True):boolean;
@@ -549,5 +568,83 @@ Function WilcoxonTestAbetterB(A,B:TVectorTransform;MinMax:Tvector;p:double=0.05;
   FreeAndNil(Anew);
   FreeAndNil(Bnew);
  end;
+
+Function MultipleSignNmin(m,n:word;p:double):integer;
+{критичне значення для Multiple Sign Test при
+(m+1) алгоритмах (всього, порівняння відбувається якогось з рештою m),
+n задачах і р-value відповідно до
+таблиці, якщо для даних m, n та р значення
+відсутнє повертається -1}
+ var p_number,n_number,i:integer;
+begin
+ Result:=-1;
+ if (m<Low(MultipleSignValues[0]))
+    or (m>High(MultipleSignValues[0])) then Exit;
+ p_number:=-1;
+ for I := 0 to MultipleSignPNumber do
+   if IsEqual(p,MultipleSignP[i]) then
+           begin
+             p_number:=i;
+             Break;
+           end;
+ if p_number<0 then Exit;
+ n_number:=-1;
+ for I := 0 to MultipleSignNNumber do
+   if n=MultipleSignN[i] then
+           begin
+             n_number:=i;
+             Break;
+           end;
+ if n_number<0 then Exit;
+
+ Result:=MultipleSignValues[n_number,m,p_number];
+end;
+
+Procedure MultipleSignTest(ControlAlgorithm:TVector;OtherAlgorithms:array of TVector;
+                           Results:TVector;ItIsError:boolean=True);
+{перевірка гіпотез щодо співвідношення медіанних відгуків
+контрольного алгоритму з іншими;
+Results.Count=High(OtherAlgorithms)+1 - кількість алгоритмів для порівняння,
+Results.X[i] = номер алгоритму в OtherAlgorithms,
+Results.Y[i] = 1 якщо можна відкинути гіпотезу про те,
+що медіанний відгук  OtherAlgorithms[i] кращий, ніж у ControlAlgorithm;
+              -1 якщо можна відкинути гіпотезу про те,
+що медіанний відгук  ControlAlgorithm кращий, ніж у OtherAlgorithms[i];
+             =0 якщо відкинути гіпотези не вдалося;
+розміри  ControlAlgorithm та OtherAlgorithms мають бути однаковими,
+інакше в  Results.Y одні нулі
+}
+ var i:integer;
+     d:TVector;
+begin
+ Results.Clear;
+ for I := 0 to High(OtherAlgorithms) do
+    Results.Add(i,0);
+ if ExtremCountVectorArray(OtherAlgorithms,True)<> ExtremCountVectorArray(OtherAlgorithms,False)
+    then Exit;
+ if ExtremCountVectorArray(OtherAlgorithms)<> ControlAlgorithm.Count
+    then Exit;
+ d:=TVector.Create;
+
+
+//   d:=TVector.Create(B);
+//  d.DeltaY(A);
+
+ FreeAndNil(d);
+end;
+
+Function ExtremCountVectorArray(Arr:array of TVector;ItIsMin:boolean=true):integer;
+{мінімальний чи максимальний розмір весторів з Arr}
+ var temp:TVector;
+     i:integer;
+begin
+  temp:=TVector.Create;
+  for I := 0 to High(Arr) do
+    temp.Add(i,Arr[i].Count);
+  if ItIsMin then Result:=round(temp.MinY)
+             else Result:=round(temp.MaxY);
+   FreeAndNil(temp);
+end;
+
 end.
 
