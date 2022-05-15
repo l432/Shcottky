@@ -71,6 +71,17 @@ type
      {записує у Target тільки ті точки, які відповідають
      зворотній ділянці ВАХ (для яких координата X менше нуля),
      причому записує модуль координат}
+     Procedure Rank(Target:TVector;forYvalues:boolean=True;
+                                   forAbs:boolean=True;
+                                   Increase:boolean=True);overload;
+     {Target.X=Self.Y (при forYvalues=True)
+      Target.Y= ранг цієї точки (порядковий номер),
+      якщо всі значення Self.X (або abs(Self.X) при forAbs=True)
+      розташувати в порядку зростання (при Increase=True),
+      якщо декілька значень однакові - використовується середній ранг}
+     Procedure Rank(Target:TVector);overload;
+     {як попередня зі значеннями по замовчуванню,
+     потрібна, щоб можна було використати в Self}
      Procedure Median (Target:TVector);
       {в Target розміщується результат дії на дані в Vector
       медіанного трьохточкового фільтра;
@@ -1082,6 +1093,65 @@ begin
  P_V.Free;
  temp.Free;
  Result:=True;
+end;
+
+procedure TVectorTransform.Rank(Target: TVector; forYvalues, forAbs,
+                                Increase: boolean);
+ var tempVector,pointsNumberVector:TVector;
+     i,sumrank,numberrank,j:Integer;
+begin
+ InitTarget(Target);
+ Target.CopyFrom(Self);
+ if forYvalues then Target.SwapXY;
+ tempVector:=TVector.Create(Target);
+
+ for I := 0 to tempVector.HighNumber do
+   tempVector.Y[i]:=i;
+ if forAbs then
+  for I := 0 to tempVector.HighNumber do
+     tempVector.X[i]:=abs(tempVector.X[i]);
+ tempVector.Sorting(Increase);
+ pointsNumberVector:=TVector.Create(tempVector);
+
+  i:=0;
+  sumrank:=0;
+  numberrank:=0;
+  repeat
+   sumrank:=sumrank+i+1;
+   numberrank:=numberrank+1;
+
+   if (i+1)>tempVector.HighNumber then
+    begin
+     for j := 0 to numberrank-1
+      do tempVector.Y[i-j]:=sumrank/numberrank;
+     Break;
+    end;
+
+   if IsEqual(tempVector.X[i],tempVector.X[i+1])
+     then
+       begin
+        inc(i);
+        Continue;
+       end;
+   for j := 0 to numberrank-1
+      do tempVector.Y[i-j]:=sumrank/numberrank;
+
+   sumrank:=0;
+   numberrank:=0;
+   inc(i);
+  until (i>tempVector.HighNumber);
+
+ for I := 0 to pointsNumberVector.HighNumber do
+   Target.Y[round(pointsNumberVector.Y[i])]:=tempVector.Y[i];
+
+ FreeAndNil(pointsNumberVector);
+ FreeAndNil(tempVector);
+
+end;
+
+procedure TVectorTransform.Rank(Target: TVector);
+begin
+ Self.Rank(Target,True,True,True);
 end;
 
 procedure TVectorTransform.ReverseIV(Target: TVector);

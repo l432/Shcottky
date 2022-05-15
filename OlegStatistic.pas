@@ -2,7 +2,7 @@ unit OlegStatistic;
 
 interface
 
-uses OlegType, OlegMath, OlegVector, OlegVectorManipulation;
+uses OlegType, OlegMath, OlegVector, OlegVectorManipulation, System.UITypes;
 
 const
 
@@ -87,10 +87,36 @@ MultipleSignValues: array [0..MultipleSignNNumber] of array [2..9] of array [0..
 type
 
 TMetaMethod=(mmPSO, mmIPOPES, mmCHC, mmSSGA, mmSSBLX, mmSSArit, mmDEBin, mmDEExp, mmSaDE);
+TMethods=(mmA,mmB,mmC,mmD);
 
 {Alpha - рівень значущості (level of significance)
 p-value - ймовірність отримання такого як є результату за умови,
 що гіпотеза H0 (про те, що різниці нема) справедлива}
+
+
+TDistribution=class
+ public
+  class function CDF(x:double):double;virtual;abstract;
+  {функція розподілу ймовірності:
+ймовірність того, що величина має значення не більше-рівно x
+CDF - cumulative distribution function}
+  class function PDF(x:double):double;virtual;abstract;
+{густина розподілу ймовірності;
+PDF -  probability density function}
+end;
+
+TNormalD=class(TDistribution)
+{нормальний розподіл}
+ private
+  fMu:double; // середнє
+  fSigma:double; //  fSigma^2 - дисперсія
+  procedure SetSigma(Value:double);
+ public
+  property Mean:double read fMu write fMu;
+  property Sigma:double read fSigma write SetSigma;
+  constructor Create(mu:double=0;sigm:double=1);
+end;
+
 
 Function NormalCDF(x:double;mu:double=0;sigma:double=1):double;
 {функція розподілу ймовірності для нормального розподілу,
@@ -220,8 +246,84 @@ Results.Y[i] = 1 якщо можна відкинути гіпотезу про те,
 інакше в  Results.Y одні нулі
 }
 
-Function ExtremCountVectorArray(Arr:array of TVector;ItIsMin:boolean=true):integer;
+Function ExtremCountVectorArray(Arr:array of TVector;ItIsMin:boolean=true):byte;
 {мінімальний чи максимальний розмір весторів з Arr}
+
+Function DimensionsNotDetermined(Arr:array of TVector;var ProblemNumbers:integer;
+                                                      var AlgorithmNumbers:integer):boolean;
+{має бути, що Arr - масив результатів роботи AlgorithmNumbers=High(Arr)+1 алгоритмів
+на ProblemNumbers=Arr[AlgorithmNumber].Count проблемах, самі результати
+мають бути в Arr[AlgorithmNumber].Y[ProblemNumber]
+розмір всіх векторів має бути однаковим;
+фактично, визначаються кількості алгоритмів та задач і перевіряються обмеження:
+- розмір всіх векторів має бути однаковим;
+- кількості алгоритмів чи проблем не менше 2}
+
+
+type
+
+TOneToNTest=class
+ private
+ fAlgorithmResult:array of TVector;
+ fAlgorithAmount:byte;
+ fProblemAmount:byte;
+ fError:boolean;
+ fItIsError:boolean;
+ function RijFooter(ProblemNumber,AlgorithmNumber:byte):double;virtual;abstract;
+ function StatisticFooter():double;virtual;abstract;
+ function ZvalueFooter(ControlAlgorithm,СomparisonAlgorithm:byte):double;virtual;abstract;
+ public
+ constructor Create(Arr:array of TVector;ItIsError:boolean=True);
+{Arr - масив результатів роботи k=High(Arr)+1 алгоритмів
+на n=Arr[AlgorithmNumber].Count проблемах, самі результати
+мають бути в Arr[AlgorithmNumber].Y[ProblemNumber]
+розмір всіх векторів має бути однаковим;}
+ destructor Destroy; override;
+ function Zvalue(ControlAlgorithm,СomparisonAlgorithm:byte):double;
+ {z-value на масиві fAlgorithmResult для визначення чи кращий алгоритм
+з номером ControlAlgorithm порівняно з СomparisonAlgorithm-м алгоритмом}
+ function UnadjustedP(ControlAlgorithm,СomparisonAlgorithm:byte):double;
+{ймовірність того, що ControlAlgorithm випадковим чином кращий
+для даного набору даних ніж СomparisonAlgorithm;
+якщо щось погано - повертається 1,
+тобто ніяких підстав стверджувати, що алгоритм кращий}
+ function Rij(ProblemNumber,AlgorithmNumber:byte):double;
+ {повертає ранг AlgorithmNumber-го алгоритму по вирішенню ProblemNumber-ої задачі,
+ якщо щось піде не так - Result=-1}
+ function Rj(AlgorithmNumber:byte):double;
+{аргумент - див попередню функцію;
+повертає усереднений ранг  AlgorithmNumber-го алгоритму;
+якщо щось піде не так - Result=-1}
+ function Statistic():double;
+end;
+
+TFriedman=class(TOneToNTest)
+ private
+  function RijFooter(ProblemNumber,AlgorithmNumber:byte):double;override;
+  function StatisticFooter():double;override;
+  function ZvalueFooter(ControlAlgorithm,СomparisonAlgorithm:byte):double;override;
+ public
+end;
+
+TImanDavenport=class(TFriedman)
+ private
+  function StatisticFooter():double;override;
+ public
+end;
+
+TFriedmanAligned=class(TOneToNTest)
+ private
+  function RijFooter(ProblemNumber,AlgorithmNumber:byte):double;override;
+  function StatisticFooter():double;override;
+  function ZvalueFooter(ControlAlgorithm,СomparisonAlgorithm:byte):double;override;
+ public
+  function RjTotal(AlgorithmNumber:byte):double;
+{сумарний ранг для AlgorithmNumber-го алгоритму;
+якщо щось піде не так - Result=-1}
+  function RiTotal(ProblemNumber:byte):double;
+{сумарний ранг для ProblemNumber-ої проблеми;
+якщо щось піде не так - Result=-1}
+end;
 
 
 implementation
@@ -230,10 +332,6 @@ uses
   System.Math, Vcl.Dialogs, System.SysUtils;
 
 Function NormalCDF(x,mu,sigma:double):double;
-{функція розподілу ймовірності для нормального розподілу,
-ймовірність того, що величина має значення не більше-рівно x
-mu - середнє,
-sigma^2 - дисперсія}
 begin
   try
    Result:=0.5*(1+Erf((x-mu)/sqrt(2)/sigma))
@@ -243,8 +341,6 @@ begin
 end;
 
 Function NormalCDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
-{ймовірність того, що величина має значення a<x<=b при
-нормальному розподілу з середнім mu та дисперсією sigma^2}
 begin
   if sigma=0 then
    begin
@@ -270,8 +366,6 @@ begin
 end;
 
 Function ChiSquaredPDF(x:double;k:word):double;
-{густина розподілу ймовірності при хі-квадрат розподілі
-k - кількість ступенів вільності}
  var G,k2:double;
 begin
  if (k<1)or(x<0)or((k=1)and(x<=0)) then
@@ -287,9 +381,6 @@ begin
 end;
 
 Function ChiSquaredCDF(x:double;k:word):double;
-{функція розподілу ймовірності при хі-квадрат розподілі,
-ймовірність того, що величина має значення не більше-рівно x
-k - кількість ступенів вільності}
   var G,k2:double;
 begin
  if (k<2)or(x<0) then
@@ -304,9 +395,6 @@ begin
 end;
 
 Function FisherPDF(x:double;k1,k2:word):double;
-{густина розподілу ймовірності при F-розподілі (розподілі Фішера),
-x>=0,
-k1, k2 - кількість ступенів вільності}
 begin
  if (x<0)or(x>1) then
    begin
@@ -318,11 +406,6 @@ begin
 end;
 
 Function FisherCDF(x:double;k1,k2:word):double;
-{функція розподілу ймовірності при F-розподілі,
-ймовірність того, що величина має значення не більше-рівно x,
-x>=0,
-k1, k2 - кількість ступенів вільності,
-про всяк випадок поставив обмеження k1>1, k2>1}
 begin
  if (x<0)or(x>1) then
    begin
@@ -376,10 +459,6 @@ begin
 end;
 
 Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
-{кількість перемог в A.Y порівняно з B.Y,
-при ItIsError=True перемога означає менше значення;
-має бути A.X[i]=B.X[i], A.Count=B.Count,
-інакше перемог 0}
  var WinsTemp:double;
      i:integer;
 begin
@@ -405,8 +484,6 @@ Function SignTestPvalue(A,B:TVector;ItIsError:boolean):double;
  var Wins:word;
 begin
   Wins:=WinsNumber(A,B,ItIsError);
-//  Result:=2*(1-NormalCDF(Wins,A.Count/2.0,sqrt(A.Count)/2.0));
-//  showmessage(floattostr(Wins)+' '+floattostr(A.Count/2.0)+' '+floattostr(A.Count));
   if Wins>A.Count/2.0 then Result:=2*(1-NormalCDF(Wins,A.Count/2.0,sqrt(A.Count)/2.0))
                       else Result:=1;
 end;
@@ -440,86 +517,40 @@ end;
 
 Function WilcoxonT(A,B:TVector;ItIsError:boolean=True):double;
 {min(R+,R-) для критерію Wilcoxon}
- var d,d1,d2:TVector;
-     i,sumrank,numberrank,j:integer;
+ var d:TVectorTransform;
+     i:integer;
      Rplus,Rminus:double;
 begin
   Result:=-1;
   if (A.Count<>B.Count)  then Exit;
 
-  d:=TVector.Create(B);
+  d:=TVectorTransform.Create(B);
   d.DeltaY(A);
-
-  d.SwapXY;
-  d1:=TVector.Create(d);
-
-  for I := 0 to d.HighNumber do
-     d.X[i]:=abs(d.X[i]);
-
-  d.Sorting(ItIsError);
-
-  d2:=TVector.Create(d1);
-  for I := 0 to d.HighNumber do
-    begin
-      for j := 0 to d.HighNumber do
-        if IsEqual(d.Y[i],d2.Y[j]) then d1.Y[j]:=i;
-    end;
-  FreeAndNil(d2);
-  i:=0;
-  sumrank:=0;
-  numberrank:=0;
-  repeat
-   sumrank:=sumrank+i+1;
-   numberrank:=numberrank+1;
-
-   if (i+1)>d.HighNumber then
-    begin
-     for j := 0 to numberrank-1
-      do d.Y[i-j]:=sumrank/numberrank;
-     Break;
-    end;
-
-   if IsEqual(d.X[i],d.X[i+1])
-     then
-       begin
-        inc(i);
-        Continue;
-       end;
-   for j := 0 to numberrank-1
-      do d.Y[i-j]:=sumrank/numberrank;
-
-   sumrank:=0;
-   numberrank:=0;
-   inc(i);
-  until (i>d.HighNumber);
+  d.Itself(d.Rank);
 
   Rplus:=0;
   Rminus:=0;
   for I := 0 to d.HighNumber do
    begin
-     if IsEqual(d1.X[i],0) then
+     if IsEqual(d.X[i],0) then
       begin
-        Rplus:=Rplus+0.5*d.Y[round(d1.Y[i])];
-        Rminus:=Rminus+0.5*d.Y[round(d1.Y[i])];
+        Rplus:=Rplus+0.5*d.Y[i];
+        Rminus:=Rminus+0.5*d.Y[i];
         Continue;
       end;
-     if d1.X[i]>0 then Rplus:=Rplus+d.Y[round(d1.Y[i])]
-                  else Rminus:=Rminus+d.Y[round(d1.Y[i])];
+     if d.X[i]>0 then Rplus:=Rplus+d.Y[i]
+                  else Rminus:=Rminus+d.Y[i];
    end;
-
 
 //  showmessage('R+='+floattostr(Rplus)+' R-='+floattostr(Rminus)+' Sum='+floattostr(Rminus+Rplus));
   Result:=min(Rplus,Rminus);
   if Rminus>Rplus then Result:=-Result;
 
 
-  FreeAndNil(d1);
   FreeAndNil(d);
 end;
 
 Procedure MinMaxValues(Arr:array of TVector; Target:TVector);
-{Target.X[i]=min(Arr[].Y[i]),Target.Y[i]=max(Arr[].Y[i]),
-кількість точок в Target визначається найменшим розміром Arr}
  var temp:TVector;
      i,j:integer;
 begin
@@ -535,8 +566,6 @@ begin
 end;
 
 Function WilcoxonTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
-{результат парного тесту про те, що А краще при щонайбільшому p-value,
-0<p<1}
  var mu,sigma,T:double;
      n,W:integer;
 begin
@@ -558,7 +587,6 @@ begin
 end;
 
 Function WilcoxonTestAbetterB(A,B:TVectorTransform;MinMax:Tvector;p:double=0.05;ItIsError:boolean=True):boolean;
-{на відміну від попереднього, ще й нормалізує дані в А та В відповідно до MinMax}
  var Anew,Bnew:TVector;
  begin
   Anew:=TVector.Create;
@@ -571,11 +599,6 @@ Function WilcoxonTestAbetterB(A,B:TVectorTransform;MinMax:Tvector;p:double=0.05;
  end;
 
 Function MultipleSignNmin(m,n:word;p:double):integer;
-{критичне значення для Multiple Sign Test при
-(m+1) алгоритмах (всього, порівняння відбувається якогось з рештою m),
-n задачах і р-value відповідно до
-таблиці, якщо для даних m, n та р значення
-відсутнє повертається -1}
  var p_number,n_number,i:integer;
 begin
  Result:=-1;
@@ -637,8 +660,7 @@ begin
  FreeAndNil(d);
 end;
 
-Function ExtremCountVectorArray(Arr:array of TVector;ItIsMin:boolean=true):integer;
-{мінімальний чи максимальний розмір весторів з Arr}
+Function ExtremCountVectorArray(Arr:array of TVector;ItIsMin:boolean=true):byte;
  var temp:TVector;
      i:integer;
 begin
@@ -648,6 +670,283 @@ begin
   if ItIsMin then Result:=round(temp.MinY)
              else Result:=round(temp.MaxY);
    FreeAndNil(temp);
+end;
+
+
+Function DimensionsNotDetermined(Arr:array of TVector;var ProblemNumbers:integer;
+                                                      var AlgorithmNumbers:integer):boolean;
+begin
+ Result:=True;
+ AlgorithmNumbers:=High(Arr)+1;
+ ProblemNumbers:=ExtremCountVectorArray(Arr);
+ if (AlgorithmNumbers<2)or(ProblemNumbers<2) then Exit;
+ if ProblemNumbers<> ExtremCountVectorArray(Arr,False) then Exit;
+ Result:=False;
+end;
+
+
+{ TOneToNTest }
+
+constructor TOneToNTest.Create(Arr: array of TVector; ItIsError: boolean);
+ var i:integer;
+begin
+ inherited Create;
+ fItIsError:=ItIsError;
+ fError:=False;
+ fAlgorithAmount:=High(Arr)+1;
+ fProblemAmount:=ExtremCountVectorArray(Arr);
+ if (fAlgorithAmount<2)or(fProblemAmount<2) then fError:=True;
+ if fProblemAmount<> ExtremCountVectorArray(Arr,False) then fError:=True;
+ if fError then
+    begin
+      MessageDlg('Bad data',mtError, [mbOK], 0);
+      Exit;
+    end;
+  SetLength(fAlgorithmResult,High(Arr)+1);
+  for I := 0 to High(fAlgorithmResult) do
+    fAlgorithmResult[i]:=TVector.Create(Arr[i]);
+end;
+
+destructor TOneToNTest.Destroy;
+ var i:integer;
+begin
+ for I := 0 to High(fAlgorithmResult) do FreeAndNil(fAlgorithmResult[i]);
+ inherited;
+end;
+
+function TOneToNTest.Rij(ProblemNumber, AlgorithmNumber: byte): double;
+begin
+ Result:=-1;
+ if fError then Exit;
+ if (ProblemNumber<1)or(ProblemNumber>fProblemAmount)
+     or(AlgorithmNumber<1)or(AlgorithmNumber>fAlgorithAmount) then Exit;
+ Result:=RijFooter(ProblemNumber, AlgorithmNumber);
+end;
+
+function TOneToNTest.Rj(AlgorithmNumber: byte): double;
+ var temp:TVector;
+     i:integer;
+begin
+ Result:=-1;
+ if fError then Exit;
+ if AlgorithmNumber>fAlgorithAmount then Exit;
+ temp:=TVector.Create;
+ for I := 0 to fProblemAmount-1 do
+   begin
+     temp.Add(i,Self.Rij(i+1,AlgorithmNumber));
+     if temp.Y[i]<0 then
+       begin
+        FreeAndNil(temp);
+        Exit;
+       end;
+   end;
+ Result:=temp.MeanY;
+ FreeAndNil(temp);
+end;
+
+function TOneToNTest.Statistic: double;
+begin
+  Result:=-1;
+  if fError then Exit;
+  Result:=StatisticFooter();
+end;
+
+function TOneToNTest.UnadjustedP(ControlAlgorithm,
+  СomparisonAlgorithm: byte): double;
+ var z:double;
+begin
+  Result:=1;
+  try
+  z:=Zvalue(ControlAlgorithm,СomparisonAlgorithm);
+  if z<0 then Exit;
+  result:=2*(1-NormalCDF(z));
+  except
+  end;
+end;
+
+function TOneToNTest.Zvalue(ControlAlgorithm,
+  СomparisonAlgorithm: byte): double;
+begin
+  Result:=-1;
+  if fError then Exit;
+  if (ControlAlgorithm<1)or(ControlAlgorithm>fAlgorithAmount)
+     or(СomparisonAlgorithm<1)or(СomparisonAlgorithm>fAlgorithAmount) then Exit;
+  Result:=ZValueFooter(ControlAlgorithm,  СomparisonAlgorithm);
+end;
+
+{ TFriedman }
+
+function TFriedman.RijFooter(ProblemNumber, AlgorithmNumber: byte): double;
+ var i:integer;
+     temp1,temp2:TVectorTransform;
+begin
+ temp1:=TVectorTransform.Create;
+ temp2:=TVectorTransform.Create;
+ for i := 1 to fAlgorithAmount do
+   temp1.Add(i,fAlgorithmResult[i-1].Y[ProblemNumber-1]);
+ temp1.Rank(temp2,True,True,fItIsError);
+ Result:=temp2.Y[AlgorithmNumber-1];
+ FreeAndNil(temp2);
+ FreeAndNil(temp1);
+end;
+
+function TFriedman.StatisticFooter: double;
+ var j:integer;
+begin
+  Result:=0;
+  for j := 1 to fAlgorithAmount do Result:=Result+sqr(Self.Rj(j));
+  Result:=(Result-fAlgorithAmount*sqr(fAlgorithAmount+1)/4)
+      *12*fProblemAmount/fAlgorithAmount/(fAlgorithAmount+1);
+end;
+
+function TFriedman.ZvalueFooter(ControlAlgorithm, СomparisonAlgorithm: byte): double;
+ var Ri,Rj:double;
+begin
+  Result:=-1;
+  Ri:=Self.Rj(ControlAlgorithm);
+//  Ri:=1.96;
+  if Ri<0 then Exit;
+  Rj:=Self.Rj(СomparisonAlgorithm);
+//  Rj:=2.48;
+  if Rj<0 then Exit;
+  Result:=(Rj-Ri)/sqrt(fAlgorithAmount*(fAlgorithAmount+1)/6.0/fProblemAmount);
+end;
+
+{ TImanDavenport }
+
+function TImanDavenport.StatisticFooter: double;
+ var ksi_F:double;
+begin
+//  Result:=-1;
+  ksi_F:=inherited StatisticFooter();
+  try
+  Result:=(fProblemAmount-1)*ksi_F/(fProblemAmount*(fAlgorithAmount-1)-ksi_F);
+  except
+   Result:=-1;
+  end;
+
+end;
+
+{ TFriedmanAligned }
+
+function TFriedmanAligned.RijFooter(ProblemNumber,
+  AlgorithmNumber: byte): double;
+ var i,j:integer;
+     temp1,temp2:TVectorTransform;
+     MeanForProblem:TVector;
+begin
+ temp1:=TVectorTransform.Create;
+ temp2:=TVectorTransform.Create;
+ MeanForProblem:=TVector.Create;
+ for I := 1 to fProblemAmount do
+   begin
+     temp1.Clear;
+     for j := 1 to fAlgorithAmount do
+       Temp1.Add(j,fAlgorithmResult[j-1].Y[i-1]);
+     MeanForProblem.Add(i,temp1.MeanY);
+   end;
+ temp1.Clear;
+ for I := 1 to fProblemAmount do
+  for j := 1 to fAlgorithAmount do
+     Temp1.Add(i,fAlgorithmResult[j-1].Y[i-1]-MeanForProblem.Y[i-1]);
+
+ temp1.Rank(temp2,True,False,fItIsError);
+ result:=temp2.Y[(ProblemNumber-1)*fAlgorithAmount+(AlgorithmNumber-1)];
+
+ FreeAndNil(MeanForProblem);
+ FreeAndNil(temp2);
+ FreeAndNil(temp1);
+end;
+
+function TFriedmanAligned.RiTotal(ProblemNumber: byte): double;
+ var temp:TVector;
+     i:integer;
+begin
+ Result:=-1;
+ if fError then Exit;
+ if ProblemNumber > fProblemAmount then Exit;
+ temp:=TVector.Create;
+ for I := 0 to fAlgorithAmount-1 do
+   begin
+     temp.Add(i,Self.Rij(ProblemNumber,i+1));
+     if temp.Y[i]<0 then
+       begin
+        FreeAndNil(temp);
+        Exit;
+       end;
+   end;
+ Result:=temp.SumY;
+ FreeAndNil(temp);
+end;
+
+function TFriedmanAligned.RjTotal(AlgorithmNumber: byte): double;
+ var temp:TVector;
+     i:integer;
+begin
+ Result:=-1;
+ if fError then Exit;
+ if AlgorithmNumber>fAlgorithAmount then Exit;
+ temp:=TVector.Create;
+ for I := 0 to fProblemAmount-1 do
+   begin
+     temp.Add(i,Self.Rij(i+1,AlgorithmNumber));
+     if temp.Y[i]<0 then
+       begin
+        FreeAndNil(temp);
+        Exit;
+       end;
+   end;
+ Result:=temp.SumY;
+ FreeAndNil(temp);
+end;
+
+function TFriedmanAligned.StatisticFooter: double;
+ var j:integer;
+     Rj_sum,Ri_sum:double;
+begin
+  Rj_sum:=0;
+  for j := 1 to fAlgorithAmount do Rj_sum:=Rj_sum+sqr(RjTotal(j));
+  Ri_sum:=0;
+  for j := 1 to fProblemAmount do Ri_sum:=Ri_sum+sqr(RiTotal(j));
+  try
+   Result:=(fAlgorithAmount-1)*(Rj_sum-fAlgorithAmount
+              *sqr(fProblemAmount*(fAlgorithAmount*fProblemAmount+1))/4)
+            /(((fAlgorithAmount*fProblemAmount*(fAlgorithAmount*fProblemAmount+1)
+            *(2*fAlgorithAmount*fProblemAmount+1))/6.0)-Ri_sum/fAlgorithAmount);
+  except
+   Result:=-1;
+  end;
+
+end;
+
+function TFriedmanAligned.ZvalueFooter(ControlAlgorithm,
+  СomparisonAlgorithm: byte): double;
+ var Ri,Rj:double;
+begin
+  Result:=-1;
+  Ri:=Self.Rj(ControlAlgorithm);
+//  Ri:=35.6;
+  if Ri<0 then Exit;
+  Rj:=Self.Rj(СomparisonAlgorithm);
+//  Rj:=48.52;
+  if Rj<0 then Exit;
+  Result:=(Rj-Ri)/sqrt(fAlgorithAmount*(fProblemAmount+1)/6.0);
+//  Result:=1.314534;
+end;
+
+{ TNormalD }
+
+constructor TNormalD.Create(mu, sigm: double);
+begin
+ inherited Create;
+ Mean:=mu;
+ Sigma:=sigm;
+end;
+
+procedure TNormalD.SetSigma(Value: double);
+begin
+ if Value>0 then fSigma:=Value
+            else fSigma:=1;
 end;
 
 end.

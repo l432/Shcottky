@@ -3595,8 +3595,11 @@ var
   drive:char;
   path,fname:string;
   i,N:word;
-  MethodVector:array[TMetaMethod] of TVectorTransform;
+  MethodVector,MethodVector2:array of TVector;
   im:TMetaMethod;
+//  MethodVector2:array[TMethods] of TVectorTransform;
+  im2:TMethods;
+  OneToNTest:TOneToNTest;
 //  TMetaMethod=(mmPSO, mmIPOPES, mmCHC, mmSSGA, mmSSBLX, mmSSArit, mmDEBin, mmDEExp, mmSaDE);
 //  number, zero : double;
 //var dpn:TDiod_PN;
@@ -3615,43 +3618,52 @@ var
 
 begin
 
+SetLength(MethodVector,ord(High(TMetaMethod))+1);
 for im := Low(TMetaMethod) to High(TMetaMethod) do
-  MethodVector[im]:=TVectorTransform.Create;
+  MethodVector[ord(im)]:=TVector.Create;
 
-  MethodVector[mmPSO].ReadFromFile('Abb1.dat',['PSO'],True);
-  MethodVector[mmIPOPES].ReadFromFile('Abb1.dat',['IPOPES'],True);
-  MethodVector[mmCHC].ReadFromFile('Abb1.dat',['CHC'],True);
-  MethodVector[mmSSGA].ReadFromFile('Abb1.dat',['SSGA'],True);
-  MethodVector[mmSSBLX].ReadFromFile('Abb1.dat',['SSBLX'],True);
-  MethodVector[mmSSArit].ReadFromFile('Abb1.dat',['SSArit'],True);
-  MethodVector[mmDEBin].ReadFromFile('Abb1.dat',['DEBin'],True);
-  MethodVector[mmDEExp].ReadFromFile('Abb1.dat',['DEExp'],True);
-  MethodVector[mmSaDE].ReadFromFile('Abb1.dat',['SaDE'],True);
+  MethodVector[0].ReadFromFile('Abb1.dat',['PSO'],True);
+  MethodVector[1].ReadFromFile('Abb1.dat',['IPOPES'],True);
+  MethodVector[2].ReadFromFile('Abb1.dat',['CHC'],True);
+  MethodVector[3].ReadFromFile('Abb1.dat',['SSGA'],True);
+  MethodVector[4].ReadFromFile('Abb1.dat',['SSBLX'],True);
+  MethodVector[5].ReadFromFile('Abb1.dat',['SSArit'],True);
+  MethodVector[6].ReadFromFile('Abb1.dat',['DEBin'],True);
+  MethodVector[7].ReadFromFile('Abb1.dat',['DEExp'],True);
+  MethodVector[8].ReadFromFile('Abb1.dat',['SaDE'],True);
 
-//  showmessage(floattostr(SignTestPvalue(MethodVector[mmSaDE],MethodVector[mmSSGA])));
-// showmessage(booltostr(SignTestAbetterB(MethodVector[mmSaDE],MethodVector[mmSSArit],0.1),True));
-// showmessage(inttostr(WilcoxonNmin(34,0.051)));
  Vec:=TVector.Create;
- MinMaxValues([MethodVector[mmPSO],MethodVector[mmIPOPES],MethodVector[mmCHC],MethodVector[mmSSGA],
-               MethodVector[mmSSBLX],MethodVector[mmSSArit],MethodVector[mmDEBin],MethodVector[mmDEExp],
-               MethodVector[mmSaDE]],Vec);
 
-//  MethodVector[mmSaDE].MinMax(MethodVector[mmPSO],Vec);
-//  MethodVector[mmCHC].MinMax(MethodVector[mmDEExp],Vec);
-//  showmessage(MethodVector[mmSaDE].XYtoString);
+SetLength(MethodVector2,ord(High(TMethods))+1);
+for im2 := Low(TMethods) to High(TMethods) do
+  MethodVector2[ord(im2)]:=TVector.Create;
 
-// WilcoxonT(MethodVector[mmSaDE],MethodVector[mmCHC]);
-// WilcoxonT(MethodVector[mmPSO],MethodVector[mmDEExp]);
-// showmessage(booltostr(WilcoxonTestAbetterB(MethodVector[mmSaDE],MethodVector[mmCHC],Vec),True));
- MultipleSignTest(MethodVector[mmDEExp],[MethodVector[mmPSO],MethodVector[mmIPOPES],
-               MethodVector[mmCHC],MethodVector[mmSSGA],
-               MethodVector[mmSSBLX],MethodVector[mmSSArit],
-               MethodVector[mmDEBin],MethodVector[mmSaDE]],Vec);
-  showmessage(Vec.XYtoString);
+  MethodVector2[0].ReadFromFile('Abb2.dat',['A'],True);
+  MethodVector2[1].ReadFromFile('Abb2.dat',['B'],True);
+  MethodVector2[2].ReadFromFile('Abb2.dat',['C'],True);
+  MethodVector2[3].ReadFromFile('Abb2.dat',['D'],True);
 
+// OneToNTest:=TFriedmanAligned.Create(MethodVector2);
+// showmessage(floattostr(OneToNTest.Rj(2)));
+
+ OneToNTest:=TFriedmanAligned.Create([MethodVector[1], MethodVector[2],
+                                   MethodVector[4], MethodVector[8]]);
+// showmessage(floattostr(OneToNTest.Rj(4)));
+// showmessage(floattostr(OneToNTest.Zvalue(4,3)));
+ showmessage(floattostr(OneToNTest.UnadjustedP(4,3)));
+
+
+// showmessage(floattostr(FriedmanAlignedZvalue([MethodVector[mmIPOPES], MethodVector[mmCHC],
+//                                   MethodVector[mmSSBLX], MethodVector[mmSaDE]],4,2)));
+// showmessage(floattostr(FriedmanUnadjustedP([MethodVector[mmIPOPES], MethodVector[mmCHC],
+//                                   MethodVector[mmSSBLX], MethodVector[mmSaDE]],4,2)));
+
+  FreeAndNil(OneToNTest);
+for im2 := Low(TMethods) to High(TMethods) do
+  MethodVector2[ord(im2)].Free;
  FreeAndNil(Vec);
 for im := Low(TMetaMethod) to High(TMetaMethod) do
-  MethodVector[im].Free;
+  MethodVector[ord(im)].Free;
 
 
 
