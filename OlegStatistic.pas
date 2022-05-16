@@ -105,7 +105,8 @@ CDF - cumulative distribution function}
 PDF -  probability density function}
 end;
 
-TNormalD=class(TDistribution)
+//TNormalD=class(TDistribution)
+TNormalD=class
 {нормальний розподіл}
  private
   fMu:double; // середнє
@@ -115,91 +116,105 @@ TNormalD=class(TDistribution)
   property Mean:double read fMu write fMu;
   property Sigma:double read fSigma write SetSigma;
   constructor Create(mu:double=0;sigm:double=1);
-end;
-
-
-Function NormalCDF(x:double;mu:double=0;sigma:double=1):double;
-{функція розподілу ймовірності для нормального розподілу,
-ймовірність того, що величина має значення не більше-рівно x
-mu - середнє,
-sigma^2 - дисперсія;
-FCD - cumulative distribution function}
-
-Function NormalCDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
+  class function CDF(x:double;mu:double=0;sigma:double=1):double;
+  class function PDF(x:double;mu:double=0;sigma:double=1):double;
+  class function Plim(z:double;mu:double=0;sigma:double=1):double;
+ {ймовірність, що відхилення від середнього не менші |z-mu|,
+ при z>=mu Result=2*(1-NormalCDF(z,mu,sigma))
+ при z<mu Result=2*NormalCDF((z,mu,sigma)}
+  class function CDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
 {ймовірність того, що величина має значення a<x<=b при
 нормальному розподілу з середнім mu та дисперсією sigma^2}
+end;
 
-Function NormalPlim(z:double;mu:double=0;sigma:double=1):double;
-{ймовірність, що відхилення від середнього не менші |z-mu|,
-при z>=mu Result=2*(1-NormalCDF(z,mu,sigma))
-при z<mu Result=2*NormalCDF((z,mu,sigma)
-}
-
-Function NormalPDF(x:double;mu:double=0;sigma:double=1):double;
-{густина розподілу ймовірності при нормальному розподілі
-(функція Гауса)
-mu - середнє,
-sigma^2 - дисперсія;
-PDF -  probability density function}
-
-
-Function ChiSquaredPDF(x:double;k:word):double;
-{густина розподілу ймовірності при хі-квадрат розподілі
-x>=0,
-k - кількість ступенів вільності}
-
-Function ChiSquaredCDF(x:double;k:word):double;
-{функція розподілу ймовірності при хі-квадрат розподілі,
-ймовірність того, що величина має значення не більше-рівно x,
-x>=0,
+TChiSquaredD=class
+{хі-квадрат розподіл}
+ private
+  class function Gam(k:word):double;
+ public
+  class function CDF(x:double;k:word):double;
+  class function PDF(x:double;k:word):double;
+{x>=0,
 k - кількість ступенів вільності, для k=1 рахувало препаршиво,
 тому поставив обмеження, що k>1}
+end;
 
-
-Function FisherPDF(x:double;k1,k2:word):double;
-{густина розподілу ймовірності при F-розподілі (розподілі Фішера),
-x>=0,
-k1, k2 - кількість ступенів вільності}
-
-Function FisherCDF(x:double;k1,k2:word):double;
-{функція розподілу ймовірності при F-розподілі,
-ймовірність того, що величина має значення не більше-рівно x,
-x>=0,
+TFisherD=class
+{F-розподіл (розподіл Фішера)}
+ private
+  class function BadParameters(x:double;k1,k2:word):boolean;
+ public
+  class function CDF(x:double;k1,k2:word):double;
+  class function PDF(x:double;k1,k2:word):double;
+{x>=0,
 k1, k2 - кількість ступенів вільності,
 про всяк випадок поставив обмеження k1>1, k2>1}
+end;
+
+TBinomialD=class
+{біномінальний розподіл}
+ private
+  class function BadParameters(n,k:word;p:double):boolean;
+ public
+  class function ProbKN(n,k:word;p:double):double;
+ {ймовірність успіху при k випробуваннях з n спроб}
+  class function CDF(n,k:word;p:double):double;
+{ймовірність того, що вдалих випробувань не більше k}
+  class function PDF(n,k:word;p:double):double;
+{k - кількість вдалих випробувань,
+n - загальна кількість випробувань, n>=k;
+p - ймовірність успіху при одному випровуванні,0<=p<=1}
+end;
+
+TOneToOneTest=class
+ private
+ fA:TVector;
+ fB:TVector;
+// fAlgorithAmount:byte;
+// fProblemAmount:byte;
+ fError:boolean;
+ fItIsError:boolean;
+ function AbetterBFooter(p:double=0.05):boolean;virtual;abstract;
+// function StatisticFooter():double;virtual;abstract;
+// function ZvalueFooter(ControlAlgorithm,СomparisonAlgorithm:byte):double;virtual;abstract;
+ public
+ constructor Create(A,B:TVector;ItIsError:boolean=True);
+{A та В - результати роботи двох алгоритмів,
+має бути A.Count=B.Count;
+при ItIsError=True перемога означає менше значення}
+ destructor Destroy; override;
+ function AbetterB(p:double=0.05):boolean;
+{результат парного тесту про те, що А краще при щонайбільшому p-value,
+0<p<1}
+end;
+
+TSignTest=class(TOneToOneTest)
+ private
+  fWins:word;
+  function GetWinsNumber:word;
+  function Pvalue:double;
+  function AbetterBFooter(p:double=0.05):boolean;override;
+ public
+  property WinsNumber:word read fWins;
+  constructor Create(A,B:TVector;ItIsError:boolean=True);
+end;
 
 Function NchooseK(n,k:word):Int64;
 {Біноміальний коефіцієнт,
 кількість виборок по k з n,
 n!/k!(n-k)!}
 
-Function BinomialProbKN(n,k:word;p:double):double;
-{ймовірність успіху при k випробуваннях з n спроб,
-якщо успіх при одному випробуванні р,
-0<=p<=1}
-
-Function BinomialPDF(n,k:word;p:double):double;
-{густина розподілу ймовірності при біноміальному розподілі,
-k - кількість вдалих випробувань,
-n - загальна кількість випробувань, n>=k;
-p - ймовірність успіху при одному випровуванні,0<p<1
-}
-
-Function BinomialCDF(n,k:word;p:double):double;
-{функція розподілу ймовірності при біноміальному розподілі,
-ймовірність того, що вдалих випробувань не більше k}
-
-Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
-{кількість перемог в A.Y порівняно з B.Y,
-при ItIsError=True перемога означає менше значення;
-має бути A.X[i]=B.X[i], A.Count=B.Count,
-інакше перемог 0}
-
-Function SignTestPvalue(A,B:TVector;ItIsError:boolean=True):double;
-
-Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
-{результат парного тесту про те, що А краще при щонайбільшому p-value,
-0<p<1}
+//Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
+//{кількість перемог в A.Y порівняно з B.Y,
+//при ItIsError=True перемога означає менше значення;
+//має бути A.X[i]=B.X[i], A.Count=B.Count,
+//інакше перемог 0}
+//
+//Function SignTestPvalue(A,B:TVector;ItIsError:boolean=True):double;
+//
+//Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
+//{результат парного тесту про те, що А краще при щонайбільшому p-value,
+//0<p<1}
 
 Function WilcoxonNmin(n:word;p:double):integer;
 {критичне значення для розподілу Wilcoxon при
@@ -331,90 +346,6 @@ implementation
 uses
   System.Math, Vcl.Dialogs, System.SysUtils;
 
-Function NormalCDF(x,mu,sigma:double):double;
-begin
-  try
-   Result:=0.5*(1+Erf((x-mu)/sqrt(2)/sigma))
-  except
-   Result:=ErResult;
-  end;
-end;
-
-Function NormalCDF_AB(a,b:double;mu:double=0;sigma:double=1):double;
-begin
-  if sigma=0 then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
-  Result:=NormalCDF(b,mu,sigma)-NormalCDF(a,mu,sigma);
-end;
-
-Function NormalPlim(z:double;mu:double=0;sigma:double=1):double;
-begin
-  if z>=mu then Result:=2*(1-NormalCDF(z,mu,sigma))
-           else Result:=2*NormalCDF(z,mu,sigma)
-end;
-
-Function NormalPDF(x:double;mu:double=0;sigma:double=1):double;
-begin
-  try
-   Result:=1/sigma/sqrt(2*Pi)*exp(-sqr((x-mu)/sigma)/2);
-  except
-   Result:=ErResult;
-  end;
-end;
-
-Function ChiSquaredPDF(x:double;k:word):double;
- var G,k2:double;
-begin
- if (k<1)or(x<0)or((k=1)and(x<=0)) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- k2:=k/2.0;
- if odd(k) then G:=Gamma(k2)
-           else G:=Gamma(round(k2));
- Result:=Power(x,k2-1)*exp(-x/2.0)
-         /Power(2,k2)/G;
-end;
-
-Function ChiSquaredCDF(x:double;k:word):double;
-  var G,k2:double;
-begin
- if (k<2)or(x<0) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- k2:=k/2.0;
- if odd(k) then G:=Gamma(k2)
-           else G:=Gamma(round(k2));
- Result:=GammaLowerIncomplete(k2,x/2.0)/G;
-end;
-
-Function FisherPDF(x:double;k1,k2:word):double;
-begin
- if (x<0)or(x>1) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- Result:=Power(k1/k2,k1/2.0)*Power(x,k1/2.0-1)
-         *Power((1+k1/k2*x),-(k1+k2)/2.0)/Betta(k1/2.0,k2/2.0);
-end;
-
-Function FisherCDF(x:double;k1,k2:word):double;
-begin
- if (x<0)or(x>1) then
-   begin
-     Result:=ErResult;
-     Exit
-   end;
- Result:=BettaRegularizedIncomplete(k1*x/(k1*x+k2),k1/2.0,k2/2.0);
-end;
-
 Function NchooseK(n,k:word):Int64;
 begin
   if k>n then
@@ -425,78 +356,47 @@ begin
   Result:=Round(Factorial(n)/Factorial(k)/Factorial(n-k));
 end;
 
-Function BinomialProbKN(n,k:word;p:double):double;
-begin
-  if (p<0)or(p>1)or(k>n) then
-   begin
-     Result:=0;
-     Exit;
-   end;
-  Result:=Power(p,k)*Power((1-p),(n-k));
-end;
 
-Function BinomialPDF(n,k:word;p:double):double;
-begin
-  if (p<0)or(p>1)or(k>n) then
-   begin
-     Result:=ErResult;
-     Exit;
-   end;
-  Result:=NchooseK(n,k)*BinomialProbKN(n,k,p);
-end;
-
-Function BinomialCDF(n,k:word;p:double):double;
- var i:word;
-begin
- if (p<0)or(p>1)or(k>n) then
-   begin
-     Result:=ErResult;
-     Exit;
-   end;
- Result:=0;
- for I := 0 to k do
-   Result:=Result+BinomialPDF(n,i,p);
-end;
-
-Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
- var WinsTemp:double;
-     i:integer;
-begin
-  Result:=0;
-  if A.Count<>B.Count  then Exit;
-  WinsTemp:=0;
-  for I := 0 to A.HighNumber do
-   if IsEqual(A.X[i],B.X[i]) then
-    begin
-      if IsEqual(A.Y[i],B.Y[i]) then
-                   begin
-                    WinsTemp:=WinsTemp+0.5;
-                    Continue;
-                   end;
-      if ItIsError and (A.Y[i]<B.Y[i]) then WinsTemp:=WinsTemp+1;
-      if not(ItIsError) and (A.Y[i]>B.Y[i]) then WinsTemp:=WinsTemp+1;
-//      showmessage(floattostr(A.Y[i])+' '+floattostr(B.Y[i])+' '+floattostr(WinsTemp));
-    end                      else Exit;
-   Result:=Floor(WinsTemp);
-end;
-
-Function SignTestPvalue(A,B:TVector;ItIsError:boolean):double;
- var Wins:word;
-begin
-  Wins:=WinsNumber(A,B,ItIsError);
-  if Wins>A.Count/2.0 then Result:=2*(1-NormalCDF(Wins,A.Count/2.0,sqrt(A.Count)/2.0))
-                      else Result:=1;
-end;
-
-Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
-begin
-  if (p<=0) or (p>=1) then
-     begin
-       Result:=False;
-       Exit;
-     end;
-  Result:= (SignTestPvalue(A,B,ItIsError)<p);
-end;
+//Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
+// var WinsTemp:double;
+//     i:integer;
+//begin
+//  Result:=0;
+//  if A.Count<>B.Count  then Exit;
+//  WinsTemp:=0;
+//  for I := 0 to A.HighNumber do
+//   if IsEqual(A.X[i],B.X[i]) then
+//    begin
+//      if IsEqual(A.Y[i],B.Y[i]) then
+//                   begin
+//                    WinsTemp:=WinsTemp+0.5;
+//                    Continue;
+//                   end;
+//      if ItIsError and (A.Y[i]<B.Y[i]) then WinsTemp:=WinsTemp+1;
+//      if not(ItIsError) and (A.Y[i]>B.Y[i]) then WinsTemp:=WinsTemp+1;
+////      showmessage(floattostr(A.Y[i])+' '+floattostr(B.Y[i])+' '+floattostr(WinsTemp));
+//    end                      else Exit;
+//   Result:=Floor(WinsTemp);
+//end;
+//
+//Function SignTestPvalue(A,B:TVector;ItIsError:boolean):double;
+// var Wins:word;
+//begin
+//  Wins:=WinsNumber(A,B,ItIsError);
+//  if Wins>A.Count/2.0 then Result:=TNormalD.Plim(Wins,A.Count/2.0,sqrt(A.Count)/2.0)
+////  2*(1-TNormalD.CDF(Wins,A.Count/2.0,sqrt(A.Count)/2.0))
+//                      else Result:=1;
+//end;
+//
+//Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
+//begin
+//  if (p<=0) or (p>=1) then
+//     begin
+//       Result:=False;
+//       Exit;
+//     end;
+//  Result:= (SignTestPvalue(A,B,ItIsError)<p);
+//end;
 
 Function WilcoxonNmin(n:word;p:double):integer;
  var p_number,i:integer;
@@ -580,7 +480,7 @@ begin
            begin
             mu:=n*(n+1)/4;
             sigma:=sqrt(n*(n+1)*(2*n+1)/24);
-            Result:=p>=(1-NormalCDF((abs(abs(T)-mu)-0.5)/sigma));
+            Result:=(p>=(1-TNormalD.CDF((abs(abs(T)-mu)-0.5)/sigma)));
            end;
   if ItIsError then  Result:= Result and (T>0)
                else  Result:= Result and (T<0);
@@ -759,7 +659,8 @@ begin
   try
   z:=Zvalue(ControlAlgorithm,СomparisonAlgorithm);
   if z<0 then Exit;
-  result:=2*(1-NormalCDF(z));
+  result:=TNormalD.Plim(z);
+//  2*(1-NormalCDF(z));
   except
   end;
 end;
@@ -936,6 +837,25 @@ end;
 
 { TNormalD }
 
+class function TNormalD.CDF(x, mu, sigma: double): double;
+begin
+  try
+   Result:=0.5*(1+Erf((x-mu)/sqrt(2)/sigma))
+  except
+   Result:=ErResult;
+  end;
+end;
+
+class function TNormalD.CDF_AB(a, b, mu, sigma: double): double;
+begin
+  if sigma=0 then
+   begin
+     Result:=ErResult;
+     Exit
+   end;
+  Result:=Self.CDF(b,mu,sigma)-Self.CDF(a,mu,sigma);
+end;
+
 constructor TNormalD.Create(mu, sigm: double);
 begin
  inherited Create;
@@ -943,10 +863,206 @@ begin
  Sigma:=sigm;
 end;
 
+class function TNormalD.Plim(z, mu, sigma: double): double;
+ var cdf_value:double;
+begin
+ Result:=ErResult;
+ cdf_value:=Self.CDF(z,mu,sigma);
+ if cdf_value=ErResult then Exit;
+ if z>=mu then Result:=2*(1-cdf_value)
+          else Result:=2*cdf_value;
+end;
+
+class function TNormalD.PDF(x, mu, sigma: double): double;
+begin
+  try
+   Result:=1/sigma/sqrt(2*Pi)*exp(-sqr((x-mu)/sigma)/2);
+  except
+   Result:=ErResult;
+  end;
+end;
+
 procedure TNormalD.SetSigma(Value: double);
 begin
  if Value>0 then fSigma:=Value
             else fSigma:=1;
+end;
+
+{ TChiSquaredD }
+
+class function TChiSquaredD.CDF(x: double; k: word): double;
+begin
+ if (k<2)or(x<0) then
+   begin
+     Result:=ErResult;
+     Exit
+   end;
+ Result:=GammaLowerIncomplete(k/2.0,x/2.0)/Gam(k);
+end;
+
+class function TChiSquaredD.Gam(k: word): double;
+ var k2:double;
+begin
+ k2:=k/2.0;
+ if odd(k) then Result:=Gamma(k2)
+           else Result:=Gamma(round(k2));
+end;
+
+class function TChiSquaredD.PDF(x: double; k: word): double;
+begin
+ if (k<2)or(x<0) then
+   begin
+     Result:=ErResult;
+     Exit
+   end;
+ Result:=Power(x,k/2.0-1)*exp(-x/2.0)
+         /Power(2,k/2.0)/Gam(k);
+end;
+
+{ TFisherD }
+
+class function TFisherD.BadParameters(x: double; k1, k2: word): boolean;
+begin
+if (x<0)or(x>1)or(k1<2)or(k2<2)
+   then Result:=True
+   else Result:=False;
+end;
+
+class function TFisherD.CDF(x: double; k1, k2: word): double;
+begin
+ if BadParameters(x,k1,k2) then
+   begin
+     Result:=ErResult;
+     Exit
+   end;
+ Result:=BettaRegularizedIncomplete(k1*x/(k1*x+k2),k1/2.0,k2/2.0);
+end;
+
+class function TFisherD.PDF(x: double; k1, k2: word): double;
+begin
+ if BadParameters(x,k1,k2) then
+   begin
+     Result:=ErResult;
+     Exit
+   end;
+ Result:=Power(k1/k2,k1/2.0)*Power(x,k1/2.0-1)
+         *Power((1+k1/k2*x),-(k1+k2)/2.0)/Betta(k1/2.0,k2/2.0);
+end;
+
+{ TBinomialD }
+
+class function TBinomialD.BadParameters(n, k: word; p: double): boolean;
+begin
+  if (p<0)or(p>1)or(k>n)
+   then Result:=True
+   else Result:=False;
+end;
+
+class function TBinomialD.CDF(n,k:word;p:double): double;
+ var i:word;
+begin
+ if BadParameters(n, k, p) then
+   begin
+     Result:=ErResult;
+     Exit;
+   end;
+ Result:=0;
+ for I := 0 to k do
+   Result:=Result+PDF(n,i,p)
+end;
+
+class function TBinomialD.PDF(n, k: word; p: double): double;
+begin
+  if BadParameters(n, k, p) then
+   begin
+     Result:=ErResult;
+     Exit;
+   end;
+  Result:=NchooseK(n,k)*ProbKN(n,k,p);
+end;
+
+class function TBinomialD.ProbKN(n, k: word; p: double): double;
+begin
+  if BadParameters(n, k, p) then
+   begin
+     Result:=0;
+     Exit;
+   end;
+  Result:=Power(p,k)*Power((1-p),(n-k));
+end;
+
+{ TOneToOneTest }
+
+function TOneToOneTest.AbetterB(p: double): boolean;
+begin
+  if (p<=0) or (p>=1) or fError then
+     begin
+       Result:=False;
+       Exit;
+     end;
+  Result:= AbetterBFooter(p);
+end;
+
+constructor TOneToOneTest.Create(A, B: TVector; ItIsError: boolean);
+begin
+ inherited Create;
+ fItIsError:=ItIsError;
+ fError:=A.Count<>B.Count;
+ if fError then
+    begin
+      MessageDlg('Bad data',mtError, [mbOK], 0);
+      Exit;
+    end;
+  fA:=TVector.Create(A);
+  fB:=TVector.Create(B);
+end;
+
+destructor TOneToOneTest.Destroy;
+begin
+ FreeAndNil(fB);
+ FreeAndNil(fA);
+ inherited;
+end;
+
+{ TSignTest }
+
+function TSignTest.AbetterBFooter(p: double): boolean;
+begin
+  Result:= (Pvalue()<p);
+end;
+
+constructor TSignTest.Create(A, B: TVector; ItIsError: boolean);
+begin
+ inherited Create(A,B,ItIsError);
+ fWins:=GetWinsNumber;
+end;
+
+function TSignTest.GetWinsNumber: word;
+ var WinsTemp:double;
+     i:integer;
+begin
+  Result:=0;
+  if fError  then Exit;
+  WinsTemp:=0;
+  for I := 0 to fA.HighNumber do
+   if IsEqual(fA.X[i],fB.X[i]) then
+    begin
+      if IsEqual(fA.Y[i],fB.Y[i]) then
+                   begin
+                    WinsTemp:=WinsTemp+0.5;
+                    Continue;
+                   end;
+      if fItIsError and (fA.Y[i]<fB.Y[i]) then WinsTemp:=WinsTemp+1;
+      if not(fItIsError) and (fA.Y[i]>fB.Y[i]) then WinsTemp:=WinsTemp+1;
+    end                      else Exit;
+   Result:=Floor(WinsTemp);
+end;
+
+function TSignTest.Pvalue: double;
+begin
+  if fWins>fA.Count/2.0 then Result:=TNormalD.Plim(fWins,fA.Count/2.0,sqrt(fA.Count)/2.0)
+//  2*(1-TNormalD.CDF(Wins,A.Count/2.0,sqrt(A.Count)/2.0))
+                      else Result:=1;
 end;
 
 end.
