@@ -3629,8 +3629,8 @@ for im := Low(TMetaMethod) to High(TMetaMethod) do
   MethodVector[4].ReadFromFile('Abb1.dat',['SSBLX'],True);
   MethodVector[5].ReadFromFile('Abb1.dat',['SSArit'],True);
   MethodVector[6].ReadFromFile('Abb1.dat',['DEBin'],True);
-  MethodVector[7].ReadFromFile('Abb1.dat',['DEExp'],True);
-  MethodVector[8].ReadFromFile('Abb1.dat',['SaDE'],True);
+  MethodVector[8].ReadFromFile('Abb1.dat',['DEExp'],True);
+  MethodVector[7].ReadFromFile('Abb1.dat',['SaDE'],True);
 
  Vec:=TVector.Create;
 
@@ -3643,15 +3643,24 @@ for im2 := Low(TMethods) to High(TMethods) do
   MethodVector2[2].ReadFromFile('Abb2.dat',['C'],True);
   MethodVector2[3].ReadFromFile('Abb2.dat',['D'],True);
 
-// OneToNTest:=TFriedmanAligned.Create(MethodVector2);
-// showmessage(floattostr(OneToNTest.Rj(2)));
+// OneToNTest:=TQuade.Create(MethodVector2);
+ OneToNTest:=TFriedman.Create(MethodVector);
+ for I := 1 to 8 do Vec.Add(i,OneToNTest.UnadjustedP(9,i));
+ showmessage(Vec.XYtoString);
+ Vec.Clear;
+ for I := 1 to 8 do Vec.Add(i,OneToNTest.HolmAPV(9,i));
+ showmessage(Vec.XYtoString);
 
- OneToNTest:=TFriedmanAligned.Create([MethodVector[1], MethodVector[2],
-                                   MethodVector[4], MethodVector[8]]);
-// showmessage(floattostr(OneToNTest.Rj(4)));
-// showmessage(floattostr(OneToNTest.Zvalue(4,3)));
- showmessage(floattostr(OneToNTest.UnadjustedP(4,3)));
 
+// showmessage(floattostr(OneToNTest.UnadjustedP(9,1)));
+// showmessage(floattostr(OneToNTest.BonferroniAPV(9,1)));
+
+//   T:=0;
+//  repeat
+//    Vec.Add(T,TFisherD.CDF(T,3,69));
+//    T:=T+0.1;
+//  until T>30;
+//  Vec.WriteToFile('Atemp.dat',8);
 
 // showmessage(floattostr(FriedmanAlignedZvalue([MethodVector[mmIPOPES], MethodVector[mmCHC],
 //                                   MethodVector[mmSSBLX], MethodVector[mmSaDE]],4,2)));

@@ -1831,7 +1831,7 @@ Function Betta(x,y:double):double;
 {Бетта-функція,
 Result=integral_0^1 t^(x-1)*(1-t)^(y-1) dt}
 begin
-  Result:=IntegralRomberg(BettaDod,[x,y],0,1,1e-8);
+  Result:=IntegralRomberg(BettaDod,[x,y],0,1,1e-10);
 end;
 
 Function BettaIncomplete(x,a,b:double):double;
@@ -1841,7 +1841,7 @@ begin
      Result:=ErResult;
      Exit
    end;
- Result:=IntegralRomberg(BettaDod,[a,b],0,x,1e-8);
+ Result:=IntegralRomberg(BettaDod,[a,b],0,x,1e-10);
 end;
 
 Function BettaRegularizedIncomplete(x,a,b:double):double;
