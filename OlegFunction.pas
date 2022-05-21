@@ -251,6 +251,10 @@ function NvsRo(Nd:double;param:array of double):double;
  param[1] - T
 }
 
+function IntToFrac(i:integer):double;
+{ділить модуль і доти, поки не буде число, менше 1,
+його і повертає}
+
 implementation
 
 uses
@@ -1330,5 +1334,18 @@ function NvsRo(Nd:double;param:array of double):double;
  begin
   Result:=Nd-1/(Qelem*0.1*param[0]*Silicon.mu_p(param[1],Nd))
  end;
+
+function IntToFrac(i:integer):double;
+{ділить модуль і доти, поки не буде число, менше 1,
+його і повертає}
+begin
+ if i=0 then
+  begin
+    Result:=0;
+    Exit;
+  end;
+ Result:=abs(i)/10.0;
+ while (Result>1) do Result:=Result/10;
+end;
 
 end.

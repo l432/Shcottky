@@ -2,7 +2,7 @@ unit OlegStatistic;
 
 interface
 
-uses OlegType, OlegMath, OlegVector, OlegVectorManipulation, System.UITypes;
+uses OlegType, OlegMath, OlegVector, OlegVectorManipulation, System.UITypes, OlegFunction;
 
 const
 
@@ -344,11 +344,6 @@ end;
 
 TOneToNTest=class(TOneToNTestPrimitive)
  private
-// fAlgorithmResult:array of TVector;
-// fAlgorithAmount:byte;
-// fProblemAmount:byte;
-// fError:boolean;
-// fItIsError:boolean;
  fp_unadj:TVector;
  fhelpVector:TVector;
 
@@ -360,6 +355,15 @@ TOneToNTest=class(TOneToNTestPrimitive)
  ïğè forAlgorithm=True ñóìóâàííÿ ïî ïåğøîìó ïàğàìåòğó Fun,
  òîáòî Number - íîìåğ àëãîğèòìó}
   procedure p_unadjFill(ControlAlgorithm:byte);
+{â fp_unadj.X[] íåêîğåãîâàí³ çíà÷åííÿ ğ ïîğ³âíÿíî ç
+àëãîğèòìîì ç íîìåğîì ControlAlgorithm, ñîğòîâàí³ çà çğîñòàííÿì;
+â fp_unadj.Y[] íîìåğ àëãîğèòìó, ç ÿêèì ïîğ³âíşâàëîñÿ, ó ïî÷àòêîâîìó
+íàáîğ³ fp_unadj.Y[]=[1..fAlgorithmAmount, <>ControlAlgorithm];
+íóìåğàö³ÿ åëåìåíò³â â³ä 0 äî (fAlgorithmAmount-2)}
+  function ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm:byte):byte;
+{ïîâåğòàº íîìåğ çàïèñó â fp_unadj, ÿêèé â³äíîñèòüñÿ äî
+àëãîğèòìó ç íîìåğîì ÑomparisonAlgorithm,
+Result=[0..(fAlgorithmAmount-1)]}
  public
  constructor Create(Arr:array of TVector;ItIsError:boolean=True);
  destructor Destroy; override;
@@ -385,6 +389,12 @@ TOneToNTest=class(TOneToNTestPrimitive)
  function BonferroniAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
  {APV - adjusted p-values}
  function HolmAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+ function HollandAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+ function FinnerAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+ function HochbergAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+// function HommelAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+{íå âèéøëî - ÷è òî ÿ äóğíèé, ÷è òî ÷åğãîâà ïîìèëêà â îïèñ³}
+ function LiAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
 
 end;
 
@@ -433,6 +443,33 @@ TQuade=class(TFriedman)
   function WjTotal(AlgorithmNumber:byte):double;
   function Tj(AlgorithmNumber:byte):double;
   function NullhypothesisP():double;override;
+end;
+
+TMultipleComparisons=class(TFriedman)
+ private
+  fPairAmount:byte;
+  {ê³ëüê³ñòü ìîæëèâèõ ïàğ äëÿ ïîğ³âíÿííÿ}
+  function NumberInP_unadj(ControlAlgorithm,ÑomparisonAlgorithm:byte):integer;
+{ïîâåğòàº íîìåğ çàïèñó â fp_unadj, ÿêèé â³äíîñèòüñÿ äî
+ïàğè (ControlAlgorithm,ÑomparisonAlgorithm),
+ÿêùî âñå äîáğå, òî
+Result=[0..(fPairAmount-1)],
+ÿêùî òàêî¿ ïàğè íåìàº,
+òî Result:=-1}
+ public
+  property p_unadj:TVector read fp_unadj;
+  constructor Create(Arr:array of TVector;ItIsError:boolean=True);
+{â fp_unadj.X[] íåêîğåãîâàí³ çíà÷åííÿ ğ äëÿ
+âñ³õ ìîæëèâèõ ïàğ, ñîğòîâàí³ çà çğîñòàííÿì;
+çàãàëîì UnadjustedP(i,j)<>UnadjustedP(j,i),
+àëå ò³ëüêè â îäíîìó âèïàäêó çíà÷åííÿ áóäå ìåíøå 1,
+ïğè çàïîâíåíí³ fp_unadj.X áóäóòü âèáğàí³ ñàìå òàê³
+ïàğè, äëÿ ÿêèõ p<1;
+â fp_unadj.Y[] ñõîâàí³ íîìåğè âèõ³äíèõ àëãîğèòì³â,
+äëÿ ÿêèõ îòğèìàí³ äàí³ çíà÷åííÿ ğ:
+â ö³ë³é ÷àñòèí³ fp_unadj.Y[] - ControlAlgorithm,
+â äğîáîâ³é ÷àñòèí³ fp_unadj.Y[] - ÑomparisonAlgorithm}
+  function MultipleHolmAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
 end;
 
 implementation
@@ -733,24 +770,81 @@ begin
   inherited;
 end;
 
-function TOneToNTest.HolmAPV(ControlAlgorithm,
+function TOneToNTest.FinnerAPV(ControlAlgorithm,
   ÑomparisonAlgorithm: byte): double;
- var i,ÑomparisonAlgorithmNumber:byte;
+ var i:byte;
 begin
  p_unadjFill(ControlAlgorithm);
- ÑomparisonAlgorithmNumber:=0;
- for I := 0 to fp_unadj.HighNumber do
-  if round(fp_unadj.Y[i])=ÑomparisonAlgorithm
-      then
-       begin
-        ÑomparisonAlgorithmNumber:=i;
-        Break;
-       end;
  fhelpVector.Clear;
- for I := 0 to ÑomparisonAlgorithmNumber do
+ for I := 0 to ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
+  fhelpVector.Add(i,1-Power((1-fp_unadj.X[i]),(fAlgorithmAmount-1)/(i+1)));
+ Result:=min(1,fhelpVector.MaxY);
+end;
+
+function TOneToNTest.HochbergAPV(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+ var i:byte;
+begin
+ p_unadjFill(ControlAlgorithm);
+ fhelpVector.Clear;
+ for I := (fAlgorithmAmount-2) downto ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
+  fhelpVector.Add(i,(fAlgorithmAmount-i-1)*fp_unadj.X[i]);
+ Result:=fhelpVector.MinY;
+end;
+
+
+function TOneToNTest.HollandAPV(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+ var i:byte;
+begin
+ p_unadjFill(ControlAlgorithm);
+ fhelpVector.Clear;
+ for I := 0 to ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
+  fhelpVector.Add(i,1-Power((1-fp_unadj.X[i]),(fAlgorithmAmount-i-1)));
+ Result:=min(1,fhelpVector.MaxY);
+end;
+
+function TOneToNTest.HolmAPV(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+ var i:byte;
+begin
+ p_unadjFill(ControlAlgorithm);
+ fhelpVector.Clear;
+ for I := 0 to ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
   fhelpVector.Add(i,(fAlgorithmAmount-i-1)*fp_unadj.X[i]);
  Result:=min(1,fhelpVector.MaxY);
 end;
+
+function TOneToNTest.LiAPV(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+begin
+ p_unadjFill(ControlAlgorithm);
+ Result:=fp_unadj.X[ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm)]
+         /(fp_unadj.X[ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm)]+1
+           -fp_unadj.X[fp_unadj.HighNumber]);
+end;
+
+//function TOneToNTest.HommelAPV(ControlAlgorithm,
+//  ÑomparisonAlgorithm: byte): double;
+// var j,i:byte;
+//     Cmin:double;
+//begin
+// p_unadjFill(ControlAlgorithm);
+// result:=fp_unadj.X[ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm)];
+// fhelpVector.Clear;
+// j:=fAlgorithmAmount-1;
+// repeat
+//   fhelpVector.Clear;
+//   for I :=(fAlgorithmAmount-j) to (fAlgorithmAmount-1) do
+//     fhelpVector.Add(i,j*fp_unadj.X[i-1]/(j+i+1-fAlgorithmAmount));
+//   Cmin:=fhelpVector.MinY;
+//   result:=min(result,Cmin);
+//   for I := 1 to (fAlgorithmAmount-1-j) do
+//     if i=ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) then
+//      Result:=min(Result,min(Cmin,j*fp_unadj.X[i-1]));
+//   j:=j-1;
+// until j<2;
+//end;
 
 procedure TOneToNTest.p_unadjFill(ControlAlgorithm: byte);
  var i:byte;
@@ -818,11 +912,11 @@ end;
 function TOneToNTest.UnadjustedP(ControlAlgorithm,
   ÑomparisonAlgorithm: byte): double;
 
- const
- pFr:array [1..8] of double=(0.000006,0.000332,0.009823,
-  0.014171,0.083642,0.141093,0.518605,0.660706);
- pQua:array [1..8] of double=(0.021720,0.052904,0.118631,
-  0.158192,0.259289,0.357754,0.803179,0.928037);
+// const
+// pFr:array [1..8] of double=(0.000006,0.009823,0.000332,
+//  0.014171,0.083642,0.141093,0.518605,0.660706);
+// pQua:array [1..8] of double=(0.021720,0.052904,0.118631,
+//  0.158192,0.259289,0.357754,0.803179,0.928037);
 
  var z:double;
 begin
@@ -831,8 +925,8 @@ begin
   z:=Zvalue(ControlAlgorithm,ÑomparisonAlgorithm);
   if z<0 then Exit;
   result:=TNormalD.Plim(z);
-  result:=pFr[ÑomparisonAlgorithm];
-  result:=pQua[ÑomparisonAlgorithm];
+//  result:=pFr[ÑomparisonAlgorithm];
+//  result:=pQua[ÑomparisonAlgorithm];
   except
   end;
 end;
@@ -845,6 +939,20 @@ begin
   if (ControlAlgorithm<1)or(ControlAlgorithm>fAlgorithmAmount)
      or(ÑomparisonAlgorithm<1)or(ÑomparisonAlgorithm>fAlgorithmAmount) then Exit;
   Result:=ZValueFooter(ControlAlgorithm,  ÑomparisonAlgorithm);
+end;
+
+function TOneToNTest.ÑomparisonAlgorithmNumberInP_unadj(
+  ÑomparisonAlgorithm: byte): byte;
+ var i:byte;
+begin
+ Result:=0;
+ for I := 0 to fp_unadj.HighNumber do
+  if round(fp_unadj.Y[i])=ÑomparisonAlgorithm
+      then
+       begin
+        Result:=i;
+        Break;
+       end;
 end;
 
 { TFriedman }
@@ -1576,6 +1684,76 @@ begin
            /(fProblemAmount+1));
 //  Result:=1.314534;
 
+end;
+
+{ TMultipleComparisons }
+
+constructor TMultipleComparisons.Create(Arr: array of TVector;
+  ItIsError: boolean);
+  var i,j,k:byte;
+      p:double;
+
+ const pFr:array [1..36] of double=(0.000006,0.000045,0.000108,
+  0.000332,0.001633,0.002313,0.003246,0.005294,
+  0.009823,0.014171,0.032109,0.03424,0.038867,
+  0.044015,0.052808,0.052808,0.063023,0.070701,
+  0.083642,0.141093,0.196706,0.255925,0.266889,
+  0.278172,0.3017,0.313946,0.326516,0.352622,0.394183,
+  0.40867,0.469706,0.518605,0.660706,0.796253,0.836354,
+  0.897279);
+
+begin
+ inherited Create(Arr,ItIsError);
+ fPairAmount:=round(fAlgorithmAmount*(fAlgorithmAmount-1)/2);
+ fp_unadj.Clear;
+ for I := 1 to fAlgorithmAmount do
+   for j := 1 to (i-1) do
+    begin
+     p:=UnadjustedP(i,j);
+     if p<1 then fp_unadj.Add(p,i+IntToFrac(j))
+            else fp_unadj.Add(UnadjustedP(j,i),j+IntToFrac(i));
+    end;
+ fp_unadj.Sorting();
+// showmessage(fp_unadj.XYtoString+#10+inttostr(NumberInP_unadj(1,5))+#10+inttostr(NumberInP_unadj(5,1)));
+ for I := 0 to fp_unadj.HighNumber do
+    fp_unadj.X[i]:=pFr[i+1];
+ k:=0;
+ for I := 1 to fAlgorithmAmount do
+   for j := 1 to (i-1) do
+    begin
+     fp_unadj.Y[k]:=i+IntToFrac(j);
+     inc(k);
+    end;
+// showmessage(fp_unadj.XYtoString);
+
+end;
+
+function TMultipleComparisons.MultipleHolmAPV(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+ var i:integer;
+begin
+// fhelpVector.Clear;
+// for I := 0 to ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
+//  fhelpVector.Add(i,(fAlgorithmAmount-i-1)*fp_unadj.X[i]);
+// Result:=min(1,fhelpVector.MaxY);
+ i:=NumberInP_unadj(ControlAlgorithm,ÑomparisonAlgorithm);
+ if i<0 then result:=1
+        else Result:=fp_unadj.X[i];
+end;
+
+function TMultipleComparisons.NumberInP_unadj(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): integer;
+ var i:byte;
+begin
+ Result:=-1;
+ for I := 0 to fp_unadj.HighNumber do
+  if (trunc(fp_unadj.Y[i])=ControlAlgorithm)
+   and IsEqual(frac(fp_unadj.Y[i]),IntToFrac(ÑomparisonAlgorithm))
+      then
+       begin
+        Result:=i;
+        Break;
+       end;
 end;
 
 end.

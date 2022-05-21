@@ -3594,7 +3594,7 @@ var
   Fe:TDefect;
   drive:char;
   path,fname:string;
-  i,N:word;
+  i,j,N:word;
   MethodVector,MethodVector2:array of TVector;
   im:TMetaMethod;
 //  MethodVector2:array[TMethods] of TVectorTransform;
@@ -3644,12 +3644,19 @@ for im2 := Low(TMethods) to High(TMethods) do
   MethodVector2[3].ReadFromFile('Abb2.dat',['D'],True);
 
 // OneToNTest:=TQuade.Create(MethodVector2);
- OneToNTest:=TFriedman.Create(MethodVector);
- for I := 1 to 8 do Vec.Add(i,OneToNTest.UnadjustedP(9,i));
+ OneToNTest:=TMultipleComparisons.Create(MethodVector);
+ showmessage((OneToNTest as TMultipleComparisons).p_unadj.XYtoString);
+  for I := 1 to 9 do
+   for j := 1 to (i-1) do
+    begin
+     Vec.Add((OneToNTest as TMultipleComparisons).MultipleHolmAPV(i,j),i+IntToFrac(j));
+    end;
+// for I := 1 to 8 do Vec.Add(i,OneToNTest.UnadjustedP(9,i));
  showmessage(Vec.XYtoString);
- Vec.Clear;
- for I := 1 to 8 do Vec.Add(i,OneToNTest.HolmAPV(9,i));
- showmessage(Vec.XYtoString);
+// Vec.Clear;
+// for I := 1 to 8 do Vec.Add(i,OneToNTest.LiAPV(9,i));
+
+// showmessage(Vec.XYtoString);
 
 
 // showmessage(floattostr(OneToNTest.UnadjustedP(9,1)));
