@@ -392,7 +392,7 @@ Result=[0..(fAlgorithmAmount-1)]}
  function HollandAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
  function FinnerAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
  function HochbergAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
-// function HommelAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+ function HommelAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
 {íå âèéøëî - ÷è òî ÿ äóğíèé, ÷è òî ÷åğãîâà ïîìèëêà â îïèñ³}
  function LiAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
 
@@ -449,6 +449,9 @@ TMultipleComparisons=class(TFriedman)
  private
   fPairAmount:byte;
   {ê³ëüê³ñòü ìîæëèâèõ ïàğ äëÿ ïîğ³âíÿííÿ}
+  fShafferIndexValues:TVector;
+  {çáåğ³ãàşòüñÿ ìîæëèâ³ çíà÷åííÿ ³íäåêñà Shaffer}
+  procedure FillShafferIndexValues;
   function NumberInP_unadj(ControlAlgorithm,ÑomparisonAlgorithm:byte):integer;
 {ïîâåğòàº íîìåğ çàïèñó â fp_unadj, ÿêèé â³äíîñèòüñÿ äî
 ïàğè (ControlAlgorithm,ÑomparisonAlgorithm),
@@ -456,8 +459,10 @@ TMultipleComparisons=class(TFriedman)
 Result=[0..(fPairAmount-1)],
 ÿêùî òàêî¿ ïàğè íåìàº,
 òî Result:=-1}
+  function ShafferIndex(j:integer):integer;
+  {j=(0..(fPairAmount-1)}
  public
-  property p_unadj:TVector read fp_unadj;
+//  property p_unadj:TVector read fp_unadj;
   constructor Create(Arr:array of TVector;ItIsError:boolean=True);
 {â fp_unadj.X[] íåêîğåãîâàí³ çíà÷åííÿ ğ äëÿ
 âñ³õ ìîæëèâèõ ïàğ, ñîğòîâàí³ çà çğîñòàííÿì;
@@ -469,7 +474,10 @@ Result=[0..(fPairAmount-1)],
 äëÿ ÿêèõ îòğèìàí³ äàí³ çíà÷åííÿ ğ:
 â ö³ë³é ÷àñòèí³ fp_unadj.Y[] - ControlAlgorithm,
 â äğîáîâ³é ÷àñòèí³ fp_unadj.Y[] - ÑomparisonAlgorithm}
+  destructor Destroy; override;
+  function MultipleNemenyi(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
   function MultipleHolmAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+  function MultipleShafferStaticAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
 end;
 
 implementation
@@ -824,27 +832,29 @@ begin
            -fp_unadj.X[fp_unadj.HighNumber]);
 end;
 
-//function TOneToNTest.HommelAPV(ControlAlgorithm,
-//  ÑomparisonAlgorithm: byte): double;
-// var j,i:byte;
-//     Cmin:double;
-//begin
-// p_unadjFill(ControlAlgorithm);
-// result:=fp_unadj.X[ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm)];
-// fhelpVector.Clear;
-// j:=fAlgorithmAmount-1;
-// repeat
-//   fhelpVector.Clear;
-//   for I :=(fAlgorithmAmount-j) to (fAlgorithmAmount-1) do
-//     fhelpVector.Add(i,j*fp_unadj.X[i-1]/(j+i+1-fAlgorithmAmount));
-//   Cmin:=fhelpVector.MinY;
-//   result:=min(result,Cmin);
-//   for I := 1 to (fAlgorithmAmount-1-j) do
-//     if i=ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) then
-//      Result:=min(Result,min(Cmin,j*fp_unadj.X[i-1]));
-//   j:=j-1;
-// until j<2;
-//end;
+function TOneToNTest.HommelAPV(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+ var j,i:byte;
+     Cmin:double;
+begin
+ p_unadjFill(ControlAlgorithm);
+ result:=fp_unadj.X[ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm)];
+ fhelpVector.Clear;
+ j:=fAlgorithmAmount-1;
+ repeat
+   fhelpVector.Clear;
+   for I :=(fAlgorithmAmount-j) to fAlgorithmAmount-1 do
+     fhelpVector.Add(i,j*fp_unadj.X[i-1]/(j+i-fAlgorithmAmount+1));
+   Cmin:=fhelpVector.MinY;
+   if (ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm)+1) in [(fAlgorithmAmount-j)..(fAlgorithmAmount-1)]
+   then
+     result:=max(result,Cmin);
+   for I := 1 to (fAlgorithmAmount-j-1) do
+     if i=ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm)+1 then
+      Result:=max(Result,min(Cmin,j*fp_unadj.X[i-1]));
+   j:=j-1;
+ until j<2;
+end;
 
 procedure TOneToNTest.p_unadjFill(ControlAlgorithm: byte);
  var i:byte;
@@ -1690,17 +1700,17 @@ end;
 
 constructor TMultipleComparisons.Create(Arr: array of TVector;
   ItIsError: boolean);
-  var i,j,k:byte;
+  var i,j{,k}:byte;
       p:double;
 
- const pFr:array [1..36] of double=(0.000006,0.000045,0.000108,
-  0.000332,0.001633,0.002313,0.003246,0.005294,
-  0.009823,0.014171,0.032109,0.03424,0.038867,
-  0.044015,0.052808,0.052808,0.063023,0.070701,
-  0.083642,0.141093,0.196706,0.255925,0.266889,
-  0.278172,0.3017,0.313946,0.326516,0.352622,0.394183,
-  0.40867,0.469706,0.518605,0.660706,0.796253,0.836354,
-  0.897279);
+// const pFr:array [1..36] of double=(0.000006,0.000045,0.000108,
+//  0.000332,0.001633,0.002313,0.003246,0.005294,
+//  0.009823,0.014171,0.032109,0.03424,0.038867,
+//  0.044015,0.052808,0.052808,0.063023,0.070701,
+//  0.083642,0.141093,0.196706,0.255925,0.266889,
+//  0.278172,0.3017,0.313946,0.326516,0.352622,0.394183,
+//  0.40867,0.469706,0.518605,0.660706,0.796253,0.836354,
+//  0.897279);
 
 begin
  inherited Create(Arr,ItIsError);
@@ -1714,31 +1724,96 @@ begin
             else fp_unadj.Add(UnadjustedP(j,i),j+IntToFrac(i));
     end;
  fp_unadj.Sorting();
+
+ fShafferIndexValues:=TVector.Create;
+ FillShafferIndexValues();
+// showmessage(fShafferIndexValues.XYtoString);
 // showmessage(fp_unadj.XYtoString+#10+inttostr(NumberInP_unadj(1,5))+#10+inttostr(NumberInP_unadj(5,1)));
- for I := 0 to fp_unadj.HighNumber do
-    fp_unadj.X[i]:=pFr[i+1];
- k:=0;
- for I := 1 to fAlgorithmAmount do
-   for j := 1 to (i-1) do
-    begin
-     fp_unadj.Y[k]:=i+IntToFrac(j);
-     inc(k);
-    end;
+// for I := 0 to fp_unadj.HighNumber do
+//    fp_unadj.X[i]:=pFr[i+1];
+// k:=0;
+// for I := 1 to fAlgorithmAmount do
+//   for j := 1 to (i-1) do
+//    begin
+//     fp_unadj.Y[k]:=i+IntToFrac(j);
+//     inc(k);
+//    end;
 // showmessage(fp_unadj.XYtoString);
 
+end;
+
+destructor TMultipleComparisons.Destroy;
+begin
+  FreeAndNil(fShafferIndexValues);
+  inherited;
+end;
+
+procedure TMultipleComparisons.FillShafferIndexValues;
+  var S:array of TVector;
+      i,j,m:word;
+      Cj2:Int64;
+begin
+ if fAlgorithmAmount<2 then
+     begin
+     fShafferIndexValues.Add(0,0);
+     Exit;
+     end;
+ SetLength(S,fAlgorithmAmount+1);
+ for i := 0 to High(S) do
+   S[i]:=TVector.Create;
+ S[0].Add(0,0);
+ S[1].Add(0,0);
+ for I := 2 to fAlgorithmAmount do
+   begin
+     for j := 1 to i do
+       begin
+         Cj2:=NchooseK(j,2);
+         for m := 0 to S[i-j].HighNumber do
+           S[i].Add(Cj2+round(S[i-j].X[m]));
+       end;
+     S[i].DeleteDuplicate;
+   end;
+ S[fAlgorithmAmount].CopyTo(fShafferIndexValues);
+ fShafferIndexValues.Sorting(False);
+ for i := 0 to High(S) do
+   FreeAndNil(S[i]);
 end;
 
 function TMultipleComparisons.MultipleHolmAPV(ControlAlgorithm,
   ÑomparisonAlgorithm: byte): double;
  var i:integer;
 begin
-// fhelpVector.Clear;
-// for I := 0 to ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
-//  fhelpVector.Add(i,(fAlgorithmAmount-i-1)*fp_unadj.X[i]);
-// Result:=min(1,fhelpVector.MaxY);
+ fhelpVector.Clear;
+ for I := 0 to NumberInP_unadj(ControlAlgorithm,ÑomparisonAlgorithm) do
+  fhelpVector.Add(i,(fPairAmount-i)*fp_unadj.X[i]);
+ if fhelpVector.HighNumber<0
+    then Result:=1
+    else Result:=min(1,fhelpVector.MaxY);
+end;
+
+function TMultipleComparisons.MultipleNemenyi(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+ var i:integer;
+begin
  i:=NumberInP_unadj(ControlAlgorithm,ÑomparisonAlgorithm);
- if i<0 then result:=1
-        else Result:=fp_unadj.X[i];
+ if i<0 then Result:=1
+        else Result:=min(fPairAmount*fp_unadj.X[i],1);
+end;
+
+function TMultipleComparisons.MultipleShafferStaticAPV(ControlAlgorithm,
+  ÑomparisonAlgorithm: byte): double;
+ var i,j:integer;
+begin
+ j:= NumberInP_unadj(ControlAlgorithm,ÑomparisonAlgorithm);
+ if j<0 then
+   begin
+     Result:=1;
+     Exit;
+   end;
+ fhelpVector.Clear;
+ for I := 0 to j do
+  fhelpVector.Add(i,ShafferIndex(i)*fp_unadj.X[i]);
+ Result:=min(1,fhelpVector.MaxY);
 end;
 
 function TMultipleComparisons.NumberInP_unadj(ControlAlgorithm,
@@ -1754,6 +1829,19 @@ begin
         Result:=i;
         Break;
        end;
+end;
+
+function TMultipleComparisons.ShafferIndex(j:integer): integer;
+  var i:word;
+begin
+ Result:=0;
+ if (j<0)or(j>(fPairAmount-1)) then  Exit;
+ for I := 0 to fShafferIndexValues.HighNumber do
+   if (fShafferIndexValues.X[i]<=(fPairAmount-j)) then
+     begin
+       Result:=round(fShafferIndexValues.X[i]);
+       Break;
+     end;
 end;
 
 end.

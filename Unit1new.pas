@@ -3645,18 +3645,17 @@ for im2 := Low(TMethods) to High(TMethods) do
 
 // OneToNTest:=TQuade.Create(MethodVector2);
  OneToNTest:=TMultipleComparisons.Create(MethodVector);
- showmessage((OneToNTest as TMultipleComparisons).p_unadj.XYtoString);
-  for I := 1 to 9 do
-   for j := 1 to (i-1) do
-    begin
-     Vec.Add((OneToNTest as TMultipleComparisons).MultipleHolmAPV(i,j),i+IntToFrac(j));
-    end;
-// for I := 1 to 8 do Vec.Add(i,OneToNTest.UnadjustedP(9,i));
- showmessage(Vec.XYtoString);
-// Vec.Clear;
-// for I := 1 to 8 do Vec.Add(i,OneToNTest.LiAPV(9,i));
+//  for I := 1 to 9 do
+//   for j := 1 to (i-1) do
+//    begin
+//     Vec.Add((OneToNTest as TMultipleComparisons).MultipleShafferStaticAPV(i,j),i+IntToFrac(j));
+//    end;
 
-// showmessage(Vec.XYtoString);
+ for I := 1 to 8 do Vec.Add(i,OneToNTest.UnadjustedP(9,i));
+ showmessage(Vec.XYtoString);
+ Vec.Clear;
+ for I := 1 to 8 do Vec.Add(i,OneToNTest.HommelAPV(9,i));
+ showmessage(Vec.XYtoString);
 
 
 // showmessage(floattostr(OneToNTest.UnadjustedP(9,1)));
