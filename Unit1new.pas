@@ -3600,6 +3600,7 @@ var
 //  MethodVector2:array[TMethods] of TVectorTransform;
   im2:TMethods;
   OneToNTest:TOneToNTest;
+  Str:TStringList;
 //  TMetaMethod=(mmPSO, mmIPOPES, mmCHC, mmSSGA, mmSSBLX, mmSSArit, mmDEBin, mmDEExp, mmSaDE);
 //  number, zero : double;
 //var dpn:TDiod_PN;
@@ -3618,68 +3619,92 @@ var
 
 begin
 
-SetLength(MethodVector,ord(High(TMetaMethod))+1);
-for im := Low(TMetaMethod) to High(TMetaMethod) do
-  MethodVector[ord(im)]:=TVector.Create;
+  Vec:=TVector.Create;
+  Str:=TStringList.Create;
+  T:=290;
+  repeat
+//   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
+//   T:=T+1;
+    Voc:=250;
+    Vec.Clear;
+    Str.Clear;
+    Str.Add('/absorption data for Si');
+    Str.Add('/from Schinke at el / AIP ADVANCES 5, 067168 (2015)');
+    Str.Add('/lambda[nm]	alfa[m^-1]');
+    repeat
+      Str.Add(inttostr(round(Voc))+'  '+FloattostrF(Silicon.Absorption(Voc,T),ffExponent,4,2));
+      Voc:=Voc+10;
+    until Voc>1450;
+     Str.SaveToFile('S'+Copy(inttostr(round(T)),2,2)+'.abs');
+    T:=T+5;
+  until T>340;
 
-  MethodVector[0].ReadFromFile('Abb1.dat',['PSO'],True);
-  MethodVector[1].ReadFromFile('Abb1.dat',['IPOPES'],True);
-  MethodVector[2].ReadFromFile('Abb1.dat',['CHC'],True);
-  MethodVector[3].ReadFromFile('Abb1.dat',['SSGA'],True);
-  MethodVector[4].ReadFromFile('Abb1.dat',['SSBLX'],True);
-  MethodVector[5].ReadFromFile('Abb1.dat',['SSArit'],True);
-  MethodVector[6].ReadFromFile('Abb1.dat',['DEBin'],True);
-  MethodVector[8].ReadFromFile('Abb1.dat',['DEExp'],True);
-  MethodVector[7].ReadFromFile('Abb1.dat',['SaDE'],True);
+//   Vec.WriteToFile('Tfeb18n0.dat',5,'T TAUfeb');
+   FreeAndNil(Vec);
+   Str.Free;
 
- Vec:=TVector.Create;
-
-SetLength(MethodVector2,ord(High(TMethods))+1);
-for im2 := Low(TMethods) to High(TMethods) do
-  MethodVector2[ord(im2)]:=TVector.Create;
-
-  MethodVector2[0].ReadFromFile('Abb2.dat',['A'],True);
-  MethodVector2[1].ReadFromFile('Abb2.dat',['B'],True);
-  MethodVector2[2].ReadFromFile('Abb2.dat',['C'],True);
-  MethodVector2[3].ReadFromFile('Abb2.dat',['D'],True);
-
-// OneToNTest:=TQuade.Create(MethodVector2);
- OneToNTest:=TMultipleComparisons.Create(MethodVector);
-//  for I := 1 to 9 do
-//   for j := 1 to (i-1) do
-//    begin
-//     Vec.Add((OneToNTest as TMultipleComparisons).MultipleShafferStaticAPV(i,j),i+IntToFrac(j));
-//    end;
-
- for I := 1 to 8 do Vec.Add(i,OneToNTest.UnadjustedP(9,i));
- showmessage(Vec.XYtoString);
- Vec.Clear;
- for I := 1 to 8 do Vec.Add(i,OneToNTest.HommelAPV(9,i));
- showmessage(Vec.XYtoString);
-
-
-// showmessage(floattostr(OneToNTest.UnadjustedP(9,1)));
-// showmessage(floattostr(OneToNTest.BonferroniAPV(9,1)));
-
-//   T:=0;
-//  repeat
-//    Vec.Add(T,TFisherD.CDF(T,3,69));
-//    T:=T+0.1;
-//  until T>30;
-//  Vec.WriteToFile('Atemp.dat',8);
-
-// showmessage(floattostr(FriedmanAlignedZvalue([MethodVector[mmIPOPES], MethodVector[mmCHC],
-//                                   MethodVector[mmSSBLX], MethodVector[mmSaDE]],4,2)));
-// showmessage(floattostr(FriedmanUnadjustedP([MethodVector[mmIPOPES], MethodVector[mmCHC],
-//                                   MethodVector[mmSSBLX], MethodVector[mmSaDE]],4,2)));
-
-  FreeAndNil(OneToNTest);
-for im2 := Low(TMethods) to High(TMethods) do
-  MethodVector2[ord(im2)].Free;
- FreeAndNil(Vec);
-for im := Low(TMetaMethod) to High(TMetaMethod) do
-  MethodVector[ord(im)].Free;
-
+//SetLength(MethodVector,ord(High(TMetaMethod))+1);
+//for im := Low(TMetaMethod) to High(TMetaMethod) do
+//  MethodVector[ord(im)]:=TVector.Create;
+//
+//  MethodVector[0].ReadFromFile('Abb1.dat',['PSO'],True);
+//  MethodVector[1].ReadFromFile('Abb1.dat',['IPOPES'],True);
+//  MethodVector[2].ReadFromFile('Abb1.dat',['CHC'],True);
+//  MethodVector[3].ReadFromFile('Abb1.dat',['SSGA'],True);
+//  MethodVector[4].ReadFromFile('Abb1.dat',['SSBLX'],True);
+//  MethodVector[5].ReadFromFile('Abb1.dat',['SSArit'],True);
+//  MethodVector[6].ReadFromFile('Abb1.dat',['DEBin'],True);
+//  MethodVector[8].ReadFromFile('Abb1.dat',['DEExp'],True);
+//  MethodVector[7].ReadFromFile('Abb1.dat',['SaDE'],True);
+//
+// Vec:=TVector.Create;
+//
+//SetLength(MethodVector2,ord(High(TMethods))+1);
+//for im2 := Low(TMethods) to High(TMethods) do
+//  MethodVector2[ord(im2)]:=TVector.Create;
+//
+//  MethodVector2[0].ReadFromFile('Abb2.dat',['A'],True);
+//  MethodVector2[1].ReadFromFile('Abb2.dat',['B'],True);
+//  MethodVector2[2].ReadFromFile('Abb2.dat',['C'],True);
+//  MethodVector2[3].ReadFromFile('Abb2.dat',['D'],True);
+//
+//// OneToNTest:=TQuade.Create(MethodVector2);
+// OneToNTest:=TMultipleComparisons.Create(MethodVector);
+////  for I := 1 to 9 do
+////   for j := 1 to (i-1) do
+////    begin
+////     Vec.Add((OneToNTest as TMultipleComparisons).MultipleShafferStaticAPV(i,j),i+IntToFrac(j));
+////    end;
+//
+// for I := 1 to 8 do Vec.Add(i,OneToNTest.UnadjustedP(9,i));
+// showmessage(Vec.XYtoString);
+// Vec.Clear;
+// for I := 1 to 8 do Vec.Add(i,OneToNTest.HommelAPV(9,i));
+// showmessage(Vec.XYtoString);
+//
+//
+//// showmessage(floattostr(OneToNTest.UnadjustedP(9,1)));
+//// showmessage(floattostr(OneToNTest.BonferroniAPV(9,1)));
+//
+////   T:=0;
+////  repeat
+////    Vec.Add(T,TFisherD.CDF(T,3,69));
+////    T:=T+0.1;
+////  until T>30;
+////  Vec.WriteToFile('Atemp.dat',8);
+//
+//// showmessage(floattostr(FriedmanAlignedZvalue([MethodVector[mmIPOPES], MethodVector[mmCHC],
+////                                   MethodVector[mmSSBLX], MethodVector[mmSaDE]],4,2)));
+//// showmessage(floattostr(FriedmanUnadjustedP([MethodVector[mmIPOPES], MethodVector[mmCHC],
+////                                   MethodVector[mmSSBLX], MethodVector[mmSaDE]],4,2)));
+//
+//  FreeAndNil(OneToNTest);
+//for im2 := Low(TMethods) to High(TMethods) do
+//  MethodVector2[ord(im2)].Free;
+// FreeAndNil(Vec);
+//for im := Low(TMetaMethod) to High(TMetaMethod) do
+//  MethodVector[ord(im)].Free;
+//
 
 
 //showmessage(floattostr(2*(1-NormalCDF(13,12.5,sqrt(25)/2))));
@@ -3719,26 +3744,7 @@ for im := Low(TMetaMethod) to High(TMetaMethod) do
 
 //showmessage(floattostr(DiodPN.delN(0.4)));
 //
-//  Vec:=TVector.Create;
-//   Fe:=TDefect.Create(FeB_ac);
-//   Fe.Nd:=1e18;
-//  T:=290;
-//  repeat
-////   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
-////   T:=T+1;
-//    Voc:=0.15;
-//    Vec.Clear;
-//    repeat
-//      Vec.Add(Voc,DiodPN.delN(Voc,0,0,T));
-//      Voc:=Voc+0.005;
-//    until Voc>0.651;
-//    Vec.WriteToFile('dN_vs_Voc_'+inttostr(round(T))+'.dat',5,'Voc delN');
-//    T:=T+5;
-//  until T>350;
-//
-////   Vec.WriteToFile('Tfeb18n0.dat',5,'T TAUfeb');
-//   FreeAndNil(Fe);
-//   FreeAndNil(Vec);
+
 
 //  ro:=0.5;
 //  repeat
