@@ -44,6 +44,8 @@ type
       function ValueXY (Coord: TCoord_type; CoordValue: Double;i,j:integer):double;
       function GetInformation(const Index: Integer): double;
       function GetInformationInt(const Index: Integer): integer;
+      function GetQuartile(const Index: Integer):double;
+      function GetQLimit(const Index: Integer):double;
       function GetInt_Trap: double;
       function GetHigh: Integer;
       function GetSegmentEnd: Integer;
@@ -118,6 +120,20 @@ type
         {повертає результат інтегрування за методом
         трапецій;  вважається, що межі інтегралу простягаються на
         весь діапазон зміни А^.X}
+      property Median:double Index 1 read GetQuartile;
+      {повертає медіанне значення в масиві Y}
+      property Q1:double Index 0 read GetQuartile;
+      {повертає квантиль 0,25 в масиві Y}
+      property Q3:double Index 2 read GetQuartile;
+      {повертає квантиль 0,25 в масиві Y}
+      property Q2:double Index 1 read GetQuartile;
+      {повертає квантиль 0,25 в масиві Y}
+      property IQR:double Index 3 read GetQuartile;
+      {міжквартильний розмах в масиві Y}
+      property LowQLimit:double Index 1 read GetQLimit;
+      {значення, яке відповідає нижнім вусам на коробковому графіку}
+      property HighQLimit:double Index 2 read GetQLimit;
+      {значення, яке відповідає верхнім  вусам на коробковому графіку}
 
       Constructor Create;overload;
       Constructor Create(ExternalVector:TVector);overload;
@@ -249,6 +265,9 @@ type
       {визначає, чи знаходиться точка з номером PointNumber в межах,
       що задаються в Diapazon}
       function PointInDiapazon(Lim:Limits;PointNumber:integer):boolean;overload;
+      function Quartile(q:double):double;
+      {повертає квантиль q в масиві Y;
+      якщо точок <1 або q<0 чи >1 - Result:=ErResult}
         end;
 
   Function Kv(Argument:double;Parameters:array of double):double;
@@ -1022,9 +1041,59 @@ begin
   Result:=Result/2;
 end;
 
+function TVector.GetQLimit(const Index: Integer): double;
+ var tempVector:TVector;
+     Q1,Q3,LimitValue:double;
+     j:integer;
+begin
+  if (Self.Count=0) then Exit(ErResult);
+
+  tempVector.Create(Self);
+  tempVector.SwapXY;
+  tempVector.Sorting();
+  Q1:=(tempVector.X[max(0,floor(Count*0.25)-1)]
+           +tempVector.X[max(0,ceil(Count*0.25)-1)])/2;
+  Q3:=(tempVector.X[max(0,floor(Count*0.75)-1)]
+           +tempVector.X[max(0,ceil(Count*0.75)-1)])/2;
+  case Index of
+   1:begin
+      LimitValue:=Q1-1.5*(Q3-Q1);
+      for j := 0 to HighNumber do
+        if tempVector.X[j]>LimitValue then
+          begin
+            Result:=tempVector.X[j];
+            Break;
+          end;
+     end;
+   2:begin
+      LimitValue:=Q3+1.5*(Q3-Q1);
+      for j := HighNumber to 0 do
+        if tempVector.X[j]<LimitValue then
+          begin
+            Result:=tempVector.X[j];
+            Break;
+          end;
+     end;
+    else Result:=ErResult;
+  end;
+  FreeAndNil(tempVector);
+end;
+
 function TVector.GetN: Integer;
 begin
  Result:=High(Points)+1;
+end;
+
+
+function TVector.GetQuartile(const Index: Integer): double;
+begin
+ case Index of
+  0:Result:=Quartile(0.25);
+  1:Result:=Quartile(0.5);
+  2:Result:=Quartile(0.75);
+  3:Result:=Quartile(0.75)-Quartile(0.25);
+  else Result:=ErResult;
+ end;
 end;
 
 function TVector.GetSegmentEnd: Integer;
@@ -1162,6 +1231,20 @@ begin
   PointSet(Number2,tempPoint);
  except
  end;
+end;
+
+function TVector.Quartile(q: double): double;
+ var tempVector:TVector;
+begin
+ if (Self.Count=0)
+    or(q<0)or(q>1) then Exit(ErResult);
+
+  tempVector.Create(Self);
+  tempVector.SwapXY;
+  tempVector.Sorting();
+  Result:=(tempVector.X[max(0,floor(Count*q)-1)]
+           +tempVector.X[max(0,ceil(Count*q)-1)])/2;
+  FreeAndNil(tempVector);
 end;
 
 procedure TVector.PointSet(Number: integer; x, y: double);
