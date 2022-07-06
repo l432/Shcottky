@@ -3621,23 +3621,33 @@ begin
 
   Vec:=TVector.Create;
   Str:=TStringList.Create;
-  T:=290;
-  repeat
-//   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
-//   T:=T+1;
-    Voc:=250;
-    Vec.Clear;
-    Str.Clear;
-    Str.Add('/absorption data for Si');
-    Str.Add('/from Schinke at el / AIP ADVANCES 5, 067168 (2015)');
-    Str.Add('/lambda[nm]	alfa[m^-1]');
-    repeat
-      Str.Add(inttostr(round(Voc))+'  '+FloattostrF(Silicon.Absorption(Voc,T),ffExponent,4,2));
-      Voc:=Voc+10;
-    until Voc>1450;
-     Str.SaveToFile('S'+Copy(inttostr(round(T)),2,2)+'.abs');
-    T:=T+5;
-  until T>340;
+//  T:=290;
+//  repeat
+////   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
+////   T:=T+1;
+//    Voc:=250;
+//    Vec.Clear;
+//    Str.Clear;
+//    Str.Add('/absorption data for Si');
+//    Str.Add('/from Schinke at el / AIP ADVANCES 5, 067168 (2015)');
+//    Str.Add('/lambda[nm]	alfa[m^-1]');
+//    repeat
+//      Str.Add(inttostr(round(Voc))+'  '+FloattostrF(Silicon.Absorption(Voc,T),ffExponent,4,2));
+//      Voc:=Voc+10;
+//    until Voc>1450;
+//     Str.SaveToFile('S'+Copy(inttostr(round(T)),2,2)+'.abs');
+//    T:=T+5;
+//  until T>340;
+
+//  Vec.Add(1e21,Silicon.Cp_AugerNew(Silicon.MinorityN(1e21,290),1e21,290));
+//  Vec.Add(1e22,Silicon.Cp_AugerNew(Silicon.MinorityN(1e22,290),1e22,290));
+//  Vec.Add(1e23,Silicon.Cp_AugerNew(Silicon.MinorityN(1e23,290),1e23,290));
+//  Vec.Add(1e24,Silicon.Cp_AugerNew(Silicon.MinorityN(1e24,290),1e24,290));
+  Vec.Add(1e21,Silicon.Cp_Auger(1e21,290));
+  Vec.Add(1e22,Silicon.Cp_Auger(1e22,290));
+  Vec.Add(1e23,Silicon.Cp_Auger(1e23,290));
+  Vec.Add(1e24,Silicon.Cp_Auger(1e24,290));
+  showmessage(Vec.XYtoString);
 
 //   Vec.WriteToFile('Tfeb18n0.dat',5,'T TAUfeb');
    FreeAndNil(Vec);
