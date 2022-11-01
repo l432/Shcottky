@@ -1043,14 +1043,18 @@ begin
 
  D:=TDiapazon.Create;
  D.StrictEquality:=False;
+//  showmessage(floattostr(0.5*P_V.X[Number_Vmax]));
  D.SetLimits(-0.5*P_V.X[Number_Vmax],0.42*P_V.X[Number_Vmax],
              Self.MinY,ErResult);
 
  temp:=TVectorTransform.Create();
  Self.CopyDiapazonPoint(temp,D);
  Self.PointSupplement(temp,2);
- OutputData[1]:=-temp.NPolinomA0(1);
-
+// showmessage(temp.XYtoString);
+// OutputData[1]:=-temp.NPolinomA0(1);
+ {щось погано рахувало Isc для моїх ВАХ,
+ змінив на спрощений варіант}
+ OutputData[1]:=-Self.Yvalue(0);
 
  D.SetLimits(Self.MinX,ErResult,
             -0.25*Imax,0.33*Imax);
