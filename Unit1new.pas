@@ -896,6 +896,7 @@ type
    {повертає значення, яке зв'язане з типом графіку, який
    будується залежно від назви об'єкта Sender}
     procedure CBoxGLShowClickAve(Sender: TObject);
+    procedure SpectrApprox();
   public
     procedure ApproxHide;
     {прибирається апроксимаційна крива,
@@ -2419,6 +2420,43 @@ end;
 
 
 
+procedure TForm1.SpectrApprox;
+  var
+  drive:char;
+  path, fileName, Dir:string;
+  Vec:TVectorTransform;
+  Vec2:TVector;
+  i,j:integer;
+begin
+   if OpenDialog1.Execute()
+     then
+       begin
+       FormatSettings.DecimalSeparator:='.';
+       Vec:=TVectorTransform.Create;
+       Vec2:=TVector.Create;
+       ProcessPath(OpenDialog1.FileName, drive, path, fileName);
+       Dir:=drive + ':' + path;
+       CurDirectory:=Directory;
+       ChDir(Dir);
+       Vec.ReadFromFile(fileName,[2,3]);
+       Vec.Splain3(Vec2,3845,5);
+       for I := 0 to Vec2.HighNumber do
+        if Vec2.X[i]>8505 then
+          for j:= Vec2.HighNumber downto i do
+             Vec2.DeletePoint(j);
+       Vec2.AdditionY(-Vec2.MinY);
+       Vec2.MultiplyY(1/Vec2.MaxY);
+       Vec2.WriteToFile(FitName(Vec,'N'),4,'Lambda ArbUnit');
+//       Vec2.WriteToFile(ChangeFileExt(fileName, '')+'N.dat',4,'Lambda ArbUnit');
+       for I := 0 to Vec2.HighNumber do
+        Vec2.Y[i]:=Vec2.X[i]*Vec2.Y[i];
+       Vec2.MultiplyY(1/Vec2.MaxY);
+       Vec2.WriteToFile(FitName(Vec,'Nph'),6,'Lambda ArbUnit');
+       FreeAndNil(Vec2);
+       FreeAndNil(Vec);
+       end;
+end;
+
 procedure TForm1.TrackBarMarChange(Sender: TObject);
 begin
   MarkerDraw(VaxGraph,VaxFile,TrackBarMar.Position,Form1);
@@ -3618,40 +3656,17 @@ var
 
 
 begin
+  SpectrApprox();
 
-  Vec:=TVector.Create;
-  Str:=TStringList.Create;
-//  T:=290;
-//  repeat
-////   Vec.Add(T,Fe.TAUsrh(DiodPN.LayerP.Nd,0,T));
-////   T:=T+1;
-//    Voc:=250;
-//    Vec.Clear;
-//    Str.Clear;
-//    Str.Add('/absorption data for Si');
-//    Str.Add('/from Schinke at el / AIP ADVANCES 5, 067168 (2015)');
-//    Str.Add('/lambda[nm]	alfa[m^-1]');
-//    repeat
-//      Str.Add(inttostr(round(Voc))+'  '+FloattostrF(Silicon.Absorption(Voc,T),ffExponent,4,2));
-//      Voc:=Voc+10;
-//    until Voc>1450;
-//     Str.SaveToFile('S'+Copy(inttostr(round(T)),2,2)+'.abs');
-//    T:=T+5;
-//  until T>340;
-
-//  Vec.Add(1e21,Silicon.Cp_AugerNew(Silicon.MinorityN(1e21,290),1e21,290));
-//  Vec.Add(1e22,Silicon.Cp_AugerNew(Silicon.MinorityN(1e22,290),1e22,290));
-//  Vec.Add(1e23,Silicon.Cp_AugerNew(Silicon.MinorityN(1e23,290),1e23,290));
-//  Vec.Add(1e24,Silicon.Cp_AugerNew(Silicon.MinorityN(1e24,290),1e24,290));
-  Vec.Add(1e21,Silicon.Cp_Auger(1e21,290));
-  Vec.Add(1e22,Silicon.Cp_Auger(1e22,290));
-  Vec.Add(1e23,Silicon.Cp_Auger(1e23,290));
-  Vec.Add(1e24,Silicon.Cp_Auger(1e24,290));
-  showmessage(Vec.XYtoString);
-
-//   Vec.WriteToFile('Tfeb18n0.dat',5,'T TAUfeb');
-   FreeAndNil(Vec);
-   Str.Free;
+//  Vec:=TVector.Create;
+//  Str:=TStringList.Create;
+//  Vec.Add(1e21,Silicon.Cp_Auger(1e21,290));
+//  Vec.Add(1e22,Silicon.Cp_Auger(1e22,290));
+//  Vec.Add(1e23,Silicon.Cp_Auger(1e23,290));
+//  Vec.Add(1e24,Silicon.Cp_Auger(1e24,290));
+//  showmessage(Vec.XYtoString);
+//  FreeAndNil(Vec);
+//   Str.Free;
 
 //SetLength(MethodVector,ord(High(TMetaMethod))+1);
 //for im := Low(TMetaMethod) to High(TMetaMethod) do
