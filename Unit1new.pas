@@ -2463,6 +2463,7 @@ var Slide:TVectorTransform;
     CreatedSpectr200,CreatedSpectr300,CreatedSpectr400,
     CreatedSpectr500,CreatedSpectr600,CreatedSpectr700,CreatedSpectr750:TVector;
     OutputData:TArrSingle;
+    Arr:TArrSingle;
     i:integer;
 begin
   ChDir('D:\Samples\DeepL\2022\Lamps\Spectrs');
@@ -2484,20 +2485,20 @@ begin
 ////  MeasuredSpectr2.ReadFromFile('GE68Nph.dat');
 //  Slide.Add(246,246);
 //  Slide.Add(398,398);
-
-////  MeasuredSpectr1.ReadFromFile('orion6N.dat');
-////  MeasuredSpectr2.ReadFromFile('orion69N.dat');
-//  MeasuredSpectr1.ReadFromFile('orion6Nph.dat');
-//  MeasuredSpectr2.ReadFromFile('orion69Nph.dat');
+//
+//  MeasuredSpectr1.ReadFromFile('orion6N.dat');
+//  MeasuredSpectr2.ReadFromFile('orion69N.dat');
+////  MeasuredSpectr1.ReadFromFile('orion6Nph.dat');
+////  MeasuredSpectr2.ReadFromFile('orion69Nph.dat');
 //  Slide.Add(338,338);
 //  Slide.Add(670,670);
 
-//  MeasuredSpectr1.ReadFromFile('osram7N.dat');
-//  MeasuredSpectr2.ReadFromFile('osram8N.dat');
-//  MeasuredSpectr3.ReadFromFile('osram9N.dat');
-  MeasuredSpectr1.ReadFromFile('osram7Nph.dat');
-  MeasuredSpectr2.ReadFromFile('osram8Nph.dat');
-  MeasuredSpectr3.ReadFromFile('osram9Nph.dat');
+  MeasuredSpectr1.ReadFromFile('osram7N.dat');
+  MeasuredSpectr2.ReadFromFile('osram8N.dat');
+  MeasuredSpectr3.ReadFromFile('osram9N.dat');
+//  MeasuredSpectr1.ReadFromFile('osram7Nph.dat');
+//  MeasuredSpectr2.ReadFromFile('osram8Nph.dat');
+//  MeasuredSpectr3.ReadFromFile('osram9Nph.dat');
   Slide.Add(180,180);
   Slide.Add(361,361);
   Slide.Add(649,649);
@@ -2523,12 +2524,49 @@ begin
 //    CreatedSpectr750.Add(MeasuredSpectr1.X[i],max(NPolinom(750,OutputData),0));
    end;
 
+  SetLength(Arr,MeasuredSpectr1.HighNumber+1);
+
+
+
+
 //  CreatedSpectr200.WriteToFile('GE_N200.dat',6,'Lambda ArbUnit');
 //  CreatedSpectr300.WriteToFile('GE_N300.dat',6,'Lambda ArbUnit');
 //  CreatedSpectr400.WriteToFile('GE_N400.dat',6,'Lambda ArbUnit');
-////  CreatedSpectr200.WriteToFile('GE_Nph200.dat',6,'Lambda ArbUnit');
-////  CreatedSpectr300.WriteToFile('GE_Nph300.dat',6,'Lambda ArbUnit');
-////  CreatedSpectr400.WriteToFile('GE_Nph400.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr200.WriteToFile('GE_Nph200.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr300.WriteToFile('GE_Nph300.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr400.WriteToFile('GE_Nph400.dat',6,'Lambda ArbUnit');
+
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr200.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr200.Y[i]:=Arr[i]*200;
+//  CreatedSpectr200.WriteToFile('GE_200s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr200.Y[i]:=CreatedSpectr200.X[i]*CreatedSpectr200.Y[i];
+//  CreatedSpectr200.WriteToFile('GE_200sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr300.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr300.Y[i]:=Arr[i]*300;
+//  CreatedSpectr300.WriteToFile('GE_300s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr300.Y[i]:=CreatedSpectr300.X[i]*CreatedSpectr300.Y[i];
+//  CreatedSpectr300.WriteToFile('GE_300sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr400.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr400.Y[i]:=Arr[i]*400;
+//  CreatedSpectr400.WriteToFile('GE_400s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr400.Y[i]:=CreatedSpectr400.X[i]*CreatedSpectr400.Y[i];
+//  CreatedSpectr400.WriteToFile('GE_400sNph.dat',6,'Lambda ArbUnit');
+
+
 
 ////  CreatedSpectr200.WriteToFile('orion_N200.dat',6,'Lambda ArbUnit');
 ////  CreatedSpectr300.WriteToFile('orion_N300.dat',6,'Lambda ArbUnit');
@@ -2545,18 +2583,150 @@ begin
 //  CreatedSpectr700.WriteToFile('orion_Nph700.dat',6,'Lambda ArbUnit');
 //  CreatedSpectr750.WriteToFile('orion_Nph750.dat',6,'Lambda ArbUnit');
 
-//  CreatedSpectr200.WriteToFile('osram_N200.dat',6,'Lambda ArbUnit');
-//  CreatedSpectr300.WriteToFile('osram_N300.dat',6,'Lambda ArbUnit');
-//  CreatedSpectr400.WriteToFile('osram_N400.dat',6,'Lambda ArbUnit');
-//  CreatedSpectr500.WriteToFile('osram_N500.dat',6,'Lambda ArbUnit');
-//  CreatedSpectr600.WriteToFile('osram_N600.dat',6,'Lambda ArbUnit');
-//  CreatedSpectr700.WriteToFile('osram_N700.dat',6,'Lambda ArbUnit');
-  CreatedSpectr200.WriteToFile('osram_Nph200.dat',6,'Lambda ArbUnit');
-  CreatedSpectr300.WriteToFile('osram_Nph300.dat',6,'Lambda ArbUnit');
-  CreatedSpectr400.WriteToFile('osram_Nph400.dat',6,'Lambda ArbUnit');
-  CreatedSpectr500.WriteToFile('osram_Nph500.dat',6,'Lambda ArbUnit');
-  CreatedSpectr600.WriteToFile('osram_Nph600.dat',6,'Lambda ArbUnit');
-  CreatedSpectr700.WriteToFile('osram_Nph700.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr200.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr200.Y[i]:=Arr[i]*200;
+//  CreatedSpectr200.WriteToFile('orion_200s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr200.Y[i]:=CreatedSpectr200.X[i]*CreatedSpectr200.Y[i];
+//  CreatedSpectr200.WriteToFile('orion_200sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr300.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr300.Y[i]:=Arr[i]*300;
+//  CreatedSpectr300.WriteToFile('orion_300s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr300.Y[i]:=CreatedSpectr300.X[i]*CreatedSpectr300.Y[i];
+//  CreatedSpectr300.WriteToFile('orion_300sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr400.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr400.Y[i]:=Arr[i]*400;
+//  CreatedSpectr400.WriteToFile('orion_400s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr400.Y[i]:=CreatedSpectr400.X[i]*CreatedSpectr400.Y[i];
+//  CreatedSpectr400.WriteToFile('orion_400sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr500.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr500.Y[i]:=Arr[i]*500;
+//  CreatedSpectr500.WriteToFile('orion_500s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr500.Y[i]:=CreatedSpectr500.X[i]*CreatedSpectr500.Y[i];
+//  CreatedSpectr500.WriteToFile('orion_500sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr600.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr600.Y[i]:=Arr[i]*600;
+//  CreatedSpectr600.WriteToFile('orion_600s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr600.Y[i]:=CreatedSpectr600.X[i]*CreatedSpectr600.Y[i];
+//  CreatedSpectr600.WriteToFile('orion_600sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr700.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr700.Y[i]:=Arr[i]*700;
+//  CreatedSpectr700.WriteToFile('orion_700s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr700.Y[i]:=CreatedSpectr700.X[i]*CreatedSpectr700.Y[i];
+//  CreatedSpectr700.WriteToFile('orion_700sNph.dat',6,'Lambda ArbUnit');
+//
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    Arr[i]:=CreatedSpectr750.Y[i];
+//  NormalArray(Arr);
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//    CreatedSpectr750.Y[i]:=Arr[i]*750;
+//  CreatedSpectr750.WriteToFile('orion_750s.dat',6,'Lambda ArbUnit');
+//  for I := 0 to MeasuredSpectr1.HighNumber do
+//        CreatedSpectr750.Y[i]:=CreatedSpectr750.X[i]*CreatedSpectr750.Y[i];
+//  CreatedSpectr750.WriteToFile('orion_750sNph.dat',6,'Lambda ArbUnit');
+
+
+
+////  CreatedSpectr200.WriteToFile('osram_N200.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr300.WriteToFile('osram_N300.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr400.WriteToFile('osram_N400.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr500.WriteToFile('osram_N500.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr600.WriteToFile('osram_N600.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr700.WriteToFile('osram_N700.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr200.WriteToFile('osram_Nph200.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr300.WriteToFile('osram_Nph300.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr400.WriteToFile('osram_Nph400.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr500.WriteToFile('osram_Nph500.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr600.WriteToFile('osram_Nph600.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr700.WriteToFile('osram_Nph700.dat',6,'Lambda ArbUnit');
+
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    Arr[i]:=CreatedSpectr200.Y[i];
+  NormalArray(Arr);
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    CreatedSpectr200.Y[i]:=Arr[i]*200;
+  CreatedSpectr200.WriteToFile('osram_200s.dat',6,'Lambda ArbUnit');
+  for I := 0 to MeasuredSpectr1.HighNumber do
+        CreatedSpectr200.Y[i]:=CreatedSpectr200.X[i]*CreatedSpectr200.Y[i];
+  CreatedSpectr200.WriteToFile('osram_200sNph.dat',6,'Lambda ArbUnit');
+
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    Arr[i]:=CreatedSpectr300.Y[i];
+  NormalArray(Arr);
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    CreatedSpectr300.Y[i]:=Arr[i]*300;
+  CreatedSpectr300.WriteToFile('osram_300s.dat',6,'Lambda ArbUnit');
+  for I := 0 to MeasuredSpectr1.HighNumber do
+        CreatedSpectr300.Y[i]:=CreatedSpectr300.X[i]*CreatedSpectr300.Y[i];
+  CreatedSpectr300.WriteToFile('osram_300sNph.dat',6,'Lambda ArbUnit');
+
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    Arr[i]:=CreatedSpectr400.Y[i];
+  NormalArray(Arr);
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    CreatedSpectr400.Y[i]:=Arr[i]*400;
+  CreatedSpectr400.WriteToFile('osram_400s.dat',6,'Lambda ArbUnit');
+  for I := 0 to MeasuredSpectr1.HighNumber do
+        CreatedSpectr400.Y[i]:=CreatedSpectr400.X[i]*CreatedSpectr400.Y[i];
+  CreatedSpectr400.WriteToFile('osram_400sNph.dat',6,'Lambda ArbUnit');
+
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    Arr[i]:=CreatedSpectr500.Y[i];
+  NormalArray(Arr);
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    CreatedSpectr500.Y[i]:=Arr[i]*500;
+  CreatedSpectr500.WriteToFile('osram_500s.dat',6,'Lambda ArbUnit');
+  for I := 0 to MeasuredSpectr1.HighNumber do
+        CreatedSpectr500.Y[i]:=CreatedSpectr500.X[i]*CreatedSpectr500.Y[i];
+  CreatedSpectr500.WriteToFile('osram_500sNph.dat',6,'Lambda ArbUnit');
+
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    Arr[i]:=CreatedSpectr600.Y[i];
+  NormalArray(Arr);
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    CreatedSpectr600.Y[i]:=Arr[i]*600;
+  CreatedSpectr600.WriteToFile('osram_600s.dat',6,'Lambda ArbUnit');
+  for I := 0 to MeasuredSpectr1.HighNumber do
+        CreatedSpectr600.Y[i]:=CreatedSpectr600.X[i]*CreatedSpectr600.Y[i];
+  CreatedSpectr600.WriteToFile('osram_600sNph.dat',6,'Lambda ArbUnit');
+
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    Arr[i]:=CreatedSpectr700.Y[i];
+  NormalArray(Arr);
+  for I := 0 to MeasuredSpectr1.HighNumber do
+    CreatedSpectr700.Y[i]:=Arr[i]*700;
+  CreatedSpectr700.WriteToFile('osram_700s.dat',6,'Lambda ArbUnit');
+  for I := 0 to MeasuredSpectr1.HighNumber do
+        CreatedSpectr700.Y[i]:=CreatedSpectr700.X[i]*CreatedSpectr700.Y[i];
+  CreatedSpectr700.WriteToFile('osram_700sNph.dat',6,'Lambda ArbUnit');
 
   FreeAndNil(Slide);
   FreeAndNil(MeasuredSpectr1);
