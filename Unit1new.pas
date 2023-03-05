@@ -897,6 +897,7 @@ type
    будується залежно від назви об'єкта Sender}
     procedure CBoxGLShowClickAve(Sender: TObject);
     procedure SpectrApprox();
+    procedure SpectrCreate();
   public
     procedure ApproxHide;
     {прибирається апроксимаційна крива,
@@ -2436,7 +2437,6 @@ begin
        Vec2:=TVector.Create;
        ProcessPath(OpenDialog1.FileName, drive, path, fileName);
        Dir:=drive + ':' + path;
-       CurDirectory:=Directory;
        ChDir(Dir);
        Vec.ReadFromFile(fileName,[2,3]);
        Vec.Splain3(Vec2,3845,5);
@@ -2455,6 +2455,120 @@ begin
        FreeAndNil(Vec2);
        FreeAndNil(Vec);
        end;
+end;
+
+procedure TForm1.SpectrCreate;
+var Slide:TVectorTransform;
+    MeasuredSpectr1,MeasuredSpectr2,MeasuredSpectr3:TVector;
+    CreatedSpectr200,CreatedSpectr300,CreatedSpectr400,
+    CreatedSpectr500,CreatedSpectr600,CreatedSpectr700,CreatedSpectr750:TVector;
+    OutputData:TArrSingle;
+    i:integer;
+begin
+  ChDir('D:\Samples\DeepL\2022\Lamps\Spectrs');
+  Slide:=TVectorTransform.Create;
+  MeasuredSpectr1:=TVector.Create;
+  MeasuredSpectr2:=TVector.Create;
+  MeasuredSpectr3:=TVector.Create;
+  CreatedSpectr200:=TVector.Create;
+  CreatedSpectr300:=TVector.Create;
+  CreatedSpectr400:=TVector.Create;
+  CreatedSpectr500:=TVector.Create;
+  CreatedSpectr600:=TVector.Create;
+  CreatedSpectr700:=TVector.Create;
+  CreatedSpectr750:=TVector.Create;
+
+//  MeasuredSpectr1.ReadFromFile('GE62N.dat');
+//  MeasuredSpectr2.ReadFromFile('GE68N.dat');
+////  MeasuredSpectr1.ReadFromFile('GE62Nph.dat');
+////  MeasuredSpectr2.ReadFromFile('GE68Nph.dat');
+//  Slide.Add(246,246);
+//  Slide.Add(398,398);
+
+////  MeasuredSpectr1.ReadFromFile('orion6N.dat');
+////  MeasuredSpectr2.ReadFromFile('orion69N.dat');
+//  MeasuredSpectr1.ReadFromFile('orion6Nph.dat');
+//  MeasuredSpectr2.ReadFromFile('orion69Nph.dat');
+//  Slide.Add(338,338);
+//  Slide.Add(670,670);
+
+//  MeasuredSpectr1.ReadFromFile('osram7N.dat');
+//  MeasuredSpectr2.ReadFromFile('osram8N.dat');
+//  MeasuredSpectr3.ReadFromFile('osram9N.dat');
+  MeasuredSpectr1.ReadFromFile('osram7Nph.dat');
+  MeasuredSpectr2.ReadFromFile('osram8Nph.dat');
+  MeasuredSpectr3.ReadFromFile('osram9Nph.dat');
+  Slide.Add(180,180);
+  Slide.Add(361,361);
+  Slide.Add(649,649);
+
+
+
+  showmessage(inttostr(MeasuredSpectr1.HighNumber));
+
+
+  for I := 0 to MeasuredSpectr1.HighNumber do
+   begin
+    Slide.Y[0]:=MeasuredSpectr1.Y[i];
+    Slide.Y[1]:=MeasuredSpectr2.Y[i];
+//    Slide.LinAprox(OutputData);
+    Slide.Y[2]:=MeasuredSpectr3.Y[i];
+    Slide.ParabAprox(OutputData);
+    CreatedSpectr200.Add(MeasuredSpectr1.X[i],max(NPolinom(200,OutputData),0));
+    CreatedSpectr300.Add(MeasuredSpectr1.X[i],max(NPolinom(300,OutputData),0));
+    CreatedSpectr400.Add(MeasuredSpectr1.X[i],max(NPolinom(400,OutputData),0));
+    CreatedSpectr500.Add(MeasuredSpectr1.X[i],max(NPolinom(500,OutputData),0));
+    CreatedSpectr600.Add(MeasuredSpectr1.X[i],max(NPolinom(600,OutputData),0));
+    CreatedSpectr700.Add(MeasuredSpectr1.X[i],max(NPolinom(700,OutputData),0));
+//    CreatedSpectr750.Add(MeasuredSpectr1.X[i],max(NPolinom(750,OutputData),0));
+   end;
+
+//  CreatedSpectr200.WriteToFile('GE_N200.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr300.WriteToFile('GE_N300.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr400.WriteToFile('GE_N400.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr200.WriteToFile('GE_Nph200.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr300.WriteToFile('GE_Nph300.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr400.WriteToFile('GE_Nph400.dat',6,'Lambda ArbUnit');
+
+////  CreatedSpectr200.WriteToFile('orion_N200.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr300.WriteToFile('orion_N300.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr400.WriteToFile('orion_N400.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr500.WriteToFile('orion_N500.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr600.WriteToFile('orion_N600.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr700.WriteToFile('orion_N700.dat',6,'Lambda ArbUnit');
+////  CreatedSpectr750.WriteToFile('orion_N750.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr200.WriteToFile('orion_Nph200.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr300.WriteToFile('orion_Nph300.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr400.WriteToFile('orion_Nph400.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr500.WriteToFile('orion_Nph500.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr600.WriteToFile('orion_Nph600.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr700.WriteToFile('orion_Nph700.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr750.WriteToFile('orion_Nph750.dat',6,'Lambda ArbUnit');
+
+//  CreatedSpectr200.WriteToFile('osram_N200.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr300.WriteToFile('osram_N300.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr400.WriteToFile('osram_N400.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr500.WriteToFile('osram_N500.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr600.WriteToFile('osram_N600.dat',6,'Lambda ArbUnit');
+//  CreatedSpectr700.WriteToFile('osram_N700.dat',6,'Lambda ArbUnit');
+  CreatedSpectr200.WriteToFile('osram_Nph200.dat',6,'Lambda ArbUnit');
+  CreatedSpectr300.WriteToFile('osram_Nph300.dat',6,'Lambda ArbUnit');
+  CreatedSpectr400.WriteToFile('osram_Nph400.dat',6,'Lambda ArbUnit');
+  CreatedSpectr500.WriteToFile('osram_Nph500.dat',6,'Lambda ArbUnit');
+  CreatedSpectr600.WriteToFile('osram_Nph600.dat',6,'Lambda ArbUnit');
+  CreatedSpectr700.WriteToFile('osram_Nph700.dat',6,'Lambda ArbUnit');
+
+  FreeAndNil(Slide);
+  FreeAndNil(MeasuredSpectr1);
+  FreeAndNil(MeasuredSpectr2);
+  FreeAndNil(MeasuredSpectr3);
+  FreeAndNil(CreatedSpectr200);
+  FreeAndNil(CreatedSpectr300);
+  FreeAndNil(CreatedSpectr400);
+  FreeAndNil(CreatedSpectr500);
+  FreeAndNil(CreatedSpectr600);
+  FreeAndNil(CreatedSpectr700);
+  FreeAndNil(CreatedSpectr750);
 end;
 
 procedure TForm1.TrackBarMarChange(Sender: TObject);
@@ -3656,7 +3770,8 @@ var
 
 
 begin
-  SpectrApprox();
+//  SpectrApprox();
+  SpectrCreate();
 
 //  Vec:=TVector.Create;
 //  Str:=TStringList.Create;
