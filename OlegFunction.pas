@@ -255,6 +255,9 @@ function IntToFrac(i:integer):double;
 {ділить модуль і доти, поки не буде число, менше 1,
 його і повертає}
 
+procedure StringListShow(StrL:TStringList);
+
+
 implementation
 
 uses
@@ -1346,6 +1349,20 @@ begin
   end;
  Result:=abs(i)/10.0;
  while (Result>1) do Result:=Result/10;
+end;
+
+procedure StringListShow(StrL:TStringList);
+ var temp:string;
+   i:integer;
+begin
+ temp:='';
+ if StrL.Count>0
+   then
+     for I := 0 to StrL.Count-1 do
+       temp:=temp+ StrL[i]+#10
+   else
+    temp:='is empty';
+ showmessage(temp);
 end;
 
 end.
