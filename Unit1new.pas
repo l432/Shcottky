@@ -2444,6 +2444,14 @@ begin
         if Vec2.X[i]>8505 then
           for j:= Vec2.HighNumber downto i do
              Vec2.DeletePoint(j);
+
+//       for I := 0 to Vec2.HighNumber do
+//        Vec2.Y[i]:=Silicon.Absorption(Vec2.X[i]/10,340);
+//       Vec2.WriteToFile('Absorb.dat',6,'Lambda Absorb');
+//       for I := 0 to Vec2.HighNumber do
+//        Vec2.Y[i]:=1/Vec2.Y[i];
+//       Vec2.WriteToFile('Absorb2.dat',6,'Lambda Absorb1');
+
        Vec2.AdditionY(-Vec2.MinY);
        Vec2.MultiplyY(1/Vec2.MaxY);
        Vec2.WriteToFile(FitName(Vec,'N'),4,'Lambda ArbUnit');
@@ -3940,8 +3948,8 @@ var
 
 
 begin
-//  SpectrApprox();
-  SpectrCreate();
+  SpectrApprox();
+//  SpectrCreate();
 
 //  Vec:=TVector.Create;
 //  Str:=TStringList.Create;
