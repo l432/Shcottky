@@ -844,7 +844,6 @@ type
     end;
 
 
-
 var
   Diod:TDiod_Schottky;
   DiodPN:TDiod_PN;
@@ -950,6 +949,21 @@ m1 - відношення ефективної маси іншого носія 
 за замовчуванням - для дірки в Si,
 }
 
+Function Bowden (x:double;Parameters:array of double):double;
+{функція, що використовується для розрахунку weighted average carrier concentration,
+JOURNAL OF APPLIED PHYSICS 102, 124501 (2007), формула (7)
+я використовував для оцінки carrier generation rate
+х - координата вглиб кремнієвої пластинки, [x]= m
+Parameters[0] - довжина вільного пробігу неосновних носіїв (електронів), [L] = мкм
+Parameters[1] - температура, Т
+Parameters[2] - рівень легування, [Ndoping]=м^-3
+Parameters[3] - падаючий потік фотонів, [Nph]=cm^-2 s^-1
+Parameters[4] - довжина хвилі, [Lambda]=нм
+Результат - надлишкова концентрація носіїв на глибині х, []=cm^-3
+}
+
+Function Bowden2 (x:double;Parameters:array of double):double;
+{квадрат попередньої}
 
 implementation
 
@@ -2166,7 +2180,7 @@ end;
 class function Silicon.AbsorbFromTable(Lambda: Double;
     SiAbsorbTable: TSiAbsorbTable=abGreen; T: Double = 300): double;
  var Vect,VectKoef:TVectorTransform;
-     i,HN:integer;
+     i{,HN}:integer;
 begin
 
   Result:=ErResult;
@@ -2640,5 +2654,32 @@ begin
  Result:=(r1*Power(P,r6)+r2+r3*m12)
         /(Power(P,r6)+r4+r5*m12);
 end;
+
+Function Bowden (x:double;Parameters:array of double):double;
+{функція, що використовується для розрахунку weighted average carrier concentration,
+JOURNAL OF APPLIED PHYSICS 102, 124501 (2007), формула (7)
+я використовував для оцінки carrier generation rate
+х - координата вглиб кремнієвої пластинки, [x]= m
+Parameters[0] - довжина вільного пробігу неосновних носіїв (електронів), [L] = мкм
+Parameters[1] - температура, Т
+Parameters[2] - рівень легування, [Ndoping]=м^-3
+Parameters[3] - падаючий потік фотонів, [Nph]=cm^-2 s^-1
+Parameters[4] - довжина хвилі, [Lambda]=нм
+Результат - надлишкова концентрація носіїв на глибині х, []=cm^-3
+}
+ var Lm,Absorb:double;
+begin
+  Lm:=Parameters[0]*1e-6;
+  Absorb:=Silicon.Absorption(Parameters[4],Parameters[1]);
+  Result:=100*Absorb*Parameters[3]*sqr(Lm)
+         /(sqr(Absorb*Lm)-1)/Silicon.D_n(Parameters[1],Parameters[2])
+         *(exp(-x/Lm)-exp(-Absorb*x));
+end;
+
+Function Bowden2 (x:double;Parameters:array of double):double;
+begin
+  Result:=sqr(Bowden(x,Parameters));
+end;
+
 
 end.

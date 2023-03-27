@@ -314,6 +314,9 @@ Function RandCauchy(const x0,gamma:double):double;
 {повертає випадкове число, що
 підкоряється розподілу Коші}
 
+
+
+
 Function IntegralRomberg(Fun:TFunS;a,b:double;eps:double=1e-4):double;overload;
 {розраховується визначений інтеграл за методом Ромберга
 від функції Fun в межах від а до b
@@ -1548,6 +1551,7 @@ Function RandCauchy(const x0,gamma:double):double;
 begin
   Result:=x0+gamma*tan(Pi*(Random-0.5));
 end;
+
 
 
 Function IntegralRomberg(Fun:TFunS;a,b:double;eps:double=1e-4):double;
