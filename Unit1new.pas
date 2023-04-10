@@ -2743,7 +2743,7 @@ begin
   until lambda>1450;
   SC.SaveToFile('S'+Copy(inttostr(round(T)),2,2)+'.abs');
   T:=T+1;
- until T>340;
+ until T>342;
  FreeAndNil(SC);
 end;
 
