@@ -2729,7 +2729,7 @@ procedure TForm1.AbsorbFileForSCAPS;
 begin
  SC:=TStringList.Create;
 
- T:=290;
+ T:=287;
  repeat
   SC.Clear;
   lambda:=250;
