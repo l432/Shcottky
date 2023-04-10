@@ -898,6 +898,7 @@ type
     procedure CBoxGLShowClickAve(Sender: TObject);
     procedure SpectrApprox();
     procedure SpectrCreate();
+    procedure AbsorbFileForSCAPS();
   public
     procedure ApproxHide;
     {прибирається апроксимаційна крива,
@@ -2721,6 +2722,31 @@ begin
   end;
 end;
 
+procedure TForm1.AbsorbFileForSCAPS;
+ var T,lambda:integer;
+     SC:TStringList;
+
+begin
+ SC:=TStringList.Create;
+
+ T:=290;
+ repeat
+  SC.Clear;
+  lambda:=250;
+  SC.Add('/absorption data for Si');
+  SC.Add('/from Schinke at el / AIP ADVANCES 5, 067168 (2015)');
+  SC.Add('/lambda[nm]	alfa[m^-1]');
+  repeat
+   SC.Add(Inttostr(lambda)+'  '
+          +FloatToStrF(Silicon.Absorption(lambda,T),ffExponent,4,2));
+   lambda:=lambda+10;
+  until lambda>1450;
+  SC.SaveToFile('S'+Copy(inttostr(round(T)),2,2)+'.abs');
+  T:=T+1;
+ until T>340;
+ FreeAndNil(SC);
+end;
+
 procedure TForm1.ApproxHide;
 begin
   SButFitNew.Down:=False;
@@ -3794,8 +3820,9 @@ var
 
 
 begin
+ AbsorbFileForSCAPS();
 //  SpectrApprox();
-  SpectrCreate();
+//  SpectrCreate();
 
 //  Vec:=TVector.Create;
 //  Str:=TStringList.Create;
