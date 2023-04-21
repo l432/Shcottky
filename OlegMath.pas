@@ -141,7 +141,7 @@ Function Lambert(x:double):double;
 {обчислює значення функції Ламберта}
 
 Function gLambert(x:double):double;
-{обчислюється значення функції g(x)=log(Lambert(exp(x)));
+{обчислюється значення функції g(x)=ln(Lambert(exp(x)));
 ця функція використовується для обчислення ВАХ щоб не
 підносити експрненту у дуже великий ступінь}
 
@@ -332,6 +332,9 @@ Parameters[6] - Rs
 Parameters[7] - Iph
 Parameters[8] - T
 }
+
+Function CastroIV2(I:double;Parameters:array of double):double;
+
 
 Function CastroIVdod(I:double;Parameters:array of double):double;
 {використовується при обчисленні функції Кастро при певному значенні напруги,
@@ -989,7 +992,15 @@ begin
        Result:=0;
        Exit;
      end;
-  temp1:=0;
+  if (x>0)and(x<=500)
+     then temp1:=0.665*(1+0.0195*ln(x+1))*ln(x+1)+0.04
+     else
+      begin
+        if x>500
+          then temp1:=ln(x-4)-(1-1/ln(x))*ln(ln(x))
+        else temp1:=0;
+      end;
+//  temp1:=0;
   i:=0;
   repeat
     temp2:=temp1-(temp1*exp(temp1)-x)/(exp(temp1)*(temp1+1)-
@@ -1007,7 +1018,7 @@ begin
 end;
 
 Function gLambert(x:double):double;
-{обчислюється значення функції g(x)=log(Lambert(exp(x)));
+{обчислюється значення функції g(x)=ln(Lambert(exp(x)));
 ця функція використовується для обчислення ВАХ щоб не
 підносити експрненту у дуже великий ступінь}
  const Nit_Max=1e5;
@@ -1677,12 +1688,39 @@ begin
  temp11:=Parameters[2]*temp10; // Rsh q/kTn
  temp21:=Parameters[5]*temp20;
 
- x1:=log10(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
- x2:=log10(temp21*Parameters[3])-temp21*(I-Parameters[3]);
+ x1:=Ln(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
+ x2:=Ln(temp21*Parameters[3])-temp21*(I-Parameters[3]);
  Result:=I*Parameters[6]+gLambert(x1)/temp10
          -gLambert(x2)/temp20
-         -log10(temp11*Parameters[0])/temp10
-         +log10(temp21*Parameters[3])/temp20;
+         -Ln(temp11*Parameters[0])/temp10
+         +Ln(temp21*Parameters[3])/temp20;
+
+// x1:=Log10(temp11*Parameters[0])+temp11*(I+Parameters[7]+Parameters[0]);
+// x2:=Log10(temp21*Parameters[3])-temp21*(I-Parameters[3]);
+// Result:=I*Parameters[6]+gLambert(x1)/temp10
+//         -gLambert(x2)/temp20
+//         -Log10(temp11*Parameters[0])/temp10
+//         +Log10(temp21*Parameters[3])/temp20;
+
+end;
+
+Function CastroIV2(I:double;Parameters:array of double):double;
+ var Vt,temp10,temp20,temp11,temp21:double;
+
+begin
+ Vt:=Kb*Parameters[8];
+
+ temp10:=1/Vt/Parameters[1];// q/kTn
+ temp20:=1/Vt/Parameters[4];
+
+ temp11:=Parameters[2]*temp10; // Rsh q/kTn
+ temp21:=Parameters[5]*temp20;
+
+ Result:=(I+Parameters[7]+Parameters[0])*Parameters[2]
+          +I*Parameters[6]
+          +(I-Parameters[3])*Parameters[5]
+          -Lambert(temp11*Parameters[0]*exp(temp11*(I+Parameters[7]+Parameters[0])))/temp10
+          +Lambert(temp21*Parameters[3]*exp(-temp11*(I-Parameters[3])))/temp20;
 
 end;
 

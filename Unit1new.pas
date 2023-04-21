@@ -2413,6 +2413,8 @@ procedure TForm1.SomethingForCastro;
 // par:array [0..1] of double=
 //   (1.2,2);
  var Par1,Par2,Par3:array of double;
+     Vec:TVector;
+     x:double;
 begin
  {значення параметрів з pssA_219_2100403}
  SetLength(Par1,9);
@@ -2426,10 +2428,10 @@ begin
  Par1[7]:=8e-3;
  Par1[8]:=300;
  SetLength(Par2,9);
- Par2[0]:=2e-9;
+ Par2[0]:=2e-12;
  Par2[1]:=1;
  Par2[2]:=150;
- Par2[3]:=8e-4;
+ Par2[3]:=6e-4;
  Par2[4]:=3;
  Par2[5]:=840;
  Par2[6]:=53;
@@ -2445,11 +2447,34 @@ begin
  Par3[6]:=0;
  Par3[7]:=6.49e-3;
  Par3[8]:=300;
+// SetLength(Par3,9);
+// Par3[0]:=1.5e-5;
+// Par3[1]:=2.4;
+// Par3[2]:=1e8;
+// Par3[3]:=2.4e-7;
+// Par3[4]:=9.5;
+// Par3[5]:=4.6e4;
+// Par3[6]:=0;
+// Par3[7]:=4.85e-5;
+// Par3[8]:=300;
 
-
- showmessage(floattostr(CastroIV_onV(0,Par3,-0.01,0.001)));
-
-
+// showmessage(floattostr(CastroIV_onV(0,Par3,-0.01,0.001)));
+// x:=-2e-3;
+// showmessage(floattostr(CastroIV(x,Par2))+'  '+
+//             floattostr(CastroIV2(x,Par2)));
+// showmessage(floattostr(Lambert(1e6)));
+  Vec:=TVector.Create;
+//  x:=-5.5e-3;
+    x:=0;
+  repeat
+//   Vec.Add(CastroIV2(x,Par3),x);
+   Vec.Add(x,CastroIV_onV(x,Par1,-0.01,0.01));
+   x:=x+0.01;
+//     x:=x+10;
+  until x>0.8;
+//  until x>1000;
+  Vec.WriteToFile('Gfun100.dat',5);
+  FreeAndNil(Vec);
 end;
 
 procedure TForm1.SpButLimitClick(Sender: TObject);
