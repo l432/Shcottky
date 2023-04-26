@@ -2464,15 +2464,16 @@ begin
 //             floattostr(CastroIV2(x,Par2)));
 // showmessage(floattostr(Lambert(1e6)));
   Vec:=TVector.Create;
-//  x:=-5.5e-3;
-    x:=0;
-  repeat
-//   Vec.Add(CastroIV2(x,Par3),x);
-   Vec.Add(x,CastroIV_onV(x,Par1,-0.01,0.01));
-   x:=x+0.01;
-//     x:=x+10;
-  until x>0.8;
-//  until x>1000;
+  CastroIV_Creation(Vec,Par1,0.8);
+////  x:=-5.5e-3;
+//    x:=0;
+//  repeat
+////   Vec.Add(CastroIV2(x,Par3),x);
+//   Vec.Add(x,CastroIV_onV(x,Par1,-0.01,0.01));
+//   x:=x+0.01;
+////     x:=x+10;
+//  until x>0.8;
+////  until x>1000;
   Vec.WriteToFile('Gfun100.dat',5);
   FreeAndNil(Vec);
 end;

@@ -352,7 +352,12 @@ Imax, Imin - інтервал для пошуку}
 //                   const Xmax:double=5; const Xmin:double=0;
 //                   const eps:double=1e-6
 
-
+Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
+                           const Vmax:double=1;
+                           const stepV:double=0.01;
+                           const eps:double=1e-6);
+{створюється ВАХ за формулою Кастро у вже існуючому Vec
+від 0 до Vmax з кроком stepV}
 
 Function ThermallyActivated(A0,Eact,T:double):double;
 
@@ -1746,6 +1751,34 @@ begin
     Par[i]:=Parameters[i];
  Par[9]:=V;
  Result:=Bisection(CastroIVdod,Par,Imax,Imin,eps);
+end;
+
+Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
+                           const Vmax:double=1;
+                           const stepV:double=0.01;
+                           const eps:double=1e-6);
+{створюється ВАХ за формулою Кастро у вже існуючому Vec
+від 0 до Vmax з кроком stepV}
+var V,Imin,Imax:double;
+begin
+ Vec.Clear;
+ if High(Parameters)<8 then Exit;
+ Vec.T:=Parameters[8];
+ if (stepV<=0)
+     or(Parameters[7]<0) then Exit;
+
+ V:=0;
+ Imin:=-Parameters[7]-max(1e-4,abs(Parameters[7])*0.1);
+ Imax:=0+min(1e-4,abs(Parameters[7])*0.1);
+ repeat
+   Vec.Add(V,CastroIV_onV(V,Parameters,Imin,Imax,eps));
+   if Vec.Y[Vec.HighNumber]=ErResult then Break;
+   V:=V+stepV;
+   Imin:=Vec.Y[Vec.HighNumber];
+   Imax:=max(abs(Parameters[7]),2*abs(Imin));
+   Imax:=Imin+max(Imax,1e-4);
+ until V>Vmax;
+
 end;
 
 
