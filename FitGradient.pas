@@ -377,7 +377,8 @@ begin
            end;
 
        until (fFittingAgent.ToStop
-            or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsIteration).Nit)
+//            or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsIteration).Nit)
+            or(fFittingAgent.CurrentIterationOrFitFuncEvaluation>=(fDParamArray as TDParamsIteration).Nit)
             or not(fWindowAgent.Form.Visible));
    if fWindowAgent.Form.Visible then
     begin

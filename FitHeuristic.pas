@@ -390,6 +390,9 @@ TFA_Heuristic=class(TFittingAgent)
  private
   fNfit:Int64;
   {кількість викликів FitnessFunc}
+  fNfitTotal:Int64;
+  {загальна кількість викликів FitnessFunc,
+  попередня величина використовується та змінюється під час ітерацій}
   fNp:integer;
   {кількість наборів параметрів}
   fDim:integer;
@@ -425,6 +428,7 @@ TFA_Heuristic=class(TFittingAgent)
 //  ніж в кращого з поточних}
  protected
   function GetIstimeToShow:boolean;override;
+  function GetCurrentIterationOrFitFuncEvaluation:integer;override;
   procedure ArrayToHeuristicParam(Data:TArrSingle);
  public
   Parameters:TArrArrSingle;
@@ -433,9 +437,11 @@ TFA_Heuristic=class(TFittingAgent)
   {значення цільової функції для різних наборів параметрів}
   property Np:integer read fNp;
   property Dim:integer read fDim;
+  property NfitTotal:Int64 read fNfitTotal;
   constructor Create(FF:TFFHeuristic);
   destructor Destroy;override;
   procedure StartAction;override;
+//  procedure IterationAction;override;
   procedure DataCoordination;override;
 end;
 
@@ -1176,12 +1182,21 @@ end;
 function TFA_Heuristic.FitnessFunc(OutputData: TArrSingle): double;
 begin
  inc(fNfit);
+ inc(fNfitTotal);
  Result:=fFitCalcul.FitnessFunc(OutputData);
+end;
+
+function TFA_Heuristic.GetCurrentIterationOrFitFuncEvaluation: integer;
+begin
+ if fFF.ParamsHeuristic.FitEvaluationNumberIsUsed
+    then Result:=NfitTotal
+    else Result:=fCurrentIteration;
 end;
 
 function TFA_Heuristic.GetIstimeToShow: boolean;
 begin
-  Result:=((fCurrentIteration mod 100)=0);
+//  Result:=((fCurrentIteration mod 100)=0);
+  Result:=((CurrentIterationOrFitFuncEvaluation mod 100)=0);
 end;
 
 //function TFA_Heuristic.GreedySelection(OldParameter, NewParameter: TArrSingle;
@@ -1233,6 +1248,7 @@ procedure TFA_Heuristic.StartAction;
 begin
  inherited StartAction;
  fNfit:=0;
+ fNfitTotal:=0;
  Initiation;
 end;
 
@@ -1257,6 +1273,14 @@ begin
     inc(i);
   until (i>=fNp);
 end;
+
+//procedure TFA_Heuristic.IterationAction;
+//begin
+//  inherited IterationAction;
+//  fToStop:=
+//    (fFF.ParamsHeuristic.FitEvaluationNumberIsUsed)
+//       and(NfitTotal>fFF.ParamsHeuristic.Nit);
+//end;
 
 { TFitnessTerm }
 
@@ -2676,7 +2700,8 @@ begin
            fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption:=str;
            end;
      end;
-  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIteration);
+//  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIteration);
+  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIterationOrFitFuncEvaluation);
 end;
 
 { TFFXYSwap }

@@ -4,7 +4,7 @@ interface
 
 uses
   OApproxNew, ExtCtrls, FitVariableShow, StdCtrls, FitIteration, Forms, 
-  Classes, OlegFunction, FitSimple, FitGradient;
+  Classes, OlegFunction, FitSimple, FitGradient, System.UITypes;
 
 type
 
@@ -128,6 +128,8 @@ end;
    fRegTypeFrame:TSimpleStringFrame;
    fSLRegType:TStringList;
    fCB:TCheckBox;
+   fCBFitEvaluationNumberUsed:TCheckBox;
+   procedure CBFitEvaluationNumberUsedClick(Sender: TObject);
   public
    constructor Create(PIteration:TDParamsHeuristic);
    destructor Destroy;override;
@@ -447,7 +449,7 @@ begin
 
   fPIArrayFrame:=TParamIterationArrayFrame.Create(GB,PIteration);
   fPIArrayFrame.Frame.Parent:=GB;
-  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations:',PIteration.Nit);
+  fSIFrame:=TSimpleIntFrame.Create(GB,'Number of iterations: ',PIteration.Nit);
   fSIFrame.PShow.Limits.SetLimits(0);
   fSIFrame.Frame.Parent:=GB;
 
@@ -658,7 +660,8 @@ begin
            fLabels[i+fFF.DParamArray.MainParamHighIndex+1].Caption:=str;
            end;
      end;
-  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIteration);
+//  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIteration);
+  fLabels[High(fLabels)].Caption:=IntToStr(fFF.FittingAgent.CurrentIterationOrFitFuncEvaluation);
 end;
 
 { TFFParamIterationFrame }
@@ -926,6 +929,14 @@ end;
 
 { TDParamsHeuristicGroupBox }
 
+procedure TDParamsHeuristicGroupBox.CBFitEvaluationNumberUsedClick(
+  Sender: TObject);
+begin
+ if fCBFitEvaluationNumberUsed.Checked
+   then fSIFrame.Lab.Caption:='Number of FitFuncEval:'
+   else fSIFrame.Lab.Caption:='Number of iterations: ';
+end;
+
 constructor TDParamsHeuristicGroupBox.Create(PIteration: TDParamsHeuristic);
 begin
  inherited Create(PIteration);
@@ -959,6 +970,16 @@ begin
   fCB.Alignment:=taRightJustify;
   fCB.Font.Style:=fCB.Font.Style+[fsItalic];
 
+  fCBFitEvaluationNumberUsed:=TCheckBox.Create(GB);
+  fCBFitEvaluationNumberUsed.Parent:=GB;
+  fCBFitEvaluationNumberUsed.Caption:='use FitnessFunc number';
+  fCBFitEvaluationNumberUsed.Enabled:=True;
+  fCBFitEvaluationNumberUsed.Checked:=(fPIteration as TDParamsHeuristic).FitEvaluationNumberIsUsed;
+  CBFitEvaluationNumberUsedClick(nil);
+  fCBFitEvaluationNumberUsed.Alignment:=taRightJustify;
+  fCBFitEvaluationNumberUsed.Font.Style:=fCB.Font.Style+[fsItalic];
+  fCBFitEvaluationNumberUsed.OnClick:=CBFitEvaluationNumberUsedClick;
+  fSIFrame.Lab.WordWrap:=False;
 end;
 
 procedure TDParamsHeuristicGroupBox.DateUpdate;
@@ -968,10 +989,13 @@ begin
   (fPIteration as TDParamsHeuristic).FitType:=TFitnessType(fFitTypeFrame.SPShow.Data);
   (fPIteration as TDParamsHeuristic).RegType:=TRegulationType(fRegTypeFrame.SPShow.Data);
   (fPIteration as TDParamsHeuristic).LogFitness:=fCB.Checked;
+  (fPIteration as TDParamsHeuristic).FitEvaluationNumberIsUsed:=fCBFitEvaluationNumberUsed.Checked;
 end;
 
 destructor TDParamsHeuristicGroupBox.Destroy;
 begin
+  fCBFitEvaluationNumberUsed.Parent:=nil;
+  fCBFitEvaluationNumberUsed.Free;
   fCB.Parent:=nil;
   fCB.Free;
   fFitTypeFrame.Free;
@@ -992,11 +1016,13 @@ begin
  fEvTypeFrame.SizeDetermination(Form);
  fRegTypeFrame.SizeDetermination(Form);
  ResizeElement(fCB,Form.Canvas);
+ ResizeElement(fCBFitEvaluationNumberUsed,Form.Canvas);
 
   if fPIArrayFrame.Frame.Height=0 then fSIFrame.Frame.Visible:=false;
 
  fSIFrame.Frame.Top:=MarginTop;
  fSIFrame.Frame.Left:=2*MarginFrame;
+ RelativeLocation(fSIFrame.Frame,fCBFitEvaluationNumberUsed,oCol,-1);
 
  RelativeLocation(fSIFrame.Frame,fEvTypeFrame.Frame,oRow,8);
  RelativeLocation(fEvTypeFrame.Frame,fFitTypeFrame.Frame,oRow,8);

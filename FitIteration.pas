@@ -164,14 +164,17 @@ TDParamsHeuristic=class(TDParamsIteration)
    {тип регуляризації}
    fRegWeight:double;
    {вагова вартість - множник у обчисленні регуляризації}
+   fFitEvaluationNumberIsUsed:boolean;
+   {false - використовується кількість ітерацій для зупинки процесу
+   true - кількість викликів FitnessFunc}
    procedure MainParamCreate(const MainParamNames: array of string);override;
-
   public
    property RegWeight:double read fRegWeight write fRegWeight;
    property EvType:TEvolutionTypeNew read fEvType write fEvType;
    property FitType:TFitnessType read fFitType write fFitType;
    property RegType:TRegulationType read fRegType write fRegType;
    property LogFitness:boolean read fLogFitness write fLogFitness;
+   property FitEvaluationNumberIsUsed:boolean read fFitEvaluationNumberIsUsed write fFitEvaluationNumberIsUsed;
    procedure WriteToIniFile;override;
    procedure ReadFromIniFile;override;
 end;
@@ -179,16 +182,18 @@ end;
 TFittingAgent=class
 {той, що вміє проводити ітераційний процес}
  private
-  fToStop:boolean;
  protected
+  fToStop:boolean;
   fDescription:string;
   fCurrentIteration:integer;
   function GetIstimeToShow:boolean;virtual;
+  function GetCurrentIterationOrFitFuncEvaluation:integer;virtual;
  public
   property Description:string read fDescription;
   property CurrentIteration:integer read fCurrentIteration;
   property ToStop:boolean read fToStop;
   property IsTimeToShow:boolean read GetIstimeToShow;
+  property CurrentIterationOrFitFuncEvaluation:integer read GetCurrentIterationOrFitFuncEvaluation;
   procedure StartAction;virtual;
   procedure IterationAction;virtual;
   procedure DataCoordination;virtual;
@@ -561,9 +566,15 @@ procedure TFittingAgent.DataCoordination;
 begin
 end;
 
+function TFittingAgent.GetCurrentIterationOrFitFuncEvaluation: integer;
+begin
+ Result:=fCurrentIteration;
+end;
+
 function TFittingAgent.GetIstimeToShow: boolean;
 begin
- Result:=((fCurrentIteration mod 25)=0);
+// Result:=((fCurrentIteration mod 25)=0);
+ Result:=((CurrentIterationOrFitFuncEvaluation mod 25)=0);
 end;
 
 procedure TFittingAgent.IterationAction;
@@ -1328,6 +1339,7 @@ begin
   fRegType:=fFF.ConfigFile.ReadRegType(fFF.Name,'RegType');
   fRegWeight:=fFF.ConfigFile.ReadFloat(fFF.Name,'RegWeight',0);
   fLogFitness:=fFF.ConfigFile.ReadBool(fFF.Name,'LogFitness',False);
+  fFitEvaluationNumberIsUsed:=fFF.ConfigFile.ReadBool(fFF.Name,'FitEvaluationNumberIsUsed',False);
 end;
 
 procedure TDParamsHeuristic.WriteToIniFile;
@@ -1341,6 +1353,7 @@ begin
   fFF.ConfigFile.WriteRegType(fFF.Name,'RegType',fRegType);
   WriteIniDef(fFF.ConfigFile,fFF.Name,'RegWeight',fRegWeight,0);
   WriteIniDef(fFF.ConfigFile,fFF.Name,'LogFitness',fLogFitness);
+  WriteIniDef(fFF.ConfigFile,fFF.Name,'FitEvaluationNumberIsUsed',fFitEvaluationNumberIsUsed);
 end;
 
 end.
