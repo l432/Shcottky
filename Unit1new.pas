@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
-  OlegTests, OlegVector, OlegMathShottky,
+  OlegTests, OlegVector, OlegMathShottky, Castro,
   OlegVectorManipulation,OApproxCaption, FitTransform, VclTee.TeeGDIPlus
   {XP Win}
   , System.UITypes
@@ -907,7 +907,7 @@ type
     procedure AbsorbFileForSCAPS();
     {створення файлів з коефіцієнтами поглинання при різних довжинах
     хвиль та температурах}
-    procedure SomethingForCastro();
+//    procedure SomethingForCastro();
   public
     procedure ApproxHide;
     {прибирається апроксимаційна крива,
@@ -2408,75 +2408,75 @@ begin
   if (ARow>0)and(ARow<SGridGaussian.RowCount-3) then SEGauss.Value:=Arow;
 end;
 
-procedure TForm1.SomethingForCastro;
-// const
-// par:array [0..1] of double=
-//   (1.2,2);
- var Par1,Par2,Par3:array of double;
-     Vec:TVector;
-     x:double;
-begin
- {значення параметрів з pssA_219_2100403}
- SetLength(Par1,9);
- Par1[0]:=1.6e-9;
- Par1[1]:=1.92;
- Par1[2]:=190;
- Par1[3]:=1.6e-4;
- Par1[4]:=1.92;
- Par1[5]:=190;
- Par1[6]:=45;
- Par1[7]:=8e-3;
- Par1[8]:=300;
- SetLength(Par2,9);
- Par2[0]:=2e-12;
- Par2[1]:=1;
- Par2[2]:=150;
- Par2[3]:=6e-4;
- Par2[4]:=3;
- Par2[5]:=840;
- Par2[6]:=53;
- Par2[7]:=9e-3;
- Par2[8]:=300;
- SetLength(Par3,9);
- Par3[0]:=5.84e-5;
- Par3[1]:=6.44;
- Par3[2]:=41.2;
- Par3[3]:=1.21e-4;
- Par3[4]:=2.49;
- Par3[5]:=191;
- Par3[6]:=0;
- Par3[7]:=6.49e-3;
- Par3[8]:=300;
+//procedure TForm1.SomethingForCastro;
+//// const
+//// par:array [0..1] of double=
+////   (1.2,2);
+// var Par1,Par2,Par3:array of double;
+//     Vec:TVector;
+//     x:double;
+//begin
+// {значення параметрів з pssA_219_2100403}
+// SetLength(Par1,9);
+// Par1[0]:=1.6e-9;
+// Par1[1]:=1.92;
+// Par1[2]:=190;
+// Par1[3]:=1.6e-4;
+// Par1[4]:=1.92;
+// Par1[5]:=190;
+// Par1[6]:=45;
+// Par1[7]:=8e-3;
+// Par1[8]:=300;
+// SetLength(Par2,9);
+// Par2[0]:=2e-12;
+// Par2[1]:=1;
+// Par2[2]:=150;
+// Par2[3]:=6e-4;
+// Par2[4]:=3;
+// Par2[5]:=840;
+// Par2[6]:=53;
+// Par2[7]:=9e-3;
+// Par2[8]:=300;
 // SetLength(Par3,9);
-// Par3[0]:=1.5e-5;
-// Par3[1]:=2.4;
-// Par3[2]:=1e8;
-// Par3[3]:=2.4e-7;
-// Par3[4]:=9.5;
-// Par3[5]:=4.6e4;
+// Par3[0]:=5.84e-5;
+// Par3[1]:=6.44;
+// Par3[2]:=41.2;
+// Par3[3]:=1.21e-4;
+// Par3[4]:=2.49;
+// Par3[5]:=191;
 // Par3[6]:=0;
-// Par3[7]:=4.85e-5;
+// Par3[7]:=6.49e-3;
 // Par3[8]:=300;
-
-// showmessage(floattostr(CastroIV_onV(0,Par3,-0.01,0.001)));
-// x:=-2e-3;
-// showmessage(floattostr(CastroIV(x,Par2))+'  '+
-//             floattostr(CastroIV2(x,Par2)));
-// showmessage(floattostr(Lambert(1e6)));
-  Vec:=TVector.Create;
-  CastroIV_Creation(Vec,Par1,0.8);
-////  x:=-5.5e-3;
-//    x:=0;
-//  repeat
-////   Vec.Add(CastroIV2(x,Par3),x);
-//   Vec.Add(x,CastroIV_onV(x,Par1,-0.01,0.01));
-//   x:=x+0.01;
-////     x:=x+10;
-//  until x>0.8;
-////  until x>1000;
-  Vec.WriteToFile('Gfun100.dat',5);
-  FreeAndNil(Vec);
-end;
+//// SetLength(Par3,9);
+//// Par3[0]:=1.5e-5;
+//// Par3[1]:=2.4;
+//// Par3[2]:=1e8;
+//// Par3[3]:=2.4e-7;
+//// Par3[4]:=9.5;
+//// Par3[5]:=4.6e4;
+//// Par3[6]:=0;
+//// Par3[7]:=4.85e-5;
+//// Par3[8]:=300;
+//
+//// showmessage(floattostr(CastroIV_onV(0,Par3,-0.01,0.001)));
+//// x:=-2e-3;
+//// showmessage(floattostr(CastroIV(x,Par2))+'  '+
+////             floattostr(CastroIV2(x,Par2)));
+//// showmessage(floattostr(Lambert(1e6)));
+//  Vec:=TVector.Create;
+//  CastroIV_Creation(Vec,Par1,0.8);
+//////  x:=-5.5e-3;
+////    x:=0;
+////  repeat
+//////   Vec.Add(CastroIV2(x,Par3),x);
+////   Vec.Add(x,CastroIV_onV(x,Par1,-0.01,0.01));
+////   x:=x+0.01;
+//////     x:=x+10;
+////  until x>0.8;
+//////  until x>1000;
+//  Vec.WriteToFile('Gfun100.dat',5);
+//  FreeAndNil(Vec);
+//end;
 
 procedure TForm1.SpButLimitClick(Sender: TObject);
 begin

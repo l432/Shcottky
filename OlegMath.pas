@@ -336,28 +336,28 @@ Parameters[8] - T
 Function CastroIV2(I:double;Parameters:array of double):double;
 
 
-Function CastroIVdod(I:double;Parameters:array of double):double;
-{використовується при обчисленні функції Кастро при певному значенні напруги,
-а не струму
-Parameters[9] - V (ота сама напруга)}
-
-Function CastroIV_onV(V:double;Parameters:array of double;
-                     const Imax:double=1; const Imin:double=0;
-                     const eps:double=1e-6):double;
-{розрахунок струму відповідно до моделі Кастро при певному значенні напруги,
-використовується метод ділення навпіл,
-Imax, Imin - інтервал для пошуку}
-
-//Function Bisection(const F:TFun; const Parameters:array of double;
-//                   const Xmax:double=5; const Xmin:double=0;
-//                   const eps:double=1e-6
-
-Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
-                           const Vmax:double=1;
-                           const stepV:double=0.01;
-                           const eps:double=1e-6);
-{створюється ВАХ за формулою Кастро у вже існуючому Vec
-від 0 до Vmax з кроком stepV}
+//Function CastroIVdod(I:double;Parameters:array of double):double;
+//{використовується при обчисленні функції Кастро при певному значенні напруги,
+//а не струму
+//Parameters[9] - V (ота сама напруга)}
+//
+//Function CastroIV_onV(V:double;Parameters:array of double;
+//                     const Imax:double=1; const Imin:double=0;
+//                     const eps:double=1e-6):double;
+//{розрахунок струму відповідно до моделі Кастро при певному значенні напруги,
+//використовується метод ділення навпіл,
+//Imax, Imin - інтервал для пошуку}
+//
+////Function Bisection(const F:TFun; const Parameters:array of double;
+////                   const Xmax:double=5; const Xmin:double=0;
+////                   const eps:double=1e-6
+//
+//Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
+//                           const Vmax:double=1;
+//                           const stepV:double=0.01;
+//                           const eps:double=1e-6);
+//{створюється ВАХ за формулою Кастро у вже існуючому Vec
+//від 0 до Vmax з кроком stepV}
 
 Function ThermallyActivated(A0,Eact,T:double):double;
 
@@ -1729,57 +1729,57 @@ begin
 
 end;
 
-Function CastroIVdod(I:double;Parameters:array of double):double;
-{використовується при обчисленні функції Кастро при певному значенні напруги,
-а не струму
-Parameters[9] - V (ота сама напруга)}
-begin
-  Result:=Parameters[9]-CastroIV(I,Parameters);
-end;
-
-Function CastroIV_onV(V:double;Parameters:array of double;
-                     const Imax:double=1; const Imin:double=0;
-                     const eps:double=1e-6):double;
-{розрахунок струму відповідно до моделі Кастро при певному значенні напруги,
-використовується метод ділення навпіл,
-Imax, Imin - інтервал для пошуку}
- var Par:array of double;
-     i:byte;
-begin
- SetLength(Par,10);
- for I := 0 to 8 do
-    Par[i]:=Parameters[i];
- Par[9]:=V;
- Result:=Bisection(CastroIVdod,Par,Imax,Imin,eps);
-end;
-
-Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
-                           const Vmax:double=1;
-                           const stepV:double=0.01;
-                           const eps:double=1e-6);
-{створюється ВАХ за формулою Кастро у вже існуючому Vec
-від 0 до Vmax з кроком stepV}
-var V,Imin,Imax:double;
-begin
- Vec.Clear;
- if High(Parameters)<8 then Exit;
- Vec.T:=Parameters[8];
- if (stepV<=0)
-     or(Parameters[7]<0) then Exit;
-
- V:=0;
- Imin:=-Parameters[7]-max(1e-4,abs(Parameters[7])*0.1);
- Imax:=0+min(1e-4,abs(Parameters[7])*0.1);
- repeat
-   Vec.Add(V,CastroIV_onV(V,Parameters,Imin,Imax,eps));
-   if Vec.Y[Vec.HighNumber]=ErResult then Break;
-   V:=V+stepV;
-   Imin:=Vec.Y[Vec.HighNumber];
-   Imax:=max(abs(Parameters[7]),2*abs(Imin));
-   Imax:=Imin+max(Imax,1e-4);
- until V>Vmax;
-
-end;
+//Function CastroIVdod(I:double;Parameters:array of double):double;
+//{використовується при обчисленні функції Кастро при певному значенні напруги,
+//а не струму
+//Parameters[9] - V (ота сама напруга)}
+//begin
+//  Result:=Parameters[9]-CastroIV(I,Parameters);
+//end;
+//
+//Function CastroIV_onV(V:double;Parameters:array of double;
+//                     const Imax:double=1; const Imin:double=0;
+//                     const eps:double=1e-6):double;
+//{розрахунок струму відповідно до моделі Кастро при певному значенні напруги,
+//використовується метод ділення навпіл,
+//Imax, Imin - інтервал для пошуку}
+// var Par:array of double;
+//     i:byte;
+//begin
+// SetLength(Par,10);
+// for I := 0 to 8 do
+//    Par[i]:=Parameters[i];
+// Par[9]:=V;
+// Result:=Bisection(CastroIVdod,Par,Imax,Imin,eps);
+//end;
+//
+//Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
+//                           const Vmax:double=1;
+//                           const stepV:double=0.01;
+//                           const eps:double=1e-6);
+//{створюється ВАХ за формулою Кастро у вже існуючому Vec
+//від 0 до Vmax з кроком stepV}
+//var V,Imin,Imax:double;
+//begin
+// Vec.Clear;
+// if High(Parameters)<8 then Exit;
+// Vec.T:=Parameters[8];
+// if (stepV<=0)
+//     or(Parameters[7]<0) then Exit;
+//
+// V:=0;
+// Imin:=-Parameters[7]-max(1e-4,abs(Parameters[7])*0.1);
+// Imax:=0+min(1e-4,abs(Parameters[7])*0.1);
+// repeat
+//   Vec.Add(V,CastroIV_onV(V,Parameters,Imin,Imax,eps));
+//   if Vec.Y[Vec.HighNumber]=ErResult then Break;
+//   V:=V+stepV;
+//   Imin:=Vec.Y[Vec.HighNumber];
+//   Imax:=max(abs(Parameters[7]),2*abs(Imin));
+//   Imax:=Imin+max(Imax,1e-4);
+// until V>Vmax;
+//
+//end;
 
 
 Function ThermallyActivated(A0,Eact,T:double):double;
