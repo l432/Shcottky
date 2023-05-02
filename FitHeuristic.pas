@@ -16,6 +16,8 @@ TFFHeuristic=class(TFFIteration)
   procedure PointDetermine(X:double);
   function RealFinalFunc(X:double):double;override;
   procedure FittingAgentCreate;override;
+//  procedure AdditionalParamDetermination;override;
+//  function Deviation:double;override;
  public
   property ParamsHeuristic:TDParamsHeuristic read GetParamsHeuristic;
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;virtual;abstract;
@@ -443,6 +445,7 @@ TFA_Heuristic=class(TFittingAgent)
   procedure StartAction;override;
 //  procedure IterationAction;override;
   procedure DataCoordination;override;
+  procedure ShowNfitTotal;
 end;
 
 TFA_ConsecutiveGeneration=class(TFA_Heuristic)
@@ -1106,6 +1109,23 @@ uses
 
 { TFFHeuristic }
 
+//function TFFHeuristic.Deviation: double;
+//begin
+////showmessage(inttostr((fFittingAgent as TFA_Heuristic).NfitTotal));
+//// Result:=(fFittingAgent as TFA_Heuristic).NfitTotal;
+// Result:=inherited ;
+//end;
+
+//procedure TFFHeuristic.AdditionalParamDetermination;
+//begin
+//  inherited;
+// (FittingAgent as TFA_Heuristic).ShowNfitTotal;
+////  inc((FittingAgent as TFA_Heuristic).NfitTotal);
+////  HelpForMe(inttostr((FittingAgent as TFA_Heuristic).NfitTotal),'1.dat');
+//
+////  showmessage(inttostr((FittingAgent as TFA_Heuristic).NfitTotal));
+//end;
+
 procedure TFFHeuristic.FittingAgentCreate;
 begin
  fFittingAgent:=FA_HeuristicClasses[ParamsHeuristic.EvType].Create(Self);
@@ -1183,6 +1203,7 @@ function TFA_Heuristic.FitnessFunc(OutputData: TArrSingle): double;
 begin
  inc(fNfit);
  inc(fNfitTotal);
+// HelpForMe(inttostr(fNfitTotal),'1.dat');
  Result:=fFitCalcul.FitnessFunc(OutputData);
 end;
 
@@ -1242,6 +1263,11 @@ procedure TFA_Heuristic.RandomValueToParameter(i: integer);
 begin
  for j := 0 to fDim-1 do
   Parameters[i][j]:=fToolKitArr[j].RandValue;
+end;
+
+procedure TFA_Heuristic.ShowNfitTotal;
+begin
+ showmessage(inttostr(fNfitTotal))
 end;
 
 procedure TFA_Heuristic.StartAction;
@@ -2374,7 +2400,7 @@ begin
  EmployedBee;
  OnlookersBee;
  ScoutBee;
- inherited;
+ inherited IterationAction;
 end;
 
 function TFA_MABC.NpDetermination: integer;

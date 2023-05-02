@@ -76,7 +76,13 @@ Function NumberDetermine(Names:array of string;
 {визначення номерів позицій елементів з Names в рядку Source;
 якщо хоча б одного елементу немає - результат False}
 
-Procedure ShowArrarOfString(AOS:array of string);
+function ArrayToString(ArrSingle:TArrSingle):string;overload;
+
+function ArrayToString(AOS:array of string):string;overload;
+
+function ArrayToString(ArrSingle:TArrSingle;TitelsArr:array of string):string;overload;
+
+Procedure ShowArrayOfString(AOS:array of string);
 
 Function NewStringByNumbers(Source:string;
                            Numbers:TArrInteger):string;
@@ -524,14 +530,42 @@ begin
   end;
 end;
 
-Procedure ShowArrarOfString(AOS:array of string);
- var temp:string;
-     i:integer;
+function ArrayToString(ArrSingle:TArrSingle):string;overload;
+ var i:integer;
 begin
-  temp:='';
+  Result:='';
+  for I := 0 to High(ArrSingle) do
+    Result:=Result+floattostr(ArrSingle[i])+' ';
+end;
+
+function ArrayToString(AOS:array of string):string;overload;
+ var i:integer;
+begin
+  Result:='';
   for I := Low(AOS) to High(AOS) do
-    temp:=temp+AOS[i]+' ';
-  showmessage(temp);
+    Result:=Result+AOS[i]+' ';
+end;
+
+function ArrayToString(ArrSingle:TArrSingle;TitelsArr:array of string):string;overload;
+ var i:integer;
+begin
+  Result:='';
+  for I := 0 to High(ArrSingle) do
+    begin
+    if i<=High(TitelsArr) then  Result:=Result+TitelsArr[i]+' =';
+    Result:=Result+' '+floattostr(ArrSingle[i])+#10;
+    end;
+end;
+
+
+Procedure ShowArrayOfString(AOS:array of string);
+// var temp:string;
+//     i:integer;
+begin
+//  temp:='';
+//  for I := Low(AOS) to High(AOS) do
+//    temp:=temp+AOS[i]+' ';
+  showmessage(ArrayToString(AOS));
 end;
 
 Function NewStringByNumbers(Source:string;

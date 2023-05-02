@@ -589,12 +589,12 @@ end;
 function SqrRelativeDifference(Double1,Double2:double):double;
 {повертає квадрат відносної різниці двох чисел}
 begin
-  Result:=0;
+//  Result:=0;
   if Double1<>0 then
-     Result:=Result+sqr((Double1-Double2)/Double1)
+     Result:={Result+}sqr((Double1-Double2)/Double1)
                 else
      if Double2<>0 then
-        Result:=Result+sqr((Double1-Double2)/Double2)
+        Result:={Result+}sqr((Double1-Double2)/Double2)
                    else Result:=0;
 end;
 

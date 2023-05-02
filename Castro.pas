@@ -5,7 +5,7 @@ unit Castro;
 interface
 
 uses
-  OlegVector, OlegType, OApproxCaption;
+  OlegVector, OlegType, OApproxCaption, FitSimple, OApproxNew, System.Classes;
 
 const
  Npar=9;
@@ -20,6 +20,9 @@ const
  Rsh20=9e-3;
  Rsh2Ea=0.32;
  Iph0=1e-3;
+
+ Nrep=2;
+
 
 Function CasI01(const T:double):double;
 Function CasI02(const T:double):double;
@@ -56,14 +59,35 @@ Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
 {створюється ВАХ за формулою Кастро у вже існуючому Vec
 від 0 до Vmax з кроком stepV}
 
-procedure CastroFitting();
+procedure CastroFitting(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle;
+                        Vec:TVector);overload;
 
+procedure CastroFitting(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle);overload;
+
+function StatTitle(ParamNames:TArrStr):string;
+function ResultAllTitle(ParamNames:TArrStr):string;
+
+function StatString(RezVec:array of TVector;Parameters:TArrSingle):string;
+function ResultAllString(FitFunction:TFFSimple;Parameters:TArrSingle):string;
+
+
+procedure SafeLoad(SL:TStringList; FileName,Title:string);
+
+
 procedure SomethingForCastro();
+
+procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
+{в SA розміщуються назви основних параметрів, які визначає FitFunction,
+а також rmsre}
+
 
 implementation
 
 uses
-  OlegMath, System.Math, System.SysUtils, Vcl.Dialogs, OlegTests, OApproxNew;
+  OlegMath, System.Math, System.SysUtils, Vcl.Dialogs, OlegTests,
+  OlegFunction, FitIteration;
 
 Function CasI01(const T:double):double;
 begin
@@ -184,19 +208,142 @@ begin
 
 end;
 
-procedure CastroFitting();
- var FitFunction:TFitFunctionNew;
+procedure CastroFitting(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle;
+                        Vec:TVector);
+ var FFunction:TFitFunctionNew;
+     ParamNames:TArrStr;
+     i,j:byte;
+     StrStat,StrRez:TStringList;
+     tempstr:string;
+     RezVec:array of TVector;
 begin
-  FitFunction:=FitFunctionFactory(ThinDiodeNames[0]);
+ FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
+ FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
+ FreeAndNil(FFunction);
+ FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
 
-  FreeAndNil(FitFunction);
+ MainParamToStringArray((FFunction as TFFSimple),ParamNames);
+
+ StrStat:=TStringList.Create;
+ StrRez:=TStringList.Create;
+ SafeLoad(StrStat,'Stat.dat',StatTitle(ParamNames));
+ SafeLoad(StrRez,'ResultAll.dat',ResultAllTitle(ParamNames));
+
+ SetLength(RezVec,High(ParamNames)+1);
+ for I := 0 to High(ParamNames) do
+  begin
+  RezVec[i]:=TVector.Create;
+  RezVec[i].Name:=EvTypeNames[EvolType];
+  end;
+
+
+// FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
+
+// showmessage(EvTypeNames[((FFunction as TFFSimple).DParamArray as TDParamsHeuristic).EvType]);
+
+ for I := 1 to Nrep do
+  begin
+   (FFunction as TFitFunctionNew).Fitting(Vec);
+   if FFunction.ResultsIsReady then
+    begin
+      StrRez.Add(ResultAllString((FFunction as TFFSimple),Parameters));
+      StrRez.SaveToFile('ResultAll.dat');
+      for j := 0 to (FFunction as TFFSimple).DParamArray.MainParamHighIndex do
+       RezVec[j].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[i]);
+      RezVec[High(RezVec)].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[High((FFunction as TFFSimple).DParamArray.OutputData)]);
+    end
+                                else Break;
+  end;
+
+ StrStat.Add(StatString(RezVec,Parameters));
+
+ for I := 0 to High(ParamNames) do
+  FreeAndNil(RezVec[i]);
+
+ StrStat.SaveToFile('Stat.dat');
+ FreeAndNil(StrStat);
+ FreeAndNil(StrRez);
+ FreeAndNil(FFunction);
+end;
+
+procedure CastroFitting(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle);overload;
+ var Vec:TVector;
+begin
+ Vec:=TVector.Create;
+ CastroIV_Creation(Vec,Parameters,1.001);
+ CastroFitting(EvolType,Parameters,Vec);
+ FreeAndNil(Vec);
+end;
+
+function StatTitle(ParamNames:TArrStr):string;
+ var i:byte;
+begin
+  Result:='Name T';
+  for I := 0 to High(ParamNames) do
+   begin
+    Result:=Result+' '+ParamNames[i]
+           +' d'+ParamNames[i];
+    if i<>High(ParamNames)
+      then Result:=Result+' e'+ParamNames[i]
+           +' ed'+ParamNames[i];
+   end;
+end;
+
+function ResultAllTitle(ParamNames:TArrStr):string;
+ var i:byte;
+begin
+  Result:='Name T';
+  for I := 0 to High(ParamNames) do
+   begin
+    Result:=Result+' '+ParamNames[i];
+    if i<>High(ParamNames)
+      then Result:=Result+' '+ParamNames[i]+'tr';
+   end;
+end;
+
+function StatString(RezVec:array of TVector;Parameters:TArrSingle):string;
+ var i:byte;
+begin
+  Result:=RezVec[0].Name;
+  Result:=Result+' '+inttostr(round(Parameters[8]));
+  for I := 0 to High(RezVec) do
+   begin
+    Result:=Result+' '+FloatToStrF(RezVec[i].MeanY,ffExponent,10,2)
+           +' '+FloatToStrF(RezVec[i].StandartDeviationY,ffExponent,10,2);
+    if i<>High(RezVec)
+      then Result:=Result+' '+FloatToStrF(RezVec[i].MeanY/Parameters[i],ffExponent,10,2)
+           +' '+FloatToStrF(RezVec[i].StandartDeviationY/Parameters[i],ffExponent,10,2);
+   end;
+end;
+
+function ResultAllString(FitFunction:TFFSimple;Parameters:TArrSingle):string;
+ var i:byte;
+begin
+  Result:=EvTypeNames[(FitFunction.DParamArray as TDParamsHeuristic).EvType];
+  Result:=Result+' '+inttostr(round(Parameters[8]));
+  for I := 0 to FitFunction.DParamArray.MainParamHighIndex do
+   Result:=Result+' '+FloatToStrF(FitFunction.DParamArray.OutputData[i],ffExponent,10,2)
+         +' '+FloatToStrF(Parameters[i],ffExponent,10,2);
+  Result:=Result+' '+FloatToStrF(FitFunction.DParamArray.OutputData[FitFunction.ParametersNumber-1],ffExponent,10,2)
+end;
+
+
+procedure SafeLoad(SL:TStringList; FileName,Title:string);
+begin
+ try
+  SL.LoadFromFile(FileName);
+ except
+  SL.Add(Title);
+ end;
 end;
 
 procedure SomethingForCastro;
 // const
 // par:array [0..1] of double=
 //   (1.2,2);
- var Par1,Par2,Par3:array of double;
+ var Par1,Par2,Par3:TArrSingle;
      Vec:TVector;
      x:double;
      Par4:TArrSingle;
@@ -251,16 +398,30 @@ begin
 // showmessage(ArrayToString(Par4));
 // CasParDetermination(340,Par4);
 // showmessage(ArrayToString(Par4));
+
+//  Vec:=TVector.Create;
+//  CasParDetermination(290,Par4);
+//  CastroIV_Creation(Vec,Par4,1.001);
+//  Vec.WriteToFile('Gfun290.dat',5);
+//  CasParDetermination(340,Par4);
+//  CastroIV_Creation(Vec,Par4,1.001);
+//  Vec.WriteToFile('Gfun340.dat',5);
+//
+//
+//  FreeAndNil(Vec);
+
   Vec:=TVector.Create;
-  CasParDetermination(290,Par4);
-  CastroIV_Creation(Vec,Par4,1.001);
-  Vec.WriteToFile('Gfun290.dat',5);
-  CasParDetermination(340,Par4);
-  CastroIV_Creation(Vec,Par4,1.001);
-  Vec.WriteToFile('Gfun340.dat',5);
-
-
+  Vec.ReadFromFile('pssA.dat');
+  CastroFitting(etEBLSHADE,Par1,Vec);
   FreeAndNil(Vec);
+end;
+
+procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
+begin
+  SetLength(SA,0);
+  FitFunction.ParameterNamesToArray(SA);
+  SA[FitFunction.DParamArray.MainParamHighIndex+1]:=SA[High(SA)];
+  SetLength(SA,FitFunction.DParamArray.MainParamHighIndex+2);
 end;
 
 end.
