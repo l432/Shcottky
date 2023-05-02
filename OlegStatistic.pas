@@ -180,6 +180,8 @@ TOneToOneTest=class
  public
  constructor Create(A,B:TVector;ItIsError:boolean=True);
 {A та В - результати роботи двох алгоритмів,
+A.X[i] - номер i-ої задачі, задачі нумерюються з 1
+A.Y[i] - результат алгоритму А для цієї задачі
 має бути A.Count=B.Count;
 при ItIsError=True перемога означає менше значення}
  destructor Destroy; override;
@@ -218,7 +220,13 @@ n задачах і р-value відповідно до
  public
   constructor Create(A,B:TVector;ItIsError:boolean=True);
   function AbetterB(MinMax:Tvector;p:double=0.05):boolean;overload;
-{на відміну від попереднього, ще й нормалізує дані в А та В відповідно до MinMax}
+{на відміну від попереднього, ще й нормалізує дані в А та В відповідно до MinMax;
+у цьому тесті проводиться ранжування різниць показників роботи алгоритмів на різних
+задачах і якщо ці показники суттєво різні, то краще нормалізувати
+MinMax.X[i] - найкращий результат для і-ої задачі по всім алгоритмам
+MinMax.Y[i] - найгірший результат для і-ої задачі по всім алгоритмам;
+далі є процедура для створення такого вектора -  MinMaxValues
+}
 end;
 
 Function NchooseK(n,k:word):Int64;
@@ -226,39 +234,9 @@ Function NchooseK(n,k:word):Int64;
 кількість виборок по k з n,
 n!/k!(n-k)!}
 
-//Function WinsNumber(A,B:TVector;ItIsError:boolean=True):word;
-//{кількість перемог в A.Y порівняно з B.Y,
-//при ItIsError=True перемога означає менше значення;
-//має бути A.X[i]=B.X[i], A.Count=B.Count,
-//інакше перемог 0}
-//
-//Function SignTestPvalue(A,B:TVector;ItIsError:boolean=True):double;
-//
-//Function SignTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
-//{результат парного тесту про те, що А краще при щонайбільшому p-value,
-//0<p<1}
-
-//Function WilcoxonNmin(n:word;p:double):integer;
-//{критичне значення для розподілу Wilcoxon при
-//n задачах і р-value відповідно до
-//таблиці, якщо для даних n та р значення
-//відсутнє повертається -1}
-//
-//Function WilcoxonT(A,B:TVector;ItIsError:boolean=True):double;
-//{min(R+,R-) для критерію Wilcoxon;
-// знак результату визначає кого більше:
-// Result>0 якщо R+ > R-}
-
 Procedure MinMaxValues(Arr:array of TVector; Target:TVector);
 {Target.X[i]=min(Arr[].Y[i]),Target.Y[i]=max(Arr[].Y[i]),
 кількість точок в Target визначається найменшим розміром Arr}
-
-//Function WilcoxonTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;overload;
-//{результат парного тесту про те, що А краще при щонайбільшому p-value,
-//0<p<1}
-//
-//Function WilcoxonTestAbetterB(A,B:TVectorTransform;MinMax:Tvector;p:double=0.05;ItIsError:boolean=True):boolean;overload;
-//{на відміну від попереднього, ще й нормалізує дані в А та В відповідно до MinMax}
 
 //Function MultipleSignNmin(m,n:word;p:double=0.05):integer;
 //{критичне значення для Multiple Sign Test при
@@ -284,7 +262,7 @@ Procedure MinMaxValues(Arr:array of TVector; Target:TVector);
 //}
 
 Function ExtremCountVectorArray(Arr:array of TVector;ItIsMin:boolean=true):byte;
-{мінімальний чи максимальний розмір весторів з Arr}
+{мінімальний чи максимальний розмір векторів з Arr}
 
 Function DimensionsNotDetermined(Arr:array of TVector;var ProblemNumbers:integer;
                                                       var AlgorithmNumbers:integer):boolean;
@@ -295,7 +273,6 @@ Function DimensionsNotDetermined(Arr:array of TVector;var ProblemNumbers:integer
 фактично, визначаються кількості алгоритмів та задач і перевіряються обмеження:
 - розмір всіх векторів має бути однаковим;
 - кількості алгоритмів чи проблем не менше 2}
-
 
 type
 
