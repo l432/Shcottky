@@ -284,10 +284,10 @@ end;
   for I := 0 to High(ParamNames) do
    begin
     Result:=Result+' '+ParamNames[i]
-           +' d'+ParamNames[i];
+           +' se'+ParamNames[i];
     if i<>High(ParamNames)
-      then Result:=Result+' e'+ParamNames[i]
-           +' ed'+ParamNames[i];
+      then Result:=Result+' re'+ParamNames[i]
+           +' rse'+ParamNames[i];
    end;
 end;
 
@@ -311,10 +311,10 @@ begin
   for I := 0 to High(RezVec) do
    begin
     Result:=Result+' '+FloatToStrF(RezVec[i].MeanY,ffExponent,10,2)
-           +' '+FloatToStrF(RezVec[i].StandartDeviationY,ffExponent,10,2);
+           +' '+FloatToStrF(RezVec[i].StandartErrorY,ffExponent,10,2);
     if i<>High(RezVec)
-      then Result:=Result+' '+FloatToStrF(RezVec[i].MeanY/Parameters[i],ffExponent,10,2)
-           +' '+FloatToStrF(RezVec[i].StandartDeviationY/Parameters[i],ffExponent,10,2);
+      then Result:=Result+' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].MeanY),ffExponent,10,2)
+           +' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].StandartErrorY),ffExponent,10,2);
    end;
 end;
 

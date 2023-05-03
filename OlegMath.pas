@@ -64,6 +64,11 @@ Function X_Y0 (Point1,Point2:TPointDouble;Y:double):double;overload;
 procedure ArrayToArray(var InitArray:TArrObj; AddedArray:TArrObj);
 {додаються всі елементи з AddedArray в кінець InitArray}
 
+function RelativeDifference(Double1,Double2:double):double;
+{повертає модулю відносної різниці двох чисел,
+відносна - по відношенню до Double1, якщо воно не нуль;
+якщо Double1=0 та Double2=0, то результат нульовий}
+
 function SqrRelativeDifference(Double1,Double2:double):double;
 {повертає квадрат відносної різниці двох чисел}
 
@@ -586,16 +591,30 @@ begin
    InitArray[High(InitArray)-High(AddedArray)+i]:=AddedArray[i];
 end;
 
+function RelativeDifference(Double1,Double2:double):double;
+{повертає модулю відносної різниці двох чисел,
+відносна - по відношенню до Double1, якщо воно не нуль;
+якщо Double1=0 та Double2=0, то результат нульовий}
+begin
+  if Double1<>0 then
+     Result:=abs((Double1-Double2)/Double1)
+                else
+     if Double2<>0 then
+        Result:=abs((Double1-Double2)/Double2)
+                   else Result:=0;
+end;
+
 function SqrRelativeDifference(Double1,Double2:double):double;
 {повертає квадрат відносної різниці двох чисел}
 begin
-//  Result:=0;
-  if Double1<>0 then
-     Result:={Result+}sqr((Double1-Double2)/Double1)
-                else
-     if Double2<>0 then
-        Result:={Result+}sqr((Double1-Double2)/Double2)
-                   else Result:=0;
+ Result:=sqr(RelativeDifference(Double1,Double2));
+////  Result:=0;
+//  if Double1<>0 then
+//     Result:={Result+}sqr((Double1-Double2)/Double1)
+//                else
+//     if Double2<>0 then
+//        Result:={Result+}sqr((Double1-Double2)/Double2)
+//                   else Result:=0;
 end;
 
 
