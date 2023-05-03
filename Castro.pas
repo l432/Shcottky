@@ -21,7 +21,24 @@ const
  Rsh2Ea=0.32;
  Iph0=1e-3;
 
- Nrep=2;
+ Nrep=30;
+
+ Niter:array[TEvolutionTypeNew]of integer=
+    (8000, //differential evolution
+     2500, // EBLSHADE
+     10000,//DE with the Lagrange interpolation argument
+     5000,// DE with  with neighborhood-based adaptive mechanism
+     8000, // modified artificial bee colony
+     5000,  //teaching learning based optimization algorithm
+     6000,//generalized oppositional  TLBO
+     13000,//Simplified TLBO
+     4000,    // particle swarm optimization
+     30000, //improved JAVA
+     5000,   //improved sine cosine algorithm
+     5000,  //Neural network  algorithm
+     3000,  // Chaotic Whale Optimization Algorithm
+     3000// Water wave optimization
+     );
 
 
 Function CasI01(const T:double):double;
@@ -215,11 +232,13 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
      ParamNames:TArrStr;
      i,j:byte;
      StrStat,StrRez:TStringList;
-     tempstr:string;
+//     tempstr:string;
      RezVec:array of TVector;
 begin
  FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
  FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
+ WriteIniDef(FFunction.ConfigFile,FFunction.Name,'Nit',Niter[EvolType],1000);
+
  FreeAndNil(FFunction);
  FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
 
@@ -345,8 +364,9 @@ end;
 //   (1.2,2);
  var Par1,Par2,Par3:TArrSingle;
      Vec:TVector;
-     x:double;
-     Par4:TArrSingle;
+//     x:double;
+//     Par4:TArrSingle;
+     EvolType:TEvolutionTypeNew;
 begin
  {значення параметрів з pssA_219_2100403}
  SetLength(Par1,9);
@@ -390,29 +410,29 @@ begin
 // Par3[7]:=4.85e-5;
 // Par3[8]:=300;
 
-// showmessage(floattostr(CastroIV_onV(0,Par3,-0.01,0.001)));
-// x:=-2e-3;
-// showmessage(floattostr(CastroIV(x,Par2))+'  '+
-//             floattostr(CastroIV2(x,Par2)));
-// showmessage(floattostr(Lambert(1e6)));
-// showmessage(ArrayToString(Par4));
-// CasParDetermination(340,Par4);
-// showmessage(ArrayToString(Par4));
-
-//  Vec:=TVector.Create;
-//  CasParDetermination(290,Par4);
-//  CastroIV_Creation(Vec,Par4,1.001);
-//  Vec.WriteToFile('Gfun290.dat',5);
-//  CasParDetermination(340,Par4);
-//  CastroIV_Creation(Vec,Par4,1.001);
-//  Vec.WriteToFile('Gfun340.dat',5);
-//
-//
-//  FreeAndNil(Vec);
+//  TEvolutionTypeNew= //еволюційний метод, який використовується для апроксимації
+//    (etDE, //differential evolution
+//     etEBLSHADE, //
+//     etADELI,//DE with the Lagrange interpolation argument
+//     etNDE,// DE with  with neighborhood-based adaptive mechanism
+//     etMABC, // modified artificial bee colony
+//     etTLBO,  //teaching learning based optimization algorithm
+//     etGOTLBO,//generalized oppositional  TLBO
+//     etSTLBO,//Simplified TLBO
+//     etPSO,    // particle swarm optimization
+//     etIJAYA, //improved JAVA
+//     etISCA,   //improved sine cosine algorithm
+//     etNNA,  //Neural network  algorithm
+//     et_CWOA,  // Chaotic Whale Optimization Algorithm
+//     et_WaterWave// Water wave optimization
+//     );
 
   Vec:=TVector.Create;
   Vec.ReadFromFile('pssA.dat');
-  CastroFitting(etEBLSHADE,Par1,Vec);
+
+  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+    CastroFitting(EvolType,Par1,Vec);
+
   FreeAndNil(Vec);
 end;
 

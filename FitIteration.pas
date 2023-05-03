@@ -1331,7 +1331,7 @@ end;
 procedure TDParamsHeuristic.ReadFromIniFile;
  var I:integer;
 begin
-  inherited;
+  inherited ReadFromIniFile;
   for I := 0 to fMainParamHighIndex
     do (fParams[i] as TFFParamHeuristic).ReadFromIniFile(fFF.ConfigFile,fFF.Name);
   fEvType:=fFF.ConfigFile.ReadEvType(fFF.Name,'EvType');
