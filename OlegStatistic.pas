@@ -360,6 +360,10 @@ Result=[0..(fAlgorithmAmount-1)]}
 повертає усереднений ранг  AlgorithmNumber-го алгоритму;
 якщо щось піде не так - Result=-1}
  function Statistic():double;
+ {значення статистики для методи, фактично на основі
+ порівняння цієї величини з чимось(залежно від
+ конкретного методу) робиться висновок про ймовірність нульової
+ гіпотези, див.нижче}
  function NullhypothesisP():double;virtual;abstract;
  {гіпотеза про те, що всі методи однакові;
  повертає ймовірність цього}
@@ -415,10 +419,15 @@ TQuade=class(TFriedman)
   constructor Create(Arr:array of TVector;ItIsError:boolean=True);
   destructor Destroy; override;
   function Sij(ProblemNumber,AlgorithmNumber:byte):double;
+  {average rank AlgorithmNumber-го алгоритму within ProblemNumber problems,
+  може бути від'ємним}
   function Wij(ProblemNumber,AlgorithmNumber:byte):double;
+  {незважений ранг}
   function SjTotal(AlgorithmNumber:byte):double;
+  {сумарнй, може бути від'ємним}
   function WjTotal(AlgorithmNumber:byte):double;
   function Tj(AlgorithmNumber:byte):double;
+  {average ranking for the AlgorithmNumber-th algorithm}
   function NullhypothesisP():double;override;
 end;
 

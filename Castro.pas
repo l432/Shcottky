@@ -25,8 +25,8 @@ const
 
  Niter:array[TEvolutionTypeNew]of integer=
     (8000, //differential evolution
-     2500, // EBLSHADE
-     10000,//DE with the Lagrange interpolation argument
+     3000, // EBLSHADE
+     12000,//DE with the Lagrange interpolation argument
      5000,// DE with  with neighborhood-based adaptive mechanism
      8000, // modified artificial bee colony
      5000,  //teaching learning based optimization algorithm
@@ -269,7 +269,7 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
       StrRez.Add(ResultAllString((FFunction as TFFSimple),Parameters));
       StrRez.SaveToFile('ResultAll.dat');
       for j := 0 to (FFunction as TFFSimple).DParamArray.MainParamHighIndex do
-       RezVec[j].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[i]);
+       RezVec[j].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[j]);
       RezVec[High(RezVec)].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[High((FFunction as TFFSimple).DParamArray.OutputData)]);
     end
                                 else Break;
@@ -305,8 +305,8 @@ end;
     Result:=Result+' '+ParamNames[i]
            +' se'+ParamNames[i];
     if i<>High(ParamNames)
-      then Result:=Result+' re'+ParamNames[i]
-           +' rse'+ParamNames[i];
+      then Result:=Result+' re'+ParamNames[i];
+//           +' rse'+ParamNames[i];
    end;
 end;
 
@@ -332,10 +332,10 @@ begin
     Result:=Result+' '+FloatToStrF(RezVec[i].MeanY,ffExponent,10,2)
            +' '+FloatToStrF(RezVec[i].StandartErrorY,ffExponent,10,2);
     if i<>High(RezVec)
-      then Result:=Result+' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].MeanY),ffExponent,10,2)
-           +' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].StandartErrorY),ffExponent,10,2);
+      then Result:=Result+' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].MeanY),ffExponent,10,2);
+//           +' '+FloatToStrF(abs(RezVec[i].StandartErrorY/Parameters[i]),ffExponent,10,2);
    end;
-end;
+end;
 
 function ResultAllString(FitFunction:TFFSimple;Parameters:TArrSingle):string;
  var i:byte;
