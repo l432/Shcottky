@@ -40,6 +40,11 @@ const
      3000// Water wave optimization
      );
 
+//type
+// TVecEvol=array[TEvolutionTypeNew] of TVector;
+
+ Procedure CreateVecEvol(var VecEvol:TArrVec);
+ Procedure FreeVecEvol(var VecEvol:TArrVec);
 
 Function CasI01(const T:double):double;
 Function CasI02(const T:double):double;
@@ -92,7 +97,15 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 
 procedure SafeLoad(SL:TStringList; FileName,Title:string);
 
-
+procedure pssAfiting();
+
+procedure ReadEvolParResult(EvolType: TEvolutionTypeNew; ParName: string; Vec: TVector;
+                          FileName: string = 'ResultAll.dat');
+
+procedure ReadEvolAllParResult(ParName: string; VecEvol: TArrVec;
+                           FileName: string = 'ResultAll.dat');
+
+
 procedure SomethingForCastro();
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
@@ -105,6 +118,24 @@ implementation
 uses
   OlegMath, System.Math, System.SysUtils, Vcl.Dialogs, OlegTests,
   OlegFunction, FitIteration;
+
+
+ Procedure CreateVecEvol(var VecEvol:TArrVec);
+  var EvolType:TEvolutionTypeNew;
+ begin
+  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+   begin
+    VecEvol[ord(EvolType)]:=TVector.Create;
+    VecEvol[ord(EvolType)].Name:=EvTypeNames[EvolType];
+   end;
+ end;
+
+ Procedure FreeVecEvol(var VecEvol:TArrVec);
+   var EvolType:TEvolutionTypeNew;
+ begin
+  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+    VecEvol[ord(EvolType)].Free;
+ end;
 
 Function CasI01(const T:double):double;
 begin
@@ -357,6 +388,70 @@ end;
   SL.Add(Title);
  end;
 end;
+
+procedure pssAfiting();
+var
+  Vec: TVector;
+  EvolType: TEvolutionTypeNew;
+  Par1:TArrSingle;
+begin
+ SetLength(Par1,9);
+ Par1[0]:=1.6e-9;
+ Par1[1]:=1.92;
+ Par1[2]:=190;
+ Par1[3]:=1.6e-4;
+ Par1[4]:=1.92;
+ Par1[5]:=190;
+ Par1[6]:=45;
+ Par1[7]:=8e-3;
+ Par1[8]:=300;
+
+  Vec := TVector.Create;
+  Vec.ReadFromFile('pssA.dat');
+  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+    CastroFitting(EvolType, Par1, Vec);
+  FreeAndNil(Vec);
+end;
+
+procedure ReadEvolParResult(EvolType: TEvolutionTypeNew; ParName: string; Vec: TVector;
+               FileName: string = 'ResultAll.dat');
+ var StrRez:TStringList;
+     EvolTypeName:string;
+     ParNumber,ParTrueNumber,i:integer;
+begin
+  StrRez:=TStringList.Create;
+  Vec.Clear;
+  EvolTypeName:=EvTypeNames[EvolType];
+  try
+   StrRez.LoadFromFile(FileName);
+   ParNumber:=SubstringNumberFromRow(ParName,StrRez[0]);
+   if (ParNumber=0)
+     then raise Exception.Create('Parameter is absente');
+   ParTrueNumber:=SubstringNumberFromRow(ParName+'tr',StrRez[0]);
+
+//   Vec.Name:=EvolTypeName;
+   for i := 1 to StrRez.Count-1 do
+    if StringDataFromRow(StrRez[i],1)=EvolTypeName then
+      begin
+       if ParTrueNumber=0
+          then Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber))
+          else Vec.Add(Vec.Count+1,
+                        RelativeDifference(FloatDataFromRow(StrRez[i],ParTrueNumber),
+                                           FloatDataFromRow(StrRez[i],ParNumber)));
+      end;
+  finally
+   FreeAndNil(StrRez);
+  end;
+end;
+
+procedure ReadEvolAllParResult(ParName: string; VecEvol: TArrVec;
+                           FileName: string = 'ResultAll.dat');
+ var EvolType:TEvolutionTypeNew;
+begin
+ CreateVecEvol(VecEvol);
+ for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+   ReadEvolParResult(EvolType, ParName, VecEvol[ord(EvolType)],FileName);
+end;
 
 procedure SomethingForCastro;
 // const
@@ -364,9 +459,6 @@ end;
 //   (1.2,2);
  var Par1,Par2,Par3:TArrSingle;
      Vec:TVector;
-//     x:double;
-//     Par4:TArrSingle;
-     EvolType:TEvolutionTypeNew;
 begin
  {значення параметрів з pssA_219_2100403}
  SetLength(Par1,9);
@@ -399,41 +491,22 @@ begin
  Par3[6]:=0;
  Par3[7]:=6.49e-3;
  Par3[8]:=300;
-// SetLength(Par3,9);
-// Par3[0]:=1.5e-5;
-// Par3[1]:=2.4;
-// Par3[2]:=1e8;
-// Par3[3]:=2.4e-7;
-// Par3[4]:=9.5;
-// Par3[5]:=4.6e4;
-// Par3[6]:=0;
-// Par3[7]:=4.85e-5;
-// Par3[8]:=300;
+  // SetLength(Par3,9);
+  // Par3[0]:=1.5e-5;
+  // Par3[1]:=2.4;
+  // Par3[2]:=1e8;
+  // Par3[3]:=2.4e-7;
+  // Par3[4]:=9.5;
+  // Par3[5]:=4.6e4;
+  // Par3[6]:=0;
+  // Par3[7]:=4.85e-5;
+  // Par3[8]:=300;
 
-//  TEvolutionTypeNew= //еволюційний метод, який використовується для апроксимації
-//    (etDE, //differential evolution
-//     etEBLSHADE, //
-//     etADELI,//DE with the Lagrange interpolation argument
-//     etNDE,// DE with  with neighborhood-based adaptive mechanism
-//     etMABC, // modified artificial bee colony
-//     etTLBO,  //teaching learning based optimization algorithm
-//     etGOTLBO,//generalized oppositional  TLBO
-//     etSTLBO,//Simplified TLBO
-//     etPSO,    // particle swarm optimization
-//     etIJAYA, //improved JAVA
-//     etISCA,   //improved sine cosine algorithm
-//     etNNA,  //Neural network  algorithm
-//     et_CWOA,  // Chaotic Whale Optimization Algorithm
-//     et_WaterWave// Water wave optimization
-//     );
-
-  Vec:=TVector.Create;
-  Vec.ReadFromFile('pssA.dat');
-
-  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-    CastroFitting(EvolType,Par1,Vec);
-
-  FreeAndNil(Vec);
+  pssAfiting();
+//  Vec := TVector.Create;
+//  ReadEvolParResult(etMABC,'rmsre',Vec);
+//  showmessage(Vec.XYtoString);
+//  FreeAndNil(Vec);
 end;
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);

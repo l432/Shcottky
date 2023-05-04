@@ -270,8 +270,9 @@ type
       якщо точок <1 або q<0 чи >1 - Result:=ErResult}
         end;
 
-  Function Kv(Argument:double;Parameters:array of double):double;
+  TArrVec=array of TVector;
 
+  Function Kv(Argument:double;Parameters:array of double):double;
 
 implementation
 uses OlegMath, Classes, Dialogs, Controls, Math, OlegFunction;

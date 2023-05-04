@@ -98,7 +98,6 @@ type
 
 
   TArrArrSingle=array of TArrSingle;
-  PClassroom=^TArrArrSingle;
 
   TArrWord=array of word;
   PArrWord=^TArrWord;

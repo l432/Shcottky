@@ -57,8 +57,10 @@ TNamedInterfacedObject=class(TSimpleFreeAndAiniObject,IName)
 
 TNamedObject=class(TObject)
   private
-   fName:string;
+//   fName:string;
    function GetName:string;
+  protected
+   fName:string;
   public
    property Name:string read GetName;
    Constructor Create(Nm:string);

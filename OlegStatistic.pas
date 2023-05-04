@@ -2,7 +2,8 @@ unit OlegStatistic;
 
 interface
 
-uses OlegType, OlegMath, OlegVector, OlegVectorManipulation, System.UITypes, OlegFunction;
+uses OlegType, OlegMath, OlegVector, OlegVectorManipulation, System.UITypes, OlegFunction,
+  OlegTypePart2;
 
 const
 
@@ -166,7 +167,7 @@ n - загальна кількість випробувань, n>=k;
 p - ймовірність успіху при одному випровуванні,0<=p<=1}
 end;
 
-TOneToOneTest=class
+TOneToOneTest=class(TNamedObject)
  private
  fA:TVector;
  fB:TVector;
@@ -276,13 +277,14 @@ Function DimensionsNotDetermined(Arr:array of TVector;var ProblemNumbers:integer
 
 type
 
-TOneToNTestPrimitive=class
+TOneToNTestPrimitive=class(TNamedObject)
  private
  fAlgorithmResult:array of TVector;
  fAlgorithmAmount:byte;
  fProblemAmount:byte;
  fError:boolean;
  fItIsError:boolean;
+ procedure Rename();virtual;
  public
  constructor Create(Arr:array of TVector;ItIsError:boolean=True);
 {Arr - масив результатів роботи k=High(Arr)+1 алгоритмів
@@ -300,6 +302,7 @@ TMultipleSign=class(TOneToNTestPrimitive)
 n задачах і р-value відповідно до
 таблиці, якщо для даних m, n та р значення
 відсутнє повертається -1}
+  procedure Rename();override;
  public
   procedure Test(ControlAlgorithm:byte;Results:TVector;p:double=0.05);
 {перевірка гіпотез щодо співвідношення медіанних відгуків
@@ -381,6 +384,7 @@ end;
 
 TFriedman=class(TOneToNTest)
  private
+  procedure Rename();override;
   function RijFooter(ProblemNumber,AlgorithmNumber:byte):double;override;
   function StatisticFooter():double;override;
   function ZvalueFooter(ControlAlgorithm,СomparisonAlgorithm:byte):double;override;
@@ -390,6 +394,7 @@ end;
 
 TImanDavenport=class(TFriedman)
  private
+  procedure Rename();override;
   function StatisticFooter():double;override;
  public
  function NullhypothesisP():double;override;
@@ -397,6 +402,7 @@ end;
 
 TFriedmanAligned=class(TOneToNTest)
  private
+  procedure Rename();override;
   function RijFooter(ProblemNumber,AlgorithmNumber:byte):double;override;
   function StatisticFooter():double;override;
   function ZvalueFooter(ControlAlgorithm,СomparisonAlgorithm:byte):double;override;
@@ -413,6 +419,7 @@ end;
 TQuade=class(TFriedman)
  private
   fQ:TVectorTransform;
+  procedure Rename();override;
   function StatisticFooter():double;override;
   function ZvalueFooter(ControlAlgorithm,СomparisonAlgorithm:byte):double;override;
  public
@@ -437,6 +444,7 @@ TMultipleComparisons=class(TFriedman)
   {кількість можливих пар для порівняння}
   fShafferIndexValues:TVector;
   {зберігаються можливі значення індекса Shaffer}
+  procedure Rename();override;
   procedure FillShafferIndexValues;
   function NumberInP_unadj(ControlAlgorithm,СomparisonAlgorithm:byte):integer;
 {повертає номер запису в fp_unadj, який відноситься до
@@ -965,6 +973,11 @@ begin
  end;
 end;
 
+procedure TFriedman.Rename;
+begin
+ fName:='Friedman';
+end;
+
 function TFriedman.RijFooter(ProblemNumber, AlgorithmNumber: byte): double;
  var i:integer;
      temp1,temp2:TVectorTransform;
@@ -1021,6 +1034,11 @@ begin
  end;
 end;
 
+procedure TImanDavenport.Rename;
+begin
+ fName:='ImanDavenport';
+end;
+
 function TImanDavenport.StatisticFooter: double;
  var ksi_F:double;
 begin
@@ -1050,6 +1068,11 @@ begin
  except
 
  end;
+end;
+
+procedure TFriedmanAligned.Rename;
+begin
+ fName:='FriedmanAligned';
 end;
 
 function TFriedmanAligned.RijFooter(ProblemNumber,
@@ -1305,7 +1328,7 @@ end;
 
 constructor TOneToOneTest.Create(A, B: TVector; ItIsError: boolean);
 begin
- inherited Create;
+ inherited Create('OneToOneTest');
  fItIsError:=ItIsError;
  fError:=A.Count<>B.Count;
  if fError then
@@ -1337,6 +1360,7 @@ begin
  if fError then Exit;
 
  fWins:=GetWinsNumber;
+ fName:='SignTest';
 end;
 
 function TSignTest.GetWinsNumber: word;
@@ -1413,6 +1437,7 @@ begin
  n:=fA.Count;
  fmu:=n*(n+1)/4;
  fsigma:=sqrt(n*(n+1)*(2*n+1)/24);
+ fName:='WilcoxonTest';
 end;
 
 function TWilcoxonTest.WilcoxonNmin(n: word; p: double): integer;
@@ -1469,7 +1494,7 @@ constructor TOneToNTestPrimitive.Create(Arr: array of TVector;
   ItIsError: boolean);
  var i:integer;
 begin
- inherited Create;
+ inherited Create('OneToNTestPrimitive');
  fItIsError:=ItIsError;
  fError:=False;
  fAlgorithmAmount:=High(Arr)+1;
@@ -1484,6 +1509,7 @@ begin
   SetLength(fAlgorithmResult,High(Arr)+1);
   for I := 0 to High(fAlgorithmResult) do
     fAlgorithmResult[i]:=TVector.Create(Arr[i]);
+  Rename();
 end;
 
 destructor TOneToNTestPrimitive.Destroy;
@@ -1491,6 +1517,10 @@ destructor TOneToNTestPrimitive.Destroy;
 begin
  for I := 0 to High(fAlgorithmResult) do FreeAndNil(fAlgorithmResult[i]);
  inherited;
+end;
+
+procedure TOneToNTestPrimitive.Rename;
+begin
 end;
 
 { TMultipleSign }
@@ -1520,6 +1550,11 @@ begin
 
  Result:=MultipleSignValues[n_number,(fAlgorithmAmount-1),p_number];
 
+end;
+
+procedure TMultipleSign.Rename;
+begin
+ fName:='MultipleSign';
 end;
 
 procedure TMultipleSign.Test(ControlAlgorithm: byte; Results: TVector;
@@ -1602,6 +1637,11 @@ begin
  except
 
  end;
+end;
+
+procedure TQuade.Rename;
+begin
+ fName:='Quade';
 end;
 
 function TQuade.Sij(ProblemNumber, AlgorithmNumber: byte): double;
@@ -1815,6 +1855,11 @@ begin
         Result:=i;
         Break;
        end;
+end;
+
+procedure TMultipleComparisons.Rename;
+begin
+ fName:='MultipleComparisons';
 end;
 
 function TMultipleComparisons.ShafferIndex(j:integer): integer;
