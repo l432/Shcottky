@@ -138,7 +138,7 @@ implementation
 
 uses
   FitVariableShow, SysUtils, OlegMathShottky, FitIterationShow,
-  HighResolutionTimer, TypInfo, Math;
+  HighResolutionTimer, TypInfo, Math, FitHeuristic;
 
 { TFFVariabSet }
 
@@ -359,27 +359,31 @@ begin
   try
    Result:=False;
    fFittingAgent.StartAction;
-   Timer.StartTimer;
+//   Timer.StartTimer;
    fFittingAgent.DataCoordination;
    fWindowAgent.UpDate;
    Application.ProcessMessages;
+   Timer.StartTimer;
 
        repeat
         fFittingAgent.IterationAction;
 
-        if fFittingAgent.IstimeToShow
-           or(Timer.ReadTimer>15000) then
-           begin
-            fFittingAgent.DataCoordination;
-            fWindowAgent.UpDate;
-            Application.ProcessMessages;
-            Timer.StartTimer;
-           end;
+//        if fFittingAgent.IstimeToShow
+//           or(Timer.ReadTimer>15000)
+//           then
+//           begin
+//            fFittingAgent.DataCoordination;
+//            fWindowAgent.UpDate;
+//            Application.ProcessMessages;
+//            Timer.StartTimer;
+//           end;
 
        until (fFittingAgent.ToStop
 //            or(fFittingAgent.CurrentIteration>=(fDParamArray as TDParamsIteration).Nit)
             or(fFittingAgent.CurrentIterationOrFitFuncEvaluation>=(fDParamArray as TDParamsIteration).Nit)
             or not(fWindowAgent.Form.Visible));
+   HelpForMe(floattostr(Timer.ReadTimer),EvTypeNames[(Self as TFFHeuristic).ParamsHeuristic.EvType]);
+
    if fWindowAgent.Form.Visible then
     begin
       Result:=True;

@@ -5,7 +5,8 @@ unit Castro;
 interface
 
 uses
-  OlegVector, OlegType, OApproxCaption, FitSimple, OApproxNew, System.Classes;
+  OlegVector, OlegType, OApproxCaption, FitSimple, OApproxNew, System.Classes,
+  OlegVectorManipulation;
 
 const
  Npar=9;
@@ -21,7 +22,7 @@ const
  Rsh2Ea=0.32;
  Iph0=1e-3;
 
- Nrep=30;
+ Nrep=1;
 
  Niter:array[TEvolutionTypeNew]of integer=
     (8000, //differential evolution
@@ -83,7 +84,7 @@ Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
 
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle;
-                        Vec:TVector);overload;
+                        Vec:TVectorTransform);overload;
 
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle);overload;
@@ -91,9 +92,9 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 function StatTitle(ParamNames:TArrStr):string;
 function ResultAllTitle(ParamNames:TArrStr):string;
 
-function StatString(RezVec:array of TVector;Parameters:TArrSingle):string;
+function StatString(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
 function ResultAllString(FitFunction:TFFSimple;Parameters:TArrSingle):string;
-
+//function ResultAllStrings2(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
 
 procedure SafeLoad(SL:TStringList; FileName,Title:string);
 
@@ -123,6 +124,7 @@ uses
  Procedure CreateVecEvol(var VecEvol:TArrVec);
   var EvolType:TEvolutionTypeNew;
  begin
+  SetLength(VecEvol,ord(High(TEvolutionTypeNew))+1);
   for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
    begin
     VecEvol[ord(EvolType)]:=TVector.Create;
@@ -258,13 +260,14 @@ end;
 
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle;
-                        Vec:TVector);
+                        Vec:TVectorTransform);
  var FFunction:TFitFunctionNew;
      ParamNames:TArrStr;
      i,j:byte;
      StrStat,StrRez:TStringList;
-//     tempstr:string;
-     RezVec:array of TVector;
+     tempstr:string;
+     RezVec:array of TVectorTransform;
+     MaxXnumber:integer;
 begin
  FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
  FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
@@ -283,7 +286,7 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
  SetLength(RezVec,High(ParamNames)+1);
  for I := 0 to High(ParamNames) do
   begin
-  RezVec[i]:=TVector.Create;
+  RezVec[i]:=TVectorTransform.Create;
   RezVec[i].Name:=EvTypeNames[EvolType];
   end;
 
@@ -306,6 +309,26 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
                                 else Break;
   end;
 
+
+// for I := 1 to round(Nrep*0.2) do
+//  begin
+//    MaxXnumber:=RezVec[High(RezVec)].MaxXnumber;
+//    for j := 0 to High(RezVec) do
+//     RezVec[j].DeletePoint(MaxXnumber);
+//  end;
+// for I := 0 to RezVec[High(RezVec)].HighNumber  do
+//  begin
+//    tempstr:=EvTypeNames[EvolType];
+//    tempstr:=tempstr+' '+inttostr(round(Parameters[8]));
+//    for j := 0 to (FFunction as TFFSimple).DParamArray.MainParamHighIndex do
+//      tempstr:=tempstr+' '+FloatToStrF(RezVec[j].Y[i],ffExponent,10,2)
+//         +' '+FloatToStrF(Parameters[j],ffExponent,10,2);
+//    tempstr:=tempstr+' '+FloatToStrF(RezVec[High(RezVec)].Y[i],ffExponent,10,2);
+//    StrRez.Add(tempstr);
+//  end;
+// StrRez.SaveToFile('ResultAll.dat');
+
+
  StrStat.Add(StatString(RezVec,Parameters));
 
  for I := 0 to High(ParamNames) do
@@ -319,9 +342,9 @@ end;
 
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle);overload;
- var Vec:TVector;
+ var Vec:TVectorTransform;
 begin
- Vec:=TVector.Create;
+ Vec:=TVectorTransform.Create;
  CastroIV_Creation(Vec,Parameters,1.001);
  CastroFitting(EvolType,Parameters,Vec);
  FreeAndNil(Vec);
@@ -353,7 +376,7 @@ end;
    end;
 end;
 
-function StatString(RezVec:array of TVector;Parameters:TArrSingle):string;
+function StatString(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
  var i:byte;
 begin
   Result:=RezVec[0].Name;
@@ -362,6 +385,7 @@ begin
    begin
     Result:=Result+' '+FloatToStrF(RezVec[i].MeanY,ffExponent,10,2)
            +' '+FloatToStrF(RezVec[i].StandartErrorY,ffExponent,10,2);
+//           +' '+FloatToStrF(RezVec[i].ImpulseNoiseSmoothing(cY),ffExponent,10,2);
     if i<>High(RezVec)
       then Result:=Result+' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].MeanY),ffExponent,10,2);
 //           +' '+FloatToStrF(abs(RezVec[i].StandartErrorY/Parameters[i]),ffExponent,10,2);
@@ -379,6 +403,11 @@ begin
   Result:=Result+' '+FloatToStrF(FitFunction.DParamArray.OutputData[FitFunction.ParametersNumber-1],ffExponent,10,2)
 end;
 
+//function ResultAllStrings2(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
+//begin
+//
+//end;
+
 
 procedure SafeLoad(SL:TStringList; FileName,Title:string);
 begin
@@ -391,7 +420,7 @@ end;
 
 procedure pssAfiting();
 var
-  Vec: TVector;
+  Vec: TVectorTransform;
   EvolType: TEvolutionTypeNew;
   Par1:TArrSingle;
 begin
@@ -406,7 +435,7 @@ begin
  Par1[7]:=8e-3;
  Par1[8]:=300;
 
-  Vec := TVector.Create;
+  Vec := TVectorTransform.Create;
   Vec.ReadFromFile('pssA.dat');
   for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
     CastroFitting(EvolType, Par1, Vec);
@@ -448,7 +477,7 @@ procedure ReadEvolAllParResult(ParName: string; VecEvol: TArrVec;
                            FileName: string = 'ResultAll.dat');
  var EvolType:TEvolutionTypeNew;
 begin
- CreateVecEvol(VecEvol);
+// CreateVecEvol(VecEvol);
  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
    ReadEvolParResult(EvolType, ParName, VecEvol[ord(EvolType)],FileName);
 end;
