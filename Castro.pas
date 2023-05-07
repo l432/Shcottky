@@ -22,7 +22,7 @@ const
  Rsh2Ea=0.32;
  Iph0=1e-3;
 
- Nrep=1;
+ Nrep=50;
 
  Niter:array[TEvolutionTypeNew]of integer=
     (8000, //differential evolution
@@ -308,6 +308,13 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
     end
                                 else Break;
   end;
+
+ for I := 1 to round(Nrep*0.2) do
+  for j := 0 to High(RezVec) do
+   begin
+   MaxXnumber:=RezVec[High(RezVec)].MaxXnumber;
+   RezVec[j].DeletePoint(MaxXnumber);
+   end;
 
 
 // for I := 1 to round(Nrep*0.2) do
