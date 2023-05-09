@@ -109,16 +109,21 @@ procedure ReadEvolAllParResult(ParName: string; VecEvol: TArrVec;
 
 procedure SomethingForCastro();
 
+procedure SomethingForCastro2(FileName:string);
+
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 {в SA розміщуються назви основних параметрів, які визначає FitFunction,
 а також rmsre}
+
+procedure CastroParamToStringArray(var SA:TArrStr);
+{в SA назви основних параметрів для TFFIV_thin}
 
 
 implementation
 
 uses
   OlegMath, System.Math, System.SysUtils, Vcl.Dialogs, OlegTests,
-  OlegFunction, FitIteration;
+  OlegFunction, FitIteration, Vcl.FileCtrl;
 
 
  Procedure CreateVecEvol(var VecEvol:TArrVec);
@@ -458,22 +463,22 @@ end;
   StrRez:=TStringList.Create;
   Vec.Clear;
   EvolTypeName:=EvTypeNames[EvolType];
+  Vec.Name:=EvolTypeName;
   try
    StrRez.LoadFromFile(FileName);
    ParNumber:=SubstringNumberFromRow(ParName,StrRez[0]);
    if (ParNumber=0)
      then raise Exception.Create('Parameter is absente');
    ParTrueNumber:=SubstringNumberFromRow(ParName+'tr',StrRez[0]);
-
-//   Vec.Name:=EvolTypeName;
    for i := 1 to StrRez.Count-1 do
     if StringDataFromRow(StrRez[i],1)=EvolTypeName then
       begin
-       if ParTrueNumber=0
-          then Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber))
-          else Vec.Add(Vec.Count+1,
-                        RelativeDifference(FloatDataFromRow(StrRez[i],ParTrueNumber),
-                                           FloatDataFromRow(StrRez[i],ParNumber)));
+       Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber));
+//       if ParTrueNumber=0
+//          then Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber))
+//          else Vec.Add(Vec.Count+1,
+//                        RelativeDifference(FloatDataFromRow(StrRez[i],ParTrueNumber),
+//                                           FloatDataFromRow(StrRez[i],ParNumber)));
       end;
   finally
    FreeAndNil(StrRez);
@@ -538,11 +543,55 @@ begin
   // Par3[7]:=4.85e-5;
   // Par3[8]:=300;
 
-  pssAfiting();
+//  pssAfiting();
+//  OpenDialog11:=TOpenDialog.Create(self);
+//  if OpenDialog11.Execute()
+//     then
+//       begin
+//        showmessage(OpenDialog11.FileName);
+//       end;
+//  FreeAndNil(OpenDialog11)
+
 //  Vec := TVector.Create;
 //  ReadEvolParResult(etMABC,'rmsre',Vec);
 //  showmessage(Vec.XYtoString);
 //  FreeAndNil(Vec);
+end;
+
+procedure SomethingForCastro2(FileName:string);
+ var VecEvol:TArrVec;
+     StrRez:TStringList;
+     tempstr:string;
+     i,j,k:integer;
+     path, fileNameShot:string;
+     drive:char;
+     SA:TArrStr;
+begin
+  CreateVecEvol(VecEvol);
+  CastroParamToStringArray(SA);
+  StrRez:=TStringList.Create;
+  for k := 0 to High(SA) do
+    begin
+      StrRez.Clear;
+      ReadEvolAllParResult(SA[k],VecEvol,FileName);
+
+      tempstr:='number';
+      for I := 0 to High(VecEvol) do
+        tempstr:=tempstr+' '+VecEvol[i].Name;
+      StrRez.Add(tempstr);
+      for I := 0 to VecEvol[0].HighNumber do
+       begin
+         tempstr:=inttostr(i);
+         for j := 0 to High(VecEvol) do
+          tempstr:=tempstr+' '+floattostr(VecEvol[j].Y[i]);
+         StrRez.Add(tempstr);
+       end;
+      ProcessPath(FileName, drive, path, fileNameShot);
+      StrRez.SaveToFile(drive + ':' + path+'\'+SA[k]+'.dat');
+    end;
+
+  FreeAndNil(StrRez);
+
 end;
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
@@ -551,6 +600,14 @@ begin
   FitFunction.ParameterNamesToArray(SA);
   SA[FitFunction.DParamArray.MainParamHighIndex+1]:=SA[High(SA)];
   SetLength(SA,FitFunction.DParamArray.MainParamHighIndex+2);
+end;
+
+procedure CastroParamToStringArray(var SA:TArrStr);
+ var FFunction:TFitFunctionNew;
+begin
+ FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
+ MainParamToStringArray((FFunction as TFFSimple),SA);
+ FreeAndNil(FFunction);
 end;
 
 end.
