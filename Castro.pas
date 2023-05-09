@@ -591,7 +591,7 @@ begin
     end;
 
   FreeAndNil(StrRez);
-
+  FreeVecEvol(VecEvol);
 end;
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);

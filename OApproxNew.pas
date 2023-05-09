@@ -52,7 +52,7 @@ const
 
  EvTypeNames:array[TEvolutionTypeNew]of string=
          ('DE','EBLSHADE','ADELI','NDE','MABC','TLBO','GOTLBO','STLBO',
-         'PSO','IJAYA','ISCA','NNA','CWOA','WaterWave');
+         'PSO','IJAYA','ISCA','NNA','CWOA','WW');
 
  FitTypeNames:array[TFitnessType]of string=
          ('Sq.Err.','Rel.Sq.Res.','Abs.Err.','Rel.Abs.Err.',
