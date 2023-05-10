@@ -207,6 +207,8 @@ TWilcoxonTest=class(TOneToOneTest)
   fT:double;
   fmu:double;
   fsigma:double;
+  fRplusIsGreaterOrEqual:boolean;
+  fRminusIsGreaterOrEqual:boolean;
   function WilcoxonT():double;
 {min(R+,R-) для критерію Wilcoxon;
  знак результату визначає кого більше:
@@ -1427,10 +1429,10 @@ function TWilcoxonTest.AbetterBFooter(p: double): boolean;
  var W:integer;
 begin
   W:=WilcoxonNmin(fA.Count,p);
-  if W>-1 then Result:=abs(fT)<=W
-          else Result:=(p>=(1-TNormalD.CDF((abs(abs(fT)-fmu)-0.5)/fsigma)));
-  if fItIsError then  Result:= Result and (fT>0)
-                else  Result:= Result and (fT<0);
+  if W>-1 then Result:=(fT<=W)
+          else Result:=(p>=(1-TNormalD.CDF((abs(fT-fmu)-0.5)/fsigma)));
+  if fItIsError then  Result:= Result and fRplusIsGreaterOrEqual
+                else  Result:= Result and fRminusIsGreaterOrEqual;
 end;
 
 constructor TWilcoxonTest.Create(A, B: TVector; ItIsError: boolean);
@@ -1488,9 +1490,10 @@ begin
      if d.X[i]>0 then Rplus:=Rplus+d.Y[i]
                   else Rminus:=Rminus+d.Y[i];
    end;
-
   Result:=min(Rplus,Rminus);
-  if Rminus>Rplus then Result:=-Result;
+  fRplusIsGreaterOrEqual:=(Rplus>=Rminus);
+  fRminusIsGreaterOrEqual:=(Rplus<=Rminus);
+//  if Rminus>Rplus then Result:=-Result;
   FreeAndNil(d);
 end;
 

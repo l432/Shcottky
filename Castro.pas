@@ -565,18 +565,18 @@ begin
 //  ReadEvolParResult(etMABC,'rmsre',Vec);
 //  showmessage(Vec.XYtoString);
 //  FreeAndNil(Vec);
-//    WilcoxonTestOfFitFunction('ResultAll50v4.dat','ResultAllAbsEr50.dat');
-  Vec1:=TVector.Create;
-  Vec2:=TVector.Create;
-  Vec1.ReadFromFile('n1_ADELI.dat');
-  Vec2.ReadFromFile('n1_IJAYA.dat');
-  if AbetterBWilcoxon(Vec1,Vec2,True,0.05)
-     then showmessage('first is better')
-     else showmessage('i dont know');
+    WilcoxonTestOfFitFunction('ResultAll50v4.dat','ResultAllAbsEr50.dat');
 
-
-  freeAndNil(Vec1);
-  freeAndNil(Vec2);
+//  Vec1:=TVector.Create;
+//  Vec2:=TVector.Create;
+//  Vec1.ReadFromFile('n1_ADELI.dat');
+//  Vec2.ReadFromFile('n1_IJAYA.dat');
+//  if AbetterBWilcoxon(Vec1,Vec2,True,0.05)
+//     then showmessage('first is better')
+//     else showmessage('i dont know');
+//
+//  freeAndNil(Vec1);
+//  freeAndNil(Vec2);
 
 end;
 
@@ -700,14 +700,10 @@ begin
         tempstr2:=VecEvol[ord(EvolType)].Name;
         for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
          begin
-//           showmessage(VecEvol[ord(EvolType)].XYtoString);
-//           showmessage(VecEvol[ord(EvolType2)].XYtoString);
-
            if EvolType=EvolType2
                then tempstr2:=tempstr2+' ='
                else
                begin
-//                 showmessage(booltostr(AbetterBWilcoxon(VecEvol[ord(EvolType)],VecEvol[ord(EvolType2)],True,0.05)));
                  if AbetterBWilcoxon(VecEvol[ord(EvolType)],VecEvol[ord(EvolType2)],True,0.05)
                     then tempstr2:=tempstr2+' +'
                     else tempstr2:=tempstr2+' 0';
