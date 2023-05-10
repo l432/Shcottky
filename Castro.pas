@@ -109,7 +109,12 @@ procedure ReadEvolAllParResult(ParName: string; VecEvol: TArrVec;
 
 procedure SomethingForCastro();
 
+procedure ReadParamAndToFiles(FileName:string);
+
 procedure SomethingForCastro2(FileName:string);
+
+procedure WilcoxonTestOfFitFunction(FileNameSqrEr,FileNameAbsEr:string);
+
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 {в SA розміщуються назви основних параметрів, які визначає FitFunction,
@@ -123,7 +128,7 @@ implementation
 
 uses
   OlegMath, System.Math, System.SysUtils, Vcl.Dialogs, OlegTests,
-  OlegFunction, FitIteration, Vcl.FileCtrl;
+  OlegFunction, FitIteration, Vcl.FileCtrl, OlegStatistic;
 
 
  Procedure CreateVecEvol(var VecEvol:TArrVec);
@@ -473,12 +478,12 @@ end;
    for i := 1 to StrRez.Count-1 do
     if StringDataFromRow(StrRez[i],1)=EvolTypeName then
       begin
-       Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber));
-//       if ParTrueNumber=0
-//          then Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber))
-//          else Vec.Add(Vec.Count+1,
-//                        RelativeDifference(FloatDataFromRow(StrRez[i],ParTrueNumber),
-//                                           FloatDataFromRow(StrRez[i],ParNumber)));
+//       Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber));
+       if ParTrueNumber=0
+          then Vec.Add(Vec.Count+1,FloatDataFromRow(StrRez[i],ParNumber))
+          else Vec.Add(Vec.Count+1,
+                        RelativeDifference(FloatDataFromRow(StrRez[i],ParTrueNumber),
+                                           FloatDataFromRow(StrRez[i],ParNumber)));
       end;
   finally
    FreeAndNil(StrRez);
@@ -556,9 +561,16 @@ begin
 //  ReadEvolParResult(etMABC,'rmsre',Vec);
 //  showmessage(Vec.XYtoString);
 //  FreeAndNil(Vec);
+    WilcoxonTestOfFitFunction('ResultAll50v4.dat','ResultAllAbsEr50.dat');
 end;
 
 procedure SomethingForCastro2(FileName:string);
+begin
+
+end;
+
+
+procedure ReadParamAndToFiles(FileName:string);
  var VecEvol:TArrVec;
      StrRez:TStringList;
      tempstr:string;
@@ -593,6 +605,54 @@ begin
   FreeAndNil(StrRez);
   FreeVecEvol(VecEvol);
 end;
+
+procedure WilcoxonTestOfFitFunction(FileNameSqrEr,FileNameAbsEr:string);
+ var VecEvolSqrEr,VecEvolAbsEr:TVector;
+     StrLSqrBetter,StrLAbsBetter:TStringList;
+     tempstr,tempstrAbs:string;
+     k:integer;
+     SA:TArrStr;
+     EvolType:TEvolutionTypeNew;
+begin
+//  CreateVecEvol(VecEvolSqrEr);
+//  CreateVecEvol(VecEvolAbsEr);
+  VecEvolSqrEr:=TVector.Create;
+  VecEvolAbsEr:=TVector.Create;
+  CastroParamToStringArray(SA);
+  StrLSqrBetter:=TStringList.Create;
+  StrLAbsBetter:=TStringList.Create;
+  tempstr:='Name '+ArrayToString(SA);
+  StrLSqrBetter.Add(tempstr);
+  StrLAbsBetter.Add(tempstr);
+
+  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+   begin
+     tempstr:=EvTypeNames[EvolType];
+     tempstrAbs:=tempstr;
+     for k := 0 to High(SA) do
+      begin
+        ReadEvolParResult(EvolType,SA[k],VecEvolSqrEr,FileNameSqrEr);
+        ReadEvolParResult(EvolType,SA[k],VecEvolAbsEr,FileNameAbsEr);
+        if AbetterBWilcoxon(VecEvolSqrEr,VecEvolAbsEr)
+          then tempstr:=tempstr+' '+'Sqr'
+          else tempstr:=tempstr+' '+'0';
+        if AbetterBWilcoxon(VecEvolAbsEr,VecEvolSqrEr)
+          then tempstrAbs:=tempstrAbs+' '+'Abs'
+          else tempstrAbs:=tempstrAbs+' '+'0';
+      end;
+     StrLSqrBetter.Add(tempstr);
+     StrLAbsBetter.Add(tempstrAbs);
+   end;
+  StrLSqrBetter.SaveToFile('SqrBetter.dat');
+  StrLAbsBetter.SaveToFile('AbsBetter.dat');
+  FreeAndNil(StrLAbsBetter);
+  FreeAndNil(StrLSqrBetter);
+  FreeAndNil(VecEvolAbsEr);
+  FreeAndNil(VecEvolSqrEr);
+//  FreeVecEvol(VecEvolAbsEr);
+//  FreeVecEvol(VecEvolSqrEr);
+end;
+
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 begin

@@ -230,6 +230,12 @@ MinMax.Y[i] - найгірший результат для і-ої задачі по всім алгоритмам;
 }
 end;
 
+Function AbetterBWilcoxon(A,B:TVector;ItIsError:boolean=True;p:double=0.05):boolean;overload;
+{функція, всередині якої створення екземпляру класу}
+
+Function AbetterBWilcoxon(A,B,MinMax:TVector;ItIsError:boolean=True;p:double=0.05):boolean;overload;
+
+
 Function NchooseK(n,k:word):Int64;
 {Біноміальний коефіцієнт,
 кількість виборок по k з n,
@@ -1874,6 +1880,25 @@ begin
        Break;
      end;
 end;
+
+
+Function AbetterBWilcoxon(A,B:TVector;ItIsError:boolean=True;p:double=0.05):boolean;
+{функція, всередині якої створення екземпляру класу}
+ var WT:TWilcoxonTest;
+begin
+ WT:=TWilcoxonTest.Create(A,B,ItIsError);
+ Result:=WT.AbetterB(p);
+ FreeAndNil(WT);
+end;
+
+Function AbetterBWilcoxon(A,B,MinMax:TVector;ItIsError:boolean=True;p:double=0.05):boolean;overload;
+ var WT:TWilcoxonTest;
+begin
+ WT:=TWilcoxonTest.Create(A,B,ItIsError);
+ Result:=WT.AbetterB(MinMax,p);
+ FreeAndNil(WT);
+end;
+
 
 end.
 
