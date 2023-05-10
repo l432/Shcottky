@@ -115,6 +115,7 @@ procedure SomethingForCastro2(FileName:string);
 
 procedure WilcoxonTestOfFitFunction(FileNameSqrEr,FileNameAbsEr:string);
 
+procedure WilcoxonTestOfMethod(FileName:string);
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 {в SA розміщуються назви основних параметрів, які визначає FitFunction,
@@ -484,6 +485,9 @@ end;
           else Vec.Add(Vec.Count+1,
                         RelativeDifference(FloatDataFromRow(StrRez[i],ParTrueNumber),
                                            FloatDataFromRow(StrRez[i],ParNumber)));
+//          else Vec.Add(Vec.Count+1,
+//                        round(100*RelativeDifference(FloatDataFromRow(StrRez[i],ParTrueNumber),
+//                                           FloatDataFromRow(StrRez[i],ParNumber)))/100);
       end;
   finally
    FreeAndNil(StrRez);
@@ -504,7 +508,7 @@ end;
 // par:array [0..1] of double=
 //   (1.2,2);
  var Par1,Par2,Par3:TArrSingle;
-     Vec:TVector;
+     Vec1,Vec2:TVector;
 begin
  {значення параметрів з pssA_219_2100403}
  SetLength(Par1,9);
@@ -561,12 +565,24 @@ begin
 //  ReadEvolParResult(etMABC,'rmsre',Vec);
 //  showmessage(Vec.XYtoString);
 //  FreeAndNil(Vec);
-    WilcoxonTestOfFitFunction('ResultAll50v4.dat','ResultAllAbsEr50.dat');
+//    WilcoxonTestOfFitFunction('ResultAll50v4.dat','ResultAllAbsEr50.dat');
+  Vec1:=TVector.Create;
+  Vec2:=TVector.Create;
+  Vec1.ReadFromFile('n1_ADELI.dat');
+  Vec2.ReadFromFile('n1_IJAYA.dat');
+  if AbetterBWilcoxon(Vec1,Vec2,True,0.05)
+     then showmessage('first is better')
+     else showmessage('i dont know');
+
+
+  freeAndNil(Vec1);
+  freeAndNil(Vec2);
+
 end;
 
 procedure SomethingForCastro2(FileName:string);
 begin
-
+ WilcoxonTestOfMethod(FileName);
 end;
 
 
@@ -633,10 +649,10 @@ begin
       begin
         ReadEvolParResult(EvolType,SA[k],VecEvolSqrEr,FileNameSqrEr);
         ReadEvolParResult(EvolType,SA[k],VecEvolAbsEr,FileNameAbsEr);
-        if AbetterBWilcoxon(VecEvolSqrEr,VecEvolAbsEr)
+        if AbetterBWilcoxon(VecEvolSqrEr,VecEvolAbsEr,True,0.05)
           then tempstr:=tempstr+' '+'Sqr'
           else tempstr:=tempstr+' '+'0';
-        if AbetterBWilcoxon(VecEvolAbsEr,VecEvolSqrEr)
+        if AbetterBWilcoxon(VecEvolAbsEr,VecEvolSqrEr,True,0.05)
           then tempstrAbs:=tempstrAbs+' '+'Abs'
           else tempstrAbs:=tempstrAbs+' '+'0';
       end;
@@ -653,6 +669,57 @@ begin
 //  FreeVecEvol(VecEvolSqrEr);
 end;
 
+
+procedure WilcoxonTestOfMethod(FileName:string);
+ var VecEvol:TArrVec;
+     StrL:TStringList;
+     tempstr,tempstr2:string;
+     k:integer;
+     SA:TArrStr;
+     EvolType,EvolType2:TEvolutionTypeNew;
+     path, fileNameShot:string;
+     drive:char;
+begin
+  CreateVecEvol(VecEvol);
+  CastroParamToStringArray(SA);
+  StrL:=TStringList.Create;
+  ProcessPath(FileName, drive, path, fileNameShot);
+
+  tempstr:='Method';
+  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+   tempstr:=tempstr+' '+EvTypeNames[EvolType];
+  for k := 0 to High(SA) do
+   begin
+    StrL.Clear;
+    StrL.Add(tempstr);
+    ReadEvolAllParResult(SA[k],VecEvol,FileName);
+//    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//      VecEvol[ord(EvolType)].WriteToFile(SA[k]+'_'+VecEvol[ord(EvolType)].name+'.dat');
+      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+       begin
+        tempstr2:=VecEvol[ord(EvolType)].Name;
+        for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+         begin
+//           showmessage(VecEvol[ord(EvolType)].XYtoString);
+//           showmessage(VecEvol[ord(EvolType2)].XYtoString);
+
+           if EvolType=EvolType2
+               then tempstr2:=tempstr2+' ='
+               else
+               begin
+//                 showmessage(booltostr(AbetterBWilcoxon(VecEvol[ord(EvolType)],VecEvol[ord(EvolType2)],True,0.05)));
+                 if AbetterBWilcoxon(VecEvol[ord(EvolType)],VecEvol[ord(EvolType2)],True,0.05)
+                    then tempstr2:=tempstr2+' +'
+                    else tempstr2:=tempstr2+' 0';
+               end;
+         end;
+        StrL.Add(tempstr2);
+       end;
+    StrL.SaveToFile(drive + ':' + path+'\'+SA[k]+'_WilcT.dat');
+   end;
+  FreeAndNil(StrL);
+  FreeVecEvol(VecEvol);
+end;
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 begin

@@ -3901,8 +3901,8 @@ var
 begin
 // if OpenDialog1.Execute()
 //     then  SomethingForCastro2(OpenDialog1.FileName);
-
   SomethingForCastro;
+
 // AbsorbFileForSCAPS();
 //  SpectrApprox();
 //  SpectrCreate();
