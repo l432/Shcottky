@@ -117,6 +117,8 @@ procedure WilcoxonTestOfFitFunction(FileNameSqrEr,FileNameAbsEr:string);
 
 procedure WilcoxonTestOfMethod(FileName:string);
 
+procedure Nullhupothesis1N(FileName:string);
+
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 {в SA розміщуються назви основних параметрів, які визначає FitFunction,
 а також rmsre}
@@ -688,6 +690,66 @@ begin
   tempstr:='Method';
   for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
    tempstr:=tempstr+' '+EvTypeNames[EvolType];
+  for k := 0 to High(SA) do
+   begin
+    StrL.Clear;
+    StrL.Add(tempstr);
+    ReadEvolAllParResult(SA[k],VecEvol,FileName);
+//    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//      VecEvol[ord(EvolType)].WriteToFile(SA[k]+'_'+VecEvol[ord(EvolType)].name+'.dat');
+      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+       begin
+        tempstr2:=VecEvol[ord(EvolType)].Name;
+        for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+         begin
+           if EvolType=EvolType2
+               then tempstr2:=tempstr2+' ='
+               else
+               begin
+                 if AbetterBWilcoxon(VecEvol[ord(EvolType)],VecEvol[ord(EvolType2)],True,0.05)
+                    then tempstr2:=tempstr2+' +'
+                    else tempstr2:=tempstr2+' 0';
+               end;
+         end;
+        StrL.Add(tempstr2);
+       end;
+    StrL.SaveToFile(drive + ':' + path+'\'+SA[k]+'_WilcT.dat');
+   end;
+  FreeAndNil(StrL);
+  FreeVecEvol(VecEvol);
+end;
+
+procedure Nullhupothesis1N(FileName:string);
+ var VecEvol:TArrVec;
+     StrL:TStringList;
+     tempstr,tempstr2:string;
+     k:integer;
+     SA:TArrStr;
+     EvolType,EvolType2:TEvolutionTypeNew;
+     path, fileNameShot:string;
+     drive:char;
+//     Friedman:TFriedman;
+//     ImanDavenport:TImanDavenport;
+//     FriedmanAligned:TFriedmanAligned;
+//     Quade:TQuade;
+     Tests:array of TOneToNTest;
+begin
+  CreateVecEvol(VecEvol);
+  CastroParamToStringArray(SA);
+  StrL:=TStringList.Create;
+  ProcessPath(FileName, drive, path, fileNameShot);
+
+  SetLength(Tests,OneToNTestNumber+1);
+  StrL.Add('Test '+ArrayToString(SA));
+
+//  for k := 0 to OneToNTestNumber do
+//     Tests[k]:=OneToNTestClasses[k].Create(VecEvol);
+
+  tempstr:='Method';
+  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+   tempstr:=tempstr+' '+EvTypeNames[EvolType];
+
+
   for k := 0 to High(SA) do
    begin
     StrL.Clear;

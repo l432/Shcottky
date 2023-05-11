@@ -482,6 +482,14 @@ Result=[0..(fPairAmount-1)],
   function MultipleShafferStaticAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
 end;
 
+  TOneToNTest_Class=class of TOneToNTest;
+
+const
+
+ OneToNTestNumber=3;
+ OneToNTestClasses:array[0..OneToNTestNumber]of TOneToNTest_Class=
+   (TFriedman,TImanDavenport,TFriedmanAligned,TQuade);
+
 implementation
 
 uses
