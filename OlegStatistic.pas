@@ -1143,6 +1143,8 @@ begin
      Temp1.Add(i,fAlgorithmResult[j-1].Y[i-1]-MeanForProblem.Y[i-1]);
 
  temp1.Rank(temp2,True,False,fItIsError);
+// showmessage(temp2.XYtoString());
+// temp2.WriteToFile('hhh.dat');
  result:=temp2.Y[(ProblemNumber-1)*fAlgorithmAmount+(AlgorithmNumber-1)];
 
  FreeAndNil(MeanForProblem);

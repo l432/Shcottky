@@ -82,6 +82,8 @@ function ArrayToString(AOS:array of string):string;overload;
 
 function ArrayToString(ArrSingle:TArrSingle;TitelsArr:array of string):string;overload;
 
+function VecNamesToString(AV:TArrVec):string;
+
 Procedure ShowArrayOfString(AOS:array of string);
 
 Function NewStringByNumbers(Source:string;
@@ -558,6 +560,13 @@ begin
     end;
 end;
 
+function VecNamesToString(AV:TArrVec):string;
+ var i:integer;
+begin
+ Result:='';
+ for I := 0 to High(AV) do
+  Result:=Result+AV[i].name+' ';
+end;
 
 Procedure ShowArrayOfString(AOS:array of string);
 // var temp:string;

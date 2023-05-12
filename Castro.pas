@@ -718,55 +718,65 @@ end;
 
 procedure Nullhupothesis1N(FileName:string);
  var VecEvol:TArrVec;
-     StrL:TStringList;
-//     tempstr,tempstr2:string;
+     SLNullHyp,SLRanks:TStringList;
+     tempstr:string;
      k,i:integer;
      SA:TArrStr;
-//     EvolType,EvolType2:TEvolutionTypeNew;
+     EvolType:TEvolutionTypeNew;
      path, fileNameShot:string;
      drive:char;
-//     Friedman:TFriedman;
-//     ImanDavenport:TImanDavenport;
-//     FriedmanAligned:TFriedmanAligned;
-//     Quade:TQuade;
      Tests:TOneToNTestSArray;
      tempStrs:array [0..OneToNTestNumber] of string;
 begin
   CreateVecEvol(VecEvol);
   CastroParamToStringArray(SA);
-  StrL:=TStringList.Create;
+  SLNullHyp:=TStringList.Create;
+  SLRanks:=TStringList.Create;
   ProcessPath(FileName, drive, path, fileNameShot);
-  StrL.Add('Test '+ArrayToString(SA));
+  SLNullHyp.Add('Test '+ArrayToString(SA));
 
-//  ReadEvolAllParResult('n1',VecEvol,FileName);
-//  CreateOneToNTests(Tests,VecEvol);
-//  showmessage(Tests[1].Name);
 
   for k := 0 to High(SA) do
-//  for k := 1 to 1 do
+//  for k := 0 to 0 do
    begin
     ReadEvolAllParResult(SA[k],VecEvol,FileName);
     CreateOneToNTests(Tests,VecEvol);
+//----------------NullHypothesis------------------------------
     if k=0 then
       for I := 0 to High(Tests) do
-//         begin
          tempStrs[i]:=Tests[i].Name;
-//         showmessage(Tests[i].Name);
-//         end;
-//    StringArrayToStringList(tempStrs,StrL,False);
-//    StrL.SaveToFile(drive + ':' + path+'\'+inttostr(k)+'NullHyp.dat');
 
     for I := 0 to High(Tests) do
-     begin
      tempStrs[i]:=tempStrs[i]+' '+FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2);
-//      showmessage(Tests[i].Name+' '+SA[k]+' '+FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2));
+//-------------------Ranks-------------------------------------
+    SLRanks.Clear;
+    SLRanks.Add('Test '+VecNamesToString(VecEvol));
+    for I := 0 to High(Tests) do
+     begin
+      if i=1 then Continue;
+
+      tempstr:=Tests[i].Name;
+      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+       begin
+        if (i=0) then
+           tempstr:=tempstr+' '+floattostr(Tests[i].Rj(ord(EvolType)+1));
+        if i=2 then
+           tempstr:=tempstr+' '+floattostrf((Tests[i] as TFriedmanAligned).RjTotal(ord(EvolType)+1)
+                                            /50/50,ffGeneral,5,3);
+        if i=3 then
+           tempstr:=tempstr+' '+floattostrf((Tests[i] as TQuade).Tj(ord(EvolType)+1),ffGeneral,4,2);
+       end;
+      SLRanks.Add(tempstr);
      end;
+    SLRanks.SaveToFile(drive + ':' + path+'\'+SA[k]+'Rank.dat');
+
     FreeOneToNTests(Tests);
    end;
 
-  StringArrayToStringList(tempStrs,StrL,False);
-  StrL.SaveToFile(drive + ':' + path+'\NullHyp.dat');
-  FreeAndNil(StrL);
+  StringArrayToStringList(tempStrs,SLNullHyp,False);
+  SLNullHyp.SaveToFile(drive + ':' + path+'\NullHyp.dat');
+  FreeAndNil(SLRanks);
+  FreeAndNil(SLNullHyp);
   FreeVecEvol(VecEvol);
 end;
 
