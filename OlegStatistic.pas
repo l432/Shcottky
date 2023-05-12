@@ -490,6 +490,16 @@ const
  OneToNTestClasses:array[0..OneToNTestNumber]of TOneToNTest_Class=
    (TFriedman,TImanDavenport,TFriedmanAligned,TQuade);
 
+type
+  TOneToNTestSArray=array [0..OneToNTestNumber] of TOneToNTest;
+
+procedure CreateOneToNTests(var Tests:TOneToNTestSArray;
+                            VecEvol:TArrVec;
+                            ItIsError:boolean=True);
+
+procedure FreeOneToNTests(var Tests:TOneToNTestSArray);
+
+
 implementation
 
 uses
@@ -779,6 +789,7 @@ begin
  inherited Create(Arr,ItIsError);
  fp_unadj:=TVector.Create;
  fhelpVector:=TVector.Create;
+// showmessage(Self.Name);
 end;
 
 destructor TOneToNTest.Destroy;
@@ -889,7 +900,9 @@ function TOneToNTest.Rj(AlgorithmNumber: byte): double;
 begin
  Result:=Total(AlgorithmNumber,Rij);
  if Result<0 then Exit;
+// showmessage(floattostr(Result));
  Result:=Result/fProblemAmount;
+// showmessage(floattostr(Result));
 end;
 
 function TOneToNTest.Statistic: double;
@@ -917,15 +930,19 @@ begin
                  else maxIndex:=fAlgorithmAmount-1;
  for I := 0 to maxIndex do
    begin
+//     showmessage(inttostr(i));
      if forAlgorithm then temp.Add(i,Fun(i+1,Number))
                      else temp.Add(i,Fun(Number,i+1));
+//     showmessage(inttostr(i)+'hh');
 //     if temp.Y[i]<0 then
 //       begin
 //        FreeAndNil(temp);
 //        Exit;
 //       end;
    end;
+// showmessage(temp.XYtostring);
  Result:=temp.SumY;
+//  showmessage(floattostr(temp.SumY));
  FreeAndNil(temp);
 end;
 
@@ -982,9 +999,11 @@ function TFriedman.NullhypothesisP: double;
 begin
  result:=1;
  stat:=Self.Statistic;
+// showmessage(floattostr(stat));
  if stat<0 then Exit;
  try
  Result:=1-TChiSquaredD.CDF(stat,fAlgorithmAmount-1);
+ Result:=max(0,Result);
  except
  end;
 end;
@@ -1002,7 +1021,9 @@ begin
  temp2:=TVectorTransform.Create;
  for i := 1 to fAlgorithmAmount do
    temp1.Add(i,fAlgorithmResult[i-1].Y[ProblemNumber-1]);
+// showmessage(temp1.XYtostring);
  temp1.Rank(temp2,True,True,fItIsError);
+// showmessage(temp2.XYtostring(10));
  Result:=temp2.Y[AlgorithmNumber-1];
  FreeAndNil(temp2);
  FreeAndNil(temp1);
@@ -1014,12 +1035,18 @@ function TFriedman.StatisticFooter: double;
 begin
 //    fAlgorithmAmount:=4;
 //  fProblemAmount:=24;
-
+//  showmessage(inttostr(fProblemAmount));
   Result:=0;
+
+//  for j := 1 to fAlgorithmAmount do
+//   showmessage(inttostr(j)+' '+floattostr(Rj(j)));
+
   for j := 1 to fAlgorithmAmount do Result:=Result+sqr(Self.Rj(j));
 //  for j := 1 to fAlgorithmAmount do Result:=Result+sqr(s[j]);
+// showmessage(floattostr(Result));
   Result:=(Result-fAlgorithmAmount*sqr(fAlgorithmAmount+1)/4)
       *12*fProblemAmount/fAlgorithmAmount/(fAlgorithmAmount+1);
+//  showmessage(floattostr(Result));
 //  Result:=35.99733;
 end;
 
@@ -1078,12 +1105,15 @@ function TFriedmanAligned.NullhypothesisP: double;
 begin
  result:=1;
  stat:=Self.Statistic;
+//  showmessage(floattostr(stat));
  if stat<0 then Exit;
  try
  Result:=1-TChiSquaredD.CDF(stat,fAlgorithmAmount-1);
+ Result:=max(0,Result);
  except
 
  end;
+
 end;
 
 procedure TFriedmanAligned.Rename;
@@ -1616,7 +1646,12 @@ constructor TQuade.Create(Arr: array of TVector; ItIsError: boolean);
  var tempV:TVectorTransform;
      i:Integer;
 begin
+// showmessage('pryvit!');
+// showmessage(Self.Name);
  inherited Create(Arr, ItIsError);
+// showmessage(Self.Name);
+
+
  fQ:=TVectorTransform.Create;
  if fError then Exit;
  MinMaxValues(fAlgorithmResult,fQ);
@@ -1628,6 +1663,7 @@ begin
 //   showmessage('i='+inttostr(i)+' delta='+floattostr(tempV.Y[i]));
    end;
  tempV.Rank(fQ,True);
+//  showmessage(fQ.XYtostring);
  for I := 0 to fProblemAmount-1 do
    begin
    fQ.X[i]:=fAlgorithmResult[0].X[i];
@@ -1646,8 +1682,10 @@ end;
 function TQuade.NullhypothesisP: double;
  var stat:double;
 begin
+// showmessage('privit!');
  result:=1;
  stat:=Self.Statistic;
+//   showmessage(floattostr(stat));
  if stat<0 then Exit;
  try
  Result:=1-TFisherD.CDF(stat,fAlgorithmAmount-1,(fAlgorithmAmount-1)*(fProblemAmount-1));
@@ -1664,16 +1702,23 @@ end;
 function TQuade.Sij(ProblemNumber, AlgorithmNumber: byte): double;
  var r:double;
 begin
+// showmessage(inttostr(ProblemNumber));
  Result:=-ErResult;
  r:=Rij(ProblemNumber, AlgorithmNumber);
  if (r<0)or fError then Exit;
 // showmessage('R='+floattostr(r)+' Q='+floattostr(fQ.Y[ProblemNumber]));
+// showmessage(inttostr(ProblemNumber)+' ggg');
+// showmessage(fQ.XYtostring);
  Result:=fQ.Y[ProblemNumber-1]*(r-(fAlgorithmAmount+1)/2.0);
+// showmessage(inttostr(ProblemNumber)+' ggg2');
 end;
 
 function TQuade.SjTotal(AlgorithmNumber: byte): double;
 begin
+// showmessage(inttostr(AlgorithmNumber));
  Result:=Total(AlgorithmNumber,Sij);
+// showmessage(inttostr(AlgorithmNumber)+'d');
+// showmessage(floattostr(Result));
 end;
 
 function TQuade.StatisticFooter: double;
@@ -1684,6 +1729,7 @@ begin
   B:=0;
   for j := 1 to fAlgorithmAmount do B:=B+sqr(SjTotal(j));
   B:=B/fProblemAmount;
+//  showmessage(floattostr(B));
   A:=fProblemAmount*(fProblemAmount+1)*(2*fProblemAmount+1)
      *fAlgorithmAmount*(fAlgorithmAmount+1)*(fAlgorithmAmount-1)/72;
 
@@ -1910,6 +1956,22 @@ begin
  FreeAndNil(WT);
 end;
 
+procedure CreateOneToNTests(var Tests:TOneToNTestSArray;
+          VecEvol:TArrVec;
+          ItIsError:boolean=True);
+ var k:integer;
+begin
+  for k := 0 to OneToNTestNumber-1 do
+     Tests[k]:=OneToNTestClasses[k].Create(VecEvol,ItIsError);
+ Tests[3]:=TQuade.Create(VecEvol,ItIsError);
+end;
+
+procedure FreeOneToNTests(var Tests:TOneToNTestSArray);
+ var k:integer;
+begin
+  for k := 0 to OneToNTestNumber
+   do FreeAndNil(Tests[k]);
+end;
 
 end.
 

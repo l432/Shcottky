@@ -216,7 +216,7 @@ type
       function YtoString():string;
       {повертається рядок, що містить
       всі значення відповідної координати}
-      function XYtoString():string;
+      function XYtoString(NumberDigit:Byte=4):string;
       function Xvalue(Yvalue:double):double;
          {повертає визначає приблизну абсцису точки з
           ординатою Yvalue}
@@ -499,12 +499,12 @@ begin
  Result:=Value(cY,Yvalue);
 end;
 
-function TVector.XYtoString: string;
+function TVector.XYtoString(NumberDigit:Byte): string;
  var i:integer;
 begin
  Result:='';
  for i:=0 to High(Points) do
-   Result:=Result+'('+PoinToString(Points[i])+')'+#10+#13;
+   Result:=Result+'('+PoinToString(Points[i],NumberDigit)+')'+#10+#13;
 
 end;
 
@@ -989,7 +989,6 @@ begin
  if Number>High(Points)
     then Result:=ErResult
     else Result:=Points[Number][TCoord_type(Index)];
-
 end;
 
 function TVector.GetHigh: Integer;

@@ -584,7 +584,8 @@ end;
 
 procedure SomethingForCastro2(FileName:string);
 begin
- WilcoxonTestOfMethod(FileName);
+// WilcoxonTestOfMethod(FileName);
+ Nullhupothesis1N(FileName);
 end;
 
 
@@ -632,8 +633,6 @@ procedure WilcoxonTestOfFitFunction(FileNameSqrEr,FileNameAbsEr:string);
      SA:TArrStr;
      EvolType:TEvolutionTypeNew;
 begin
-//  CreateVecEvol(VecEvolSqrEr);
-//  CreateVecEvol(VecEvolAbsEr);
   VecEvolSqrEr:=TVector.Create;
   VecEvolAbsEr:=TVector.Create;
   CastroParamToStringArray(SA);
@@ -667,8 +666,6 @@ begin
   FreeAndNil(StrLSqrBetter);
   FreeAndNil(VecEvolAbsEr);
   FreeAndNil(VecEvolSqrEr);
-//  FreeVecEvol(VecEvolAbsEr);
-//  FreeVecEvol(VecEvolSqrEr);
 end;
 
 
@@ -722,59 +719,53 @@ end;
 procedure Nullhupothesis1N(FileName:string);
  var VecEvol:TArrVec;
      StrL:TStringList;
-     tempstr,tempstr2:string;
-     k:integer;
+//     tempstr,tempstr2:string;
+     k,i:integer;
      SA:TArrStr;
-     EvolType,EvolType2:TEvolutionTypeNew;
+//     EvolType,EvolType2:TEvolutionTypeNew;
      path, fileNameShot:string;
      drive:char;
 //     Friedman:TFriedman;
 //     ImanDavenport:TImanDavenport;
 //     FriedmanAligned:TFriedmanAligned;
 //     Quade:TQuade;
-     Tests:array of TOneToNTest;
+     Tests:TOneToNTestSArray;
+     tempStrs:array [0..OneToNTestNumber] of string;
 begin
   CreateVecEvol(VecEvol);
   CastroParamToStringArray(SA);
   StrL:=TStringList.Create;
   ProcessPath(FileName, drive, path, fileNameShot);
-
-  SetLength(Tests,OneToNTestNumber+1);
   StrL.Add('Test '+ArrayToString(SA));
 
-//  for k := 0 to OneToNTestNumber do
-//     Tests[k]:=OneToNTestClasses[k].Create(VecEvol);
-
-  tempstr:='Method';
-  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-   tempstr:=tempstr+' '+EvTypeNames[EvolType];
-
+//  ReadEvolAllParResult('n1',VecEvol,FileName);
+//  CreateOneToNTests(Tests,VecEvol);
+//  showmessage(Tests[1].Name);
 
   for k := 0 to High(SA) do
+//  for k := 1 to 1 do
    begin
-    StrL.Clear;
-    StrL.Add(tempstr);
     ReadEvolAllParResult(SA[k],VecEvol,FileName);
-//    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-//      VecEvol[ord(EvolType)].WriteToFile(SA[k]+'_'+VecEvol[ord(EvolType)].name+'.dat');
-      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-       begin
-        tempstr2:=VecEvol[ord(EvolType)].Name;
-        for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-         begin
-           if EvolType=EvolType2
-               then tempstr2:=tempstr2+' ='
-               else
-               begin
-                 if AbetterBWilcoxon(VecEvol[ord(EvolType)],VecEvol[ord(EvolType2)],True,0.05)
-                    then tempstr2:=tempstr2+' +'
-                    else tempstr2:=tempstr2+' 0';
-               end;
-         end;
-        StrL.Add(tempstr2);
-       end;
-    StrL.SaveToFile(drive + ':' + path+'\'+SA[k]+'_WilcT.dat');
+    CreateOneToNTests(Tests,VecEvol);
+    if k=0 then
+      for I := 0 to High(Tests) do
+//         begin
+         tempStrs[i]:=Tests[i].Name;
+//         showmessage(Tests[i].Name);
+//         end;
+//    StringArrayToStringList(tempStrs,StrL,False);
+//    StrL.SaveToFile(drive + ':' + path+'\'+inttostr(k)+'NullHyp.dat');
+
+    for I := 0 to High(Tests) do
+     begin
+     tempStrs[i]:=tempStrs[i]+' '+FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2);
+//      showmessage(Tests[i].Name+' '+SA[k]+' '+FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2));
+     end;
+    FreeOneToNTests(Tests);
    end;
+
+  StringArrayToStringList(tempStrs,StrL,False);
+  StrL.SaveToFile(drive + ':' + path+'\NullHyp.dat');
   FreeAndNil(StrL);
   FreeVecEvol(VecEvol);
 end;

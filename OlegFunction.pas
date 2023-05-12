@@ -229,7 +229,8 @@ procedure InitArray(var OutputData:TArrInteger;NumberOfData:word;
 
 
 procedure StringArrayToStringList(const Arr:array of string;
-                                  StringList:TStringList);
+                                  StringList:TStringList;
+                                  ClearStringList:boolean=True);
 
 Function FileNameToVoltage(name:string):double;
 
@@ -1256,10 +1257,11 @@ begin
 end;
 
 procedure StringArrayToStringList(const Arr:array of string;
-                                  StringList:TStringList);
+                                  StringList:TStringList;
+                                  ClearStringList:boolean=True);
  var i:integer;
 begin
- StringList.Clear;
+ if ClearStringList then StringList.Clear;
  for I := Low(Arr) to High(Arr) do StringList.Add(Arr[i]);
 end;
 
