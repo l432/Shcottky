@@ -126,6 +126,10 @@ procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 procedure CastroParamToStringArray(var SA:TArrStr);
 {в SA назви основних параметрів для TFFIV_thin}
 
+procedure SortingStringList(SL:TStringList;ColumnNumber:byte=2);
+
+
+
 
 implementation
 
@@ -718,11 +722,11 @@ end;
 
 procedure Nullhupothesis1N(FileName:string);
  var VecEvol:TArrVec;
-     SLNullHyp,SLRanks:TStringList;
+     SLNullHyp,SLRanks,SLAdjPvalues:TStringList;
      tempstr:string;
      k,i:integer;
      SA:TArrStr;
-     EvolType:TEvolutionTypeNew;
+     EvolType,EvolType2:TEvolutionTypeNew;
      path, fileNameShot:string;
      drive:char;
      Tests:TOneToNTestSArray;
@@ -732,6 +736,7 @@ begin
   CastroParamToStringArray(SA);
   SLNullHyp:=TStringList.Create;
   SLRanks:=TStringList.Create;
+  SLAdjPvalues:=TStringList.Create;
   ProcessPath(FileName, drive, path, fileNameShot);
   SLNullHyp.Add('Test '+ArrayToString(SA));
 
@@ -742,39 +747,71 @@ begin
     ReadEvolAllParResult(SA[k],VecEvol,FileName);
     CreateOneToNTests(Tests,VecEvol);
 //----------------NullHypothesis------------------------------
-    if k=0 then
-      for I := 0 to High(Tests) do
-         tempStrs[i]:=Tests[i].Name;
+//    if k=0 then
+//      for I := 0 to High(Tests) do
+//         tempStrs[i]:=Tests[i].Name;
+//
+//    for I := 0 to High(Tests) do
+//     tempStrs[i]:=tempStrs[i]+' '+FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2);
 
-    for I := 0 to High(Tests) do
-     tempStrs[i]:=tempStrs[i]+' '+FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2);
 //-------------------Ranks-------------------------------------
-    SLRanks.Clear;
-    SLRanks.Add('Test '+VecNamesToString(VecEvol));
-    for I := 0 to High(Tests) do
-     begin
-      if i=1 then Continue;
+//    SLRanks.Clear;
+//    SLRanks.Add('Test '+VecNamesToString(VecEvol));
+//    for I := 0 to High(Tests) do
+//     begin
+//      if i=1 then Continue;
+//
+//      tempstr:=Tests[i].Name;
+//      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//       begin
+//        if (i=0) then
+//           tempstr:=tempstr+' '+floattostr(Tests[i].Rj(ord(EvolType)+1));
+//        if i=2 then
+//           tempstr:=tempstr+' '+floattostrf((Tests[i] as TFriedmanAligned).RjTotal(ord(EvolType)+1)
+//                                            /50/50,ffGeneral,5,3);
+//        if i=3 then
+//           tempstr:=tempstr+' '+floattostrf((Tests[i] as TQuade).Tj(ord(EvolType)+1),ffGeneral,4,2);
+//       end;
+//      SLRanks.Add(tempstr);
+//     end;
+//    SLRanks.SaveToFile(drive + ':' + path+'\'+SA[k]+'Rank.dat');
 
-      tempstr:=Tests[i].Name;
-      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//------------------------- Adjusted p-values------------------------------------------
+//    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+    for EvolType := etADELI to etADELI do
+     begin
+      for I := 0 to High(Tests) do
        begin
-        if (i=0) then
-           tempstr:=tempstr+' '+floattostr(Tests[i].Rj(ord(EvolType)+1));
-        if i=2 then
-           tempstr:=tempstr+' '+floattostrf((Tests[i] as TFriedmanAligned).RjTotal(ord(EvolType)+1)
-                                            /50/50,ffGeneral,5,3);
-        if i=3 then
-           tempstr:=tempstr+' '+floattostrf((Tests[i] as TQuade).Tj(ord(EvolType)+1),ffGeneral,4,2);
+        if i=1 then Continue;
+//        if i=2 then Continue;
+        SLAdjPvalues.Clear();
+        SLAdjPvalues.Add('Method Finner Holm Hochberg Holland');
+        for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+         begin
+          if EvolType2=EvolType then Continue;
+          tempstr:=EvTypeNames[EvolType2];
+          tempstr:=tempstr+' '+floattostrf(Tests[i].FinnerAPV(ord(EvolType)+1,ord(EvolType2)+1),
+                                           ffExponent,10,2);
+          tempstr:=tempstr+' '+floattostrf(Tests[i].HolmAPV(ord(EvolType)+1,ord(EvolType2)+1),
+                                           ffExponent,10,2);
+          tempstr:=tempstr+' '+floattostrf(Tests[i].HochbergAPV(ord(EvolType)+1,ord(EvolType2)+1),
+                                           ffExponent,10,2);
+          tempstr:=tempstr+' '+floattostrf(Tests[i].HollandAPV(ord(EvolType)+1,ord(EvolType2)+1),
+                                           ffExponent,10,2);
+          SLAdjPvalues.Add(tempstr);
+         end;
+        SortingStringList(SLAdjPvalues);
+        SLAdjPvalues.SaveToFile(drive + ':' + path+'\'+EvTypeNames[EvolType]+SA[k]+Tests[i].Name+'Pval.dat');
        end;
-      SLRanks.Add(tempstr);
      end;
-    SLRanks.SaveToFile(drive + ':' + path+'\'+SA[k]+'Rank.dat');
+
 
     FreeOneToNTests(Tests);
    end;
 
   StringArrayToStringList(tempStrs,SLNullHyp,False);
   SLNullHyp.SaveToFile(drive + ':' + path+'\NullHyp.dat');
+  FreeAndNil(SLAdjPvalues);
   FreeAndNil(SLRanks);
   FreeAndNil(SLNullHyp);
   FreeVecEvol(VecEvol);
@@ -794,6 +831,25 @@ begin
  FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
  MainParamToStringArray((FFunction as TFFSimple),SA);
  FreeAndNil(FFunction);
+end;
+
+procedure SortingStringList(SL:TStringList;ColumnNumber:byte=2);
+ var tempSL:TStringList;
+     Vec:TVector;
+     i:integer;
+begin
+ tempSL:=TStringList.Create;
+ tempSL.Assign(SL);
+ Vec:=TVector.Create;
+ for I := 1 to SL.Count-1 do
+   Vec.Add(FloatDataFromRow(SL[i],ColumnNumber),i);
+ Vec.Sorting();
+ SL.Clear;
+ SL.Add(tempSL[0]);
+ for I := 0 to Vec.HighNumber do
+   SL.Add(tempSL[round(Vec.Y[i])]);
+ FreeAndNil(Vec);
+ FreeAndNil(tempSL);
 end;
 
 end.

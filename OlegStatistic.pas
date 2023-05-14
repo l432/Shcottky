@@ -819,6 +819,7 @@ begin
  for I := (fAlgorithmAmount-2) downto ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
   fhelpVector.Add(i,(fAlgorithmAmount-i-1)*fp_unadj.X[i]);
  Result:=fhelpVector.MinY;
+// if Result<0 then Result:=1e-13;
 end;
 
 
@@ -842,6 +843,7 @@ begin
  for I := 0 to ÑomparisonAlgorithmNumberInP_unadj(ÑomparisonAlgorithm) do
   fhelpVector.Add(i,(fAlgorithmAmount-i-1)*fp_unadj.X[i]);
  Result:=min(1,fhelpVector.MaxY);
+// if Result<0 then Result:=1e-13;
 end;
 
 function TOneToNTest.LiAPV(ControlAlgorithm,
@@ -964,6 +966,7 @@ begin
   result:=TNormalD.Plim(z);
 //  result:=pFr[ÑomparisonAlgorithm];
 //  result:=pQua[ÑomparisonAlgorithm];
+  Result:=max(Result,1e-15);
   except
   end;
 end;
