@@ -778,7 +778,8 @@ begin
 
 //------------------------- Adjusted p-values------------------------------------------
 //    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-    for EvolType := etADELI to etADELI do
+//    for EvolType := etADELI to etADELI do
+    for EvolType := etNDE to et_WaterWave do
      begin
       for I := 0 to High(Tests) do
        begin
