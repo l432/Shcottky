@@ -1238,8 +1238,7 @@ function TVector.Quartile(q: double): double;
 begin
  if (Self.Count=0)
     or(q<0)or(q>1) then Exit(ErResult);
-
-  tempVector.Create(Self);
+  tempVector:=TVector.Create(Self);
   tempVector.SwapXY;
   tempVector.Sorting();
   Result:=(tempVector.X[max(0,floor(Count*q)-1)]

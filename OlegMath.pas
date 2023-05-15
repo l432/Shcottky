@@ -592,7 +592,7 @@ begin
 end;
 
 function RelativeDifference(Double1,Double2:double):double;
-{повертає модулю відносної різниці двох чисел,
+{повертає модуль відносної різниці двох чисел,
 відносна - по відношенню до Double1, якщо воно не нуль;
 якщо Double1=0 та Double2=0, то результат нульовий}
 begin

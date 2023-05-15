@@ -477,7 +477,7 @@ Result=[0..(fPairAmount-1)],
 â ö³ë³é ÷àñòèí³ fp_unadj.Y[] - ControlAlgorithm,
 â äðîáîâ³é ÷àñòèí³ fp_unadj.Y[] - ÑomparisonAlgorithm}
   destructor Destroy; override;
-  function MultipleNemenyi(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
+  function MultipleNemenyiAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
   function MultipleHolmAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
   function MultipleShafferStaticAPV(ControlAlgorithm,ÑomparisonAlgorithm:byte):double;
 end;
@@ -1885,7 +1885,7 @@ begin
     else Result:=min(1,fhelpVector.MaxY);
 end;
 
-function TMultipleComparisons.MultipleNemenyi(ControlAlgorithm,
+function TMultipleComparisons.MultipleNemenyiAPV(ControlAlgorithm,
   ÑomparisonAlgorithm: byte): double;
  var i:integer;
 begin
