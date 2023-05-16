@@ -266,11 +266,14 @@ function IntToFrac(i:integer):double;
 
 procedure StringListShow(StrL:TStringList);
 
+function FolderFromFullPath(FullPath:string):string;
+{повертає розташування папки з повного шляху}
+
 
 implementation
 
 uses
-  SysUtils, Math, Graphics, OlegMaterialSamples;
+  SysUtils, Math, Graphics, OlegMaterialSamples, Vcl.FileCtrl;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -1408,6 +1411,15 @@ begin
    else
     temp:='is empty';
  showmessage(temp);
+end;
+
+function FolderFromFullPath(FullPath:string):string;
+{повертає розташування папки з повного шляху}
+ var  path, fileNameShot:string;
+      drive:char;
+begin
+  ProcessPath(FullPath, drive, path, fileNameShot);
+  Result:=drive + ':' + path+'\';
 end;
 
 end.

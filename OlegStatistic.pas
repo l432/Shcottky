@@ -247,6 +247,12 @@ Procedure MinMaxValues(Arr:array of TVector; Target:TVector);
 {Target.X[i]=min(Arr[].Y[i]),Target.Y[i]=max(Arr[].Y[i]),
 кількість точок в Target визначається найменшим розміром Arr}
 
+Procedure MinMaxNormalization(Arr:array of TVector);
+{значення Arr[].Y[i] стають в діапазоні [0,1]
+з врахуванням, що для кожної точки проводиться
+визначення максимального за мінімального значень по
+всім векторам - впаховуються min(Arr[].Y[i]) та max(Arr[].Y[i])}
+
 //Function MultipleSignNmin(m,n:word;p:double=0.05):integer;
 //{критичне значення для Multiple Sign Test при
 //(m+1) алгоритмах (всього, порівняння відбувається якогось з рештою m),
@@ -624,6 +630,26 @@ begin
   FreeAndNil(temp);
 end;
 
+Procedure MinMaxNormalization(Arr:array of TVector);
+{значення Arr[].Y[i] стають в діапазоні [0,1]
+з врахуванням, що для кожної точки проводиться
+визначення максимального за мінімального значень по
+всім векторам - впаховуються min(Arr[].Y[i]) та max(Arr[].Y[i])}
+ var MinMax:TVector;
+     VecOld:TVectorTransform;
+     i:integer;
+begin
+ MinMax:=TVector.Create;
+ MinMaxValues(Arr,MinMax);
+ for I := 0 to High(Arr) do
+  begin
+   VecOld:=TVectorTransform.Create(Arr[i]);
+   VecOld.MinMax(Arr[i],MinMax);
+   FreeAndNil(VecOld);
+  end;
+ FreeAndNil(MinMax);
+end;
+
 //Function WilcoxonTestAbetterB(A,B:TVector;p:double=0.05;ItIsError:boolean=True):boolean;
 // var mu,sigma,T:double;
 //     n,W:integer;
@@ -892,14 +918,19 @@ end;
 function TOneToNTest.Rij(ProblemNumber, AlgorithmNumber: byte): double;
 begin
  Result:=-1;
+// showmessage(name+'lll');
+
  if fError then Exit;
+
  if (ProblemNumber<1)or(ProblemNumber>fProblemAmount)
      or(AlgorithmNumber<1)or(AlgorithmNumber>fAlgorithmAmount) then Exit;
+// showmessage(Self.name+'lll');
  Result:=RijFooter(ProblemNumber, AlgorithmNumber);
 end;
 
 function TOneToNTest.Rj(AlgorithmNumber: byte): double;
 begin
+// showmessage(inttostr(AlgorithmNumber));
  Result:=Total(AlgorithmNumber,Rij);
  if Result<0 then Exit;
 // showmessage(floattostr(Result));
@@ -924,12 +955,19 @@ begin
  if fError or (Number=0) then Exit;
 
  if forAlgorithm then
+    begin
     if Number>fAlgorithmAmount then Exit
+    end
                  else
+    begin
     if Number>fProblemAmount then Exit;
+    end;
+
  temp:=TVector.Create;
  if forAlgorithm then maxIndex:=fProblemAmount-1
                  else maxIndex:=fAlgorithmAmount-1;
+
+// showmessage(name);
  for I := 0 to maxIndex do
    begin
 //     showmessage(inttostr(i));
