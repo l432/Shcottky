@@ -125,9 +125,9 @@ type
       property Q1:double Index 0 read GetQuartile;
       {повертає квантиль 0,25 в масиві Y}
       property Q3:double Index 2 read GetQuartile;
-      {повертає квантиль 0,25 в масиві Y}
+      {повертає квантиль 0,75 в масиві Y}
       property Q2:double Index 1 read GetQuartile;
-      {повертає квантиль 0,25 в масиві Y}
+      {повертає квантиль 0,5 в масиві Y}
       property IQR:double Index 3 read GetQuartile;
       {міжквартильний розмах в масиві Y}
       property LowQLimit:double Index 1 read GetQLimit;

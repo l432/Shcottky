@@ -368,6 +368,9 @@ Function ThermallyActivated(A0,Eact,T:double):double;
 
 Function ThermallyPower(A0,PowerLaw,T:double):double;
 
+Function ThermallyLiniar(A0,TC,T:double):double;
+{Result=A0*(1+TC*(T-300)) }
+
 Procedure NormalArray(Arr:TArrSingle);
 {сума елементів стає рівною 1, кожен з них в [0..1]}
 
@@ -1810,6 +1813,12 @@ end;
 Function ThermallyPower(A0,PowerLaw,T:double):double;
 begin
  if T>0 then Result:=A0*Power(T,PowerLaw)
+        else Result:=ErResult;
+end;
+
+Function ThermallyLiniar(A0,TC,T:double):double;
+begin
+ if T>0 then Result:=A0*(1+TC*(T-300))
         else Result:=ErResult;
 end;
 

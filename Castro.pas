@@ -13,16 +13,21 @@ const
  I001=2e-3;
  I01Ea=0.15;
  I01const=1.5e-5;
- I002=1e3;
- I02Ea=0.43;
+ I002=5e2;
+ I02Ea=0.40;
  n1A=7;
  n2T0=500;
- Rsh1const=8e4;
+ Rsh1const=1e4;
  Rsh20=9e-3;
  Rsh2Ea=0.32;
  Iph0=1e-3;
+ TC_Iph=1e-3;
+ Rs0=50;
+ TC_Rs=0.02;
+ Tbegin=260;
+ Tend=350;
 
- Nrep=50;
+ Nrep=51;
 
  TimeOfFiting:array[TEvolutionTypeNew]of double=
   (42,
@@ -103,6 +108,9 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle;
                         Vec:TVectorTransform);overload;
 
+procedure CastroFittingIdeal(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle);
+
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle);overload;
 
@@ -110,12 +118,20 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 function ResultAllTitle(ParamNames:TArrStr):string;
 
 function StatString(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
+function StatStringIdeal(RezVec:TArrVec;Parameters:TArrSingle):string;
+
 function ResultAllString(FitFunction:TFFSimple;Parameters:TArrSingle):string;
 //function ResultAllStrings2(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
 
 procedure SafeLoad(SL:TStringList; FileName,Title:string);
 
 procedure pssAfiting();
+
+procedure Idealfiting();
+
+function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
+                               T:integer;
+                               SL:TStringList):integer;
 
 procedure ReadEvolParResult(EvolType: TEvolutionTypeNew; ParName: string; Vec: TVector;
                           FileName: string = 'ResultAll.dat';ReadRelativeError:boolean=True);
@@ -227,17 +243,15 @@ end;
 
 Function CasIph(const T:double):double;
 begin
- if T>=0
-   then Result:=Iph0
-   else Result:=ErResult;
+ Result:=ThermallyLiniar(Iph0,TC_Iph,T)
+// if T>=0
+//   then Result:=Iph0
+//   else Result:=ErResult;
 end;
 
 Function CasRs(const T:double):double;
 begin
- if T>=0
-   then Result:=50+(T-290)
-//   then Result:=0
-   else Result:=ErResult;
+ Result:=ThermallyLiniar(Rs0,TC_Rs,T)
 end;
 
 Procedure CasParDetermination(const T:double;
@@ -340,9 +354,6 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
   end;
 
 
-// FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
-
-// showmessage(EvTypeNames[((FFunction as TFFSimple).DParamArray as TDParamsHeuristic).EvType]);
 
  for I := 1 to Nrep do
   begin
@@ -406,18 +417,92 @@ end;
  FreeAndNil(Vec);
 end;
 
+procedure CastroFittingIdeal(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle);
+ var Vec:TVectorTransform;
+     FFunction:TFitFunctionNew;
+     ParamNames:TArrStr;
+     i,j:byte;
+     StrStat,StrRez:TStringList;
+     tempstr:string;
+     RezVec:TArrVec;
+//     MaxXnumber:integer;
+begin
+ Vec:=TVectorTransform.Create;
+ CastroIV_Creation(Vec,Parameters,1.001);
+ Vec.Name:=EvTypeNames[EvolType]+inttostr(round(Parameters[8]));
+
+ FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
+ FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
+ WriteIniDef(FFunction.ConfigFile,FFunction.Name,'Nit',round(1.5*Niter[EvolType]),1000);
+
+ FreeAndNil(FFunction);
+ FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
+
+ MainParamToStringArray((FFunction as TFFSimple),ParamNames);
+
+ StrStat:=TStringList.Create;
+ StrRez:=TStringList.Create;
+ SafeLoad(StrStat,'Stat.dat',StatTitle(ParamNames));
+ SafeLoad(StrRez,'ResultAll.dat',ResultAllTitle(ParamNames));
+
+ SetLength(RezVec,High(ParamNames)+1);
+ for I := 0 to High(ParamNames) do
+  begin
+  RezVec[i]:=TVector.Create;
+  RezVec[i].Name:=EvTypeNames[EvolType];
+  end;
+
+
+ for I := 1 to Nrep do
+  begin
+   (FFunction as TFitFunctionNew).Fitting(Vec);
+   if FFunction.ResultsIsReady then
+    begin
+      StrRez.Add(ResultAllString((FFunction as TFFSimple),Parameters));
+      StrRez.SaveToFile('ResultAll.dat');
+      for j := 0 to (FFunction as TFFSimple).DParamArray.MainParamHighIndex do
+       RezVec[j].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[j]);
+      RezVec[High(RezVec)].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[High((FFunction as TFFSimple).DParamArray.OutputData)]);
+    end
+                                else Break;
+  end;
+
+ if i>Nrep then
+  StrStat.Add(StatStringIdeal(RezVec,Parameters));
+
+ for I := 0 to High(ParamNames) do
+  FreeAndNil(RezVec[i]);
+
+ StrStat.SaveToFile('Stat.dat');
+ FreeAndNil(StrStat);
+ FreeAndNil(StrRez);
+ FreeAndNil(FFunction);
+
+ FreeAndNil(Vec);
+end;
+
 function StatTitle(ParamNames:TArrStr):string;
  var i:byte;
 begin
   Result:='Name T';
   for I := 0 to High(ParamNames) do
    begin
-    Result:=Result+' '+ParamNames[i]
-           +' se'+ParamNames[i];
+    Result:=Result+' '+ParamNames[i]+'med '
+           +ParamNames[i]+'q25 '
+           +ParamNames[i]+'q75 ';
     if i<>High(ParamNames)
-      then Result:=Result+' re'+ParamNames[i];
-//           +' rse'+ParamNames[i];
-   end;
+       then Result:=Result+ParamNames[i]+'er';
+   end;
+
+//  for I := 0 to High(ParamNames) do
+//   begin
+//    Result:=Result+' '+ParamNames[i]
+//           +' se'+ParamNames[i];
+//    if i<>High(ParamNames)
+//      then Result:=Result+' re'+ParamNames[i];
+////           +' rse'+ParamNames[i];
+//   end;
 end;
 
 function ResultAllTitle(ParamNames:TArrStr):string;
@@ -448,6 +533,21 @@ begin
    end;
 end;
 
+function StatStringIdeal(RezVec:TArrVec;Parameters:TArrSingle):string;
+ var i:byte;
+begin
+  Result:=RezVec[0].Name;
+  Result:=Result+' '+inttostr(round(Parameters[8]));
+  for I := 0 to High(RezVec) do
+   begin
+    Result:=Result+' '+FloatToStrF(RezVec[i].Median,ffExponent,10,2)
+           +' '+FloatToStrF(RezVec[i].Q1,ffExponent,10,2)
+           +' '+FloatToStrF(RezVec[i].Q3,ffExponent,10,2);
+    if i<>High(RezVec)
+      then Result:=Result+' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].Median),ffExponent,10,2);
+   end;
+end;
+
 function ResultAllString(FitFunction:TFFSimple;Parameters:TArrSingle):string;
  var i:byte;
 begin
@@ -459,13 +559,8 @@ begin
   Result:=Result+' '+FloatToStrF(FitFunction.DParamArray.OutputData[FitFunction.ParametersNumber-1],ffExponent,10,2)
 end;
 
-//function ResultAllStrings2(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
-//begin
-//
-//end;
 
-
-procedure SafeLoad(SL:TStringList; FileName,Title:string);
+procedure SafeLoad(SL:TStringList; FileName,Title:string);
 begin
  try
   SL.LoadFromFile(FileName);
@@ -496,6 +591,83 @@ begin
   for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
     CastroFitting(EvolType, Par1, Vec);
   FreeAndNil(Vec);
+end;
+
+procedure Idealfiting();
+var
+//  Vec: TVector;
+  EvolType: TEvolutionTypeNew;
+  Parameters:TArrSingle;
+  T,i:integer;
+  StrStat,StrRez:TStringList;
+  SA:TArrStr;
+  tempStr:string;
+begin
+ StrStat:=TStringList.Create;
+ CastroParamToStringArray(SA);
+
+
+// Vec:=TVector.Create;
+// StrStat.Add('T '+ArrayToString(SA));
+// T:=Tbegin;
+// repeat
+//   CasParDetermination(T,Parameters);
+////   showmessage(ArrayToString(Parameters));
+//   CastroIV_Creation(Vec,Parameters);
+//   Vec.WriteToFile('IV_'+inttostr(T)+'.dat');
+//   tempStr:=inttostr(T);
+//   for i:=0 to High(Parameters)-1 do
+//    begin
+//     tempStr:=tempStr+' '+FloatToStrF(Parameters[i],ffExponent,10,2);
+//    end;
+//   StrStat.Add(tempStr);
+//   T:=T+10;
+// until (T>Tend);
+// freeAndNil(Vec);
+// StrStat.SaveToFile('IdealParam.dat');
+
+ StrRez:=TStringList.Create;
+
+ for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+  begin
+   T:=Tbegin;
+   repeat
+    SafeLoad(StrStat,'Stat.dat',StatTitle(SA));
+    if RowOfDataInStringList(EvolType,T,StrStat)>-1
+     then Break;
+    SafeLoad(StrRez,'ResultAll.dat',ResultAllTitle(SA));
+    repeat
+     i:=RowOfDataInStringList(EvolType,T,StrRez);
+     if i>-1 then StrRez.Delete(i);
+    until (i<0);
+    StrRez.SaveToFile('ResultAll.dat');
+
+    CasParDetermination(T,Parameters);
+    CastroFittingIdeal(EvolType, Parameters);
+   until (T>Tend);
+
+  end;
+
+ FreeAndNil(StrRez);
+
+ FreeAndNil(StrStat);
+end;
+
+function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
+                               T:integer;
+                               SL:TStringList):integer;
+ var tempStr:string;
+     i:integer;
+begin
+  Result:=-1;
+  for i:=0 to SL.Count-1 do
+   if (StringDataFromRow(SL[i],1)=EvTypeNames[EvolType])
+      and  (round(FloatDataFromRow(SL[i],2))=T)
+      then
+        begin
+         Result:=i;
+         Break;
+        end;
 end;
 
 procedure ReadEvolParResult(EvolType: TEvolutionTypeNew; ParName: string; Vec: TVector;
@@ -594,8 +766,9 @@ end;
 // const
 // par:array [0..1] of double=
 //   (1.2,2);
- var Par1,Par2,Par3:TArrSingle;
-     Vec1,Vec2:TVector;
+ var Par1,Par2,Par3,Parameters:TArrSingle;
+//     Vec1,Vec2:TVector;
+//     T:integer;
 begin
  {значення параметрів з pssA_219_2100403}
  SetLength(Par1,9);
@@ -640,19 +813,11 @@ begin
   // Par3[8]:=300;
 
 //  pssAfiting();
-//  OpenDialog11:=TOpenDialog.Create(self);
-//  if OpenDialog11.Execute()
-//     then
-//       begin
-//        showmessage(OpenDialog11.FileName);
-//       end;
-//  FreeAndNil(OpenDialog11)
 
 //  Vec := TVector.Create;
 //  ReadEvolParResult(etMABC,'rmsre',Vec);
 //  showmessage(Vec.XYtoString);
 //  FreeAndNil(Vec);
-    WilcoxonTestOfFitFunction('ResultAll50v4.dat','ResultAllAbsEr50.dat');
 
 //  Vec1:=TVector.Create;
 //  Vec2:=TVector.Create;
@@ -664,6 +829,7 @@ begin
 //
 //  freeAndNil(Vec1);
 //  freeAndNil(Vec2);
+ Idealfiting();
 
 end;
 
