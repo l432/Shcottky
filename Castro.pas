@@ -634,7 +634,11 @@ begin
    repeat
     SafeLoad(StrStat,'Stat.dat',StatTitle(SA));
     if RowOfDataInStringList(EvolType,T,StrStat)>-1
-     then Break;
+     then
+      begin
+       T:=T+10;
+       Continue;
+      end;
     SafeLoad(StrRez,'ResultAll.dat',ResultAllTitle(SA));
     repeat
      i:=RowOfDataInStringList(EvolType,T,StrRez);
