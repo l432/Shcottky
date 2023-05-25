@@ -1208,23 +1208,19 @@ function TFriedmanAligned.StatisticFooter: double;
  var j:integer;
      Rj_sum,Ri_sum:double;
 begin
-//  fAlgorithmAmount:=4;
-//  fProblemAmount:=24;
   Rj_sum:=0;
   for j := 1 to fAlgorithmAmount do Rj_sum:=Rj_sum+sqr(RjTotal(j));
-//  for j := 1 to fAlgorithmAmount do Rj_sum:=Rj_sum+sqr(s[j]);
 //  showmessage('Rj='+floattostr(Rj_sum));
 
   Ri_sum:=0;
   for j := 1 to fProblemAmount do Ri_sum:=Ri_sum+sqr(RiTotal(j));
-//  Ri_sum:=926830;
 //    showmessage('Ri='+floattostr(Ri_sum));
   try
    Result:=(fAlgorithmAmount-1)*(Rj_sum-fAlgorithmAmount
-              *sqr(fProblemAmount*(fAlgorithmAmount*fProblemAmount+1))/4)
-            /(((fAlgorithmAmount*fProblemAmount*(fAlgorithmAmount*fProblemAmount+1)
-            *(2*fAlgorithmAmount*fProblemAmount+1))/6.0)-Ri_sum/fAlgorithmAmount);
-//   Result:=21.31479;
+              *sqr(double(fProblemAmount)*(double(fAlgorithmAmount*fProblemAmount)+1))/4.0)
+            /(((fAlgorithmAmount*fProblemAmount*double((fAlgorithmAmount*fProblemAmount+1))
+            *double((2*fAlgorithmAmount*fProblemAmount+1)))/6.0)-Ri_sum/fAlgorithmAmount);
+//   showmessage(floattostr(Result));
   except
    Result:=-1;
   end;
@@ -1769,12 +1765,18 @@ function TQuade.StatisticFooter: double;
  var j:integer;
      A,B:double;
 begin
+//  showmessage('hhhh');
   B:=0;
   for j := 1 to fAlgorithmAmount do B:=B+sqr(SjTotal(j));
   B:=B/fProblemAmount;
 //  showmessage(floattostr(B));
-  A:=fProblemAmount*(fProblemAmount+1)*(2*fProblemAmount+1)
-     *fAlgorithmAmount*(fAlgorithmAmount+1)*(fAlgorithmAmount-1)/72;
+//  showmessage(floattostr(fAlgorithmAmount));
+
+  A:=double(fProblemAmount)*double((fProblemAmount+1))*double((2*fProblemAmount+1))
+     *double(fAlgorithmAmount)*double((fAlgorithmAmount+1))*double((fAlgorithmAmount-1))/72;
+
+//       showmessage(floattostr(A));
+
 
   try
    Result:=(fProblemAmount-1)*B/(A-B);
