@@ -176,6 +176,8 @@ procedure MultipleComparisonsTests(FileName:string);
 
 procedure MultipleComparisonsComplex(FileName:string);
 
+procedure MultipleComparisonsWideT(FileName:string);
+
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 {в SA розміщуються назви основних параметрів, які визначає FitFunction,
@@ -338,7 +340,6 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
      ParamNames:TArrStr;
      i,j:byte;
      StrStat,StrRez:TStringList;
-     tempstr:string;
      RezVec:array of TVectorTransform;
      MaxXnumber:integer;
 begin
@@ -375,6 +376,9 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
       for j := 0 to (FFunction as TFFSimple).DParamArray.MainParamHighIndex do
        RezVec[j].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[j]);
       RezVec[High(RezVec)].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[High((FFunction as TFFSimple).DParamArray.OutputData)]);
+
+//    FFunction.FileSuffix:=EvTypeNames[EvolType];
+//    FFunction.RealToFile;
     end
                                 else Break;
   end;
@@ -434,13 +438,11 @@ procedure CastroFittingIdeal(EvolType:TEvolutionTypeNew;
      ParamNames:TArrStr;
      i,j:byte;
      StrStat,StrRez:TStringList;
-     tempstr:string;
      RezVec:TArrVec;
-//     MaxXnumber:integer;
-begin
+begin
  Vec:=TVectorTransform.Create;
  CastroIV_Creation(Vec,Parameters,1.001);
- Vec.Name:=EvTypeNames[EvolType]+inttostr(round(Parameters[8]));
+ Vec.Name:=EvTypeNames[EvolType]+inttostr(round(Parameters[8]))+'.dat';
 
  FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
  FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
@@ -474,6 +476,8 @@ begin
       for j := 0 to (FFunction as TFFSimple).DParamArray.MainParamHighIndex do
        RezVec[j].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[j]);
       RezVec[High(RezVec)].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[High((FFunction as TFFSimple).DParamArray.OutputData)]);
+
+//    FFunction.RealToFile;
     end
                                 else Break;
   end;
@@ -611,31 +615,9 @@ end;
   T,i:integer;
   StrStat,StrRez:TStringList;
   SA:TArrStr;
-  tempStr:string;
 begin
  StrStat:=TStringList.Create;
  CastroParamToStringArray(SA);
-
-
-// Vec:=TVector.Create;
-// StrStat.Add('T '+ArrayToString(SA));
-// T:=Tbegin;
-// repeat
-//   CasParDetermination(T,Parameters);
-////   showmessage(ArrayToString(Parameters));
-//   CastroIV_Creation(Vec,Parameters);
-//   Vec.WriteToFile('IV_'+inttostr(T)+'.dat');
-//   tempStr:=inttostr(T);
-//   for i:=0 to High(Parameters)-1 do
-//    begin
-//     tempStr:=tempStr+' '+FloatToStrF(Parameters[i],ffExponent,10,2);
-//    end;
-//   StrStat.Add(tempStr);
-//   T:=T+10;
-// until (T>Tend);
-// freeAndNil(Vec);
-// StrStat.SaveToFile('IdealParam.dat');
-
  StrRez:=TStringList.Create;
 
  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
@@ -671,8 +653,7 @@ end;
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
                                SL:TStringList):integer;
- var tempStr:string;
-     i:integer;
+ var i:integer;
 begin
   Result:=-1;
   for i:=0 to SL.Count-1 do
@@ -883,21 +864,6 @@ begin
 
 //  pssAfiting();
 
-//  Vec := TVector.Create;
-//  ReadEvolParResult(etMABC,'rmsre',Vec);
-//  showmessage(Vec.XYtoString);
-//  FreeAndNil(Vec);
-
-//  Vec1:=TVector.Create;
-//  Vec2:=TVector.Create;
-//  Vec1.ReadFromFile('n1_ADELI.dat');
-//  Vec2.ReadFromFile('n1_IJAYA.dat');
-//  if AbetterBWilcoxon(Vec1,Vec2,True,0.05)
-//     then showmessage('first is better')
-//     else showmessage('i dont know');
-//
-//  freeAndNil(Vec1);
-//  freeAndNil(Vec2);
  Idealfiting();
 
 end;
@@ -913,7 +879,8 @@ begin
 // MultipleComparisonsComplex(FileName);
 
 // WilcoxonTestOfMethodWideT(FileName);
- Tests1NWideT(FileName);
+// Tests1NWideT(FileName);
+ MultipleComparisonsWideT(FileName);
 
 end;
 
@@ -1344,39 +1311,39 @@ begin
 
 
 //----------------NullHypothesis------------------------------
-//    for I := 0 to High(Tests) do
-//     SLNullHyp.Add(Tests[i].Name+' '
-//                   +FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2));
+    for I := 0 to High(Tests) do
+     SLNullHyp.Add(Tests[i].Name+' '
+                   +FloatToStrF(Tests[i].NullhypothesisP(),ffExponent,5,2));
 
 //-------------------Ranks-------------------------------------
-//    SLRanks.Add('Test '+VecNamesToString(VecEvol));
-//    for I := 0 to High(Tests) do
-//     begin
-//      if i=1 then Continue;
-//
-//      tempstr:=Tests[i].Name;
-//      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-//       begin
-//        if (i=0) then
-//           tempstr:=tempstr+' '+floattostrf(Tests[i].Rj(ord(EvolType)+1),ffGeneral,4,2);
-//        if i=2 then
-//           tempstr:=tempstr+' '+floattostrf((Tests[i] as TFriedmanAligned).RjTotal(ord(EvolType)+1)
-//                                            /sqr(VecEvol[0].Count),ffGeneral,5,3);
-//        if i=3 then
-//           tempstr:=tempstr+' '+floattostrf((Tests[i] as TQuade).Tj(ord(EvolType)+1),ffGeneral,4,2);
-//       end;
-//      SLRanks.Add(tempstr);
-//     end;
-//    SLRanks.SaveToFile(FolderFromFullPath(FileName)+'IdealRank.dat');
+    SLRanks.Add('Test '+VecNamesToString(VecEvol));
+    for I := 0 to High(Tests) do
+     begin
+      if i=1 then Continue;
+
+      tempstr:=Tests[i].Name;
+      for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+       begin
+        if (i=0) then
+           tempstr:=tempstr+' '+floattostrf(Tests[i].Rj(ord(EvolType)+1),ffGeneral,4,2);
+        if i=2 then
+           tempstr:=tempstr+' '+floattostrf((Tests[i] as TFriedmanAligned).RjTotal(ord(EvolType)+1)
+                                            /sqr(VecEvol[0].Count),ffGeneral,5,3);
+        if i=3 then
+           tempstr:=tempstr+' '+floattostrf((Tests[i] as TQuade).Tj(ord(EvolType)+1),ffGeneral,4,2);
+       end;
+      SLRanks.Add(tempstr);
+     end;
+    SLRanks.SaveToFile(FolderFromFullPath(FileName)+'IdealRank.dat');
 
 ////------------------------- Adjusted p-values------------------------------------------
-//    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
-    for EvolType := etADELI to High(TEvolutionTypeNew) do
+    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//    for EvolType := etADELI to High(TEvolutionTypeNew) do
      begin
       for I := 0 to High(Tests) do
        begin
         if i=1 then Continue;
-        if i<>2 then Continue;
+//        if i<>2 then Continue;
         SLAdjPvalues.Clear();
         SLAdjPvalues.Add('Method Finner Holm Hochberg Holland');
         for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
@@ -1501,6 +1468,50 @@ begin
     SortingStringList(SLAdjPvalues,6);
 //    SLAdjPvalues.SaveToFile(FolderFromFullPath(FileName)+'Compl'+'MCPval.dat');
     SLAdjPvalues.SaveToFile(FolderFromFullPath(FileName)+'Compl'+'MCPval.dat');
+
+    FreeAndNil(Test);
+
+  FreeAndNil(SLAdjPvalues);
+  FreeVecEvol(VecEvol);
+end;
+
+procedure MultipleComparisonsWideT(FileName:string);
+ var VecEvol:TArrVec;
+     SLAdjPvalues:TStringList;
+     tempstr:string;
+     EvolType,EvolType2:TEvolutionTypeNew;
+     Test:TMultipleComparisons;
+begin
+  CreateVecEvol(VecEvol);
+  SLAdjPvalues:=TStringList.Create;
+  ReadEvolAllParWideT(VecEvol,FileName);
+
+   Test:=TMultipleComparisons.Create(VecEvol);
+//    SLAdjPvalues.Clear();
+//    SLAdjPvalues.Add('Method versus Method Nemenyi Holm Shaffer');
+    for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+     begin
+        SLAdjPvalues.Clear();
+        SLAdjPvalues.Add('Method Nemenyi Holm Shaffer');
+        for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+         begin
+          if EvolType2=EvolType then Continue;
+//          tempstr:=EvTypeNames[EvolType]+' versus '+EvTypeNames[EvolType2];
+          tempstr:=EvTypeNames[EvolType2];
+
+          tempstr:=tempstr+' '+floattostrf(Test.MultipleNemenyiAPV(ord(EvolType)+1,ord(EvolType2)+1),
+                                           ffExponent,10,2);
+          tempstr:=tempstr+' '+floattostrf(Test.MultipleHolmAPV(ord(EvolType)+1,ord(EvolType2)+1),
+                                           ffExponent,10,2);
+          tempstr:=tempstr+' '+floattostrf(Test.MultipleShafferStaticAPV(ord(EvolType)+1,ord(EvolType2)+1),
+                                           ffExponent,10,2);
+          SLAdjPvalues.Add(tempstr);
+         end;
+        SortingStringList(SLAdjPvalues,4);
+        SLAdjPvalues.SaveToFile(FolderFromFullPath(FileName)+EvTypeNames[EvolType]+'Ideal'+'MCPval.dat');
+     end;
+    SortingStringList(SLAdjPvalues,6);
+//    SLAdjPvalues.SaveToFile(FolderFromFullPath(FileName)+'Ideal'+'MCPval.dat');
 
     FreeAndNil(Test);
 

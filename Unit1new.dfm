@@ -4579,7 +4579,7 @@ object Form1: TForm1
         OnClick = Close1Click
       end
       object OpenFile: TButton
-        Left = 677
+        Left = 670
         Top = 20
         Width = 75
         Height = 25

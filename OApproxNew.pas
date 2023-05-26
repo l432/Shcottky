@@ -138,7 +138,7 @@ protected
  procedure AccessorialDataDestroy;virtual;
  function ParameterCreate:TFFParameter;virtual;
  procedure RealFitting;virtual;abstract;
- Procedure RealToFile;virtual;
+// Procedure RealToFile;virtual;
  procedure SetNameCaption(FunctionName,FunctionCaption:string);
  procedure NamesDefine;virtual;abstract;
  procedure TuningAfterReadFromIni;virtual;
@@ -190,6 +190,7 @@ public
  function ParameterIndexByName(Name:string):integer;virtual;
  procedure OutputDataImport(Source:TArrSingle);virtual;
  procedure OutputDataExport(Target:TArrSingle);virtual;
+ Procedure RealToFile;virtual;
 end;   // TFitFunctionNew=class
 
 //--------------------------------------------------------------------
