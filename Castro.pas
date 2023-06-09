@@ -114,7 +114,7 @@ procedure CastroFittingIdeal(EvolType:TEvolutionTypeNew;
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle);overload;
 
-function StatTitle(ParamNames:TArrStr):string;
+function StatTitle(ParamNames:TArrStr;ForMedianValue:boolean=True):string;
 function ResultAllTitle(ParamNames:TArrStr):string;
 
 function StatString(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
@@ -178,6 +178,7 @@ procedure MultipleComparisonsComplex(FileName:string);
 
 procedure MultipleComparisonsWideT(FileName:string);
 
+procedure MeanValuesCalculation(FileName:string);
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 {в SA розміщуються назви основних параметрів, які визначає FitFunction,
@@ -496,27 +497,34 @@ procedure CastroFittingIdeal(EvolType:TEvolutionTypeNew;
  FreeAndNil(Vec);
 end;
 
-function StatTitle(ParamNames:TArrStr):string;
+function StatTitle(ParamNames:TArrStr;ForMedianValue:boolean=True):string;
  var i:byte;
 begin
-  Result:='Name T';
-  for I := 0 to High(ParamNames) do
-   begin
-    Result:=Result+' '+ParamNames[i]+'med '
-           +ParamNames[i]+'q25 '
-           +ParamNames[i]+'q75 ';
-    if i<>High(ParamNames)
-       then Result:=Result+ParamNames[i]+'er';
-   end;
-
-//  for I := 0 to High(ParamNames) do
-//   begin
-//    Result:=Result+' '+ParamNames[i]
-//           +' se'+ParamNames[i];
-//    if i<>High(ParamNames)
-//      then Result:=Result+' re'+ParamNames[i];
-////           +' rse'+ParamNames[i];
-//   end;
+//  Result:='Name T';
+  if ForMedianValue then
+    begin
+    Result:='Name T';
+    for I := 0 to High(ParamNames) do
+     begin
+      Result:=Result+' '+ParamNames[i]+'med '
+             +ParamNames[i]+'q25 '
+             +ParamNames[i]+'q75 ';
+      if i<>High(ParamNames)
+         then Result:=Result+ParamNames[i]+'er';
+     end;
+    end
+                else
+    begin
+    Result:='T';
+    for I := 0 to High(ParamNames) do
+     begin
+      Result:=Result+' '+ParamNames[i]+'mean '
+             +ParamNames[i]+'sd ';
+      if i<>High(ParamNames)
+        then Result:=Result+'er'+ParamNames[i];
+  //           +' rse'+ParamNames[i];
+     end;
+    end;
 end;
 
 function ResultAllTitle(ParamNames:TArrStr):string;
@@ -880,8 +888,8 @@ begin
 
 // WilcoxonTestOfMethodWideT(FileName);
 // Tests1NWideT(FileName);
- MultipleComparisonsWideT(FileName);
-
+// MultipleComparisonsWideT(FileName);
+ MeanValuesCalculation(FileName);
 end;
 
 
@@ -1519,6 +1527,64 @@ begin
   FreeVecEvol(VecEvol);
 end;
 
+procedure MeanValuesCalculation(FileName:string);
+ var EvolType:TEvolutionTypeNew;
+      StrStat,StrResultAll,StrStatNew:TStringList;
+      SA:TArrStr;
+      T,i,k:integer;
+      tempStr:string;
+      ParNumber,ParNumberTrue:byte;
+      Vec:TVector;
+begin
+ StrStat:=TStringList.Create;
+ StrResultAll:=TStringList.Create;
+ StrStatNew:=TStringList.Create;
+ Vec:=TVector.Create;
+ StrResultAll.LoadFromFile(FileName);
+ CastroParamToStringArray(SA);
+
+ StrStatNew.Add('Name '+StatTitle(SA,False));
+ for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+ begin
+  StrStat.Clear;
+  StrStat.Add(StatTitle(SA,False));
+  T:=Tbegin;
+  repeat
+   TempStr:=inttostr(T);
+   for I := 0 to High(SA) do
+    begin
+//     showmessage(StrResultAll[0]);
+     ParNumber:=SubstringNumberFromRow(SA[i],StrResultAll[0]);
+     if (ParNumber=0)
+      then raise Exception.Create('Parameter is absente');
+//     if i<>High(SA) then
+       ParNumberTrue:=SubstringNumberFromRow(SA[i]+'tr',StrResultAll[0]);
+     Vec.Clear;
+     for k := 1 to StrResultAll.Count-1 do
+     begin
+      if (StringDataFromRow(StrResultAll[k],1)=EvTypeNames[EvolType])
+         and(StringDataFromRow(StrResultAll[k],2)=inttostr(T)) then
+           Vec.Add(FloatDataFromRow(StrResultAll[k],ParNumberTrue),FloatDataFromRow(StrResultAll[k],ParNumber));
+     end;
+
+    TempStr:=TempStr+' '+FloatToStrF(Vec.MeanY,ffExponent,10,2)
+           +' '+FloatToStrF(Vec.StandartDeviationY,ffExponent,10,2);
+    if i<>High(SA)
+      then TempStr:=TempStr+' '+FloatToStrF(RelativeDifference(Vec.MeanX,Vec.MeanY),ffExponent,10,2);
+    end;
+    StrStat.Add(TempStr);
+    StrStatNew.Add(EvTypeNames[EvolType]+' '+TempStr);
+    T:=T+10;
+   until (T>Tend);
+
+  StrStat.SaveToFile(FolderFromFullPath(FileName)+EvTypeNames[EvolType]+'StatMean.dat');
+ end;
+ StrStatNew.SaveToFile(FolderFromFullPath(FileName)+'StatMean.dat');
+ FreeAndNil(Vec);
+ FreeAndNil(StrStatNew);
+ FreeAndNil(StrResultAll);
+ FreeAndNil(StrStat);
+end;
 
 procedure  MainParamToStringArray(FitFunction: TFFSimple;var SA:TArrStr);
 begin
