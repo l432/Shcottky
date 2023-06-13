@@ -129,6 +129,7 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 
 procedure Idealfiting();
 
+
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
                                SL:TStringList):integer;
@@ -657,6 +658,7 @@ begin
 
  FreeAndNil(StrStat);
 end;
+
 
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
