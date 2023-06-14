@@ -1551,15 +1551,14 @@ begin
   StrStat.Clear;
   StrStat.Add(StatTitle(SA,False));
   T:=Tbegin;
+//  T:=300;
   repeat
    TempStr:=inttostr(T);
    for I := 0 to High(SA) do
     begin
-//     showmessage(StrResultAll[0]);
-     ParNumber:=SubstringNumberFromRow(SA[i],StrResultAll[0]);
+     ParNumber:=SubstringNumberFromRow(SA[i],StrResultAll[0]);
      if (ParNumber=0)
       then raise Exception.Create('Parameter is absente');
-//     if i<>High(SA) then
        ParNumberTrue:=SubstringNumberFromRow(SA[i]+'tr',StrResultAll[0]);
      Vec.Clear;
      for k := 1 to StrResultAll.Count-1 do
@@ -1569,15 +1568,20 @@ begin
            Vec.Add(FloatDataFromRow(StrResultAll[k],ParNumberTrue),FloatDataFromRow(StrResultAll[k],ParNumber));
      end;
 
-    TempStr:=TempStr+' '+FloatToStrF(Vec.MeanY,ffExponent,10,2)
-           +' '+FloatToStrF(Vec.StandartDeviationY,ffExponent,10,2);
+    TempStr:=TempStr+' '+FloatToStrF(Vec.MeanY,ffExponent,6,2)
+           +' '+FloatToStrF(Vec.StandartDeviationY,ffExponent,6,2);
+
+//    TempStr:=TempStr+' '+FloatToStrF(Vec.Median,ffExponent,6,2)
+//           +' '+FloatToStrF((Vec.Q3-Vec.Q1),ffExponent,6,2);
+
     if i<>High(SA)
-      then TempStr:=TempStr+' '+FloatToStrF(RelativeDifference(Vec.MeanX,Vec.MeanY),ffExponent,10,2);
+      then TempStr:=TempStr+' '+FloatToStrF(RelativeDifference(Vec.MeanX,Vec.MeanY),ffExponent,6,2);
     end;
     StrStat.Add(TempStr);
     StrStatNew.Add(EvTypeNames[EvolType]+' '+TempStr);
     T:=T+10;
    until (T>Tend);
+//   until (T>300);
 
   StrStat.SaveToFile(FolderFromFullPath(FileName)+EvTypeNames[EvolType]+'StatMean.dat');
  end;
