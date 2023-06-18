@@ -1,5 +1,5 @@
 unit Castro;
-{функції, пов'язані зі статистичною
+ {функції, пов'язані зі статистичною
 обробкою дво-діодної зустрічної моделі}
 
 interface
@@ -63,6 +63,17 @@ const
      3000// Water wave optimization
      );
 
+  NNposthocNumber=3;
+  NNposthocNames:array[0..NNposthocNumber-1]of string=
+   ('Nemenyi', 'Holm', 'Shaffer');
+
+  N1TestNumber=3;
+  N1posthocNumber=4;
+  N1posthocNames:array[0..N1posthocNumber-1]of string=
+   ('Finner', 'Holm', 'Hochberg', 'Holland');
+
+  N1testNames:array[0..N1TestNumber-1]of string=
+   ('Friedman','FriedmanAligned','Quade');
 //type
 // TVecEvol=array[TEvolutionTypeNew] of TVector;
 
@@ -129,10 +140,16 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 
 procedure Idealfiting();
 
+procedure Test1NResultRebuilding();
+
+function ValueTo1NTable(Value:double):string;
+
 
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
                                SL:TStringList):integer;
+{повертає номер рядочка в SL, який починаэться
+з назви алгоритму та значення температури}
 
 procedure ReadEvolParResult(EvolType: TEvolutionTypeNew; ParName: string; Vec: TVector;
                           FileName: string = 'ResultAll.dat';ReadRelativeError:boolean=True);
@@ -660,6 +677,110 @@ begin
 end;
 
 
+procedure Test1NResultRebuilding();
+ var MethodName:string;
+     EvolType,EvolType2: TEvolutionTypeNew;
+     SR : TSearchRec;
+     SLInput,SLOutputTable,SLOutputRez:TStringList;
+//  N1TestNumber=3;
+//  N1posthocNumber=4;
+//  N1posthocNames:array[0..N1posthocNumber-1]of string=
+//   ('Finner', 'Holm', 'Hochberg', 'Holland');
+     VecArray:array[1..N1TestNumber,1..N1posthocNumber] of TVector;
+     i,j,k,k1:integer;
+     tempstr:string;
+//     OneToNTestArray:array [0..2] of TOneToNTest;
+begin
+ SLInput:=TStringList.Create;
+ SLOutputTable:=TStringList.Create;
+ for I := 1 to N1TestNumber do
+   for j := 1 to N1posthocNumber do  VecArray[i,j]:=TVector.Create;
+
+// for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+ for EvolType := etADELI to etADELI do
+ begin
+  MethodName:=EvTypeNames[EvolType];
+  for I := 1 to N1TestNumber do
+   for j := 1 to N1posthocNumber do  VecArray[i,j].Clear;
+  SLOutputTable.Clear;
+  SLOutputTable.Add('Algorithm Test '+ArrayToString(N1posthocNames));
+  SLOutputRez:=TStringList.Create;
+  SLOutputRez.Clear;
+  if FindFirst(mask, faAnyFile, SR) <> 0 then Exit;
+  repeat
+   if Pos(MethodName,SR.Name)>0 then
+    begin
+      showmessage(SR.Name);
+      SLInput.LoadFromFile(SR.Name);
+      for I := 1 to N1TestNumber do
+       if Pos(N1testNames[i-1]+'Pval',SR.Name)>0 then
+         begin
+         showmessage(SR.Name);
+         for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+          begin
+            if EvolType2=EvolType then Continue;
+            for j := 1 to SLInput.Count-1 do
+              if StringDataFromRow(SLInput[j],1)=EvTypeNames[EvolType2] then
+                begin
+//                 ShowMessage(SLInput[j]);
+                 for k:=1 to N1posthocNumber do
+                   VecArray[i,k].Add(ord(EvolType2),FloatDataFromRow(SLInput[j],k+1));
+                 Break;
+                end;
+          end;
+         end;
+    end;
+  until (FindNext(SR) <> 0);
+  showmessage(VecArray[1,1].XYToString);
+  VecArray[1,1].SwapXY();
+  VecArray[1,1].Sorting();
+  VecArray[1,1].SwapXY();
+
+  for I := 0 to VecArray[1,1].HighNumber do
+   begin
+    for j:= 1 to N1TestNumber do
+     begin
+     tempstr:=EvTypeNames[TEvolutionTypeNew(round(VecArray[1,1].X[i]))];
+     tempstr:=tempstr+' '+N1testNames[j-1];
+     for k := 1 to N1posthocNumber do
+      for k1 := 0 to VecArray[j,k].HighNumber do
+        if round(VecArray[j,k].X[k1])=round(VecArray[1,1].X[i]) then
+          begin
+           tempstr:=tempstr+' '+ValueTo1NTable(VecArray[j,k].Y[k1]);
+           Break;
+          end;
+     SLOutputTable.Add(tempstr);
+     end;
+   end;
+  SLOutputTable.SaveToFile(MethodName+'Table.dat');
+
+//   N1testNames:array[0..N1TestNumber-1]of string=
+//   ('Friedman','FriedmanAligned','Quade');
+
+ end;
+ for I := 1 to N1TestNumber do
+   for j := 1 to N1posthocNumber do  FreeAndNil(VecArray[i,j]);
+ FreeAndNil(SLInput);
+ FreeAndNil(SLOutputTable);
+ FreeAndNil(SLOutputRez);
+end;
+
+function ValueTo1NTable(Value:double):string;
+begin
+  if Value<1e-13 then
+     begin
+     Result:='<1E-13';
+     Exit;
+     end;
+  if Value=1 then
+     begin
+     Result:='1.0';
+     Exit;
+     end;
+  result:=FloatToStrF(Value,ffExponent,6,2)
+end;
+
+
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
                                SL:TStringList):integer;
@@ -874,7 +995,10 @@ begin
 
 //  pssAfiting();
 
- Idealfiting();
+// Idealfiting();
+
+Test1NResultRebuilding();
+
 
 end;
 

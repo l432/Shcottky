@@ -1181,7 +1181,7 @@ const
            ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
  BadName:array[0..3]of string=
            ('FIT','DATES','SHOW','COMMENTS');
- mask='*.dat';
+// mask='*.dat';
 
 var
   Form1: TForm1;
@@ -3900,9 +3900,9 @@ var
 
 begin
 
- if OpenDialog1.Execute()
-     then  SomethingForCastro2(OpenDialog1.FileName);
-//  SomethingForCastro;
+// if OpenDialog1.Execute()
+//     then  SomethingForCastro2(OpenDialog1.FileName);
+  SomethingForCastro;
 
 // AbsorbFileForSCAPS();
 //  SpectrApprox();

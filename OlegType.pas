@@ -15,6 +15,7 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       DoubleConstantSection='DoubleConstant';
       Voc_min=0.0002;
       Isc_min=1e-11;
+      mask='*.dat';
 var   StartValue,EndValue,Freq:Int64;
 
 //QueryPerformanceCounter(StartValue);

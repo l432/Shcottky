@@ -654,7 +654,7 @@ Function OverageValue(Fun:TFun;Parameters:array of double):double;
 
 Procedure DegreeDependence();
   var Param:array of double;
-      fi,delta:double;
+//      fi,delta:double;
       Str,str1:TStringList;
       strg,strg1:string;
 
