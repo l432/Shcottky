@@ -144,6 +144,8 @@ procedure Test1NResultRebuilding();
 
 function ValueTo1NTable(Value:double):string;
 
+function ValueTo1NTableRezult(Value:double;limitP:double=0.1):string;
+
 
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
@@ -688,41 +690,40 @@ procedure Test1NResultRebuilding();
 //   ('Finner', 'Holm', 'Hochberg', 'Holland');
      VecArray:array[1..N1TestNumber,1..N1posthocNumber] of TVector;
      i,j,k,k1:integer;
-     tempstr:string;
+     tempstr,tempstrRez:string;
 //     OneToNTestArray:array [0..2] of TOneToNTest;
 begin
  SLInput:=TStringList.Create;
  SLOutputTable:=TStringList.Create;
+ SLOutputRez:=TStringList.Create;
  for I := 1 to N1TestNumber do
    for j := 1 to N1posthocNumber do  VecArray[i,j]:=TVector.Create;
 
-// for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
- for EvolType := etADELI to etADELI do
+ for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+// for EvolType := etADELI to etADELI do
+// for EvolType := etDE to etDE do
  begin
   MethodName:=EvTypeNames[EvolType];
   for I := 1 to N1TestNumber do
    for j := 1 to N1posthocNumber do  VecArray[i,j].Clear;
   SLOutputTable.Clear;
   SLOutputTable.Add('Algorithm Test '+ArrayToString(N1posthocNames));
-  SLOutputRez:=TStringList.Create;
   SLOutputRez.Clear;
+  SLOutputRez.Add('Algorithm Test '+ArrayToString(N1posthocNames));
   if FindFirst(mask, faAnyFile, SR) <> 0 then Exit;
   repeat
-   if Pos(MethodName,SR.Name)>0 then
+   if Pos(MethodName+'rmsre',SR.Name)=1 then
     begin
-      showmessage(SR.Name);
       SLInput.LoadFromFile(SR.Name);
       for I := 1 to N1TestNumber do
        if Pos(N1testNames[i-1]+'Pval',SR.Name)>0 then
          begin
-         showmessage(SR.Name);
          for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
           begin
             if EvolType2=EvolType then Continue;
             for j := 1 to SLInput.Count-1 do
               if StringDataFromRow(SLInput[j],1)=EvTypeNames[EvolType2] then
                 begin
-//                 ShowMessage(SLInput[j]);
                  for k:=1 to N1posthocNumber do
                    VecArray[i,k].Add(ord(EvolType2),FloatDataFromRow(SLInput[j],k+1));
                  Break;
@@ -731,7 +732,7 @@ begin
          end;
     end;
   until (FindNext(SR) <> 0);
-  showmessage(VecArray[1,1].XYToString);
+//  showmessage(VecArray[1,1].XYToString);
   VecArray[1,1].SwapXY();
   VecArray[1,1].Sorting();
   VecArray[1,1].SwapXY();
@@ -742,21 +743,21 @@ begin
      begin
      tempstr:=EvTypeNames[TEvolutionTypeNew(round(VecArray[1,1].X[i]))];
      tempstr:=tempstr+' '+N1testNames[j-1];
+     tempstrRez:=tempstr;
      for k := 1 to N1posthocNumber do
       for k1 := 0 to VecArray[j,k].HighNumber do
         if round(VecArray[j,k].X[k1])=round(VecArray[1,1].X[i]) then
           begin
            tempstr:=tempstr+' '+ValueTo1NTable(VecArray[j,k].Y[k1]);
+           tempstrRez:=tempstrRez+' '+ValueTo1NTableRezult(VecArray[j,k].Y[k1]);
            Break;
           end;
      SLOutputTable.Add(tempstr);
+     SLOutputRez.Add(tempstrRez);
      end;
    end;
   SLOutputTable.SaveToFile(MethodName+'Table.dat');
-
-//   N1testNames:array[0..N1TestNumber-1]of string=
-//   ('Friedman','FriedmanAligned','Quade');
-
+  SLOutputRez.SaveToFile(MethodName+'RezTable.dat');
  end;
  for I := 1 to N1TestNumber do
    for j := 1 to N1posthocNumber do  FreeAndNil(VecArray[i,j]);
@@ -780,6 +781,11 @@ begin
   result:=FloatToStrF(Value,ffExponent,6,2)
 end;
 
+function ValueTo1NTableRezult(Value:double;limitP:double=0.1):string;
+begin
+  if Value<limitP then Result:='+'
+                  else Result:='-';
+end;
 
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
