@@ -63,6 +63,8 @@ const
      3000// Water wave optimization
      );
 
+
+  VS='_versus_';
   NNposthocNumber=3;
   NNposthocNames:array[0..NNposthocNumber-1]of string=
    ('Nemenyi', 'Holm', 'Shaffer');
@@ -141,6 +143,8 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 procedure Idealfiting();
 
 procedure Test1NResultRebuilding();
+
+procedure TestNNResultRebuilding(FileName:string);
 
 function ValueTo1NTable(Value:double):string;
 
@@ -684,14 +688,9 @@ procedure Test1NResultRebuilding();
      EvolType,EvolType2: TEvolutionTypeNew;
      SR : TSearchRec;
      SLInput,SLOutputTable,SLOutputRez:TStringList;
-//  N1TestNumber=3;
-//  N1posthocNumber=4;
-//  N1posthocNames:array[0..N1posthocNumber-1]of string=
-//   ('Finner', 'Holm', 'Hochberg', 'Holland');
      VecArray:array[1..N1TestNumber,1..N1posthocNumber] of TVector;
      i,j,k,k1:integer;
      tempstr,tempstrRez:string;
-//     OneToNTestArray:array [0..2] of TOneToNTest;
 begin
  SLInput:=TStringList.Create;
  SLOutputTable:=TStringList.Create;
@@ -785,6 +784,104 @@ function ValueTo1NTableRezult(Value:double;limitP:double=0.1):string;
 begin
   if Value<limitP then Result:='+'
                   else Result:='-';
+end;
+
+
+procedure TestNNResultRebuilding(FileName:string);
+ var SLInput,SLOutputTable,SLOutputRez:TStringList;
+     Pvalues:array[1..NNposthocNumber] of double;
+     i,j:integer;
+     tempstr,tempstr2:string;
+     EvolType,EvolType2: TEvolutionTypeNew;
+//  NNposthocNumber=3;
+//  NNposthocNames:array[0..NNposthocNumber-1]of string=
+//   ('Nemenyi', 'Holm', 'Shaffer');
+begin
+ SLInput:=TStringList.Create;
+ SLOutputTable:=TStringList.Create;
+ SLOutputRez:=TStringList.Create;
+ SLInput.LoadFromFile(FileName);
+ SLOutputTable.Add('Method_versus_Method '+ArrayToString(NNposthocNames));
+ SLOutputRez.Add('Method_versus_Method '+ArrayToString(NNposthocNames));
+ for I := 1 to SLInput.Count-1 do
+  begin
+    tempstr:='';
+    tempstr:=StringDataFromRow(SLInput[i],1)+VS+StringDataFromRow(SLInput[i],3);
+    tempstr2:=tempstr;
+    for j := 1 to NNposthocNumber do
+      Pvalues[j]:=FloatDataFromRow(SLInput[i],j+3);
+    for j := 1 to NNposthocNumber do
+      begin
+      tempstr:=tempstr+' '+ValueTo1NTable(Pvalues[j]);
+      tempstr2:=tempstr2+' '+ValueTo1NTableRezult(Pvalues[j]);
+      end;
+    SLOutputTable.Add(tempstr);
+    SLOutputRez.Add(tempstr2);
+  end;
+ SLOutputTable.SaveToFile(FitName(FileName,'Table'));
+ SLOutputRez.SaveToFile(FitName(FileName,'TableRez'));
+
+// for I := 1 to NNposthocNumber do
+// begin
+//   SLOutputRez.Clear;
+//   SLOutputRez.Add('Method '+ArrayToString(EvTypeNames));
+//   for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//   begin
+//     tempstr:=EvTypeNames[EvolType];
+//     for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//     begin
+//       if EvolType=EvolType2 then
+//          begin
+//            tempstr:=tempstr+' '+'0';
+//            Continue;
+//          end;
+//       for j := 1 to SLInput.Count-1 do
+//        if (EvTypeNames[EvolType]=StringDataFromRow(SLInput[j],1))
+//           and(EvTypeNames[EvolType2]=StringDataFromRow(SLInput[j],3)) then
+//          begin
+//           if FloatDataFromRow(SLInput[j],i+3)<0.1
+//             then tempstr:=tempstr+' '+'1'
+//             else tempstr:=tempstr+' '+'0';
+//           Break;
+//          end;
+//     end;
+//     SLOutputRez.Add(tempstr);
+//   end;
+//   SLOutputRez.SaveToFile(FitName(FileName,NNposthocNames[i-1]));
+// end;
+
+ SLOutputRez.Clear;
+ SLOutputRez.Add('Method Method '+ArrayToString(NNposthocNames));
+ for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+ begin
+  for EvolType2 := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+  begin
+   tempstr:=EvTypeNames[EvolType]+' '+inttostr(ord(EvolType2)+1);
+   if EvolType=EvolType2 then
+    begin
+    tempstr:=tempstr+' -0.05 -0.05 -0.05';
+    SLOutputRez.Add(tempstr);
+    Continue;
+    end;
+   for j := 1 to SLInput.Count-1 do
+    if (EvTypeNames[EvolType]=StringDataFromRow(SLInput[j],1))
+       and(EvTypeNames[EvolType2]=StringDataFromRow(SLInput[j],3)) then
+    begin
+     for I := 1 to NNposthocNumber do
+      if FloatDataFromRow(SLInput[j],i+3)<0.1
+          then tempstr:=tempstr+' '+'1'
+          else tempstr:=tempstr+' '+'0';
+      Break;
+    end;
+   SLOutputRez.Add(tempstr);
+  end;
+ end;
+
+ SLOutputRez.SaveToFile(FitName(FileName,'Fig'));
+
+ FreeAndNil(SLInput);
+ FreeAndNil(SLOutputTable);
+ FreeAndNil(SLOutputRez);
 end;
 
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
@@ -1021,7 +1118,8 @@ begin
 // WilcoxonTestOfMethodWideT(FileName);
 // Tests1NWideT(FileName);
 // MultipleComparisonsWideT(FileName);
- MeanValuesCalculation(FileName);
+// MeanValuesCalculation(FileName);
+ TestNNResultRebuilding(FileName);
 end;
 
 

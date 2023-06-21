@@ -251,7 +251,12 @@ procedure PictLoadScale(Img: TImage; ResName:String);
 ResName ≥ масштабуЇтьс€ зображенн€, щоб не вийшо
 за меж≥ розм≥р≥в Img, €к≥ були перед цим}
 
-Function FitName(V: TVector; st:string='fit'):string;//overload;
+Function FitName(OldName:string;st:string='fit'):string;overload;
+{повертаЇ зм≥нене значенн€ OldName,
+зм≥на пол€гаЇ у дописуванн≥ st перед першою крапкою}
+
+
+Function FitName(V: TVector; st:string='fit'):string;overload;
 {повертаЇ зм≥нене значенн€ V.name,
 зм≥на пол€гаЇ у дописуванн≥ st перед першою крапкою}
 
@@ -1366,16 +1371,27 @@ begin
   end;
 end;
 
-
-Function FitName(V: TVector; st:string='fit'):string;overload;
+Function FitName(OldName:string;st:string='fit'):string;overload;
 begin
-  if V.name = '' then
+  if OldName = '' then
     Result := st+'.dat'
   else
   begin
-    Result := V.name;
+    Result := OldName;
     Insert(st, Result, Pos('.', Result));
   end;
+end;
+
+Function FitName(V: TVector; st:string='fit'):string;overload;
+begin
+  FitName(V.name,st);
+//  if V.name = '' then
+//    Result := st+'.dat'
+//  else
+//  begin
+//    Result := V.name;
+//    Insert(st, Result, Pos('.', Result));
+//  end;
 end;
 
 function NvsRo(Nd:double;param:array of double):double;
