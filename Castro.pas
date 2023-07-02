@@ -713,7 +713,7 @@ begin
   SLOutputRez.Add('Algorithm Test '+ArrayToString(N1posthocNames));
   if FindFirst(mask, faAnyFile, SR) <> 0 then Exit;
   repeat
-   if Pos(MethodName+'Rs',SR.Name)=1 then
+   if Pos(MethodName+'Compl',SR.Name)=1 then
     begin
       SLInput.LoadFromFile(SR.Name);
       for I := 1 to N1TestNumber do
