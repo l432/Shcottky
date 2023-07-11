@@ -145,6 +145,10 @@ eps - відносна точність розв'язку
 Function Lambert(x:double):double;
 {обчислює значення функції Ламберта}
 
+Function LambertIteration(const x,betta:double):double;
+{ітераційний процес, необхідний для обчислення
+функції Ламберта відповідно до ApplMathComp_433_127406}
+
 Function gLambert(x:double):double;
 {обчислюється значення функції g(x)=ln(Lambert(exp(x)));
 ця функція використовується для обчислення ВАХ щоб не
@@ -497,6 +501,8 @@ Function BettaRegularizedIncomplete(x,a,b:double):double;
 //x>=0,
 //k1, k2 - кількість ступенів вільності,
 //про всяк випадок поставив обмеження k1>1, k2>1}
+
+procedure LambertEvaluation();
 
 
 implementation
@@ -1011,37 +1017,68 @@ end;
 
 Function Lambert(x:double):double;
 {обчислює значення функції Ламберта}
-var temp1,temp2{,eps}:double;
-    i:integer;
+var temp1,{temp2,}e:double;
+//    i:integer;
 begin
-  if x=0 then
+//  if x=0 then
+//     begin
+//       Result:=0;
+//       Exit;
+//     end;
+//  if (x>0)and(x<=500)
+//     then temp1:=0.665*(1+0.0195*ln(x+1))*ln(x+1)+0.04
+//     else
+//      begin
+//        if x>500
+//          then temp1:=ln(x-4)-(1-1/ln(x))*ln(ln(x))
+//        else temp1:=0;
+//      end;
+////  temp1:=0;
+//  i:=0;
+//  repeat
+//    temp2:=temp1-(temp1*exp(temp1)-x)/(exp(temp1)*(temp1+1)-
+//           (temp1+2)*(temp1*exp(temp1)-x)/(2*temp1+2));
+//    if temp2=0 then
+//         begin
+//           i:=1000000;
+//           Break;
+//         end;
+//    temp1:=temp2;
+//    inc(i);
+//  until (IsEqual(temp2,temp1,1e-7))or(i>1e5);
+//  if (i>1e5) then Result:=ErResult
+//             else Result:=temp2;
+
+{відповідно до ApplMathComp_433_127406}
+ e:=Exp(1);
+ if x<-1/e then
+   begin
+     Result:=ErResult;
+     Exit;
+   end;
+ if x>=e
+   then temp1:=Ln(x)-Ln(Ln(x))
+   else
      begin
-       Result:=0;
-       Exit;
+       if x>0 then temp1:=x/e
+       else temp1:=e*x*Ln(1+sqrt(1+e*x))/sqrt(1+e*x)/(1+sqrt(1+e*x))
      end;
-  if (x>0)and(x<=500)
-     then temp1:=0.665*(1+0.0195*ln(x+1))*ln(x+1)+0.04
-     else
-      begin
-        if x>500
-          then temp1:=ln(x-4)-(1-1/ln(x))*ln(ln(x))
-        else temp1:=0;
-      end;
-//  temp1:=0;
-  i:=0;
-  repeat
-    temp2:=temp1-(temp1*exp(temp1)-x)/(exp(temp1)*(temp1+1)-
-           (temp1+2)*(temp1*exp(temp1)-x)/(2*temp1+2));
-    if temp2=0 then
-         begin
-           i:=1000000;
-           Break;
-         end;
+ Result:=LambertIteration(x,Temp1);
+end;
+
+Function LambertIteration(const x,betta:double):double;
+ var temp1,temp2:double;
+     i:Int64;
+begin
+ temp1:=betta;
+
+ for I := 0 to 100000 do
+  begin
+    temp2:=temp1/(1+temp1)*(1+Ln(x/temp1));
+    if IsEqual(temp2,temp1,1e-7) then Break;
     temp1:=temp2;
-    inc(i);
-  until (IsEqual(temp2,temp1,1e-7))or(i>1e5);
-  if (i>1e5) then Result:=ErResult
-             else Result:=temp2;
+  end;
+ Result:=temp2;
 end;
 
 Function gLambert(x:double):double;
@@ -2181,5 +2218,26 @@ end;
 // Result:=BettaRegularizedIncomplete(k1*x/(k1*x+k2),k1/2.0,k2/2.0);
 //end;
 
+procedure LambertEvaluation();
+ var Vec:TVector;
+     x:double;
+begin
+ Vec:=TVector.Create;
+ x:=-1/exp(1);
+ repeat
+   Vec.Add(x,Lambert(x));
+   x:=x+1e-4;
+ until (x>1);
+ Vec.WriteToFile('beginLamN.dat',10);
+ Vec.Clear;
+ x:=0;
+ repeat
+   Vec.Add(Power(10,x),Lambert(Power(10,x)));
+   x:=x+1e-4;
+ until (x>6);
+ Vec.WriteToFile('endLamN.dat',10);
+
+ FreeAndNil(Vec);
+end;
 
 end.
