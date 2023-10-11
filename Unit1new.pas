@@ -3871,7 +3871,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 var
 //  i,j:integer;
   Vec:TVector;
-  delN,T,Voc,delNd:double;
+  delN,T,Voc,delNd,V:double;
   Fe:TDefect;
   drive:char;
   path,fname:string;
@@ -3900,10 +3900,25 @@ var
 
 begin
 
+  Vec:=TVector.Create;
+//Function Full_IV(F:TFun_IV;V:double;Data:array of double;Rsh:double=1e12;Iph:double=0):double;
+{розраховує значення функції
+I=F(V,E,I0,I,Rs)+(V-I Rs)/Rsh-Iph)}
+  V:=0;
+  repeat
+   Vec.Add(V,
+        Full_IV(IV_Diod,V,[1.5,50,1e-6,300]));
+   V:=V+0.01;
+  until V>0.4;
+  Vec.WriteToFile('rrr.dat');
+
+  FreeAndNil(Vec);
+
+
 // if OpenDialog1.Execute()
 //     then  SomethingForCastro2(OpenDialog1.FileName);
 //  SomethingForCastro;
-  LambertEvaluation();
+//  LambertEvaluation();
 
 // AbsorbFileForSCAPS();
 //  SpectrApprox();
