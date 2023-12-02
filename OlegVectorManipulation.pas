@@ -274,6 +274,16 @@ type
       ProgPhotov_25_p623-625.pdf
       для випадку SNR=80 dB}
       function FF():double;
+      function TC(const T0:double=300):double;
+      {обчислення температурного коефіцієнту;
+      вважається, що в Х - температура,
+      в Y - щось інше,
+      обчислюється (dY/dX)/Y(X=T0);
+      тобто розмірність того, що повертається
+      []=1/K (або, якщо в Х не температура-
+      величина, обернена до розмірності Х),
+      якщо Т0 не входить в діапазон зміни
+      значень Х - Result=555}
    end;
 
 
@@ -1411,6 +1421,16 @@ end;
 Function DerivateTwoPoint(Point1,Point2:TPointDouble):double;
 begin
   Result:=(Point2[cY]-Point1[cY])/(Point2[cX]-Point1[cX])
+end;
+
+function TVectorTransform.TC(const T0: double): double;
+ var OutputData: TArrSingle;
+begin
+ Result:=ErResult;
+ if (T0<minX) or (T0>MaxX)then Exit;
+
+ if LinAprox(OutputData)
+    then Result:=OutputData[1]/Yvalue(T0);
 end;
 
 procedure TVectorTransform.ToFill(Target: TVector; Func: TFunPoint);

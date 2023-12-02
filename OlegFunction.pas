@@ -274,6 +274,9 @@ procedure StringListShow(StrL:TStringList);
 function FolderFromFullPath(FullPath:string):string;
 {повертає розташування папки з повного шляху}
 
+procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:string='');
+{додає на початку кожного рядка SL Syffix;
+якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
 
 implementation
 
@@ -1436,6 +1439,24 @@ function FolderFromFullPath(FullPath:string):string;
 begin
   ProcessPath(FullPath, drive, path, fileNameShot);
   Result:=drive + ':' + path+'\';
+end;
+
+procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:string='');
+{додає на початку кожного рядка SL Syffix;
+якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
+ var i:integer;
+begin
+ if SL.Count<1 then Exit;
+ 
+ if SyffixHeader='' then
+    for I := 0 to SL.Count-1 do SL[i]:=Syffix+' '+SL[i]
+                    else
+    begin
+     SL[0]:=SyffixHeader+' '+SL[0];
+     for I := 1 to SL.Count-1 do SL[i]:=Syffix+' '+SL[i]
+    end;
+
+
 end;
 
 end.

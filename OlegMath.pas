@@ -504,6 +504,8 @@ Function BettaRegularizedIncomplete(x,a,b:double):double;
 
 procedure LambertEvaluation();
 
+procedure IVCreation();
+
 
 implementation
 
@@ -2236,6 +2238,22 @@ begin
    x:=x+1e-4;
  until (x>6);
  Vec.WriteToFile('endLamN.dat',10);
+
+ FreeAndNil(Vec);
+end;
+
+procedure IVCreation();
+ var Vec:TVector;
+     x:double;
+begin
+ Vec:=TVector.Create;
+ x:=0;
+ repeat
+   Vec.Add(x,Full_IV(IV_DiodDouble,x,[1,0.2,1e-8,2,1e-5,300],1e5));
+   x:=x+0.01;
+ until (x>0.6);
+ Vec.WriteToFile('TwoDiodeIV.dat',10);
+
 
  FreeAndNil(Vec);
 end;
