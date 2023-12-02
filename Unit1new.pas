@@ -3871,7 +3871,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 var
 //  i,j:integer;
   Vec:TVector;
-  delN,T,Voc,delNd:double;
+  delN,T,Voc,delNd,V:double;
   Fe:TDefect;
   drive:char;
   path,fname:string;
