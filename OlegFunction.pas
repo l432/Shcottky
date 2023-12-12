@@ -278,10 +278,18 @@ procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:stri
 {додає на початку кожного рядка SL Syffix;
 якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
 
+procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
+{дозволяє вибрати *.dat файл, зглажує дані в ньому по Npoint точкам
+і записує результат у файл, в кінці назви якого дописано Syffix}
+
+procedure SpectrApproxmation(BeginLambda:double=464;StepLambda:double=1;ToNormalize:boolean=True);
+{}
+
 implementation
 
 uses
-  SysUtils, Math, Graphics, OlegMaterialSamples, Vcl.FileCtrl;
+  SysUtils, Math, Graphics, OlegMaterialSamples, Vcl.FileCtrl,
+  OlegVectorManipulation;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -1455,8 +1463,61 @@ begin
      SL[0]:=SyffixHeader+' '+SL[0];
      for I := 1 to SL.Count-1 do SL[i]:=Syffix+' '+SL[i]
     end;
+end;
 
+procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
+{дозволяє вибрати *.dat файл, зглажує дані в ньому по Npoint точкам
+і записує результат у файл, в кінці назви якого дописано Syffix}
+ var  EndFile:TVector;
+      InitFile:TVectorTransform;
+      OD: TOpenDialog;
+begin
+OD:=TOpenDialog.Create(nil);
+OD.Filter:='data file|*.dat|all file|*.*';
+if OD.Execute()
+  then
+   begin
+    EndFile:=TVector.Create;
+    InitFile:=TVectorTransform.Create;
+    InitFile.ReadFromFile(OD.FileName);
+//    InitFile.Sorting(True);
+
+    InitFile.ImNoiseSmoothedArray(EndFile,Npoint);
+    EndFile.WriteToFile(FitName(OD.FileName,Syffix),6);
+
+//    InitFile.Sorting(False);
+//    InitFile.ImNoiseSmoothedArray(EndFile,Npoint);
+//    EndFile.WriteToFile(FitName(OD.FileName,'itf'),6);
+//
+//    showmessage(inttostr(EndFile.HighNumber));
+    FreeAndNil(InitFile);
+    FreeAndNil(EndFile);
+   end;
+FreeAndNil(OD);
 
 end;
+
+procedure SpectrApproxmation(BeginLambda:double=464;StepLambda:double=1;ToNormalize:boolean=True);
+ var  EndFile:TVector;
+      InitFile:TVectorTransform;
+      OD: TOpenDialog;
+begin
+OD:=TOpenDialog.Create(nil);
+OD.Filter:='data file|*.dat|all file|*.*';
+if OD.Execute()
+  then
+   begin
+    EndFile:=TVector.Create;
+    InitFile:=TVectorTransform.Create;
+    InitFile.ReadFromFile(OD.FileName);
+    InitFile.Splain3(EndFile,BeginLambda,StepLambda);
+    EndFile.WriteToFile(FitName(OD.FileName,'A'),6,'Lambda ArbUnit');
+
+    FreeAndNil(InitFile);
+    FreeAndNil(EndFile);
+   end;
+FreeAndNil(OD);
+end;
+
 
 end.

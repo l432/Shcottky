@@ -3871,6 +3871,8 @@ procedure TForm1.Button1Click(Sender: TObject);
 var
 //  i,j:integer;
   Vec:TVector;
+//  Vec2:TVectorTransform;
+
   delN,T,Voc,delNd,V:double;
   Fe:TDefect;
   drive:char;
@@ -3899,12 +3901,18 @@ var
 
 
 begin
+// showmessage(FloatToStr(Silicon.Eg(340)));
+
+// DatFileNoiseSmoothing(10,'sm10');
+// DatFileNoiseSmoothing(5,'sm5');
+// DatFileNoiseSmoothing(20,'sm20');
+  SpectrApproxmation();
 
 // if OpenDialog1.Execute()
 //     then  SomethingForCastro2(OpenDialog1.FileName);
 //  SomethingForCastro;
 //  LambertEvaluation();
- IVCreation();
+// IVCreation();
 
 // AbsorbFileForSCAPS();
 //  SpectrApprox();
