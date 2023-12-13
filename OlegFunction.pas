@@ -282,7 +282,9 @@ procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
 {дозволяє вибрати *.dat файл, зглажує дані в ньому по Npoint точкам
 і записує результат у файл, в кінці назви якого дописано Syffix}
 
-procedure SpectrApproxmation(BeginLambda:double=464;StepLambda:double=1;ToNormalize:boolean=True);
+procedure SpectrApproxmation(BeginLambda:double=464;
+                             EndLambda:double=1192;
+                             StepLambda:double=1);
 {}
 
 implementation
@@ -1497,10 +1499,14 @@ FreeAndNil(OD);
 
 end;
 
-procedure SpectrApproxmation(BeginLambda:double=464;StepLambda:double=1;ToNormalize:boolean=True);
+procedure SpectrApproxmation(BeginLambda:double=464;
+                             EndLambda:double=1192;
+                             StepLambda:double=1);
  var  EndFile:TVector;
       InitFile:TVectorTransform;
       OD: TOpenDialog;
+      currentLambda:double;
+      FirstEndLambda:double;
 begin
 OD:=TOpenDialog.Create(nil);
 OD.Filter:='data file|*.dat|all file|*.*';
@@ -1510,7 +1516,22 @@ if OD.Execute()
     EndFile:=TVector.Create;
     InitFile:=TVectorTransform.Create;
     InitFile.ReadFromFile(OD.FileName);
-    InitFile.Splain3(EndFile,BeginLambda,StepLambda);
+
+    if EndLambda<BeginLambda then Swap(EndLambda,BeginLambda);
+
+    FirstEndLambda:=(EndLambda-BeginLambda)*0.2+BeginLambda;
+    InitFile.Sorting(False);
+    currentLambda:=BeginLambda;
+    repeat
+     EndFile.Add(currentLambda,InitFile.YvalueSplain3(currentLambda));
+     currentLambda:=currentLambda+StepLambda;
+    until currentLambda>FirstEndLambda;
+
+    InitFile.Sorting(True);
+    repeat
+     EndFile.Add(currentLambda,InitFile.YvalueSplain3(currentLambda));
+     currentLambda:=currentLambda+StepLambda;
+    until currentLambda>EndLambda;
     EndFile.WriteToFile(FitName(OD.FileName,'A'),6,'Lambda ArbUnit');
 
     FreeAndNil(InitFile);
