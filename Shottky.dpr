@@ -38,7 +38,8 @@ uses
   OApproxFunction3 in 'OApproxFunction3.pas',
   FitManyArguments in 'FitManyArguments.pas',
   OlegStatistic in 'OlegStatistic.pas',
-  Castro in 'Castro.pas';
+  Castro in 'Castro.pas',
+  Spectr in 'Spectr.pas';
 
 {$R *.res}
 

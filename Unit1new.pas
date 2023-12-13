@@ -1226,7 +1226,7 @@ var
 implementation
 
 uses FormSelectFitNew, OApproxNew, FitSimple,
-  OApproxFunction2, FitGradient, OlegStatistic;
+  OApproxFunction2, FitGradient, OlegStatistic, Spectr;
 
 {$R *.dfm}
 {$R Res\Fig.RES}
@@ -3906,9 +3906,12 @@ begin
 // DatFileNoiseSmoothing(10,'sm10');
 // DatFileNoiseSmoothing(5,'sm5');
 // DatFileNoiseSmoothing(20,'sm20');
-  SpectrApproxmation();
+//  SpectrApproxmation();
+// AllDatFileToOne();
+ ForAllDatFalesAction(ToLampSpectr);
 
 // if OpenDialog1.Execute()
+//       then NormNphSpectr(OpenDialog1.FileName);
 //     then  SomethingForCastro2(OpenDialog1.FileName);
 //  SomethingForCastro;
 //  LambertEvaluation();

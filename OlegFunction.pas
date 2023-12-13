@@ -278,15 +278,6 @@ procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:stri
 {додає на початку кожного рядка SL Syffix;
 якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
 
-procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
-{дозволяє вибрати *.dat файл, зглажує дані в ньому по Npoint точкам
-і записує результат у файл, в кінці назви якого дописано Syffix}
-
-procedure SpectrApproxmation(BeginLambda:double=464;
-                             EndLambda:double=1192;
-                             StepLambda:double=1);
-{}
-
 implementation
 
 uses
@@ -1397,14 +1388,7 @@ end;
 
 Function FitName(V: TVector; st:string='fit'):string;overload;
 begin
-  FitName(V.name,st);
-//  if V.name = '' then
-//    Result := st+'.dat'
-//  else
-//  begin
-//    Result := V.name;
-//    Insert(st, Result, Pos('.', Result));
-//  end;
+  Result:=FitName(V.name,st);
 end;
 
 function NvsRo(Nd:double;param:array of double):double;
@@ -1457,7 +1441,7 @@ procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:stri
  var i:integer;
 begin
  if SL.Count<1 then Exit;
- 
+
  if SyffixHeader='' then
     for I := 0 to SL.Count-1 do SL[i]:=Syffix+' '+SL[i]
                     else
@@ -1465,79 +1449,6 @@ begin
      SL[0]:=SyffixHeader+' '+SL[0];
      for I := 1 to SL.Count-1 do SL[i]:=Syffix+' '+SL[i]
     end;
-end;
-
-procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
-{дозволяє вибрати *.dat файл, зглажує дані в ньому по Npoint точкам
-і записує результат у файл, в кінці назви якого дописано Syffix}
- var  EndFile:TVector;
-      InitFile:TVectorTransform;
-      OD: TOpenDialog;
-begin
-OD:=TOpenDialog.Create(nil);
-OD.Filter:='data file|*.dat|all file|*.*';
-if OD.Execute()
-  then
-   begin
-    EndFile:=TVector.Create;
-    InitFile:=TVectorTransform.Create;
-    InitFile.ReadFromFile(OD.FileName);
-//    InitFile.Sorting(True);
-
-    InitFile.ImNoiseSmoothedArray(EndFile,Npoint);
-    EndFile.WriteToFile(FitName(OD.FileName,Syffix),6);
-
-//    InitFile.Sorting(False);
-//    InitFile.ImNoiseSmoothedArray(EndFile,Npoint);
-//    EndFile.WriteToFile(FitName(OD.FileName,'itf'),6);
-//
-//    showmessage(inttostr(EndFile.HighNumber));
-    FreeAndNil(InitFile);
-    FreeAndNil(EndFile);
-   end;
-FreeAndNil(OD);
-
-end;
-
-procedure SpectrApproxmation(BeginLambda:double=464;
-                             EndLambda:double=1192;
-                             StepLambda:double=1);
- var  EndFile:TVector;
-      InitFile:TVectorTransform;
-      OD: TOpenDialog;
-      currentLambda:double;
-      FirstEndLambda:double;
-begin
-OD:=TOpenDialog.Create(nil);
-OD.Filter:='data file|*.dat|all file|*.*';
-if OD.Execute()
-  then
-   begin
-    EndFile:=TVector.Create;
-    InitFile:=TVectorTransform.Create;
-    InitFile.ReadFromFile(OD.FileName);
-
-    if EndLambda<BeginLambda then Swap(EndLambda,BeginLambda);
-
-    FirstEndLambda:=(EndLambda-BeginLambda)*0.2+BeginLambda;
-    InitFile.Sorting(False);
-    currentLambda:=BeginLambda;
-    repeat
-     EndFile.Add(currentLambda,InitFile.YvalueSplain3(currentLambda));
-     currentLambda:=currentLambda+StepLambda;
-    until currentLambda>FirstEndLambda;
-
-    InitFile.Sorting(True);
-    repeat
-     EndFile.Add(currentLambda,InitFile.YvalueSplain3(currentLambda));
-     currentLambda:=currentLambda+StepLambda;
-    until currentLambda>EndLambda;
-    EndFile.WriteToFile(FitName(OD.FileName,'A'),6,'Lambda ArbUnit');
-
-    FreeAndNil(InitFile);
-    FreeAndNil(EndFile);
-   end;
-FreeAndNil(OD);
 end;
 
 
