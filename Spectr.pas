@@ -32,7 +32,7 @@ const
   (200,300,400,500,600,700,750);
 
 
-procedure ForAllDatFalesAction(ProcedFile:TProcedFile);
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
 {зі всіма .dat файлами у вибраній директорії пророблюється ProcedFile}
 
 procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
@@ -64,13 +64,13 @@ procedure ToLampSpectr(FileName:string);
 чутливість приймача), значення записуються у файл,
 в кінці назви якого дописано 'L'}
 
-procedure VectorArrayCreate (VectorArray:TArrVec;Number:integer);
-procedure VectorArrayFreeAndNil (VectorArray:TArrVec);
+procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
+procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
 
 procedure VectorArrayAddFile (var VectorArray:TArrVec;FileName:string);overload;
 {зчитується файл з назвою FileName у ще Vector, який додається до масиву}
 procedure VectorArrayAddFile (FileName:string);overload;
-
+{працює з масивом Spectrums}
 
 procedure AllDatFileToOne(ResultFileName:string='AllFiles');
 {всі файли .dat файлами у вибраній директорії поєднуються у один
@@ -84,7 +84,7 @@ uses
   OlegVectorManipulation, Vcl.Dialogs, System.SysUtils, OlegFunction,
   OlegMath, OlegType, Vcl.FileCtrl, System.Classes;
 
-procedure ForAllDatFalesAction(ProcedFile:TProcedFile);
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
 {зі всіма .dat файлами в поточній директорії пророблюється ProcedFile}
  var SR : TSearchRec;
      Dat_Folder:string;
@@ -219,7 +219,7 @@ begin
 end;
 
 
-procedure VectorArrayCreate (VectorArray:TArrVec;Number:integer);
+procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
  var i:integer;
 begin
   SetLength(VectorArray,Number);
@@ -227,11 +227,12 @@ begin
     VectorArray[i]:=TVector.Create;
 end;
 
-procedure VectorArrayFreeAndNil (VectorArray:TArrVec);
+procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
  var i:integer;
 begin
   for I := 0 to High(VectorArray) do
     FreeAndNil(VectorArray[i]);
+  SetLength(VectorArray,0);
 end;
 
 procedure VectorArrayAddFile (var VectorArray:TArrVec;FileName:string);
@@ -256,8 +257,8 @@ procedure AllDatFileToOne(ResultFileName:string='AllFiles');
        tempstr:string;
        i,j:integer;
 begin
- ForAllDatFalesAction(VectorArrayAddFile);
- showmessage(inttostr(High(Spectrums)));
+ ForAllDatFilesAction(VectorArrayAddFile);
+// showmessage(inttostr(High(Spectrums)));
  if High(Spectrums)>-1 then
   begin
    Str:=TStringList.Create;

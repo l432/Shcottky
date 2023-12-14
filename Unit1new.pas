@@ -3908,7 +3908,12 @@ begin
 // DatFileNoiseSmoothing(20,'sm20');
 //  SpectrApproxmation();
 // AllDatFileToOne();
- ForAllDatFalesAction(ToLampSpectr);
+// ForAllDatFilesAction(ToLampSpectr);
+// AllDatFileToOne('Kalibred');
+// ForAllDatFilesAction(NormSpectr);
+// AllDatFileToOne('NormalAll');
+// ForAllDatFilesAction(NormNphSpectr);
+ AllDatFileToOne('NormalNphAll');
 
 // if OpenDialog1.Execute()
 //       then NormNphSpectr(OpenDialog1.FileName);
