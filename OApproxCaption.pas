@@ -116,17 +116,18 @@ const
     TFFPhotoDiodTun,
     TFFTunRevers,TFFTunReversRs);
 
-  CustomNumber=13;
+  CustomNumber=14;
   CustomNames:array[0..CustomNumber] of string=
    ('Lifetime in SCR','Mobility','n vs T (donors and traps)',
    'Tau DAP','Rsh vs T','Rsh,2 vs T','N Gausian','Tunneling rect.',
    'Tunneling trap.','Brailsford on T','Brailsford on w',
-   'Shot-circuit Current','n vs T in CdTe','SC parameters');
+   'Shot-circuit Current','n vs T in CdTe','SC parameters',
+   'Planck function');
   CustomClasses:array[0..CustomNumber]of TFitFunctionNew_Class=
    (TFFTauG,TFFMobility,TFFElectronConcentration,
    TFFTauDAP,TFFRsh_T,TFFRsh2_T,TFFNGausian,TFFTunnel,
    TFFTunnelFNmy,TFFBrailsford,TFFBrailsfordw,
-   TFFCurrentSC,TFFElectronConcentrationDX,TFFPVParareters);
+   TFFCurrentSC,TFFElectronConcentrationDX,TFFPVParareters,TFFPlanc);
 
   FeBNumber=5;
   FeBNames:array[0..FeBNumber] of string=

@@ -333,6 +333,18 @@ TFFIsc2_Fei_FeB=class (TFFIsc_shablon)
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
 end; // TFFIsc_Fei_FeB=class (TFFHeuristic)
 
+TFFPlanc=class (TFFHeuristic)
+ protected
+  procedure TuningBeforeAccessorialDataCreate;override;
+  procedure ParamArrayCreate;override;
+  procedure NamesDefine;override;
+ public
+  class Function Planck(lambda,T:double;A:double=1):double;
+  {[lambda]=nm}
+  function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
+end; // TFFPlanc=class (TFFHeuristic)
+
+
 implementation
 
 uses
@@ -1296,6 +1308,38 @@ procedure TFFIsc2_Fei_FeB.ParamArrayCreate;
 begin
  fDParamArray:=TDParamsHeuristic.Create(Self,
                  ['Nfe','tau_r','Wph','t_asos','Kr']);
+end;
+
+{ TFFPlanc }
+
+function TFFPlanc.FuncForFitness(Point: TPointDouble; Data: TArrSingle): double;
+begin
+ Result:=Planck(Point[cX],Data[0],Data[1]);
+end;
+
+procedure TFFPlanc.NamesDefine;
+begin
+  SetNameCaption('Planck',
+      'Plancks radiation low');
+end;
+
+procedure TFFPlanc.ParamArrayCreate;
+begin
+ fDParamArray:=TDParamsHeuristic.Create(Self,
+                 ['T','A']);
+end;
+
+class function TFFPlanc.Planck(lambda, T, A: double): double;
+begin
+  Result:=A*16*Clight*Hpl*Pi*Pi/Power(lambda*1e-9,5)
+         /(exp(2*Pi*Hpl*Clight/(lambda*1e-9*Kb*Qelem*T))-1);
+end;
+
+procedure TFFPlanc.TuningBeforeAccessorialDataCreate;
+begin
+ inherited;
+ fTemperatureIsRequired:=False;
+ fHasPicture:=False;
 end;
 
 end.
