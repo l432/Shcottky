@@ -3901,6 +3901,7 @@ var
 
 
 begin
+MLresultsTransform();
 // showmessage(FloatToStr(Silicon.Eg(340)));
 
 // DatFileNoiseSmoothing(10,'sm10');
@@ -3913,7 +3914,7 @@ begin
 // ForAllDatFilesAction(NormSpectr);
 // AllDatFileToOne('NormalAll');
 // ForAllDatFilesAction(NormNphSpectr);
- AllDatFileToOne('NormalNphAll');
+// AllDatFileToOne('NormalNphAll');
 
 // if OpenDialog1.Execute()
 //       then NormNphSpectr(OpenDialog1.FileName);
