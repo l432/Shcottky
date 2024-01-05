@@ -97,6 +97,8 @@ type
   TByteEvent = procedure(B: byte) of object;
   TOnePopulationCreate = procedure (i:integer)of object;
 
+  TProcedFile=Procedure(FileName:string);
+
 
   TArrArrSingle=array of TArrSingle;
 

@@ -1,4 +1,4 @@
-program Shottky;
+﻿program Shottky;
 
 uses
   Forms,
@@ -39,7 +39,8 @@ uses
   FitManyArguments in 'FitManyArguments.pas',
   OlegStatistic in 'OlegStatistic.pas',
   Castro in 'Castro.pas',
-  Spectr in 'Spectr.pas';
+  Spectr in 'Spectr.pas',
+  MLresults in 'MLresults.pas';
 
 {$R *.res}
 

@@ -278,7 +278,11 @@ procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:stri
 {додає на початку кожного рядка SL Syffix;
 якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
 
-procedure MLresultsTransform(ColumnNumber:integer=2);
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
+{зі всіма .dat файлами у вибраній директорії пророблюється ProcedFile}
+
+procedure SelectDatFileAndAction(ProcedFile:TProcedFile);
+{відкривається .dat файл і з ним пророблюється ProcedFile}
 
 
 implementation
@@ -1454,72 +1458,29 @@ begin
     end;
 end;
 
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
+{зі всіма .dat файлами в поточній директорії пророблюється ProcedFile}
+ var SR : TSearchRec;
+     Dat_Folder:string;
+begin
+ if SelectDirectory('Choose Directory','', Dat_Folder)
+  then SetCurrentDir(Dat_Folder);
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+  begin
+   repeat
+    ProcedFile(SR.name);
+   until (FindNext(SR) <> 0);
+  end;
+end;
 
-procedure MLresultsTransform(ColumnNumber:integer=2);
- var // EndFile:TVector;
-     // InitFile:TVectorTransform;
-      OD: TOpenDialog;
-      SLstart:TStringList;
-      SLfinish:TStringList;
-      i:integer;
-      value:double;
-      valstr:string;
-      variantNumber:integer;
+procedure SelectDatFileAndAction(ProcedFile:TProcedFile);
+{відкривається .dat файл і з ним пророблюється ProcedFile}
+ var  OD: TOpenDialog;
 begin
 OD:=TOpenDialog.Create(nil);
 OD.Filter:='data file|*.dat|all file|*.*';
-if OD.Execute()
-  then
-   begin
-    SLstart:=TStringList.Create;
-    SLstart.LoadFromFile(OD.FileName);
-    SLfinish:=TStringList.Create;
-//    showmessage(SLstart[1]);
-//    showmessage(inttostr(SLstart.Count));
-    variantNumber:=0;
-    while SLstart.Count>1 do
-     begin
-      i:=1;
-      SLfinish.Clear;
-      SLfinish.Add(StringDataFromRow(SLstart[0],ColumnNumber)+' RE');
-      repeat
-       if SLfinish.Count=1 then valstr:=StringDataFromRow(SLstart[1],ColumnNumber);
-//       if i=1 then valstr:=StringDataFromRow(SLstart[i],ColumnNumber);
-       if valstr=StringDataFromRow(SLstart[i],ColumnNumber) then
-         begin
-          SLfinish.Add(valstr+' '
-           +floattostr(abs(FloatDataFromRow(SLstart[i],1)-FloatDataFromRow(SLstart[i],5))
-                       /FloatDataFromRow(SLstart[i],1)));
-          SLstart.Delete(i);
-         end                                             else
-         i:=i+1;
-      until (i>=SLstart.Count);
-      SLfinish.SaveToFile(FitName(OD.FileName,inttostr(ColumnNumber)+inttostr(variantNumber)));
-      variantNumber:=variantNumber+1;
-     end;
-
-//Function StringDataFromRow(str:string;Number:word):string;
-//{вважається, що частини рядка відділені один від одного пробілами;
-//повертається частина з номером Number (нумерація починається з 1)}
-//
-//Function FloatDataFromRow(str:string;Number:word):double;
-//{вважається, що частини рядка відділені один від одного пробілами;
-//повертається число, розташоване в частині з номером Number
-//(нумерація починається з 1);
-//якщо там не число - то повертається ErResult}
-
-//    EndFile:=TVector.Create;
-//    InitFile:=TVectorTransform.Create;
-//    InitFile.ReadFromFile(OD.FileName);
-//
-//    InitFile.ImNoiseSmoothedArray(EndFile,Npoint);
-//    EndFile.WriteToFile(FitName(OD.FileName,Syffix),6);
-
-    FreeAndNil(SLfinish);
-    FreeAndNil(SLstart);
-   end;
+if OD.Execute() then  ProcedFile(OD.FileName);
 FreeAndNil(OD);
-
 end;
 
 end.

@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
-  OlegTests, OlegVector, OlegMathShottky, Castro,
+  OlegTests, OlegVector, OlegMathShottky, Castro, MLresults,
   OlegVectorManipulation,OApproxCaption, FitTransform, VclTee.TeeGDIPlus
   {XP Win}
   , System.UITypes
@@ -3901,7 +3901,7 @@ var
 
 
 begin
-MLresultsTransform();
+ ForAllDatFilesAction(MLresultsTransform);
 // showmessage(FloatToStr(Silicon.Eg(340)));
 
 // DatFileNoiseSmoothing(10,'sm10');

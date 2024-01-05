@@ -268,11 +268,20 @@ type
       function Quartile(q:double):double;
       {повертає квантиль q в масиві Y;
       якщо точок <1 або q<0 чи >1 - Result:=ErResult}
+      function PercentOfPointLessThan(q:double;ItIsLess:boolean=True;Coord:TCoord_type=cY):double;
+      {повертає відсоток точок, для яких значення координати Coord менше або рівне
+      (при ItIsLess=False більше або рівне) значення q}
         end;
 
   TArrVec=array of TVector;
 
   Function Kv(Argument:double;Parameters:array of double):double;
+
+procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
+
+procedure AddVectorToArray (var VectorArray:TArrVec);
+
+procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
 
 implementation
 uses OlegMath, Classes, Dialogs, Controls, Math, OlegFunction;
@@ -1171,6 +1180,24 @@ begin
       Result := Points[i,Coord];
 end;
 
+function TVector.PercentOfPointLessThan(q: double; ItIsLess: boolean;
+  Coord: TCoord_type): double;
+  var i:integer;
+      count:integer;
+begin
+ if (Self.Count=0)
+    then Exit(100);
+ count:=0;
+ for I := 0 to Self.HighNumber do
+   if ItIsLess then
+     begin
+       if Points[i,Coord]<=q then inc(count);
+     end       else
+       if Points[i,Coord]>=q then inc(count);
+  Result:=count*100/Self.Count;
+
+end;
+
 procedure TVector.PointCoordSwap(var Point: TPointDouble);
 begin
  Swap(Point[cX],Point[cY]);
@@ -1282,5 +1309,28 @@ end;
            result:=Result+Parameters[i]*Power(Argument,i)
         end;
   end;
+
+
+procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
+ var i:integer;
+begin
+  SetLength(VectorArray,Number);
+  for I := 0 to High(VectorArray) do
+    VectorArray[i]:=TVector.Create;
+end;
+
+procedure AddVectorToArray (var VectorArray:TArrVec);
+begin
+ SetLength(VectorArray,High(VectorArray)+2);
+ VectorArray[High(VectorArray)]:=TVector.Create;
+end;
+
+procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
+ var i:integer;
+begin
+  for I := 0 to High(VectorArray) do
+    FreeAndNil(VectorArray[i]);
+  SetLength(VectorArray,0);
+end;
 
 end.

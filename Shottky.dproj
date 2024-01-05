@@ -91,9 +91,9 @@
             </Delphi.Personality>
             <Platforms/>
             <Deployment Version="3">
-                <DeployFile LocalName="Shottky" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Shottky.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>Shottky</RemoteName>
+                        <RemoteName>Shottky.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -980,6 +980,7 @@
         <DCCReference Include="OlegStatistic.pas"/>
         <DCCReference Include="Castro.pas"/>
         <DCCReference Include="Spectr.pas"/>
+        <DCCReference Include="MLresults.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

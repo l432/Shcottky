@@ -8,7 +8,7 @@ uses
   OlegVector;
 
 type
- TProcedFile=Procedure(FileName:string);
+// TProcedFile=Procedure(FileName:string);
 
  TLampType=(ltGE,ltOrion,ltOsram);
 
@@ -31,9 +31,6 @@ const
   Intensities :array[0..6] of integer=
   (200,300,400,500,600,700,750);
 
-
-procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
-{зі всіма .dat файлами у вибраній директорії пророблюється ProcedFile}
 
 procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
 {дозволяє вибрати *.dat файл, зглажує дані в ньому по Npoint точкам
@@ -64,8 +61,8 @@ procedure ToLampSpectr(FileName:string);
 чутливість приймача), значення записуються у файл,
 в кінці назви якого дописано 'L'}
 
-procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
-procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
+//procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
+//procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
 
 procedure VectorArrayAddFile (var VectorArray:TArrVec;FileName:string);overload;
 {зчитується файл з назвою FileName у ще Vector, який додається до масиву}
@@ -82,24 +79,7 @@ implementation
 
 uses
   OlegVectorManipulation, Vcl.Dialogs, System.SysUtils, OlegFunction,
-  OlegMath, OlegType, Vcl.FileCtrl, System.Classes;
-
-procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
-{зі всіма .dat файлами в поточній директорії пророблюється ProcedFile}
- var SR : TSearchRec;
-     Dat_Folder:string;
-begin
-// SetCurrentDir(CurDirectory);
- if SelectDirectory('Choose Directory','', Dat_Folder)
-  then SetCurrentDir(Dat_Folder);
- if FindFirst(mask, faAnyFile, SR) = 0 then
-  begin
-   repeat
-//    showmessage(SR.name);
-    ProcedFile(SR.name);
-   until (FindNext(SR) <> 0);
-  end;
-end;
+  OlegMath, Vcl.FileCtrl, System.Classes;
 
 
 procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
@@ -219,21 +199,21 @@ begin
 end;
 
 
-procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
- var i:integer;
-begin
-  SetLength(VectorArray,Number);
-  for I := 0 to High(VectorArray) do
-    VectorArray[i]:=TVector.Create;
-end;
-
-procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
- var i:integer;
-begin
-  for I := 0 to High(VectorArray) do
-    FreeAndNil(VectorArray[i]);
-  SetLength(VectorArray,0);
-end;
+//procedure VectorArrayCreate (var VectorArray:TArrVec;Number:integer);
+// var i:integer;
+//begin
+//  SetLength(VectorArray,Number);
+//  for I := 0 to High(VectorArray) do
+//    VectorArray[i]:=TVector.Create;
+//end;
+//
+//procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
+// var i:integer;
+//begin
+//  for I := 0 to High(VectorArray) do
+//    FreeAndNil(VectorArray[i]);
+//  SetLength(VectorArray,0);
+//end;
 
 procedure VectorArrayAddFile (var VectorArray:TArrVec;FileName:string);
 {зчитується файл з назвою FileName у ще Vector, який додається до масиву}
