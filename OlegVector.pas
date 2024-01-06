@@ -40,12 +40,18 @@ type
       function NumberZero(Coord:TCoord_type):integer;
       function Sum(Coord:TCoord_type):double;
       function StandartDeviation(Coord:TCoord_type):double;
+      function StandartDeviationN(Coord:TCoord_type):double;
+      function SqrDeviation(Coord:TCoord_type):double;
       function Value (Coord: TCoord_type; CoordValue: Double):double;
       function ValueXY (Coord: TCoord_type; CoordValue: Double;i,j:integer):double;
       function GetInformation(const Index: Integer): double;
       function GetInformationInt(const Index: Integer): integer;
       function GetQuartile(const Index: Integer):double;
       function GetQLimit(const Index: Integer):double;
+      function GetMSE():double;
+      function GetMRE():double;
+      function GetR():double;
+      function GetR2():double;
       function GetInt_Trap: double;
       function GetHigh: Integer;
       function GetSegmentEnd: Integer;
@@ -107,6 +113,10 @@ type
       property StandartDeviationY:double Index 10 read GetInformation;
          {повертає стандартне відхилення значень в масиві Y
          SD=(sum[(yi-<y>)^2]/(n-1))^0.5}
+      property StandartDeviationNX:double Index 13 read GetInformation;
+      property StandartDeviationNY:double Index 14 read GetInformation;
+         {повертає стандартне відхилення значень в масиві Y
+         SD=(sum[(yi-<y>)^2]/n)^0.5}
       property StandartErrorX:double Index 11 read GetInformation;
       property StandartErrorY:double Index 12 read GetInformation;
          {повертає стандартну похибку значень в масиві Y
@@ -134,6 +144,19 @@ type
       {значення, яке відповідає нижнім вусам на коробковому графіку}
       property HighQLimit:double Index 2 read GetQLimit;
       {значення, яке відповідає верхнім  вусам на коробковому графіку}
+      property MSE:double read GetMSE;
+      {повертає Mean Squared Error між значеннями в масивах Х та Y
+      MSE=sum[(xi-yi)^2]/n}
+      property MRE:double read GetMRE;
+      {повертає Mean Relative Error між значеннями в масивах Х та Y
+      MRE=sum[abs(xi-yi)/xi]/n}
+      property Rcorrelation:double read GetR;
+      {повертає кореляцію між значеннями в масивах Х та Y,
+      R=sum[(xi-<x>)(yi-<y>)]/(sum[(xi-<x>)^2]*sum[(yi-<y>)^2])^0.5}
+      property R2determination:double read GetR2;
+      {повертає коефіцієнт детермінації, за припущення що масив Х
+      це точні значення, а масив Y їхня оцінка,
+      R2=1-sum[(xi-yi)^2]/sum[(xi-<x>)^2]}
 
       Constructor Create;overload;
       Constructor Create(ExternalVector:TVector);overload;
@@ -593,15 +616,31 @@ for I := 0 to High(Points)-1 do
      end;
 end;
 
-function TVector.StandartDeviation(Coord: TCoord_type): double;
- var mn,sm:double;
+function TVector.SqrDeviation(Coord: TCoord_type): double;
+ var mn:double;
      i:integer;
 begin
  mn:=MeanValue(Coord);
- sm:=0;
+ Result:=0;
  for I := 0 to High(Points) do
- sm:=sm+sqr(Points[i,Coord]-mn);
- Result:=sqrt(sm/High(Points))
+  Result:=Result+sqr(Points[i,Coord]-mn);
+end;
+
+function TVector.StandartDeviation(Coord: TCoord_type): double;
+// var mn,sm:double;
+//     i:integer;
+begin
+// mn:=MeanValue(Coord);
+// sm:=0;
+// for I := 0 to High(Points) do
+// sm:=sm+sqr(Points[i,Coord]-mn);
+// Result:=sqrt(sm/High(Points))
+ Result:=sqrt(SqrDeviation(Coord)/High(Points))
+end;
+
+function TVector.StandartDeviationN(Coord: TCoord_type): double;
+begin
+ Result:=sqrt(SqrDeviation(Coord)/Self.Count)
 end;
 
 function TVector.Stat(Coord: TCoord_type; FunVector: TFunVectorInt;
@@ -1020,6 +1059,8 @@ begin
   10:Result:=Stat(cY,Self.StandartDeviation,2);
   11:Result:=Stat(cX,Self.StandartDeviation,2)/sqrt(Count);
   12:Result:=Stat(cY,Self.StandartDeviation,2)/sqrt(Count);
+  13:Result:=Stat(cX,Self.StandartDeviationN);
+  14:Result:=Stat(cY,Self.StandartDeviationN);
   else Result:=ErResult;
  end;
 end;
@@ -1048,6 +1089,26 @@ begin
   for I := 1 to High(Points) do
      Result:=Result+(X[i]-X[i-1])*(Y[i]+Y[i-1]);
   Result:=Result/2;
+end;
+
+function TVector.GetMRE: double;
+ var i:integer;
+begin
+  Result:=0;
+  if Self.Count<1 then Exit;
+  for I := 0 to High(Points) do
+     Result:=Result+RelativeDifference(X[i],Y[i]);
+  Result:=Result/Self.Count;
+end;
+
+function TVector.GetMSE: double;
+ var i:integer;
+begin
+  Result:=0;
+  if Self.Count<1 then Exit;
+  for I := 0 to High(Points) do
+     Result:=Result+sqr(X[i]-Y[i]);
+  Result:=Result/Self.Count;
 end;
 
 function TVector.GetQLimit(const Index: Integer): double;
@@ -1103,6 +1164,30 @@ begin
   3:Result:=Quartile(0.75)-Quartile(0.25);
   else Result:=ErResult;
  end;
+end;
+
+function TVector.GetR: double;
+ var mnX,mnY,Sx,Sy:double;
+     i:integer;
+begin
+  mnX:=MeanValue(cX);
+  mnY:=MeanValue(cY);
+  Sx:=SqrDeviation(cX);
+  Sy:=SqrDeviation(cY);
+  if (Sx=0)or(Sy=0) then Exit(ErResult);
+
+  Result:=0;
+  for I := 0 to High(Points) do
+   Result:=Result+(X[i]-mnX)*(Y[i]-mnY);
+  Result:=Result/sqrt(Sx*Sy);
+end;
+
+function TVector.GetR2: double;
+ var Sx:double;
+begin
+ Sx:=SqrDeviation(cX);
+ if Sx=0 then Exit(ErResult);
+ Result:=1-Self.MSE*Self.Count/Sx;
 end;
 
 function TVector.GetSegmentEnd: Integer;

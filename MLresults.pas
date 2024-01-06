@@ -15,12 +15,22 @@ const
        (0.01,0.1,1,10);
    HeaderErrorPercent=' P001 P01 P1 P10';
 
+   MeanResultAll=11.999996343232;
+   StdResultAll=1.20185081298897;
+
+   MeanFull=12.0078188950927;
+   StdFull=1.1935833450372;
+
+
 procedure MLresultsTransform(FileName:string);
+
+procedure MLresultsEstimate(FileName:string);
 
 implementation
 
 uses
-  Vcl.Dialogs, System.Classes, OlegFunction, System.SysUtils, OlegVector;
+  Vcl.Dialogs, System.Classes, OlegFunction, System.SysUtils, OlegVector,
+  OlegVectorManipulation;
 
 procedure MLresultsTransform(FileName:string);
  var  SLstart:TStringList;
@@ -30,7 +40,6 @@ procedure MLresultsTransform(FileName:string);
       descript:TDescriptors;
       ArrVec:TArrVec;
       DataVector:TVector;
-
 begin
  SLstart:=TStringList.Create;
  SLfinish:=TStringList.Create;
@@ -76,7 +85,20 @@ begin
  FreeAndNil(DataVector);
  FreeAndNil(SLfinish);
  FreeAndNil(SLstart);
+end;
 
+procedure MLresultsEstimate(FileName:string);
+ var VecTr,VecTr2:TVectorTransform;
+begin
+ VecTr:=TVectorTransform.Create;
+ VecTr2:=TVectorTransform.Create;
+ VecTr.ReadFromFile(FileName,['Ytrue','Ypred']);
+// VecTr.StandartScaler(VecTr2,VecTr.MeanX,VecTr.StandartDeviationNX);
+ VecTr.StandartScaler(VecTr2,0,1,True);
+ VecTr2.WriteToFile(FitName(FileName,'NT'),10);
+ showmessage(floattostr(VecTr2.MeanX)+' '+floattostr(VecTr2.StandartDeviationNX));
+ FreeAndNil(VecTr2);
+ FreeAndNil(VecTr);
 end;
 
 end.

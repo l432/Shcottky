@@ -284,6 +284,14 @@ procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
 procedure SelectDatFileAndAction(ProcedFile:TProcedFile);
 {відкривається .dat файл і з ним пророблюється ProcedFile}
 
+function SdandartScalerTransform(X, Mean, Std: double; ToLogData: Boolean=False):double;
+{if ToLogData Result:=(log(X)-Mean)/Std
+ else Result:=(X-Mean)/Std}
+
+function SdandartScalerTransformInverse(X, Mean, Std: double; ToLogData: Boolean=False):double;
+{if ToLogData Result:=10^(X*Std+Mean)
+ else Result:=X*Std+Mean}
+
 
 implementation
 
@@ -1481,6 +1489,24 @@ OD:=TOpenDialog.Create(nil);
 OD.Filter:='data file|*.dat|all file|*.*';
 if OD.Execute() then  ProcedFile(OD.FileName);
 FreeAndNil(OD);
+end;
+
+function SdandartScalerTransform(X, Mean, Std: double; ToLogData: Boolean=False):double;
+{if ToLogData Result:=(log(X)-Mean)/Std
+ else Result:=(X-Mean)/Std}
+begin
+ if Std=0 then Exit(ErResult);
+ if ToLogData then Result:=(log10(X)-Mean)/Std
+              else Result:=(X-Mean)/Std;
+end;
+
+function SdandartScalerTransformInverse(X, Mean, Std: double; ToLogData: Boolean=False):double;
+{if ToLogData Result:=10^(X*Std+Mean)
+ else Result:=X*Std+Mean}
+begin
+ if ToLogData then Result:=Power(10,X*Std+Mean)
+              else Result:=X*Std+Mean;
+
 end;
 
 end.

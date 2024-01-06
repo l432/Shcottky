@@ -284,6 +284,22 @@ type
       величина, обернена до розмірності Х),
       якщо Т0 не входить в діапазон зміни
       значень Х - Result=555}
+      Procedure StandartScaler(Target:TVector;Coord: TCoord_type;
+                     Mean,Std:double;ToLogData:Boolean=False);overload;
+      {в Target.Point[Coord]=(Self.Point[Coord]-Mean)/Std,
+         Target.Point[інша]=Self.іннша,
+      якщо ToLogData=True, то
+         Target.Point[Coord]=(log(Self.Point[Coord])-Mean)/Std}
+      Procedure StandartScaler(Target:TVector;
+            Mean,Std:double;ToLogData:Boolean=False);overload;
+      {обидві координати перетворюються}
+      Procedure StandartScalerInverse(Target:TVector;Coord: TCoord_type;
+                     Mean,Std:double;ToLogData:Boolean=False);overload;
+      Procedure StandartScalerInverse(Target:TVector;
+            Mean,Std:double;ToLogData:Boolean=False);overload;
+      {зворотні перетворення до двох попередніх}
+
+
    end;
 
 
@@ -365,7 +381,7 @@ begin
   if Self.Count<3 then Exit;
   Self.CopyTo(Target);
   for i:=1 to Target.HighNumber-1 do
-    Target.y[i]:=MedianFiltr(Self.y[i-1],Self.y[i],Self.y[i+1]);;
+    Target.y[i]:=MedianFiltr(Self.y[i-1],Self.y[i],Self.y[i+1]);
 end;
 
 procedure TVectorTransform.MinMax(Target, MinMaxData: TVector);
@@ -1186,6 +1202,52 @@ end;
 procedure TVectorTransform.ReverseY(Target: TVector);
 begin
    Branch(cY,Target,false,false);
+end;
+
+procedure TVectorTransform.StandartScaler(Target: TVector; Coord: TCoord_type;
+             Mean, Std: double; ToLogData: Boolean);
+  var i:integer;
+begin
+  InitTarget(Target);
+  Self.CopyTo(Target);
+  for i:=0 to Target.HighNumber do
+   case Coord of
+     cX: Target.X[i]:= SdandartScalerTransform(Self.X[i],Mean, Std,ToLogData);
+     cY: Target.Y[i]:= SdandartScalerTransform(Self.Y[i],Mean, Std,ToLogData);
+   end;
+end;
+
+procedure TVectorTransform.StandartScaler(Target: TVector; Mean, Std: double;
+  ToLogData: Boolean);
+  var i:integer;
+begin
+  InitTarget(Target);
+  for i:=0 to Self.HighNumber do
+    Target.Add(SdandartScalerTransform(Self.X[i],Mean, Std,ToLogData),
+               SdandartScalerTransform(Self.Y[i],Mean, Std,ToLogData));
+end;
+
+procedure TVectorTransform.StandartScalerInverse(Target: TVector; Mean,
+  Std: double; ToLogData: Boolean);
+  var i:integer;
+begin
+  InitTarget(Target);
+  for i:=0 to Self.HighNumber do
+    Target.Add(SdandartScalerTransformInverse(Self.X[i],Mean, Std,ToLogData),
+               SdandartScalerTransformInverse(Self.Y[i],Mean, Std,ToLogData));
+end;
+
+procedure TVectorTransform.StandartScalerInverse(Target: TVector;
+  Coord: TCoord_type; Mean, Std: double; ToLogData: Boolean);
+  var i:integer;
+begin
+  InitTarget(Target);
+  Self.CopyTo(Target);
+  for i:=0 to Target.HighNumber do
+   case Coord of
+     cX: Target.X[i]:= SdandartScalerTransformInverse(Self.X[i],Mean, Std,ToLogData);
+     cY: Target.Y[i]:= SdandartScalerTransformInverse(Self.Y[i],Mean, Std,ToLogData);
+   end;
 end;
 
 procedure TVectorTransform.Smoothing(Target: TVector);
