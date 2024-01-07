@@ -15,6 +15,8 @@ const
        (0.01,0.1,1,10);
    HeaderErrorPercent=' P001 P01 P1 P10';
 
+   FileEstimateName='estimate.txt';
+
    MeanResultAll=11.999996343232;
    StdResultAll=1.20185081298897;
 
@@ -89,14 +91,44 @@ end;
 
 procedure MLresultsEstimate(FileName:string);
  var VecTr,VecTr2:TVectorTransform;
+     FileEstimatePath,ShotFileName,tempStr:string;
+     ErrorValue:double;
+     i:integer;
 begin
+ FileEstimatePath:=ExtractFilePath(FileName)+FileEstimateName;
+ ShotFileName:=ExtractFileName(FileName);
+ ShotFileName:=copy(ShotFileName,1,length(ShotFileName)-4);
+ if not(FileExists(FileEstimatePath))
+   then  AddRowToFile('name MSE MRE R R2',FileEstimatePath);
+
  VecTr:=TVectorTransform.Create;
  VecTr2:=TVectorTransform.Create;
  VecTr.ReadFromFile(FileName,['Ytrue','Ypred']);
-// VecTr.StandartScaler(VecTr2,VecTr.MeanX,VecTr.StandartDeviationNX);
- VecTr.StandartScaler(VecTr2,0,1,True);
- VecTr2.WriteToFile(FitName(FileName,'NT'),10);
- showmessage(floattostr(VecTr2.MeanX)+' '+floattostr(VecTr2.StandartDeviationNX));
+ if Pos('Full',ShotFileName)>0
+   then VecTr.StandartScaler(VecTr2,MeanFull,StdFull,True)
+   else VecTr.StandartScaler(VecTr2,MeanResultAll,StdResultAll,True);
+ tempstr:=ShotFileName;
+ tempstr:=tempstr+' '+floattostr(VecTr2.MSE);
+ tempstr:=tempstr+' '+floattostr(VecTr.MRE);
+ tempstr:=tempstr+' '+floattostr(VecTr.Rcorrelation);
+ tempstr:=tempstr+' '+floattostr(VecTr.R2determination);
+ AddRowToFile(tempstr,FileEstimatePath);
+ VecTr.REdata(VecTr2);
+ VecTr.Clear;
+
+ ErrorValue:=0;
+ repeat
+  for i := 0 to LimitErrorNumber do
+    if ErrorValue<LimitErrorValues[i]
+        then
+         begin
+          ErrorValue:=ErrorValue+LimitErrorValues[i]/10;
+          Break
+         end;
+  VecTr.Add(ErrorValue,VecTr2.PercentOfPointLessThan(ErrorValue));
+ until (ErrorValue>=LimitErrorValues[High(LimitErrorValues)]);
+
+ VecTr.WriteToFile(FitName(FileName,'est'),8);
  FreeAndNil(VecTr2);
  FreeAndNil(VecTr);
 end;

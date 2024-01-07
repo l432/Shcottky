@@ -298,8 +298,12 @@ type
       Procedure StandartScalerInverse(Target:TVector;
             Mean,Std:double;ToLogData:Boolean=False);overload;
       {зворотні перетворення до двох попередніх}
-
-
+      Procedure SEdata(Target:TVector);
+      {Target.X=Self.X
+      Target.Y=(Self.X-Self.Y)^2}
+      Procedure REdata(Target:TVector);
+      {Target.X=Self.X
+      Target.Y=abs(Self.X-Self.Y)/Self.X}
    end;
 
 
@@ -1184,6 +1188,15 @@ begin
  Self.Rank(Target,True,True,True);
 end;
 
+procedure TVectorTransform.REdata(Target: TVector);
+ var i:integer;
+begin
+ InitTarget(Target);
+ for i:=0 to Self.HighNumber do
+    Target.Add(Self.X[i],
+               RelativeDifference(Self.X[i],Self.Y[i]));
+end;
+
 procedure TVectorTransform.ReverseIV(Target: TVector);
  var temp:TVectorTransform;
 begin
@@ -1248,6 +1261,15 @@ begin
      cX: Target.X[i]:= SdandartScalerTransformInverse(Self.X[i],Mean, Std,ToLogData);
      cY: Target.Y[i]:= SdandartScalerTransformInverse(Self.Y[i],Mean, Std,ToLogData);
    end;
+end;
+
+procedure TVectorTransform.SEdata(Target: TVector);
+ var i:integer;
+begin
+ InitTarget(Target);
+  for i:=0 to Self.HighNumber do
+    Target.Add(Self.X[i],
+               sqr(Self.X[i]-Self.Y[i]));
 end;
 
 procedure TVectorTransform.Smoothing(Target: TVector);

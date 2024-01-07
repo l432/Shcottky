@@ -241,6 +241,9 @@ procedure AddRowToFileFromStringGrid(FileName:string;
                    RowNumber:integer);
 {до файла FileName додається рядок з номером RowNumber з StrGridData}
 
+procedure AddRowToFile(Row,FileName:string);
+{до файла FileName додається рядок Row}
+
 procedure  StringGridToFile(FileName:string;
                    StrGridData: TStringGrid);
 {всі дані з StrGridData заносяться у файл}
@@ -278,7 +281,7 @@ procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:stri
 {додає на початку кожного рядка SL Syffix;
 якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
 
-procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile;CurrentDir:string='');
 {зі всіма .dat файлами у вибраній директорії пророблюється ProcedFile}
 
 procedure SelectDatFileAndAction(ProcedFile:TProcedFile);
@@ -1320,24 +1323,44 @@ begin
  end;
 end;
 
-procedure AddRowToFileFromStringGrid(FileName:string;
-                   StrGridData: TStringGrid;
-                   RowNumber:integer);
- var f:TextFile;
-     i:integer;
-begin
 
-   AssignFile(f,FileName);
+procedure AddRowToFile(Row,FileName:string);
+{до файла FileName додається рядок Row}
+ var f:TextFile;
+begin
+  AssignFile(f,FileName);
   try
    Append (f);
   except
    Rewrite(f);
   end;
+  writeln(f,Row);
+  CloseFile(f);
+end;
 
-   for I := 0 to StrGridData.ColCount-1 do
-                    write(f,StrGridData.Cells[i,RowNumber],' ');
-   writeln(f);
-   CloseFile(f);
+
+procedure AddRowToFileFromStringGrid(FileName:string;
+                   StrGridData: TStringGrid;
+                   RowNumber:integer);
+ var //f:TextFile;
+     i:integer;
+     RowStr:string;
+begin
+
+//   AssignFile(f,FileName);
+//  try
+//   Append (f);
+//  except
+//   Rewrite(f);
+//  end;
+
+  RowStr:='';
+  for I := 0 to StrGridData.ColCount-1 do
+         RowStr:=RowStr+StrGridData.Cells[i,RowNumber]+' ';
+//                    write(f,StrGridData.Cells[i,RowNumber],' ');
+  AddRowToFile(RowStr,FileName);
+//   writeln(f);
+//   CloseFile(f);
 end;
 
 procedure  StringGridToFile(FileName:string;
@@ -1466,19 +1489,18 @@ begin
     end;
 end;
 
-procedure ForAllDatFilesAction(ProcedFile:TProcedFile);
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile;CurrentDir:string='');
 {зі всіма .dat файлами в поточній директорії пророблюється ProcedFile}
  var SR : TSearchRec;
      Dat_Folder:string;
 begin
- if SelectDirectory('Choose Directory','', Dat_Folder)
-  then SetCurrentDir(Dat_Folder);
+ if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+  then SetCurrentDir(Dat_Folder)
+  else Exit;
  if FindFirst(mask, faAnyFile, SR) = 0 then
-  begin
    repeat
     ProcedFile(SR.name);
    until (FindNext(SR) <> 0);
-  end;
 end;
 
 procedure SelectDatFileAndAction(ProcedFile:TProcedFile);

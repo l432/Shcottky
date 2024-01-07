@@ -3901,8 +3901,9 @@ var
 
 
 begin
-SelectDatFileAndAction(MLresultsEstimate);
-// ForAllDatFilesAction(MLresultsTransform);
+ ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
+//SelectDatFileAndAction(MLresultsEstimate);
+// ForAllDatFilesAction(MLresultsTransform,CurDirectory);
 // showmessage(FloatToStr(Silicon.Eg(340)));
 
 // DatFileNoiseSmoothing(10,'sm10');
