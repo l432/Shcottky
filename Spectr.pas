@@ -65,13 +65,16 @@ procedure ToLampSpectr(FileName:string);
 //procedure VectorArrayFreeAndNil (var VectorArray:TArrVec);
 
 procedure VectorArrayAddFile (var VectorArray:TArrVec;FileName:string);overload;
-{зчитується файл з назвою FileName у ще Vector, який додається до масиву}
+{зчитується файл з назвою FileName у ще один Vector, який додається до масиву}
 procedure VectorArrayAddFile (FileName:string);overload;
 {працює з масивом Spectrums}
 
 procedure AllDatFileToOne(ResultFileName:string='AllFiles');
 {всі файли .dat файлами у вибраній директорії поєднуються у один
 з назвою ResultFileName+'.dat'}
+
+procedure SpectrCreateFull();
+
 
 var Spectrums:TArrVec;
 
@@ -216,11 +219,9 @@ end;
 //end;
 
 procedure VectorArrayAddFile (var VectorArray:TArrVec;FileName:string);
-{зчитується файл з назвою FileName у ще Vector, який додається до масиву}
+{зчитується файл з назвою FileName у ще один Vector, який додається до масиву}
 begin
-// showmessage(FileName);
  SetLength(VectorArray,High(VectorArray)+2);
-// showmessage()
  VectorArray[High(VectorArray)]:=TVector.Create;
  VectorArray[High(VectorArray)].ReadFromFile(FileName);
 end;
@@ -258,6 +259,42 @@ begin
    FreeAndNil(Str);
   end;
   VectorArrayFreeAndNil(Spectrums);
+end;
+
+procedure SpectrCreateFull();
+ var Slide:TVectorTransform;
+     LampType:TLampType;
+     CreatedSpectr:TArrVec;
+     i:integer;
+     Wph:integer;
+
+begin
+  ChDir('D:\Samples\DeepL\2022\Lamps\SpectrNew');
+  Slide:=TVectorTransform.Create;
+  for LampType := Low(TLampType) to High(TLampType) do
+   begin
+    ForAllDatFilesAction(VectorArrayAddFile,'D:\Samples\DeepL\2022\Lamps',
+                         FileNameBegin[LampType]);
+    VectorArrayCreate (CreatedSpectr,CSCount[LampType]);
+    Slide.Clear;
+    for I := 0 to High(Spectrums) do
+     begin
+      Spectrums[i].name:=ChangeFileExt(Spectrums[i].name,'');
+//      Delete(Spectrums[i].name,1,Length(FileNameBegin[LampType]));
+      Wph:=StrToInt(Copy(Spectrums[i].name,Length(FileNameBegin[LampType])+1,3));
+      Slide.Add(Wph,Wph);
+     end;
+
+
+
+//    showmessage(inttostr(high(Spectrums)));
+//    showmessage((Spectrums[0].name));
+    showmessage(Slide.XYtoString());
+
+    VectorArrayFreeAndNil (CreatedSpectr);
+    VectorArrayFreeAndNil(Spectrums);
+   end;
+  FreeAndNil(Slide);
 end;
 
 end.

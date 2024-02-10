@@ -281,8 +281,10 @@ procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:stri
 {додає на початку кожного рядка SL Syffix;
 якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
 
-procedure ForAllDatFilesAction(ProcedFile:TProcedFile;CurrentDir:string='');
-{зі всіма .dat файлами у вибраній директорії пророблюється ProcedFile}
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile;CurrentDir:string='';
+                               NeedleFileNamePart:string='');
+{зі всіма .dat файлами у вибраній директорії пророблюється ProcedFile,
+якщо ім'я файла містить NeedleFileNamePart або NeedleFileNamePart=''}
 
 procedure SelectDatFileAndAction(ProcedFile:TProcedFile);
 {відкривається .dat файл і з ним пророблюється ProcedFile}
@@ -1489,7 +1491,8 @@ begin
     end;
 end;
 
-procedure ForAllDatFilesAction(ProcedFile:TProcedFile;CurrentDir:string='');
+procedure ForAllDatFilesAction(ProcedFile:TProcedFile;CurrentDir:string='';
+                               NeedleFileNamePart:string='');
 {зі всіма .dat файлами в поточній директорії пророблюється ProcedFile}
  var SR : TSearchRec;
      Dat_Folder:string;
@@ -1499,7 +1502,8 @@ begin
   else Exit;
  if FindFirst(mask, faAnyFile, SR) = 0 then
    repeat
-    ProcedFile(SR.name);
+    if (NeedleFileNamePart='') or (Pos(NeedleFileNamePart,SR.name)>0) then
+     ProcedFile(SR.name);
    until (FindNext(SR) <> 0);
 end;
 
