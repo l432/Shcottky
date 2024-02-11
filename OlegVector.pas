@@ -10,7 +10,7 @@ type
 
     TFunVector=Function(Coord: TCoord_type): Double of object;
     TFunVectorInt=Function(Coord: TCoord_type): Integer of object;
-    TFunVectorPointBool=Function(i:integer): boolean of object;
+    TFunVectorPointBool=Function(PointNumber:integer;NumberForCondition:double): boolean of object;
 
     TVector=class
      private
@@ -55,9 +55,10 @@ type
       function GetInt_Trap: double;
       function GetHigh: Integer;
       function GetSegmentEnd: Integer;
-      procedure DeletePointsByCondition(FunVPB:TFunVectorPointBool);
-      function  FunVPBDeleteErResult(i:integer):boolean;
-      function  FunVPBDeleteZeroY(i:integer):boolean;
+      procedure DeletePointsByCondition(FunVPB:TFunVectorPointBool;NumberForCondition:double=0);
+      function  FunVPBDeleteErResult(i:integer;NumberForCondition:double=0):boolean;
+      function  FunVPBDeleteZeroY(i:integer;NumberForCondition:double=0):boolean;
+      function  FunVPBDeleteXMoreTnanNumber(PointNumber:integer;NumberForCondition:double=0):boolean;
      protected
       procedure PointSet(Number:integer; x,y:double);overload;
        {заповнює координати точки з номером Number,
@@ -218,6 +219,8 @@ type
          {видаляються точки, для яких абсциса чи ордината рівна ErResult}
       Procedure DeleteZeroY;
          {видаляються точки, для яких ордината рівна 0}
+      Procedure DeleteXMoreTnanNumber(Number:double);
+        {видаляються точки, для яких абсциса більша ніж Number}
       procedure SwapXY;
          {обмінюються знaчення Х та Y}
       function CopyToArray(const Coord:TCoord_type):TArrSingle;
@@ -566,7 +569,7 @@ begin
  Self.SetLenVector(High(Points));
 end;
 
-procedure TVector.DeletePointsByCondition(FunVPB: TFunVectorPointBool);
+procedure TVector.DeletePointsByCondition(FunVPB: TFunVectorPointBool;NumberForCondition:double=0);
  var i,Point:integer;
  label Start;
 begin
@@ -575,12 +578,17 @@ begin
  Start:
   if i<>-1 then
      Self.DeletePoint(i);
-  for I := Point to High(Points)-1 do
+  for I := Point to High(Points){-1} do
     begin
-      if FunVPB(i) then
+      if FunVPB(i,NumberForCondition) then
             goto Start;
       Point:=I+1;
     end;
+end;
+
+procedure TVector.DeleteXMoreTnanNumber(Number: double);
+begin
+ DeletePointsByCondition(FunVPBDeleteXMoreTnanNumber,Number);
 end;
 
 procedure TVector.DeleteZeroY;
@@ -1014,12 +1022,20 @@ begin
    do PointSet(i,Fun(Xmin+i*deltaX));
 end;
 
-function TVector.FunVPBDeleteErResult(i: integer): boolean;
+function TVector.FunVPBDeleteErResult(i: integer;NumberForCondition:double=0): boolean;
 begin
  Result:=(Points[i][cX]=ErResult)or(Points[i][cY]=ErResult);
 end;
 
-function TVector.FunVPBDeleteZeroY(i: integer): boolean;
+function TVector.FunVPBDeleteXMoreTnanNumber(PointNumber: integer;
+  NumberForCondition: double): boolean;
+begin
+ Result:=(Points[PointNumber][cX]>NumberForCondition);
+// if Result then showmessage(floattostr(Points[PointNumber][cX])+' '+floattostr(NumberForCondition));
+
+end;
+
+function TVector.FunVPBDeleteZeroY(i: integer;NumberForCondition:double=0): boolean;
 begin
  Result:=(Points[i][cY]=0);
 end;

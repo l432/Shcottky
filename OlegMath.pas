@@ -383,8 +383,6 @@ Function RandCauchy(const x0,gamma:double):double;
 підкоряється розподілу Коші}
 
 
-
-
 Function IntegralRomberg(Fun:TFunS;a,b:double;eps:double=1e-4):double;overload;
 {розраховується визначений інтеграл за методом Ромберга
 від функції Fun в межах від а до b

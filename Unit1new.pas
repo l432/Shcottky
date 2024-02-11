@@ -3907,7 +3907,10 @@ begin
 // showmessage(FloatToStr(Silicon.Eg(340)));
 
 
-SpectrCreateFull();
+AllDatFileToOne();
+//SpectrCreateFull();
+
+
 // DatFileNoiseSmoothing(10,'sm10');
 // DatFileNoiseSmoothing(5,'sm5');
 // DatFileNoiseSmoothing(20,'sm20');

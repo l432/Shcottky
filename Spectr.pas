@@ -5,7 +5,7 @@ unit Spectr;
 interface
 
 uses
-  OlegVector;
+  OlegVector,OlegMaterialSamples,OlegType;
 
 type
 // TProcedFile=Procedure(FileName:string);
@@ -18,6 +18,8 @@ const
 
   FileNameBegin:array[TLampType]of string=
    ('GE','Orion','Osram');
+  FileNameBeginShot:array[TLampType]of string=
+   ('Ge','Or','Os');
 
   {кількості виміряних спектрів}
   MSCount:array[TLampType]of byte=
@@ -30,6 +32,18 @@ const
 
   Intensities :array[0..6] of integer=
   (200,300,400,500,600,700,750);
+
+//  {коефіцієнти лінійної залежності сумарної інтенсивності від інтегралу спектру}
+//  KoefB:array[TLampType]of double =
+//   (558.95,557.14,586.99);
+//  KoefA:array[TLampType]of double =
+//   (-84.93,-139.39,-88.56);
+
+  {часткf інтенсивності яка припадає на діапазон 464-hc/Eg зі всього спектру,
+  значення пораховані достатньо наближено, зокрема не враховується
+  можлива залежність від інтегральної інтенсивності}
+  DiapazonPart:array[TLampType]of double =
+   (0.75,0.78,0.8);
 
 
 procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
@@ -82,7 +96,7 @@ implementation
 
 uses
   OlegVectorManipulation, Vcl.Dialogs, System.SysUtils, OlegFunction,
-  OlegMath, Vcl.FileCtrl, System.Classes;
+  OlegMath, Vcl.FileCtrl, System.Classes, System.Math, OApproxFunction2;
 
 
 procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
@@ -265,35 +279,127 @@ procedure SpectrCreateFull();
  var Slide:TVectorTransform;
      LampType:TLampType;
      CreatedSpectr:TArrVec;
-     i:integer;
+     i,j,PointCount:integer;
      Wph:integer;
+     Lmax:double;
+     SL:TStringList;
+     OutputData:TArrSingle;
 
 begin
   ChDir('D:\Samples\DeepL\2022\Lamps\SpectrNew');
   Slide:=TVectorTransform.Create;
+
+//  Wph:=2630;
+//  for i := 190 to 2000 do
+//    Slide.Add(i,TFFPlanc.Planck(i,Wph));
+//  Slide.WriteToFile('Plank'+inttostr(Wph)+'.dat',8,'Lambda ArbUnit');
+
+  Lmax:=Hpl*2*Pi*Clight*1e9/(Qelem*Silicon.Eg(340));
+  SL:=TStringList.Create;
   for LampType := Low(TLampType) to High(TLampType) do
    begin
     ForAllDatFilesAction(VectorArrayAddFile,'D:\Samples\DeepL\2022\Lamps',
                          FileNameBegin[LampType]);
-    VectorArrayCreate (CreatedSpectr,CSCount[LampType]);
+
     Slide.Clear;
     for I := 0 to High(Spectrums) do
      begin
       Spectrums[i].name:=ChangeFileExt(Spectrums[i].name,'');
-//      Delete(Spectrums[i].name,1,Length(FileNameBegin[LampType]));
+//      SL.Add(Spectrums[i].name+' '+floattostr(Spectrums[i].Int_Trap));
+      Spectrums[i].DeleteXMoreTnanNumber(Lmax);
       Wph:=StrToInt(Copy(Spectrums[i].name,Length(FileNameBegin[LampType])+1,3));
       Slide.Add(Wph,Wph);
+
+     end;
+
+    PointCount:=Spectrums[0].HighNumber;
+
+    VectorArrayCreate (CreatedSpectr,CSCount[LampType]);
+    for j := 0 to High(CreatedSpectr) do
+      CreatedSpectr[j].name:=FileNameBegin[LampType]+IntToStr(Intensities[j]);
+
+    for I := 0 to PointCount do
+     begin
+      for j := 0 to High(Spectrums) do
+       Slide.Y[j]:=Spectrums[j].Y[i];
+
+      if High(Spectrums)=1 then
+       begin
+        Slide.LinAprox(OutputData);
+        for j := 0 to High(CreatedSpectr) do
+         CreatedSpectr[j].Add(Spectrums[0].X[i],max(NPolinom(Intensities[j],OutputData),0));
+       end                 else
+       begin
+        for j := 0 to High(CreatedSpectr) do
+         begin
+           if Slide.ValueNumber(cX,Intensities[j])<>-1
+            then CreatedSpectr[j].Add(Spectrums[0].X[i],Slide.Yvalue(Intensities[j]))
+            else
+             begin
+              if Intensities[j]<Slide.MinX
+               then CreatedSpectr[j].Add(Spectrums[0].X[i],
+                                      max(Y_X0(Slide.Point[0],Slide.Point[1],Intensities[j]),0))
+               else CreatedSpectr[j].Add(Spectrums[0].X[i],
+                                      max(Y_X0(Slide.Point[Slide.HighNumber-1],Slide.Point[Slide.HighNumber],Intensities[j]),0))
+             end;
+         end;
+       end;
+     end;
+   {згенеровані для всіх потрібних інтегральних інтенсивностей спектри}
+
+    for j := 0 to High(CreatedSpectr) do
+     begin
+      CreatedSpectr[j].MultiplyY(1/CreatedSpectr[j].Int_Trap);
+      {потужність випромінювання нормована}
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrN'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
+
+      CreatedSpectr[j].MultiplyY(Intensities[j]*DiapazonPart[LampType]);
+      {потужність випромінювання, мВт}
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Cr'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
+
+
+      for I := 0 to PointCount do
+       CreatedSpectr[j].Y[i]:=CreatedSpectr[j].X[i]*1e-9*CreatedSpectr[j].Y[i]*1e-3/(Hpl*2*Pi*Clight);
+      {кількість фотонів за секунду}
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrNph'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
+//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
+
+
+//      for I := 0 to PointCount do
+//        try
+//        CreatedSpectr[j].Y[i]:=IntegralRomberg(Bowden2,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6)
+//                               /IntegralRomberg(Bowden,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6);
+//        except
+//         CreatedSpectr[j].Y[i]:=0;
+//        end;
+//      {якесь усереднення з врахуванням поглинання по глибині}
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Bow'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
+//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
+
+
+//      Lmax:=CreatedSpectr[j].Int_Trap;
+//      for I := 0 to PointCount do
+//       CreatedSpectr[j].Y[i]:=CreatedSpectr[j].Y[i]*Hpl*2*Pi*Clight/(CreatedSpectr[j].X[i]*1e-9*Qelem);
+//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap/Lmax));
+
      end;
 
 
+//   for j := 0 to High(CreatedSpectr) do
+//     CreatedSpectr[j].WriteToFile(FileNameBegin[LampType]+'Cr'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
 
-//    showmessage(inttostr(high(Spectrums)));
-//    showmessage((Spectrums[0].name));
-    showmessage(Slide.XYtoString());
+
 
     VectorArrayFreeAndNil (CreatedSpectr);
     VectorArrayFreeAndNil(Spectrums);
    end;
+  SL.SaveToFile('noname.dat');
+  SL.Free;
   FreeAndNil(Slide);
 end;
 
