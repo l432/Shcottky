@@ -43,7 +43,7 @@ const
   значення пораховані достатньо наближено, зокрема не враховується
   можлива залежність від інтегральної інтенсивності}
   DiapazonPart:array[TLampType]of double =
-   (0.75,0.78,0.8);
+   (0.75,0.8,0.8);
 
 
 procedure DatFileNoiseSmoothing(Npoint: Word=5;Syffix:string='fit');
@@ -307,6 +307,7 @@ begin
       Spectrums[i].name:=ChangeFileExt(Spectrums[i].name,'');
 //      SL.Add(Spectrums[i].name+' '+floattostr(Spectrums[i].Int_Trap));
       Spectrums[i].DeleteXMoreTnanNumber(Lmax);
+//      SL.Add(Spectrums[i].name+' '+floattostr(Spectrums[i].Int_Trap));
       Wph:=StrToInt(Copy(Spectrums[i].name,Length(FileNameBegin[LampType])+1,3));
       Slide.Add(Wph,Wph);
 
@@ -351,33 +352,33 @@ begin
      begin
       CreatedSpectr[j].MultiplyY(1/CreatedSpectr[j].Int_Trap);
       {потужність випромінювання нормована}
-//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrN'+Inttostr(Intensities[j])+'.dat',
-//                                 6,'Lambda ArbUnit');
+      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrN'+Inttostr(Intensities[j])+'.dat',
+                                 6,'Lambda ArbUnit');
 
       CreatedSpectr[j].MultiplyY(Intensities[j]*DiapazonPart[LampType]);
       {потужність випромінювання, мВт}
-//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Cr'+Inttostr(Intensities[j])+'.dat',
-//                                 6,'Lambda ArbUnit');
+      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Cr'+Inttostr(Intensities[j])+'.dat',
+                                 6,'Lambda ArbUnit');
 
 
       for I := 0 to PointCount do
        CreatedSpectr[j].Y[i]:=CreatedSpectr[j].X[i]*1e-9*CreatedSpectr[j].Y[i]*1e-3/(Hpl*2*Pi*Clight);
       {кількість фотонів за секунду}
-//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrNph'+Inttostr(Intensities[j])+'.dat',
-//                                 6,'Lambda ArbUnit');
-//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
+      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrNph'+Inttostr(Intensities[j])+'.dat',
+                                 6,'Lambda ArbUnit');
+      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
 
 
-//      for I := 0 to PointCount do
-//        try
-//        CreatedSpectr[j].Y[i]:=IntegralRomberg(Bowden2,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6)
-//                               /IntegralRomberg(Bowden,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6);
-//        except
-//         CreatedSpectr[j].Y[i]:=0;
-//        end;
-//      {якесь усереднення з врахуванням поглинання по глибині}
-//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Bow'+Inttostr(Intensities[j])+'.dat',
-//                                 6,'Lambda ArbUnit');
+      for I := 0 to PointCount do
+        try
+        CreatedSpectr[j].Y[i]:=IntegralRomberg(Bowden2,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6)
+                               /IntegralRomberg(Bowden,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6);
+        except
+         CreatedSpectr[j].Y[i]:=0;
+        end;
+      {якесь усереднення з врахуванням поглинання по глибині}
+      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Bow'+Inttostr(Intensities[j])+'.dat',
+                                 6,'Lambda ArbUnit');
 //      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
 
 
