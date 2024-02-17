@@ -293,7 +293,7 @@ tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r+1/tau_band-to-band+1/tau_ceauger)
   mukT:double;
   ftau_btb:double;
   ftau_auger:double;
-    fPNDiode: TD_PNFit;
+//    fPNDiode: TD_PNFit;
  protected
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure AddDoubleVars;override;

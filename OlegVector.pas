@@ -713,8 +713,9 @@ function TVector.Value(Coord: TCoord_type; CoordValue: Double): double;
 begin
   i:=1;
   Result:=ErResult;
-  if (High(Points)<0)
-     or(CoordValue=ErResult) then Exit;
+//  if (High(Points)<0)
+//     or(CoordValue=ErResult) then Exit;
+  if (High(Points)<0) then Exit;
   repeat
    if ((Points[i,Coord]-CoordValue)*(Points[i-1,Coord]-CoordValue))<=0 then
      begin

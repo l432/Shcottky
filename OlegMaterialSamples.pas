@@ -2222,8 +2222,17 @@ begin
      Vect.Add(Lambda_Siabsorb[SiAbsorbTable][i],Alpha_Siabsorb[SiAbsorbTable][i]);
      VectKoef.Add(Lambda_Siabsorb[SiAbsorbTable][i],TemCoef_Siabsorb[SiAbsorbTable][i]);
    end;
-  Result:=(Vect.YvalueSplain3(Lambda)*Power(T/T0_Siabsorb[SiAbsorbTable],
-                                VectKoef.YvalueSplain3(T)*1e-4*T0_Siabsorb[SiAbsorbTable]))*100;
+
+//  showmessage(floattostr(Vect.YvalueSplain3(Lambda))+' '
+//             +floattostr(VectKoef.YvalueSplain3(Lambda)));
+//  Result:=(Vect.YvalueSplain3(Lambda)*Power(T/T0_Siabsorb[SiAbsorbTable],
+//                                VectKoef.YvalueSplain3(Lambda)*1e-4*T0_Siabsorb[SiAbsorbTable]))*100;
+
+//  showmessage(floattostr(Vect.Yvalue(Lambda))+' '
+//             +floattostr(VectKoef.Yvalue(Lambda)));
+  Result:=(Vect.Yvalue(Lambda)*Power(T/T0_Siabsorb[SiAbsorbTable],
+                                VectKoef.Yvalue(Lambda)*1e-4*T0_Siabsorb[SiAbsorbTable]))*100;
+
   Vect.Free;
   VectKoef.Free;
 end;

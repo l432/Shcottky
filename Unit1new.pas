@@ -3907,8 +3907,11 @@ begin
 // showmessage(FloatToStr(Silicon.Eg(340)));
 
 
-DeepOfAbsorbtion(290);
-DeepOfAbsorbtion(350);
+//showmessage(floattostr(Silicon.Absorption(390,295)));
+
+//DeepOfAbsorbtion(290);
+//DeepOfAbsorbtion(350);
+TauIntrinsic();
 
 //AllDatFileToOne();
 //SpectrCreateFull();
