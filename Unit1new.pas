@@ -1226,7 +1226,7 @@ var
 implementation
 
 uses FormSelectFitNew, OApproxNew, FitSimple,
-  OApproxFunction2, FitGradient, OlegStatistic, Spectr;
+  OApproxFunction2, FitGradient, OlegStatistic, Spectr, SymbolicRegression;
 
 {$R *.dfm}
 {$R Res\Fig.RES}
@@ -3907,7 +3907,10 @@ begin
 // showmessage(FloatToStr(Silicon.Eg(340)));
 
 
-AllDatFileToOne();
+DeepOfAbsorbtion(290);
+DeepOfAbsorbtion(350);
+
+//AllDatFileToOne();
 //SpectrCreateFull();
 
 

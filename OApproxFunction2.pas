@@ -251,7 +251,9 @@ Fei->FeB}
 end;
 
 TFFTAU_Fei_FeB=class (TFFFei_FeB)
-{часова залежність часу життя неосновних носіїв,
+  private
+
+    fMaterialLayer: TMaterialLayerFit;{часова залежність часу життя неосновних носіїв,
 якщо відбувається перехід міжвузольного
 заліза в комплекс FeB
 tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r)
@@ -291,10 +293,19 @@ tau(t)= 1/(1/tau_FeB+1/tau_Fei+1/tau_r+1/tau_band-to-band+1/tau_ceauger)
   mukT:double;
   ftau_btb:double;
   ftau_auger:double;
+    fPNDiode: TD_PNFit;
  protected
   procedure TuningBeforeAccessorialDataCreate;override;
   procedure AddDoubleVars;override;
   procedure VariousPreparationBeforeFitting;override;
+ public
+  class function Nph(Lambda:double;R:double=0):double;
+  {повертає величину
+  (1-R)*q*Lambda/hc,
+  [Lambda]=nm}
+  class function Al_L(Abs,L:double):double;
+  {Result=Abs*L/(1+Abs*L),
+  [Lambda]=нм}
  published
   property PN_Diode:TD_PNFit read fPNDiode;
 end;
@@ -1149,13 +1160,22 @@ begin
  fFei.Nd:=Fe_i_t(Point[cX],Layer,Data[0],
                 (DoubVars.Parametr[0] as TVarDouble).Value);
  fFeB.Nd:=Data[0]-fFei.Nd;
- Result:=1/(1/Data[1]
-           +1/fFei.TAUsrh(Layer.Nd,
+ Result:=TMaterial.TauMatthiessenRule([Data[1],
+            fFei.TAUsrh(Layer.Nd,
+                    (DoubVars.Parametr[1] as TVarDouble).Value,
+                    (DoubVars.Parametr[0] as TVarDouble).Value),
+            fFeB.TAUsrh(Layer.Nd,
                     (DoubVars.Parametr[1] as TVarDouble).Value,
                     (DoubVars.Parametr[0] as TVarDouble).Value)
-           +1/fFeB.TAUsrh(Layer.Nd,
-                    (DoubVars.Parametr[1] as TVarDouble).Value,
-                    (DoubVars.Parametr[0] as TVarDouble).Value));
+                    ]);
+
+// Result:=1/(1/Data[1]
+//           +1/fFei.TAUsrh(Layer.Nd,
+//                    (DoubVars.Parametr[1] as TVarDouble).Value,
+//                    (DoubVars.Parametr[0] as TVarDouble).Value)
+//           +1/fFeB.TAUsrh(Layer.Nd,
+//                    (DoubVars.Parametr[1] as TVarDouble).Value,
+//                    (DoubVars.Parametr[0] as TVarDouble).Value));
 end;
 
 procedure TFFTAU_Fei_FeB.NamesDefine;
@@ -1171,7 +1191,12 @@ begin
                  ['Fe','tau_r']);
 end;
 
-{ TFFIsc_Fei_FeB }
+{ class function TFFTAU_Fei_FeB.TauMatthiessenRule(TAUs: array of double): double;
+begin
+
+end;
+
+TFFIsc_Fei_FeB }
 
 procedure TFFIsc_Fei_FeB.AdditionalParamDetermination;
 begin
@@ -1190,21 +1215,27 @@ end;
 
 function TFFIsc_Fei_FeB.FuncForFitness(Point: TPointDouble;
   Data: TArrSingle): double;
-  var L,AlL,tau:double;
+  var L,{AlL,}tau:double;
 begin
   fFei.Nd:=Fe_i_t(Point[cX],PN_Diode.LayerP,
                   Data[0], fT,Data[3]);
  fFeB.Nd:=Data[0]-fFei.Nd;
- tau:=1/(1/Data[1]
-           +1/fFei.TAUsrh(PN_Diode.LayerP.Nd,
-                    0,fT)
-           +1/fFeB.TAUsrh(PN_Diode.LayerP.Nd,
-                    0,fT)
-           +1/ftau_btb
-           +1/ftau_auger);
+
+ tau:=TMaterial.TauMatthiessenRule([Data[1],
+             fFei.TAUsrh(PN_Diode.LayerP.Nd,0,fT),
+             fFeB.TAUsrh(PN_Diode.LayerP.Nd,0,fT),
+             ftau_btb,ftau_auger]);
+// tau:=1/(1/Data[1]
+//           +1/fFei.TAUsrh(PN_Diode.LayerP.Nd,
+//                    0,fT)
+//           +1/fFeB.TAUsrh(PN_Diode.LayerP.Nd,
+//                    0,fT)
+//           +1/ftau_btb
+//           +1/ftau_auger);
  L:=sqrt(tau*mukT);
-  AlL:=fAbsorp*L;
- Result:=Data[2]*fNph*AlL/(1+AlL);
+// AlL:=fAbsorp*L;
+// Result:=Data[2]*fNph*AlL/(1+AlL);
+ Result:=Data[2]*fNph*Al_L(fAbsorp,L);
 end;
 
 procedure TFFIsc_Fei_FeB.NamesDefine;
@@ -1254,6 +1285,18 @@ begin
   (DoubVars.ParametrByName['T'] as TVarDouble).ManualDetermOnly:=True;
 end;
 
+class function TFFIsc_shablon.Al_L(Abs, L: double): double;
+  {Result=Absorbtion(Lambda,T)*L/(1+Absorbtion*L)}
+begin
+  Result:=Abs*L/(1+Abs*L);
+end;
+
+class function TFFIsc_shablon.Nph(Lambda, R: double): double;
+begin
+ Result:=(1-R)*Qelem*Lambda*1e-9
+        /Hpl/Clight/2/Pi;
+end;
+
 procedure TFFIsc_shablon.TuningBeforeAccessorialDataCreate;
 begin
  inherited TuningBeforeAccessorialDataCreate;
@@ -1266,9 +1309,11 @@ begin
   fT:=(DoubVars.ParametrByName['T'] as TVarDouble).Value;
   fAbsorp:=Silicon.Absorption((DoubVars.ParametrByName['L_nm'] as TVarDouble).Value,
                               fT);
-  fNph:=(1-(DoubVars.ParametrByName['R_ph'] as TVarDouble).Value)
-        *Qelem*(DoubVars.ParametrByName['L_nm'] as TVarDouble).Value*1e-9
-        {*PN_Diode.Area}/Hpl/Clight/2/Pi;
+  fNph:=Nph((DoubVars.ParametrByName['L_nm'] as TVarDouble).Value,
+           (DoubVars.ParametrByName['R_ph'] as TVarDouble).Value);
+//  fNph:=(1-(DoubVars.ParametrByName['R_ph'] as TVarDouble).Value)
+//        *Qelem*(DoubVars.ParametrByName['L_nm'] as TVarDouble).Value*1e-9
+//        {*PN_Diode.Area}/Hpl/Clight/2/Pi;
   mukT:=PN_Diode.mu(fT)*Kb*fT;
   ftau_btb:=Silicon.TAUbtb(PN_Diode.LayerP.Nd,0,fT);
   ftau_auger:=Silicon.TAUager_p(PN_Diode.LayerP.Nd,fT);
@@ -1278,22 +1323,27 @@ end;
 
 function TFFIsc2_Fei_FeB.FuncForFitness(Point: TPointDouble;
   Data: TArrSingle): double;
-  var L,AlL,tau,Fe_i_e:double;
+  var L,{AlL,}tau,Fe_i_e:double;
 begin
  Fe_i_e:=Fe_i_eq(PN_Diode.LayerP,Data[0],T);
  fFei.Nd:=(Data[0]*Data[4]-Fe_i_e)*
            exp(-Point[cX]/Data[3])+Fe_i_e;
  fFeB.Nd:=Data[0]-fFei.Nd;
- tau:=1/(1/Data[1]
-           +1/fFei.TAUsrh(PN_Diode.LayerP.Nd,
-                    0,fT)
-           +1/fFeB.TAUsrh(PN_Diode.LayerP.Nd,
-                    0,fT)
-           +1/ftau_btb
-           +1/ftau_auger);
+ tau:=TMaterial.TauMatthiessenRule([Data[1],
+             fFei.TAUsrh(PN_Diode.LayerP.Nd,0,fT),
+             fFeB.TAUsrh(PN_Diode.LayerP.Nd,0,fT),
+             ftau_btb,ftau_auger]);
+// tau:=1/(1/Data[1]
+//           +1/fFei.TAUsrh(PN_Diode.LayerP.Nd,
+//                    0,fT)
+//           +1/fFeB.TAUsrh(PN_Diode.LayerP.Nd,
+//                    0,fT)
+//           +1/ftau_btb
+//           +1/ftau_auger);
  L:=sqrt(tau*mukT);
-  AlL:=fAbsorp*L;
- Result:=Data[2]*fNph*AlL/(1+AlL);
+// AlL:=fAbsorp*L;
+// Result:=Data[2]*fNph*AlL/(1+AlL);
+ Result:=Data[2]*fNph*Al_L(fAbsorp,L);
 end;
 
 procedure TFFIsc2_Fei_FeB.NamesDefine;

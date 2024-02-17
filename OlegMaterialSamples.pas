@@ -398,6 +398,10 @@ type
      class function FDIntegral_05(const eta:double):double;
      {значення інтегралу Фермі-Дірака ступеня 1/2,
      апроксимація згідно з Phys.Lett., vol.64A, p409}
+     class function TauMatthiessenRule(TAUs:array of double):double;
+      {розраховує результат як величину, обернену до суми обернених
+      величин елементів масиву
+      Result=1/(1/TAUs[0]+1/TAUs[1]....)}
      end; // TMaterial=class
 
 //     TMatParNameLab=array[TMaterialParametersName]of TLabel;
@@ -463,6 +467,7 @@ type
        []- м6/с}
       public
       class function Eg(T:double=300):double;
+      {[Result]=eV}
       class function Meff_e(T:double=300):double;
       class function Meff_h(T:double=300):double;
       class function A(A0,T,n:double):double;
@@ -987,6 +992,20 @@ procedure TMaterial.SetEpsValue(value: Double);
 begin
  if value>1 then FParameters.Parameters[nEps]:=value
             else FParameters.Parameters[nEps]:=1;
+end;
+
+class function TMaterial.TauMatthiessenRule(TAUs: array of double): double;
+  var sum:double;
+      i:integer;
+begin
+ sum:=0;
+  try
+   for i:=0 to High(TAUs) do
+    Sum:=sum+1/TAUs[i];
+   Result:=1/sum;
+  except
+   Result:=ErResult;
+  end;
 end;
 
 function TMaterial.Varshni(F0,T:double):double;

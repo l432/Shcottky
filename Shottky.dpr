@@ -40,7 +40,8 @@ uses
   OlegStatistic in 'OlegStatistic.pas',
   Castro in 'Castro.pas',
   Spectr in 'Spectr.pas',
-  MLresults in 'MLresults.pas';
+  MLresults in 'MLresults.pas',
+  SymbolicRegression in 'SymbolicRegression.pas';
 
 {$R *.res}
 
