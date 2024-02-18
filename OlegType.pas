@@ -250,14 +250,7 @@ Procedure WriteIniDef(ConfigFile:TIniFile;const Section, Ident: string;
 {записує в .ini-файл значення тільки якщо воно дорівнює True}
 
 
-function IsNumberInArray(const Value: Integer; const Arr: array of Integer): Boolean;
-{перевіряє, чи зустрічається Value в Arr}
 
-procedure AddNumberToArray(const Value: Integer; var Arr: TArrInteger);
-{додає ще один елемент до масиву, збільшуючи його довжину}
-
-procedure AddUniqueNumberToArray(const Value: Integer; var Arr: TArrInteger);
-{додає ще один елемент до масиву, якщо його там ще немає}
 
 implementation
 uses OlegMath, Classes, Dialogs, Controls, Math;
@@ -676,35 +669,6 @@ begin
        and ((MaxValue[0]=ErResult)or(Point[cX]<MaxValue[0]));
 end;
 
-function IsNumberInArray(const Value: Integer; const Arr: array of Integer): Boolean;
-var
-  Index: Integer;
-begin
-  for Index := Low(Arr) to High(Arr) do
-  begin
-    if Arr[Index] = Value then
-    begin
-      Result := True;
-      Exit;
-    end;
-  end;
-  Result := False;
-end;
 
-procedure AddNumberToArray(const Value: Integer; var Arr: TArrInteger);
-{додає ще один елемент до масиву, збільшуючи його довжину}
-begin
-  SetLength(Arr, High(Arr) + 2); // Збільшення розміру масиву на 1
-  Arr[High(Arr)] := Value;
-end;
-
-procedure AddUniqueNumberToArray(const Value: Integer; var Arr: TArrInteger);
-{додає ще один елемент до масиву, якщо його там ще немає}
-begin
-  if IsNumberInArray(Value,Arr)
-    then Exit
-    else AddNumberToArray(Value,Arr);
-
-end;
 
 end.

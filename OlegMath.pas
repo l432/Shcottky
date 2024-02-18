@@ -263,8 +263,10 @@ Function RevZrizSCLC(x,m,I0,A:double):double;
 
 Function TunFun(x:double; Variab:array of double):double;
 
-Function RandomAB(A,B:double):double;
+Function RandomAB(A,B:double):double;overload;
 {повертає випадкове число в межах від А до В}
+
+Function RandomAB(A,B:integer):integer;overload;
 
 Function RandomLnAB(A,B:double):double;
 {повертає випадкове число в межах від А до В,
@@ -504,6 +506,20 @@ procedure LambertEvaluation();
 
 procedure IVCreation();
 
+
+function IsNumberInArray(const Value: Integer; const Arr: array of Integer): Boolean;overload;
+{перевіряє, чи зустрічається Value в Arr}
+function IsNumberInArray(const Value: Double; const Arr: TArrSingle): Boolean;overload;
+
+procedure AddNumberToArray(const Value: Integer; var Arr: TArrInteger);overload;
+{додає ще один елемент до масиву, збільшуючи його довжину}
+
+procedure AddNumberToArray(const Value: double; var Arr: TArrSingle);overload;
+{додає ще один елемент до масиву, збільшуючи його довжину}
+
+
+procedure AddUniqueNumberToArray(const Value: Integer; var Arr: TArrInteger);
+{додає ще один елемент до масиву, якщо його там ще немає}
 
 implementation
 
@@ -1517,10 +1533,15 @@ begin
 end;
 
 
-Function RandomAB(A,B:double):double;
+Function RandomAB(A,B:double):double;overload;
 {повертає випадкове число в межах від А до В}
 begin
   Result:=A+Random*(B-A);
+end;
+
+Function RandomAB(A,B:integer):integer;overload;
+begin
+  Result:=A+Random(B-A+1);
 end;
 
 Function RandomLnAB(A,B:double):double;
@@ -2254,6 +2275,59 @@ begin
 
 
  FreeAndNil(Vec);
+end;
+
+function IsNumberInArray(const Value: Integer; const Arr: array of Integer): Boolean;overload;
+var
+  Index: Integer;
+begin
+  for Index := Low(Arr) to High(Arr) do
+  begin
+    if Arr[Index] = Value then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+  Result := False;
+end;
+
+function IsNumberInArray(const Value: Double; const Arr: TArrSingle): Boolean;overload;
+var
+  Index: Integer;
+begin
+  for Index := Low(Arr) to High(Arr) do
+  begin
+   if IsEqual(Arr[Index],Value) then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+  Result := False;
+end;
+
+procedure AddNumberToArray(const Value: Integer; var Arr: TArrInteger);overload;
+{додає ще один елемент до масиву, збільшуючи його довжину}
+begin
+  SetLength(Arr, High(Arr) + 2); // Збільшення розміру масиву на 1
+  Arr[High(Arr)] := Value;
+end;
+
+procedure AddNumberToArray(const Value: double; var Arr: TArrSingle);overload;
+begin
+  SetLength(Arr, High(Arr) + 2); // Збільшення розміру масиву на 1
+  Arr[High(Arr)] := Value;
+end;
+
+
+procedure AddUniqueNumberToArray(const Value: Integer; var Arr: TArrInteger);
+{додає ще один елемент до масиву, якщо його там ще немає}
+begin
+  if IsNumberInArray(Value,Arr)
+    then Exit
+    else AddNumberToArray(Value,Arr);
+
 end;
 
 end.

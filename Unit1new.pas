@@ -3917,7 +3917,10 @@ begin
 //TauOnL(290,1e16);
 //TauOnL(340,1e16);
 //Ln_Isc();
-Eg_T();
+//Eg_T();
+//J0_T();
+Ln_IscT();
+
 
 //AllDatFileToOne();
 //SpectrCreateFull();

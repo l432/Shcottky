@@ -2,8 +2,103 @@ unit SymbolicRegression;
 
 interface
 
+uses
+  OlegType, OlegMaterialSamples;
+
 const
  C_J0=17.90;
+
+type
+
+TDatasetPrepare=class
+  private
+    FTrainNumber: integer;
+    FTestNumber: integer;
+    FLowLimit: integer;
+    FHighLimit: integer;
+    FHeader: string;
+    fUsedParam: TArrInteger;
+    fResults: TArrSingle;
+    FFileNameBegin: string;
+    procedure SetTrainNumber(const Value: integer);
+    procedure SetTestNumber(const Value: integer);
+    procedure SetHighLimit(const Value: integer);
+    procedure SetLowLimit(const Value: integer);
+    procedure SetHeader(const Value: string);
+    function RecordToString(const Index:integer):string;virtual;
+    procedure SetFileNameBegin(const Value: string);
+    procedure LastNEntriesToFile(LastN:integer;Filename:string);
+    {останні LastN входжень записуються у файл з назвою Filename}
+    procedure newNEntriesCreate(newN:integer);virtual;
+    {створюються newN унікальних записів}
+    function ResultCalculate(const Index:integer):double;virtual;
+  public
+   property TrainNumber:integer read FTrainNumber write SetTrainNumber;
+   property TestNumber:integer read FTestNumber write SetTestNumber;
+   property LowLimit:integer read FLowLimit write SetLowLimit;
+   property HighLimit:integer read FHighLimit write SetHighLimit;
+   property Header:string read FHeader write SetHeader;
+   property FileNameBegin:string read FFileNameBegin write SetFileNameBegin;
+   Constructor Create;
+   procedure CreateDatasets();
+
+end;
+
+TDatasetPrepareEg_T=class(TDatasetPrepare)
+ private
+  fSil:TMaterial;
+  function ResultCalculate(const Index:integer):double;override;
+ public
+  Constructor Create;
+  destructor Destroy;override;
+end;
+
+TDatasetPrepareLn_Isc=class(TDatasetPrepare)
+ private
+  fLambda,fT:Integer;
+  function RecordToString(const Index:integer):string;override;
+  function ResultCalculate(const Index:integer):double;override;
+ public
+  Constructor Create;
+end;
+
+TDatasetPrepareJ0_T=class(TDatasetPrepare)
+ private
+  function ResultCalculate(const Index:integer):double;override;
+ public
+  Constructor Create;
+end;
+
+TParametrType=(ptInt,ptDouble,ptDoubleLn);
+{можливі типи параметрів, які змінюються
+ptDoubleLn - дійсний, для широкі діапазони змін і тому
+використовуємо рівномірний розподіл у логарифмічному масштабі}
+
+TDatasetPrepareNdim=class(TDatasetPrepare)
+ private
+  fNdim:integer;
+  fParamTypes:array of TParametrType;
+  fLowLimits: TArrSingle;
+  fHighLimits: TArrSingle;
+  fUsedParams: TArrArrSingle;
+  function RecordToString(const Index:integer):string;override;
+  procedure newNEntriesCreate(newN:integer);override;
+  {створюються newN унікальних записів}
+  function ResultCalculate(const Index:integer):double;virtual;
+ public
+  property HighLimits: TArrSingle read fHighLimits write fHighLimits;
+  property LowLimits: TArrSingle read fLowLimits write fLowLimits;
+  Constructor Create(Ndim:integer);
+end;
+
+TDatasetPrepareLn_IscT=class(TDatasetPrepareNdim)
+ private
+  fLambda:Integer;
+  function RecordToString(const Index:integer):string;override;
+  function ResultCalculate(const Index:integer):double;override;
+ public
+  Constructor Create;
+end;
 
 procedure DeepOfAbsorbtion(T:integer;FileName:string='SiAbsorb');
 {записує у файл FileNameT.dat залежність
@@ -50,11 +145,20 @@ procedure J0_T();
 від температури - див. попередню функцію}
 
 
+procedure Ln_IscT();
+{створюється тренувальний та тестовий набір для залежності
+довжини дифузії (третя колонка) від температури та струму короткого замикання,
+поділеного на інтенсивність світла та (1-R)
+L в діапазоні 5..300 мкм,
+температура в діапазоні 290 - 340 К
+довжина хвилі 940 нм}
+
+
 implementation
 
 uses
-  OlegVector, System.SysUtils, OlegMaterialSamples, OlegType, System.Math,
-  System.Classes, OApproxFunction2;
+  OlegVector, System.SysUtils, System.Math,
+  System.Classes, OApproxFunction2, OlegMath;
 
 procedure DeepOfAbsorbtion(T:integer;FileName:string='SiAbsorb');
  var i:integer;
@@ -129,46 +233,11 @@ L в діапазоні 5..300 мкм,
 довжина хвилі 940 нм,
 температура 300 К}
  var
-     Vec:TVector;
-     Lambda,T,L,TrainNumber,TestNumber:integer;
-     LUsed: TArrInteger;
+   Dataset:TDatasetPrepareLn_Isc;
 begin
- Vec:=TVector.Create;
- Lambda:=940;
- T:=300;
- Randomize();
- TrainNumber:=150;
- TestNumber:=30;
-
- repeat
-  L:=5+Random(296);
-  if IsNumberInArray(L,LUsed)
-    then Continue
-    else
-     begin
-      AddNumberToArray(L,LUsed);
-      Vec.Add(L*1e-6,TFFIsc_shablon.Nph(Lambda)
-                     *TFFIsc_shablon.Al_L(Silicon.Absorption(Lambda,T),L*1e-6));
-     end;
- until (Vec.Count>=TrainNumber);
- Vec.WriteToFile('LOnIsctrain.dat',6,'L(mkm) Isc(A)');
-
- Vec.Clear;
- repeat
-  L:=5+Random(296);
-  if IsNumberInArray(L,LUsed)
-    then Continue
-    else
-     begin
-      AddNumberToArray(L,LUsed);
-      Vec.Add(L*1e-6,TFFIsc_shablon.Nph(Lambda)
-                     *TFFIsc_shablon.Al_L(Silicon.Absorption(Lambda,T),L*1e-6));
-     end;
- until (Vec.Count>=TestNumber);
- Vec.WriteToFile('LOnIsctest.dat',6,'L(mkm) Isc(A)');
-
-
- FreeAndNil(Vec);
+ Dataset:=TDatasetPrepareLn_Isc.Create;
+ Dataset.CreateDatasets();
+ FreeAndNil(Dataset);
 end;
 
 
@@ -177,45 +246,11 @@ procedure Eg_T();
 для кремнію за формулою Варшні
 діапазон зміни темпратури - 100 - 500 К}
  var
-     Vec:TVector;
-     T,TrainNumber,TestNumber:integer;
-     TUsed: TArrInteger;
-     Sil:TMaterial;
+     DatasetPrepare:TDatasetPrepare;
 begin
- Vec:=TVector.Create;
- Sil:=TMaterial.Create(Si);
-
- Randomize();
- TrainNumber:=300;
- TestNumber:=50;
-
- repeat
-  T:=100+Random(401);
-  if IsNumberInArray(T,TUsed)
-    then Continue
-    else
-     begin
-      AddNumberToArray(T,TUsed);
-      Vec.Add(T,Sil.EgT(T));
-     end;
- until (Vec.Count>=TrainNumber);
- Vec.WriteToFile('EgOnTtrain.dat',6,'T(K) Eg(eV)');
-
- Vec.Clear;
- repeat
-  T:=100+Random(401);
-  if IsNumberInArray(T,TUsed)
-    then Continue
-    else
-     begin
-      AddNumberToArray(T,TUsed);
-      Vec.Add(T,Sil.EgT(T));
-     end;
- until (Vec.Count>=TestNumber);
- Vec.WriteToFile('EgOnTtest.dat',6,'T(K) Eg(eV)');
-
- FreeAndNil(Sil);
- FreeAndNil(Vec);
+ DatasetPrepare:=TDatasetPrepareEg_T.Create;
+ DatasetPrepare.CreateDatasets();
+ FreeAndNil(DatasetPrepare);
 end;
 
 function J0(const T:double):double;
@@ -226,44 +261,289 @@ end;
 procedure J0_T();
 {залежність струму насичення через кремнієвий діод
 від температури - див. попередню функцію}
- var
-     Vec:TVector;
-     T,TrainNumber,TestNumber:integer;
-     TUsed: TArrInteger;
+ var      DatasetPrepare:TDatasetPrepare;
 begin
-// Vec:=TVector.Create;
-//
-// Randomize();
-// TrainNumber:=300;
-// TestNumber:=50;
-//
-// repeat
-//  T:=100+Random(401);
-//  if IsNumberInArray(T,TUsed)
-//    then Continue
-//    else
-//     begin
-//      AddNumberToArray(T,TUsed);
-//      Vec.Add(T,J0(T));
-//     end;
-// until (Vec.Count>=TrainNumber);
-// Vec.WriteToFile('J0OnTtrain.dat',6,'T(K) J0(mAcm-2)');
-//
-// Vec.Clear;
-// repeat
-//  T:=100+Random(401);
-//  if IsNumberInArray(T,TUsed)
-//    then Continue
-//    else
-//     begin
-//      AddNumberToArray(T,TUsed);
-//      Vec.Add(T,Sil.EgT(T));
-//     end;
-// until (Vec.Count>=TestNumber);
-// Vec.WriteToFile('EgOnTtest.dat',6,'T(K) Eg(eV)');
-//
-// FreeAndNil(Sil);
-// FreeAndNil(Vec);
+ DatasetPrepare:=TDatasetPrepareJ0_T.Create;
+ DatasetPrepare.CreateDatasets();
+ FreeAndNil(DatasetPrepare);
+end;
+
+procedure Ln_IscT();
+{створюється тренувальний та тестовий набір для залежності
+довжини дифузії (третя колонка) від температури та струму короткого замикання,
+поділеного на інтенсивність світла та (1-R)
+L в діапазоні 5..300 мкм,
+температура в діапазоні 290 - 340 К
+довжина хвилі 940 нм}
+ var
+   Dataset:TDatasetPrepareLn_IscT;
+begin
+ Dataset:=TDatasetPrepareLn_IscT.Create;
+ Dataset.CreateDatasets();
+ FreeAndNil(Dataset);
+
+end;
+
+{ TDatasetPrepare }
+
+Constructor TDatasetPrepare.Create;
+begin
+ inherited Create;
+ FTrainNumber:=100;
+ FTestNumber:=10;
+ FLowLimit:=1;
+ FHighLimit:=10;
+ FHeader:='x y';
+ FFileNameBegin := 'File';
+end;
+
+procedure TDatasetPrepare.CreateDatasets;
+begin
+ newNEntriesCreate(FTrainNumber);
+ LastNEntriesToFile(FTrainNumber,FFileNameBegin+'train.dat');
+ newNEntriesCreate(FTestNumber);
+ LastNEntriesToFile(FTestNumber,FFileNameBegin+'test.dat');
+end;
+
+procedure TDatasetPrepare.LastNEntriesToFile(LastN: integer; Filename: string);
+ var FistIndex,i:integer;
+     SL:TStringList;
+begin
+ FistIndex:=High(fResults)+1-LastN;
+ if FistIndex<0 then Exit;
+ SL:=TStringList.Create;
+ if fHeader<>'' then SL.Add(fHeader);
+ for I := FistIndex to High(fResults) do
+    SL.Add(RecordToString(i));
+ if Filename<>'' then SL.SaveToFile(Filename);
+ FreeAndNil(SL);
+end;
+
+procedure TDatasetPrepare.newNEntriesCreate(newN: integer);
+ var StartIndex:integer;
+     NewProbParametrValue:integer;
+begin
+ Randomize();
+ StartIndex:=High(fResults);
+ repeat
+  NewProbParametrValue:=RandomAB(FLowLimit,FHighLimit);
+  if IsNumberInArray(NewProbParametrValue,fUsedParam)
+    then Continue
+    else
+     begin
+      AddNumberToArray(NewProbParametrValue,fUsedParam);
+      AddNumberToArray(ResultCalculate(High(fUsedParam)),fResults);
+     end;
+ until ((High(fResults)-StartIndex)>=newN);
+end;
+
+function TDatasetPrepare.RecordToString(const Index: integer): string;
+begin
+ Result:=inttostr(fUsedParam[Index])+' '
+        +FloatToStrF(fResults[Index],ffExponent,6,0);
+end;
+
+function TDatasetPrepare.ResultCalculate(const Index: integer): double;
+begin
+ Result:=fUsedParam[Index];
+end;
+
+procedure TDatasetPrepare.SetFileNameBegin(const Value: string);
+begin
+  FFileNameBegin := Value;
+end;
+
+procedure TDatasetPrepare.SetHeader(const Value: string);
+begin
+  FHeader := Value;
+end;
+
+procedure TDatasetPrepare.SetHighLimit(const Value: integer);
+begin
+  FHighLimit := Value;
+end;
+
+procedure TDatasetPrepare.SetLowLimit(const Value: integer);
+begin
+  FLowLimit := Value;
+end;
+
+procedure TDatasetPrepare.SetTestNumber(const Value: integer);
+begin
+  FTestNumber := Value;
+end;
+
+procedure TDatasetPrepare.SetTrainNumber(const Value: integer);
+begin
+  FTrainNumber := Value;
+end;
+
+{ TDatasetPrepareEg_T }
+
+constructor TDatasetPrepareEg_T.Create;
+begin
+ inherited Create;
+ TrainNumber:=300;
+ TestNumber:=50;
+ LowLimit:=100;
+ HighLimit:=500;
+ Header:='T(K) Eg(eV)';
+ FileNameBegin:='EgOnT';
+ fSil:=TMaterial.Create(Si);
+end;
+
+destructor TDatasetPrepareEg_T.Destroy;
+begin
+  FreeAndNil(fSil);
+  inherited;
+end;
+
+function TDatasetPrepareEg_T.ResultCalculate(const Index: integer): double;
+begin
+ Result:=fSil.EgT(fUsedParam[Index]);
+end;
+
+{ TDatasetPrepareLn_Isc }
+
+constructor TDatasetPrepareLn_Isc.Create;
+begin
+ inherited Create;
+ TrainNumber:=150;
+ TestNumber:=30;
+ LowLimit:=5;
+ HighLimit:=300;
+ Header:='Isc(A) L(mkm)';
+ FileNameBegin:='LOnIsc';
+ fLambda:=940;
+ fT:=300;
+end;
+
+function TDatasetPrepareLn_Isc.RecordToString(const Index: integer): string;
+begin
+ Result:=FloatToStrF(fResults[Index],ffExponent,6,0)+' '
+       + FloatToStrF(fUsedParam[Index]*1e-6,ffExponent,6,0);
+end;
+
+function TDatasetPrepareLn_Isc.ResultCalculate(const Index: integer): double;
+begin
+ Result:=TFFIsc_shablon.Nph(fLambda)
+        *TFFIsc_shablon.Al_L(Silicon.Absorption(fLambda,fT),fUsedParam[Index]*1e-6)
+end;
+
+{ TDatasetPrepareJ0_T }
+
+constructor TDatasetPrepareJ0_T.Create;
+begin
+ inherited Create;
+ TrainNumber:=300;
+ TestNumber:=50;
+ LowLimit:=100;
+ HighLimit:=500;
+ Header:='T(K) J0(mAcm-2)';
+ FileNameBegin:='J0OnT';
+end;
+
+function TDatasetPrepareJ0_T.ResultCalculate(const Index: integer): double;
+begin
+ Result:=J0(fUsedParam[Index]);
+end;
+
+{ TDatasetPrepareNdim }
+
+constructor TDatasetPrepareNdim.Create(Ndim: integer);
+ var i:integer;
+begin
+ inherited Create;
+ fNdim:=Ndim;
+ SetLength(fParamTypes,fNdim);
+ SetLength(fLowLimits,fNdim);
+ SetLength(fHighLimits,fNdim);
+ SetLength(fUsedParams,fNdim);
+ for I := 0 to High(fParamTypes) do
+  begin
+   fParamTypes[i]:=ptInt;
+   fLowLimits[i]:=1;
+   fHighLimits[i]:=10;
+  end;
+
+end;
+
+procedure TDatasetPrepareNdim.newNEntriesCreate(newN: integer);
+ var StartIndex,i:integer;
+     NewProbParametrValues:TArrSingle;
+     NumbersInArray:Boolean;
+begin
+ Randomize();
+ SetLength(NewProbParametrValues,fNdim);
+ StartIndex:=High(fResults);
+ repeat
+  for i := 0 to High(fParamTypes) do
+   begin
+     case fParamTypes[i] of
+      ptInt:NewProbParametrValues[i]:=RandomAB(round(FLowLimits[i]),round(FHighLimits[i]));
+      ptDouble:NewProbParametrValues[i]:=RandomAB(FLowLimits[i],FHighLimits[i]);
+      ptDoubleLn:NewProbParametrValues[i]:=RandomLnAB(FLowLimits[i],FHighLimits[i]);
+     end;
+   end;
+  NumbersInArray:=True;
+  for i := 0 to High(fParamTypes) do
+    NumbersInArray:= NumbersInArray
+          and IsNumberInArray(NewProbParametrValues[i],fUsedParams[i]);
+  if NumbersInArray
+    then Continue
+    else
+     begin
+      for i := 0 to High(fParamTypes) do
+        AddNumberToArray(NewProbParametrValues[i],fUsedParams[i]);
+      AddNumberToArray(ResultCalculate(High(fResults)+1),fResults);
+     end;
+ until ((High(fResults)-StartIndex)>=newN);
+end;
+
+
+function TDatasetPrepareNdim.RecordToString(const Index: integer): string;
+ var i:integer;
+begin
+ Result:='';
+ for I := 0 to High(fParamTypes) do
+  if fParamTypes[i]=ptInt
+    then Result:=Result+inttostr(round(fUsedParams[i][Index]))+' '
+    else Result:=Result+FloatToStrF(fUsedParams[i][Index],ffExponent,6,0)+' ';
+ Result:=Result+FloatToStrF(fResults[Index],ffExponent,6,0);
+end;
+
+function TDatasetPrepareNdim.ResultCalculate(const Index: integer): double;
+begin
+ Result:=ErResult;
+end;
+
+{ TDatasetPrepareLn_IscT }
+
+constructor TDatasetPrepareLn_IscT.Create;
+begin
+ inherited Create(2);
+ TrainNumber:=1000;
+ TestNumber:=200;
+ Header:='Isc(A) T(K) L(mkm)';
+ FileNameBegin:='LOnIscT';
+ fLambda:=940;
+ LowLimits[0]:=5;
+ HighLimits[0]:=300;
+ LowLimits[1]:=290;
+ HighLimits[1]:=340;
+end;
+
+function TDatasetPrepareLn_IscT.RecordToString(const Index: integer): string;
+begin
+ Result:=FloatToStrF(fResults[Index],ffExponent,6,0)+' '
+         +inttostr(round(fUsedParams[1][Index]))+' '
+         +FloatToStrF(round(fUsedParams[0][Index])*1e-6,ffExponent,3,0);
+end;
+
+function TDatasetPrepareLn_IscT.ResultCalculate(const Index: integer): double;
+begin
+ Result:=TFFIsc_shablon.Nph(fLambda)
+        *TFFIsc_shablon.Al_L(Silicon.Absorption(fLambda,fUsedParams[1][Index]),fUsedParams[0][Index]*1e-6)
 end;
 
 end.
