@@ -3911,7 +3911,13 @@ begin
 
 //DeepOfAbsorbtion(290);
 //DeepOfAbsorbtion(350);
-TauIntrinsic();
+//TauIntrinsic();
+//TauOnL(290,1e14);
+//TauOnL(340,1e14);
+//TauOnL(290,1e16);
+//TauOnL(340,1e16);
+//Ln_Isc();
+Eg_T();
 
 //AllDatFileToOne();
 //SpectrCreateFull();
