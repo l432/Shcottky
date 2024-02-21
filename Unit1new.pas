@@ -2813,7 +2813,7 @@ begin
   SC.Clear;
   lambda:=250;
   SC.Add('/absorption data for Si');
-  SC.Add('/from Schinke at el / AIP ADVANCES 5, 067168 (2015)');
+  SC.Add('/from Martin A. Green / Prog Photovolt Res Appl.30, 164–179 (2022)');
   SC.Add('/lambda[nm]	alfa[m^-1]');
   repeat
    SC.Add(Inttostr(lambda)+'  '
@@ -3919,7 +3919,7 @@ begin
 //Ln_Isc();
 //Eg_T();
 //J0_T();
-Ln_IscT();
+//Ln_IscT();
 
 
 //AllDatFileToOne();
@@ -3945,7 +3945,7 @@ Ln_IscT();
 //  LambertEvaluation();
 // IVCreation();
 
-// AbsorbFileForSCAPS();
+ AbsorbFileForSCAPS();
 //  SpectrApprox();
 //  SpectrCreate();
 
