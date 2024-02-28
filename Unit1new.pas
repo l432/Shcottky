@@ -3947,7 +3947,7 @@ showmessage(floattostr(Silicon.LdifToTauRec(120e-6,340,true,false,1.36e21)));
 //  LambertEvaluation();
 // IVCreation();
 
- AbsorbFileForSCAPS();
+// AbsorbFileForSCAPS();
 //  SpectrApprox();
 //  SpectrCreate();
 
