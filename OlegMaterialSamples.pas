@@ -494,6 +494,15 @@ type
       class function Absorption(Lambda:double;T:double=300):double;
       {коефіцієнт поглинання світла,
       [Lambda]=нм, [Result]=1/м}
+      class function  TauToLdif(tau,T:double;itIsElectron:Boolean=True;
+         itIsMajority:Boolean=True;Ndoping: Double=1e21):double;
+       {розрахунок довжина дифузії носіїв за часом життя
+       вказуються тип носіїв та чи є вони основними;
+       [tau] = c,
+       [Result] = м}
+      class function LdifToTauRec(L,T:double;itIsElectron:Boolean=True;
+                               itIsMajority:Boolean=True;Ndoping: Double=1e21):double;
+       {зворотня функція}
       class function RefractiveIndex(Lambda:double;T:double=300):double;
       {коефіцієнт заломлення,
       [Lambda]=нм, [Result]=1}
@@ -2247,6 +2256,14 @@ begin
   Result:=1+(gmax-1)*1/(1+Power((p+n)/N0,Tetta));
 end;
 
+class function Silicon.LdifToTauRec(L,T:double;itIsElectron:Boolean=True;
+                   itIsMajority:Boolean=True;Ndoping: Double=1e21): double;
+begin
+if itIsElectron
+ then Result:=sqr(L)/(mu_n(T,Ndoping,itIsMajority)*Kb*T)
+ else Result:=sqr(L)/(mu_p(T,Ndoping,itIsMajority)*Kb*T);
+end;
+
 class function Silicon.gmax_n(g0, T: double): double;
 begin
  Result:=ThermallyPower(g0,-1.5013,T);
@@ -2461,6 +2478,14 @@ begin
  n0:=MinorityN(Na,T)/1e6;
  Result:=delN/((n0+delN/1e6)*(Na+delN)
                *(1.8e-24*Power(n0,0.65)+6e-25*Power(Na/1e6,0.65)+3e-27*Power(delN/1e6,0.8)));
+end;
+
+class function Silicon.TauToLdif(tau,T:double;itIsElectron:Boolean=True;
+         itIsMajority:Boolean=True;Ndoping: Double=1e21): double;
+begin
+if itIsElectron
+ then Result:=sqr(tau*mu_n(T,Ndoping,itIsMajority)*Kb*T)
+ else Result:=sqr(tau*mu_p(T,Ndoping,itIsMajority)*Kb*T);
 end;
 
 class function Silicon.Vth_n(T: double): double;

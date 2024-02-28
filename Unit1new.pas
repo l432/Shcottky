@@ -3901,6 +3901,8 @@ var
 
 
 begin
+showmessage(floattostr(Silicon.LdifToTauRec(120e-6,340,true,false,1.36e21)));
+
 // ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
 //SelectDatFileAndAction(MLresultsEstimate);
 // ForAllDatFilesAction(MLresultsTransform,CurDirectory);
