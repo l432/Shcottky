@@ -2484,8 +2484,8 @@ class function Silicon.TauToLdif(tau,T:double;itIsElectron:Boolean=True;
          itIsMajority:Boolean=True;Ndoping: Double=1e21): double;
 begin
 if itIsElectron
- then Result:=sqr(tau*mu_n(T,Ndoping,itIsMajority)*Kb*T)
- else Result:=sqr(tau*mu_p(T,Ndoping,itIsMajority)*Kb*T);
+ then Result:=sqrt(tau*mu_n(T,Ndoping,itIsMajority)*Kb*T)
+ else Result:=sqrt(tau*mu_p(T,Ndoping,itIsMajority)*Kb*T);
 end;
 
 class function Silicon.Vth_n(T: double): double;

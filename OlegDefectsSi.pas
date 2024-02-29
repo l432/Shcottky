@@ -71,9 +71,15 @@ type
   end;
 
 Function Fe_i_eq(MaterialLayer:TMaterialLayer;
-                 Fe_i_all:double; T:double=300):double;
+                 Fe_i_all:double; T:double=300):double;overload;
  {рівноважна концентрація міжвузольного заліза
   Fe_i_all - повна концентрація домішкового заліза}
+
+Function Fe_i_eq(Fe_i_all:double;
+                 NA:double;T:double=300):double;overload;
+
+Function FeB_i_eq(Fe_i_all:double;
+                 NA:double;T:double=300):double;
 
 Function Fe_i_t(time:double;MaterialLayer:TMaterialLayer;
                  Fe_i_all:double; T:double=300;
@@ -94,6 +100,10 @@ Function TauFeEq(MaterialLayer:TMaterialLayer;
 але рівноважна частина (див. Function Fe_i_eq) неспарена
   Fe_i_all - повна концентрація домішкового заліза}
 
+Function TauFeEqIntrin(Fe_i_all:double; NA:double;
+                   T:double=300):double;
+{час, пов'язаний з рекомбінацією на FeB та Fei
+(див. попередню функцію) та власною рекомбінацією}
 
 implementation
 
@@ -181,10 +191,23 @@ end;
 
 
 Function Fe_i_eq(MaterialLayer:TMaterialLayer;
-                 Fe_i_all:double; T:double=300):double;
+                 Fe_i_all:double; T:double=300):double;overload;
 begin
   Result:=Fe_i_all/(1+MaterialLayer.Nd*1e-29*exp(0.582/Kb/T))
                   /(1+exp((MaterialLayer.F(T)-0.394)/Kb/T));
+end;
+
+Function Fe_i_eq(Fe_i_all:double;
+                 NA:double;T:double=300):double;overload;
+begin
+  Result:=Fe_i_all/(1+NA*1e-29*exp(0.582/Kb/T))
+                  /(1+exp((Kb*T*ln(Silicon.Nv(T)/NA)-0.394)/Kb/T));
+end;
+
+Function FeB_i_eq(Fe_i_all:double;
+                 NA:double;T:double=300):double;
+begin
+  Result:=Fe_i_all-Fe_i_eq(Fe_i_all,NA,T);
 end;
 
 Function Fe_i_t(time:double;MaterialLayer:TMaterialLayer;
@@ -222,6 +245,28 @@ begin
     t_FeB:=dFeB.TAUsrh(MaterialLayer.Nd,0,T);
     Result:=1/(1/t_Fei+1/t_FeB);
 //    Result:=10;
+  except
+    Result:=ErResult;
+  end;
+  FreeAndNil(dFei);
+  FreeAndNil(dFeB);
+end;
+
+Function TauFeEqIntrin(Fe_i_all:double; NA:double;
+                   T:double=300):double;
+ var   dFei,dFeB:TDefect;
+//       t_Fei,t_FeB:double;
+begin
+  dFei:=TDefect.Create(Fei);
+  dFeB:=TDefect.Create(FeB_ac);
+  try
+    dFei.Nd:=Fe_i_eq(Fe_i_all,NA,T);
+    dFeB.Nd:=FeB_i_eq(Fe_i_all,NA,T);;
+    Result:=TMaterial.TauMatthiessenRule([
+             dFei.TAUsrh(NA,0,T),
+             dFeB.TAUsrh(NA,0,T),
+             Silicon.TAUbtb(NA,0,T),
+             Silicon.TAUager_p(NA,T)]);
   except
     Result:=ErResult;
   end;
