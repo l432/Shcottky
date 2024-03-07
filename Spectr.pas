@@ -147,6 +147,7 @@ if OD.Execute()
     if EndLambda<BeginLambda then Swap(EndLambda,BeginLambda);
 
     FirstEndLambda:=(EndLambda-BeginLambda)*0.2+BeginLambda;
+//    showmessage(floattostr(FirstEndLambda));
     InitFile.Sorting(False);
     currentLambda:=BeginLambda;
     repeat
