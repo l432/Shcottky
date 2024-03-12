@@ -542,6 +542,10 @@ type
       [N]=1/м^3,
       d - base thickness, [d]=м,
       IEEE JOURNAL OF PHOTOVOLTAICS 8 р.1156 (2018)}
+      class function AbbAppox(Lambda:double;N:double;d:double;
+                        itIsDonor:boolean=True;T:double=300):double;
+      {наближений вираз для розрахунку fraction of the band-to-band transitions }
+
       class function Nc(T:double=300):double;
       class function Nv(T:double=300):double;
       //    ефективні густини станів
@@ -2205,6 +2209,16 @@ begin
          /(sqr(nr)-(sqr(nr)-1)*sqr(Tr));
 end;
 
+class function Silicon.AbbAppox(Lambda, N, d: double; itIsDonor: boolean;
+  T: double): double;
+ var x,nr,Albb,Alfc,Tr:double;
+begin
+ nr:=RefractiveIndex(Lambda,T);
+ Albb:=Absorption(Lambda,T);
+ Alfc:=AbsorptionFC(Lambda,N,itIsDonor);
+ Result:=Albb/(Albb+Alfc+1/(4*sqr(nr)*d))
+end;
+
 class function Silicon.AbsorbFromTable(Lambda: Double;
     SiAbsorbTable: TSiAbsorbTable=abGreen; T: Double = 300): double;
  var Vect,VectKoef:TVectorTransform;
@@ -2454,7 +2468,7 @@ end;
 
 class function Silicon.RefractiveIndex(Lambda, T: double): double;
 begin
-  Result:=AbsorbFromTable(Lambda, nrGreen, T);
+  Result:=AbsorbFromTable(Lambda, nrGreen2022, T);
 end;
 
 class function Silicon.TAUager_n(n, T: double): double;

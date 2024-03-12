@@ -3901,7 +3901,11 @@ var
 
 
 begin
-SpectrApproxmation();
+
+SpectrCreateFull();
+//SpectrApproxmation();
+
+//AbbSpectr();
 
 //showmessage(floattostr(Silicon.LdifToTauRec(120e-6,340,true,false,1.36e21)));
 //showmessage(floattostr(Fe_i_eq(1.4e19,1.36e21,340)));

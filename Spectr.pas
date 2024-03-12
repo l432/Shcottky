@@ -59,6 +59,8 @@ procedure SpectrApproxmation(BeginLambda:double=464;
 при цьому використовується апроксимація зчитаної залежності сплайнами;
 і записує результат у файл, в кінці назви якого дописано Syffix}
 
+
+
 procedure NormSpectr(FileName:string);
 {зчитуються дані з файлу FileName і нормовані
 за ординатою значення записуються у файл, в кінці назви якого дописано 'N'}
@@ -88,6 +90,13 @@ procedure AllDatFileToOne(ResultFileName:string='AllFiles');
 з назвою ResultFileName+'.dat'}
 
 procedure SpectrCreateFull();
+
+procedure AbbSpectr(BeginLambda:double=464;
+                   EndLambda:double=1192;
+                   StepLambda:double=1);
+{створює спектральну залежність від  BeginLambda  до  EndLambda з кроком  StepLambda
+fraction of the band-to-band transitions,
+параметри кремнію всередині функції}
 
 
 var Spectrums:TArrVec;
@@ -166,6 +175,51 @@ if OD.Execute()
     FreeAndNil(EndFile);
    end;
 FreeAndNil(OD);
+end;
+
+
+procedure AbbSpectr(BeginLambda:double=464;
+                   EndLambda:double=1192;
+                   StepLambda:double=1);
+{створює спектральну залежність від  BeginLambda  до  EndLambda з кроком  StepLambda
+fraction of the band-to-band transitions,
+параметри кремнію всередині функції}
+ var  AbbFile:TVector;
+      AbbAproxFile:TVectorTransform;
+      currentLambda,temp:double;
+begin
+ AbbFile:=TVector.Create;
+ AbbAproxFile:=TVectorTransform.Create;
+ if EndLambda<BeginLambda then Swap(EndLambda,BeginLambda);
+ currentLambda:=BeginLambda;
+ repeat
+//   AbbFile.Add(currentLambda,Silicon.Abb(currentLambda,3e26,0.39e-6,True,340));
+//   AbbAproxFile.Add(currentLambda,Silicon.AbbAppox(currentLambda,3e26,0.39e-6,True,340));
+//   AbbAproxFile.Add(currentLambda,Silicon.AbbAppox(currentLambda,1.36e21,380e-6,False,340));
+
+  //ефективна товщина генерації носіїв
+  temp:=sqr(IntegralRomberg(Bowden,[70,340,1.36e21,1,currentLambda],0,380e-6,1e-7))
+        /IntegralRomberg(Bowden2,[70,340,1.36e21,1,currentLambda],0,380e-6,1e-7);
+
+
+//  temp:=Silicon.Absorption(currentLambda,340);
+  AbbFile.Add(currentLambda,temp);
+
+
+
+   currentLambda:=currentLambda+StepLambda;
+
+//     CreatedSpectr[j].Y[i]:=IntegralRomberg(Bowden2,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6)
+//                               /IntegralRomberg(Bowden,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6);
+
+
+ until currentLambda>EndLambda;
+// AbbFile.WriteToFile('Abb.dat',6,'Lambda Fraction');
+// AbbAproxFile.WriteToFile('AbbAprox.dat',6,'Lambda Fraction');
+ AbbFile.WriteToFile('WeffL70.dat',6,'Lambda Weff');
+
+ FreeAndNil(AbbFile);
+ FreeAndNil(AbbAproxFile);
 end;
 
 procedure NormSpectr(FileName:string);
@@ -282,12 +336,15 @@ procedure SpectrCreateFull();
      CreatedSpectr:TArrVec;
      i,j,PointCount:integer;
      Wph:integer;
-     Lmax:double;
+     Lmax,Abb,Weff,R:double;
      SL:TStringList;
      OutputData:TArrSingle;
+     Reflection:TVector;
 
 begin
-  ChDir('D:\Samples\DeepL\2022\Lamps\SpectrNew');
+//  ChDir('D:\Samples\DeepL\2022\Lamps\SpectrNew');
+  ChDir('D:\DeepL\2022\Lamps\SpectrNew');
+
   Slide:=TVectorTransform.Create;
 
 //  Wph:=2630;
@@ -297,10 +354,19 @@ begin
 
   Lmax:=Hpl*2*Pi*Clight*1e9/(Qelem*Silicon.Eg(340));
   SL:=TStringList.Create;
+  Reflection:=TVector.Create;
+  Reflection.ReadFromFile('ReflecA.dat');
+  Reflection.DeleteXMoreTnanNumber(Lmax);
+//  showmessage(Reflection.XYtoString());
+//  Exit;
+
   for LampType := Low(TLampType) to High(TLampType) do
    begin
-    ForAllDatFilesAction(VectorArrayAddFile,'D:\Samples\DeepL\2022\Lamps',
+//    ForAllDatFilesAction(VectorArrayAddFile,'D:\Samples\DeepL\2022\Lamps',
+    ForAllDatFilesAction(VectorArrayAddFile,'D:\DeepL\2022\Lamps',
                          FileNameBegin[LampType]);
+
+
 
     Slide.Clear;
     for I := 0 to High(Spectrums) do
@@ -353,34 +419,47 @@ begin
      begin
       CreatedSpectr[j].MultiplyY(1/CreatedSpectr[j].Int_Trap);
       {потужність випромінювання нормована}
-      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrN'+Inttostr(Intensities[j])+'.dat',
-                                 6,'Lambda ArbUnit');
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrN'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
 
       CreatedSpectr[j].MultiplyY(Intensities[j]*DiapazonPart[LampType]);
       {потужність випромінювання, мВт}
-      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Cr'+Inttostr(Intensities[j])+'.dat',
-                                 6,'Lambda ArbUnit');
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Cr'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
 
 
       for I := 0 to PointCount do
        CreatedSpectr[j].Y[i]:=CreatedSpectr[j].X[i]*1e-9*CreatedSpectr[j].Y[i]*1e-3/(Hpl*2*Pi*Clight);
       {кількість фотонів за секунду}
-      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrNph'+Inttostr(Intensities[j])+'.dat',
-                                 6,'Lambda ArbUnit');
-      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'CrNph'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
+//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
 
 
       for I := 0 to PointCount do
         try
-        CreatedSpectr[j].Y[i]:=IntegralRomberg(Bowden2,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6)
-                               /IntegralRomberg(Bowden,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6);
+         Abb:=Silicon.Abb(CreatedSpectr[j].X[i],1.36e21,380e-6,False,340);
+         Weff:=sqr(IntegralRomberg(Bowden,[70,340,1.36e21,1,CreatedSpectr[j].X[i]],0,380e-6,1e-7))
+          /IntegralRomberg(Bowden2,[70,340,1.36e21,1,CreatedSpectr[j].X[i]],0,380e-6,1e-7);
+         R:=Reflection.Yvalue(CreatedSpectr[j].X[i]);
+
+        CreatedSpectr[j].Y[i]:=CreatedSpectr[j].Y[i]*Abb*(1-R)/(Weff*100);
+
+//        CreatedSpectr[j].Y[i]:=IntegralRomberg(Bowden2,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6)
+//                               /IntegralRomberg(Bowden,[60.2,340,1.36e21,CreatedSpectr[j].Y[i],CreatedSpectr[j].X[i]],0,380e-6);
         except
          CreatedSpectr[j].Y[i]:=0;
         end;
       {якесь усереднення з врахуванням поглинання по глибині}
-      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Bow'+Inttostr(Intensities[j])+'.dat',
-                                 6,'Lambda ArbUnit');
-//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
+//      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Bow'+Inttostr(Intensities[j])+'.dat',
+//                                 6,'Lambda ArbUnit');
+
+
+      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'G'+Inttostr(Intensities[j])+'.dat',
+                                 6,'Lambda G');
+
+
+      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
 
 
 //      Lmax:=CreatedSpectr[j].Int_Trap;
@@ -400,6 +479,8 @@ begin
     VectorArrayFreeAndNil (CreatedSpectr);
     VectorArrayFreeAndNil(Spectrums);
    end;
+
+  FreeAndNil(Reflection);
   SL.SaveToFile('noname.dat');
   SL.Free;
   FreeAndNil(Slide);
