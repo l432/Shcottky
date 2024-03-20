@@ -1160,9 +1160,9 @@ Function FunCorrectionDefineNew():TFunCorrectionNew;
 відповідно до вмісту CBDLFunction}
 
 
-Function FileNameIsBad(FileName:string):boolean;
-{повертає True, якщо FileName містить
-щось з переліку BadName (масив констант)}
+//Function FileNameIsBad(FileName:string):boolean;
+//{повертає True, якщо FileName містить
+//щось з переліку BadName (масив констант)}
 
 Procedure GraphParCalculComBox(InVector:TVectorShottky;ComboBox:TCombobox);//overload;
 
@@ -1179,8 +1179,8 @@ Function Gamma_Build(A:TVector; B:TVector; fun:byte):boolean;overload;
 const
  DLFunction:array[0..4]of string=
            ('dB/dV','G(V)','dRnp/dV','L(V)','Rnp');
- BadName:array[0..3]of string=
-           ('FIT','DATES','SHOW','COMMENTS');
+// BadName:array[0..3]of string=
+//           ('FIT','DATES','SHOW','COMMENTS');
 // mask='*.dat';
 
 var
@@ -3479,21 +3479,21 @@ begin
   dat.Free;
 end;
 
-Function FileNameIsBad(FileName:string):boolean;
-{повертає True, якщо FileName містить
-щось з переліку BadName (масив констант)}
- var i:byte;
-     UpperCaseName:string;
-begin
-  UpperCaseName:=AnsiUpperCase(FileName);
-  for I := 0 to High(BadName) do
-     if Pos(BadName[i],UpperCaseName)<>0 then
-        begin
-          Result:=True;
-          Exit;
-         end;
-  Result:=False;
-end;
+//Function FileNameIsBad(FileName:string):boolean;
+//{повертає True, якщо FileName містить
+//щось з переліку BadName (масив констант)}
+// var i:byte;
+//     UpperCaseName:string;
+//begin
+//  UpperCaseName:=AnsiUpperCase(FileName);
+//  for I := 0 to High(BadName) do
+//     if Pos(BadName[i],UpperCaseName)<>0 then
+//        begin
+//          Result:=True;
+//          Exit;
+//         end;
+//  Result:=False;
+//end;
 
 Procedure GraphParCalculComBox(InVector:TVectorShottky;ComboBox:TCombobox);
  var tg:TGraph;
@@ -3902,7 +3902,12 @@ var
 
 begin
 
-SpectrCreateFull();
+YZriz([0.02,0.1,1,3,5,8,10,15,22,30]);
+
+//YZriz([0.02,0.1,1,3,8,10,22,30]);
+
+
+//SpectrCreateFull();
 //SpectrApproxmation();
 
 //AbbSpectr();

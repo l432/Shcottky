@@ -8,6 +8,11 @@ uses ComCtrls, Spin, StdCtrls, Series, Forms, Controls, IniFiles, OlegType,
  ,VCLTee.TeEngine
  ;
 
+
+Function FileNameIsBad(FileName:string):boolean;
+{повертає True, якщо FileName містить
+щось з переліку BadName (масив констант)}
+
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
 порядку та величини числа Num;
@@ -297,12 +302,40 @@ function SdandartScalerTransformInverse(X, Mean, Std: double; ToLogData: Boolean
 {if ToLogData Result:=10^(X*Std+Mean)
  else Result:=X*Std+Mean}
 
+procedure  YZriz(XValues:array of double;CurrentDir:string='';ResultFileName:string='Zriz');
+{зчитуються всі .dat файли у вибраній директорії, знаходяться значення
+у другій колонці, які відповідають всім величинам з масиву XValues,
+записується результуючий файл ResultFileName.dat, у якому
+перша колонка - назва файлу,
+друга - температура,
+решта - визначенні значення;
+підписи решти колонок - V+округлене значення з XValues, домножене на 100}
+
+
+
 
 implementation
 
 uses
   SysUtils, Math, Graphics, OlegMaterialSamples, Vcl.FileCtrl,
   OlegVectorManipulation;
+
+
+Function FileNameIsBad(FileName:string):boolean;
+{повертає True, якщо FileName містить
+щось з переліку BadName (масив констант)}
+ var i:byte;
+     UpperCaseName:string;
+begin
+  UpperCaseName:=AnsiUpperCase(FileName);
+  for I := 0 to High(BadName) do
+     if Pos(BadName[i],UpperCaseName)<>0 then
+        begin
+          Result:=True;
+          Exit;
+         end;
+  Result:=False;
+end;
 
 Procedure ToTrack (Num:double;Track:TTrackbar; Spin:TSpinEdit; CBox:TCheckBox);
 {встановлюється значення Spin та позиція Track відповідно до
@@ -1534,5 +1567,53 @@ begin
               else Result:=X*Std+Mean;
 
 end;
+
+procedure  YZriz(XValues:array of double;CurrentDir:string='';ResultFileName:string='Zriz');
+{зчитуються всі .dat файли у вибраній директорії, знаходяться значення
+у другій колонці, які відповідають всім величинам з масиву XValues,
+записується результуючий файл ResultFileName.dat, у якому
+перша колонка - назва файлу,
+друга - температура,
+решта - визначенні значення;
+підписи решти колонок - V+округлене значення з XValues, домножене на 100}
+ var SR : TSearchRec;
+     Dat_Folder:string;
+     i:integer;
+     Vec:TVector;
+     SL:TStringList;
+     temp:string;
+begin
+ if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+  then SetCurrentDir(Dat_Folder)
+  else Exit;
+ Vec:=TVector.Create;
+ SL:=TStringList.Create;
+
+
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+   repeat
+    if FileNameIsBad(SR.name)then Continue;
+    Vec.ReadFromFile(SR.name);
+    temp:=copy(Vec.name,1,length(Vec.name)-4);
+    for I := 1 to 4-length(temp)
+        do insert('0',temp,1);
+    Temp:=temp+' '+FloatToStrF(Vec.T,ffFixed,5,2);
+    for i := 0 to High(XValues) do
+     Temp:=temp+' '+FloatToStrF(Vec.Yvalue(XValues[i]),ffExponent,6,0);
+    SL.Add(temp);
+   until (FindNext(SR) <> 0);
+
+ SL.Sort;
+ temp:='Name T';
+ for i := 0 to High(XValues) do
+   Temp:=temp+' V'+Inttostr(round(XValues[i]*100));
+ SL.Insert(0,temp);
+
+ SL.SaveToFile(ResultFileName+'.dat');
+ FreeAndNil(SL);
+ FreeAndNil(Vec);
+
+end;
+
 
 end.
