@@ -311,7 +311,14 @@ procedure  YZriz(XValues:array of double;CurrentDir:string='';ResultFileName:str
 решта - визначенні значення;
 підписи решти колонок - V+округлене значення з XValues, домножене на 100}
 
-
+procedure CVReverse(S:double=1;CurrentDir:string='');
+{з усіх .dat файлів у вибраній директорії зчитуються дві перші колонки,
+залишається лише зворотня характеристика, значення другої колонки
+(орієнтовно там має бути ємність) діляться на S, потім розраховуються
+величини, обернені до квадрату значення другої колонки (1/С^2),
+відповідна залежність записується у файл, у назві якого дописується в кінці CV
+і видаляється, за наявності, "cprp"; розраховується висота бар'єру
+і записується разом з вихідною назву у файл 'CVbar.dat'}
 
 
 implementation
@@ -1615,5 +1622,49 @@ begin
 
 end;
 
+
+procedure CVReverse(S:double=1;CurrentDir:string='');
+{з усіх .dat файлів у вибраній директорії зчитуються дві перші колонки,
+залишається лише зворотня характеристика, значення другої колонки
+(орієнтовно там має бути ємність) діляться на S, потім розраховуються
+величини, обернені до квадрату значення другої колонки (1/С^2),
+відповідна залежність записується у файл, у назві якого дописується в кінці 'CV'
+і видаляється, за наявності, "cprp"; розраховується висота бар'єру
+і записується разом з вихідною назву у файл 'CVbar.dat'}
+ var SR : TSearchRec;
+     Dat_Folder:string;
+     i:integer;
+     Vec:TVectorTransform;
+     SL:TStringList;
+     OutputData:TArrSingle;
+     temp:string;
+begin
+ if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+  then SetCurrentDir(Dat_Folder)
+  else Exit;
+ Vec:=TVectorTransform.Create;
+ SL:=TStringList.Create;
+ SL.Add('name Vb');
+
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+   repeat
+    if FileNameIsBad(SR.name)then Continue;
+    Vec.ReadFromFile(SR.name);
+    Vec.Itself(Vec.ReverseX);
+    Vec.MultiplyY(1/S);
+    for I := 0 to Vec.HighNumber do
+      Vec.Y[i]:=1/(sqr(Vec.Y[i]));
+    Vec.LinAprox(OutputData);
+    temp:=copy(Vec.name,1,length(Vec.name)-4);
+    if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
+    SL.Add(temp+' '+FloatToStrF(abs(OutputData[0]/OutputData[1]),ffExponent,6,0));
+    Vec.WriteToFile(temp+'CV.dat',8);
+   until (FindNext(SR) <> 0);
+
+ SL.SaveToFile('CVbar.dat');
+ FreeAndNil(SL);
+ FreeAndNil(Vec);
+
+end;
 
 end.

@@ -3902,9 +3902,9 @@ var
 
 begin
 
-YZriz([0.02,0.1,1,3,5,8,10,15,22,30]);
+CVReverse(21e-6,'D:\Samples\DeepL\2024\ODiod\')
 
-//YZriz([0.02,0.1,1,3,8,10,22,30]);
+//YZriz([0.02,0.1,1,3,5,8,10,15,22,30]);
 
 
 //SpectrCreateFull();
