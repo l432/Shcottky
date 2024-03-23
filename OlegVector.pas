@@ -265,6 +265,8 @@ type
 
       procedure MultiplyY(const A:double);
          {Y всіх точок множиться на A}
+      procedure MultiplyX(const A:double);
+         {X всіх точок множиться на A}
       procedure AdditionY(const A:double);
          {до Y всіх точок додається A}
       procedure DeltaY(deltaVector:TVector);
@@ -860,6 +862,14 @@ begin
     end;
   end;
   CloseFile(f);
+end;
+
+procedure TVector.MultiplyX(const A: double);
+ var i:integer;
+begin
+ if A=1 then Exit;
+ for I := 0 to High(Points) do
+  Points[i,cX]:=Points[i,cX]*A;
 end;
 
 Procedure TVector.MultiplyY(const A:double);

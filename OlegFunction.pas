@@ -320,6 +320,24 @@ procedure CVReverse(S:double=1;CurrentDir:string='');
 і видаляється, за наявності, "cprp"; розраховується висота бар'єру
 і записується разом з вихідною назву у файл 'CVbar.dat'}
 
+procedure IVmanipulate(S:double=1;CurrentDir:string='');
+{з усіх .dat файлів у вибраній директорії
+виділяються пряма та зворотня ділянки, значення струму ділиться та S
+і записуються у файли,
+в кінці назв яких дописані 'pr' та 'zv' відповідно;
+в 'comments.dat' робляться додаткові записи з новими назвами файлів;
+}
+
+
+procedure DatToEis(CurrentDir:string='');
+{з усіх .dat файлів у вибраній директорії створює
+файли, потрібні для EIS SPECTRUM ANALYSER;
+вважається, що вихідні файли мають чотири колонки:
+частота, активний опір, частота, реактивний опір
+вихідний має у першому рядку містити кількість точок,
+а далі три колонки:
+активний опір, реактивний опір (додатній), частота;
+вихідний файл має те ж ім'я, але розширення .txt}
 
 implementation
 
@@ -1651,7 +1669,7 @@ begin
     if FileNameIsBad(SR.name)then Continue;
     Vec.ReadFromFile(SR.name);
     Vec.Itself(Vec.ReverseX);
-    Vec.MultiplyY(1/S);
+    if S<>0 then Vec.MultiplyY(1/S);
     for I := 0 to Vec.HighNumber do
       Vec.Y[i]:=1/(sqr(Vec.Y[i]));
     Vec.LinAprox(OutputData);
@@ -1664,7 +1682,122 @@ begin
  SL.SaveToFile('CVbar.dat');
  FreeAndNil(SL);
  FreeAndNil(Vec);
+end;
 
+procedure IVmanipulate(S:double=1;CurrentDir:string='');
+{з усіх .dat файлів у вибраній директорії
+виділяються пряма та зворотня ділянки, значення струму ділиться та S
+і записуються у файли,
+в кінці назв яких дописані 'pr' та 'zv' відповідно;
+в 'comments.dat' робляться додаткові записи з новими назвами файлів;
+}
+ var SR : TSearchRec;
+     Dat_Folder:string;
+     i:integer;
+     Vec:TVectorTransform;
+     OutputVec:TVector;
+     SL:TStringList;
+//     OutputData:TArrSingle;
+     temp:string;
+begin
+ if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+  then SetCurrentDir(Dat_Folder)
+  else Exit;
+ Vec:=TVectorTransform.Create;
+ OutputVec:=TVector.Create;
+ SL:=TStringList.Create;
+ if FileExists('comments.dat') then
+  SL.LoadFromFile('comments.dat');
+
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+   repeat
+    if FileNameIsBad(SR.name)then Continue;
+    Vec.ReadFromFile(SR.name);
+    if S<>0 then Vec.MultiplyY(1/S);
+    Vec.ReverseX(OutputVec);
+    OutputVec.MultiplyY(-1);
+    OutputVec.MultiplyX(-1);
+    if OutputVec.Count>0 then
+     begin
+       temp:=FitName(Vec,'zv');
+       OutputVec.WriteToFile(temp,8);
+       for i := 0 to SL.Count-1 do
+        if Pos(Vec.name,SL[i])=1 then
+         begin
+          SL.Insert(i+2,'');
+          temp:=SL[i];
+          Delete(temp,1,Length(Vec.name));
+          temp:=FitName(Vec,'zv')+temp;
+          SL.Insert(i+3,temp);
+          SL.Insert(i+4,SL[i+1]);
+          Break;
+         end;
+     end;
+
+    Vec.ForwardX(OutputVec);
+    if OutputVec.Count>0 then
+     begin
+       temp:=FitName(Vec,'pr');
+       OutputVec.WriteToFile(temp,8);
+       for i := 0 to SL.Count-1 do
+        if Pos(Vec.name,SL[i])=1 then
+         begin
+          SL.Insert(i+2,'');
+          temp:=SL[i];
+          Delete(temp,1,Length(Vec.name));
+          temp:=FitName(Vec,'pr')+temp;
+          SL.Insert(i+3,temp);
+          SL.Insert(i+4,SL[i+1]);
+          Break;
+         end;
+     end;
+   until (FindNext(SR) <> 0);
+
+ SL.SaveToFile('comments.dat');
+ FreeAndNil(SL);
+ FreeAndNil(OutputVec);
+ FreeAndNil(Vec);
+end;
+
+
+procedure DatToEis(CurrentDir:string='');
+{з усіх .dat файлів у вибраній директорії створює
+файли, потрібні для EIS SPECTRUM ANALYSER;
+вважається, що вихідні файли мають чотири колонки:
+частота, активний опір, частота, реактивний опір
+вихідний має у першому рядку містити кількість точок,
+а далі три колонки:
+активний опір, реактивний опір (додатній), частота;
+вихідний файл має те ж ім'я, але розширення .txt}
+ var SR : TSearchRec;
+     Dat_Folder:string;
+     i:integer;
+     SL:TStringList;
+     temp:string;
+begin
+ if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+  then SetCurrentDir(Dat_Folder)
+  else Exit;
+ SL:=TStringList.Create;
+
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+   repeat
+    if FileNameIsBad(SR.name)then Continue;
+    SL.LoadFromFile(SR.name);
+    for i := 0 to SL.Count-1 do
+     begin
+       temp:=StringDataFromRow(SL[i],4);
+       Delete(temp,1,1);
+       temp:=StringDataFromRow(SL[i],2)
+             +' '+temp
+             +' '+StringDataFromRow(SL[i],1);
+       SL[i]:=temp;
+     end;
+    SL.Insert(0,inttostr(SL.Count));
+    SL.SaveToFile(copy(SR.name,1,length(SR.name)-3)+'txt');
+   until (FindNext(SR) <> 0);
+
+ FreeAndNil(SL);
 end;
 
 end.
