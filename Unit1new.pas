@@ -3906,7 +3906,7 @@ begin
 //IVmanipulate(22e-6,'D:\Samples\DeepL\2024\ODiod\');
 //CVReverse(21e-6,'D:\Samples\DeepL\2024\ODiod\');
 
-//YZriz([0.02,0.1,1,3,5,8,10,15,22,30]);
+YZriz([0.02,0.1,1,3,5,8,10,15,22,30],'D:\Samples\DeepL\2024\');
 
 
 //SpectrCreateFull();
@@ -3937,7 +3937,7 @@ begin
 //TauOnL(340,1e16);
 //Ln_Isc();
 //Eg_T();
-J0_T();
+//J0_T();
 //Ln_IscT();
 
 
