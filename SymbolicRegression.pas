@@ -255,7 +255,8 @@ end;
 
 function J0(const T:double):double;
 begin
-  Result:=C_J0*Power(T,3)*Silicon.Eg(T);
+  Result:=C_J0*Power(T,3)*exp(-Silicon.Eg(T)/Kb/T);
+//  Result:=C_J0*Power(T,3)*exp(-1/Kb/T);
 end;
 
 procedure J0_T();

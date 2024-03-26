@@ -3902,7 +3902,7 @@ var
 
 begin
 
-DatToEis('D:\Samples\DeepL\2024\ODiod\');
+//DatToEis('D:\Samples\DeepL\2024\ODiod\');
 //IVmanipulate(22e-6,'D:\Samples\DeepL\2024\ODiod\');
 //CVReverse(21e-6,'D:\Samples\DeepL\2024\ODiod\');
 
@@ -3937,7 +3937,7 @@ DatToEis('D:\Samples\DeepL\2024\ODiod\');
 //TauOnL(340,1e16);
 //Ln_Isc();
 //Eg_T();
-//J0_T();
+J0_T();
 //Ln_IscT();
 
 
