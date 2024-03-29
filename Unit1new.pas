@@ -3902,11 +3902,15 @@ var
 
 begin
 
-DatToEis('D:\Samples\DeepL\2024\ODiod\');
-//IVmanipulate(22e-6,'D:\Samples\DeepL\2024\ODiod\');
-//CVReverse(1,'D:\Samples\DeepL\2024\ODiod\');
+//DatToEis('d44s','D:\Samples\DeepL\2024\ODiod\');
+//IVmanipulate(22e-6,'d41','D:\Samples\DeepL\2024\ODiod\');
+//CVReverse(31e-6,'d41','D:\Samples\DeepL\2024\ODiod\');
 
-//YZriz([0.02,0.1,1,3,5,8,10,15,22,30],'D:\Samples\DeepL\2024\');
+//DatToEis('d44s','D:\DeepL\2024\ODiod');
+//IVmanipulate(31e-6,'d44b','D:\DeepL\2024\ODiod');
+//CVReverse(11e-6,'d44s','D:\DeepL\2024\ODiod');
+
+YZriz([0.02,0.1,1,3,5,8,10,15,22,30],'D:\DeepL\2024\');
 
 
 //SpectrCreateFull();
