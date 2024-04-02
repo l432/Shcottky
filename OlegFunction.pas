@@ -302,14 +302,16 @@ function SdandartScalerTransformInverse(X, Mean, Std: double; ToLogData: Boolean
 {if ToLogData Result:=10^(X*Std+Mean)
  else Result:=X*Std+Mean}
 
-procedure  YZriz(XValues:array of double;CurrentDir:string='';ResultFileName:string='Zriz');
+procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;CurrentDir:string='';ResultFileName:string='Zriz');
 {зчитуються всі .dat файли у вибраній директорії, знаходяться значення
 у другій колонці, які відповідають всім величинам з масиву XValues,
 записується результуючий файл ResultFileName.dat, у якому
 перша колонка - назва файлу,
 друга - температура,
 решта - визначенні значення;
-підписи решти колонок - V+округлене значення з XValues, домножене на 100}
+підписи решти колонок - V+округлене значення з XValues, домножене на 100
+при ToDeleteNegativeY=True
+з вихідного файлу спочатку видаляються всі точки, де Y<0}
 
 procedure CVReverse(S:double=1;FilePrefix:string='';CurrentDir:string='');
 {з усіх .dat файлів у вибраній директорії зчитуються дві перші колонки,
@@ -1597,14 +1599,9 @@ begin
 
 end;
 
-procedure  YZriz(XValues:array of double;CurrentDir:string='';ResultFileName:string='Zriz');
-{зчитуються всі .dat файли у вибраній директорії, знаходяться значення
-у другій колонці, які відповідають всім величинам з масиву XValues,
-записується результуючий файл ResultFileName.dat, у якому
-перша колонка - назва файлу,
-друга - температура,
-решта - визначенні значення;
-підписи решти колонок - V+округлене значення з XValues, домножене на 100}
+procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;
+                 CurrentDir:string='';ResultFileName:string='Zriz');
+
  var SR : TSearchRec;
      Dat_Folder:string;
      i:integer;
@@ -1623,6 +1620,7 @@ begin
    repeat
     if FileNameIsBad(SR.name)then Continue;
     Vec.ReadFromFile(SR.name);
+    if ToDeleteNegativeY then Vec.DeleteYLessTnanNumber(0);
     temp:=copy(Vec.name,1,length(Vec.name)-4);
     for I := 1 to 4-length(temp)
         do insert('0',temp,1);

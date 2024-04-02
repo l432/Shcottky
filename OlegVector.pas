@@ -58,6 +58,7 @@ type
       procedure DeletePointsByCondition(FunVPB:TFunVectorPointBool;NumberForCondition:double=0);
       function  FunVPBDeleteErResult(i:integer;NumberForCondition:double=0):boolean;
       function  FunVPBDeleteZeroY(i:integer;NumberForCondition:double=0):boolean;
+      function  FunVPBDeleteYLessThanNumber(i:integer;NumberForCondition:double=0):boolean;
       function  FunVPBDeleteXMoreTnanNumber(PointNumber:integer;NumberForCondition:double=0):boolean;
      protected
       procedure PointSet(Number:integer; x,y:double);overload;
@@ -221,6 +222,8 @@ type
          {видаляються точки, для яких ордината рівна 0}
       Procedure DeleteXMoreTnanNumber(Number:double);
         {видаляються точки, для яких абсциса більша ніж Number}
+      Procedure DeleteYLessTnanNumber(Number:double=0);
+        {видаляються точки, для яких ординати менша ніж Number}
       procedure SwapXY;
          {обмінюються знaчення Х та Y}
       function CopyToArray(const Coord:TCoord_type):TArrSingle;
@@ -591,6 +594,11 @@ end;
 procedure TVector.DeleteXMoreTnanNumber(Number: double);
 begin
  DeletePointsByCondition(FunVPBDeleteXMoreTnanNumber,Number);
+end;
+
+procedure TVector.DeleteYLessTnanNumber(Number: double);
+begin
+ DeletePointsByCondition(FunVPBDeleteYLessThanNumber,Number);
 end;
 
 procedure TVector.DeleteZeroY;
@@ -1036,6 +1044,12 @@ end;
 function TVector.FunVPBDeleteErResult(i: integer;NumberForCondition:double=0): boolean;
 begin
  Result:=(Points[i][cX]=ErResult)or(Points[i][cY]=ErResult);
+end;
+
+function TVector.FunVPBDeleteYLessThanNumber(i: integer;
+  NumberForCondition: double): boolean;
+begin
+Result:=(Points[i][cY]<NumberForCondition);
 end;
 
 function TVector.FunVPBDeleteXMoreTnanNumber(PointNumber: integer;
