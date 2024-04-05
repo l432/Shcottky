@@ -105,10 +105,12 @@ Function TauFeEqIntrin(Fe_i_all:double; NA:double;
 {час, пов'язаний з рекомбінацією на FeB та Fei
 (див. попередню функцію) та власною рекомбінацією}
 
+Procedure LnOnT(Fe_i_all:double);
+
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils, OlegVector;
 
 { TDefect }
 
@@ -274,5 +276,19 @@ begin
   FreeAndNil(dFeB);
 end;
 
+
+Procedure LnOnT(Fe_i_all:double);
+ var Vec:TVector;
+     T:double;
+begin
+ Vec:=TVector.Create;
+ T:=290;
+ repeat
+  Vec.Add(T,Silicon.TauToLdif(TauFeEqIntrin(Fe_i_all,1.36e21,T),T,true,false,1.36e21));
+  T:=T+5;
+ until T>350;
+ Vec.WriteToFile('LonT.dat',8);
+ FreeAndNil(Vec);
+end;
 
 end.

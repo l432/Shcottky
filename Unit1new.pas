@@ -3902,6 +3902,7 @@ var
 
 begin
 
+
 //DatToEis('d44s','D:\Samples\DeepL\2024\ODiod\');
 //IVmanipulate(22e-6,'d41','D:\Samples\DeepL\2024\ODiod\');
 //CVReverse(31e-6,'d41','D:\Samples\DeepL\2024\ODiod\');
@@ -3910,7 +3911,11 @@ begin
 //IVmanipulate(31e-6,'d44b','D:\DeepL\2024\ODiod');
 //CVReverse(11e-6,'d44s','D:\DeepL\2024\ODiod');
 
-YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True,'D:\DeepL\2024\');
+//DatToEis('D:\DeepL\2024\ODiod');
+//IVmanipulate('D:\DeepL\2024\ODiod');
+//CVReverse('D:\DeepL\2024\ODiod');
+
+//YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True,'D:\DeepL\2024\');
 
 
 //SpectrCreateFull();
@@ -3919,10 +3924,14 @@ YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True,'D:\DeepL\2024\');
 //AbbSpectr();
 
 //showmessage(floattostr(Silicon.LdifToTauRec(120e-6,340,true,false,1.36e21)));
-//showmessage(floattostr(Fe_i_eq(1.4e19,1.36e21,340)));
-//showmessage(floattostr(FeB_i_eq(1.4e19,1.36e21,340)));
-//showmessage(floattostr(TauFeEqIntrin(1.4e19,1.36e21,340)));
-//showmessage(floattostr(Silicon.TauToLdif(1.6e-6,340,true,false,1.36e21)));
+//showmessage(floattostr(Fe_i_eq(8.7e18,1.36e21,340)));
+//showmessage(floattostr(FeB_i_eq(8.7e18,1.36e21,340)));
+//showmessage(floattostr(TauFeEqIntrin(1.41e19,1.36e21,340)));
+//showmessage(floattostr(Silicon.TauToLdif(TauFeEqIntrin(1.41e19,1.36e21,340),340,true,false,1.36e21)));
+//showmessage(floattostr(TauFeEqIntrin(8.7e18,1.36e21,340)));
+//showmessage(floattostr(Silicon.TauToLdif(TauFeEqIntrin(8.7e18,1.36e21,340),340,true,false,1.36e21)));
+//LnOnT(1e18);
+
 
 // ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
 //SelectDatFileAndAction(MLresultsEstimate);

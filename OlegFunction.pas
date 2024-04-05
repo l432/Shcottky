@@ -313,7 +313,7 @@ procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;Current
 при ToDeleteNegativeY=True
 з вихідного файлу спочатку видаляються всі точки, де Y<0}
 
-procedure CVReverse(S:double=1;FilePrefix:string='';CurrentDir:string='');
+procedure CVReverse({S:double=1;FilePrefix:string='';}CurrentDir:string='');
 {з усіх .dat файлів у вибраній директорії зчитуються дві перші колонки,
 залишається лише зворотня характеристика, значення другої колонки
 (орієнтовно там має бути ємність) діляться на S, потім розраховуються
@@ -323,7 +323,7 @@ procedure CVReverse(S:double=1;FilePrefix:string='';CurrentDir:string='');
 і видаляється, за наявності, "cprp"; розраховується висота бар'єру
 і записується разом з вихідною назву у файл 'CVbar.dat'}
 
-procedure IVmanipulate(S:double=1;FilePrefix:string='';CurrentDir:string='');
+procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
 {з усіх .dat файлів у вибраній директорії
 виділяються пряма та зворотня ділянки, значення струму ділиться та S
 і записуються у файли,
@@ -335,7 +335,7 @@ procedure IVmanipulate(S:double=1;FilePrefix:string='';CurrentDir:string='');
 }
 
 
-procedure DatToEis(FilePrefix:string='';CurrentDir:string='');
+procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
 {з усіх .dat файлів у вибраній директорії створює
 файли, потрібні для EIS SPECTRUM ANALYSER;
 вважається, що вихідні файли мають чотири колонки:
@@ -344,6 +344,9 @@ procedure DatToEis(FilePrefix:string='';CurrentDir:string='');
 а далі три колонки:
 активний опір, реактивний опір (додатній), частота;
 вихідний файл має те ж ім'я з доповненням FilePrefix, але розширення .txt}
+
+function GetArea():double;
+
 
 implementation
 
@@ -1643,18 +1646,22 @@ begin
 end;
 
 
-procedure CVReverse(S:double=1;FilePrefix:string='';CurrentDir:string='');
+procedure CVReverse({S:double=1;FilePrefix:string='';}CurrentDir:string='');
  var SR : TSearchRec;
      Dat_Folder:string;
      i:integer;
      Vec:TVectorTransform;
      SL:TStringList;
      OutputData:TArrSingle;
-     temp:string;
+     temp,FilePrefix:string;
+     S:double;
 begin
  if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
   then SetCurrentDir(Dat_Folder)
   else Exit;
+ S:=GetArea();
+ FilePrefix:=InputBox('Input File Prefix','','');
+
  Vec:=TVectorTransform.Create;
  SL:=TStringList.Create;
  SL.Add('name Vb');
@@ -1679,7 +1686,7 @@ begin
  FreeAndNil(Vec);
 end;
 
-procedure IVmanipulate(S:double=1;FilePrefix:string='';CurrentDir:string='');
+procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
 {з усіх .dat файлів у вибраній директорії
 виділяються пряма та зворотня ділянки, значення струму ділиться та S
 і записуються у файли,
@@ -1696,11 +1703,16 @@ procedure IVmanipulate(S:double=1;FilePrefix:string='';CurrentDir:string='');
      OutputVec:TVector;
      SL:TStringList;
 //     OutputData:TArrSingle;
-     temp:string;
+     temp,FilePrefix:string;
+     S:double;
 begin
  if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
   then SetCurrentDir(Dat_Folder)
   else Exit;
+
+ S:=GetArea();
+ FilePrefix:=InputBox('Input File Prefix','','');
+
  Vec:=TVectorTransform.Create;
  OutputVec:=TVector.Create;
  SL:=TStringList.Create;
@@ -1767,17 +1779,19 @@ begin
 end;
 
 
-procedure DatToEis(FilePrefix:string='';CurrentDir:string='');
+procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
 
  var SR : TSearchRec;
      Dat_Folder:string;
      i:integer;
      SL:TStringList;
-     temp:string;
+     temp,FilePrefix:string;
 begin
  if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
   then SetCurrentDir(Dat_Folder)
   else Exit;
+ FilePrefix:=InputBox('Input File Prefix','','');
+
  SL:=TStringList.Create;
 
  if FindFirst(mask, faAnyFile, SR) = 0 then
@@ -1798,6 +1812,15 @@ begin
    until (FindNext(SR) <> 0);
 
  FreeAndNil(SL);
+end;
+
+function GetArea():double;
+begin
+  try
+   Result:=strtofloat(InputBox('Input area (m^2)','','1'));
+  except
+   Result:=1;
+  end;
 end;
 
 end.
