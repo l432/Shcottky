@@ -284,8 +284,9 @@ begin
  Vec:=TVector.Create;
  T:=290;
  repeat
-  Vec.Add(T,Silicon.TauToLdif(TauFeEqIntrin(Fe_i_all,1.36e21,T),T,true,false,1.36e21));
-  T:=T+5;
+//  Vec.Add(T,Silicon.TauToLdif(TauFeEqIntrin(Fe_i_all,1.36e21,T),T,true,false,1.36e21));
+  Vec.Add(T,Silicon.TauToLdif(TauFeEqIntrin(Fe_i_all,3e21,T),T,true,false,3e21));
+  T:=T+1;
  until T>350;
  Vec.WriteToFile('LonT.dat',8);
  FreeAndNil(Vec);

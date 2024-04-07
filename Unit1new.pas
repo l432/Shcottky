@@ -3917,7 +3917,7 @@ begin
 
 //YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True,'D:\DeepL\2024\');
 
-
+// AllDatFileToOne();
 //SpectrCreateFull();
 //SpectrApproxmation();
 
@@ -3930,7 +3930,8 @@ begin
 //showmessage(floattostr(Silicon.TauToLdif(TauFeEqIntrin(1.41e19,1.36e21,340),340,true,false,1.36e21)));
 //showmessage(floattostr(TauFeEqIntrin(8.7e18,1.36e21,340)));
 //showmessage(floattostr(Silicon.TauToLdif(TauFeEqIntrin(8.7e18,1.36e21,340),340,true,false,1.36e21)));
-//LnOnT(1e18);
+//LnOnT(8.7e18);
+LnOnT(1e19);
 
 
 // ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
@@ -3954,7 +3955,7 @@ begin
 //Ln_IscT();
 
 
-//AllDatFileToOne();
+
 //SpectrCreateFull();
 
 

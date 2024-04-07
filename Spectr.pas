@@ -198,8 +198,8 @@ begin
 //   AbbAproxFile.Add(currentLambda,Silicon.AbbAppox(currentLambda,1.36e21,380e-6,False,340));
 
   //ефективна товщина генерації носіїв
-  temp:=sqr(IntegralRomberg(Bowden,[70,340,1.36e21,1,currentLambda],0,380e-6,1e-7))
-        /IntegralRomberg(Bowden2,[70,340,1.36e21,1,currentLambda],0,380e-6,1e-7);
+  temp:=sqr(IntegralRomberg(Bowden,[110,340,1.36e21,1,currentLambda],0,380e-6,1e-7))
+        /IntegralRomberg(Bowden2,[110,340,1.36e21,1,currentLambda],0,380e-6,1e-7);
 
 
 //  temp:=Silicon.Absorption(currentLambda,340);
@@ -216,7 +216,7 @@ begin
  until currentLambda>EndLambda;
 // AbbFile.WriteToFile('Abb.dat',6,'Lambda Fraction');
 // AbbAproxFile.WriteToFile('AbbAprox.dat',6,'Lambda Fraction');
- AbbFile.WriteToFile('WeffL70.dat',6,'Lambda Weff');
+ AbbFile.WriteToFile('WeffL110.dat',6,'Lambda Weff');
 
  FreeAndNil(AbbFile);
  FreeAndNil(AbbAproxFile);
@@ -342,8 +342,8 @@ procedure SpectrCreateFull();
      Reflection:TVector;
 
 begin
-//  ChDir('D:\Samples\DeepL\2022\Lamps\SpectrNew');
-  ChDir('D:\DeepL\2022\Lamps\SpectrNew');
+  ChDir('D:\Samples\DeepL\2022\Lamps\SpectrNew');
+//  ChDir('D:\DeepL\2022\Lamps\SpectrNew');
 
   Slide:=TVectorTransform.Create;
 
@@ -362,8 +362,8 @@ begin
 
   for LampType := Low(TLampType) to High(TLampType) do
    begin
-//    ForAllDatFilesAction(VectorArrayAddFile,'D:\Samples\DeepL\2022\Lamps',
-    ForAllDatFilesAction(VectorArrayAddFile,'D:\DeepL\2022\Lamps',
+    ForAllDatFilesAction(VectorArrayAddFile,'D:\Samples\DeepL\2022\Lamps',
+//    ForAllDatFilesAction(VectorArrayAddFile,'D:\DeepL\2022\Lamps',
                          FileNameBegin[LampType]);
 
 
@@ -435,12 +435,12 @@ begin
 //                                 6,'Lambda ArbUnit');
 //      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
 
-
+//------------------------------------
       for I := 0 to PointCount do
         try
          Abb:=Silicon.Abb(CreatedSpectr[j].X[i],1.36e21,380e-6,False,340);
-         Weff:=sqr(IntegralRomberg(Bowden,[70,340,1.36e21,1,CreatedSpectr[j].X[i]],0,380e-6,1e-7))
-          /IntegralRomberg(Bowden2,[70,340,1.36e21,1,CreatedSpectr[j].X[i]],0,380e-6,1e-7);
+         Weff:=sqr(IntegralRomberg(Bowden,[80,340,1.36e21,1,CreatedSpectr[j].X[i]],0,380e-6,1e-7))
+          /IntegralRomberg(Bowden2,[80,340,1.36e21,1,CreatedSpectr[j].X[i]],0,380e-6,1e-7);
          R:=Reflection.Yvalue(CreatedSpectr[j].X[i]);
 
         CreatedSpectr[j].Y[i]:=CreatedSpectr[j].Y[i]*Abb*(1-R)/(Weff*100);
@@ -450,6 +450,7 @@ begin
         except
          CreatedSpectr[j].Y[i]:=0;
         end;
+//----------------------
       {якесь усереднення з врахуванням поглинання по глибині}
 //      CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'Bow'+Inttostr(Intensities[j])+'.dat',
 //                                 6,'Lambda ArbUnit');
@@ -458,10 +459,23 @@ begin
       CreatedSpectr[j].WriteToFile(FileNameBeginShot[LampType]+'G'+Inttostr(Intensities[j])+'.dat',
                                  6,'Lambda G');
 
-
+//      -------------------------
       SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap));
 
 
+//      Lmax:=CreatedSpectr[j].Int_Trap;
+//      for I := 0 to PointCount do
+//       CreatedSpectr[j].Y[i]:=CreatedSpectr[j].Y[i]*Hpl*2*Pi*Clight/(CreatedSpectr[j].X[i]*1e-9*Qelem);
+//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap/Lmax));
+
+//      Lmax:=CreatedSpectr[j].Int_Trap;
+//      for I := 0 to PointCount do
+//       CreatedSpectr[j].Y[i]:=CreatedSpectr[j].Y[i]*CreatedSpectr[j].X[i];
+//      SL.Add(CreatedSpectr[j].name+' '+floattostr(CreatedSpectr[j].Int_Trap/Lmax));
+
+
+//      for I := 0 to PointCount do
+//       CreatedSpectr[j].Y[i]:=CreatedSpectr[j].Y[i]*CreatedSpectr[j].Y[i];
 //      Lmax:=CreatedSpectr[j].Int_Trap;
 //      for I := 0 to PointCount do
 //       CreatedSpectr[j].Y[i]:=CreatedSpectr[j].Y[i]*Hpl*2*Pi*Clight/(CreatedSpectr[j].X[i]*1e-9*Qelem);
