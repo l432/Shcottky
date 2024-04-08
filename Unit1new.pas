@@ -3915,7 +3915,7 @@ begin
 //IVmanipulate('D:\DeepL\2024\ODiod');
 //CVReverse('D:\DeepL\2024\ODiod');
 
-//YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True,'D:\DeepL\2024\');
+YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True);
 
 // AllDatFileToOne();
 //SpectrCreateFull();
@@ -3931,7 +3931,7 @@ begin
 //showmessage(floattostr(TauFeEqIntrin(8.7e18,1.36e21,340)));
 //showmessage(floattostr(Silicon.TauToLdif(TauFeEqIntrin(8.7e18,1.36e21,340),340,true,false,1.36e21)));
 //LnOnT(8.7e18);
-LnOnT(1e19);
+//LnOnT(1e19);
 
 
 // ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
