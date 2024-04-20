@@ -8,7 +8,7 @@ uses
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
   OlegTests, OlegVector, OlegMathShottky, Castro, MLresults,
-  OlegVectorManipulation,OApproxCaption, FitTransform, VclTee.TeeGDIPlus
+  OlegVectorManipulation,OApproxCaption, FitTransform, ActionsOnDatFile, VclTee.TeeGDIPlus
   {XP Win}
   , System.UITypes
   ;
@@ -60,6 +60,7 @@ type
 
 
   TForm1 = class(TForm)
+//  private
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
@@ -793,6 +794,12 @@ type
     ButFitSelectNew: TButton;
     ButFitOptionNew: TButton;
     CB_SFF: TCheckBox;
+    GBActions: TGroupBox;
+    BActionDo: TButton;
+    ST_StartFolder: TStaticText;
+    B_StartFolderSelect: TButton;
+    L_StartFolder: TLabel;
+    CBActions: TComboBox;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -890,6 +897,7 @@ type
     procedure ButFitSelectNewClick(Sender: TObject);
     procedure ButFitOptionNewClick(Sender: TObject);
     procedure SButFitNewClick(Sender: TObject);
+
   private
     { Private declarations }
     function GraphType (Sender: TObject):TGraph;
@@ -908,7 +916,11 @@ type
     {створення файлів з коефіцієнтами поглинання при різних довжинах
     хвиль та температурах}
 //    procedure SomethingForCastro();
+    procedure StartFolderSelectClick(Sender: TObject);
+    Procedure StartFoldersToForm();
+    procedure ActionDoClick(Sender: TObject);
   public
+    Start_Folder:string;
     procedure ApproxHide;
     {прибирається апроксимаційна крива,
      відповідна кнопка переводиться в ненатиснутий стан}
@@ -1324,6 +1336,11 @@ procedure TForm1.DataSheetSelectCell(Sender: TObject; ACol, ARow: Integer;
 begin
    ButDel.Enabled:=True;
    SelectedRow:=ARow;
+end;
+
+procedure TForm1.StartFoldersToForm;
+begin
+  L_StartFolder.Caption:=Start_Folder;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -1802,6 +1819,21 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   RBAveSelect.Checked:=not(RBGausSelect.Checked);
 
   DLParamPassive;
+
+  B_StartFolderSelect.OnClick:=StartFolderSelectClick;
+  Start_Folder:=ConfigFile.ReadString('Folders','Start',GetCurrentDir);
+  StartFoldersToForm();
+
+  CBActions.Items.Clear;
+  CBActions.Items.Add(CVReverseName);
+  CBActions.Items.Add(IVmanipulateName);
+  CBActions.Items.Add(DatToEisName);
+  CBActions.Items.Add(YZrizName);
+  CBActions.ItemIndex:=0;
+
+  BActionDo.OnClick:=ActionDoClick;
+
+
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -1922,6 +1954,8 @@ end; // with Form1 do
  VaxGraph.Free;
  VaxTemp.Free;
  VaxTempLim.Free;
+
+ ConfigFile.WriteString('Folders','Start',Start_Folder);
 
  ConfigFile.Free;
  end;
@@ -2675,6 +2709,12 @@ begin
 
 end;
 
+procedure TForm1.StartFolderSelectClick(Sender: TObject);
+begin
+  if SelectDirectory('Choose Start Directory','', Start_Folder)
+   then StartFoldersToForm;
+end;
+
 procedure TForm1.TrackBarMarChange(Sender: TObject);
 begin
   MarkerDraw(VaxGraph,VaxFile,TrackBarMar.Position,Form1);
@@ -2824,6 +2864,21 @@ begin
   T:=T+1;
  until T>342;
  FreeAndNil(SC);
+end;
+
+procedure TForm1.ActionDoClick(Sender: TObject);
+ var Key:string;
+begin
+ Key:=CBActions.Items[CBActions.ItemIndex];
+ if Key=YZrizName
+    then YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True,L_StartFolder.Caption);
+ if Key=CVReverseName
+    then CVReverse(L_StartFolder.Caption);
+ if Key=IVmanipulateName
+    then IVmanipulate(L_StartFolder.Caption);
+ if Key=DatToEisName
+    then DatToEis(L_StartFolder.Caption);
+
 end;
 
 procedure TForm1.ApproxHide;
@@ -3914,7 +3969,7 @@ begin
 
 //DatToEis('D:\DeepL\2024\ODiod');
 //IVmanipulate('D:\DeepL\2024\ODiod');
-//CVReverse('D:\DeepL\2024\ODiod');
+CVReverse('D:\Samples\DeepL\2024\ODiod\');
 
 //YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True);
 
@@ -6924,5 +6979,8 @@ begin
   if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='L(V)' then  Result:=Rnp2_exp_Build;
   if Form1.CBDLFunction.Items[Form1.CBDLFunction.ItemIndex]='G(V)' then Result:=Gamma_Build;
 end;
+
+
+
 
 end.

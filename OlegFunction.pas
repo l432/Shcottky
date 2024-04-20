@@ -52,7 +52,7 @@ Function SomeSpaceToOne(str:string):string;
 Function Acronym(str:string):string;
 {створюється аббревіатура рядка}
 
-Function StringDataFromRow(str:string;Number:word):string;
+Function StringDataFromRow(str:string;Number:word;separator:string=' '):string;
 {вважається, що частини рядка відділені один від одного пробілами;
 повертається частина з номером Number (нумерація починається з 1)}
 
@@ -62,17 +62,21 @@ Function FloatDataFromRow(str:string;Number:word):double;
 (нумерація починається з 1);
 якщо там не число - то повертається ErResult}
 
-Function NumberOfSubstringInRow(row:string):integer;
-{визначається кількість частин у рядку row, відділених
-пробілами}
+Function NumberOfSubstringInRow(row:string;separator:string=' '):integer;
+{визначається кількість частин у рядку row, відділених  separator
+(раніше - пробілами)}
 
 Function SubstringNumberFromRow(substring,row:string):integer;
 {визначається номер частини substring з рядка row,
 нумерація починається з одиниці,
 якщо частина відсутня повертається нуль}
 
-Function  DeleteStringDataFromRow(str:string;Number:word):string;
-{повертає рядок з видаленою частиною (відділеною пробілами - див.
+Function TrimRightSeparator(Text,separator:string):string;
+{повертає Text з видаленим підрядком separator,
+якщо він був в кінці Text}
+
+Function  DeleteStringDataFromRow(str:string;Number:word;separator:string=' '):string;
+{повертає рядок з видаленою частиною (відділеною separator (пробілами) - див.
 попередні) з номером Number}
 
 Function NumberDetermine(Names:array of string;
@@ -282,6 +286,15 @@ procedure StringListShow(StrL:TStringList);
 function FolderFromFullPath(FullPath:string):string;
 {повертає розташування папки з повного шляху}
 
+function FolderNameFromFullPath(FullPath:string;NestingLevel:byte=0):string;
+{повертає назву однієї з папок з повного шляху;
+яка саме папка - визначається NestingLevel:
+при NestingLevel=0 повертається найглибша папка,
+ =1 - передостання і т.д.
+ якщо NestingLevel завеликий, то повертається назва диску;
+ зауважимо, що FullPath має містити саме шлях без назви файлу, інакше
+ при NestingLevel=0 повернеться назва файлу}
+
 procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:string='');
 {додає на початку кожного рядка SL Syffix;
 якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
@@ -302,50 +315,21 @@ function SdandartScalerTransformInverse(X, Mean, Std: double; ToLogData: Boolean
 {if ToLogData Result:=10^(X*Std+Mean)
  else Result:=X*Std+Mean}
 
-procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;CurrentDir:string='';ResultFileName:string='Zriz');
-{зчитуються всі .dat файли у вибраній директорії, знаходяться значення
-у другій колонці, які відповідають всім величинам з масиву XValues,
-записується результуючий файл ResultFileName.dat, у якому
-перша колонка - назва файлу,
-друга - температура,
-решта - визначенні значення;
-підписи решти колонок - V+округлене значення з XValues, домножене на 100
-при ToDeleteNegativeY=True
-з вихідного файлу спочатку видаляються всі точки, де Y<0}
-
-procedure CVReverse({S:double=1;FilePrefix:string='';}CurrentDir:string='');
-{з усіх .dat файлів у вибраній директорії зчитуються дві перші колонки,
-залишається лише зворотня характеристика, значення другої колонки
-(орієнтовно там має бути ємність) діляться на S, потім розраховуються
-величини, обернені до квадрату значення другої колонки (1/С^2),
-відповідна залежність записується у файл, у назві якого дописується в кінці CV,
-на початку FilePrefix
-і видаляється, за наявності, "cprp"; розраховується висота бар'єру
-і записується разом з вихідною назву у файл 'CVbar.dat'}
-
-procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
-{з усіх .dat файлів у вибраній директорії
-виділяються пряма та зворотня ділянки, значення струму ділиться та S
-і записуються у файли,
-в кінці назв яких дописані 'pr' та 'zv' відповідно;
-прямі характеристики записуються в папку Forward
-зворотні - Reverse
-на початку дописується  FilePrefix;
-в 'comments.dat' робляться додаткові записи з новими назвами файлів;
-}
-
-
-procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
-{з усіх .dat файлів у вибраній директорії створює
-файли, потрібні для EIS SPECTRUM ANALYSER;
-вважається, що вихідні файли мають чотири колонки:
-частота, активний опір, частота, реактивний опір
-вихідний має у першому рядку містити кількість точок,
-а далі три колонки:
-активний опір, реактивний опір (додатній), частота;
-вихідний файл має те ж ім'я з доповненням FilePrefix, але розширення .txt}
 
 function GetArea():double;
+
+function SearchInStringList(SL:TStringList;Key:string;Number:byte=2):double;
+{шукає в SL число, що розташоване в рядку, який починається
+з Key на позиції номер Number;
+нумерація позицій з 1, вважається, що вони відділені одна від одної пробілами;
+наявність декількох рядків з однаковим початком не перевіряється}
+
+function SearchInFile(FileName,Key:string;Number:byte=2):double;
+{шукає у файлі з назвою FileName число, що розташоване в рядку, який починається
+з Key на позиції номер Number;
+сам файл шукається спочатку у поточній директорії,
+якщо його немає - піднімаємося на рівень вище і так до диску;
+якщо відбувалися переходи по папкам, то однаково в кінці повертаємось до поточної}
 
 
 implementation
@@ -502,7 +486,7 @@ begin
   Result:=AnsiUpperCase(Result);
 end;
 
-Function StringDataFromRow(str:string;Number:word):string;
+Function StringDataFromRow(str:string;Number:word;separator:string=' '):string;
 {вважається, що частини рядка відділені один від одного пробілами;
 повертається частина з номером Number (нумерація починається з 1)}
  var i:word;
@@ -511,19 +495,19 @@ begin
   if Number<1 then Exit;
   Result:=SomeSpaceToOne(str);
   for I := 1 to Number-1 do
-   if AnsiPos (' ', Result)>0 then
-       Delete(Result, 1, AnsiPos (' ', Result))
+   if AnsiPos (separator, Result)>0 then
+       Delete(Result, 1, AnsiPos (separator, Result))
                               else
        begin
          Result:='';
          Exit;
        end;
-  if AnsiPos (' ', Result)>0 then
-   Result:=Copy(Result, 1, AnsiPos (' ', Result)-1);
+  if AnsiPos (separator, Result)>0 then
+   Result:=Copy(Result, 1, AnsiPos (separator, Result)-1);
 end;
 
 
-Function NumberOfSubstringInRow(row:string):integer;
+Function NumberOfSubstringInRow(row:string;separator:string=' '):integer;
 {визначається частин у рядку row, відділених
 пробілами}
  var tempstr:string;
@@ -531,12 +515,22 @@ begin
   tempstr:=SomeSpaceToOne(row);
   if tempstr='' then Result:=0
                 else Result:=1;
-  while AnsiPos (' ', tempstr)>0 do
+  while AnsiPos (separator, tempstr)>0 do
      begin
-      Delete(tempstr, 1, AnsiPos (' ', tempstr));
+      Delete(tempstr, 1, AnsiPos (separator, tempstr));
       inc(Result);
      end;
 end;
+
+Function TrimRightSeparator(Text,separator:string):string;
+{повертає Text з видаленим підрядком separator,
+якщо він був в кінці Text}
+begin
+  if AnsiEndsStr(separator, Text)
+   then Result:= Copy(Text, 1, Length(Text) - Length(separator))
+   else Result:=Text;
+end;
+
 
 
 Function SubstringNumberFromRow(substring,row:string):integer;
@@ -568,7 +562,7 @@ begin
   until tempstr='';
 end;
 
-Function  DeleteStringDataFromRow(str:string;Number:word):string;
+Function  DeleteStringDataFromRow(str:string;Number:word;separator:string=' '):string;
 {повертає рядок з видаленою частиною (відділеною пробілами - див.
 попередні) з номером Number}
  var i,FirstSpacePosition:word;
@@ -583,7 +577,7 @@ begin
   tempStr:=SomeSpaceToOne(str);
   for I := 1 to Number-1 do
    begin
-    FirstSpacePosition:=AnsiPos (' ', tempStr);
+    FirstSpacePosition:=AnsiPos (separator, tempStr);
     if FirstSpacePosition>0 then
        begin
        Result:=Result+AnsiLeftStr(tempStr,FirstSpacePosition);
@@ -595,11 +589,13 @@ begin
        end;
    end;
 
-  FirstSpacePosition:=AnsiPos (' ', tempStr);
+  FirstSpacePosition:=AnsiPos (separator, tempStr);
   if FirstSpacePosition>0 then
    Result:=Result+AnsiRightStr(tempStr,Length(tempStr)-FirstSpacePosition)
                           else
    Result:=Trim(Result);
+   Result:=TrimRightSeparator(Result,separator);
+
 end;
 
 Function FloatDataFromRow(str:string;Number:word):double;
@@ -1542,6 +1538,13 @@ begin
   Result:=drive + ':' + path+'\';
 end;
 
+function FolderNameFromFullPath(FullPath:string;NestingLevel:byte=0):string;
+begin
+ Result:=StringDataFromRow(FullPath,
+      max(1,NumberOfSubstringInRow(FullPath,'\')-NestingLevel)
+      ,'\')
+end;
+
 procedure AddSyffixToStringList(SL:TStringList; Syffix:string; SyffixHeader:string='');
 {додає на початку кожного рядка SL Syffix;
 якщо SyffixHeader не порожній, то у першому рядку додають саме його, а не Syffix}
@@ -1602,217 +1605,6 @@ begin
 
 end;
 
-procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;
-                 CurrentDir:string='';ResultFileName:string='Zriz');
-
- var SR : TSearchRec;
-     Dat_Folder:string;
-     i:integer;
-     Vec:TVector;
-     SL:TStringList;
-     temp:string;
-begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
- Vec:=TVector.Create;
- SL:=TStringList.Create;
-
-
- if FindFirst(mask, faAnyFile, SR) = 0 then
-   repeat
-    if FileNameIsBad(SR.name)then Continue;
-    Vec.ReadFromFile(SR.name);
-    if ToDeleteNegativeY then Vec.DeleteYLessTnanNumber(0);
-    temp:=copy(Vec.name,1,length(Vec.name)-4);
-    for I := 1 to 4-length(temp)
-        do insert('0',temp,1);
-    Temp:=temp+' '+FloatToStrF(Vec.T,ffFixed,5,2);
-    for i := 0 to High(XValues) do
-     Temp:=temp+' '+FloatToStrF(Vec.Yvalue(XValues[i]),ffExponent,6,0);
-    SL.Add(temp);
-   until (FindNext(SR) <> 0);
-
- SL.Sort;
- temp:='Name T';
- for i := 0 to High(XValues) do
-   Temp:=temp+' V'+Inttostr(round(XValues[i]*100));
- SL.Insert(0,temp);
-
- SL.SaveToFile(ResultFileName+'.dat');
- FreeAndNil(SL);
- FreeAndNil(Vec);
-
-end;
-
-
-procedure CVReverse({S:double=1;FilePrefix:string='';}CurrentDir:string='');
- var SR : TSearchRec;
-     Dat_Folder:string;
-     i:integer;
-     Vec:TVectorTransform;
-     SL:TStringList;
-     OutputData:TArrSingle;
-     temp,FilePrefix:string;
-     S:double;
-begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
- S:=GetArea();
- FilePrefix:=InputBox('Input File Prefix','','');
-
- Vec:=TVectorTransform.Create;
- SL:=TStringList.Create;
- SL.Add('name Vb');
-
- if FindFirst(mask, faAnyFile, SR) = 0 then
-   repeat
-    if FileNameIsBad(SR.name)then Continue;
-    Vec.ReadFromFile(SR.name);
-    Vec.Itself(Vec.ReverseX);
-    if S<>0 then Vec.MultiplyY(1/S);
-    for I := 0 to Vec.HighNumber do
-      Vec.Y[i]:=1/(sqr(Vec.Y[i]));
-    Vec.LinAprox(OutputData);
-    temp:=copy(Vec.name,1,length(Vec.name)-4);
-    if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
-    SL.Add(temp+' '+FloatToStrF(abs(OutputData[0]/OutputData[1]),ffExponent,6,0));
-    Vec.WriteToFile(FilePrefix+temp+'CV.dat',8);
-   until (FindNext(SR) <> 0);
-
- SL.SaveToFile('CVbar.dat');
- FreeAndNil(SL);
- FreeAndNil(Vec);
-end;
-
-procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
-{з усіх .dat файлів у вибраній директорії
-виділяються пряма та зворотня ділянки, значення струму ділиться та S
-і записуються у файли,
-в кінці назв яких дописані 'pr' та 'zv' відповідно;
-прямі характеристики записуються в папку Forward
-зворотні - Reverse
-на початку дописується  FilePrefix;
-в 'comments.dat' робляться додаткові записи з новими назвами файлів;
-}
- var SR : TSearchRec;
-     Dat_Folder:string;
-     i:integer;
-     Vec:TVectorTransform;
-     OutputVec:TVector;
-     SL:TStringList;
-//     OutputData:TArrSingle;
-     temp,FilePrefix:string;
-     S:double;
-begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
-
- S:=GetArea();
- FilePrefix:=InputBox('Input File Prefix','','');
-
- Vec:=TVectorTransform.Create;
- OutputVec:=TVector.Create;
- SL:=TStringList.Create;
- if FileExists('comments.dat') then
-  SL.LoadFromFile('comments.dat');
- CreateDirSafety('Forward');
- CreateDirSafety('Reverse');
-
- if FindFirst(mask, faAnyFile, SR) = 0 then
-   repeat
-    if FileNameIsBad(SR.name)then Continue;
-    Vec.ReadFromFile(SR.name);
-    if S<>0 then Vec.MultiplyY(1/S);
-    Vec.ReverseX(OutputVec);
-    OutputVec.MultiplyY(-1);
-    OutputVec.MultiplyX(-1);
-    if OutputVec.Count>0 then
-     begin
-       SetCurrentDir(Dat_Folder+'\Reverse\');
-       temp:=FilePrefix+FitName(Vec,'zv');
-       OutputVec.WriteToFile(temp,8);
-       SetCurrentDir(Dat_Folder);
-       for i := 0 to SL.Count-1 do
-        if Pos(Vec.name,SL[i])=1 then
-         begin
-          SL.Insert(i+2,'');
-          temp:=SL[i];
-          Delete(temp,1,Length(Vec.name));
-          temp:=FilePrefix+FitName(Vec,'zv')+temp;
-          SL.Insert(i+3,temp);
-          SL.Insert(i+4,SL[i+1]);
-          Break;
-         end;
-     end;
-
-    Vec.ForwardX(OutputVec);
-    if OutputVec.Count>0 then
-     begin
-       SetCurrentDir(Dat_Folder+'\Forward\');
-       temp:=FilePrefix+FitName(Vec,'pr');
-       OutputVec.WriteToFile(temp,8);
-       SetCurrentDir(Dat_Folder);
-       for i := 0 to SL.Count-1 do
-        if Pos(Vec.name,SL[i])=1 then
-         begin
-          SL.Insert(i+2,'');
-          temp:=SL[i];
-          Delete(temp,1,Length(Vec.name));
-          temp:=FilePrefix+FitName(Vec,'pr')+temp;
-          SL.Insert(i+3,temp);
-          SL.Insert(i+4,SL[i+1]);
-          Break;
-         end;
-     end;
-   until (FindNext(SR) <> 0);
-
- SetCurrentDir(Dat_Folder+'\Forward\');
- SL.SaveToFile('comments.dat');
- SetCurrentDir(Dat_Folder+'\Reverse\');
- SL.SaveToFile('comments.dat');
- FreeAndNil(SL);
- FreeAndNil(OutputVec);
- FreeAndNil(Vec);
-end;
-
-
-procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
-
- var SR : TSearchRec;
-     Dat_Folder:string;
-     i:integer;
-     SL:TStringList;
-     temp,FilePrefix:string;
-begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
- FilePrefix:=InputBox('Input File Prefix','','');
-
- SL:=TStringList.Create;
-
- if FindFirst(mask, faAnyFile, SR) = 0 then
-   repeat
-    if FileNameIsBad(SR.name)then Continue;
-    SL.LoadFromFile(SR.name);
-    for i := 0 to SL.Count-1 do
-     begin
-       temp:=StringDataFromRow(SL[i],4);
-       Delete(temp,1,1);
-       temp:=StringDataFromRow(SL[i],2)
-             +' '+temp
-             +' '+StringDataFromRow(SL[i],1);
-       SL[i]:=temp;
-     end;
-    SL.Insert(0,inttostr(SL.Count));
-    SL.SaveToFile(FilePrefix+copy(SR.name,1,length(SR.name)-3)+'txt');
-   until (FindNext(SR) <> 0);
-
- FreeAndNil(SL);
-end;
 
 function GetArea():double;
 begin
@@ -1821,6 +1613,62 @@ begin
   except
    Result:=1;
   end;
+end;
+
+function SearchInStringList(SL:TStringList;Key:string;Number:byte=2):double;
+{шукає в SL число, що розташоване в рядку, який починається
+з Key на позиції номер Number;
+нумерація позицій з 1, вважається, що вони відділені одна від одної пробілами}
+ var i:integer;
+begin
+Result:=ErResult;
+for I := 0 to SL.Count-1 do
+ if StringDataFromRow(SL[i],1)=Key then
+   begin
+    Result:=FloatDataFromRow(SL[i],Number);
+    Exit
+   end;
+end;
+
+function SearchInFile(FileName,Key:string;Number:byte=2):double;
+{шукає у файлі з назвою FileName число, що розташоване в рядку, який починається
+з Key на позиції номер Number;
+сам файл шукається спочатку у поточній директорії,
+якщо його немає - піднімаємося на рівень вище і так до диску;
+якщо відбувалися переходи по папкам, то однаково в кінці повертаємось до поточної}
+ var SL:TStringList;
+     CDir,InitDir:string;
+     DontStop:Boolean;
+begin
+ InitDir:=GetCurrentDir;
+ CDir:=InitDir;
+ Result:=ErResult;
+ DontStop:=True;
+ while DontStop do
+  begin
+   if FileExists(FileName)
+    then
+     begin
+      SL:=TStringList.Create;
+      SL.LoadFromFile(FileName);
+      Result:=SearchInStringList(SL,Key,Number);
+      FreeAndNil(SL);
+      Break;
+     end
+    else
+    begin
+      Cdir:=DeleteStringDataFromRow(Cdir,NumberOfSubstringInRow(Cdir,'\'),'\');
+      if NumberOfSubstringInRow(Cdir,'\')=1
+        then
+          begin
+          Cdir:=CDir+'\';
+          DontStop:=False;
+          end;
+      SetCurrentDir(Cdir);
+//      showmessage(Cdir);
+   end;
+  end;
+ SetCurrentDir(InitDir);
 end;
 
 end.

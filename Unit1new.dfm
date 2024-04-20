@@ -31,10 +31,6 @@ object Form1: TForm1
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Directory operation'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox13: TGroupBox
         Left = 3
         Top = 413
@@ -4331,10 +4327,6 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = 'File operation'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object DirLabel: TLabel
         Left = 664
         Top = 62
@@ -5727,10 +5719,6 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'Diode'#39's parameters'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Close2: TBitBtn
         Left = 534
         Top = 562
@@ -5761,8 +5749,8 @@ object Form1: TForm1
         OnClick = Close1Click
       end
       object GroupBoxRsPar: TGroupBox
-        Left = 23
-        Top = 408
+        Left = 3
+        Top = 319
         Width = 320
         Height = 129
         Caption = 'Rs parameters'
@@ -6824,14 +6812,65 @@ object Form1: TForm1
           end
         end
       end
+      object GBActions: TGroupBox
+        Left = 3
+        Top = 454
+        Width = 320
+        Height = 129
+        Caption = 'Actions'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 5
+        object L_StartFolder: TLabel
+          Left = 14
+          Top = 44
+          Width = 284
+          Height = 18
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'D:\Oleg\Disser\Dokument\etap6\CD'
+        end
+        object BActionDo: TButton
+          Left = 187
+          Top = 74
+          Width = 52
+          Height = 25
+          Caption = 'Do it!'
+          TabOrder = 0
+        end
+        object ST_StartFolder: TStaticText
+          Left = 226
+          Top = 22
+          Width = 77
+          Height = 20
+          Caption = 'Start Folder:'
+          TabOrder = 1
+        end
+        object B_StartFolderSelect: TButton
+          Left = 98
+          Top = 17
+          Width = 100
+          Height = 21
+          Caption = 'Select'
+          TabOrder = 2
+        end
+        object CBActions: TComboBox
+          Left = 22
+          Top = 76
+          Width = 120
+          Height = 24
+          TabOrder = 3
+          Text = 'CBActions'
+        end
+      end
     end
     object TabSheet4: TTabSheet
       Caption = 'Deep Level'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox36: TGroupBox
         Left = 3
         Top = 0
