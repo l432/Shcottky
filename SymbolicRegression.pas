@@ -41,7 +41,7 @@ TDatasetPrepare=class
    property FileNameBegin:string read FFileNameBegin write SetFileNameBegin;
    Constructor Create;
    procedure CreateDatasets();
-
+   procedure CreateFullDataset();virtual;
 end;
 
 TDatasetPrepareEg_T=class(TDatasetPrepare)
@@ -84,11 +84,12 @@ TDatasetPrepareNdim=class(TDatasetPrepare)
   function RecordToString(const Index:integer):string;override;
   procedure newNEntriesCreate(newN:integer);override;
   {створюються newN унікальних записів}
-  function ResultCalculate(const Index:integer):double;virtual;
+  function ResultCalculate(const Index:integer):double;override;
  public
   property HighLimits: TArrSingle read fHighLimits write fHighLimits;
   property LowLimits: TArrSingle read fLowLimits write fLowLimits;
   Constructor Create(Ndim:integer);
+  procedure CreateFullDataset2D();
 end;
 
 TDatasetPrepareLn_IscT=class(TDatasetPrepareNdim)
@@ -99,6 +100,17 @@ TDatasetPrepareLn_IscT=class(TDatasetPrepareNdim)
  public
   Constructor Create;
 end;
+
+TDatasetPrepareMobility=class(TDatasetPrepareNdim)
+ private
+  fItIsMajority:Boolean;
+  fItIsElectron:Boolean;
+  function ResultCalculate(const Index:integer):double;override;
+ public
+  Constructor Create(ItIsMajority,ItIsElectron:Boolean);
+end;
+
+
 
 procedure DeepOfAbsorbtion(T:integer;FileName:string='SiAbsorb');
 {записує у файл FileNameT.dat залежність
@@ -153,6 +165,15 @@ L в діапазоні 5..300 мкм,
 температура в діапазоні 290 - 340 К
 довжина хвилі 940 нм}
 
+
+procedure Mu_TNdop(ItIsMajority,ItIsElectron:Boolean);
+{створюються набори для залежності
+рухливості носіїв заряду у кремнії від температури та концентрації
+легуючої домішки,
+T в діапазоні 77..500 K,
+Ndop: (10^13 - 10^20) cm-3
+[результат] = см^2 / (B c)
+}
 
 implementation
 
@@ -237,6 +258,7 @@ L в діапазоні 5..300 мкм,
 begin
  Dataset:=TDatasetPrepareLn_Isc.Create;
  Dataset.CreateDatasets();
+ Dataset.CreateFullDataset();
  FreeAndNil(Dataset);
 end;
 
@@ -285,6 +307,24 @@ begin
 
 end;
 
+procedure Mu_TNdop(ItIsMajority,ItIsElectron:Boolean);
+{створюються набори для залежності
+рухливості носіїв заряду у кремнії від температури та концентрації
+легуючої домішки,
+T в діапазоні 77..500 K,
+Ndop: (10^13 - 10^20) cm-3
+[результат] = см^2 / (B c)
+}
+var
+   Dataset:TDatasetPrepareMobility;
+begin
+ Dataset:=TDatasetPrepareMobility.Create(ItIsMajority,ItIsElectron);
+ Dataset.CreateDatasets();
+ Dataset.CreateFullDataset2D();
+ FreeAndNil(Dataset);
+
+end;
+
 { TDatasetPrepare }
 
 Constructor TDatasetPrepare.Create;
@@ -304,6 +344,20 @@ begin
  LastNEntriesToFile(FTrainNumber,FFileNameBegin+'train.dat');
  newNEntriesCreate(FTestNumber);
  LastNEntriesToFile(FTestNumber,FFileNameBegin+'test.dat');
+end;
+
+procedure TDatasetPrepare.CreateFullDataset;
+ var Value:integer;
+begin
+ Value:=FLowLimit;
+ SetLength(fUsedParam,0);
+ SetLength(fResults,0);
+ repeat
+  AddNumberToArray(Value,fUsedParam);
+  AddNumberToArray(ResultCalculate(High(fUsedParam)),fResults);
+  inc(Value);
+ until (Value>=FHighLimit);
+ LastNEntriesToFile(High(fResults)+1,FFileNameBegin+'full.dat');
 end;
 
 procedure TDatasetPrepare.LastNEntriesToFile(LastN: integer; Filename: string);
@@ -469,6 +523,54 @@ begin
 
 end;
 
+procedure TDatasetPrepareNdim.CreateFullDataset2D;
+ const Npoint=50;
+ var i:integer;
+     NewParametrValues,Steps:TArrSingle;
+begin
+// Не знаю як зробити: в загальному випадку
+// невідома кількість вкладень циклів перебору змінних
+
+ SetLength(NewParametrValues,fNdim);
+ SetLength(Steps,fNdim);
+ SetLength(fResults,0);
+ for i := 0 to High(NewParametrValues) do
+  begin
+   NewParametrValues[i]:=FLowLimits[i];
+   SetLength(fUsedParams[i],0);
+   case fParamTypes[i] of
+    ptInt:if (FHighLimits[i]-FLowLimits[i])>99
+              then Steps[i]:=round((FHighLimits[i]-FLowLimits[i])/Npoint)
+              else Steps[i]:=1;
+    ptDouble:Steps[i]:=(FHighLimits[i]-FLowLimits[i])/Npoint;
+    ptDoubleLn:Steps[i]:=(ln(FHighLimits[i])-ln(FLowLimits[i]))/Npoint;
+   end;
+  end;
+
+ repeat
+
+  NewParametrValues[1]:=FLowLimits[1];
+  repeat
+   for i := 0 to High(fParamTypes) do
+        AddNumberToArray(NewParametrValues[i],fUsedParams[i]);
+   AddNumberToArray(ResultCalculate(High(fResults)+1),fResults);
+
+    case fParamTypes[1] of
+      ptInt,ptDouble:NewParametrValues[1]:=NewParametrValues[1]+Steps[1];
+      ptDoubleLn:NewParametrValues[1]:=exp(ln(NewParametrValues[1])+Steps[1]);
+    end;
+  until (NewParametrValues[1]>=FHighLimits[1]);
+  case fParamTypes[0] of
+    ptInt,ptDouble:NewParametrValues[0]:=NewParametrValues[0]+Steps[0];
+    ptDoubleLn:NewParametrValues[0]:=exp(ln(NewParametrValues[0])+Steps[0]);
+  end;
+
+ until (NewParametrValues[0]>=FHighLimits[0]);
+
+ LastNEntriesToFile(High(fResults)+1,FFileNameBegin+'full.dat');
+
+end;
+
 procedure TDatasetPrepareNdim.newNEntriesCreate(newN: integer);
  var StartIndex,i:integer;
      NewProbParametrValues:TArrSingle;
@@ -545,6 +647,51 @@ function TDatasetPrepareLn_IscT.ResultCalculate(const Index: integer): double;
 begin
  Result:=TFFIsc_shablon.Nph(fLambda)
         *TFFIsc_shablon.Al_L(Silicon.Absorption(fLambda,fUsedParams[1][Index]),fUsedParams[0][Index]*1e-6)
+end;
+
+{ TDatasetPrepareMobility }
+
+constructor TDatasetPrepareMobility.Create(ItIsMajority,
+  ItIsElectron: Boolean);
+begin
+ inherited Create(2);
+ fItIsMajority:=ItIsMajority;
+ fItIsElectron:=ItIsElectron;
+
+ TrainNumber:=1000;
+ TestNumber:=200;
+
+ Header:='T(K) Nd(cm-3) Mu(cm2/Vs)';
+ FileNameBegin:='Mu_';
+
+ if fItIsElectron
+   then FileNameBegin:=FileNameBegin+'n_'
+   else FileNameBegin:=FileNameBegin+'p_';
+
+ if fItIsMajority
+   then FileNameBegin:=FileNameBegin+'maj'
+   else FileNameBegin:=FileNameBegin+'min';
+
+ LowLimits[0]:=77;
+ HighLimits[0]:=500;
+
+ LowLimits[1]:=1e13;
+ HighLimits[1]:=1e20;
+ fParamTypes[1]:=ptDoubleLn;
+
+end;
+
+function TDatasetPrepareMobility.ResultCalculate(const Index: integer): double;
+begin
+ if fItIsElectron
+   then
+     Result:=1e4*Silicon.mu_n(fUsedParams[0][Index],
+                          fUsedParams[1][Index]*1e6,
+                          fItIsMajority)
+   else
+     Result:=1e4*Silicon.mu_p(fUsedParams[0][Index],
+                          fUsedParams[1][Index]*1e6,
+                          fItIsMajority);
 end;
 
 end.

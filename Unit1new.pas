@@ -3959,19 +3959,12 @@ var
 
 begin
 
+Mu_TNdop(True,True);
 
-
-//DatToEis('d44s','D:\Samples\DeepL\2024\ODiod\');
-//IVmanipulate(22e-6,'d41','D:\Samples\DeepL\2024\ODiod\');
-//CVReverse(31e-6,'d41','D:\Samples\DeepL\2024\ODiod\');
-
-//DatToEis('d44s','D:\DeepL\2024\ODiod');
-//IVmanipulate(31e-6,'d44b','D:\DeepL\2024\ODiod');
-//CVReverse(11e-6,'d44s','D:\DeepL\2024\ODiod');
-
-//DatToEis('D:\DeepL\2024\ODiod');
-//IVmanipulate('D:\DeepL\2024\ODiod');
-CVReverse('D:\Samples\DeepL\2024\ODiod\');
+//Ln_Isc();
+//Eg_T();
+//J0_T();
+//Ln_IscT();
 
 //YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True);
 
@@ -4009,10 +4002,7 @@ CVReverse('D:\Samples\DeepL\2024\ODiod\');
 //TauOnL(340,1e14);
 //TauOnL(290,1e16);
 //TauOnL(340,1e16);
-//Ln_Isc();
-//Eg_T();
-//J0_T();
-//Ln_IscT();
+
 
 
 
