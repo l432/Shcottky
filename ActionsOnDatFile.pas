@@ -7,6 +7,7 @@ const
  CVReverseName='CV reverse';
  IVmanipulateName='IV parceling';
  DatToEisName='Dat for IS';
+ ISresultTransformName='IS result transform';
 
  ActionsName:array[0..3]of string=
   (YZrizName,CVReverseName,IVmanipulateName,DatToEisName);
@@ -43,7 +44,6 @@ procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
 в 'comments.dat' робляться додаткові записи з новими назвами файлів;
 }
 
-
 procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
 {з усіх .dat файлів у вибраній директорії створює
 файли, потрібні для EIS SPECTRUM ANALYSER;
@@ -53,6 +53,8 @@ procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
 а далі три колонки:
 активний опір, реактивний опір (додатній), частота;
 вихідний файл має те ж ім'я з доповненням FilePrefix, але розширення .txt}
+
+procedure ISresultTransform(CurrentDir:string='');
 
 
 implementation
@@ -172,8 +174,13 @@ begin
   then SetCurrentDir(Dat_Folder)
   else Exit;
 
- S:=GetArea();
- FilePrefix:=InputBox('Input File Prefix','','');
+// S:=GetArea();
+// FilePrefix:=InputBox('Input File Prefix','','');
+
+ FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
+ S:=SearchInFile('Areas.dat',FilePrefix);
+ if S=ErResult then S:=1
+               else S:=S*1e-6;
 
  Vec:=TVectorTransform.Create;
  OutputVec:=TVector.Create;
@@ -252,7 +259,12 @@ begin
  if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
   then SetCurrentDir(Dat_Folder)
   else Exit;
- FilePrefix:=InputBox('Input File Prefix','','');
+// FilePrefix:=InputBox('Input File Prefix','','');
+
+ FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
+// S:=SearchInFile('Areas.dat',FilePrefix);
+// if S=ErResult then S:=1
+//               else S:=S*1e-6;
 
  SL:=TStringList.Create;
 
@@ -276,5 +288,85 @@ begin
  FreeAndNil(SL);
 end;
 
+
+procedure ISresultTransform(CurrentDir:string='');
+ var SR : TSearchRec;
+     Dat_Folder:string;
+     i,ColumnNumberMax,ColumnNumber:integer;
+     Vec:TVectorTransform;
+     SL,SLFile,SLFileNew:TStringList;
+     OutputData:TArrSingle;
+     temp,FilePrefix,ShortFileName:string;
+     S,tempDouble:double;
+begin
+ if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+  then SetCurrentDir(Dat_Folder)
+  else Exit;
+
+// FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
+
+
+ Vec:=TVectorTransform.Create;
+ SL:=TStringList.Create;
+ SLFile:=TStringList.Create;
+ SLFileNew:=TStringList.Create;
+ SL.Add('name Vb');
+
+ if FindFirst('*.txt', faAnyFile, SR) = 0 then
+   repeat
+    ShortFileName:=copy(SR.name,1,length(SR.name)-4);
+    S:=SearchInFile('Areas.dat',ShortFileName);
+    if S=ErResult then S:=1
+                else S:=S*1e-6;
+
+    if FileNameIsBad(SR.name)then Continue;
+    Vec.ReadFromFile(SR.name);
+    Vec.Itself(Vec.ReverseX);
+    if S<>0 then Vec.MultiplyY(1/S);
+    for I := 0 to Vec.HighNumber do
+      Vec.Y[i]:=1/(sqr(Vec.Y[i]));
+    Vec.LinAprox(OutputData);
+//    temp:=copy(Vec.name,1,length(Vec.name)-4);
+//    if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
+    SL.Add(ShortFileName+' '+FloatToStrF(abs(OutputData[0]/OutputData[1]),ffExponent,6,0));
+    Vec.WriteToFile(ShortFileName+'CVrev.dat',8);
+
+    SLFile.Clear;
+    SLFile.LoadFromFile(SR.name);
+    ColumnNumberMax:=NumberOfSubstringInRow(SLFile[0]);
+    ColumnNumber:=2;
+    while ColumnNumber<ColumnNumberMax do
+     begin
+      SLFileNew.Clear;
+      SLFileNew.Add(StringDataFromRow(SLFile[0],1)
+                    +' '+StringDataFromRow(SLFile[0],ColumnNumber)
+                    +' '+StringDataFromRow(SLFile[0],ColumnNumber+1));
+      for I := 1 to SLFile.Count-1 do
+       begin
+        temp:=StringDataFromRow(SLFile[i],1)+' ';
+        tempDouble:=FloatDataFromRow(SLFile[i],ColumnNumber);
+        tempDouble:=tempDouble/S;
+        temp:=temp+FloatToStrF(tempDouble,ffExponent,6,0)+' ';
+        tempDouble:=tempDouble/100*FloatDataFromRow(SLFile[i],ColumnNumber+1);
+        temp:=temp+FloatToStrF(tempDouble,ffExponent,6,0);
+        SLFileNew.Add(temp);
+       end;
+      SLFileNew.SaveToFile(ShortFileName
+           +StringDataFromRow(SLFile[0],ColumnNumber)+'.dat');
+
+      ColumnNumber:=ColumnNumber+2;
+     end;
+
+
+
+   until (FindNext(SR) <> 0);
+
+ SL.SaveToFile('CVbar.dat');
+
+ FreeAndNil(SLFileNew);
+ FreeAndNil(SLFile);
+ FreeAndNil(SL);
+ FreeAndNil(Vec);
+end;
 
 end.

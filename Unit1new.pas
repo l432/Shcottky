@@ -1828,6 +1828,7 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   CBActions.Items.Add(CVReverseName);
   CBActions.Items.Add(IVmanipulateName);
   CBActions.Items.Add(DatToEisName);
+  CBActions.Items.Add(ISresultTransformName);
   CBActions.Items.Add(YZrizName);
   CBActions.ItemIndex:=0;
 
@@ -2878,7 +2879,8 @@ begin
     then IVmanipulate(L_StartFolder.Caption);
  if Key=DatToEisName
     then DatToEis(L_StartFolder.Caption);
-
+ if Key=ISresultTransformName
+    then ISresultTransform(L_StartFolder.Caption);
 end;
 
 procedure TForm1.ApproxHide;
