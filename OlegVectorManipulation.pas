@@ -1117,8 +1117,10 @@ begin
 //    temp.WriteToFile('my1.dat');
  OutputData[3]:=temp.NPolinomExtremum(4);
 // showmessage(floattostr(OutputData[3]));
- OutputData[2]:=-P_V.YvalueSplain3(OutputData[3]);
- OutputData[4]:=-Self.YvalueSplain3(OutputData[3]);
+// OutputData[2]:=-P_V.YvalueSplain3(OutputData[3]);
+// OutputData[4]:=-Self.YvalueSplain3(OutputData[3]);
+ OutputData[2]:=-P_V.Yvalue(OutputData[3]);
+ OutputData[4]:=-Self.Yvalue(OutputData[3]);
  if (OutputData[0]>Voc_min)
     and (OutputData[1]>Isc_min)
       then OutputData[5]:=OutputData[2]/OutputData[0]/OutputData[1];
