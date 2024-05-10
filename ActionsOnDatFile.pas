@@ -56,6 +56,20 @@ procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
 
 procedure ISresultTransform(CurrentDir:string='');
 
+procedure CFTransform(CurrentDir:string='');
+
+Function E_w(f,T:double;f0:double=5e10):double;
+{розрахунок demarcation energy для оцінки густини станів
+за залежністю ємності від частоти;
+[]=eV}
+
+Function Wd(Vbi,N:double;V:double=0;Eps:double=11.7;T:double=0):double;
+{обчислення ширини області збіднення
+Vbi - build-in-voltage,V
+N - концентрація носіїв, м-3
+V - прикладена напруга (додатнє значення
+відповідає прямій), V
+[]= м }
 
 implementation
 
@@ -296,7 +310,7 @@ procedure ISresultTransform(CurrentDir:string='');
      Vec:TVectorTransform;
      SL,SLFile,SLFileNew:TStringList;
      OutputData:TArrSingle;
-     temp,FilePrefix,ShortFileName:string;
+     temp,{FilePrefix,}ShortFileName:string;
      S,tempDouble:double;
 begin
  if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
@@ -367,6 +381,93 @@ begin
  FreeAndNil(SLFile);
  FreeAndNil(SL);
  FreeAndNil(Vec);
+end;
+
+
+procedure CFTransform(CurrentDir:string='');
+var Dat_Folder,ResultFolder,FilePrefix,temp:string;
+    SR : TSearchRec;
+    i:integer;
+    Vec,VecNew:TVectorTransform;
+    S:double;
+begin
+ if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+  then SetCurrentDir(Dat_Folder)
+  else Exit;
+
+ FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
+ S:=SearchInFile('Areas.dat',FilePrefix);
+ if S=ErResult then S:=1
+               else S:=S*1e-6;
+
+ ResultFolder:=SearchDirForFile('Areas.dat');
+ if ResultFolder='' then Exit;
+ SetCurrentDir(ResultFolder);
+ CreateDirSafety('Results');
+ ResultFolder:=ResultFolder+'\'+'Results';
+ SetCurrentDir(ResultFolder);
+ CreateDirSafety('Nt_Cf');
+ CreateDirSafety('G_f');
+
+// ResultFolder:=ResultFolder+'\'+'Nt_Cf';
+ SetCurrentDir(Dat_Folder);
+
+
+  Vec:=TVectorTransform.Create;
+  VecNew:=TVectorTransform.Create;
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+   repeat
+    if FileNameIsBad(SR.name)then Continue;
+    Vec.ReadFromFile(SR.name);
+//    showmessage(SR.name);
+    for i:=1 to 20 do
+     Vec.Itself(Vec.Smoothing);
+    Vec.Itself(Vec.Derivate);
+    Vec.Itself(Vec.Power);
+//    showmessage(floattostr(Vec.T));
+    Vec.MultiplyY(-1/(Kb*Vec.T*Qelem*S));
+    Vec.CopyLimitedX(VecNew,1e3,1e7);
+//    SetCurrentDir(ResultFolder);
+
+    temp:=copy(Vec.name,1,length(SR.name)-4);
+    if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
+    if Pos('cpg',temp)>0 then
+     begin
+      Delete(temp,Pos('cpg',temp),3);
+      Vec.ReadFromFile(SR.name,[4]);
+      for i:=0 to Vec.HighNumber do
+        Vec.Y[i]:= Vec.Y[i]/(2*Pi*Vec.X[i]);
+      Vec.MultiplyY(1/S);
+      Vec.WriteToFile(ResultFolder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'G/w f');
+     end;
+
+    for i:=0 to VecNew.HighNumber do
+      VecNew.X[i]:=E_w(VecNew.X[i],VecNew.T);
+
+    VecNew.WriteToFile(ResultFolder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Nt Ew');
+//    SetCurrentDir(Dat_Folder);
+   until (FindNext(SR) <> 0);
+  FreeAndNil(Vec);
+  FreeAndNil(VecNew);
+end;
+
+Function E_w(f,T:double;f0:double=5e10):double;
+{розрахунок demarcation energy для оцінки густини станів
+за залежністю ємності від частоти}
+begin
+  if f<=0 then Exit(ErResult);
+  Result:=Kb*abs(T)*ln(abs(f0)/f);
+end;
+
+Function Wd(Vbi,N:double;V:double=0;Eps:double=11.7;T:double=0):double;
+{обчислення ширини області збіднення
+Vbi - build-in-voltage,V
+N - концентрація носіїв, м-3
+V - прикладена напруга (додатнє значення
+відповідає прямій), V
+[]= м }
+begin
+ Result:=sqrt(2*Eps*Eps0/Qelem*(Vbi-V-2*Kb*T)/N);
 end;
 
 end.

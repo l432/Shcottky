@@ -331,6 +331,13 @@ function SearchInFile(FileName,Key:string;Number:byte=2):double;
 якщо його немає - піднімаємося на рівень вище і так до диску;
 якщо відбувалися переходи по папкам, то однаково в кінці повертаємось до поточної}
 
+function SearchDirForFile(FileName:string):string;
+{шукає директорію, у якій знаходиться файл з назвою FileName,
+сам файл шукається спочатку у поточній директорії,
+якщо його немає - піднімаємося на рівень вище і так до диску;
+якщо відбувалися переходи по папкам, то однаково в кінці повертаємось до поточної}
+
+
 
 implementation
 
@@ -1666,6 +1673,42 @@ begin
           end;
       SetCurrentDir(Cdir);
 //      showmessage(Cdir);
+   end;
+  end;
+ SetCurrentDir(InitDir);
+end;
+
+function SearchDirForFile(FileName:string):string;
+{шукає директорію, у якій знаходиться файл з назвою FileName,
+сам файл шукається спочатку у поточній директорії,
+якщо його немає - піднімаємося на рівень вище і так до диску;
+якщо відбувалися переходи по папкам, то однаково в кінці повертаємось до поточної}
+ var SL:TStringList;
+     CDir,InitDir:string;
+     DontStop:Boolean;
+begin
+ InitDir:=GetCurrentDir;
+ CDir:=InitDir;
+ Result:='';
+ DontStop:=True;
+ while DontStop do
+  begin
+   if FileExists(FileName)
+    then
+     begin
+      Result:=CDir;
+      Break;
+     end
+    else
+    begin
+      Cdir:=DeleteStringDataFromRow(Cdir,NumberOfSubstringInRow(Cdir,'\'),'\');
+      if NumberOfSubstringInRow(Cdir,'\')=1
+        then
+          begin
+          Cdir:=CDir+'\';
+          DontStop:=False;
+          end;
+      SetCurrentDir(Cdir);
    end;
   end;
  SetCurrentDir(InitDir);

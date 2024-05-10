@@ -3948,16 +3948,12 @@ var
 //    stepNd,{delT,}T,Tmin,Tmax:integer;
 //    Str:TStringList;
 //    tempstr:string;
-//function NvsRo(Nd:double;param:array of double):double;
-//{param[0] - Ro
-// param[1] - T
-//}
-// begin
-//  Result:=Nd-1/(Qelem*0.1*param[0]*Silicon.mu_n(param[1],Nd))
-// end;
 
 
 begin
+
+//CFTransform('D:\DeepL\2024\ODiod\Series\8xSeries\d81a');
+CFTransform('D:\DeepL\2024\ODiod\Series');
 
 //Mu_TNdop(True,True);
 //Mu_TNdop(True,False);
