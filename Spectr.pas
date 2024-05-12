@@ -8,7 +8,6 @@ uses
   OlegVector,OlegMaterialSamples,OlegType;
 
 type
-// TProcedFile=Procedure(FileName:string);
 
  TLampType=(ltGE,ltOrion,ltOsram);
 

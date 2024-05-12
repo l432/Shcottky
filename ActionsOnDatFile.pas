@@ -4,16 +4,20 @@ interface
 
 const
  YZrizName='Y cut';
- CVReverseName='CV reverse';
+ CVReverseName='CV processing';
  IVmanipulateName='IV parceling';
  DatToEisName='Dat for IS';
  ISresultTransformName='IS result transform';
+ CFTransformName='CF processing';
 
- ActionsName:array[0..3]of string=
-  (YZrizName,CVReverseName,IVmanipulateName,DatToEisName);
 
-procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;CurrentDir:string='';ResultFileName:string='Zriz');
-{зчитуються всі .dat файли у вибраній директорії, знаходяться значення
+ ActionsName:array[0..5]of string=
+  (CVReverseName,IVmanipulateName,DatToEisName,CFTransformName,ISresultTransformName,YZrizName);
+
+procedure  YZriz(XValues:array of double;Dat_Folder:string;
+                 ToDeleteNegativeY:boolean=False;
+                 ResultFileName:string='Zriz');
+{зчитуються всі .dat файли у вибраній директорії Dat_Folder, знаходяться значення
 у другій колонці, які відповідають всім величинам з масиву XValues,
 записується результуючий файл ResultFileName.dat, у якому
 перша колонка - назва файлу,
@@ -23,7 +27,7 @@ procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;Current
 при ToDeleteNegativeY=True
 з вихідного файлу спочатку видаляються всі точки, де Y<0}
 
-procedure CVReverse(CurrentDir:string='');
+procedure CVReverse(Dat_Folder:string);
 {з усіх .dat файлів у вибраній директорії зчитуються дві перші колонки,
 залишається лише зворотня характеристика, значення другої колонки
 (орієнтовно там має бути ємність) діляться на S, потім розраховуються
@@ -33,7 +37,7 @@ procedure CVReverse(CurrentDir:string='');
 і видаляється, за наявності, "cprp"; розраховується висота бар'єру
 і записується разом з вихідною назву у файл 'CVbar.dat'}
 
-procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
+procedure IVmanipulate(Dat_Folder:string);
 {з усіх .dat файлів у вибраній директорії
 виділяються пряма та зворотня ділянки, значення струму ділиться та S
 і записуються у файли,
@@ -44,7 +48,7 @@ procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
 в 'comments.dat' робляться додаткові записи з новими назвами файлів;
 }
 
-procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
+procedure DatToEis(Dat_Folder:string);
 {з усіх .dat файлів у вибраній директорії створює
 файли, потрібні для EIS SPECTRUM ANALYSER;
 вважається, що вихідні файли мають чотири колонки:
@@ -54,9 +58,9 @@ procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
 активний опір, реактивний опір (додатній), частота;
 вихідний файл має те ж ім'я з доповненням FilePrefix, але розширення .txt}
 
-procedure ISresultTransform(CurrentDir:string='');
+procedure ISresultTransform(Dat_Folder:string);
 
-procedure CFTransform(CurrentDir:string='');
+procedure CFTransform(Dat_Folder:string);
 
 Function E_w(f,T:double;f0:double=5e10):double;
 {розрахунок demarcation energy для оцінки густини станів
@@ -75,21 +79,23 @@ implementation
 
 uses
   System.SysUtils, OlegVector, System.Classes, Vcl.FileCtrl, OlegType,
-  OlegFunction, OlegVectorManipulation, Vcl.Dialogs;
+  OlegFunction, OlegVectorManipulation, Vcl.Dialogs, OlegMath, System.StrUtils;
 
-procedure  YZriz(XValues:array of double;ToDeleteNegativeY:boolean=False;
-                 CurrentDir:string='';ResultFileName:string='Zriz');
+procedure  YZriz(XValues:array of double;Dat_Folder:string;
+                 ToDeleteNegativeY:boolean=False;
+                 ResultFileName:string='Zriz');
 
  var SR : TSearchRec;
-     Dat_Folder:string;
+//     Dat_Folder:string;
      i:integer;
      Vec:TVector;
      SL:TStringList;
      temp:string;
 begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
+// if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+//  then SetCurrentDir(Dat_Folder)
+//  else Exit;
+ SetCurrentDir(Dat_Folder);
  Vec:=TVector.Create;
  SL:=TStringList.Create;
 
@@ -121,28 +127,44 @@ begin
 end;
 
 
-procedure CVReverse(CurrentDir:string='');
+procedure CVReverse(Dat_Folder:string);
  var SR : TSearchRec;
-     Dat_Folder:string;
+//     Dat_Folder:string;
      i:integer;
-     Vec:TVectorTransform;
-     SL:TStringList;
+     Vec,Vec2:TVectorTransform;
      OutputData:TArrSingle;
-     temp,FilePrefix:string;
-     S:double;
+     temp,FilePrefix,ResultFolder:string;
+     S,Vbi:double;
 begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
+// if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+//  then SetCurrentDir(Dat_Folder)
+//  else Exit;
+
+ SetCurrentDir(Dat_Folder);
+
+ CreateDirSafety('CVrev');
+ CreateDirSafety('N_CV');
+ CreateDirSafety('Cforv');
 
  FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
  S:=SearchInFile('Areas.dat',FilePrefix);
  if S=ErResult then S:=1
                else S:=S*1e-6;
 
+ ResultFolder:=SearchDirForFile('Areas.dat');
+ if ResultFolder='' then Exit;
+ SetCurrentDir(ResultFolder);
+ CreateDirSafety('Results');
+ ResultFolder:=ResultFolder+'\'+'Results';
+ SetCurrentDir(ResultFolder);
+// CreateDirSafety('Crev');
+ CreateDirSafety('N_CV');
+// CreateDirSafety('Cforv');
+
+ SetCurrentDir(Dat_Folder);
+
  Vec:=TVectorTransform.Create;
- SL:=TStringList.Create;
- SL.Add('name Vb');
+ Vec2:=TVectorTransform.Create;
 
  if FindFirst(mask, faAnyFile, SR) = 0 then
    repeat
@@ -155,16 +177,50 @@ begin
     Vec.LinAprox(OutputData);
     temp:=copy(Vec.name,1,length(Vec.name)-4);
     if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
-    SL.Add(temp+' '+FloatToStrF(abs(OutputData[0]/OutputData[1]),ffExponent,6,0));
-    Vec.WriteToFile(FilePrefix+temp+'CV.dat',8);
+    temp:=FilePrefix+temp;
+    Vbi:=abs(OutputData[0]/OutputData[1]);
+    KeyAndValueToFile(ResultFolder+'\'+'CVbar.dat',temp,
+                         FloatToStrF(Vbi,ffExponent,6,0));
+    KeyAndValueToFile(ResultFolder+'\'+'Ndop.dat',temp,
+        FloatToStrF(abs(2/(OutputData[1]*Qelem*Eps0*11.7)),ffExponent,6,0));
+
+//    Vec.WriteToFile(ResultFolder+'\Crev\'+temp+'CV.dat',8);
+    Vec.WriteToFile(Dat_Folder+'\CVrev\'+temp+'CV.dat',8);
+
+    KeyAndValueToFile(Dat_Folder+'\CVrev\'+'CVbar.dat',temp,
+                         FloatToStrF(Vbi,ffExponent,6,0));
+    KeyAndValueToFile(Dat_Folder+'\N_CV\'+'Ndop.dat',temp,
+        FloatToStrF(abs(2/(OutputData[1]*Qelem*Eps0*11.7)),ffExponent,6,0));
+
+    Vec2.Clear;
+    for I := 0 to Vec.HighNumber do
+     begin
+       Vec2.Add(1e6*Eps0*11.7*sqrt(Vec.Y[i]),
+                -2/(Qelem*Eps0*11.7*Vec.DerivateAtPoint(i)));
+
+     end;
+    Vec2.WriteToFile(ResultFolder+'\N_CV\'+temp+'Nx.dat',8,'N x');
+    Vec2.WriteToFile(Dat_Folder+'\N_CV\'+temp+'Nx.dat',8,'N x');
+
+    Vec.ReadFromFile(SR.name);
+    Vec.Itself(Vec.ForwardX);
+    if S<>0 then Vec.MultiplyY(1/S);
+    KeyAndValueToFile(ResultFolder+'\'+'Vpeak.dat',temp,
+                         FloatToStrF(Vec.XValue(Vec.MaxY),ffExponent,6,0));
+    for I := 0 to Vec.HighNumber do
+     if Vec.X[i]<Vbi then
+          Vec.Y[i]:=Vec.Y[i]-1/sqrt(Linear(Vec.X[i],OutputData));
+
+//    Vec.WriteToFile(ResultFolder+'\Cforv\'+temp+'CVf.dat',8);
+    Vec.WriteToFile(Dat_Folder+'\Cforv\'+temp+'CVf.dat',8);
+
    until (FindNext(SR) <> 0);
 
- SL.SaveToFile('CVbar.dat');
- FreeAndNil(SL);
+ FreeAndNil(Vec2);
  FreeAndNil(Vec);
 end;
 
-procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
+procedure IVmanipulate(Dat_Folder:string);
 {з усіх .dat файлів у вибраній директорії
 виділяються пряма та зворотня ділянки, значення струму ділиться та S
 і записуються у файли,
@@ -175,21 +231,19 @@ procedure IVmanipulate({S:double=1;FilePrefix:string='';}CurrentDir:string='');
 в 'comments.dat' робляться додаткові записи з новими назвами файлів;
 }
  var SR : TSearchRec;
-     Dat_Folder:string;
+//     Dat_Folder:string;
      i:integer;
      Vec:TVectorTransform;
      OutputVec:TVector;
      SL:TStringList;
-//     OutputData:TArrSingle;
      temp,FilePrefix:string;
      S:double;
 begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
+// if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+//  then SetCurrentDir(Dat_Folder)
+//  else Exit;
 
-// S:=GetArea();
-// FilePrefix:=InputBox('Input File Prefix','','');
+ SetCurrentDir(Dat_Folder);
 
  FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
  S:=SearchInFile('Areas.dat',FilePrefix);
@@ -262,23 +316,22 @@ begin
 end;
 
 
-procedure DatToEis({FilePrefix:string='';}CurrentDir:string='');
+procedure DatToEis(Dat_Folder:string);
 
  var SR : TSearchRec;
-     Dat_Folder:string;
+//     Dat_Folder:string;
      i:integer;
      SL:TStringList;
      temp,FilePrefix:string;
 begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
-// FilePrefix:=InputBox('Input File Prefix','','');
+// if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+//  then SetCurrentDir(Dat_Folder)
+//  else Exit;
 
+ SetCurrentDir(Dat_Folder);
  FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
-// S:=SearchInFile('Areas.dat',FilePrefix);
-// if S=ErResult then S:=1
-//               else S:=S*1e-6;
+
+ CreateDirSafety('EISdata');
 
  SL:=TStringList.Create;
 
@@ -296,16 +349,21 @@ begin
        SL[i]:=temp;
      end;
     SL.Insert(0,inttostr(SL.Count));
-    SL.SaveToFile(FilePrefix+copy(SR.name,1,length(SR.name)-3)+'txt');
+    temp:=copy(SR.name,1,length(SR.name)-3);
+    if Pos('rr',temp)>0 then Delete(temp,Pos('rr',temp),2);
+    if Pos('rz',temp)>0 then Delete(temp,Pos('rz',temp),2);
+    if Pos('rx',temp)>0 then Delete(temp,Pos('rx',temp),2);
+    temp:=ReplaceStr(temp,'2V22E-16','0V');
+    SL.SaveToFile(Dat_Folder+'\EISdata\'+FilePrefix+temp+'txt');
    until (FindNext(SR) <> 0);
 
  FreeAndNil(SL);
 end;
 
 
-procedure ISresultTransform(CurrentDir:string='');
+procedure ISresultTransform(Dat_Folder:string);
  var SR : TSearchRec;
-     Dat_Folder:string;
+//     Dat_Folder:string;
      i,ColumnNumberMax,ColumnNumber:integer;
      Vec:TVectorTransform;
      SL,SLFile,SLFileNew:TStringList;
@@ -313,12 +371,16 @@ procedure ISresultTransform(CurrentDir:string='');
      temp,{FilePrefix,}ShortFileName:string;
      S,tempDouble:double;
 begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
+// if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+//  then SetCurrentDir(Dat_Folder)
+//  else Exit;
 
-// FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
+ SetCurrentDir(Dat_Folder);
 
+ CreateDirSafety('CVrev');
+ CreateDirSafety('CVis');
+ CreateDirSafety('Rs');
+ CreateDirSafety('Rp');
 
  Vec:=TVectorTransform.Create;
  SL:=TStringList.Create;
@@ -384,16 +446,20 @@ begin
 end;
 
 
-procedure CFTransform(CurrentDir:string='');
-var Dat_Folder,ResultFolder,FilePrefix,temp:string;
+procedure CFTransform(Dat_Folder:string);
+var {Dat_Folder,}ResultFolder,FilePrefix,temp:string;
     SR : TSearchRec;
     i:integer;
     Vec,VecNew:TVectorTransform;
     S:double;
 begin
- if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
-  then SetCurrentDir(Dat_Folder)
-  else Exit;
+// if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
+//  then SetCurrentDir(Dat_Folder)
+//  else Exit;
+
+ SetCurrentDir(Dat_Folder);
+ CreateDirSafety('Nt_Cf');
+ CreateDirSafety('G_f');
 
  FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
  S:=SearchInFile('Areas.dat',FilePrefix);
@@ -439,13 +505,14 @@ begin
         Vec.Y[i]:= Vec.Y[i]/(2*Pi*Vec.X[i]);
       Vec.MultiplyY(1/S);
       Vec.WriteToFile(ResultFolder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'G/w f');
+      Vec.WriteToFile(Dat_Folder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'G/w f');
      end;
 
     for i:=0 to VecNew.HighNumber do
       VecNew.X[i]:=E_w(VecNew.X[i],VecNew.T);
 
     VecNew.WriteToFile(ResultFolder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Nt Ew');
-//    SetCurrentDir(Dat_Folder);
+    VecNew.WriteToFile(Dat_Folder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Nt Ew');
    until (FindNext(SR) <> 0);
   FreeAndNil(Vec);
   FreeAndNil(VecNew);

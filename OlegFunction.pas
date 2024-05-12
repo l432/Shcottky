@@ -307,6 +307,15 @@ procedure ForAllDatFilesAction(ProcedFile:TProcedFile;CurrentDir:string='';
 procedure SelectDatFileAndAction(ProcedFile:TProcedFile);
 {відкривається .dat файл і з ним пророблюється ProcedFile}
 
+procedure ForAllDirAction(ProcedFile:TProcedFile;DirName:string;
+                         CurrentDir:string='';ToChoseDir:boolean=True);
+{вибирається директорія (CurrentDir - місце, з якого починається вибір),
+потім в цій директорії шукаються всі піддиректорії з назвою  DirName
+і в процедуру  ProcedFile передається їхній повний шлях;
+якщо ToChoseDir=True, то вибираємо місце початкового пошуку,
+якщо False, то вибору не пропонується і зразу починається пошук з CurrentDir;
+додав цю змінну для можливості рекурсії}
+
 function SdandartScalerTransform(X, Mean, Std: double; ToLogData: Boolean=False):double;
 {if ToLogData Result:=(log(X)-Mean)/Std
  else Result:=(X-Mean)/Std}
@@ -323,6 +332,11 @@ function SearchInStringList(SL:TStringList;Key:string;Number:byte=2):double;
 з Key на позиції номер Number;
 нумерація позицій з 1, вважається, що вони відділені одна від одної пробілами;
 наявність декількох рядків з однаковим початком не перевіряється}
+
+Procedure KeyAndValueToFile(FileName,Key,Value:string);
+{у файлі FileName шукається рядок, який починається з Key;
+якщо рядок знаходиться, то він замінюється новим Key+' '+Value,
+якщо не знаходиться, то рядок Key+' '+Value записується у кінець файлу}
 
 function SearchInFile(FileName,Key:string;Number:byte=2):double;
 {шукає у файлі з назвою FileName число, що розташоване в рядку, який починається
@@ -1594,6 +1608,54 @@ if OD.Execute() then  ProcedFile(OD.FileName);
 FreeAndNil(OD);
 end;
 
+procedure ForAllDirAction(ProcedFile:TProcedFile;DirName:string;
+                         CurrentDir:string='';ToChoseDir:boolean=True);
+{вибирається директорія (CurrentDir - місце, з якого починається вибір),
+потім в цій директорії шукаються всі піддиректорії з назвою  DirName
+і в процедуру  ProcedFile передається їхній повний шлях;
+якщо ToChoseDir=True, то вибираємо місце початкового пошуку,
+якщо False, то вибору не пропонується і зразу починається пошук з CurrentDir;
+додав цю змінну для можливості рекурсії}
+ var StartFolder:string;
+     SR : TSearchRec;
+begin
+ if ToChoseDir
+  then
+   begin
+     if SelectDirectory('Choose Directory',CurrentDir, StartFolder)
+      then SetCurrentDir(StartFolder)
+      else Exit;
+   end
+  else
+  begin
+   StartFolder:=CurrentDir;
+   SetCurrentDir(StartFolder);
+  end;
+
+  if FindFirst('*', faDirectory, SR) = 0 then
+    begin
+      repeat
+       if (SR.attr and faDirectory) = faDirectory
+        then
+         begin
+           if SR.Name=DirName
+             then ProcedFile(StartFolder+'\'+SR.Name)
+             else begin
+                   if (SR.Name='.') or  (SR.Name='..')
+                     then Continue
+                     else
+                      begin
+                       ForAllDirAction(ProcedFile,DirName,StartFolder+'\'+SR.Name,False);
+                       SetCurrentDir(StartFolder);
+                      end;
+                  end;
+         end;
+      until FindNext(SR) <> 0;
+     FindClose(SR);
+    end;
+
+end;
+
 function SdandartScalerTransform(X, Mean, Std: double; ToLogData: Boolean=False):double;
 {if ToLogData Result:=(log(X)-Mean)/Std
  else Result:=(X-Mean)/Std}
@@ -1635,6 +1697,36 @@ for I := 0 to SL.Count-1 do
     Result:=FloatDataFromRow(SL[i],Number);
     Exit
    end;
+end;
+
+Procedure KeyAndValueToFile(FileName,Key,Value:string);
+{у файлі FileName шукається рядок, який починається з Key;
+якщо рядок знаходиться, то він замінюється новим Key+' '+Value,
+якщо не знаходиться, то рядок Key+' '+Value записується у кінець файлу}
+ var SL:TStringList;
+     I:Integer;
+     KeyIsNotPresent:boolean;
+begin
+ SL:=TStringList.Create;
+ if FileExists(FileName) then
+  begin
+   SL.LoadFromFile(FileName);
+   KeyIsNotPresent:=True;
+   for I := 0 to SL.Count-1 do
+    if StringDataFromRow(SL[i],1)=Key then
+     begin
+      SL[i]:=Key+' '+Value;
+      KeyIsNotPresent:=False;
+      Break;
+     end;
+   if KeyIsNotPresent then SL.Add(Key+' '+Value);
+  end                   else
+  begin
+   SL.Add(Key+' '+Value);
+  end;
+
+ SL.SaveToFile(FileName);
+ FreeAndNil(SL);
 end;
 
 function SearchInFile(FileName,Key:string;Number:byte=2):double;
@@ -1683,7 +1775,7 @@ function SearchDirForFile(FileName:string):string;
 сам файл шукається спочатку у поточній директорії,
 якщо його немає - піднімаємося на рівень вище і так до диску;
 якщо відбувалися переходи по папкам, то однаково в кінці повертаємось до поточної}
- var SL:TStringList;
+ var
      CDir,InitDir:string;
      DontStop:Boolean;
 begin

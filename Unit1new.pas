@@ -1825,11 +1825,14 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   StartFoldersToForm();
 
   CBActions.Items.Clear;
-  CBActions.Items.Add(CVReverseName);
-  CBActions.Items.Add(IVmanipulateName);
-  CBActions.Items.Add(DatToEisName);
-  CBActions.Items.Add(ISresultTransformName);
-  CBActions.Items.Add(YZrizName);
+  for I := 0 to High(ActionsName) do
+     CBActions.Items.Add(ActionsName[i]);
+//  CBActions.Items.Add(CVReverseName);
+//  CBActions.Items.Add(IVmanipulateName);
+//  CBActions.Items.Add(DatToEisName);
+//  CBActions.Items.Add(ISresultTransformName);
+//  CBActions.Items.Add(CFTransformName);
+//  CBActions.Items.Add(YZrizName);
   CBActions.ItemIndex:=0;
 
   BActionDo.OnClick:=ActionDoClick;
@@ -2868,19 +2871,28 @@ begin
 end;
 
 procedure TForm1.ActionDoClick(Sender: TObject);
- var Key:string;
+ var Key,Dat_Folder:string;
 begin
  Key:=CBActions.Items[CBActions.ItemIndex];
- if Key=YZrizName
-    then YZriz([0.02,0.1,1,3,5,8,10,15,22,30],True,L_StartFolder.Caption);
- if Key=CVReverseName
-    then CVReverse(L_StartFolder.Caption);
- if Key=IVmanipulateName
-    then IVmanipulate(L_StartFolder.Caption);
- if Key=DatToEisName
-    then DatToEis(L_StartFolder.Caption);
- if Key=ISresultTransformName
-    then ISresultTransform(L_StartFolder.Caption);
+
+ if SelectDirectory('Choose Directory',L_StartFolder.Caption, Dat_Folder)
+  then
+   begin
+   if Key=YZrizName
+      then YZriz([0.02,0.1,1,3,5,8,10,15,22,30],Dat_Folder,True);
+   if Key=CVReverseName
+      then CVReverse(Dat_Folder);
+   if Key=IVmanipulateName
+      then IVmanipulate(Dat_Folder);
+   if Key=DatToEisName
+      then DatToEis(Dat_Folder);
+   if Key=ISresultTransformName
+      then ISresultTransform(Dat_Folder);
+   if Key=CFTransformName
+      then CFTransform(Dat_Folder);
+   end
+  else Exit;
+
 end;
 
 procedure TForm1.ApproxHide;
@@ -3953,7 +3965,8 @@ var
 begin
 
 //CFTransform('D:\DeepL\2024\ODiod\Series\8xSeries\d81a');
-CFTransform('D:\DeepL\2024\ODiod\Series');
+//CFTransform('D:\DeepL\2024\ODiod\Series');
+ForAllDirAction(CVReverse,'CV','D:\Samples\DeepL\2024\ODiod');
 
 //Mu_TNdop(True,True);
 //Mu_TNdop(True,False);
