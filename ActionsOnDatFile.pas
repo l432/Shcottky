@@ -67,7 +67,7 @@ Function E_w(f,T:double;f0:double=5e10):double;
 за залежністю ємності від частоти;
 []=eV}
 
-Function Wd(Vbi,N:double;V:double=0;Eps:double=11.7;T:double=0):double;
+Function Wd(Vbi,N,T:double;V:double=0;Eps:double=11.7):double;
 {обчислення ширини області збіднення
 Vbi - build-in-voltage,V
 N - концентрація носіїв, м-3
@@ -199,8 +199,8 @@ begin
                 -2/(Qelem*Eps0*11.7*Vec.DerivateAtPoint(i)));
 
      end;
-    Vec2.WriteToFile(ResultFolder+'\N_CV\'+temp+'Nx.dat',8,'N x');
-    Vec2.WriteToFile(Dat_Folder+'\N_CV\'+temp+'Nx.dat',8,'N x');
+    Vec2.WriteToFile(ResultFolder+'\N_CV\'+temp+'Nx.dat',8,'x N');
+    Vec2.WriteToFile(Dat_Folder+'\N_CV\'+temp+'Nx.dat',8,'x N');
 
     Vec.ReadFromFile(SR.name);
     Vec.Itself(Vec.ForwardX);
@@ -366,9 +366,9 @@ procedure ISresultTransform(Dat_Folder:string);
 //     Dat_Folder:string;
      i,ColumnNumberMax,ColumnNumber:integer;
      Vec:TVectorTransform;
-     SL,SLFile,SLFileNew:TStringList;
+     {SL,}SLFile,SLFileNew:TStringList;
      OutputData:TArrSingle;
-     temp,{FilePrefix,}ShortFileName:string;
+     temp,{FilePrefix,}ShortFileName,ResultFolder,Vbi:string;
      S,tempDouble:double;
 begin
 // if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
@@ -378,15 +378,17 @@ begin
  SetCurrentDir(Dat_Folder);
 
  CreateDirSafety('CVrev');
- CreateDirSafety('CVis');
- CreateDirSafety('Rs');
- CreateDirSafety('Rp');
+
+ ResultFolder:=SearchDirForFile('Areas.dat');
+ if ResultFolder='' then Exit;
+ SetCurrentDir(ResultFolder);
+ CreateDirSafety('Results');
+ ResultFolder:=ResultFolder+'\'+'Results';
+ SetCurrentDir(Dat_Folder);
 
  Vec:=TVectorTransform.Create;
- SL:=TStringList.Create;
  SLFile:=TStringList.Create;
  SLFileNew:=TStringList.Create;
- SL.Add('name Vb');
 
  if FindFirst('*.txt', faAnyFile, SR) = 0 then
    repeat
@@ -402,10 +404,13 @@ begin
     for I := 0 to Vec.HighNumber do
       Vec.Y[i]:=1/(sqr(Vec.Y[i]));
     Vec.LinAprox(OutputData);
-//    temp:=copy(Vec.name,1,length(Vec.name)-4);
-//    if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
-    SL.Add(ShortFileName+' '+FloatToStrF(abs(OutputData[0]/OutputData[1]),ffExponent,6,0));
-    Vec.WriteToFile(ShortFileName+'CVrev.dat',8);
+
+
+    Vbi:=FloatToStrF(abs(OutputData[0]/OutputData[1]),ffExponent,6,0);
+    KeyAndValueToFile(ResultFolder+'\'+'CVbar.dat',ShortFileName+'IS',Vbi);
+    KeyAndValueToFile(Dat_Folder+'\CVrev\'+'CVbar.dat',ShortFileName,Vbi);
+
+    Vec.WriteToFile(Dat_Folder+'\CVrev\'+ShortFileName+'CVrev.dat',8);
 
     SLFile.Clear;
     SLFile.LoadFromFile(SR.name);
@@ -427,21 +432,19 @@ begin
         temp:=temp+FloatToStrF(tempDouble,ffExponent,6,0);
         SLFileNew.Add(temp);
        end;
-      SLFileNew.SaveToFile(ShortFileName
-           +StringDataFromRow(SLFile[0],ColumnNumber)+'.dat');
+      CreateDirSafety(StringDataFromRow(SLFile[0],ColumnNumber));
+      SLFileNew.SaveToFile(Dat_Folder+'\'+StringDataFromRow(SLFile[0],ColumnNumber)
+               +'\'+ShortFileName
+               +StringDataFromRow(SLFile[0],ColumnNumber)+'.dat');
 
       ColumnNumber:=ColumnNumber+2;
      end;
 
-
-
    until (FindNext(SR) <> 0);
 
- SL.SaveToFile('CVbar.dat');
 
  FreeAndNil(SLFileNew);
  FreeAndNil(SLFile);
- FreeAndNil(SL);
  FreeAndNil(Vec);
 end;
 
@@ -451,7 +454,7 @@ var {Dat_Folder,}ResultFolder,FilePrefix,temp:string;
     SR : TSearchRec;
     i:integer;
     Vec,VecNew:TVectorTransform;
-    S:double;
+    S,Vbi,N,W:double;
 begin
 // if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
 //  then SetCurrentDir(Dat_Folder)
@@ -465,6 +468,11 @@ begin
  S:=SearchInFile('Areas.dat',FilePrefix);
  if S=ErResult then S:=1
                else S:=S*1e-6;
+ Vbi:=SearchInFile('Vbi.dat',FilePrefix);
+ if Vbi=ErResult then Vbi:=1;
+ N:=SearchInFile('N.dat',FilePrefix);
+ if N=ErResult then N:=1;
+
 
  ResultFolder:=SearchDirForFile('Areas.dat');
  if ResultFolder='' then Exit;
@@ -485,15 +493,14 @@ begin
    repeat
     if FileNameIsBad(SR.name)then Continue;
     Vec.ReadFromFile(SR.name);
-//    showmessage(SR.name);
     for i:=1 to 20 do
      Vec.Itself(Vec.Smoothing);
     Vec.Itself(Vec.Derivate);
     Vec.Itself(Vec.Power);
-//    showmessage(floattostr(Vec.T));
-    Vec.MultiplyY(-1/(Kb*Vec.T*Qelem*S));
+    if Pos('0V4',SR.name)>0 then Vbi:=Vbi-0.4;
+    W:=Wd(Vbi,N,Vec.T);
+    Vec.MultiplyY(-Vbi/(Kb*Vec.T*Qelem*S*W*1e6));
     Vec.CopyLimitedX(VecNew,1e3,1e7);
-//    SetCurrentDir(ResultFolder);
 
     temp:=copy(Vec.name,1,length(SR.name)-4);
     if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
@@ -504,15 +511,15 @@ begin
       for i:=0 to Vec.HighNumber do
         Vec.Y[i]:= Vec.Y[i]/(2*Pi*Vec.X[i]);
       Vec.MultiplyY(1/S);
-      Vec.WriteToFile(ResultFolder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'G/w f');
-      Vec.WriteToFile(Dat_Folder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'G/w f');
+      Vec.WriteToFile(ResultFolder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'f G/w');
+      Vec.WriteToFile(Dat_Folder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'f G/w');
      end;
 
     for i:=0 to VecNew.HighNumber do
       VecNew.X[i]:=E_w(VecNew.X[i],VecNew.T);
 
-    VecNew.WriteToFile(ResultFolder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Nt Ew');
-    VecNew.WriteToFile(Dat_Folder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Nt Ew');
+    VecNew.WriteToFile(ResultFolder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Ew Nt');
+    VecNew.WriteToFile(Dat_Folder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Ew Nt');
    until (FindNext(SR) <> 0);
   FreeAndNil(Vec);
   FreeAndNil(VecNew);
@@ -526,7 +533,7 @@ begin
   Result:=Kb*abs(T)*ln(abs(f0)/f);
 end;
 
-Function Wd(Vbi,N:double;V:double=0;Eps:double=11.7;T:double=0):double;
+Function Wd(Vbi,N,T:double;V:double=0;Eps:double=11.7):double;
 {обчислення ширини області збіднення
 Vbi - build-in-voltage,V
 N - концентрація носіїв, м-3

@@ -3964,9 +3964,9 @@ var
 
 begin
 
-//CFTransform('D:\DeepL\2024\ODiod\Series\8xSeries\d81a');
-//CFTransform('D:\DeepL\2024\ODiod\Series');
 ForAllDirAction(CVReverse,'CV','D:\Samples\DeepL\2024\ODiod');
+//ForAllDirAction(DatToEis,'RZ','D:\Samples\DeepL\2024\ODiod');
+//ForAllDirAction(ISresultTransform,'IS','D:\Samples\DeepL\2024\ODiod');
 
 //Mu_TNdop(True,True);
 //Mu_TNdop(True,False);
