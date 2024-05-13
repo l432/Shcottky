@@ -174,6 +174,25 @@ begin
     if S<>0 then Vec.MultiplyY(1/S);
     for I := 0 to Vec.HighNumber do
       Vec.Y[i]:=1/(sqr(Vec.Y[i]));
+
+//          d52b, d54a
+//    Vec.CopyLimitedX(Vec2,-10,-0.6);
+//    Vec2.CopyTo(Vec);
+//          d54a
+//    Vec.CopyLimitedX(Vec2,-1.2,-0.2);
+//    Vec2.CopyTo(Vec);
+//          d54b
+//    Vec.CopyLimitedX(Vec2,-1.3,-0.4);
+//    Vec2.CopyTo(Vec);
+//          d81c
+//    Vec.CopyLimitedX(Vec2,-10,-0.3);
+//    Vec2.CopyTo(Vec);
+//          d44s
+//    Vec.CopyLimitedX(Vec2,-10,-0.2);
+//    Vec2.CopyTo(Vec);
+//    Vec.CopyLimitedX(Vec2,-10,-0.2);
+//    Vec2.CopyTo(Vec);
+
     Vec.LinAprox(OutputData);
     temp:=copy(Vec.name,1,length(Vec.name)-4);
     if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
@@ -496,11 +515,21 @@ begin
     for i:=1 to 20 do
      Vec.Itself(Vec.Smoothing);
     Vec.Itself(Vec.Derivate);
+
+
     Vec.Itself(Vec.Power);
+//    showmessage(Vec.XYtoString);
+
     if Pos('0V4',SR.name)>0 then Vbi:=Vbi-0.4;
     W:=Wd(Vbi,N,Vec.T);
+//    showmessage(floattostr(W));
+//    showmessage(floattostr(Vbi));
+//    showmessage(floattostr(Vec.T));
+
     Vec.MultiplyY(-Vbi/(Kb*Vec.T*Qelem*S*W*1e6));
     Vec.CopyLimitedX(VecNew,1e3,1e7);
+    if Pos('0V4',SR.name)>0 then Vbi:=Vbi+0.4;
+//    showmessage(Vec.XYtoString);
 
     temp:=copy(Vec.name,1,length(SR.name)-4);
     if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
