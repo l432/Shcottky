@@ -3964,10 +3964,12 @@ var
 
 begin
 
+  SomethingForCastro;
+
 //ForAllDirAction(CVReverse,'CV','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(DatToEis,'RZ','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(ISresultTransform,'IS','D:\Samples\DeepL\2024\ODiod');
-ForAllDirAction(CFTransform,'Cf','D:\Samples\DeepL\2024\ODiod');
+//ForAllDirAction(CFTransform,'Cf','D:\Samples\DeepL\2024\ODiod');
 
 
 //Mu_TNdop(True,True);
@@ -4038,7 +4040,7 @@ ForAllDirAction(CFTransform,'Cf','D:\Samples\DeepL\2024\ODiod');
 // if OpenDialog1.Execute()
 //       then NormNphSpectr(OpenDialog1.FileName);
 //     then  SomethingForCastro2(OpenDialog1.FileName);
-//  SomethingForCastro;
+
 //  LambertEvaluation();
 // IVCreation();
 

@@ -28,6 +28,7 @@ const
  Tend=350;
 
  Nrep=51;
+// Nrep=1;
 
  TimeOfFiting:array[TEvolutionTypeNew]of double=
   (42,
@@ -406,6 +407,10 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 
 //    FFunction.FileSuffix:=EvTypeNames[EvolType];
 //    FFunction.RealToFile;
+// кривих збіжності
+//     RenameFile(ExtractFilePath(ParamStr(0))+'converg.dat',
+//                ExtractFilePath(ParamStr(0))+EvTypeNames[EvolType]+'_AE'+'converg.dat')
+
     end
                                 else Break;
   end;
@@ -1098,11 +1103,11 @@ begin
   // Par3[7]:=4.85e-5;
   // Par3[8]:=300;
 
-//  pssAfiting();
+  pssAfiting();
 
 // Idealfiting();
 
-Test1NResultRebuilding();
+//Test1NResultRebuilding();
 
 
 end;

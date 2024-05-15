@@ -368,15 +368,11 @@ begin
        repeat
         fFittingAgent.IterationAction;
 //  revrev  convergence graphs
-           fFittingAgent.DataCoordination;
-           fDParamArray.OutputDataCoordinate;
+//           fFittingAgent.DataCoordination;
+//           fDParamArray.OutputDataCoordinate;
 //           KeyAndValueToFile(ExtractFilePath(ParamStr(0))+'converg.dat',
 //           inttostr(fFittingAgent.CurrentIterationOrFitFuncEvaluation),
-//           floattostr(
-//           (fFittingAgent as TFA_Heuristic).FitnessData[MinElemNumber((fFittingAgent as TFA_Heuristic).FitnessData)]));
-           KeyAndValueToFile(ExtractFilePath(ParamStr(0))+'converg.dat',
-           inttostr(fFittingAgent.CurrentIterationOrFitFuncEvaluation),
-           floattostr(Deviation));
+//           floattostr(Deviation));
 
         if fFittingAgent.IstimeToShow
            or(Timer.ReadTimer>15000)
