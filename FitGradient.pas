@@ -138,7 +138,7 @@ implementation
 
 uses
   FitVariableShow, SysUtils, OlegMathShottky, FitIterationShow,
-  HighResolutionTimer, TypInfo, Math, FitHeuristic;
+  HighResolutionTimer, TypInfo, Math, FitHeuristic, Vcl.Dialogs;
 
 { TFFVariabSet }
 
@@ -367,11 +367,22 @@ begin
 
        repeat
         fFittingAgent.IterationAction;
+//  revrev  convergence graphs
+           fFittingAgent.DataCoordination;
+           fDParamArray.OutputDataCoordinate;
+//           KeyAndValueToFile(ExtractFilePath(ParamStr(0))+'converg.dat',
+//           inttostr(fFittingAgent.CurrentIterationOrFitFuncEvaluation),
+//           floattostr(
+//           (fFittingAgent as TFA_Heuristic).FitnessData[MinElemNumber((fFittingAgent as TFA_Heuristic).FitnessData)]));
+           KeyAndValueToFile(ExtractFilePath(ParamStr(0))+'converg.dat',
+           inttostr(fFittingAgent.CurrentIterationOrFitFuncEvaluation),
+           floattostr(Deviation));
 
         if fFittingAgent.IstimeToShow
            or(Timer.ReadTimer>15000)
            then
            begin
+//            ShowMessage('Директорія програми: ' + ExtractFilePath(ParamStr(0)));
             fFittingAgent.DataCoordination;
             fWindowAgent.UpDate;
             Application.ProcessMessages;

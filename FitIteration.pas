@@ -281,7 +281,7 @@ Procedure PVparameteres(DataToFit:TVectorTransform;ParamArray:TDParamArray);
 implementation
 
 uses
-  SysUtils, OlegFunction, OlegMath, FitGradient, Math;
+  SysUtils, OlegFunction, OlegMath, FitGradient, Math, Vcl.Dialogs;
 
 { TDParamArray }
 
@@ -377,6 +377,7 @@ begin
   for I := 0 to High(fParams) do
    if fParams[i].Name=str then
       begin
+//        showmessage(inttostr(i));
         OutputData[i]:=fParams[i].Value;
         Exit;
       end;
