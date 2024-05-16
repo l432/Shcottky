@@ -128,6 +128,8 @@ TNormalD=class
 нормальному розподілу з середнім mu та дисперсією sigma^2}
 end;
 
+
+
 TChiSquaredD=class
 {хі-квадрат розподіл}
  private
@@ -288,6 +290,13 @@ Function DimensionsNotDetermined(Arr:array of TVector;var ProblemNumbers:integer
 фактично, визначаються кількості алгоритмів та задач і перевіряються обмеження:
 - розмір всіх векторів має бути однаковим;
 - кількості алгоритмів чи проблем не менше 2}
+
+function GausRozpodil(Argument:double;Parameters:array of double):double;
+{рахує розподіл Гауса
+Parameters[0]=mu
+Parameters[1]=sigma
+використовується функція TNormalD.PDF,
+але зробив, бо потрібна була для заповнення вектора}
 
 type
 
@@ -767,6 +776,17 @@ begin
  if (AlgorithmNumbers<2)or(ProblemNumbers<2) then Exit;
  if ProblemNumbers<> ExtremCountVectorArray(Arr,False) then Exit;
  Result:=False;
+end;
+
+function GausRozpodil(Argument:double;Parameters:array of double):double;
+{рахує розподіл Гауса
+Parameters[0]=mu
+Parameters[1]=sigma
+використовується функція TNormalD.PDF,
+але зробив, бо потрібна була для заповнення вектора}
+begin
+ if High(Parameters)<>1 then Exit(ErResult);
+ Result:=TNormalD.PDF(Argument,Parameters[0],Parameters[1]);
 end;
 
 

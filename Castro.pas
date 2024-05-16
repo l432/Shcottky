@@ -216,7 +216,7 @@ procedure CastroParamToStringArray(var SA:TArrStr);
 
 procedure SortingStringList(SL:TStringList;ColumnNumber:byte=2);
 
-
+Procedure ForScatterPlots();
 
 
 implementation
@@ -1106,13 +1106,13 @@ begin
   // Par3[7]:=4.85e-5;
   // Par3[8]:=300;
 
-  pssAfiting();
+//  pssAfiting();
 
 // Idealfiting();
 
 //Test1NResultRebuilding();
 
-
+  ForScatterPlots();
 end;
 
 procedure SomethingForCastro2(FileName:string);
@@ -1970,6 +1970,90 @@ begin
  for I := 0 to Vec.HighNumber do
    SL.Add(tempSL[round(Vec.Y[i])]);
  FreeAndNil(Vec);
+ FreeAndNil(tempSL);
+end;
+
+Procedure ForScatterPlots();
+ var tempSL,SLFile:TStringList;
+     i,j:integer;
+     EvolType:TEvolutionTypeNew;
+     T,tempDouble:double;
+     tempstr:string;
+     Vec1,Vec2:TVector;
+begin
+ tempSL:=TStringList.Create;
+ SLFile:=TStringList.Create;
+ Vec1:=TVector.Create;
+ Vec2:=TVector.Create;
+ SLFile.LoadFromFile('StatAll.dat');
+ for i:=2 to 9 do  //по різним параметрам
+ begin
+   for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//   EvolType := etADELI;
+     begin
+      tempSL.Clear;
+      tempSL.Add('True Mean Median');
+      T:=Tbegin;
+      repeat
+       for j:=1 to SLFile.Count-1 do
+        begin
+         if Pos('T='+inttostr(round(T)),SLFile[j])>0 then Break;
+        end;
+       inc(j);
+       tempstr:=StringDataFromRow(SLFile[j],i);
+       repeat
+        inc(j);
+        if Pos(EvTypeNames[EvolType]+' %',SLFile[j])>0 then Break;
+       until j>=SLFile.Count-1;
+       inc(j);
+       tempstr:=tempstr+' '+StringDataFromRow(SLFile[j],i);
+       inc(j);
+       tempstr:=tempstr+' '+StringDataFromRow(SLFile[j],i);
+       tempstr:=tempstr+' '+StringDataFromRow(tempstr,1);
+       tempSL.Add(tempstr);
+
+       T:=T+10;
+      until (T>Tend);
+     tempSL.SaveToFile(EvTypeNames[EvolType]+StringDataFromRow(SLFile[0],i)+'.dat');
+     if (i=2) or (i=4) then
+      begin
+       Vec1.Clear;
+       Vec2.Clear;
+       for j:=1 to tempSL.Count-1 do
+        Vec1.Add(FloatDataFromRow(tempSL[j],2),FloatDataFromRow(tempSL[j],3));
+       Vec2.Filling(GausRozpodil,
+                     max(0,Vec1.MeanX-5*Vec1.StandartDeviationNX),
+                     Vec1.MeanX+5*Vec1.StandartDeviationNX,
+                     [Vec1.MeanX,Vec1.StandartDeviationNX],
+                     100);
+       tempDouble:=Vec2.MaxY;
+       Vec2.MultiplyY(1/tempDouble);
+       Vec2.WriteToFile(EvTypeNames[EvolType]+StringDataFromRow(SLFile[0],i)+'Mean.dat',8);
+       Vec2.Clear;
+       for j:=0 to Vec1.HighNumber do
+         Vec2.Add(Vec1.X[j],GausRozpodil(Vec1.X[j],[Vec1.MeanX,Vec1.StandartDeviationNX]));
+       Vec2.MultiplyY(1/tempDouble);
+       Vec2.WriteToFile(EvTypeNames[EvolType]+StringDataFromRow(SLFile[0],i)+'MnP.dat',8);
+
+       Vec2.Filling(GausRozpodil,
+                     max(0,Vec1.MeanY-5*Vec1.StandartDeviationNY),
+                     Vec1.MeanY+5*Vec1.StandartDeviationNY,
+                     [Vec1.MeanY,Vec1.StandartDeviationNY],
+                     100);
+       tempDouble:=Vec2.MaxY;
+       Vec2.MultiplyY(1/tempDouble);
+       Vec2.WriteToFile(EvTypeNames[EvolType]+StringDataFromRow(SLFile[0],i)+'Median.dat',8);
+       Vec2.Clear;
+       for j:=0 to Vec1.HighNumber do
+         Vec2.Add(Vec1.Y[j],GausRozpodil(Vec1.Y[j],[Vec1.MeanY,Vec1.StandartDeviationNY]));
+       Vec2.MultiplyY(1/tempDouble);
+       Vec2.WriteToFile(EvTypeNames[EvolType]+StringDataFromRow(SLFile[0],i)+'MdP.dat',8);
+      end;
+     end;
+ end;
+ FreeAndNil(Vec1);
+ FreeAndNil(Vec2);
+ FreeAndNil(SLFile);
  FreeAndNil(tempSL);
 end;
 
