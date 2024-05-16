@@ -373,7 +373,8 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 begin
  FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
  FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
- WriteIniDef(FFunction.ConfigFile,FFunction.Name,'Nit',Niter[EvolType],1000);
+// WriteIniDef(FFunction.ConfigFile,FFunction.Name,'Nit',Niter[EvolType],1000);
+ WriteIniDef(FFunction.ConfigFile,FFunction.Name,'Nit',round(1.5*Niter[EvolType]),1000);
 
  FreeAndNil(FFunction);
  FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
@@ -409,7 +410,7 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 //    FFunction.RealToFile;
 // кривих збіжності
 //     RenameFile(ExtractFilePath(ParamStr(0))+'converg.dat',
-//                ExtractFilePath(ParamStr(0))+EvTypeNames[EvolType]+'_AE'+'converg.dat')
+//                ExtractFilePath(ParamStr(0))+EvTypeNames[EvolType]+'_SE'+'converg.dat')
 
     end
                                 else Break;
@@ -642,6 +643,7 @@ begin
   Vec := TVectorTransform.Create;
   Vec.ReadFromFile('pssA.dat');
   for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+//  EvolType :=etADELI;
     CastroFitting(EvolType, Par1, Vec);
   FreeAndNil(Vec);
 end;
@@ -660,6 +662,7 @@ begin
  StrRez:=TStringList.Create;
 
  for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+// EvolType :=etADELI;
   begin
    T:=Tbegin;
    repeat
