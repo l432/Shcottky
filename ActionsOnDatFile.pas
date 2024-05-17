@@ -159,7 +159,7 @@ begin
  SetCurrentDir(ResultFolder);
 // CreateDirSafety('Crev');
  CreateDirSafety('N_CV');
-// CreateDirSafety('Cforv');
+ CreateDirSafety('Cforv');
 
  SetCurrentDir(Dat_Folder);
 
@@ -169,7 +169,12 @@ begin
  if FindFirst(mask, faAnyFile, SR) = 0 then
    repeat
     if FileNameIsBad(SR.name)then Continue;
+
     Vec.ReadFromFile(SR.name);
+    temp:=copy(Vec.name,1,length(Vec.name)-4);
+    if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
+    temp:=FilePrefix+temp;
+
     Vec.Itself(Vec.ReverseX);
     if S<>0 then Vec.MultiplyY(1/S);
     for I := 0 to Vec.HighNumber do
@@ -194,9 +199,6 @@ begin
 //    Vec2.CopyTo(Vec);
 
     Vec.LinAprox(OutputData);
-    temp:=copy(Vec.name,1,length(Vec.name)-4);
-    if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
-    temp:=FilePrefix+temp;
     Vbi:=abs(OutputData[0]/OutputData[1]);
     KeyAndValueToFile(ResultFolder+'\'+'CVbar.dat',temp,
                          FloatToStrF(Vbi,ffExponent,6,0));
@@ -226,11 +228,11 @@ begin
     if S<>0 then Vec.MultiplyY(1/S);
     KeyAndValueToFile(ResultFolder+'\'+'Vpeak.dat',temp,
                          FloatToStrF(Vec.XValue(Vec.MaxY),ffExponent,6,0));
-    for I := 0 to Vec.HighNumber do
-     if Vec.X[i]<Vbi then
-          Vec.Y[i]:=Vec.Y[i]-1/sqrt(Linear(Vec.X[i],OutputData));
+//    for I := 0 to Vec.HighNumber do
+//     if Vec.X[i]<Vbi then
+//          Vec.Y[i]:=Vec.Y[i]-1/sqrt(Linear(Vec.X[i],OutputData));
 
-//    Vec.WriteToFile(ResultFolder+'\Cforv\'+temp+'CVf.dat',8);
+    Vec.WriteToFile(ResultFolder+'\Cforv\'+temp+'CVf.dat',8);
     Vec.WriteToFile(Dat_Folder+'\Cforv\'+temp+'CVf.dat',8);
 
    until (FindNext(SR) <> 0);
