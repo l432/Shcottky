@@ -269,7 +269,7 @@ begin
  FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
  S:=SearchInFile('Areas.dat',FilePrefix);
  if S=ErResult then S:=1
-               else S:=S*1e-6;
+               else S:=S*1e-2;
 
  Vec:=TVectorTransform.Create;
  OutputVec:=TVector.Create;
