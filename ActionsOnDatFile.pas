@@ -9,10 +9,14 @@ const
  DatToEisName='Dat for IS';
  ISresultTransformName='IS result transform';
  CFTransformName='CF processing';
+ SomeThingName='Something else';
+
+ IVFittingFile='IVfitting.dat';
 
 
- ActionsName:array[0..5]of string=
-  (CVReverseName,IVmanipulateName,DatToEisName,CFTransformName,ISresultTransformName,YZrizName);
+ ActionsName:array[0..6]of string=
+  (CVReverseName,IVmanipulateName,DatToEisName,CFTransformName,ISresultTransformName,YZrizName,
+   SomeThingName);
 
 procedure  YZriz(XValues:array of double;Dat_Folder:string;
                  ToDeleteNegativeY:boolean=False;
@@ -48,6 +52,9 @@ procedure IVmanipulate(Dat_Folder:string);
 в 'comments.dat' робляться додаткові записи з новими назвами файлів;
 }
 
+procedure IVfittingResultCollect(Dat_Folder:string);
+{витягує з dates.dat результати апроксимації}
+
 procedure DatToEis(Dat_Folder:string);
 {з усіх .dat файлів у вибраній директорії створює
 файли, потрібні для EIS SPECTRUM ANALYSER;
@@ -74,6 +81,14 @@ N - концентрація носіїв, м-3
 V - прикладена напруга (додатнє значення
 відповідає прямій), V
 []= м }
+
+procedure ReorganizeFileToKeys(InitFile,KeyFile:string);
+{переставляє рядки у файлі InitFile таким чином, щоб вони слідували в порядку,
+який задається KeyFile. А саме, спочатку з InitFile вибираються рядки, які починаються
+так само як перший рядок KeyFile, потім ті, що починаються
+з початку другого рядка KeyFile; елемент з KeyFile не обов'язково
+має окремо стояти на початку рядка в InitFile, він може бути початком і більш довгого
+підрядка}
 
 implementation
 
@@ -556,6 +571,47 @@ begin
   FreeAndNil(VecNew);
 end;
 
+
+procedure IVfittingResultCollect(Dat_Folder:string);
+{витягує з dates.dat результати апроксимації}
+var SLdates,SLResult:TStringList;
+    ResultFolder:string;
+    i:integer;
+begin
+ SetCurrentDir(Dat_Folder);
+ if not(FileExists('dates.dat')) then Exit;
+
+ SLdates:=TStringList.Create();
+ SLResult:=TStringList.Create();
+
+ ResultFolder:=SearchDirForFile('Areas.dat');
+ if ResultFolder='' then Exit;
+ SetCurrentDir(ResultFolder);
+ CreateDirSafety('Results');
+ ResultFolder:=ResultFolder+'\'+'Results';
+ SetCurrentDir(ResultFolder);
+ if not(FileExists(IVFittingFile))
+    then SLResult.Add('name T n1 Rs I01 Rsh n2 I02')
+    else SLResult.LoadFromFile(IVFittingFile);
+
+ SetCurrentDir(Dat_Folder);
+ SetCurrentDir(Dat_Folder);
+ SLdates.LoadFromFile('dates.dat');
+ for I := 1 to SLdates.Count-1 do
+    SLResult.Add(StringDataFromRow(SLdates[i],1)+' '
+          +StringDataFromRow(SLdates[i],3)+' '
+          +StringDataFromRow(SLdates[i],5)+' '
+          +StringDataFromRow(SLdates[i],6)+' '
+          +StringDataFromRow(SLdates[i],7)+' '
+          +StringDataFromRow(SLdates[i],8)+' '
+          +StringDataFromRow(SLdates[i],9)+' '
+          +StringDataFromRow(SLdates[i],10));
+  SLResult.SaveToFile(ResultFolder+'\'+IVFittingFile);
+  FreeAndNil(SLResult);
+  FreeAndNil(SLdates);
+end;
+
+
 Function E_w(f,T:double;f0:double=5e10):double;
 {розрахунок demarcation energy для оцінки густини станів
 за залежністю ємності від частоти}
@@ -573,6 +629,42 @@ V - прикладена напруга (додатнє значення
 []= м }
 begin
  Result:=sqrt(2*Eps*Eps0/Qelem*(Vbi-V-2*Kb*T)/N);
+end;
+
+procedure ReorganizeFileToKeys(InitFile,KeyFile:string);
+{переставляє рядки у файлі InitFile таким чином, щоб вони слідували в порядку,
+який задається KeyFile. А саме, спочатку з InitFile вибираються рядки, які починаються
+так само як перший рядок KeyFile, потім ті, що починаються
+з початку другого рядка KeyFile; елемент з KeyFile не обов'язково
+має окремо стояти на початку рядка в InitFile, він може бути початком і більш довгого
+підрядка}
+ var StartFile,FinishFile,Keys:TStringList;
+     FistRowUsed:boolean;
+     i,j:integer;
+     key:string;
+begin
+ Keys:=TStringList.Create;
+ FinishFile:=TStringList.Create;
+ StartFile:=TStringList.Create;
+ Keys.LoadFromFile(KeyFile);
+ StartFile.LoadFromFile(InitFile);
+ FistRowUsed:=False;
+ for I := 0 to Keys.Count-1 do
+   begin
+    key:=StringDataFromRow(Keys[i],1).ToUpper;
+    for j := 0 to StartFile.Count-1 do
+       if Pos(key,StringDataFromRow(StartFile[j],1).ToUpper)=1
+        then
+         begin
+          FinishFile.Add(StartFile[j]);
+          FistRowUsed:=(j=0);
+         end;
+   end;
+ if not(FistRowUsed) then FinishFile.Insert(0,StartFile[0]);
+ FinishFile.SaveToFile(InitFile);
+ FreeAndNil(StartFile);
+ FreeAndNil(FinishFile);
+ FreeAndNil(Keys);
 end;
 
 end.

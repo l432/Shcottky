@@ -1827,12 +1827,6 @@ RadButNssNvM.Checked:=ConfigFile.ReadBool('Dir','NssN(V)',False);
   CBActions.Items.Clear;
   for I := 0 to High(ActionsName) do
      CBActions.Items.Add(ActionsName[i]);
-//  CBActions.Items.Add(CVReverseName);
-//  CBActions.Items.Add(IVmanipulateName);
-//  CBActions.Items.Add(DatToEisName);
-//  CBActions.Items.Add(ISresultTransformName);
-//  CBActions.Items.Add(CFTransformName);
-//  CBActions.Items.Add(YZrizName);
   CBActions.ItemIndex:=0;
 
   BActionDo.OnClick:=ActionDoClick;
@@ -2890,6 +2884,8 @@ begin
       then ISresultTransform(Dat_Folder);
    if Key=CFTransformName
       then CFTransform(Dat_Folder);
+   if Key=SomeThingName
+      then IVfittingResultCollect(Dat_Folder);
    end
   else Exit;
 
@@ -3966,10 +3962,12 @@ begin
 
 //  SomethingForCastro;
 
+//ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\Results\IVfitting.dat',
+//                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
+//ForAllDirAction(IVfittingResultCollect,'Forward','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(CVReverse,'CV','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(CVReverse,'CV','D:\DeepL\2024\ODiod');
-ForAllDirAction(IVmanipulate,'IV','D:\Samples\DeepL\2024\ODiod');
-
+//ForAllDirAction(IVmanipulate,'IV','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(DatToEis,'RZ','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(ISresultTransform,'IS','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(CFTransform,'Cf','D:\Samples\DeepL\2024\ODiod');
