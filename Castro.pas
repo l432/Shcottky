@@ -27,8 +27,20 @@ const
  Tbegin=260;
  Tend=350;
 
+ sdVbegin=0;
+ sdVend=1e-4;
+ sdVstep=2e-5;
+ sdIbegin=0;
+ sdIend=1e-6;
+ sdIstep=2e-7;
+
+
  Nrep=51;
 // Nrep=1;
+ Nrepnoise=3;
+ NnoiseIV=15;
+// Nrepnoise=1;
+// NnoiseIV=2;
 
  TimeOfFiting:array[TEvolutionTypeNew]of double=
   (42,
@@ -114,9 +126,15 @@ Imax, Imin - інтервал для пошуку}
 Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
                            const Vmax:double=1;
                            const stepV:double=0.01;
-                           const eps:double=1e-6);
+                           const eps:double=1e-6;
+                           const sdV:double=0;
+                           const sdI:double=0);
 {створюється ВАХ за формулою Кастро у вже існуючому Vec
-від 0 до Vmax з кроком stepV}
+від 0 до Vmax з кроком stepV;
+sdV та sdI - стандартні відхилення напруги та струму,
+використовуються для створення зашумлених кривих,
+[sdV]=B
+[sdI]=A}
 
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle;
@@ -124,12 +142,28 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 
 procedure CastroFittingIdeal(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle);
+
+procedure CastroFittingNoise(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle;
+                        sdV,sdI:double);
 
 procedure CastroFitting(EvolType:TEvolutionTypeNew;
                         Parameters:TArrSingle);overload;
 
 function StatTitle(ParamNames:TArrStr;ForMedianValue:boolean=True):string;
 function ResultAllTitle(ParamNames:TArrStr):string;
+
+function StatNoiseRezTitle(ParamNames:TArrStr):string;
+function StatNoiseTitle(ParamNames:TArrStr):string;
+function StatNoiseStringBegin(EvolTypeName:string;T:double;
+//FitFunction:TFFSimple;Parameters:TArrSingle;
+                              sdV,sdI:double):string;
+function StatNoiseString(Parameters:TArrSingle;
+                         sdV,sdI:double;
+                         RezVec:TArrVec):string;
+function StatNoiseRezString(Parameters:TArrSingle;
+                         sdV,sdI:double;
+                         RezVec:TArrVec):string;
 
 function StatString(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
 function StatStringIdeal(RezVec:TArrVec;Parameters:TArrSingle):string;
@@ -143,6 +177,8 @@ procedure CastroFitting(EvolType:TEvolutionTypeNew;
 
 procedure Idealfiting();
 
+procedure Noisefiting();
+
 procedure Test1NResultRebuilding();
 
 procedure TestNNResultRebuilding(FileName:string);
@@ -155,8 +191,16 @@ function ValueTo1NTableRezult(Value:double;limitP:double=0.1):string;
 function RowOfDataInStringList(EvolType: TEvolutionTypeNew;
                                T:integer;
                                SL:TStringList):integer;
-{повертає номер рядочка в SL, який починаэться
+{повертає номер рядочка в SL, який починається
 з назви алгоритму та значення температури}
+
+function RowOfDataInStringListNoise(EvolType: TEvolutionTypeNew;
+                               T:integer;
+                               SL:TStringList;
+                               sdV,sdI:double):integer;
+{повертає номер рядочка в SL, який починається
+з назви алгоритму, значення температури та величин відхилень}
+
 
 procedure ReadEvolParResult(EvolType: TEvolutionTypeNew; ParName: string; Vec: TVector;
                           FileName: string = 'ResultAll.dat';ReadRelativeError:boolean=True);
@@ -217,6 +261,8 @@ procedure CastroParamToStringArray(var SA:TArrStr);
 procedure SortingStringList(SL:TStringList;ColumnNumber:byte=2);
 
 Procedure ForScatterPlots();
+
+procedure CastroHelpAction();
 
 
 implementation
@@ -336,25 +382,29 @@ end;
 Procedure CastroIV_Creation(Vec:TVector;Parameters:array of double;
                            const Vmax:double=1;
                            const stepV:double=0.01;
-                           const eps:double=1e-6);
+                           const eps:double=1e-6;
+                           const sdV:double=0;
+                           const sdI:double=0);
 {створюється ВАХ за формулою Кастро у вже існуючому Vec
 від 0 до Vmax з кроком stepV}
-var V,Imin,Imax:double;
+var V,Imin,Imax,Vreal,Ireal:double;
 begin
  Vec.Clear;
  if High(Parameters)<8 then Exit;
  Vec.T:=Parameters[8];
+
  if (stepV<=0)
      or(Parameters[7]<0) then Exit;
-
  V:=0;
  Imin:=-Parameters[7]-max(1e-4,abs(Parameters[7])*0.1);
  Imax:=0+min(1e-4,abs(Parameters[7])*0.1);
  repeat
-   Vec.Add(V,CastroIV_onV(V,Parameters,Imin,Imax,eps));
+   Vreal:=RandG(V,sdV);
+   Ireal:=CastroIV_onV(V,Parameters,Imin,Imax,eps);
+   Vec.Add(Vreal,RandG(Ireal,sdI));
    if Vec.Y[Vec.HighNumber]=ErResult then Break;
    V:=V+stepV;
-   Imin:=Vec.Y[Vec.HighNumber];
+   Imin:=Ireal;
    Imax:=max(abs(Parameters[7]),2*abs(Imin));
    Imax:=Imin+max(Imax,1e-4);
  until V>Vmax;
@@ -529,6 +579,99 @@ procedure CastroFittingIdeal(EvolType:TEvolutionTypeNew;
  FreeAndNil(Vec);
 end;
 
+
+procedure CastroFittingNoise(EvolType:TEvolutionTypeNew;
+                        Parameters:TArrSingle;
+                        sdV,sdI:double);
+ var Vec:TVectorTransform;
+     FFunction:TFitFunctionNew;
+     ParamNames:TArrStr;
+     i,j,IVCurentNumber:byte;
+     StrStat,StrRez:TStringList;
+     RezVec:TArrVec;
+     tempstr:string;
+
+begin
+ Vec:=TVectorTransform.Create;
+
+ FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
+ FFunction.ConfigFile.WriteEvType(FFunction.Name,'EvType',EvolType);
+ WriteIniDef(FFunction.ConfigFile,FFunction.Name,'Nit',round(Niter[EvolType]),1000);
+
+ FreeAndNil(FFunction);
+ FFunction:=FitFunctionFactory(ThinDiodeNames[0]);
+
+ MainParamToStringArray((FFunction as TFFSimple),ParamNames);
+ StrStat:=TStringList.Create;
+ StrRez:=TStringList.Create;
+ SafeLoad(StrStat,'StatNoiseRez.dat',StatNoiseRezTitle(ParamNames));
+ SafeLoad(StrRez,'StatNoise.dat',StatNoiseTitle(ParamNames));
+ tempstr:=StatNoiseStringBegin(EvTypeNames[EvolType],Parameters[8],sdV,sdI);
+ IVCurentNumber:=0;
+ for i := 0 to StrRez.Count-1 do
+  if Pos(tempstr,StrRez[i])=1 then inc(IVCurentNumber);
+
+ SetLength(RezVec,High(ParamNames));
+ for I := 0 to High(RezVec) do
+  begin
+  RezVec[i]:=TVector.Create;
+//  RezVec[i].Name:=EvTypeNames[EvolType];
+  end;
+
+//  showmessage('kk '+RezVec[0].Name);
+ repeat
+//   showmessage(ArrayToString(Parameters));
+   CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6,sdV,sdI);
+//   showmessage(Vec.XYtostring);
+   Vec.Name:=EvTypeNames[EvolType]+'_'+floattostr(sdV)
+             +'_'+floattostr(sdI)+'_'+inttostr(IVCurentNumber+1)+'.dat';
+   for I := 0 to High(RezVec) do  RezVec[i].Clear;
+   RezVec[0].Name:=EvTypeNames[EvolType];
+   for I := 1 to Nrepnoise do
+    begin
+     (FFunction as TFitFunctionNew).Fitting(Vec);
+     if FFunction.ResultsIsReady then
+      begin
+        for j := 0 to (FFunction as TFFSimple).DParamArray.MainParamHighIndex do
+         RezVec[j].Add(i,(FFunction as TFFSimple).DParamArray.OutputData[j]);
+      end
+                                  else Break;
+    end;
+
+  if i>Nrepnoise then
+    begin
+    StrRez.Add(StatNoiseString(Parameters,sdV,sdI,RezVec));
+    StrRez.SaveToFile('StatNoise.dat');
+    inc(IVCurentNumber);
+    end          else Break;
+
+ until (IVCurentNumber>=NnoiseIV);
+
+
+ if (IVCurentNumber>=NnoiseIV) then
+  begin
+   for I := 0 to High(RezVec) do  RezVec[i].Clear;
+   RezVec[0].Name:=EvTypeNames[EvolType];
+   for i := 0 to StrRez.Count-1 do
+    if Pos(tempstr,StrRez[i])=1
+      then
+        for j := 0 to High(RezVec) do
+          RezVec[j].Add(FloatDataFromRow(StrRez[i],6+2*j),FloatDataFromRow(StrRez[i],5+2*j));
+//   showmessage(RezVec[0].XYTostring);
+   StrStat.Add(StatNoiseRezString(Parameters,sdV,sdI,RezVec));
+   StrStat.SaveToFile('StatNoiseRez.dat');
+  end;
+
+ for I := 0 to High(ParamNames) do
+  FreeAndNil(RezVec[i]);
+
+ FreeAndNil(StrStat);
+ FreeAndNil(StrRez);
+ FreeAndNil(FFunction);
+
+ FreeAndNil(Vec);
+end;
+
 function StatTitle(ParamNames:TArrStr;ForMedianValue:boolean=True):string;
  var i:byte;
 begin
@@ -571,6 +714,29 @@ end;
    end;
 end;
 
+function StatNoiseRezTitle(ParamNames:TArrStr):string;
+ var i:byte;
+begin
+  Result:='Name T sdV sdI';
+  for I := 0 to High(ParamNames)-1 do
+   begin
+    Result:=Result+' '+ParamNames[i]+'med '
+            +ParamNames[i]+'er';
+   end;
+end;
+
+function StatNoiseTitle(ParamNames:TArrStr):string;
+ var i:byte;
+begin
+  Result:='Name T sdV sdI';
+  for I := 0 to High(ParamNames)-1 do
+   begin
+    Result:=Result+' '+ParamNames[i]
+            +' '+ParamNames[i]+'tr';
+   end;
+end;
+
+
 function StatString(RezVec:array of TVectorTransform;Parameters:TArrSingle):string;
  var i:byte;
 begin
@@ -586,6 +752,37 @@ begin
 //           +' '+FloatToStrF(abs(RezVec[i].StandartErrorY/Parameters[i]),ffExponent,10,2);
    end;
 end;
+
+function StatNoiseString(Parameters:TArrSingle;
+                         sdV,sdI:double;
+                         RezVec:TArrVec):string;
+ var i:byte;
+begin
+//  showmessage(RezVec[0].Name);
+
+  Result:=StatNoiseStringBegin(RezVec[0].Name,Parameters[8],sdV,sdI);
+//  showmessage(Result);
+  for I := 0 to High(RezVec) do
+   begin
+    Result:=Result+' '+FloatToStrF(RezVec[i].Median,ffExponent,10,2)
+            +' '+FloatToStrF(Parameters[i],ffExponent,10,2);
+   end;
+end;
+
+function StatNoiseRezString(Parameters:TArrSingle;
+                         sdV,sdI:double;
+                         RezVec:TArrVec):string;
+ var i:byte;
+begin
+  Result:=StatNoiseStringBegin(RezVec[0].Name,Parameters[8],sdV,sdI);
+  for I := 0 to High(RezVec) do
+   begin
+    Result:=Result+' '+FloatToStrF(RezVec[i].MeanY,ffExponent,10,2)
+            +' '+FloatToStrF(RelativeDifference(RezVec[i].X[0],RezVec[i].MeanY)*100,ffExponent,10,2);
+   end;
+end;
+
+
 
 function StatStringIdeal(RezVec:TArrVec;Parameters:TArrSingle):string;
  var i:byte;
@@ -613,6 +810,14 @@ begin
   Result:=Result+' '+FloatToStrF(FitFunction.DParamArray.OutputData[FitFunction.ParametersNumber-1],ffExponent,10,2)
 end;
 
+function StatNoiseStringBegin(EvolTypeName:string;T:double;
+//FitFunction:TFFSimple;Parameters:TArrSingle;
+                              sdV,sdI:double):string;
+begin
+  Result:=EvolTypeName;
+  Result:=Result+' '+inttostr(round(T))
+          +' '+floattostr(sdV)+' '+floattostr(sdI);
+end;
 
 procedure SafeLoad(SL:TStringList; FileName,Title:string);
 begin
@@ -688,6 +893,50 @@ begin
   end;
 
  FreeAndNil(StrRez);
+
+ FreeAndNil(StrStat);
+end;
+
+
+procedure Noisefiting();
+var
+//  Vec: TVector;
+  EvolType: TEvolutionTypeNew;
+  Parameters:TArrSingle;
+  T:integer;
+  StrStat:TStringList;
+  SA:TArrStr;
+  sdV,sdI:double;
+begin
+ StrStat:=TStringList.Create;
+ CastroParamToStringArray(SA);
+ T:=300;
+
+// for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
+// EvolType :=etADELI;
+
+// EvolType :=etSTLBO;
+ for EvolType := High(TEvolutionTypeNew) downto Low(TEvolutionTypeNew) do
+  if EvolType in [etSTLBO,etADELI] then
+  begin
+   sdV:=sdVbegin;
+   repeat
+     sdI:=sdIbegin;
+     repeat
+      SafeLoad(StrStat,'StatNoiseRez.dat',StatNoiseRezTitle(SA));
+      if RowOfDataInStringListNoise(EvolType,T,StrStat,sdV,sdI)>-1
+       then
+        begin
+         sdI:=sdI+sdIstep;
+         Continue;
+        end;
+      CasParDetermination(T,Parameters);
+      CastroFittingNoise(EvolType,Parameters,sdV,sdI);
+      sdI:=sdI+sdIstep;
+     until (sdI>(sdIend+0.5*sdIstep));
+    sdV:=sdV+sdVstep;
+   until (sdV>(sdVend+0.5*sdVstep));
+  end;
 
  FreeAndNil(StrStat);
 end;
@@ -910,6 +1159,28 @@ begin
         end;
 end;
 
+function RowOfDataInStringListNoise(EvolType: TEvolutionTypeNew;
+                               T:integer;
+                               SL:TStringList;
+                               sdV,sdI:double):integer;
+{повертає номер рядочка в SL, який починається
+з назви алгоритму, значення температури та величин відхилень}
+  var i:integer;
+begin
+  Result:=-1;
+  for i:=0 to SL.Count-1 do
+   if (StringDataFromRow(SL[i],1)=EvTypeNames[EvolType])
+      and  (round(FloatDataFromRow(SL[i],2))=T)
+      and  (IsEqual(FloatDataFromRow(SL[i],3),sdV))
+      and  (IsEqual(FloatDataFromRow(SL[i],4),sdI))
+      then
+        begin
+         Result:=i;
+         Break;
+        end;
+end;
+
+
 procedure ReadEvolParResult(EvolType: TEvolutionTypeNew; ParName: string; Vec: TVector;
                FileName: string = 'ResultAll.dat';ReadRelativeError:boolean=True);
  var StrRez:TStringList;
@@ -1112,7 +1383,9 @@ begin
 
 //Test1NResultRebuilding();
 
-  ForScatterPlots();
+//  ForScatterPlots();
+//  CastroHelpAction();
+  Noisefiting();
 end;
 
 procedure SomethingForCastro2(FileName:string);
@@ -2055,6 +2328,21 @@ begin
  FreeAndNil(Vec2);
  FreeAndNil(SLFile);
  FreeAndNil(tempSL);
+end;
+
+
+procedure CastroHelpAction();
+var
+  Vec: TVector;
+  Parameters:TArrSingle;
+begin
+ Vec:=TVector.Create;
+ CasParDetermination(300,Parameters);
+// CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6);
+// Vec.WriteToFile('CS0.dat');
+ CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6,0.00015,1.5e-6);
+ Vec.WriteToFile('CS015.dat');
+ FreeAndNil(Vec);
 end;
 
 end.

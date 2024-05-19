@@ -3960,7 +3960,9 @@ var
 
 begin
 
-//  SomethingForCastro;
+//showmessage(floattostr(sdIstep));
+
+  SomethingForCastro;
 
 //ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\Results\IVfitting.dat',
 //                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
