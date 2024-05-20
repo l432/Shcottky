@@ -38,7 +38,7 @@ const
  Nrep=51;
 // Nrep=1;
  Nrepnoise=3;
- NnoiseIV=15;
+ NnoiseIV=50;
 // Nrepnoise=1;
 // NnoiseIV=2;
 
@@ -586,10 +586,11 @@ procedure CastroFittingNoise(EvolType:TEvolutionTypeNew;
  var Vec:TVectorTransform;
      FFunction:TFitFunctionNew;
      ParamNames:TArrStr;
-     i,j,IVCurentNumber:byte;
+     i,j,IVCurentNumber:integer;
      StrStat,StrRez:TStringList;
      RezVec:TArrVec;
      tempstr:string;
+     ItIsGoodIV:boolean;
 
 begin
  Vec:=TVectorTransform.Create;
@@ -605,21 +606,33 @@ procedure CastroFittingNoise(EvolType:TEvolutionTypeNew;
  StrStat:=TStringList.Create;
  StrRez:=TStringList.Create;
  SafeLoad(StrStat,'StatNoiseRez.dat',StatNoiseRezTitle(ParamNames));
+// StrStat.Add(StatNoiseRezTitle(ParamNames));
  SafeLoad(StrRez,'StatNoise.dat',StatNoiseTitle(ParamNames));
  tempstr:=StatNoiseStringBegin(EvTypeNames[EvolType],Parameters[8],sdV,sdI);
  IVCurentNumber:=0;
+// showmessage(inttostr(StrRez.Count));
+
+
  for i := 0 to StrRez.Count-1 do
+  begin
   if Pos(tempstr,StrRez[i])=1 then inc(IVCurentNumber);
+//  if i=235 then
+//   begin
+//     showmessage(StrRez[i]);
+//     showmessage(inttostr(Pos(tempstr,StrRez[i])));
+//
+//   end;
+  end;
 
  SetLength(RezVec,High(ParamNames));
  for I := 0 to High(RezVec) do
-  begin
   RezVec[i]:=TVector.Create;
-//  RezVec[i].Name:=EvTypeNames[EvolType];
-  end;
 
-//  showmessage('kk '+RezVec[0].Name);
- repeat
+//  showmessage('kk '+tempstr+' iv='+inttostr(IVCurentNumber));
+
+ while(IVCurentNumber<NnoiseIV) do
+   begin
+// repeat
 //   showmessage(ArrayToString(Parameters));
    CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6,sdV,sdI);
 //   showmessage(Vec.XYtostring);
@@ -640,12 +653,26 @@ procedure CastroFittingNoise(EvolType:TEvolutionTypeNew;
 
   if i>Nrepnoise then
     begin
+     ItIsGoodIV:=true;
+//    showmessage(RezVec[2].XYtostring);
+    for j:=0 to RezVec[2].HighNumber do
+     if RezVec[2].Y[j]>30000 then
+     begin
+//     showmessage(RezVec[2].XYtostring);
+//      showmessage(inttostr(IVCurentNumber));
+      ItIsGoodIV:=false;
+      Break;
+     end;
+    if not(ItIsGoodIV) then Continue;
     StrRez.Add(StatNoiseString(Parameters,sdV,sdI,RezVec));
     StrRez.SaveToFile('StatNoise.dat');
+
     inc(IVCurentNumber);
+//    if not(ItIsGoodIV) then showmessage(inttostr(IVCurentNumber));
     end          else Break;
 
- until (IVCurentNumber>=NnoiseIV);
+   end;
+// until (IVCurentNumber>=NnoiseIV);
 
 
  if (IVCurentNumber>=NnoiseIV) then
@@ -658,6 +685,7 @@ procedure CastroFittingNoise(EvolType:TEvolutionTypeNew;
         for j := 0 to High(RezVec) do
           RezVec[j].Add(FloatDataFromRow(StrRez[i],6+2*j),FloatDataFromRow(StrRez[i],5+2*j));
 //   showmessage(RezVec[0].XYTostring);
+//      showmessage(inttostr(RezVec[0].Count));
    StrStat.Add(StatNoiseRezString(Parameters,sdV,sdI,RezVec));
    StrStat.SaveToFile('StatNoiseRez.dat');
   end;
@@ -912,24 +940,27 @@ begin
  CastroParamToStringArray(SA);
  T:=300;
 
+ if FileExists('StatNoiseRez.dat') then
+    DeleteFile('StatNoiseRez.dat');
+
 // for EvolType := Low(TEvolutionTypeNew) to High(TEvolutionTypeNew) do
 // EvolType :=etADELI;
 
-// EvolType :=etSTLBO;
- for EvolType := High(TEvolutionTypeNew) downto Low(TEvolutionTypeNew) do
-  if EvolType in [etSTLBO,etADELI] then
+ EvolType :=etSTLBO;
+// for EvolType := High(TEvolutionTypeNew) downto Low(TEvolutionTypeNew) do
+//  if EvolType in [etSTLBO,etADELI] then
   begin
    sdV:=sdVbegin;
    repeat
      sdI:=sdIbegin;
      repeat
-      SafeLoad(StrStat,'StatNoiseRez.dat',StatNoiseRezTitle(SA));
-      if RowOfDataInStringListNoise(EvolType,T,StrStat,sdV,sdI)>-1
-       then
-        begin
-         sdI:=sdI+sdIstep;
-         Continue;
-        end;
+//      SafeLoad(StrStat,'StatNoiseRez.dat',StatNoiseRezTitle(SA));
+//      if RowOfDataInStringListNoise(EvolType,T,StrStat,sdV,sdI)>-1
+//       then
+//        begin
+//         sdI:=sdI+sdIstep;
+//         Continue;
+//        end;
       CasParDetermination(T,Parameters);
       CastroFittingNoise(EvolType,Parameters,sdV,sdI);
       sdI:=sdI+sdIstep;
@@ -2333,16 +2364,33 @@ end;
 
 procedure CastroHelpAction();
 var
-  Vec: TVector;
-  Parameters:TArrSingle;
+//  Vec: TVector;
+//  Parameters:TArrSingle;
+  SL:TStringList;
+  i:integer;
+
+label  1;
 begin
- Vec:=TVector.Create;
- CasParDetermination(300,Parameters);
-// CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6);
-// Vec.WriteToFile('CS0.dat');
- CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6,0.00015,1.5e-6);
- Vec.WriteToFile('CS015.dat');
- FreeAndNil(Vec);
+// Vec:=TVector.Create;
+// CasParDetermination(300,Parameters);
+//// CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6);
+//// Vec.WriteToFile('CS0.dat');
+// CastroIV_Creation(Vec,Parameters,1.001,0.01,1e-6,0.00015,1.5e-6);
+// Vec.WriteToFile('CS015.dat');
+// FreeAndNil(Vec);
+
+ SL:=TStringList.Create;
+ SL.LoadfromFile('StatNoise.dat');
+ 1:
+ for i:=0 to SL.Count-1 do
+  if FloatDataFromRow(SL[i],9)>30000 then
+    begin
+    SL.Delete(i);
+    goto 1;
+    end;
+
+ SL.SaveToFile('StatNoise.dat');
+ FreeAndNil(SL);
 end;
 
 end.
