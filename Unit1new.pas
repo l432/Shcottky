@@ -2885,7 +2885,8 @@ begin
    if Key=CFTransformName
       then CFTransform(Dat_Folder);
    if Key=SomeThingName
-      then IVfittingResultCollect(Dat_Folder);
+//      then IVfittingResultCollect(Dat_Folder);
+      then GausPeretvor(Dat_Folder);
    end
   else Exit;
 

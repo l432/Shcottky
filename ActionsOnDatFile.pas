@@ -90,11 +90,14 @@ procedure ReorganizeFileToKeys(InitFile,KeyFile:string);
 має окремо стояти на початку рядка в InitFile, він може бути початком і більш довгого
 підрядка}
 
+procedure GausPeretvor(Dat_Folder:string);
+
 implementation
 
 uses
   System.SysUtils, OlegVector, System.Classes, Vcl.FileCtrl, OlegType,
-  OlegFunction, OlegVectorManipulation, Vcl.Dialogs, OlegMath, System.StrUtils;
+  OlegFunction, OlegVectorManipulation, Vcl.Dialogs, OlegMath, OlegStatistic, System.StrUtils,
+  System.Math;
 
 procedure  YZriz(XValues:array of double;Dat_Folder:string;
                  ToDeleteNegativeY:boolean=False;
@@ -665,6 +668,56 @@ begin
  FreeAndNil(StartFile);
  FreeAndNil(FinishFile);
  FreeAndNil(Keys);
+end;
+
+procedure GausPeretvor(Dat_Folder:string);
+ var SR : TSearchRec;
+     i:integer;
+     Vec,Vec2:TVectorTransform;
+     OutputData:TArrSingle;
+     temp,FilePrefix,ResultFolder:string;
+     S:double;
+begin
+
+ SetCurrentDir(Dat_Folder);
+
+ CreateDirSafety('Gaus');
+
+
+ Vec:=TVectorTransform.Create;
+ Vec2:=TVectorTransform.Create;
+
+ if FindFirst(mask, faAnyFile, SR) = 0 then
+   repeat
+    if FileNameIsBad(SR.name)then Continue;
+
+    Vec.ReadFromFile(SR.name);
+//    showmessage(Vec.XYtostring);
+
+    temp:=copy(Vec.name,1,length(Vec.name)-4);
+    Vec2.Clear;
+    Vec2.Filling(GausRozpodil,
+                 max(0,Vec.MeanY-5*Vec.StandartDeviationNY),
+                  Vec.MeanY+5*Vec.StandartDeviationNY,
+                     [Vec.MeanY,Vec.StandartDeviationNY],
+                     100);
+    S:=Vec2.MaxY;
+    Vec2.MultiplyY(1/S);
+    Vec2.WriteToFile(Dat_Folder+'/Gaus/'+temp+'G.dat',8);
+    Vec2.Clear;
+    for i:=0 to Vec.HighNumber do
+     Vec2.Add(Vec.Y[i],GausRozpodil(Vec.Y[i],[Vec.MeanY,Vec.StandartDeviationNY]));
+    Vec2.MultiplyY(1/S);
+    Vec2.WriteToFile(Dat_Folder+'/Gaus/'+temp+'Data.dat',8);
+
+    KeyAndValueToFile(Dat_Folder+'\Gaus\'+'GausRez.dat',temp,
+                         FloatToStrF(Vec.MeanY,ffExponent,6,0)+' '
+                         +FloatToStrF(Vec.StandartDeviationNY/sqrt(max(1,Vec.Count-1))
+                         *KoefStudent01[Vec.Count-1],ffExponent,6,0));
+   until (FindNext(SR) <> 0);
+
+ FreeAndNil(Vec2);
+ FreeAndNil(Vec);
 end;
 
 end.
