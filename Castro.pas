@@ -38,7 +38,7 @@ const
  Nrep=51;
 // Nrep=1;
  Nrepnoise=3;
- NnoiseIV=70;
+ NnoiseIV=100;
 // Nrepnoise=1;
 // NnoiseIV=2;
 

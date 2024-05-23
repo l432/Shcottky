@@ -45,7 +45,8 @@ WilcoxonValues: array [4..100] of array [0..WilcoxonPNumber] of integer=
 {100}    (2327, 2151, 2045, 1955, 1850, 1779, 1714, 1578)
  );
 
-KoefStudent01:array [0..9] of double=(6.31,2.92,2.35,2.13,2.01,1.94,1.89,1.86,1.83,1.81);
+KoefStudent01:array [0..19] of double=(6.31,2.92,2.35,2.13,2.01,1.94,1.89,1.86,1.83,1.81,
+                                      1.80,1.78,1.77,1.76,1.75,1.75,1.74,1.73,1.73,1.73);
 
 
 MultipleSignPNumber=1;
