@@ -672,7 +672,7 @@ end;
 
 procedure GausPeretvor(Dat_Folder:string);
  var SR : TSearchRec;
-     i:integer;
+     i,j:integer;
      Vec,Vec2:TVectorTransform;
      OutputData:TArrSingle;
      temp,FilePrefix,ResultFolder:string;
@@ -682,10 +682,11 @@ begin
  SetCurrentDir(Dat_Folder);
 
  CreateDirSafety('Gaus');
-
+ j:=0;
 
  Vec:=TVectorTransform.Create;
  Vec2:=TVectorTransform.Create;
+
 
  if FindFirst(mask, faAnyFile, SR) = 0 then
    repeat
@@ -695,6 +696,20 @@ begin
 //    showmessage(Vec.XYtostring);
 
     temp:=copy(Vec.name,1,length(Vec.name)-4);
+    inc(j);
+
+//    Vec.CopyLimitedX(Vec2,0,0.4);
+//    KeyAndValueToFile(Dat_Folder+'/'+FolderNameFromFullPath(Dat_Folder)+'Max.dat',
+//                         inttostr(j),
+//                         FloatToStrF(Vec.X[Vec2.MaxYnumber],ffExponent,6,0));
+//    KeyAndValueToFile(Dat_Folder+'/'+FolderNameFromFullPath(Dat_Folder)+'Int.dat',
+//                         inttostr(j),
+//                         FloatToStrF(Vec.Int_Trap,ffExponent,6,0));
+
+
+
+//    for i:=0 to Vec.HighNumber do
+//     Vec.Y[i]:=log10(Vec.Y[i]);
     Vec2.Clear;
     Vec2.Filling(GausRozpodil,
                  max(0,Vec.MeanY-5*Vec.StandartDeviationNY),
