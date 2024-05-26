@@ -801,13 +801,22 @@ function StatNoiseRezString(Parameters:TArrSingle;
                          sdV,sdI:double;
                          RezVec:TArrVec):string;
  var i:byte;
+     tempVector:TVectorTransform;
+     MeanValue:double;
 begin
   Result:=StatNoiseStringBegin(RezVec[0].Name,Parameters[8],sdV,sdI);
+  tempVector:=TVectorTransform.Create;
   for I := 0 to High(RezVec) do
    begin
-    Result:=Result+' '+FloatToStrF(RezVec[i].MeanY,ffExponent,10,2)
-            +' '+FloatToStrF(RelativeDifference(RezVec[i].X[0],RezVec[i].MeanY)*100,ffExponent,10,2);
+    RezVec[i].CopyTo(tempVector);
+//    MeanValue:=tempVector.ImpulseNoiseSmoothing(cY);
+    MeanValue:=tempVector.ImpulseNoiseSmoothingByNpoint(cY,10);
+    Result:=Result+' '+FloatToStrF(MeanValue,ffExponent,10,2)
+            +' '+FloatToStrF(RelativeDifference(RezVec[i].X[0],MeanValue)*100,ffExponent,10,2);
+//    Result:=Result+' '+FloatToStrF(RezVec[i].MeanY,ffExponent,10,2)
+//            +' '+FloatToStrF(RelativeDifference(RezVec[i].X[0],RezVec[i].MeanY)*100,ffExponent,10,2);
    end;
+  FreeAndNil(tempVector);
 end;
 
 
