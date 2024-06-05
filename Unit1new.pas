@@ -3961,9 +3961,9 @@ var
 
 begin
 
-//showmessage(floattostr(sdIstep));
+showmessage(floattostr(Silicon.Absorption(940,340)));
 
-  SomethingForCastro;
+//  SomethingForCastro;
 
 //ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\Results\IVfitting.dat',
 //                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
