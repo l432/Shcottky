@@ -167,7 +167,7 @@ function TDefect.Sp(T: double): double;
 begin
   case fDefectName of
     Fei: Result:=ThermallyActivated(4.54e-20,0.05,T);
-    FeB_ac: Result:=ThermallyActivated(3.32e-14,0.262,T);
+    FeB_ac: Result:=ThermallyActivated(3.32e-15,0.262,T);
     else Result:=FParameters.Parameters[nSp];
   end;
 end;
