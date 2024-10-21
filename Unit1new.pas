@@ -3961,7 +3961,7 @@ var
 
 begin
 
-showmessage(floattostr(Silicon.Absorption(940,340)));
+//showmessage(floattostr(Silicon.Absorption(940,340)));
 
 //  SomethingForCastro;
 
@@ -3976,7 +3976,7 @@ showmessage(floattostr(Silicon.Absorption(940,340)));
 //ForAllDirAction(CFTransform,'Cf','D:\Samples\DeepL\2024\ODiod');
 
 
-//Mu_TNdop(True,True);
+Mu_TNdop(True,True);
 //Mu_TNdop(True,False);
 //Mu_TNdop(False,True);
 //Mu_TNdop(False,False);

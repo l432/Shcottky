@@ -675,8 +675,10 @@ begin
  LowLimits[0]:=77;
  HighLimits[0]:=500;
 
- LowLimits[1]:=1e13;
+ LowLimits[1]:=1e17;
  HighLimits[1]:=1e20;
+// LowLimits[1]:=1e13;
+// HighLimits[1]:=1e20;
  fParamTypes[1]:=ptDoubleLn;
 
 end;
