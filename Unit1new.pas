@@ -3977,9 +3977,9 @@ begin
 
 
 Mu_TNdop(True,True);
-//Mu_TNdop(True,False);
-//Mu_TNdop(False,True);
-//Mu_TNdop(False,False);
+Mu_TNdop(True,False);
+Mu_TNdop(False,True);
+Mu_TNdop(False,False);
 
 //Ln_Isc();
 //Eg_T();
