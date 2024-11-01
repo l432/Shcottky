@@ -550,10 +550,10 @@ begin
    SetLength(fUsedParams[i],0);
    case fParamTypes[i] of
     ptInt:if (FHighLimits[i]-FLowLimits[i])>99
-              then Steps[i]:=round((FHighLimits[i]-FLowLimits[i])/Npoint)
+              then Steps[i]:=round((FHighLimits[i]-FLowLimits[i])/(Npoint-1))
               else Steps[i]:=1;
-    ptDouble:Steps[i]:=(FHighLimits[i]-FLowLimits[i])/Npoint;
-    ptDoubleLn:Steps[i]:=(ln(FHighLimits[i])-ln(FLowLimits[i]))/Npoint;
+    ptDouble:Steps[i]:=(FHighLimits[i]-FLowLimits[i])/(Npoint-1);
+    ptDoubleLn:Steps[i]:=(ln(FHighLimits[i])-ln(FLowLimits[i]))/(Npoint-1);
    end;
   end;
 
@@ -569,13 +569,13 @@ begin
       ptInt,ptDouble:NewParametrValues[1]:=NewParametrValues[1]+Steps[1];
       ptDoubleLn:NewParametrValues[1]:=exp(ln(NewParametrValues[1])+Steps[1]);
     end;
-  until (NewParametrValues[1]>=FHighLimits[1]);
+  until (NewParametrValues[1]>FHighLimits[1]);
   case fParamTypes[0] of
     ptInt,ptDouble:NewParametrValues[0]:=NewParametrValues[0]+Steps[0];
     ptDoubleLn:NewParametrValues[0]:=exp(ln(NewParametrValues[0])+Steps[0]);
   end;
 
- until (NewParametrValues[0]>=FHighLimits[0]);
+ until (NewParametrValues[0]>FHighLimits[0]);
 
  LastNEntriesToFile(High(fResults)+1,FFileNameBegin+'full.dat');
 
