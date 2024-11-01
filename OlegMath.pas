@@ -916,9 +916,12 @@ Function Bisection(const F:TFun; const Parameters:array of double;
  var a,b,c,Fa,Fc :double;
      i:integer;
 begin
+//    showmessage(floattostr(3.33));
   Result:=ErResult;
   a:=F(Xmin,Parameters);
   b:=F(Xmax,Parameters);
+//  showmessage(floattostr(a));
+//  showmessage(floattostr(b));
   if a=0 then Result:=Xmin;
   if b=0 then Result:=Xmax;
 

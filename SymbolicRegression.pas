@@ -175,6 +175,16 @@ Ndop: (10^13 - 10^20) cm-3
 [результат] = см^2 / (B c)
 }
 
+
+procedure Ti();
+{створюється залежність температури, при якій важливою є власна
+провідність для легованого кремнія від концентрації леганта}
+
+procedure Ts(delE:double);
+{створюється залежність температури виснаження леганта
+з енергією іонізації delE для кремнію,
+від концентрації леганта}
+
 implementation
 
 uses
@@ -672,8 +682,16 @@ begin
    then FileNameBegin:=FileNameBegin+'maj'
    else FileNameBegin:=FileNameBegin+'min';
 
- LowLimits[0]:=77;
- HighLimits[0]:=273;
+ LowLimits[0]:=200;
+ HighLimits[0]:=500;
+
+ LowLimits[1]:=1e13;
+ HighLimits[1]:=1e19;
+
+
+//===============================================
+// LowLimits[0]:=77;
+// HighLimits[0]:=273;
 
 // LowLimits[0]:=273;
 // HighLimits[0]:=500;
@@ -684,8 +702,8 @@ begin
 
 //----------------------------------------------
 
- LowLimits[1]:=1e13;
- HighLimits[1]:=1e17;
+// LowLimits[1]:=1e13;
+// HighLimits[1]:=1e17;
 
 // LowLimits[1]:=1e17;
 // HighLimits[1]:=1e20;
@@ -709,5 +727,51 @@ begin
                           fUsedParams[1][Index]*1e6,
                           fItIsMajority);
 end;
+
+
+procedure Ti();
+{створюється залежність температури, при якій важливою є власна
+провідність для легованого кремнія від концентрації леганта}
+var Vec:TVector;
+    concent:double;
+    pow:integer;
+begin
+ Vec:=TVector.Create;
+ for pow := 13 to 20 do
+   begin
+    concent:=Power(10,pow+6);
+    Vec.Add(Power(10,pow),Ti_inSi(concent));
+   end;
+ Vec.WriteToFile('Ti.dat',5,'Nd Ti');
+
+ FreeAndNil(Vec)
+end;
+
+procedure Ts(delE:double);
+{створюється залежність температури виснаження леганта
+з енергією іонізації delE для кремнію,
+від концентрації леганта}
+var Vec:TVector;
+    concent:double;
+    pow:integer;
+begin
+ Vec:=TVector.Create;
+ for pow := 13 to 20 do
+   begin
+    concent:=Power(10,pow+6);
+    Vec.Add(Power(10,pow),Ts_inSi(concent,delE));
+   end;
+ Vec.WriteToFile('Ts.dat',5,'Nd Ts');
+
+// for pow:=5 to 700 do
+////   Vec.Add(pow,Silicon.Nv(pow)/1e6);
+//   Vec.Add(pow,ElectronConcentration(pow, [0, 1e23,0.045],1,0)/1e6);
+////   Vec.Add(pow,HoleConcentration(pow, [0, 1e20,0.045],1,0,0, True)/1e6);
+//
+// Vec.WriteToFile('p.dat',5,'T n');
+
+ FreeAndNil(Vec)
+end;
+
 
 end.
