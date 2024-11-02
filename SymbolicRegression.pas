@@ -684,8 +684,10 @@ begin
 
  LowLimits[0]:=200;
  HighLimits[0]:=500;
+// HighLimits[0]:=450;
 
  LowLimits[1]:=1e13;
+// LowLimits[1]:=1e14;
  HighLimits[1]:=1e19;
 
 
