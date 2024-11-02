@@ -765,10 +765,11 @@ begin
 
 // for pow:=5 to 700 do
 ////   Vec.Add(pow,Silicon.Nv(pow)/1e6);
-//   Vec.Add(pow,ElectronConcentration(pow, [0, 1e23,0.045],1,0)/1e6);
-////   Vec.Add(pow,HoleConcentration(pow, [0, 1e20,0.045],1,0,0, True)/1e6);
+//   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e23,0.045,True,True)/1e6);
+////   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e20,0.045,False, True)/1e6);
 //
-// Vec.WriteToFile('p.dat',5,'T n');
+// Vec.WriteToFile('n.dat',5,'T n');
+
 
  FreeAndNil(Vec)
 end;

@@ -400,7 +400,7 @@ type
                                     const T:double=300):double;
      {значення функції Фермі-Дірака для акцепторного рівня
      (дірка на рівні)
-     Ed та Ef відраховуються від дна вершини валентної зони}
+     Ed та Ef відраховуються від вершини валентної зони}
      class function FDIntegral_05(const eta:double):double;
      {значення інтегралу Фермі-Дірака ступеня 1/2,
      апроксимація згідно з Phys.Lett., vol.64A, p409}
@@ -937,58 +937,65 @@ Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетич�
 }
 
 
-//Function HoleConcentration(const T:double;
-//                               const Parameters:array of double;
-//                               const Na:byte;
-//                               const Nt:byte;
-//                               const Ef0:double=0;
-//                               const itIsSilicon:boolean=False):double;
-//{розрахунок концентрації електронів для випадку наявності
-//декількох акцепторів та пасток
-//Parameters[0] - сталий від'ємний доданок до кількості носіїв
-//(фізично - концентрація донорів)
-//Parameters[1], Parameters[3]... Parameters[2Nd-1] - концентрації акцепторів і-го типу
-//Parameters[2], Parameters[4]... Parameters[2Nd] - енергетичні положення
-//рівнів акцепторів і-го типу (додатна величина, відраховується від вершини валентної зони)
-//Parameters[2Nd+1], Parameters[2Nd+3]...Parameters[2Nd+2Nt-1] - концентрації
-//пасток і-го типу
-//Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетичні положення
-//рівня пасток і-го типу (додатна величина, відраховується від вершини валентної зони)
-//якщо Ef0=0, то положення рівня Фермі розраховується, виходячи
-//з даних в Parameters (самоузгоджено),
-//якщо ні - використовується дане в пераметрах функції
-//}
-
 
 Function FermiLevelEquation(Ef:double;
                             Parameters:array of double):double;
-{рівняння для визначення рівня Фермі в електронному напівпровіднику,
+{рівняння для визначення рівня Фермі в напівпровіднику,
 цю функцію треба підставити в Bisection для
 безпосереднього визначення Ef;
 вміст Parameters  - див. попередню функцію,
-проте в Parameters[High(Parameters)-2] (тобто в Parameters[2Nd+2Nt+1]) має бути
+проте в Parameters[High(Parameters)-2] (тобто в Parameters[2Nd+2Nt+2]) має бути
 кількість донорів Nd;
-в Parameters[High(Parameters)-1] (тобто в Parameters[2Nd+2Nt+2]) -
+в Parameters[High(Parameters)-1] (тобто в Parameters[2Nd+2Nt+3]) -
 кількість пасток Nt;
-в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+3]) - температура}
+в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+4]) - температура
+в Parameters[High(Parameters)-3]  (тобто в Parameters[2Nd+2Nt+1]) -
+код, який відповідає конкретному випадку розрахунків
+1 - напівпровідник n-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+2 - n-Si
+3 - напівпровідник p-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+4 - p-Si
+}
 
-Function FermiLevelEquationnSi(Ef:double;
+Function FermiLevelEquationNew(Ef:double;
                             Parameters:array of double):double;
-
-Function FermiLevelEquationPtype(Ef:double;
-                            Parameters:array of double):double;
-{рівняння для визначення рівня Фермі в дірковому напівпровіднику,
+{рівняння для визначення рівня Фермі в напівпровіднику з легантом
+одного типу на основі рівняння нейтральності
+n + Na^- = p + Nd^+,
 цю функцію треба підставити в Bisection для
 безпосереднього визначення Ef;
-вміст Parameters  - див. попередню функцію,
-проте в Parameters[High(Parameters)-2] (тобто в Parameters[2Nd+2Nt+1]) має бути
-кількість акцепторів Nd;
-в Parameters[High(Parameters)-1] (тобто в Parameters[2Nd+2Nt+2]) -
-кількість пасток Nt;
-в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+3]) - температура}
+Parameters[0] - концентрація легуючої домішки
+Parameters[1] - енергетичне положення рівня леганту
+(додатна величина, відраховується від
+дна зони провідності чи вершини валентної)
+Parameters[2] - температура
+Parameters[3] - код, який відповідає конкретному випадку розрахунків
+1 - напівпровідник n-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+2 - n-Si
+3 - напівпровідник p-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+4 - p-Si
+}
 
-Function FermiLevelEquationPSi(Ef:double;
-                            Parameters:array of double):double;
+Function ChargeCarrierConcentrationNew(const T:double;
+                               const Nd:double;
+                               const Ed:double;
+                               const itIsElectron:boolean=True;
+                               const itIsSilicon:boolean=False
+                               ):double;
+{розрахунок концентрації електронів при itIsElectron=True чи
+дірок itIsElectron=False для випадку наявності
+одного леганту одного типу
+Nd - концентрація легантів
+Ed - енергетичнt положення рівня 
+(додатна величина, відраховується від
+дна зони провідності чи вершини валентної)
+}
+
+
 
 Function FermiLevelEquationSimple(Ef:double;
                             Parameters:array of double):double;
@@ -1198,7 +1205,7 @@ class function TMaterial.FermiDiracAcceptor(const Ea:double;
                               const T:double=300):double;
 {значення функції Фермі-Дірака для акцепторного рівня
 (дірка на рівні)
-Ed та Ef відраховуються від дна вершини валентної зони}
+Ed та Ef відраховуються від вершини валентної зони}
 begin
  if T=0 then  Result:=ErResult
         else  Result:=1/(1+0.5{2}*exp((Ef-Ea)/T/Kb));
@@ -2436,7 +2443,8 @@ begin
 
    begin
 //    n:=Ndoping/2+sqrt(sqr(Ndoping/2)+sqr(Silicon.n_i(T)));
-    n:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,True,True);
+//    n:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,True,True);
+    n:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,True,True);
     p:=Silicon.MinorityN(n,T);
     N_D:=Ndoping;
     N_A:=0;
@@ -2444,7 +2452,8 @@ begin
                  else
    begin
 //    p:=Ndoping/2+sqrt(sqr(Ndoping/2)+sqr(Silicon.n_i(T)));
-    p:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,False,True);
+//    p:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,False,True);
+    p:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,False,True);
     n:=Silicon.MinorityN(p,T);
     N_D:=0;
     N_A:=Ndoping;
@@ -2475,7 +2484,8 @@ begin
  if itIsMajority then
    begin
 //    p:=Ndoping/2+sqrt(sqr(Ndoping/2)+sqr(Silicon.n_i(T)));
-    p:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,False,True);
+//    p:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,False,True);
+    p:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,False,True);
     n:=Silicon.MinorityN(p,T);
     N_A:=Ndoping;
     N_D:=0;
@@ -2483,7 +2493,8 @@ begin
                  else
    begin
 //    n:=Ndoping/2+sqrt(sqr(Ndoping/2)+sqr(Silicon.n_i(T)));
-    n:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,True,True);
+//    n:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,True,True);
+    n:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,True,True);
     p:=Silicon.MinorityN(n,T);
     N_A:=0;
     N_D:=Ndoping;
@@ -2666,7 +2677,7 @@ Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетич�
 з даних в Parameters (самоузгоджено),
 якщо ні - використовується дане в пераметрах функції
 }
- var Ef:double;
+ var Ef,Eg:double;
      tempParameters:array of double;
      i:byte;
 begin
@@ -2680,32 +2691,31 @@ begin
 
   Result:=Result-Parameters[0];
 
-  SetLength(tempParameters,2*(Nd+Nt)+4);
+  SetLength(tempParameters,2*(Nd+Nt)+5);
   for I := 0 to 2*(Nd+Nt) do tempParameters[i]:=Parameters[i];
   tempParameters[High(tempParameters)]:=T;
   tempParameters[High(tempParameters)-1]:=Nt;
   tempParameters[High(tempParameters)-2]:=Nd;
-  if Ef0=0 then
-   begin
-   if itIsElectron then
-     begin
-     if itIsSilicon
-      then Ef:=Bisection(FermiLevelEquationnSi,tempParameters,
-                   Silicon.Eg(T),0,5e-4)
-       else Ef:=Bisection(FermiLevelEquation,tempParameters,
-                   Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4)
-     end           else
-     begin
-     if itIsSilicon
-      then Ef:=Bisection(FermiLevelEquationPSi,tempParameters,
-                   Silicon.Eg(T),0,5e-4)
-       else Ef:=Bisection(FermiLevelEquationPtype,tempParameters,
-                   Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4)
-     end;
-   end
-           else
-   Ef:=Ef0;
 
+  if itIsElectron then
+    begin
+     if itIsSilicon 
+       then  tempParameters[High(tempParameters)-3]:= 2
+       else  tempParameters[High(tempParameters)-3]:=1;
+    end            else
+    begin
+     if itIsSilicon 
+       then tempParameters[High(tempParameters)-3]:=4
+       else tempParameters[High(tempParameters)-3]:=3;                    
+    end;
+
+  if itIsSilicon then Eg:=Silicon.Eg(T)
+                 else Eg:=Diod.FSemiconductor.FMaterial.EgT(T);
+    
+  if Ef0=0 then Ef:=Bisection(FermiLevelEquation,tempParameters,
+                   Eg,0,5e-4)
+           else Ef:=Ef0;        
+ 
   i:=2;
   while(i<=2*(Nd+Nt)) do
    begin
@@ -2724,71 +2734,8 @@ begin
       end;
    i:=i+2;
    end;
+   
 end;
-
-
-//Function HoleConcentration(const T:double;
-//                               const Parameters:array of double;
-//                               const Na:byte;
-//                               const Nt:byte;
-//                               const Ef0:double=0;
-//                               const itIsSilicon:boolean=False):double;
-//{розрахунок концентрації електронів для випадку наявності
-//декількох акцепторів та пасток
-//Parameters[0] - сталий від'ємний доданок до кількості носіїв
-//(фізично - концентрація донорів)
-//Parameters[1], Parameters[3]... Parameters[2Nd-1] - концентрації акцепторів і-го типу
-//Parameters[2], Parameters[4]... Parameters[2Nd] - енергетичні положення
-//рівнів акцепторів і-го типу (додатна величина, відраховується від вершини валентної зони)
-//Parameters[2Nd+1], Parameters[2Nd+3]...Parameters[2Nd+2Nt-1] - концентрації
-//пасток і-го типу
-//Parameters[2Nd+2], Parameters[2Nd+4]...Parameters[2Nd+2Nt] - енергетичні положення
-//рівня пасток і-го типу (додатна величина, відраховується від вершини валентної зони)
-//якщо Ef0=0, то положення рівня Фермі розраховується, виходячи
-//з даних в Parameters (самоузгоджено),
-//якщо ні - використовується дане в пераметрах функції
-//}
-// var Ef:double;
-//     tempParameters:array of double;
-//     i:byte;
-//begin
-//  Result:=ErResult;
-//  if T<=0 then Exit;
-//  if High(Parameters)<2*(Na+Nt) then Exit;
-//
-//  if itIsSilicon
-//   then Result:=Silicon.n_i(T)
-//   else Result:=Diod.FSemiconductor.FMaterial.n_i(T);
-//
-//  Result:=Result-Parameters[0];
-//
-//  SetLength(tempParameters,2*(Na+Nt)+4);
-//  for I := 0 to 2*(Na+Nt) do tempParameters[i]:=Parameters[i];
-//  tempParameters[High(tempParameters)]:=T;
-//  tempParameters[High(tempParameters)-1]:=Nt;
-//  tempParameters[High(tempParameters)-2]:=Na;
-////--------------------------------------------------
-//  if Ef0=0 then
-//   begin
-//   if itIsSilicon
-//    then Ef:=Bisection(FermiLevelEquationPSi,tempParameters,
-//                 Silicon.Eg(T),0,5e-4)
-//     else Ef:=Bisection(FermiLevelEquationPtype,tempParameters,
-//                 Diod.FSemiconductor.FMaterial.EgT(T),0,5e-4)
-//   end
-//           else
-//   Ef:=Ef0;
-//
-//  i:=2;
-//  while(i<=2*(Na+Nt)) do
-//   begin
-//   if i<(2*Na+1)
-//     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T))
-//     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T);
-//   i:=i+2;
-//   end;
-//
-//end;
 
 
 Function FermiLevelEquation(Ef:double;
@@ -2797,151 +2744,188 @@ Function FermiLevelEquation(Ef:double;
 цю функцію треба підставити в Bisection для
 безпосереднього визначення Ef;
 вміст Parameters  - див. попередню функцію,
-проте в Parameters[High(Parameters)-2] (тобто в Parameters[2Nd+2Nt+1]) має бути
+проте в Parameters[High(Parameters)-2] (тобто в Parameters[2Nd+2Nt+2]) має бути
 кількість донорів Nd;
-в Parameters[High(Parameters)-1] (тобто в Parameters[2Nd+2Nt+2]) -
+в Parameters[High(Parameters)-1] (тобто в Parameters[2Nd+2Nt+3]) -
 кількість пасток Nt;
-в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+3]) - температура}
+в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+4]) - температура
+в Parameters[High(Parameters)-3]  (тобто в Parameters[2Nd+2Nt+1]) -
+код, який відповідає конкретному випадку розрахунків
+1 - напівпровідник n-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+2 - n-Si
+3 - напівпровідник p-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+4 - p-Si
+}
  var T:double;
-     i,Nd,Nt:byte;
+     i,Nd,Nt, Kod:byte;
 begin
  Result:=ErResult;
  try
    Nd:=round(Parameters[High(Parameters)-2]);
    Nt:=round(Parameters[High(Parameters)-1]);
+   Kod:=round(Parameters[High(Parameters)-3]);
  except
    Exit;
  end;
 
- if High(Parameters)<>(2*(Nd+Nt)+3) then Exit;
+
+ if High(Parameters)<>(2*(Nd+Nt)+4) then Exit;
  T:=Parameters[High(Parameters)];
  if T<=0 then Exit;
 
- Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
+ case Kod of
+  1:Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
          Diod.FSemiconductor.FMaterial.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
-
- Result:=Result-Parameters[0];
-
-  i:=2;
-  while(i<(High(Parameters)-2)) do
-   begin
-   if i<(2*Nd+1)
-     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))
-     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
-   i:=i+2;
-   end;
-
-end;
-
-Function FermiLevelEquationnSi(Ef:double;
-                            Parameters:array of double):double;
- var T:double;
-     i,Nd,Nt:byte;
-begin
- Result:=ErResult;
- try
-   Nd:=round(Parameters[High(Parameters)-2]);
-   Nt:=round(Parameters[High(Parameters)-1]);
- except
-   Exit;
+  2:Result:=Silicon.n_i(T)-
+         Silicon.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+  3:Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
+         Diod.FSemiconductor.FMaterial.Nv(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+  else Result:=Silicon.n_i(T)-
+         Silicon.Nv(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
  end;
 
- if High(Parameters)<>(2*(Nd+Nt)+3) then Exit;
- T:=Parameters[High(Parameters)];
- if T<=0 then Exit;
 
- Result:=Silicon.n_i(T)-
-         Silicon.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
  Result:=Result-Parameters[0];
 
   i:=2;
   while(i<(High(Parameters)-2)) do
    begin
    if i<(2*Nd+1)
-     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T))
-     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
+     then 
+      case Kod of
+        1,2:Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracDonor(Parameters[i],Ef,T));
+        else Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T));
+      end
+     else 
+      case Kod of
+        1,2:Result:=Result-Parameters[i-1]*TMaterial.FermiDiracDonor(Parameters[i],Ef,T);
+        else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T);
+      end;
    i:=i+2;
    end;
 
+   
 end;
 
-Function FermiLevelEquationPtype(Ef:double;
+
+Function FermiLevelEquationNew(Ef:double;
                             Parameters:array of double):double;
-{рівняння для визначення рівня Фермі в дірковому напівпровіднику,
+{рівняння для визначення рівня Фермі в напівпровіднику з легантом
+одного типу на основі рівняння нейтральності
+n + Na^- = p + Nd^+,
 цю функцію треба підставити в Bisection для
 безпосереднього визначення Ef;
-вміст Parameters  - див. попередню функцію,
-проте в Parameters[High(Parameters)-2] (тобто в Parameters[2Nd+2Nt+1]) має бути
-кількість акцепторів Nd;
-в Parameters[High(Parameters)-1] (тобто в Parameters[2Nd+2Nt+2]) -
-кількість пасток Nt;
-в Parameters[High(Parameters)] (тобто в Parameters[2Nd+2Nt+3]) - температура}
- var T:double;
-     i,Na,Nt:byte;
+Parameters[0] - концентрація легуючої домішки
+Parameters[1] - енергетичне положення рівня леганту
+(додатна величина, відраховується від
+дна зони провідності чи вершини валентної)
+Parameters[2] - температура
+Parameters[3] - код, який відповідає конкретному випадку розрахунків
+1 - напівпровідник n-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+2 - n-Si
+3 - напівпровідник p-типу, матеріал, який вказано на вкаладці
+    "Diode's parameters -> Schottky diod parameters "
+4 - p-Si
+}
+ var T,n,p,Eg,Ndion:double;
+     i,Kod:byte;
 begin
+
  Result:=ErResult;
+ if High(Parameters)<>3 then Exit;
+
  try
-   Na:=round(Parameters[High(Parameters)-2]);
-   Nt:=round(Parameters[High(Parameters)-1]);
+   Kod:=round(Parameters[3]);
  except
    Exit;
  end;
-
-
- if High(Parameters)<>(2*(Na+Nt)+3) then Exit;
- T:=Parameters[High(Parameters)];
+ T:=Parameters[2];
  if T<=0 then Exit;
 
+ case Kod of
+  1:n:=Diod.FSemiconductor.FMaterial.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+  2:n:=Silicon.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+  3:n:=Diod.FSemiconductor.FMaterial.Nv(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+  else n:=Silicon.Nv(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+ end;
 
- Result:=Diod.FSemiconductor.FMaterial.n_i(T)-
-         Diod.FSemiconductor.FMaterial.Nv(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
 
- Result:=Result-Parameters[0];
+ case Kod of
+    1,2:Ndion:=Parameters[0]*(1-TMaterial.FermiDiracDonor(Parameters[1],Ef,T));
+    else Ndion:=Parameters[0]*(1-TMaterial.FermiDiracAcceptor(Parameters[1],Ef,T));
+ end;
 
-  i:=2;
-  while(i<(High(Parameters)-2)) do
-   begin
-   if i<(2*Na+1)
-     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T))
-     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T);
-   i:=i+2;
-   end;
+ case Kod of
+  2:Eg:=Silicon.Eg(T)-Silicon.BGN(Ndion,True);
+  4:Eg:=Silicon.Eg(T)-Silicon.BGN(Ndion,False);
+  else Eg:=Diod.FSemiconductor.FMaterial.EgT(T);
+ end;
 
+ case Kod of
+  1:p:=Diod.FSemiconductor.FMaterial.Nv(T)*TMaterial.FDIntegral_05(-(Eg-Ef)/T/Kb);
+  2:p:=Silicon.Nv(T)*TMaterial.FDIntegral_05(-(Eg-Ef)/T/Kb);
+  3:p:=Diod.FSemiconductor.FMaterial.Nc(T)*TMaterial.FDIntegral_05(-(Eg-Ef)/T/Kb);
+  else p:=Silicon.Nc(T)*TMaterial.FDIntegral_05(-(Eg-Ef)/T/Kb);
+ end;
+
+ 
+ Result:=p-n+Ndion;
+
+ 
 end;
 
-Function FermiLevelEquationPSi(Ef:double;
-                            Parameters:array of double):double;
- var T:double;
-     i,Na,Nt:byte;
+
+Function ChargeCarrierConcentrationNew(const T:double;
+                               const Nd:double;
+                               const Ed:double;
+                               const itIsElectron:boolean=True;
+                               const itIsSilicon:boolean=False
+                               ):double;
+{розрахунок концентрації електронів при itIsElectron=True чи
+дірок itIsElectron=False для випадку наявності
+одного леганту одного типу
+Nd - концентрація легантів
+Ed - енергетичнt положення рівня 
+(додатна величина, відраховується від
+дна зони провідності чи вершини валентної)
+}
+ var Ef,Eg,ni,Ndion:double;
+     tempParameters:array of double;
+     i:byte;
 begin
- Result:=ErResult;
- try
-   Na:=round(Parameters[High(Parameters)-2]);
-   Nt:=round(Parameters[High(Parameters)-1]);
- except
-   Exit;
- end;
+  Result:=ErResult;
+  if T<=0 then Exit;
 
+  if itIsSilicon
+   then ni:=Silicon.n_i(T)
+   else ni:=Diod.FSemiconductor.FMaterial.n_i(T);
+  SetLength(tempParameters,4);
+  tempParameters[2]:=T;
+  tempParameters[1]:=Ed;
+  tempParameters[0]:=Nd;
+  if itIsElectron then
+    begin
+     if itIsSilicon 
+       then  tempParameters[3]:= 2
+       else  tempParameters[3]:=1;
+    end            else
+    begin
+     if itIsSilicon 
+       then tempParameters[3]:=4
+       else tempParameters[3]:=3;                    
+    end;
 
- if High(Parameters)<>(2*(Na+Nt)+3) then Exit;
- T:=Parameters[High(Parameters)];
- if T<=0 then Exit;
-
-
- Result:=Silicon.n_i(T)-
-         Silicon.Nv(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
-
- Result:=Result-Parameters[0];
-
-  i:=2;
-  while(i<(High(Parameters)-2)) do
-   begin
-   if i<(2*Na+1)
-     then Result:=Result+Parameters[i-1]*(1-TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T))
-     else Result:=Result-Parameters[i-1]*TMaterial.FermiDiracAcceptor(Parameters[i],Ef,T);
-   i:=i+2;
-   end;
-
+  if itIsSilicon then Eg:=Silicon.Eg(T)
+                 else Eg:=Diod.FSemiconductor.FMaterial.EgT(T);
+    
+  Ef:=Bisection(FermiLevelEquationNew,tempParameters,
+                   Eg,0,5e-4);
+  Ndion:=Nd*(1-TMaterial.FermiDiracDonor(Ed,Ef,T))/2;
+  Result:=Ndion+sqrt(sqr(Ndion)+sqr(ni))
+ 
 end;
 
 
