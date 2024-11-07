@@ -3969,7 +3969,7 @@ begin
 //                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
 //ForAllDirAction(IVfittingResultCollect,'Forward','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(CVReverse,'CV','D:\Samples\DeepL\2024\ODiod');
-//ForAllDirAction(CVReverse,'CV','D:\DeepL\2024\ODiod');
+//ForAllDirAction(CVReverse,'CV','D:\DeepL\2024\ODiod\OdiodNew');
 //ForAllDirAction(IVmanipulate,'IV','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(DatToEis,'RZ','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(ISresultTransform,'IS','D:\Samples\DeepL\2024\ODiod');

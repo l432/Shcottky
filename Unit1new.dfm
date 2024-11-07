@@ -6836,7 +6836,7 @@ object Form1: TForm1
         end
         object BActionDo: TButton
           Left = 187
-          Top = 74
+          Top = 69
           Width = 52
           Height = 25
           Caption = 'Do it!'

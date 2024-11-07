@@ -191,6 +191,7 @@ begin
     Vec.ReadFromFile(SR.name);
     temp:=copy(Vec.name,1,length(Vec.name)-4);
     if Pos('cprp',temp)>0 then Delete(temp,Pos('cprp',temp),4);
+    if Pos('cpg',temp)>0 then Delete(temp,Pos('cpg',temp),3);
     temp:=FilePrefix+temp;
 
     Vec.Itself(Vec.ReverseX);
