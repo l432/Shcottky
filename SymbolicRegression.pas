@@ -682,13 +682,24 @@ begin
    then FileNameBegin:=FileNameBegin+'maj'
    else FileNameBegin:=FileNameBegin+'min';
 
- LowLimits[0]:=200;
- HighLimits[0]:=500;
-// HighLimits[0]:=450;
 
- LowLimits[1]:=1e13;
-// LowLimits[1]:=1e14;
- HighLimits[1]:=1e19;
+// LowLimits[0]:=200;
+// HighLimits[0]:=500;
+//
+// LowLimits[1]:=1e13;
+// HighLimits[1]:=1e19;
+
+ LowLimits[0]:=150;
+ HighLimits[0]:=550;
+
+ LowLimits[1]:=5e12;
+ HighLimits[1]:=1e20;
+
+// LowLimits[0]:=200;
+// HighLimits[0]:=500;
+//
+// LowLimits[1]:=1e13;
+// HighLimits[1]:=1e19;
 
 
 //===============================================
