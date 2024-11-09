@@ -3974,6 +3974,7 @@ begin
 //ForAllDirAction(DatToEis,'RZ','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(ISresultTransform,'IS','D:\Samples\DeepL\2024\ODiod');
 //ForAllDirAction(CFTransform,'Cf','D:\Samples\DeepL\2024\ODiod');
+//ForAllDirAction(CFTransform,'Cf','D:\Samples\DeepL\2024\ODiod\OdiodNew');
 
 //ShowMessage(floattostr(ElectronConcentration(100, [0,1e20,0.045],1,0)));
 //ShowMessage(floattostr(HoleConcentration(100, [0,1e20,0.045],1,0)));

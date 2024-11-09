@@ -476,7 +476,7 @@ type
       {[Result]=eV}
       class function Meff_e(T:double=300):double;
       class function Meff_h(T:double=300):double;
-      class function A(A0,T,n:double):double;
+      class function A(A0,T,n:double;Tref:double=300):double;
       {функція A=A0*(T/300)^n}
 //      class function mu_n(T: Double=300; Ndoping: Double=1e21):double;
 //      class function mu_p(T: Double=300; Ndoping: Double=1e21):double;
@@ -984,15 +984,18 @@ Function ChargeCarrierConcentrationNew(const T:double;
                                const Nd:double;
                                const Ed:double;
                                const itIsElectron:boolean=True;
-                               const itIsSilicon:boolean=False
+                               const itIsSilicon:boolean=False;
+                               const ionDopantNeeded:boolean=False
                                ):double;
 {розрахунок концентрації електронів при itIsElectron=True чи
 дірок itIsElectron=False для випадку наявності
 одного леганту одного типу
 Nd - концентрація легантів
-Ed - енергетичнt положення рівня 
+Ed - енергетичнt положення рівня
 (додатна величина, відраховується від
 дна зони провідності чи вершини валентної)
+при ionDopantNeeded=True повертається не
+концентрація носіїв, а концентрація іонізованих допантів
 }
 
 
@@ -2087,9 +2090,9 @@ end;
 
 { Silicon }
 
-class function Silicon.A(A0, T, n: double): double;
+class function Silicon.A(A0, T, n: double;Tref:double=300): double;
 begin
- Result:=A0*Power(T/300.0,n);
+ Result:=A0*Power(T/Tref,n);
 end;
 
 class function Silicon.Absorption(Lambda:double;T:double=300): double;
@@ -2419,15 +2422,82 @@ begin
  Result:=sqr(n_i(T))/majority;
 end;
 
-//class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21): double;
-// var  mu_min,mu_0,Nref,Alpha:double;
+//class function Silicon.mu_n(T: Double=300; Ndoping: Double=1e21;itIsMajority:Boolean=True): double;
+// var  mu_min,mu_0,Nref,Alpha,Tref,Ndop_ion:double;
+//{"Solar Cells: Materials, Manufacture and Operation",
+//Second Edition, Edited by Augustin McEvoy, Tom Markvart, Luis Castaner
+//але загалом це зі статей
+//N.D. Arora, T.R. Hauser, D.J. Roulston, IEEE Trans, Electron Dev. ED-29 (1982) 292.
+//(основна формула, коефіцієнти для основних носіїв)
+//S.E. Swirhun, Y.-H. Kwark, R.M. Swanson, IEDM’86 (1986) 24–27
+//(неосновні електрони, коефіцієнти)
+//J. del Alamo, S. Swirhun, R.M. Swanson, IEDM’85 (1985) 290–293
+//(неосновні дірки, коефіцієнти)
+//Для неосновних визначення проводилося поблизу
+//кімнати, теампературних залежностей
+//загалом немає, можна хіба що припустити такі самі, як для основних
+//}
 //begin
-// mu_min:=A(92e-4,T,-0.57);
-// mu_0:=A(0.1268,T,-2.33);
-// Nref:=A(1.3e23,T,2.4);
-// Alpha:=A(0.91,T,-0.146);
-// Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndoping,Alpha);
+//// Ndop_ion:=Ndoping;
+// Ndop_ion:=ChargeCarrierConcentrationNew(T,Ndoping,0.045,itIsMajority,True,True);
+// if itIsMajority
+//   then
+//    begin
+//     Tref:=300;
+//     mu_min:=A(88e-4,T,-0.57,Tref);
+//     mu_0:=A(0.1252,T,-2.33,Tref);
+//     Nref:=A(1.26e23,T,2.4,Tref);
+//     Alpha:=A(0.88,T,-0.146,Tref);
+//    end
+//   else
+//    begin
+//     Tref:=295;
+//     mu_min:=A(232e-4,T,-0.57,Tref);
+//     mu_0:=A(0.1180,T,-2.33,Tref);
+//     Nref:=A(8e22,T,2.4,Tref);
+//     Alpha:=A(0.9,T,-0.146,Tref);
+//    end;
+// Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha);
 //end;
+//
+//class function Silicon.mu_p(T: Double=300; Ndoping: Double=1e21;itIsMajority:Boolean=True): double;
+// var  mu_min,mu_0,Nref,Alpha,Tref,Ndop_ion:double;
+//{"Solar Cells: Materials, Manufacture and Operation",
+//Second Edition, Edited by Augustin McEvoy, Tom Markvart, Luis Castaner
+//але загалом це зі статей
+//N.D. Arora, T.R. Hauser, D.J. Roulston, IEEE Trans, Electron Dev. ED-29 (1982) 292.
+//(основна формула, коефіцієнти для основних носіїв)
+//S.E. Swirhun, Y.-H. Kwark, R.M. Swanson, IEDM’86 (1986) 24–27
+//(неосновні електрони, коефіцієнти)
+//J. del Alamo, S. Swirhun, R.M. Swanson, IEDM’85 (1985) 290–293
+//(неосновні дірки, коефіцієнти)
+//Для неосновних визначення проводилося поблизу
+//кімнати, теампературних залежностей
+//загалом немає, можна хіба що припустити такі самі, як для основних
+//}
+//begin
+//// Ndop_ion:=Ndoping;
+// Ndop_ion:=ChargeCarrierConcentrationNew(T,Ndoping,0.045,not(itIsMajority),True,True);
+// if itIsMajority
+//   then
+//    begin
+//     Tref:=300;
+//     mu_min:=A(54.3e-4,T,-0.57,Tref);
+//     mu_0:=A(0.0407,T,-2.23,Tref);
+//     Nref:=A(2.35e23,T,2.4,Tref);
+//     Alpha:=A(0.88,T,-0.146,Tref);
+//    end
+//   else
+//    begin
+//     Tref:=292;
+//     mu_min:=A(130e-4,T,-0.57,Tref);
+//     mu_0:=A(0.0370,T,-2.23,Tref);
+//     Nref:=A(8e23,T,2.4,Tref);
+//     Alpha:=A(1.25,T,-0.146,Tref);
+//    end;
+// Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha);
+//end;
+
 
 class function Silicon.mu_n(T, Ndoping: Double;itIsMajority:Boolean): double;
  const mu_max=0.1414;
@@ -2882,15 +2952,18 @@ Function ChargeCarrierConcentrationNew(const T:double;
                                const Nd:double;
                                const Ed:double;
                                const itIsElectron:boolean=True;
-                               const itIsSilicon:boolean=False
+                               const itIsSilicon:boolean=False;
+                               const ionDopantNeeded:boolean=False
                                ):double;
 {розрахунок концентрації електронів при itIsElectron=True чи
 дірок itIsElectron=False для випадку наявності
 одного леганту одного типу
 Nd - концентрація легантів
-Ed - енергетичнt положення рівня 
+Ed - енергетичнt положення рівня
 (додатна величина, відраховується від
 дна зони провідності чи вершини валентної)
+при ionDopantNeeded=True повертається не
+концентрація носіїв, а концентрація іонізованих допантів
 }
  var Ef,Eg,ni,Ndion:double;
      tempParameters:array of double;
@@ -2913,7 +2986,7 @@ begin
        else  tempParameters[3]:=1;
     end            else
     begin
-     if itIsSilicon 
+     if itIsSilicon
        then tempParameters[3]:=4
        else tempParameters[3]:=3;                    
     end;
@@ -2924,8 +2997,9 @@ begin
   Ef:=Bisection(FermiLevelEquationNew,tempParameters,
                    Eg,0,5e-4);
   Ndion:=Nd*(1-TMaterial.FermiDiracDonor(Ed,Ef,T))/2;
-  Result:=Ndion+sqrt(sqr(Ndion)+sqr(ni))
- 
+  if ionDopantNeeded
+    then Result:=2*Ndion
+    else Result:=Ndion+sqrt(sqr(Ndion)+sqr(ni))
 end;
 
 

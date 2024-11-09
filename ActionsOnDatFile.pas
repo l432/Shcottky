@@ -532,6 +532,8 @@ begin
  if FindFirst(mask, faAnyFile, SR) = 0 then
    repeat
     if FileNameIsBad(SR.name)then Continue;
+//    if Pos('0V8n',SR.name)=0 then Continue;
+
     Vec.ReadFromFile(SR.name);
     for i:=1 to 20 do
      Vec.Itself(Vec.Smoothing);
@@ -542,6 +544,7 @@ begin
 //    showmessage(Vec.XYtoString);
 
     if Pos('0V4',SR.name)>0 then Vbi:=Vbi-0.4;
+    if Pos('0V8',SR.name)>0 then Vbi:=Vbi-0.4;
     W:=Wd(Vbi,N,Vec.T);
 //    showmessage(floattostr(W));
 //    showmessage(floattostr(Vbi));
@@ -550,6 +553,7 @@ begin
     Vec.MultiplyY(-Vbi/(Kb*Vec.T*Qelem*S*W*1e6));
     Vec.CopyLimitedX(VecNew,1e3,1e7);
     if Pos('0V4',SR.name)>0 then Vbi:=Vbi+0.4;
+    if Pos('0V8',SR.name)>0 then Vbi:=Vbi+0.4;
 //    showmessage(Vec.XYtoString);
 
     temp:=copy(Vec.name,1,length(SR.name)-4);
