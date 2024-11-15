@@ -689,16 +689,17 @@ begin
  LowLimits[1]:=1e13;
  HighLimits[1]:=1e19;
 
-
-
-
 // LowLimits[0]:=175;
 // HighLimits[0]:=525;
 //
 // LowLimits[1]:=5e12;
 // HighLimits[1]:=5e19;
 
-
+// LowLimits[0]:=150;
+// HighLimits[0]:=550;
+//
+// LowLimits[1]:=1e12;
+// HighLimits[1]:=1e20;
 
 //===============================================
 // LowLimits[0]:=77;
@@ -776,10 +777,10 @@ begin
 
 // for pow:=5 to 700 do
 ////   Vec.Add(pow,Silicon.Nv(pow)/1e6);
-//   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e23,0.045,True,True)/1e6);
+//   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e23,0.045,True,True,True)/1e6);
 ////   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e20,0.045,False, True)/1e6);
 //
-// Vec.WriteToFile('n.dat',5,'T n');
+// Vec.WriteToFile('Nd.dat',5,'T Nd');
 
 
  FreeAndNil(Vec)

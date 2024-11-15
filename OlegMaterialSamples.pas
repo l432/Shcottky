@@ -2506,17 +2506,19 @@ class function Silicon.mu_n(T, Ndoping: Double;itIsMajority:Boolean): double;
        al=0.711;
  var mu_L,mu_DA,
      Pp,p,n,N_D,N_A,
-     Nsc,Neff:double;
+     Nsc,Neff,Ndop_ion:double;
 begin
  mu_L:=ThermallyPower(mu_max,2.25,300/T);
- if itIsMajority then
+// Ndop_ion:=Ndoping;
+ Ndop_ion:=ChargeCarrierConcentrationNew(T,Ndoping,0.045,itIsMajority,True,True);
 
+ if itIsMajority then
    begin
 //    n:=Ndoping/2+sqrt(sqr(Ndoping/2)+sqr(Silicon.n_i(T)));
 //    n:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,True,True);
     n:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,True,True);
     p:=Silicon.MinorityN(n,T);
-    N_D:=Ndoping;
+    N_D:=Ndop_ion;
     N_A:=0;
    end
                  else
@@ -2526,10 +2528,10 @@ begin
     p:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,False,True);
     n:=Silicon.MinorityN(p,T);
     N_D:=0;
-    N_A:=Ndoping;
+    N_A:=Ndop_ion;
    end;
 
- Pp:=Pklaas(T, Ndoping, itIsMajority, True);
+ Pp:=Pklaas(T, Ndop_ion, itIsMajority, True);
 
  Neff:=N_D+N_A*Gklaas(Pp,T,True)+p/Fklaas(Pp,T,True);
  Nsc:=N_D+N_A+p;
@@ -2548,16 +2550,18 @@ class function Silicon.mu_p(T, Ndoping: Double; itIsMajority: Boolean): double;
        al=0.719;
  var mu_L,mu_DA,
      Pp,p,n,N_D,N_A,
-     Nsc,Neff:double;
+     Nsc,Neff,Ndop_ion:double;
 begin
  mu_L:=ThermallyPower(mu_max,2.25,300/T);
+// Ndop_ion:=Ndoping;
+ Ndop_ion:=ChargeCarrierConcentrationNew(T,Ndoping,0.045,not(itIsMajority),True,True);
  if itIsMajority then
    begin
 //    p:=Ndoping/2+sqrt(sqr(Ndoping/2)+sqr(Silicon.n_i(T)));
 //    p:=ChargeCarrierConcentration(T, [0, Ndoping,0.045],1,0,False,True);
     p:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,False,True);
     n:=Silicon.MinorityN(p,T);
-    N_A:=Ndoping;
+    N_A:=Ndop_ion;
     N_D:=0;
    end
                  else
@@ -2567,10 +2571,10 @@ begin
     n:=ChargeCarrierConcentrationNew(T, Ndoping,0.045,True,True);
     p:=Silicon.MinorityN(n,T);
     N_A:=0;
-    N_D:=Ndoping;
+    N_D:=Ndop_ion;
    end;
 
- Pp:=Pklaas(T, Ndoping, itIsMajority, False);
+ Pp:=Pklaas(T, Ndop_ion, itIsMajority, False);
 
  Neff:=N_A+N_D*Gklaas(Pp,T,False)+n/Fklaas(Pp,T,False);
  Nsc:=N_A+N_D+n;

@@ -703,18 +703,28 @@ begin
     temp:=copy(Vec.name,1,length(Vec.name)-4);
     inc(j);
 
+
+
 //    Vec.CopyLimitedX(Vec2,0,0.4);
-//    KeyAndValueToFile(Dat_Folder+'/'+FolderNameFromFullPath(Dat_Folder)+'Max.dat',
+//
+//    ResultFolder:=DeleteStringDataFromRow(Dat_Folder,NumberOfSubstringInRow(Dat_Folder,'\'),'\');
+//    SetCurrentDir(ResultFolder);
+//    CreateDirSafety('Int');
+//    CreateDirSafety('Max');
+//    KeyAndValueToFile(ResultFolder+'\Max\'+FolderNameFromFullPath(Dat_Folder)+'.dat',
 //                         inttostr(j),
 //                         FloatToStrF(Vec.X[Vec2.MaxYnumber],ffExponent,6,0));
-//    KeyAndValueToFile(Dat_Folder+'/'+FolderNameFromFullPath(Dat_Folder)+'Int.dat',
+//    KeyAndValueToFile(ResultFolder+'\Int\'+FolderNameFromFullPath(Dat_Folder)+'.dat',
 //                         inttostr(j),
 //                         FloatToStrF(Vec.Int_Trap,ffExponent,6,0));
+//    SetCurrentDir(Dat_Folder);
 
 
+//----------------------------------------------
 
 //    for i:=0 to Vec.HighNumber do
 //     Vec.Y[i]:=log10(Vec.Y[i]);
+//------------------------------------------------------
     Vec2.Clear;
     Vec2.Filling(GausRozpodil,
                  max(0,Vec.MeanY-5*Vec.StandartDeviationNY),
