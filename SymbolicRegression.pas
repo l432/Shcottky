@@ -701,6 +701,12 @@ begin
 // LowLimits[1]:=1e12;
 // HighLimits[1]:=1e20;
 
+//  LowLimits[0]:=150;
+// HighLimits[0]:=500;
+//
+// LowLimits[1]:=1e13;
+// HighLimits[1]:=1e20;
+
 //===============================================
 // LowLimits[0]:=77;
 // HighLimits[0]:=273;
