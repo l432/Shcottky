@@ -494,6 +494,9 @@ type
       Ndoping - концентрація легуючої домішки,
       []=м^-3
       [Result]=м^2/(В с}
+      class function mu_Dorkel(T: Double=300):double;
+      {рухливість, пов'язана з процесами  carrier–carrier scattering,
+      відповідно до SolStElect_24_p821}
       class function D_n(T: Double=300; Ndoping: Double=1e21):double;
       class function D_p(T: Double=300; Ndoping: Double=1e21):double;
       {коефіцієнт дифузії, []= м^2/с}
@@ -2458,8 +2461,11 @@ end;
 //     Alpha:=A(0.9,T,-0.146,Tref);
 //    end;
 // Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha);
-//end;
+//// Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha)*mu_Dorkel(T)
+////         /(TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha)+mu_Dorkel(T));
 //
+//end;
+
 //class function Silicon.mu_p(T: Double=300; Ndoping: Double=1e21;itIsMajority:Boolean=True): double;
 // var  mu_min,mu_0,Nref,Alpha,Tref,Ndop_ion:double;
 //{"Solar Cells: Materials, Manufacture and Operation",
@@ -2496,8 +2502,20 @@ end;
 //     Alpha:=A(1.25,T,-0.146,Tref);
 //    end;
 // Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha);
+//
+//// Result:=TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha)*mu_Dorkel(T)
+////         /(TMaterial.CaugheyThomas(mu_min,mu_0,Nref,Ndop_ion,Alpha)+mu_Dorkel(T));
 //end;
 
+
+class function Silicon.mu_Dorkel(T: Double): double;
+ var np:double;
+begin
+
+  np:=sqr(n_i(T))/1e12;
+  Result:=Power(T,1.5)*2e13
+          /(sqrt(np)*Ln(1+sqr(T)*8.28e8*Power(np,-1/3)));
+end;
 
 class function Silicon.mu_n(T, Ndoping: Double;itIsMajority:Boolean): double;
  const mu_max=0.1414;
