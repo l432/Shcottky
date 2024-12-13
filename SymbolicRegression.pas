@@ -189,7 +189,7 @@ implementation
 
 uses
   OlegVector, System.SysUtils, System.Math,
-  System.Classes, OApproxFunction2, OlegMath;
+  System.Classes, OApproxFunction2, OlegMath, Vcl.Dialogs;
 
 procedure DeepOfAbsorbtion(T:integer;FileName:string='SiAbsorb');
  var i:integer;
@@ -569,13 +569,14 @@ begin
       ptInt,ptDouble:NewParametrValues[1]:=NewParametrValues[1]+Steps[1];
       ptDoubleLn:NewParametrValues[1]:=exp(ln(NewParametrValues[1])+Steps[1]);
     end;
-  until (NewParametrValues[1]>FHighLimits[1]);
+  until (NewParametrValues[1]>FHighLimits[1]*1.01);
+//  showmessage(floattostr(NewParametrValues[1]));
   case fParamTypes[0] of
     ptInt,ptDouble:NewParametrValues[0]:=NewParametrValues[0]+Steps[0];
     ptDoubleLn:NewParametrValues[0]:=exp(ln(NewParametrValues[0])+Steps[0]);
   end;
 
- until (NewParametrValues[0]>FHighLimits[0]);
+ until (NewParametrValues[0]>FHighLimits[0]*1.01);
 
  LastNEntriesToFile(High(fResults)+1,FFileNameBegin+'full.dat');
 
