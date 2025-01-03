@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, TeeProcs, TeEngine, Chart, Buttons,
   OlegGraph, OlegType, OlegMath, OlegFunction, Math, FileCtrl, Grids, Series, IniFiles,
   TypInfo, Spin, {OlegApprox,}FrameButtons, FrDiap, OlegMaterialSamples,OlegDefectsSi,MMSystem,
-  OlegTests, OlegVector, OlegMathShottky, Castro, MLresults,
+  OlegTests, OlegVector, OlegMathShottky, Castro, MLresults, porousSi,
   OlegVectorManipulation,OApproxCaption, FitTransform, ActionsOnDatFile, VclTee.TeeGDIPlus
   {XP Win}
   , System.UITypes
@@ -3982,11 +3982,12 @@ begin
 //Ti();
 //Ts(0.057);
 
+FirsTPorSi();
 
-Mu_TNdop(True,True);
-Mu_TNdop(True,False);
-Mu_TNdop(False,True);
-Mu_TNdop(False,False);
+//Mu_TNdop(True,True);
+//Mu_TNdop(True,False);
+//Mu_TNdop(False,True);
+//Mu_TNdop(False,False);
 
 //Ln_Isc();
 //Eg_T();

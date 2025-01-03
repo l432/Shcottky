@@ -42,7 +42,8 @@ uses
   Spectr in 'Spectr.pas',
   MLresults in 'MLresults.pas',
   SymbolicRegression in 'SymbolicRegression.pas',
-  ActionsOnDatFile in 'ActionsOnDatFile.pas';
+  ActionsOnDatFile in 'ActionsOnDatFile.pas',
+  porousSi in 'porousSi.pas';
 
 {$R *.res}
 
