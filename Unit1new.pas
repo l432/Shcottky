@@ -3961,7 +3961,7 @@ var
 
 begin
 
-//showmessage(floattostr(Silicon.Absorption(940,340)));
+//showmessage(floattostr(Silicon.Nc(300)));
 
 //  SomethingForCastro;
 
@@ -3982,12 +3982,12 @@ begin
 //Ti();
 //Ts(0.057);
 
-FirsTPorSi();
+//FirsTPorSi();
 
-//Mu_TNdop(True,True);
-//Mu_TNdop(True,False);
-//Mu_TNdop(False,True);
-//Mu_TNdop(False,False);
+Mu_TNdop(True,True);
+Mu_TNdop(True,False);
+Mu_TNdop(False,True);
+Mu_TNdop(False,False);
 
 //Ln_Isc();
 //Eg_T();
