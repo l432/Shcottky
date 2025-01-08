@@ -3982,12 +3982,13 @@ begin
 //Ti();
 //Ts(0.057);
 
-//FirsTPorSi();
+ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
+//SelectDatFileAndAction(FirsTPorSi);
 
-Mu_TNdop(True,True);
-Mu_TNdop(True,False);
-Mu_TNdop(False,True);
-Mu_TNdop(False,False);
+//Mu_TNdop(True,True);
+//Mu_TNdop(True,False);
+//Mu_TNdop(False,True);
+//Mu_TNdop(False,False);
 
 //Ln_Isc();
 //Eg_T();

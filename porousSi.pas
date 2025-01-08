@@ -1,8 +1,11 @@
 unit porousSi;
 
 interface
+ const
+ J0Jtfile='J0Jt.';
 
-procedure FirsTPorSi(FileName:string='J0Jt.1.dat');
+//procedure FirsTPorSi(FileName:string='J0Jt.1.dat');
+procedure FirsTPorSi(FileName:string);
 
 implementation
 
@@ -10,12 +13,22 @@ uses
   System.Classes, System.SysUtils, Vcl.Dialogs, OlegVector,
   OlegVectorManipulation, OlegFunction;
 
-procedure FirsTPorSi(FileName:string='J0Jt.1.dat');
+//procedure FirsTPorSi(FileName:string='J0Jt.1.dat');
+procedure FirsTPorSi(FileName:string);
  var SL:TStringList;
      i,ColumnNumber,Temperature:integer;
      Vec10,Vec100,VecTemp:TVector;
      Vec,VecIntegral:TVectorTransform;
+     ShotFileName,FileBegin,File_Folder:string;
 begin
+// showmessage(FileName);
+ ShotFileName:=ExtractFileName(FileName);
+ ShotFileName:=copy(ShotFileName,1,length(ShotFileName)-4);
+ if Pos(J0Jtfile,ShotFileName)>0 then Delete (ShotFileName,1,Length(J0Jtfile));
+ File_Folder:=FolderFromFullPath(FileName);
+
+ CreateDirSafety('J0Jt');
+
  SL:=TStringList.Create;
  SL.LoadFromFile(FileName);
  Vec:=TVectorTransform.Create;
@@ -26,6 +39,8 @@ begin
 // showmessage(SL[4]);
 // ColumnNumber:=5;
  Temperature:=300;
+
+ SetCurrentDir(File_Folder+'\J0Jt\');
 
  for ColumnNumber := 4 to 6 do
  begin
@@ -38,8 +53,9 @@ begin
 
     end;
 
-   Vec.WriteToFile(inttostr(ColumnNumber-3)+'.dat',6);
-   VecIntegral.WriteToFile(inttostr(ColumnNumber-3)+'int.dat',8);
+   FileBegin:='J'+ShotFileName+inttostr(ColumnNumber-3);
+   Vec.WriteToFile(FileBegin+'.dat',6);
+   VecIntegral.WriteToFile(FileBegin+'int.dat',8);
 
    Vec.ImNoiseSmoothedArray(Vec10,10);
    Vec.ImNoiseSmoothedArray(Vec100,100);
@@ -61,10 +77,12 @@ begin
       VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap/Temperature);
      end;
 
-   VecTemp.WriteToFile(inttostr(ColumnNumber-3)+'sm.dat',6);
-   VecIntegral.WriteToFile(inttostr(ColumnNumber-3)+'sm_int.dat',8);
+   VecTemp.WriteToFile(FileBegin+'sm.dat',6);
+   VecIntegral.WriteToFile(FileBegin+'sm_int.dat',8);
 
  end;
+
+ SetCurrentDir(File_Folder);
 
  FreeAndNil(VecTemp);
  FreeAndNil(Vec100);
