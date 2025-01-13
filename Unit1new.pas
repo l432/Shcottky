@@ -3982,9 +3982,11 @@ begin
 //Ti();
 //Ts(0.057);
 
-ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
+//ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
 //SelectDatFileAndAction(FirsTPorSi);
 
+
+TC_porT();
 //Mu_TNdop(True,True);
 //Mu_TNdop(True,False);
 //Mu_TNdop(False,True);

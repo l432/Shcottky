@@ -77,19 +77,23 @@ ptDoubleLn - дійсний, для широкі діапазони змін і тому
 TDatasetPrepareNdim=class(TDatasetPrepare)
  private
   fNdim:integer;
+  fNpoint_in_fulldataset:integer;
   fParamTypes:array of TParametrType;
   fLowLimits: TArrSingle;
   fHighLimits: TArrSingle;
   fUsedParams: TArrArrSingle;
+  fSteps:TArrSingle;
   function RecordToString(const Index:integer):string;override;
   procedure newNEntriesCreate(newN:integer);override;
   {створюються newN унікальних записів}
   function ResultCalculate(const Index:integer):double;override;
+  procedure CreateStepsForFullDataset();virtual;
  public
   property HighLimits: TArrSingle read fHighLimits write fHighLimits;
   property LowLimits: TArrSingle read fLowLimits write fLowLimits;
   Constructor Create(Ndim:integer);
   procedure CreateFullDataset2D();
+
 end;
 
 TDatasetPrepareLn_IscT=class(TDatasetPrepareNdim)
@@ -110,6 +114,14 @@ TDatasetPrepareMobility=class(TDatasetPrepareNdim)
   Constructor Create(ItIsMajority,ItIsElectron:Boolean);
 end;
 
+
+TDatasetSiPorous=class(TDatasetPrepareNdim)
+ private
+  function ResultCalculate(const Index:integer):double;override;
+  procedure CreateStepsForFullDataset();override;
+ public
+  Constructor Create;
+end;
 
 
 procedure DeepOfAbsorbtion(T:integer;FileName:string='SiAbsorb');
@@ -175,6 +187,10 @@ Ndop: (10^13 - 10^20) cm-3
 [результат] = см^2 / (B c)
 }
 
+procedure TC_porT();
+{створюються набори для залежності теплопровідності
+від поруватості та температури
+}
 
 procedure Ti();
 {створюється залежність температури, при якій важливою є власна
@@ -332,7 +348,19 @@ begin
  Dataset.CreateDatasets();
  Dataset.CreateFullDataset2D();
  FreeAndNil(Dataset);
+end;
 
+procedure TC_porT();
+{створюються набори для залежності теплопровідності
+від поруватості та температури
+}
+var
+   Dataset:TDatasetSiPorous;
+begin
+ Dataset:=TDatasetSiPorous.Create();
+// Dataset.CreateDatasets();
+ Dataset.CreateFullDataset2D();
+ FreeAndNil(Dataset);
 end;
 
 { TDatasetPrepare }
@@ -520,10 +548,12 @@ constructor TDatasetPrepareNdim.Create(Ndim: integer);
 begin
  inherited Create;
  fNdim:=Ndim;
+ fNpoint_in_fulldataset:=50;
  SetLength(fParamTypes,fNdim);
  SetLength(fLowLimits,fNdim);
  SetLength(fHighLimits,fNdim);
  SetLength(fUsedParams,fNdim);
+ SetLength(fSteps,fNdim);
  for I := 0 to High(fParamTypes) do
   begin
    fParamTypes[i]:=ptInt;
@@ -534,28 +564,30 @@ begin
 end;
 
 procedure TDatasetPrepareNdim.CreateFullDataset2D;
- const Npoint=50;
+// const Npoint=50;
  var i:integer;
-     NewParametrValues,Steps:TArrSingle;
+     NewParametrValues{,Steps}:TArrSingle;
 begin
 // Не знаю як зробити: в загальному випадку
 // невідома кількість вкладень циклів перебору змінних
 
  SetLength(NewParametrValues,fNdim);
- SetLength(Steps,fNdim);
+// SetLength(Steps,fNdim);
  SetLength(fResults,0);
  for i := 0 to High(NewParametrValues) do
   begin
    NewParametrValues[i]:=FLowLimits[i];
    SetLength(fUsedParams[i],0);
-   case fParamTypes[i] of
-    ptInt:if (FHighLimits[i]-FLowLimits[i])>99
-              then Steps[i]:=round((FHighLimits[i]-FLowLimits[i])/(Npoint-1))
-              else Steps[i]:=1;
-    ptDouble:Steps[i]:=(FHighLimits[i]-FLowLimits[i])/(Npoint-1);
-    ptDoubleLn:Steps[i]:=(ln(FHighLimits[i])-ln(FLowLimits[i]))/(Npoint-1);
-   end;
+//   case fParamTypes[i] of
+//    ptInt:if (FHighLimits[i]-FLowLimits[i])>99
+//              then Steps[i]:=round((FHighLimits[i]-FLowLimits[i])/(Npoint-1))
+//              else Steps[i]:=1;
+//    ptDouble:Steps[i]:=(FHighLimits[i]-FLowLimits[i])/(Npoint-1);
+//    ptDoubleLn:Steps[i]:=(ln(FHighLimits[i])-ln(FLowLimits[i]))/(Npoint-1);
+//   end;
   end;
+
+ CreateStepsForFullDataset();
 
  repeat
 
@@ -566,20 +598,35 @@ begin
    AddNumberToArray(ResultCalculate(High(fResults)+1),fResults);
 
     case fParamTypes[1] of
-      ptInt,ptDouble:NewParametrValues[1]:=NewParametrValues[1]+Steps[1];
-      ptDoubleLn:NewParametrValues[1]:=exp(ln(NewParametrValues[1])+Steps[1]);
+      ptInt,ptDouble:NewParametrValues[1]:=NewParametrValues[1]+fSteps[1];
+      ptDoubleLn:NewParametrValues[1]:=exp(ln(NewParametrValues[1])+fSteps[1]);
     end;
   until (NewParametrValues[1]>FHighLimits[1]*1.01);
 //  showmessage(floattostr(NewParametrValues[1]));
   case fParamTypes[0] of
-    ptInt,ptDouble:NewParametrValues[0]:=NewParametrValues[0]+Steps[0];
-    ptDoubleLn:NewParametrValues[0]:=exp(ln(NewParametrValues[0])+Steps[0]);
+    ptInt,ptDouble:NewParametrValues[0]:=NewParametrValues[0]+fSteps[0];
+    ptDoubleLn:NewParametrValues[0]:=exp(ln(NewParametrValues[0])+fSteps[0]);
   end;
 
  until (NewParametrValues[0]>FHighLimits[0]*1.01);
 
  LastNEntriesToFile(High(fResults)+1,FFileNameBegin+'full.dat');
 
+end;
+
+procedure TDatasetPrepareNdim.CreateStepsForFullDataset;
+ var i:integer;
+begin
+ for i := 0 to fNdim-1 do
+  begin
+   case fParamTypes[i] of
+    ptInt:if (FHighLimits[i]-FLowLimits[i])>99
+              then fSteps[i]:=round((FHighLimits[i]-FLowLimits[i])/(fNpoint_in_fulldataset-1))
+              else fSteps[i]:=1;
+    ptDouble:fSteps[i]:=(FHighLimits[i]-FLowLimits[i])/(fNpoint_in_fulldataset-1);
+    ptDoubleLn:fSteps[i]:=(ln(FHighLimits[i])-ln(FLowLimits[i]))/(fNpoint_in_fulldataset-1);
+   end;
+  end;
 end;
 
 procedure TDatasetPrepareNdim.newNEntriesCreate(newN: integer);
@@ -738,6 +785,7 @@ begin
 
 end;
 
+
 function TDatasetPrepareMobility.ResultCalculate(const Index: integer): double;
 begin
  if fItIsElectron
@@ -797,5 +845,31 @@ begin
  FreeAndNil(Vec)
 end;
 
+
+{ TDatasetSiPorous }
+
+constructor TDatasetSiPorous.Create;
+begin
+ inherited Create(2);
+ TrainNumber:=100;
+ TestNumber:=100;
+ Header:='por(%) T(K) TC(W/mK)';
+ FileNameBegin:='porSi';
+ LowLimits[0]:=0;
+ HighLimits[0]:=80;
+ LowLimits[1]:=250;
+ HighLimits[1]:=1000;
+end;
+
+procedure TDatasetSiPorous.CreateStepsForFullDataset;
+begin
+ fSteps[0]:=5;
+ fSteps[1]:=50;
+end;
+
+function TDatasetSiPorous.ResultCalculate(const Index: integer): double;
+begin
+  Result:=1;
+end;
 
 end.
