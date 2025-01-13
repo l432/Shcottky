@@ -863,8 +863,8 @@ end;
 
 procedure TDatasetSiPorous.CreateStepsForFullDataset;
 begin
- fSteps[0]:=5;
- fSteps[1]:=50;
+ fSteps[0]:=2;
+ fSteps[1]:=10;
 end;
 
 function TDatasetSiPorous.ResultCalculate(const Index: integer): double;
