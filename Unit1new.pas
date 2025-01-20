@@ -3982,8 +3982,9 @@ begin
 //Ti();
 //Ts(0.057);
 
-ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
-//SelectDatFileAndAction(FirsTPorSi);
+//ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
+ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
+
 
 
 //TC_porT();
