@@ -3,6 +3,7 @@ unit porousSi;
 interface
  const
  J0Jtfile='J0Jt.';
+ AverDatFile='averdat.dat';
 
 //procedure FirsTPorSi(FileName:string='J0Jt.1.dat');
 procedure FirsTPorSi(FileName:string);
@@ -16,8 +17,8 @@ uses
 //procedure FirsTPorSi(FileName:string='J0Jt.1.dat');
 procedure FirsTPorSi(FileName:string);
  var SL:TStringList;
-     i,ColumnNumber,Temperature:integer;
-     Vec10,Vec100,VecTemp:TVector;
+     i,ColumnNumber,Temperature,FileCount,j:integer;
+     Vec10,Vec100,VecTemp,VecAver:TVector;
      Vec,VecIntegral:TVectorTransform;
      ShotFileName,FileBegin,File_Folder:string;
 begin
@@ -36,6 +37,7 @@ begin
  Vec10:=TVector.Create;
  Vec100:=TVector.Create;
  VecTemp:=TVector.Create;
+ VecAver:=TVector.Create;
 // showmessage(SL[4]);
 // ColumnNumber:=5;
  Temperature:=300;
@@ -52,6 +54,27 @@ begin
       if Vec.HighNumber>2 then VecIntegral.Add(Vec.X[Vec.HighNumber],Vec.Int_Trap/Temperature);
 
     end;
+
+   if FileExists(AverDatFile) then VecAver.ReadFromFile(AverDatFile,False);
+//    showmessage(inttostr(VecAver.HighNumber));
+   if VecAver.HighNumber<0
+    then
+      begin
+       Vec.CopyTo(VecAver);
+       VecAver.Add(1,1);
+      end
+    else
+     begin
+      FileCount:=Round(VecAver.X[VecAver.HighNumber]);
+//      showmessage(inttostr(Round(VecAver.X[VecAver.HighNumber])));
+      VecAver.DeletePoint(VecAver.HighNumber);
+//      showmessage(inttostr(VecAver.HighNumber));
+      for j := 0 to VecAver.HighNumber do
+        VecAver.Y[j]:=(VecAver.Y[j]*FileCount+Vec.Y[j])/(FileCount+1);
+      VecAver.Add(FileCount+1,FileCount+1);
+     end;
+   VecAver.WriteToFile(AverDatFile,6);
+
 
    FileBegin:='J'+ShotFileName+inttostr(ColumnNumber-3);
    Vec.WriteToFile(FileBegin+'.dat',6);
@@ -84,6 +107,7 @@ begin
 
  SetCurrentDir(File_Folder);
 
+ FreeAndNil(VecAver);
  FreeAndNil(VecTemp);
  FreeAndNil(Vec100);
  FreeAndNil(Vec10);

@@ -168,7 +168,7 @@ type
          {просто зануляється кількість точок, інших операцій не проводиться}
       procedure ReadFromIniFile(ConfigFile:TIniFile;const Section, Ident: string);
       procedure WriteToIniFile(ConfigFile:TIniFile;const Section, Ident: string);
-      procedure ReadFromFile (NameFile:string);overload;
+      procedure ReadFromFile (NameFile:string;ToSort:boolean=True);overload;
       {читає дані з файлу з коротким ім'ям sfile
        з файлу comments в тій самій директорії
        зчитується значення температури в a.T}
@@ -325,7 +325,7 @@ begin
  SetLength(Points, Number);
 end;
 
-procedure TVector.ReadFromFile(NameFile: string);
+procedure TVector.ReadFromFile(NameFile: string;ToSort:boolean=True);
 var F:TextFile;
 //    i:integer;
     ss, ss1:string;
@@ -384,7 +384,7 @@ begin
      End;
       CloseFile(f);
    end;
- Sorting;
+ if ToSort then Sorting;
 end;
 
 procedure TVector.ReadFromFile(NameFile: string; ColumnNumbers: array of byte;
