@@ -347,6 +347,13 @@ const
 // (1420, 3.796E-8, 720),    (1430,	1.791E-8, 730),   (1440, 1.203E-8, 740),
 // (1450, 9.447e-9, 750));
 
+ Noor_Mohammad_D:array [1..6] of double=
+ (-16.015068e4,72.088255e4,-12.521139e5,
+  10.621290e5,-44.311247e4,73.047665e4);
+ Noor_Mohammad_b:array [1..6] of double=
+ (0.55,0.60,0.65,0.70,0.75,0.80);
+ {коефіцієнти, необхідні для розрахунку рухливості за
+ формулою Noor-Mohammad}
 
 type
 
@@ -408,6 +415,20 @@ type
       {розраховує результат як величину, обернену до суми обернених
       величин елементів масиву
       Result=1/(1/TAUs[0]+1/TAUs[1]....)}
+     class function NoorMohammad(const mu_0:double;
+                                 const Ni:double=1e21;
+                                 const T:double=300):double;
+     {розрахунок рухливості напівпровідника відповідно до
+     формули Noor-Mohammad,
+     SolStElectr_36_p1677
+     mu_0 - константа, яка залежить від напівпровідника
+     (формула декларується як універсальна, не лише для Si)
+     та типу носіїв (електрони, дірки, основні, неосновні),
+     [] визначає розмірність результату, краще  м^2/(В с))
+     Ni - density of ionized impurity atoms,
+     [Ni]=m^-3
+     T - температура
+     }
      end; // TMaterial=class
 
 //     TMatParNameLab=array[TMaterialParametersName]of TLabel;
@@ -493,10 +514,16 @@ type
       "Properties of Crystalline Silicon"
       Ndoping - концентрація легуючої домішки,
       []=м^-3
-      [Result]=м^2/(В с}
+      [Result]=м^2/(В с)}
       class function mu_Dorkel(T: Double=300):double;
       {рухливість, пов'язана з процесами  carrier–carrier scattering,
       відповідно до SolStElect_24_p821}
+      class function mu_n_NoorMohammad(T: Double=300; Ndoping: Double=1e21;
+                        itIsMajority:Boolean=True):double;
+      class function mu_p_NoorMohammad(T: Double=300; Ndoping: Double=1e21;
+                        itIsMajority:Boolean=True):double;
+      {рухливість, відповідно до формули Noor-Mohammad,
+     SolStElectr_36_p1677}
       class function D_n(T: Double=300; Ndoping: Double=1e21):double;
       class function D_p(T: Double=300; Ndoping: Double=1e21):double;
       {коефіцієнт дифузії, []= м^2/с}
@@ -1229,6 +1256,24 @@ begin
       end;
  if Me=ErResult then Result:=ErResult
                 else Result:=2.5e25*Me*(T/300.0)*sqrt(Me*T/300.0);
+end;
+
+class function TMaterial.NoorMohammad(const mu_0, Ni, T: double): double;
+ var i:integer;
+begin
+ if T<=0 then
+  begin
+    Result:=ErResult;
+    Exit;
+  end;
+ Result:=0;
+ for i:=1 to 6 do
+   Result:=Result+Noor_Mohammad_D[i]
+          /Power(Ni/1e23,Noor_Mohammad_b[i]);
+ Result:=Result*Power(300/T,1.7);
+ Result:=Result+70.273396;
+ Result:=Result*mu_0;
+
 end;
 
 function TMaterial.Nv(T: double): double;
@@ -2511,7 +2556,6 @@ end;
 class function Silicon.mu_Dorkel(T: Double): double;
  var np:double;
 begin
-
   np:=sqr(n_i(T))/1e12;
   Result:=Power(T,1.5)*2e13
           /(sqrt(np)*Ln(1+sqr(T)*8.28e8*Power(np,-1/3)));
@@ -2602,6 +2646,23 @@ begin
          *Power(T/300,3*al-1.5)
          +mu_max*mu_min/(mu_max-mu_min)*(n+p)/Neff*sqrt(300/T);
  Result:=1/(1/mu_L+1/mu_DA);
+end;
+
+//class function Silicon.mu_n(T, Ndoping: Double;itIsMajority:Boolean): double;
+class function Silicon.mu_n_NoorMohammad(T, Ndoping: Double;
+                  itIsMajority:Boolean): double;
+ var Ndop_ion:double;
+begin
+  Ndop_ion:=ChargeCarrierConcentrationNew(T,Ndoping,0.045,itIsMajority,True,True);
+  Result:=TMaterial.NoorMohammad(1.4e-1,Ndop_ion, T)
+end;
+
+//class function Silicon.mu_p(T, Ndoping: Double; itIsMajority: Boolean): double;
+class function Silicon.mu_p_NoorMohammad(T, Ndoping: Double;itIsMajority: Boolean): double;
+ var Ndop_ion:double;
+begin
+  Ndop_ion:=ChargeCarrierConcentrationNew(T,Ndoping,0.045,not(itIsMajority),True,True);
+  Result:=TMaterial.NoorMohammad(5.4e-2,Ndop_ion, T)
 end;
 
 //class function Silicon.mu_p(T: Double=300; Ndoping: Double=1e21): double;

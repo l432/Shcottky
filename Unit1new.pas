@@ -3983,15 +3983,16 @@ begin
 //Ts(0.057);
 
 //ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
-ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
+//ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
+//ForAllDirAction(DeleteDirectory,J0JtDirName,'D:\porousSi');
 
 
-
+//showmessage(floattostr(TMaterial.NoorMohammad(1,1e23,300)));
 //TC_porT();
-//Mu_TNdop(True,True);
-//Mu_TNdop(True,False);
-//Mu_TNdop(False,True);
-//Mu_TNdop(False,False);
+Mu_TNdop(True,True);
+Mu_TNdop(True,False);
+Mu_TNdop(False,True);
+Mu_TNdop(False,False);
 
 //Ln_Isc();
 //Eg_T();

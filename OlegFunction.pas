@@ -297,6 +297,11 @@ procedure ForAllDirAction(ProcedFile:TProcedFile;DirName:string;
 якщо False, то вибору не пропонується і зразу починається пошук з CurrentDir;
 додав цю змінну для можливості рекурсії}
 
+
+procedure DeleteDirectory(Dir: string);
+{видаляє навіть не порожню директорію}
+
+
 function SdandartScalerTransform(X, Mean, Std: double; ToLogData: Boolean=False):double;
 {if ToLogData Result:=(log(X)-Mean)/Std
  else Result:=(X-Mean)/Std}
@@ -1516,6 +1521,38 @@ begin
     end;
 
 end;
+
+
+procedure DeleteDirectory(Dir: string);
+var
+  SearchRec: TSearchRec;
+  Path: string;
+begin
+  Path := IncludeTrailingPathDelimiter(Dir);
+
+  // Знайти всі файли та папки у директорії
+  if FindFirst(Path + '*', faAnyFile, SearchRec) = 0 then
+  begin
+    repeat
+      // Пропустити '.' та '..'
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+      begin
+        if (SearchRec.Attr and faDirectory) = faDirectory then
+          // Рекурсивно видалити вкладені директорії
+          DeleteDirectory(Path + SearchRec.Name)
+        else
+          // Видалити файл
+          DeleteFile(Path + SearchRec.Name);
+      end;
+    until FindNext(SearchRec) <> 0;
+    FindClose(SearchRec);
+  end;
+
+  // Видалити саму директорію
+  RemoveDir(Dir);
+end;
+
+
 
 function SdandartScalerTransform(X, Mean, Std: double; ToLogData: Boolean=False):double;
 {if ToLogData Result:=(log(X)-Mean)/Std

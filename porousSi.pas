@@ -29,7 +29,7 @@ procedure FirsTPorSi(FileName:string);
      Vec10,Vec100,VecTemp:TVector;
      Vec,VecIntegral,VecAver:TVectorTransform;
      ShotFileName,FileBegin,File_Folder,FactorFileName:string;
-     factor:double;
+     factor,factorTime:double;
 begin
  ShotFileName:=ExtractFileName(FileName);
  ShotFileName:=copy(ShotFileName,1,length(ShotFileName)-4);
@@ -44,6 +44,7 @@ begin
   begin
    SL.LoadFromFile(FactorFileName);
    factor:=FloatDataFromRow(SL[0],2);
+   factorTime:=FloatDataFromRow(SL[0],1);
    SL.Clear;
   end;
 
@@ -66,8 +67,8 @@ begin
    VecIntegral.Clear;
    for I := 4 to SL.Count-1 do
     begin
-      Vec.Add(FloatDataFromRow(SL[i],2),FloatDataFromRow(SL[i],ColumnNumber));
-      if Vec.HighNumber>2 then VecIntegral.Add(Vec.X[Vec.HighNumber],factor*Vec.Int_Trap);
+      Vec.Add(FloatDataFromRow(SL[i],2)*factorTime,FloatDataFromRow(SL[i],ColumnNumber)*factor);
+      if Vec.HighNumber>2 then VecIntegral.Add(Vec.X[Vec.HighNumber],Vec.Int_Trap);
 
     end;
 
@@ -99,20 +100,20 @@ begin
    VecIntegral.Clear;
    VecTemp.Add(Vec[0]);
    VecTemp.Add(Vec[1]);
-   VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],factor*VecTemp.Int_Trap);
+   VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
 
    for I := 0 to 2 do
 //   for I := 0 to 9 do
      begin
       VecTemp.Add(Vec10[i]);
-      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],factor*VecTemp.Int_Trap);
+      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
      end;
 
    for I := 0 to Vec100.HighNumber do
 //   for I := 1 to Vec100.HighNumber do
      begin
       VecTemp.Add(Vec100[i]);
-      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],factor*VecTemp.Int_Trap);
+      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
      end;
 
    Vec10.Clear;
@@ -121,6 +122,7 @@ begin
 
    VecAver.Add(FileCount+1,FileCount+1);
    VecAver.WriteToFile(AverDatFile,6);
+   HelpForMe(inttostr(FileCount));
 // -----------------
 
 
@@ -131,20 +133,20 @@ begin
 //   VecIntegral.Clear;
 //   VecTemp.Add(Vec[0]);
 //   VecTemp.Add(Vec[1]);
-//   VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],factor*VecTemp.Int_Trap);
+//   VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
 //
 //   for I := 0 to 2 do
 ////   for I := 0 to 9 do
 //     begin
 //      VecTemp.Add(Vec10[i]);
-//      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],factor*VecTemp.Int_Trap);
+//      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
 //     end;
 //
 //   for I := 0 to Vec100.HighNumber do
 ////   for I := 1 to Vec100.HighNumber do
 //     begin
 //      VecTemp.Add(Vec100[i]);
-//      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],factor*VecTemp.Int_Trap);
+//      VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
 //     end;
 //
 //   VecTemp.WriteToFile(FileBegin+'sm.dat',6);
@@ -191,14 +193,15 @@ var SL,SLold:TStringList;
     T,por,i :integer;
     tempStr:string;
 begin
+ showmessage(Dat_Folder);
  SetCurrentDir(Dat_Folder);
  if not(FileExists(Int_aver)) then Exit;
  SL:=TStringList.Create;
  SL.LoadFromFile(Int_aver);
  T:=300;
-// T:=StrToInt(FolderNameFromFullPath(Dat_Folder));
- por:=20;
-// por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder)));
+// T:=StrToInt(FolderNameFromFullPath(Dat_Folder,1));
+// por:=20;
+ por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder,1)));
  tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
 
  SLold:=TStringList.Create;
