@@ -98,8 +98,9 @@ begin
    VecAver.ImNoiseSmoothedArray(Vec100,100);
    VecTemp.Clear;
    VecIntegral.Clear;
-   VecTemp.Add(Vec[0]);
-   VecTemp.Add(Vec[1]);
+
+   VecTemp.Add(VecAver[0]);
+   VecTemp.Add(VecAver[1]);
    VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
 
    for I := 0 to 2 do
@@ -116,8 +117,15 @@ begin
       VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
      end;
 
+//    for I := 0 to VecAver.HighNumber do
+//     begin
+//      VecTemp.Add(VecAver[i]);
+//      if VecTemp.HighNumber>2 then VecIntegral.Add(VecTemp.X[VecTemp.HighNumber],VecTemp.Int_Trap);
+//     end;
+
    Vec10.Clear;
    Vec100.Clear;
+   VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
    VecIntegral.WriteToFile(Int_aver,8);
 
    VecAver.Add(FileCount+1,FileCount+1);
@@ -193,7 +201,7 @@ var SL,SLold:TStringList;
     T,por,i :integer;
     tempStr:string;
 begin
- showmessage(Dat_Folder);
+// showmessage(Dat_Folder);
  SetCurrentDir(Dat_Folder);
  if not(FileExists(Int_aver)) then Exit;
  SL:=TStringList.Create;
