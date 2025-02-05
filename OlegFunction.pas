@@ -192,7 +192,7 @@ Procedure AccurateCheckBoxCheckedChange(CB:TCheckBox;Value:boolean);
 Procedure HelpForMe(str:string; filname:string='');
 
 Procedure DecimationArray(var Data:  TArrSingle; const N:word);
-{у масиві залишається лише 0-й, ?-й, 2N-й.... елементи,
+{у масиві залишається лише 0-й, N-й, 2N-й.... елементи,
 при N=0 масив не міняється}
 
 Function GetHDDSerialNumber():LongWord;
@@ -1166,7 +1166,7 @@ end;
 
 
 Procedure DecimationArray(var Data:  TArrSingle; const N:word);
-{у масиві залишається лише 0-й, ?-й, 2N-й.... елементи,
+{у масиві залишається лише 0-й, N-й, 2N-й.... елементи,
 при N=0 масив не міняється}
  var i:integer;
 begin

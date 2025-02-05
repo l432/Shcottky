@@ -3983,8 +3983,8 @@ begin
 //Ts(0.057);
 
 //ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
-//ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
-ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
+ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
+//ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
 
 
 //showmessage(floattostr(TMaterial.NoorMohammad(1,1e23,300)));

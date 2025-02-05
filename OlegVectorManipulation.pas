@@ -203,6 +203,10 @@ type
       з ваговими коефіцієнтами, які визначаються розподілом Гауса з дисперсією 0.6;
       якщо у вихідному масиві кількість точок менша трьох,
       то у результуючому буде нульова кількість}
+     Procedure Decimation(Target:TVector;const N:word);
+     {у Target залишається лише 0-й, N-й, 2N-й.... елементи,
+      при N=0 масив не міняється}
+
      Function DerivateAtPoint(PointNumber:integer):double;
      {знаходження похідної від функції, яка записана
      у Vector в точці з індексом PointNumber}
@@ -548,6 +552,25 @@ begin
   if (Result>Self.MaxX)or(Result<Self.MinX)
      then result:=ErResult;
   temp.Free;
+end;
+
+procedure TVectorTransform.Decimation(Target: TVector; const N: word);
+ var i:integer;
+begin
+//  InitTarget(Target);
+  if (N<=1)or(Self.HighNumber<0) then
+     begin
+      Self.CopyTo(Target);
+      Exit;
+     end;
+  InitTarget(Target);
+  Target.Add(Self[0]);
+  i:=1;
+  while(i*N)<=Self.HighNumber do
+   begin
+    Target.Add(Self[i*N]);
+    inc(i);
+   end;
 end;
 
 procedure TVectorTransform.Derivate(Target: TVector);
