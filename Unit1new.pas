@@ -3982,8 +3982,8 @@ begin
 //Ti();
 //Ts(0.057);
 
-ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
-//ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
+//ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
+ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
 //ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
 
 

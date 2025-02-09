@@ -138,7 +138,45 @@ begin
 {
 1) інтегрування кожної залежності <J(0)J(t)>
 2) усереднення залежностей k(t)
-3) згладжування усередненої k(t)
+3) згладжування усередненої k(t)  по 10 точкам
+}
+//
+//   VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
+//
+//   VecAver.Clear;
+//   if FileExists(AverIntFile) then VecAver.ReadFromFile(AverIntFile,False);
+//   if VecAver.HighNumber<0
+//    then
+//      begin
+//       VecIntegral.CopyTo(VecAver);
+//       FileCount:=0;
+//      end
+//    else
+//     begin
+//      FileCount:=Round(VecAver.X[VecAver.HighNumber]);
+//      VecAver.DeletePoint(VecAver.HighNumber);
+//      for j := 0 to VecAver.HighNumber do
+//        VecAver.Y[j]:=(VecAver.Y[j]*FileCount+VecIntegral.Y[j])/(FileCount+1);
+//     end;
+//
+//   VecAver.Add(FileCount+1,FileCount+1);
+//
+//   VecAver.DeletePoint(VecAver.HighNumber);
+//
+//   VecAver.ImNoiseSmoothedArray(Vec10,10);
+//   Vec10.WriteToFile(Int_aver,8);
+//
+//
+//   HelpForMe(inttostr(FileCount));
+// -----------------
+//*******************************************************
+
+
+//*****************************************************
+{
+1) інтегрування кожної залежності <J(0)J(t)>
+2) усереднення залежностей k(t)
+3) згладжування усередненої k(t)  о 100 точкам переважно окрім початку
 }
 
    VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
@@ -161,19 +199,28 @@ begin
 
    VecAver.Add(FileCount+1,FileCount+1);
    VecAver.WriteToFile(AverIntFile,8);
-
-   VecAver.DeletePoint(VecAver.HighNumber);
-   VecAver.WriteToFile('F'+AverIntFile,8);
-
    VecAver.ImNoiseSmoothedArray(Vec10,10);
    VecAver.ImNoiseSmoothedArray(Vec100,100);
-//   Vec10.WriteToFile(Int_aver,8);
-   Vec10.WriteToFile('F10'+AverIntFile,8);
-   Vec100.WriteToFile('F100'+AverIntFile,8);
+   VecTemp.Clear;
+
+
+   for I := 0 to 3 do
+      VecTemp.Add(VecAver[i]);
+   for I := 0 to 7 do
+      VecTemp.Add(Vec10[i]);
+   for I := 1 to Vec100.HighNumber do
+      VecTemp.Add(Vec100[i]);
+
+//   VecAver.DeletePoint(VecAver.HighNumber);
+//   VecAver.WriteToFile('F'+AverIntFile,8);
+
+
+   VecTemp.WriteToFile(Int_aver,8);
 
    HelpForMe(inttostr(FileCount));
 // -----------------
-//*******************************************************
+//******************************************************
+
 
 //
 //   Vec.ImNoiseSmoothedArray(Vec10,10);
@@ -248,12 +295,12 @@ begin
  SL:=TStringList.Create;
  SL.LoadFromFile(Int_aver);
 // T:=300;
- T:=StrToInt(FolderNameFromFullPath(Dat_Folder,1));
- por:=20;
+// T:=StrToInt(FolderNameFromFullPath(Dat_Folder,1));
+// por:=20;
 // por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder,1)));
 
-//T:=550;
-//por:=55;
+T:=330;
+por:=0;
  tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
 
  SLold:=TStringList.Create;
