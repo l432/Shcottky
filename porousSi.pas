@@ -163,11 +163,13 @@ begin
    VecAver.WriteToFile(AverIntFile,8);
 
    VecAver.DeletePoint(VecAver.HighNumber);
-//   VecAver.WriteToFile('F'+AverIntFile,8);
+   VecAver.WriteToFile('F'+AverIntFile,8);
 
    VecAver.ImNoiseSmoothedArray(Vec10,10);
-//   VecAver.ImNoiseSmoothedArray(Vec100,100);
-   Vec10.WriteToFile(Int_aver,8);
+   VecAver.ImNoiseSmoothedArray(Vec100,100);
+//   Vec10.WriteToFile(Int_aver,8);
+   Vec10.WriteToFile('F10'+AverIntFile,8);
+   Vec100.WriteToFile('F100'+AverIntFile,8);
 
    HelpForMe(inttostr(FileCount));
 // -----------------
