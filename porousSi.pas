@@ -160,6 +160,7 @@ begin
 //     end;
 //
 //   VecAver.Add(FileCount+1,FileCount+1);
+//   VecAver.WriteToFile(AverIntFile,8);
 //
 //   VecAver.DeletePoint(VecAver.HighNumber);
 //
@@ -176,7 +177,7 @@ begin
 {
 1) інтегрування кожної залежності <J(0)J(t)>
 2) усереднення залежностей k(t)
-3) згладжування усередненої k(t)  о 100 точкам переважно окрім початку
+3) згладжування усередненої k(t)  по 100 точкам переважно окрім початку
 }
 
    VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
@@ -199,6 +200,7 @@ begin
 
    VecAver.Add(FileCount+1,FileCount+1);
    VecAver.WriteToFile(AverIntFile,8);
+   VecAver.DeletePoint(VecAver.HighNumber);
    VecAver.ImNoiseSmoothedArray(Vec10,10);
    VecAver.ImNoiseSmoothedArray(Vec100,100);
    VecTemp.Clear;
@@ -211,7 +213,7 @@ begin
    for I := 1 to Vec100.HighNumber do
       VecTemp.Add(Vec100[i]);
 
-//   VecAver.DeletePoint(VecAver.HighNumber);
+//
 //   VecAver.WriteToFile('F'+AverIntFile,8);
 
 
@@ -286,33 +288,55 @@ end;
 
 procedure SecondTPorSi(Dat_Folder:string);
 var SL,SLold:TStringList;
-    T,por,i :integer;
-    tempStr:string;
+    T,por,i,j :integer;
+    tempStr,fileName:string;
+ const
+  PairCount=11;
+  TemValues:array [0..PairCount] of integer =
+   (330, 440, 300, 550, 800, 700, 650, 840, 870, 300, 630, 460);
+  PorValues:array [0..PairCount] of integer =
+   (0,   30,  45,  55,  5,   60,  10,  35,   62,  2,   28,  0);
 begin
 // showmessage(Dat_Folder);
  SetCurrentDir(Dat_Folder);
  if not(FileExists(Int_aver)) then Exit;
  SL:=TStringList.Create;
  SL.LoadFromFile(Int_aver);
-// T:=300;
-// T:=StrToInt(FolderNameFromFullPath(Dat_Folder,1));
-// por:=20;
-// por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder,1)));
-
-T:=330;
-por:=0;
- tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
-
  SLold:=TStringList.Create;
- if FileExists(TimeDepFile)
-   then SLold.LoadFromFile(TimeDepFile)
-   else SLold.Add('por(%) T(K) t(s) Int(W/mK)');
+
+// fileName:=TimeDepFile;
+// //TimeDepFile='D:\porousSi\BaseOlikh\tdep.dat';
+// T:=300;
+//// T:=StrToInt(FolderNameFromFullPath(Dat_Folder,1));
+// por:=20;
+//// por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder,1)));
+// tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
+// if FileExists(fileName)
+//   then SLold.LoadFromFile(TimeDepFile)
+//   else SLold.Add('por(%) T(K) t(s) Int(W/mK)');
+// for i:=0 to SL.Count-1 do
+//  SLold.Add(tempStr+SL[i]);
+// SLold.SaveToFile(fileName);
+
+ for j := 0 to PairCount do
+  begin
+   T:=TemValues[j];
+   por:=PorValues[j];
+   fileName:='D:\porousSi\BaseOlikh\p'
+             +IntToStr(por)+'T'+IntToStr(T)+'.dat';
+   tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
+   SLold.Clear;
+   if FileExists(fileName)
+     then SLold.LoadFromFile(TimeDepFile)
+     else SLold.Add('por(%) T(K) t(s) Int(W/mK)');
+   for i:=0 to SL.Count-1 do
+    SLold.Add(tempStr+SL[i]);
+   SLold.SaveToFile(fileName);
+  end;
 
 
- for i:=0 to SL.Count-1 do
-  SLold.Add(tempStr+SL[i]);
 
- SLold.SaveToFile(TimeDepFile);
+
  FreeAndNil(SLold);
  FreeAndNil(SL);
 end;
