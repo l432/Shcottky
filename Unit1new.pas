@@ -3961,7 +3961,11 @@ var
 
 begin
 
-//showmessage(floattostr(Silicon.Nc(300)));
+// ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
+//SelectDatFileAndAction(MLresultsEstimate);
+// ForAllDatFilesAction(MLresultsTransform,CurDirectory);
+
+SelectDatFileAndAction(MLresultsTransform);
 
 //  SomethingForCastro;
 
@@ -3982,7 +3986,7 @@ begin
 //Ti();
 //Ts(0.057);
 
-ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
+//ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
 //ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
 //ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
 
@@ -4020,9 +4024,7 @@ ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
 //LnOnT(1e19);
 
 
-// ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
-//SelectDatFileAndAction(MLresultsEstimate);
-// ForAllDatFilesAction(MLresultsTransform,CurDirectory);
+
 // showmessage(FloatToStr(Silicon.Eg(340)));
 
 

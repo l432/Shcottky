@@ -1,0 +1,8 @@
+Average MSE = 5.175697e-03
+Std = 7.847375e-04
+#Trees = 450
+Max Depth = 40
+Min Samples Split = 2
+Min Samples Leaf = 1
+Max Features = 0.70
+Bootstrap = False

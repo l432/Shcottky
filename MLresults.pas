@@ -60,6 +60,7 @@ begin
     AddVectorToArray(ArrVec);
     repeat
      if ArrVec[High(ArrVec)].Count<1 then valstr:=StringDataFromRow(SLstart[1],ord(descript)+1);
+//     showmessage(valstr);
      if valstr=StringDataFromRow(SLstart[i],ord(descript)+1) then
        begin
         ArrVec[High(ArrVec)].Add(ArrVec[High(ArrVec)].Count,
@@ -72,6 +73,9 @@ begin
     DataVector.Add(StrToFloat(valstr),High(ArrVec));
    end;
   DataVector.Sorting();
+//  showmessage(DataVector.XYtoString());
+//  showmessage(inttostr(High(ArrVec)));
+//  showmessage(ArrVec[High(ArrVec)].XYtoString());
 
   for I := 0 to DataVector.HighNumber do
     begin
