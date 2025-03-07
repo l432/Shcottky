@@ -3961,8 +3961,8 @@ var
 
 begin
 
-// ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
-SelectDatFileAndAction(MLresultsEstimate);
+ ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
+//SelectDatFileAndAction(MLresultsEstimate);
 // ForAllDatFilesAction(MLresultsTransform,CurDirectory);
 //SelectDatFileAndAction(MLresultsTransform);
 

@@ -36,10 +36,10 @@ procedure MLresultsEstimate(FileName:string);
 {вхідний файл має містити колонки
 Ytrue та Ypred,
 в результаті в FileEstimateName будуть додані дані
-'name MSE MRE R2 MedRE p01 p10'
-де MedRE - медіанне значення відносної похибки,
-р01 - частка передбачень, для який помилка не перевищує 1%
-р10 - частка передбачень, для який помилка не перевищує 10%;
+'name MSE R2 MAPE MedAPE p01 p10'
+де MedAPE - медіанне значення відносної похибки,
+р01 - частка передбачень, для яких помилка не перевищує 1%
+р10 - частка передбачень, для яких помилка не перевищує 10%;
 Крім того, створюється файл FileName+'est',
 який містить залежність частки передбачень, які мають похибку не більшу за певне
 значення, від величини цього значення}
@@ -116,7 +116,7 @@ begin
  ShotFileName:=copy(ShotFileName,1,length(ShotFileName)-4);
  if not(FileExists(FileEstimatePath))
 //   then  AddRowToFile('name MSE MRE R R2',FileEstimatePath);
-   then  AddRowToFile('name MSE MRE R2 MedRE p01 p10',FileEstimatePath);
+   then  AddRowToFile('name MSE R2 MAPE MedAPE p01 p10',FileEstimatePath);
 
  VecTr:=TVectorTransform.Create;
  VecTr2:=TVectorTransform.Create;
@@ -125,10 +125,13 @@ begin
    then VecTr.StandartScaler(VecTr2,MeanFull,StdFull,True)
    else VecTr.StandartScaler(VecTr2,MeanResultAll,StdResultAll,True);
  tempstr:=ShotFileName;
- tempstr:=tempstr+' '+floattostr(VecTr2.MSE);
- tempstr:=tempstr+' '+floattostr(VecTr.MRE);
+// tempstr:=tempstr+' '+floattostr(VecTr2.MSE);
+ tempstr:=tempstr+' '+floattostrf(VecTr2.MSE*1000,ffFixed,4,2);
+// tempstr:=tempstr+' '+floattostr(VecTr.MRE);
+ tempstr:=tempstr+' '+floattostrf(VecTr.R2determination,ffFixed,5,5);
+ tempstr:=tempstr+' '+floattostrf(VecTr.MRE*100,ffGeneral,4,2);
 // tempstr:=tempstr+' '+floattostr(VecTr.Rcorrelation);
- tempstr:=tempstr+' '+floattostr(VecTr.R2determination);
+// tempstr:=tempstr+' '+floattostr(VecTr.R2determination);
 
  VecTr.REdata(VecTr2);
  VecTr.Clear;
@@ -145,9 +148,9 @@ begin
   VecTr.Add(ErrorValue,VecTr2.PercentOfPointLessThan(ErrorValue));
  until (ErrorValue>=LimitErrorValues[High(LimitErrorValues)]);
 
- tempstr:=tempstr+' '+floattostr(VecTr2.MedianProperty);
- tempstr:=tempstr+' '+floattostr(VecTr2.PercentOfPointLessThan(0.01));
- tempstr:=tempstr+' '+floattostr(VecTr2.PercentOfPointLessThan(0.1));
+ tempstr:=tempstr+' '+floattostrf(VecTr2.MedianProperty*100,ffGeneral,4,2);
+ tempstr:=tempstr+' '+floattostrf(VecTr2.PercentOfPointLessThan(0.01),ffGeneral,4,2);
+ tempstr:=tempstr+' '+floattostrf(VecTr2.PercentOfPointLessThan(0.1),ffGeneral,4,4);
  VecTr.WriteToFile(FitName(FileName,'est'),8);
 
  AddRowToFile(tempstr,FileEstimatePath);
