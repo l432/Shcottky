@@ -792,7 +792,7 @@ begin
 //  showmessage(Result);
   for I := 0 to High(RezVec) do
    begin
-    Result:=Result+' '+FloatToStrF(RezVec[i].Median,ffExponent,10,2)
+    Result:=Result+' '+FloatToStrF(RezVec[i].MedianProperty,ffExponent,10,2)
             +' '+FloatToStrF(Parameters[i],ffExponent,10,2);
    end;
 end;
@@ -828,11 +828,11 @@ begin
   Result:=Result+' '+inttostr(round(Parameters[8]));
   for I := 0 to High(RezVec) do
    begin
-    Result:=Result+' '+FloatToStrF(RezVec[i].Median,ffExponent,10,2)
+    Result:=Result+' '+FloatToStrF(RezVec[i].MedianProperty,ffExponent,10,2)
            +' '+FloatToStrF(RezVec[i].Q1,ffExponent,10,2)
            +' '+FloatToStrF(RezVec[i].Q3,ffExponent,10,2);
     if i<>High(RezVec)
-      then Result:=Result+' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].Median),ffExponent,10,2);
+      then Result:=Result+' '+FloatToStrF(RelativeDifference(Parameters[i],RezVec[i].MedianProperty),ffExponent,10,2);
    end;
 end;
 
@@ -1294,9 +1294,9 @@ procedure ReadEvolParComplex(EvolType: TEvolutionTypeNew; Vec: TVector;
                    FloatDataFromRow(StrRez[k],ParNumber));
      if odd(tempVec.HighNumber) then  tempVec.DeletePoint(tempVec.MaxYnumber);
      if i=High(SA)
-      then Vec.Add(Vec.Count+1,tempVec.Median)
+      then Vec.Add(Vec.Count+1,tempVec.MedianProperty)
       else Vec.Add(Vec.Count+1,RelativeDifference(tempVec.X[0],
-                                           tempVec.Median));
+                                           tempVec.MedianProperty));
     end;
   finally
    Vec.Add(Vec.Count+1,TimeOfFiting[EvolType]);
@@ -2215,7 +2215,7 @@ begin
 //    tempstr:=EvTypeNames[EvolType]+' MEDIAN';
     tempstr:='MEDIAN';
     for i:=0 to High(SA) do
-      tempstr:=tempstr+' '+FloatToStrF(VecParam[i].Median,ffExponent,6,2);
+      tempstr:=tempstr+' '+FloatToStrF(VecParam[i].MedianProperty,ffExponent,6,2);
     StrStatNew.Add(tempstr);
 
 //    tempstr:=EvTypeNames[EvolType]+' STD';

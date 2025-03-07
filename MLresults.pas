@@ -15,7 +15,7 @@ const
        (0.01,0.1,1,10);
    HeaderErrorPercent=' P001 P01 P1 P10';
 
-   FileEstimateName='estimate.txt';
+   FileEstimateName='estimateNew.txt';
 
    MeanResultAll=11.999996343232;
    StdResultAll=1.20185081298897;
@@ -25,8 +25,24 @@ const
 
 
 procedure MLresultsTransform(FileName:string);
+{вхідний файл має містити колонки
+Ytrue Nb T d Ypred RSE
+На виході отримуємо 4 файли, в яких перша колонка значення параметру
+(концентрація заліза, або концентрація бору, або температура, або товщина)
+а решта чотири - частка передбачень при даному значенні, для яких похибка менша
+величин з LimitErrorValues (1%, 10%, 100%, 1000%)}
 
 procedure MLresultsEstimate(FileName:string);
+{вхідний файл має містити колонки
+Ytrue та Ypred,
+в результаті в FileEstimateName будуть додані дані
+'name MSE MRE R2 MedRE p01 p10'
+де MedRE - медіанне значення відносної похибки,
+р01 - частка передбачень, для який помилка не перевищує 1%
+р10 - частка передбачень, для який помилка не перевищує 10%;
+Крім того, створюється файл FileName+'est',
+який містить залежність частки передбачень, які мають похибку не більшу за певне
+значення, від величини цього значення}
 
 implementation
 
@@ -60,7 +76,6 @@ begin
     AddVectorToArray(ArrVec);
     repeat
      if ArrVec[High(ArrVec)].Count<1 then valstr:=StringDataFromRow(SLstart[1],ord(descript)+1);
-//     showmessage(valstr);
      if valstr=StringDataFromRow(SLstart[i],ord(descript)+1) then
        begin
         ArrVec[High(ArrVec)].Add(ArrVec[High(ArrVec)].Count,
@@ -73,9 +88,6 @@ begin
     DataVector.Add(StrToFloat(valstr),High(ArrVec));
    end;
   DataVector.Sorting();
-//  showmessage(DataVector.XYtoString());
-//  showmessage(inttostr(High(ArrVec)));
-//  showmessage(ArrVec[High(ArrVec)].XYtoString());
 
   for I := 0 to DataVector.HighNumber do
     begin
@@ -103,7 +115,8 @@ begin
  ShotFileName:=ExtractFileName(FileName);
  ShotFileName:=copy(ShotFileName,1,length(ShotFileName)-4);
  if not(FileExists(FileEstimatePath))
-   then  AddRowToFile('name MSE MRE R R2',FileEstimatePath);
+//   then  AddRowToFile('name MSE MRE R R2',FileEstimatePath);
+   then  AddRowToFile('name MSE MRE R2 MedRE p01 p10',FileEstimatePath);
 
  VecTr:=TVectorTransform.Create;
  VecTr2:=TVectorTransform.Create;
@@ -114,9 +127,9 @@ begin
  tempstr:=ShotFileName;
  tempstr:=tempstr+' '+floattostr(VecTr2.MSE);
  tempstr:=tempstr+' '+floattostr(VecTr.MRE);
- tempstr:=tempstr+' '+floattostr(VecTr.Rcorrelation);
+// tempstr:=tempstr+' '+floattostr(VecTr.Rcorrelation);
  tempstr:=tempstr+' '+floattostr(VecTr.R2determination);
- AddRowToFile(tempstr,FileEstimatePath);
+
  VecTr.REdata(VecTr2);
  VecTr.Clear;
 
@@ -132,7 +145,13 @@ begin
   VecTr.Add(ErrorValue,VecTr2.PercentOfPointLessThan(ErrorValue));
  until (ErrorValue>=LimitErrorValues[High(LimitErrorValues)]);
 
+ tempstr:=tempstr+' '+floattostr(VecTr2.MedianProperty);
+ tempstr:=tempstr+' '+floattostr(VecTr2.PercentOfPointLessThan(0.01));
+ tempstr:=tempstr+' '+floattostr(VecTr2.PercentOfPointLessThan(0.1));
  VecTr.WriteToFile(FitName(FileName,'est'),8);
+
+ AddRowToFile(tempstr,FileEstimatePath);
+
  FreeAndNil(VecTr2);
  FreeAndNil(VecTr);
 end;

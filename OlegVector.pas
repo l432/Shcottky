@@ -132,8 +132,10 @@ type
         {повертає результат інтегрування за методом
         трапецій;  вважається, що межі інтегралу простягаються на
         весь діапазон зміни А^.X}
-      property Median:double Index 1 read GetQuartile;
-      {повертає медіанне значення в масиві Y}
+      property MedianProperty:double Index 1 read GetQuartile;
+      {повертає медіанне значення в масиві Y,
+      дивна назва пов'язана з тим, що є метод Median, який передбачає
+      використання медіанного фільтру}
       property Q1:double Index 0 read GetQuartile;
       {повертає квантиль 0,25 в масиві Y}
       property Q3:double Index 2 read GetQuartile;
