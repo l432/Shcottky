@@ -122,8 +122,10 @@ begin
  VecTr2:=TVectorTransform.Create;
  VecTr.ReadFromFile(FileName,['Ytrue','Ypred']);
  if Pos('Full',ShotFileName)>0
-   then VecTr.StandartScaler(VecTr2,MeanFull,StdFull,True)
-   else VecTr.StandartScaler(VecTr2,MeanResultAll,StdResultAll,True);
+   then
+    VecTr.StandartScaler(VecTr2,MeanFull,StdFull,True)
+   else
+    VecTr.StandartScaler(VecTr2,MeanResultAll,StdResultAll,True);
  tempstr:=ShotFileName;
 // tempstr:=tempstr+' '+floattostr(VecTr2.MSE);
  tempstr:=tempstr+' '+floattostrf(VecTr2.MSE*1000,ffFixed,4,2);
