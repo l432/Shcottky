@@ -201,6 +201,12 @@ procedure Ts(delE:double);
 з енергією іонізації delE для кремнію,
 від концентрації леганта}
 
+
+procedure ToDecreaseNumberCount();
+
+function SymRegrMobilityCalculate(const T:double; const Nd:double):double;
+
+
 implementation
 
 uses
@@ -871,5 +877,37 @@ function TDatasetSiPorous.ResultCalculate(const Index: integer): double;
 begin
   Result:=1;
 end;
+
+procedure ToDecreaseNumberCount();
+ var T,Nd,NdStep:double;
+     i:integer;
+     Vec:TVector;
+begin
+ Vec:=TVector.Create;
+
+ T:=200;
+ NdStep:=(19-13)/49;
+ repeat
+  Nd:=1e13;
+  i:=0;
+  repeat
+//   Vec.Add(T,Nd);
+   Vec.Add(1e4*Silicon.mu_n(T,Nd*1e6,True),
+          SymRegrMobilityCalculate(T,Nd));
+   i:=i+1;
+   Nd:=Power(10,13+i*NdStep)
+  until (Nd>1e19);
+
+  T:=T+6;
+ until (T>500);
+ Vec.WriteToFile('pppp.dat',8);
+ FreeAndNil(Vec);
+end;
+
+function SymRegrMobilityCalculate(const T:double; const Nd:double):double;
+begin
+  Result:=1;
+end;
+
 
 end.

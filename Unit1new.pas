@@ -3961,7 +3961,9 @@ var
 
 begin
 
- ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
+ToDecreaseNumberCount();
+
+// ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
 //SelectDatFileAndAction(MLresultsEstimate);
 // ForAllDatFilesAction(MLresultsTransform,CurDirectory);
 //SelectDatFileAndAction(MLresultsTransform);
