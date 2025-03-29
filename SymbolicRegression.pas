@@ -211,7 +211,8 @@ implementation
 
 uses
   OlegVector, System.SysUtils, System.Math,
-  System.Classes, OApproxFunction2, OlegMath, Vcl.Dialogs;
+  System.Classes, OApproxFunction2, OlegMath, Vcl.Dialogs,
+  OlegVectorManipulation;
 
 procedure DeepOfAbsorbtion(T:integer;FileName:string='SiAbsorb');
  var i:integer;
@@ -881,9 +882,18 @@ end;
 procedure ToDecreaseNumberCount();
  var T,Nd,NdStep:double;
      i:integer;
-     Vec:TVector;
+     Vec:TVectorTransform;
+     VecEr:TVectorTransform;
+     temp:string;
+ const
+       MRE='MRE=0.094   ';
+       RE_Max='REmax=1.19   ';
+       RE_Med='REmed=0.0448   ';
+       MAE='MAE=0.475   ';
+
 begin
- Vec:=TVector.Create;
+ Vec:=TVectorTransform.Create;
+ VecEr:=TVectorTransform.Create;
 
  T:=200;
  NdStep:=(19-13)/49;
@@ -900,7 +910,17 @@ begin
 
   T:=T+6;
  until (T>500);
- Vec.WriteToFile('pppp.dat',8);
+// Vec.WriteToFile('pppp.dat',8);
+ Vec.REdata(VecEr);
+ temp:=MRE+FloatToStr(Vec.MRE*100)+#10#13;
+ temp:=temp+RE_Max+FloatToStr(VecEr.MaxY*100)+#10#13;
+ temp:=temp+RE_Med+FloatToStr(VecEr.MedianProperty*100)+#10#13;
+ for I := 0 to VecEr.HighNumber do
+   VecEr.Y[i]:=VecEr.Y[i]*VecEr.X[i];
+ temp:=temp+MAE+FloatToStr(VecEr.MeanY);
+ ShowMessage(temp);
+
+ FreeAndNil(VecEr);
  FreeAndNil(Vec);
 end;
 
