@@ -886,10 +886,17 @@ procedure ToDecreaseNumberCount();
      VecEr:TVectorTransform;
      temp:string;
  const
-       MRE='MRE=0.094   ';
-       RE_Max='REmax=1.19   ';
-       RE_Med='REmed=0.0448   ';
-       MAE='MAE=0.475   ';
+//NN07
+//       MRE='MRE=0.094   ';
+//       RE_Max='REmax=1.19   ';
+//       RE_Med='REmed=0.0448   ';
+//       MAE='MAE=0.475   ';
+
+//PP08
+       MRE='MRE=0.140   ';
+       RE_Max='REmax=1.488   ';
+       RE_Med='REmed=0.079   ';
+       MAE='MAE=0.313   ';
 
 begin
  Vec:=TVectorTransform.Create;
@@ -901,8 +908,9 @@ begin
   Nd:=1e13;
   i:=0;
   repeat
-//   Vec.Add(T,Nd);
-   Vec.Add(1e4*Silicon.mu_n(T,Nd*1e6,True),
+//   Vec.Add(1e4*Silicon.mu_n(T,Nd*1e6,True),
+//          SymRegrMobilityCalculate(T,Nd));
+   Vec.Add(1e4*Silicon.mu_p(T,Nd*1e6,True),
           SymRegrMobilityCalculate(T,Nd));
    i:=i+1;
    Nd:=Power(10,13+i*NdStep)
@@ -910,14 +918,13 @@ begin
 
   T:=T+6;
  until (T>500);
-// Vec.WriteToFile('pppp.dat',8);
  Vec.REdata(VecEr);
- temp:=MRE+FloatToStr(Vec.MRE*100)+#10#13;
- temp:=temp+RE_Max+FloatToStr(VecEr.MaxY*100)+#10#13;
- temp:=temp+RE_Med+FloatToStr(VecEr.MedianProperty*100)+#10#13;
+ temp:=MRE+FloatToStrF(Vec.MRE*100,ffGeneral,3,3)+#10#13;
+ temp:=temp+RE_Max+FloatToStrF(VecEr.MaxY*100,ffGeneral,4,4)+#10#13;
+ temp:=temp+RE_Med+FloatToStrF(VecEr.MedianProperty*100,ffGeneral,4,4)+#10#13;
  for I := 0 to VecEr.HighNumber do
    VecEr.Y[i]:=VecEr.Y[i]*VecEr.X[i];
- temp:=temp+MAE+FloatToStr(VecEr.MeanY);
+ temp:=temp+MAE+FloatToStrF(VecEr.MeanY,ffGeneral,4,4);
  ShowMessage(temp);
 
  FreeAndNil(VecEr);
@@ -925,8 +932,60 @@ begin
 end;
 
 function SymRegrMobilityCalculate(const T:double; const Nd:double):double;
+ var Tn,Ndn,Mul1,Mul2:double;
+ const
+////NN07
+////  C1=1413.197;
+////  P1=2.2508056;
+////  P2=0.721221;
+////  P3=0.58024335;
+////  C2=0.8727662203;
+////  C3=0.0728198954391157;
+////  C4=0.21521291;
+////  C5=10.496482;
+////  C6=1.3418822;
+//  C1=1413.2;
+//  P1=2.2508;
+//  P2=0.7212;
+//  P3=0.580;
+//  C2=0.873;
+//  C3=0.0727;
+//  C4=0.215;
+//  C5=10.5;
+//  C6=1.342;
+//begin
+//  Tn:=T/300;
+//  Ndn:=Nd/1e17;
+//  Mul1:=Power(Ndn/(C2*Tn+C3),P2);
+//  Mul2:=C4*Power(Ndn,P3)+C5*Tn-C6;
+//  Result:=(Ndn+C1)
+//   /(Power(Tn,P1)+(Mul1*Mul2)/(Mul1+Mul2));
+
+//PP08
+// P1=0.448615;
+// P2=2.2504785;
+// P3=0.7587021;
+// P4=0.7545584;
+// P5=0.1669551;
+// C1=469.99396;
+// C2=0.577894117790871;
+// C3=2.6517315;
+
+ P1=0.448;
+ P2=2.2505;
+ P3=0.7587;
+ P4=0.755;
+ P5=0.1669;
+ C1=470;
+ C2=0.578;
+ C3=2.652;
 begin
-  Result:=1;
+  Tn:=T/300;
+  Ndn:=Nd/1e17;
+  Mul1:=Power(Ndn,P3)*Power(Tn,-P4)*C2;
+  Mul2:=C3*Tn*Power(Ndn,P5);
+  Result:=Power(Ndn,P1)
+   +C1/(Power(Tn,P2)+Mul1*Mul2/(Mul1+Mul2));
 end;
 
 
