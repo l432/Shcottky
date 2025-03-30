@@ -893,11 +893,22 @@ procedure ToDecreaseNumberCount();
 //       MAE='MAE=0.475   ';
 
 //PP08
-       MRE='MRE=0.140   ';
-       RE_Max='REmax=1.488   ';
-       RE_Med='REmed=0.079   ';
-       MAE='MAE=0.313   ';
+//       MRE='MRE=0.140   ';
+//       RE_Max='REmax=1.488   ';
+//       RE_Med='REmed=0.079   ';
+//       MAE='MAE=0.313   ';
 
+//NP10
+//       MRE='MRE=0.141   ';
+//       RE_Max='REmax=1.05   ';
+//       RE_Med='REmed=0.084   ';
+//       MAE='MAE=0.765   ';
+
+//PN09
+       MRE='MRE=0.0497   ';
+       RE_Max='REmax=0.61   ';
+       RE_Med='REmed=0.0274   ';
+       MAE='MAE=0.119   ';
 begin
  Vec:=TVectorTransform.Create;
  VecEr:=TVectorTransform.Create;
@@ -910,7 +921,11 @@ begin
   repeat
 //   Vec.Add(1e4*Silicon.mu_n(T,Nd*1e6,True),
 //          SymRegrMobilityCalculate(T,Nd));
-   Vec.Add(1e4*Silicon.mu_p(T,Nd*1e6,True),
+//   Vec.Add(1e4*Silicon.mu_p(T,Nd*1e6,True),
+//          SymRegrMobilityCalculate(T,Nd));
+//   Vec.Add(1e4*Silicon.mu_n(T,Nd*1e6,False),
+//          SymRegrMobilityCalculate(T,Nd));
+   Vec.Add(1e4*Silicon.mu_p(T,Nd*1e6,False),
           SymRegrMobilityCalculate(T,Nd));
    i:=i+1;
    Nd:=Power(10,13+i*NdStep)
@@ -961,31 +976,95 @@ function SymRegrMobilityCalculate(const T:double; const Nd:double):double;
 //  Result:=(Ndn+C1)
 //   /(Power(Tn,P1)+(Mul1*Mul2)/(Mul1+Mul2));
 
-//PP08
-// P1=0.448615;
-// P2=2.2504785;
-// P3=0.7587021;
-// P4=0.7545584;
-// P5=0.1669551;
-// C1=469.99396;
-// C2=0.577894117790871;
-// C3=2.6517315;
+////PP08
+//// P1=0.448615;
+//// P2=2.2504785;
+//// P3=0.7587021;
+//// P4=0.7545584;
+//// P5=0.1669551;
+//// C1=469.99396;
+//// C2=0.577894117790871;
+//// C3=2.6517315;
+//
+// P1=0.448;
+// P2=2.2505;
+// P3=0.7587;
+// P4=0.755;
+// P5=0.1669;
+// C1=470;
+// C2=0.578;
+// C3=2.652;
+//begin
+//  Tn:=T/300;
+//  Ndn:=Nd/1e17;
+//  Mul1:=Power(Ndn,P3)*Power(Tn,-P4)*C2;
+//  Mul2:=C3*Tn*Power(Ndn,P5);
+//  Result:=Power(Ndn,P1)
+//   +C1/(Power(Tn,P2)+Mul1*Mul2/(Mul1+Mul2));
 
- P1=0.448;
- P2=2.2505;
- P3=0.7587;
- P4=0.755;
- P5=0.1669;
- C1=470;
- C2=0.578;
- C3=2.652;
+//NP10
+//   C1=26.3181184369889;
+//   C2=191.78508;
+//   C3=1412.3245;
+//   C4=5.6990414;
+//   C5=0.07073425;
+//   C6=1.92196991182138;
+//   P1=0.6221507;
+//   P2=2.2496324;
+//   P3=0.1029627;
+//   P4=0.716149;
+
+//   C1=26.3;
+//   C2=192;
+//   C3=1412.3;
+//   C4=5.7;
+//   C5=0.071;
+//   C6=1.92;
+//   P1=0.62;
+//   P2=2.25;
+//   P3=0.103;
+//   P4=0.717;
+//
+//begin
+//  Tn:=T/300;
+//  Ndn:=Nd/1e17;
+//  Mul1:=C4*Power(Ndn,P3)*Tn;
+//  Mul2:=C6*Power((Ndn/(Tn+C5)),P4);
+//  Result:=C1*Power((Ndn/(Ndn+C2)),P1)
+//  +C3/(Power(Tn,P2)+Mul1*Mul2/(Mul1+Mul2));
+
+//PN09
+//  C1=0.0225809909822258;
+//  C2=0.62785673;
+//  C3=113.563966230219;
+//  C4=0.156170722587861;
+//  C5=1.15078960427592;
+//  C6=4.2095237;
+//  P1=0.76547503;
+//  P2=2.9405906;
+//  P3=1.1768336;
+//  P4=0.60845184;
+//  P5=1.1430243;
+
+  C1=0.0226;
+  C2=0.63;
+  C3=113.56;
+  C4=0.15617;
+  C5=1.151;
+  C6=4.21;
+  P1=0.76547;
+  P2=2.940;
+  P3=1.177;
+  P4=0.6085;
+  P5=1.143;
+
 begin
   Tn:=T/300;
   Ndn:=Nd/1e17;
-  Mul1:=Power(Ndn,P3)*Power(Tn,-P4)*C2;
-  Mul2:=C3*Tn*Power(Ndn,P5);
-  Result:=Power(Ndn,P1)
-   +C1/(Power(Tn,P2)+Mul1*Mul2/(Mul1+Mul2));
+  Mul1:=Power(Ndn,P4);
+  Mul2:=Power(Tn,P5);
+  Result:=C1*Ndn*Ln(Tn)/(Ln(Tn)+C2)
+   +C3/Power(C4*Power(Tn,P2)+Power(Mul1*Mul2/(C5*Mul1+C6*Mul2),P3),P1);
 end;
 
 
