@@ -3083,6 +3083,8 @@ begin
   if ionDopantNeeded
     then Result:=2*Ndion
     else Result:=Ndion+sqrt(sqr(Ndion)+sqr(ni))
+//    else Result:=Silicon.Nc(T)*TMaterial.FDIntegral_05(-Ef/T/Kb);
+
 end;
 
 

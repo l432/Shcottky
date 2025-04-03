@@ -3960,8 +3960,8 @@ var
 
 
 begin
-
-ToDecreaseNumberCount();
+ Ts(0.045);
+//ToDecreaseNumberCount();
 
 // ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
 //SelectDatFileAndAction(MLresultsEstimate);

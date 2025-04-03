@@ -834,19 +834,20 @@ var Vec:TVector;
     pow:integer;
 begin
  Vec:=TVector.Create;
- for pow := 13 to 20 do
-   begin
-    concent:=Power(10,pow+6);
-    Vec.Add(Power(10,pow),Ts_inSi(concent,delE));
-   end;
- Vec.WriteToFile('Ts.dat',5,'Nd Ts');
+// for pow := 13 to 20 do
+//   begin
+//    concent:=Power(10,pow+6);
+//    Vec.Add(Power(10,pow),Ts_inSi(concent,delE));
+//   end;
+// Vec.WriteToFile('Ts.dat',5,'Nd Ts');
 
-// for pow:=5 to 700 do
-////   Vec.Add(pow,Silicon.Nv(pow)/1e6);
+ for pow:=5 to 700 do
+//   Vec.Add(pow,Silicon.Nv(pow)/1e6);
 //   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e23,0.045,True,True,True)/1e6);
-////   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e20,0.045,False, True)/1e6);
-//
-// Vec.WriteToFile('Nd.dat',5,'T Nd');
+   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e23,0.045,True,True,False)/1e6);
+//   Vec.Add(pow,ChargeCarrierConcentrationNew(pow, 1e20,0.045,False, True)/1e6);
+
+ Vec.WriteToFile('Nd.dat',5,'T Nd');
 
 
  FreeAndNil(Vec)
