@@ -800,6 +800,7 @@ type
     B_StartFolderSelect: TButton;
     L_StartFolder: TLabel;
     CBActions: TComboBox;
+    BSaveMemo: TButton;
     procedure Close1Click(Sender: TObject);
     procedure OpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -897,6 +898,7 @@ type
     procedure ButFitSelectNewClick(Sender: TObject);
     procedure ButFitOptionNewClick(Sender: TObject);
     procedure SButFitNewClick(Sender: TObject);
+    procedure BSaveMemoClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -4375,6 +4377,81 @@ end;
 
 
 
+
+procedure TForm1.BSaveMemoClick(Sender: TObject);
+ var SLResult:TStringList;
+     i,StartLineNumber,DataLineNumber:integer;
+     Caption,Tstr:string;
+begin
+//  if MemoAppr.Lines.Count<1 then Exit;
+
+  SLResult:=TStringList.Create();
+  if FileExists(AprResDatName) then
+   SLResult.LoadFromFile(AprResDatName);
+  StartLineNumber:=0;
+  for i := MemoAppr.Lines.Count-1 downto 0 do
+   if MemoAppr.Lines[i]='' then
+     begin
+       StartLineNumber:=i+1;
+       Break;
+     end;
+
+   Caption:='fname';
+   Tstr:=StringDataFromRow(Temper.Caption,3);
+   if Tstr <>'0' then
+    Caption:=Caption+' T';
+   for I := StartLineNumber+2 to MemoAppr.Lines.Count-1 do
+    Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[i],1,'=');
+
+   i:=Min(0,SLResult.Count-1);
+   if i=0 then
+     begin
+     repeat
+      if Caption=SLResult[i] then
+       begin
+        DataLineNumber:=i+1;
+        Break;
+       end;
+      inc(i);
+     until (i>SLResult.Count-1);
+//     Showmessage(inttostr(i));
+     i:=i-1;
+     end;
+//   Showmessage(inttostr(i));
+   if i=SLResult.Count-1 then
+    begin
+     SLResult.Add(Caption);
+     DataLineNumber:=SLResult.Count;
+    end;
+
+   Caption:=ChangeFileExt(MemoAppr.Lines[StartLineNumber+1], '');
+   if Tstr<>'0' then
+    Caption:=Caption+' '+Tstr;
+
+   if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
+   begin
+      showmessage('mmm');
+   end
+//   else if cmd = 'stop' then
+   else
+     begin
+       for I := StartLineNumber+2 to MemoAppr.Lines.Count-1 do
+        Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[i],2,'=');
+     end;
+
+
+
+   SLResult.Insert(DataLineNumber,Caption);
+   SLResult.SaveToFile(AprResDatName);
+
+
+// showmessage(StringDataFromRow(Temper.Caption,3));
+//  showmessage(inttostr(StartLineNumber));
+
+//  showmessage(MemoAppr.Lines[MemoAppr.Lines.Count-1]);
+//  showmessage(MemoAppr.Lines[0]);
+  FreeAndNil(SLResult);
+end;
 
 procedure TForm1.ButtonCreateDateClick(Sender: TObject);
 var
