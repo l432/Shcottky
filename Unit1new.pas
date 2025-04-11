@@ -4380,10 +4380,11 @@ end;
 
 procedure TForm1.BSaveMemoClick(Sender: TObject);
  var SLResult:TStringList;
-     i,StartLineNumber,DataLineNumber:integer;
+     i,j,StartLineNumber,DataLineNumber:integer;
      Caption,Tstr:string;
+     Vector:TVector;
 begin
-//  if MemoAppr.Lines.Count<1 then Exit;
+  if MemoAppr.Lines.Count<1 then Exit;
 
   SLResult:=TStringList.Create();
   if FileExists(AprResDatName) then
@@ -4414,10 +4415,8 @@ begin
        end;
       inc(i);
      until (i>SLResult.Count-1);
-//     Showmessage(inttostr(i));
      i:=i-1;
      end;
-//   Showmessage(inttostr(i));
    if i=SLResult.Count-1 then
     begin
      SLResult.Add(Caption);
@@ -4430,7 +4429,25 @@ begin
 
    if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
    begin
-      showmessage('mmm');
+     Vector:=TVector.Create;
+     i:=StartLineNumber+3;
+     repeat
+      Vector.Add(FloatDataFromRow(MemoAppr.Lines[i],2,'='),i);
+      i:=i+3;
+     until i>MemoAppr.Lines.Count-2;
+     Vector.Sorting;
+     for i:=0 to Vector.HighNumber do
+      begin
+        j:=round(Vector.Y[i]);
+        Caption:=Caption+' '+
+           StringDataFromRow(MemoAppr.Lines[j-1],2,'=');
+        Caption:=Caption+' '+
+           StringDataFromRow(MemoAppr.Lines[j],2,'=');
+        Caption:=Caption+' '+
+           StringDataFromRow(MemoAppr.Lines[j+1],2,'=');
+      end;
+     Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-1],2,'=');
+     FreeAndNil(Vector);
    end
 //   else if cmd = 'stop' then
    else

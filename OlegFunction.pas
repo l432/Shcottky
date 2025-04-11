@@ -56,7 +56,7 @@ Function StringDataFromRow(str:string;Number:word;separator:string=' '):string;
 {вважається, що частини рядка відділені один від одного пробілами;
 повертається частина з номером Number (нумерація починається з 1)}
 
-Function FloatDataFromRow(str:string;Number:word):double;
+Function FloatDataFromRow(str:string;Number:word;separator:string=' '):double;
 {вважається, що частини рядка відділені один від одного пробілами;
 повертається число, розташоване в частині з номером Number
 (нумерація починається з 1);
@@ -605,14 +605,14 @@ begin
 
 end;
 
-Function FloatDataFromRow(str:string;Number:word):double;
+Function FloatDataFromRow(str:string;Number:word;separator:string=' '):double;
 {вважається, що частини рядка відділені один від одного пробілами;
 повертається число, рохташоване в частині з номером Number
 (нумерація починається з 1);
 якщо там не число - то повертається ErResult}
 begin
   try
-   Result:=StrToFloat(StringDataFromRow(str,Number));
+   Result:=StrToFloat(StringDataFromRow(str,Number,separator));
   except
    Result:=ErResult;
   end;
