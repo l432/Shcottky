@@ -361,7 +361,7 @@ implementation
 uses
   FitIteration, OlegMath, Math, SysUtils, OlegMaterialSamples, Classes, OlegFunction
   {XP Win}
-  ,Vcl.Dialogs
+  ,Vcl.Dialogs, OlegStatistic
   ;
 
 { TFFDoubleDiod }
@@ -715,13 +715,18 @@ begin
   for I := 1 to fRealNgaus do
    begin
     (fDParamArray.fParams[3*i-3] as TFFParamHeuristic).fMinLim:=0;
-    (fDParamArray.fParams[3*i-3] as TFFParamHeuristic).fMaxLim:=delY*10;
-    (fDParamArray.fParams[3*i-2] as TFFParamHeuristic).fMinLim:=Xmin-5*delX;
-    (fDParamArray.fParams[3*i-2] as TFFParamHeuristic).fMaxLim:=Xmax+5*delX;
-    (fDParamArray.fParams[3*i-1] as TFFParamHeuristic).fMinLim:=delX/1000;
+//    (fDParamArray.fParams[3*i-3] as TFFParamHeuristic).fMaxLim:=delY*10;
+    (fDParamArray.fParams[3*i-3] as TFFParamHeuristic).fMaxLim:=delY*3;
+    (fDParamArray.fParams[3*i-2] as TFFParamHeuristic).fMinLim:=Xmin-delX;
+    (fDParamArray.fParams[3*i-2] as TFFParamHeuristic).fMaxLim:=Xmax+delX;
+//    (fDParamArray.fParams[3*i-2] as TFFParamHeuristic).fMinLim:=Xmin-5*delX;
+//    (fDParamArray.fParams[3*i-2] as TFFParamHeuristic).fMaxLim:=Xmax+5*delX;
+//    (fDParamArray.fParams[3*i-1] as TFFParamHeuristic).fMinLim:=delX/1000;
+    (fDParamArray.fParams[3*i-1] as TFFParamHeuristic).fMinLim:=delX/100;
     (fDParamArray.fParams[3*i-1] as TFFParamHeuristic).fMaxLim:=10*delX;
    end;
-  (fDParamArray as TDParamsIteration).Nit:=2000*(4+sqr(fRealNgaus));
+//  (fDParamArray as TDParamsIteration).Nit:=2000*(4+sqr(fRealNgaus));
+  (fDParamArray as TDParamsIteration).Nit:=2000*(4+round(Power(fRealNgaus,2.5)));
 
   Result:=Inherited FittingCalculation;
 
@@ -734,8 +739,10 @@ begin
  Result:=0;
  for I := 1 to fRealNgaus do
    Result:=Result+
-     Data[3*i-3]/sqrt(2*Pi)/Data[3*i-1]
-     *exp(-sqr((Point[cX]-Data[3*i-2]))/2/sqr(Data[3*i-1]));
+//     Data[3*i-3]/sqrt(2*Pi)/Data[3*i-1]
+//     *exp(-sqr((Point[cX]-Data[3*i-2]))/2/sqr(Data[3*i-1]));
+     Data[3*i-3]*TNormalD.PDF(Point[cX], Data[3*i-2], Data[3*i-1])
+//   Result:=1/sigma/sqrt(2*Pi)*exp(-sqr((x-mu)/sigma)/2);
 end;
 
 procedure TFFNGausian.NamesDefine;
