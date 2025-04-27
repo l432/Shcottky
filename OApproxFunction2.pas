@@ -105,6 +105,7 @@ TFFNGausian=class (TFFHeuristic)
   procedure NamesDefine;override;
   procedure AccessorialDataCreate;override;
   function FittingCalculation:boolean;override;
+  Procedure RealToFile;override;
  public
   property Ngaus:byte read fNgaus write SetNGaus;
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;override;
@@ -756,6 +757,30 @@ procedure TFFNGausian.ParamArrayCreate;
 begin
  fDParamArray:=TDParamsHeuristic.Create(Self,
                  []);
+end;
+
+procedure TFFNGausian.RealToFile;
+var Str1:TStringList;
+    i,j,FCN:integer;
+    tempStr:string;
+begin
+  Str1:=TStringList.Create;
+ for I := 0 to FittingData.HighNumber do
+ begin
+  tempStr:='';
+  tempStr:=tempStr+FloatToStrF(FittingData.X[i],ffExponent,DigitNumber,0);
+  for j := 1 to fRealNgaus do
+    tempStr:=tempStr+' '+
+       FloatToStrF(fDParamArray.fParams[3*j-3].Value
+        *TNormalD.PDF(FittingData.X[i], fDParamArray.fParams[3*j-2].Value,
+                      fDParamArray.fParams[3*j-1].Value),
+       ffExponent,DigitNumber,0);
+  tempStr:=tempStr+' '+FloatToStrF(FittingData.Y[i],ffExponent,DigitNumber,0);
+  str1.Add(tempStr);
+ end;
+
+ Str1.SaveToFile(FitName(fDataToFit,FileSuffix));
+ Str1.Free;
 end;
 
 procedure TFFNGausian.SetNGaus(Value: byte);
