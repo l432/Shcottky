@@ -727,7 +727,7 @@ begin
     (fDParamArray.fParams[3*i-1] as TFFParamHeuristic).fMaxLim:=10*delX;
    end;
 //  (fDParamArray as TDParamsIteration).Nit:=2000*(4+sqr(fRealNgaus));
-  (fDParamArray as TDParamsIteration).Nit:=2000*(4+round(Power(fRealNgaus,2.5)));
+  (fDParamArray as TDParamsIteration).Nit:=2000*(4+round(Power(fRealNgaus,2.8)));
 
   Result:=Inherited FittingCalculation;
 
