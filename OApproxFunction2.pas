@@ -668,7 +668,7 @@ function TFFNGausian.FittingCalculation: boolean;
  var i:integer;
      Names,AddNames:array of string;
      Xmin,Xmax,delY,delX:double;
-     aRegWeight:double;
+     aRegWeight,SumArea:double;
      aEvType:TEvolutionTypeNew;
      aFitType:TFitnessType;
      aRegType:TRegulationType;
@@ -687,9 +687,12 @@ begin
     Names[3*i-1]:='Sig'+inttostr(i);
    end;
 
-  SetLength(AddNames,fRealNgaus);
+  SetLength(AddNames,2*fRealNgaus);
   for I := 1 to fRealNgaus do
    AddNames[i-1]:='Area'+inttostr(i);
+  for I := 1 to fRealNgaus do
+   AddNames[i-1+fRealNgaus]:='Eps_a'+inttostr(i);
+
 
    aRegWeight:=(fDParamArray as TDParamsHeuristic).RegWeight;
    aEvType:=(fDParamArray as TDParamsHeuristic).EvType;
@@ -738,34 +741,20 @@ begin
   Result:=Inherited FittingCalculation;
 
 
-
+  SumArea:=0;
   for I := 1 to fRealNgaus do
    begin
-           showmessage('Nt='+floattostr(fDParamArray.ParametrByName['A'+inttostr(i)].Value)+#10
-        +'Xmin='+floattostr(DataToFit.MinX)+#10
-        +'Xmax='+floattostr(DataToFit.MaxX)+#10
-        +'E0='+floattostr(fDParamArray.ParametrByName['X0'+inttostr(i)].Value)+#10
-        +'Sig='+floattostr(fDParamArray.ParametrByName['Sig'+inttostr(i)].Value)+#10
-        +'Sig='+floattostr(TNormalD.CDF(FittingData.MinX,
-                    fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
-                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value))+#10
-        +'Sig='+floattostr(TNormalD.CDF(FittingData.MaxX,
-                    fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
-                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value))+#10
-        +'='+floattostr(TNormalD.CDF_AB(FittingData.MinX,FittingData.MaxX,
-                    fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
-                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value))
-        );
-
    fDParamArray.ParametrByName['Area'+inttostr(i)].Value:=
     fDParamArray.ParametrByName['A'+inttostr(i)].Value*
-    TNormalD.CDF_AB(FittingData.MinX,FittingData.MaxX,
+    TNormalD.CDF_AB(DataToFit.MinX,DataToFit.MaxX,
                     fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
-                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value)
+                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value);
+   SumArea:=SumArea+fDParamArray.ParametrByName['Area'+inttostr(i)].Value;
    end;
+  for I := 1 to fRealNgaus do
+   fDParamArray.ParametrByName['Eps_a'+inttostr(i)].Value:=
+     fDParamArray.ParametrByName['Area'+inttostr(i)].Value/SumArea;
 
-//        *TNormalD.PDF(FittingData.X[i], fDParamArray.fParams[3*j-2].Value,
-//                      fDParamArray.fParams[3*j-1].Value),
 
 end;
 

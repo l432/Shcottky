@@ -3962,6 +3962,8 @@ var
 
 
 begin
+
+
  Ts(0.045);
 //ToDecreaseNumberCount();
 
@@ -4383,6 +4385,8 @@ procedure TForm1.BSaveMemoClick(Sender: TObject);
      i,j,StartLineNumber,DataLineNumber:integer;
      Caption,Tstr:string;
      Vector:TVector;
+//     tempDouble:double;
+     tempInt:integer;
 begin
   if MemoAppr.Lines.Count<1 then Exit;
 
@@ -4401,15 +4405,26 @@ begin
    Tstr:=StringDataFromRow(Temper.Caption,3);
    if Tstr <>'0' then
     Caption:=Caption+' T';
-   for I := StartLineNumber+2 to MemoAppr.Lines.Count-1 do
+
+   if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
     begin
-     Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[i],1,'=');
-//     if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
-//      begin
-//        if ((i-StartLineNumber-1) mod 3) = 0 then
-//          Caption:=Caption+' '+'Area'+inttostr((i-StartLineNumber-1) div 3);
-//      end;
-    end;
+     tempInt:=(MemoAppr.Lines.Count-StartLineNumber-2) div 5;
+     {кількість гаусіан}
+     for i := 1 to tempInt do
+       Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+3*i],1,'=');
+     for i := 1 to tempInt do
+       Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+3*i-1],1,'=');
+     for i := 1 to tempInt do
+       Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+3*i+1],1,'=');
+     for i := 1 to tempInt do
+       Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+1+3*tempInt+i],1,'=');
+     for i := 1 to tempInt do
+       Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+1+4*tempInt+i],1,'=');
+     Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-1],1,'=');
+    end
+   else
+     for I := StartLineNumber+2 to MemoAppr.Lines.Count-1 do
+       Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[i],1,'=');
 
 
 
@@ -4443,31 +4458,50 @@ begin
      repeat
       Vector.Add(FloatDataFromRow(MemoAppr.Lines[i],2,'='),i);
       i:=i+3;
-     until i>MemoAppr.Lines.Count-2;
+     until i>MemoAppr.Lines.Count-2-tempInt*2;
      Vector.Sorting;
+//     for i:=0 to Vector.HighNumber do
+//      begin
+//        j:=round(Vector.Y[i]);
+//        Caption:=Caption+' '+
+//           StringDataFromRow(MemoAppr.Lines[j-1],2,'=');
+//        Caption:=Caption+' '+
+//           StringDataFromRow(MemoAppr.Lines[j],2,'=');
+//        Caption:=Caption+' '+
+//           StringDataFromRow(MemoAppr.Lines[j+1],2,'=');
+//      end;
+     for i:=0 to Vector.HighNumber do
+      begin
+        j:=round(Vector.Y[i]);
+        Caption:=Caption+' '+
+           StringDataFromRow(MemoAppr.Lines[j],2,'=');
+      end;
      for i:=0 to Vector.HighNumber do
       begin
         j:=round(Vector.Y[i]);
         Caption:=Caption+' '+
            StringDataFromRow(MemoAppr.Lines[j-1],2,'=');
-        Caption:=Caption+' '+
-           StringDataFromRow(MemoAppr.Lines[j],2,'=');
+      end;
+     for i:=0 to Vector.HighNumber do
+      begin
+        j:=round(Vector.Y[i]);
         Caption:=Caption+' '+
            StringDataFromRow(MemoAppr.Lines[j+1],2,'=');
-//        showmessage('Nt='+floattostr(FloatDataFromRow(MemoAppr.Lines[j-1],2,'='))+#10
-//        +'Xmin='+floattostr(FitFunctionNew.FittingData.MinX)+#10
-//        +'Xmax='+floattostr(FitFunctionNew.FittingData.MaxX)+#10
-//        +'E0='+floattostr(FloatDataFromRow(MemoAppr.Lines[j],2,'='))+#10
-//        +'Sig='+floattostr(FloatDataFromRow(MemoAppr.Lines[j+1],2,'='))+#10
-//        );
-//        Caption:=Caption+' '+FloatToStrF(
-//           FloatDataFromRow(MemoAppr.Lines[j-1],2,'=')
-//           *TNormalD.CDF_AB(FitFunctionNew.FittingData.MinX,
-//                            FitFunctionNew.FittingData.MaxX,
-//                            FloatDataFromRow(MemoAppr.Lines[j],2,'='),
-//                            FloatDataFromRow(MemoAppr.Lines[j+1],2,'=')),
-//           ffExponent,FitFunctionNew.DigitNumber,0)
       end;
+
+     for i:=0 to Vector.HighNumber do
+      begin
+        j:=round(Vector.Y[i]);
+        Caption:=Caption+' '+
+           StringDataFromRow(MemoAppr.Lines[StartLineNumber+1+3*tempInt+((j-StartLineNumber) div 3)],2,'=');
+      end;
+     for i:=0 to Vector.HighNumber do
+      begin
+        j:=round(Vector.Y[i]);
+        Caption:=Caption+' '+
+           StringDataFromRow(MemoAppr.Lines[StartLineNumber+1+4*tempInt+((j-StartLineNumber) div 3)],2,'=');
+      end;
+
      Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-1],2,'=');
      FreeAndNil(Vector);
    end
