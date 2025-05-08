@@ -666,7 +666,7 @@ end;
 
 function TFFNGausian.FittingCalculation: boolean;
  var i:integer;
-     Names:array of string;
+     Names,AddNames:array of string;
      Xmin,Xmax,delY,delX:double;
      aRegWeight:double;
      aEvType:TEvolutionTypeNew;
@@ -687,6 +687,10 @@ begin
     Names[3*i-1]:='Sig'+inttostr(i);
    end;
 
+  SetLength(AddNames,fRealNgaus);
+  for I := 1 to fRealNgaus do
+   AddNames[i-1]:='Area'+inttostr(i);
+
    aRegWeight:=(fDParamArray as TDParamsHeuristic).RegWeight;
    aEvType:=(fDParamArray as TDParamsHeuristic).EvType;
    aFitType:=(fDParamArray as TDParamsHeuristic).FitType;
@@ -694,8 +698,10 @@ begin
    aLogFitness:=(fDParamArray as TDParamsHeuristic).LogFitness;
 
   FreeAndNil(fDParamArray);
+//  fDParamArray:=TDParamsHeuristic.Create(Self,
+//                 Names);
   fDParamArray:=TDParamsHeuristic.Create(Self,
-                 Names);
+                 Names,AddNames);
    (fDParamArray as TDParamsHeuristic).RegWeight:=aRegWeight;
    (fDParamArray as TDParamsHeuristic).EvType:=aEvType;
    (fDParamArray as TDParamsHeuristic).FitType:=aFitType;
@@ -731,6 +737,36 @@ begin
 
   Result:=Inherited FittingCalculation;
 
+
+
+  for I := 1 to fRealNgaus do
+   begin
+           showmessage('Nt='+floattostr(fDParamArray.ParametrByName['A'+inttostr(i)].Value)+#10
+        +'Xmin='+floattostr(DataToFit.MinX)+#10
+        +'Xmax='+floattostr(DataToFit.MaxX)+#10
+        +'E0='+floattostr(fDParamArray.ParametrByName['X0'+inttostr(i)].Value)+#10
+        +'Sig='+floattostr(fDParamArray.ParametrByName['Sig'+inttostr(i)].Value)+#10
+        +'Sig='+floattostr(TNormalD.CDF(FittingData.MinX,
+                    fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
+                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value))+#10
+        +'Sig='+floattostr(TNormalD.CDF(FittingData.MaxX,
+                    fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
+                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value))+#10
+        +'='+floattostr(TNormalD.CDF_AB(FittingData.MinX,FittingData.MaxX,
+                    fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
+                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value))
+        );
+
+   fDParamArray.ParametrByName['Area'+inttostr(i)].Value:=
+    fDParamArray.ParametrByName['A'+inttostr(i)].Value*
+    TNormalD.CDF_AB(FittingData.MinX,FittingData.MaxX,
+                    fDParamArray.ParametrByName['X0'+inttostr(i)].Value,
+                    fDParamArray.ParametrByName['Sig'+inttostr(i)].Value)
+   end;
+
+//        *TNormalD.PDF(FittingData.X[i], fDParamArray.fParams[3*j-2].Value,
+//                      fDParamArray.fParams[3*j-1].Value),
+
 end;
 
 function TFFNGausian.FuncForFitness(Point: TPointDouble;
@@ -761,7 +797,7 @@ end;
 
 procedure TFFNGausian.RealToFile;
 var Str1:TStringList;
-    i,j,FCN:integer;
+    i,j{,FCN}:integer;
     tempStr:string;
 begin
   Str1:=TStringList.Create;

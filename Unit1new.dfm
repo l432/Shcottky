@@ -4458,7 +4458,7 @@ object Form1: TForm1
         end
         object BSaveMemo: TButton
           Left = 97
-          Top = 142
+          Top = 144
           Width = 60
           Height = 18
           Caption = 'Save Last'

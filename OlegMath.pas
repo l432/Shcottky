@@ -2056,8 +2056,29 @@ end;
 Function Erf(x:double):double;
 {функція помилок
 2/sqrt(Pi)*int_0^x exp(-t^2) dt}
+//begin
+//  Result:=2/sqrt(Pi)*IntegralRomberg(ExpMinusX2,0,x,1e-8);
+
+const
+  a1 = 0.254829592;
+  a2 = -0.284496736;
+  a3 = 1.421413741;
+  a4 = -1.453152027;
+  a5 = 1.061405429;
+  p  = 0.3275911;
+var
+  sign, t, y: Double;
 begin
-  Result:=2/sqrt(Pi)*IntegralRomberg(ExpMinusX2,0,x,1e-8);
+  if x < 0 then
+    sign := -1
+  else
+    sign := 1;
+
+  x := Abs(x);
+  t := 1.0 / (1.0 + p * x);
+  y := 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Exp(-x * x);
+  Result := sign * y;
+
 end;
 
 

@@ -4402,7 +4402,16 @@ begin
    if Tstr <>'0' then
     Caption:=Caption+' T';
    for I := StartLineNumber+2 to MemoAppr.Lines.Count-1 do
-    Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[i],1,'=');
+    begin
+     Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[i],1,'=');
+//     if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
+//      begin
+//        if ((i-StartLineNumber-1) mod 3) = 0 then
+//          Caption:=Caption+' '+'Area'+inttostr((i-StartLineNumber-1) div 3);
+//      end;
+    end;
+
+
 
    i:=Min(0,SLResult.Count-1);
    if i=0 then
@@ -4445,6 +4454,19 @@ begin
            StringDataFromRow(MemoAppr.Lines[j],2,'=');
         Caption:=Caption+' '+
            StringDataFromRow(MemoAppr.Lines[j+1],2,'=');
+//        showmessage('Nt='+floattostr(FloatDataFromRow(MemoAppr.Lines[j-1],2,'='))+#10
+//        +'Xmin='+floattostr(FitFunctionNew.FittingData.MinX)+#10
+//        +'Xmax='+floattostr(FitFunctionNew.FittingData.MaxX)+#10
+//        +'E0='+floattostr(FloatDataFromRow(MemoAppr.Lines[j],2,'='))+#10
+//        +'Sig='+floattostr(FloatDataFromRow(MemoAppr.Lines[j+1],2,'='))+#10
+//        );
+//        Caption:=Caption+' '+FloatToStrF(
+//           FloatDataFromRow(MemoAppr.Lines[j-1],2,'=')
+//           *TNormalD.CDF_AB(FitFunctionNew.FittingData.MinX,
+//                            FitFunctionNew.FittingData.MaxX,
+//                            FloatDataFromRow(MemoAppr.Lines[j],2,'='),
+//                            FloatDataFromRow(MemoAppr.Lines[j+1],2,'=')),
+//           ffExponent,FitFunctionNew.DigitNumber,0)
       end;
      Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-1],2,'=');
      FreeAndNil(Vector);

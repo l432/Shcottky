@@ -1270,6 +1270,7 @@ end;
 class function TNormalD.CDF(x, mu, sigma: double): double;
 begin
   try
+//   showmessage(floattostr(Erf((x-mu)/sqrt(2)/sigma)));
    Result:=0.5*(1+Erf((x-mu)/sqrt(2)/sigma))
   except
    Result:=ErResult;
