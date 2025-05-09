@@ -1269,9 +1269,6 @@ end;
 
 class function TNormalD.CDF(x, mu, sigma: double): double;
 begin
-//  showmessage('x='+floattostr(x)+#10
-//              +'mu='+floattostr(mu)+#10
-//              +'sigma='+floattostr(sigma));
   try
    Result:=0.5*(1+Erf((x-mu)/sqrt(2)/sigma))
   except

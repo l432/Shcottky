@@ -687,12 +687,12 @@ begin
     Names[3*i-1]:='Sig'+inttostr(i);
    end;
 
-  SetLength(AddNames,2*fRealNgaus);
+  SetLength(AddNames,2*fRealNgaus+1);
   for I := 1 to fRealNgaus do
    AddNames[i-1]:='Area'+inttostr(i);
   for I := 1 to fRealNgaus do
-   AddNames[i-1+fRealNgaus]:='Eps_a'+inttostr(i);
-
+   AddNames[i-1+fRealNgaus]:='Eps_ar'+inttostr(i);
+  AddNames[2*fRealNgaus]:='ArTotal';
 
    aRegWeight:=(fDParamArray as TDParamsHeuristic).RegWeight;
    aEvType:=(fDParamArray as TDParamsHeuristic).EvType;
@@ -752,9 +752,10 @@ begin
    SumArea:=SumArea+fDParamArray.ParametrByName['Area'+inttostr(i)].Value;
    end;
   for I := 1 to fRealNgaus do
-   fDParamArray.ParametrByName['Eps_a'+inttostr(i)].Value:=
+   fDParamArray.ParametrByName['Eps_ar'+inttostr(i)].Value:=
      fDParamArray.ParametrByName['Area'+inttostr(i)].Value/SumArea;
 
+  fDParamArray.ParametrByName['ArTotal'].Value:=SumArea;
 
 end;
 

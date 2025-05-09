@@ -4408,7 +4408,7 @@ begin
 
    if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
     begin
-     tempInt:=(MemoAppr.Lines.Count-StartLineNumber-2) div 5;
+     tempInt:=(MemoAppr.Lines.Count-StartLineNumber-3) div 5;
      {кількість гаусіан}
      for i := 1 to tempInt do
        Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+3*i],1,'=');
@@ -4420,6 +4420,7 @@ begin
        Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+1+3*tempInt+i],1,'=');
      for i := 1 to tempInt do
        Caption:=Caption+' '+ StringDataFromRow(MemoAppr.Lines[StartLineNumber+1+4*tempInt+i],1,'=');
+     Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-2],1,'=');
      Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-1],1,'=');
     end
    else
@@ -4458,7 +4459,7 @@ begin
      repeat
       Vector.Add(FloatDataFromRow(MemoAppr.Lines[i],2,'='),i);
       i:=i+3;
-     until i>MemoAppr.Lines.Count-2-tempInt*2;
+     until i>MemoAppr.Lines.Count-3-tempInt*2;
      Vector.Sorting;
 //     for i:=0 to Vector.HighNumber do
 //      begin
@@ -4501,7 +4502,7 @@ begin
         Caption:=Caption+' '+
            StringDataFromRow(MemoAppr.Lines[StartLineNumber+1+4*tempInt+((j-StartLineNumber) div 3)],2,'=');
       end;
-
+     Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-2],2,'=');
      Caption:=Caption+' '+StringDataFromRow(MemoAppr.Lines[MemoAppr.Lines.Count-1],2,'=');
      FreeAndNil(Vector);
    end
