@@ -3965,7 +3965,7 @@ begin
  Vec:=TVector.Create;
  T:=1200;
  repeat
-  Vec.Add(T,Silicon.RefractiveIndexLi())
+//  Vec.Add(T,Silicon.RefractiveIndexLi())
 
  until (True);
 
