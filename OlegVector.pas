@@ -262,7 +262,7 @@ type
       {повертає номер точки вектора, координата якої близька до CoordValue:
       CoordValue має знаходитися на інтервалі від
       Point[Result,Coord] до Point[Result+1,Coord]
-      якщо не входить в діапазон зміни - повервається -1}
+      якщо не входить в діапазон зміни - повертається -1}
       function ValueNumberPrecise (Coord: TCoord_type; CoordValue: Double):integer;
       {повертає номер першої точки вектора, координата якої
       співпадає з CoordValue з точність IsEqual:

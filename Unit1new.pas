@@ -3962,9 +3962,17 @@ var
 
 
 begin
+ Vec:=TVector.Create;
+ T:=1200;
+ repeat
+  Vec.Add(T,Silicon.RefractiveIndexLi())
+
+ until (True);
+
+ FreeAndNil(Vec);
 
 
- Ts(0.045);
+// Ts(0.045);
 //ToDecreaseNumberCount();
 
 // ForAllDatFilesAction(MLresultsEstimate,CurDirectory);
