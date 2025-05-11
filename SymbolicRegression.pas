@@ -123,6 +123,14 @@ TDatasetSiPorous=class(TDatasetPrepareNdim)
   Constructor Create;
 end;
 
+TDatasetRefractiveSiPorous=class(TDatasetPrepareNdim)
+ private
+  fT:integer;
+  function ResultCalculate(const Index:integer):double;override;
+  procedure CreateStepsForFullDataset();override;
+ public
+  Constructor Create(T:integer);
+end;
 
 procedure DeepOfAbsorbtion(T:integer;FileName:string='SiAbsorb');
 {записує у файл FileNameT.dat залежність
@@ -190,6 +198,14 @@ Ndop: (10^13 - 10^20) cm-3
 procedure TC_porT();
 {створюються набори для залежності теплопровідності
 від поруватості та температури
+}
+
+procedure RI_porSi(T:Integer);
+{створюються набори для залежності
+показника заломлення поруватого кремнія
+від поруватості та довжини хвилі при температурі Т,
+р в діапазоні 0-80%
+Lambda в діапазоні 400..1450 нм,
 }
 
 procedure Ti();
@@ -369,6 +385,23 @@ begin
  Dataset.CreateFullDataset2D();
  FreeAndNil(Dataset);
 end;
+
+procedure RI_porSi(T:Integer);
+{створюються набори для залежності
+показника заломлення поруватого кремнія
+від поруватості та довжини хвилі при температурі Т,
+р в діапазоні 0-80%
+Lambda в діапазоні 400..1450 нм,
+}
+var
+   Dataset:TDatasetRefractiveSiPorous;
+begin
+ Dataset:=TDatasetRefractiveSiPorous.Create(T);
+ Dataset.CreateDatasets();
+ Dataset.CreateFullDataset2D();
+ FreeAndNil(Dataset);
+end;
+
 
 { TDatasetPrepare }
 
@@ -1068,5 +1101,43 @@ begin
    +C3/Power(C4*Power(Tn,P2)+Power(Mul1*Mul2/(C5*Mul1+C6*Mul2),P3),P1);
 end;
 
+
+{ TDatasetRefractiveSiPorous }
+
+constructor TDatasetRefractiveSiPorous.Create(T: integer);
+begin
+ inherited Create(2);
+ fT:=T;
+ TrainNumber:=600;
+ TestNumber:=300;
+ Header:='por(%) Lambda(nm) RI';
+ FileNameBegin:='RIporSi'+inttostr(T);
+
+ LowLimits[0]:=0;
+ HighLimits[0]:=80;
+ LowLimits[1]:=400;
+ HighLimits[1]:=1440;
+
+end;
+
+procedure TDatasetRefractiveSiPorous.CreateStepsForFullDataset;
+begin
+ fSteps[0]:=2;
+ fSteps[1]:=10;
+end;
+
+function TDatasetRefractiveSiPorous.ResultCalculate(
+  const Index: integer): double;
+  var A:double;
+      p,nsi2:double;
+begin
+ p:=fUsedParams[0][Index]/100;
+ nsi2:=sqr(Silicon.RefractiveIndex(fUsedParams[1][Index],fT));
+ A:=3*nsi2*P-2*nsi2-3*P+1;
+ Result:=sqrt((sqrt(sqr(A)+8*nsi2)-A)/4)
+// A:=(1-p)*(nsi2-1)/(nsi2+2);
+// showmessage(floattostr(p-2*A));
+// Result:=sqrt((p-2*A)/(A+p));
+end;
 
 end.

@@ -3962,14 +3962,17 @@ var
 
 
 begin
- Vec:=TVector.Create;
- T:=1200;
- repeat
-//  Vec.Add(T,Silicon.RefractiveIndexLi())
+RI_porSi(293);
 
- until (True);
-
- FreeAndNil(Vec);
+// Vec:=TVector.Create;
+// delN:=400;
+// T:=320;
+// repeat
+//  Vec.Add(delN,Silicon.RefractiveIndex(delN,T));
+//  delN:=delN+20;
+// until (delN>1440);
+// Vec.WriteToFile('LiRef'+inttostr(round(T))+'.dat',8);
+// FreeAndNil(Vec);
 
 
 // Ts(0.045);

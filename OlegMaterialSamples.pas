@@ -356,7 +356,7 @@ const
   LanbdaLiNumber=34;
   LanbdaLiValues:array[0..LanbdaLiNumber] of integer=
   {в нанометрах}
-  (1200, 1220,1240,1260,1280,1310,1320,1340,1360,1380,1400,1450,1500,
+  (1200, 1220,1240,1260,1280,1300,1320,1340,1360,1380,1400,1450,1500,
   1550,1600,1650,1700,1800,1900,2000,2250,2500,2750,3000,4000,5000,6000,
   7000,8000,9000,10000,11000,12000,13000,14000);
   {показник заломлення}
@@ -2834,7 +2834,9 @@ class function Silicon.RefractiveIndex(Lambda, T: double): double;
 begin
   if Lambda>1450
     then Result:=RefractiveIndexLi(Lambda, T)
-    else Result:=AbsorbFromTable(Lambda, nrGreen2022, T);
+    else Result:=AbsorbFromTable(Lambda, nrGreen2022, T)/100;
+
+// Result:=RefractiveIndexLi(Lambda, T)
 end;
 
 class function Silicon.RefractiveIndexLi(Lambda, T: Double): double;
@@ -2856,7 +2858,6 @@ begin
  LambdaN:=VecTemp.ValueNumberPrecise (cY,Lambda);
  if LambdaN=-1 then
   begin
-//   LambdaN:=VecTemp.ValueNumber (cY,Lambda);
    for I := 0 to TemperLiNumber do
     begin
       VecTemp.Clear;
@@ -2878,12 +2879,13 @@ begin
      end;
   end;
 
+ VecTemp.Clear;
  for I := 0 to TemperLiNumber do VecTemp.Add(i,TemperLiValues[i]);
  LambdaN:=VecTemp.ValueNumberPrecise (cY,T);
  if LambdaN=-1 then
   begin
    LambdaN:=VecTemp.ValueNumber(cY,T);
-   Result:=VecLambdaFinal.Y[LambdaN]+VecdndTFinal.Y[LambdaN]*(T-TemperLiValues[LambdaN]);
+   Result:=VecLambdaFinal.Y[LambdaN]+VecdndTFinal.Y[LambdaN]*(T-TemperLiValues[LambdaN])*1e-4;
   end          else
   begin
    Result:=VecLambdaFinal.Y[LambdaN];
