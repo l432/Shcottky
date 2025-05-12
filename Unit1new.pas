@@ -3965,12 +3965,12 @@ begin
 RI_porSi(293);
 
 // Vec:=TVector.Create;
-// delN:=400;
-// T:=320;
+// delN:=550;
+// T:=293;
 // repeat
 //  Vec.Add(delN,Silicon.RefractiveIndex(delN,T));
 //  delN:=delN+20;
-// until (delN>1440);
+// until (delN>2000);
 // Vec.WriteToFile('LiRef'+inttostr(round(T))+'.dat',8);
 // FreeAndNil(Vec);
 

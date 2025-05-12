@@ -394,7 +394,7 @@ procedure RI_porSi(T:Integer);
 Lambda в діапазоні 400..1450 нм,
 }
 var
-   Dataset:TDatasetRefractiveSiPorous;
+ Dataset:TDatasetRefractiveSiPorous;
 begin
  Dataset:=TDatasetRefractiveSiPorous.Create(T);
  Dataset.CreateDatasets();
@@ -1108,16 +1108,17 @@ constructor TDatasetRefractiveSiPorous.Create(T: integer);
 begin
  inherited Create(2);
  fT:=T;
- TrainNumber:=600;
- TestNumber:=300;
+ TrainNumber:=800;
+ TestNumber:=400;
  Header:='por(%) Lambda(nm) RI';
  FileNameBegin:='RIporSi'+inttostr(T);
 
  LowLimits[0]:=0;
  HighLimits[0]:=80;
- LowLimits[1]:=400;
- HighLimits[1]:=1440;
-
+// LowLimits[1]:=400;
+// HighLimits[1]:=1440;
+ LowLimits[1]:=550;
+ HighLimits[1]:=2000;
 end;
 
 procedure TDatasetRefractiveSiPorous.CreateStepsForFullDataset;
