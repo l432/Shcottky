@@ -1115,16 +1115,30 @@ begin
 
  LowLimits[0]:=0;
  HighLimits[0]:=80;
+//-----------------------------
 // LowLimits[1]:=400;
 // HighLimits[1]:=1440;
- LowLimits[1]:=550;
- HighLimits[1]:=2000;
+
+// LowLimits[1]:=550;
+// HighLimits[1]:=2000;
+
+// LowLimits[1]:=530;
+// HighLimits[1]:=12000;
+
+ LowLimits[1]:=600;
+ HighLimits[1]:=6000;
+
 end;
 
 procedure TDatasetRefractiveSiPorous.CreateStepsForFullDataset;
 begin
  fSteps[0]:=2;
- fSteps[1]:=10;
+ {400-1440,550-2000}
+// fSteps[1]:=10;
+ {530-12000}
+// fSteps[1]:=30;
+ {600-6000}
+ fSteps[1]:=20;
 end;
 
 function TDatasetRefractiveSiPorous.ResultCalculate(
