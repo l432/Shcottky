@@ -353,7 +353,7 @@ begin
  соmments нет или там отсутствует запись
  про соответствующий файл, то значение будет нулевым}
   if FileExists('comments') then Ftime:='comments';
-  if FileExists('comments.dat') then Ftime:='comments.dat';
+  if FileExists(CommentsDat) then Ftime:=CommentsDat;
 
   if Ftime<>'' then
     begin

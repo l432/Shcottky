@@ -293,8 +293,8 @@ begin
  Vec:=TVectorTransform.Create;
  OutputVec:=TVector.Create;
  SL:=TStringList.Create;
- if FileExists('comments.dat') then
-  SL.LoadFromFile('comments.dat');
+ if FileExists(CommentsDat) then
+  SL.LoadFromFile(CommentsDat);
  CreateDirSafety('Forward');
  CreateDirSafety('Reverse');
 
@@ -347,9 +347,9 @@ begin
    until (FindNext(SR) <> 0);
 
  SetCurrentDir(Dat_Folder+'\Forward\');
- SL.SaveToFile('comments.dat');
+ SL.SaveToFile(CommentsDat);
  SetCurrentDir(Dat_Folder+'\Reverse\');
- SL.SaveToFile('comments.dat');
+ SL.SaveToFile(CommentsDat);
  FreeAndNil(SL);
  FreeAndNil(OutputVec);
  FreeAndNil(Vec);
@@ -490,19 +490,27 @@ end;
 
 
 procedure CFTransform(Dat_Folder:string);
+const fmin=1e3;
+      fmax=1e7;
 var {Dat_Folder,}ResultFolder,FilePrefix,temp:string;
     SR : TSearchRec;
     i:integer;
-    Vec,VecNew:TVectorTransform;
+    Vec,VecNew,VecNew2:TVectorTransform;
     S,Vbi,N,W:double;
+    comments:TStringList;
 begin
 // if SelectDirectory('Choose Directory',CurrentDir, Dat_Folder)
 //  then SetCurrentDir(Dat_Folder)
 //  else Exit;
+ comments:=TStringList.Create;
 
  SetCurrentDir(Dat_Folder);
+ if FileExists(CommentsDat) then
+  comments.LoadFromFile(CommentsDat);
+
  CreateDirSafety('Nt_Cf');
  CreateDirSafety('G_f');
+ CreateDirSafety('fdCdf');
 
  FilePrefix:=FolderNameFromFullPath(Dat_Folder,1);
  S:=SearchInFile('Areas.dat',FilePrefix);
@@ -529,6 +537,7 @@ begin
 
   Vec:=TVectorTransform.Create;
   VecNew:=TVectorTransform.Create;
+  VecNew2:=TVectorTransform.Create;
  if FindFirst(mask, faAnyFile, SR) = 0 then
    repeat
     if FileNameIsBad(SR.name)then Continue;
@@ -550,8 +559,10 @@ begin
 //    showmessage(floattostr(Vbi));
 //    showmessage(floattostr(Vec.T));
 
+    Vec.CopyLimitedX(VecNew2,500,fmax);
+    VecNew2.MultiplyY(-1);
     Vec.MultiplyY(-Vbi/(Kb*Vec.T*Qelem*S*W*1e6));
-    Vec.CopyLimitedX(VecNew,1e3,1e7);
+    Vec.CopyLimitedX(VecNew,fmin,fmax);
     if Pos('0V4',SR.name)>0 then Vbi:=Vbi+0.4;
     if Pos('0V8',SR.name)>0 then Vbi:=Vbi+0.4;
 //    showmessage(Vec.XYtoString);
@@ -567,6 +578,10 @@ begin
       Vec.MultiplyY(1/S);
       Vec.WriteToFile(ResultFolder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'f G/w');
       Vec.WriteToFile(Dat_Folder+'\G_f\'+FilePrefix+temp+'Gf.dat',8,'f G/w');
+      comments.Add(FilePrefix+temp+'Gf.dat');
+      comments.Add('T='+FloatToStrF(VecNew.T,ffgeneral,5,2));
+      comments.Add('');
+      comments.SaveToFile(Dat_Folder+'\G_f\'+CommentsDat);
      end;
 
     for i:=0 to VecNew.HighNumber do
@@ -574,9 +589,21 @@ begin
 
     VecNew.WriteToFile(ResultFolder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Ew Nt');
     VecNew.WriteToFile(Dat_Folder+'\Nt_Cf\'+FilePrefix+temp+'Nt.dat',8,'Ew Nt');
+    comments.Add(FilePrefix+temp+'Nt.dat');
+    comments.Add('T='+FloatToStrF(VecNew.T,ffgeneral,5,2));
+    comments.Add('');
+    comments.SaveToFile(Dat_Folder+'\Nt_Cf\'+CommentsDat);
+    VecNew2.WriteToFile(Dat_Folder+'\fdCdf\'+FilePrefix+temp+'Cf.dat',8,'fdCdf f');
+    comments.Add(FilePrefix+temp+'Cf.dat');
+    comments.Add('T='+FloatToStrF(VecNew.T,ffgeneral,5,2));
+    comments.Add('');
+    comments.SaveToFile(Dat_Folder+'\fdCdf\'+CommentsDat);
+
    until (FindNext(SR) <> 0);
   FreeAndNil(Vec);
   FreeAndNil(VecNew);
+  FreeAndNil(VecNew2);
+  FreeAndNil(comments);
 end;
 
 

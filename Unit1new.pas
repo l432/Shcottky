@@ -3503,7 +3503,7 @@ begin
     T:=T+10;
    end;
 //  comment.SaveToFile(CurDirectory+'\'+'comments');
-  comment.SaveToFile(CurDirectory+'\'+'comments.dat');
+  comment.SaveToFile(CurDirectory+'\'+CommentsDat);
   comment.Free;
   dat.Free;
 end;
@@ -3737,7 +3737,7 @@ begin
     Comments.Add('T='+FloatToStrF(VectorArray[j].T,ffGeneral,5,2));
     Comments.Add('');
    end;
-  Comments.SaveToFile(CurDirectory+'\'+DirName+'\comments.dat');
+  Comments.SaveToFile(CurDirectory+'\'+DirName+CommentsDat);
 end;
 
 
@@ -4997,7 +4997,7 @@ if FindFirst(mask, faAnyFile, SR) = 0 then
       if (DR in DirNames) then
        begin
         AssignFile(f,CurDirectory+'\'+
-        GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+'comments.dat');
+        GetEnumName(TypeInfo(TDirName),ord(DR))+'\'+CommentsDat);
         Rewrite(f);
         for j := 0 to Inform.Count-1 do
          if Odd(j) then

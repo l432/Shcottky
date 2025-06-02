@@ -19,6 +19,7 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       BadName:array[0..4]of string=
            ('FIT','DATES','SHOW','COMMENTS','AprRez');
       AprResDatName='AprRez.dat';
+      CommentsDat='comments.dat';
 var   StartValue,EndValue,Freq:Int64;
 
 //QueryPerformanceCounter(StartValue);
