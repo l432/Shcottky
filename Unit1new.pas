@@ -3964,9 +3964,12 @@ var
 begin
 //RI_porSi(293);
 
-ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
+//ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
 //ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
 //ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
+ForAllDirAction(IVmanipulate,'IV','D:\DeepL\2024\ODiod\OdiodNew');
+
+
 
 // Vec:=TVector.Create;
 // delN:=550;
