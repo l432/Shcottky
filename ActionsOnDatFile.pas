@@ -12,6 +12,7 @@ const
  SomeThingName='Something else';
 
  IVFittingFile='IVfitting.dat';
+ IVFittingFileNew='IVfittingNew.dat';
 
 
  ActionsName:array[0..6]of string=
@@ -54,6 +55,9 @@ procedure IVmanipulate(Dat_Folder:string);
 
 procedure IVfittingResultCollect(Dat_Folder:string);
 {витягує з dates.dat результати апроксимації}
+
+procedure IVfittingResultCollect2(Dat_Folder:string);
+{витягує з AprRez.dat результати апроксимації}
 
 procedure DatToEis(Dat_Folder:string);
 {з усіх .dat файлів у вибраній директорії створює
@@ -645,6 +649,46 @@ begin
   FreeAndNil(SLResult);
   FreeAndNil(SLdates);
 end;
+
+procedure IVfittingResultCollect2(Dat_Folder:string);
+{витягує з AprRez.dat результати апроксимації}
+var SLdates,SLResult:TStringList;
+    ResultFolder:string;
+    i:integer;
+begin
+ SetCurrentDir(Dat_Folder);
+ if not(FileExists('AprRez.dat')) then Exit;
+
+ SLdates:=TStringList.Create();
+ SLResult:=TStringList.Create();
+
+ ResultFolder:=SearchDirForFile('Areas.dat');
+ if ResultFolder='' then Exit;
+ SetCurrentDir(ResultFolder);
+ CreateDirSafety('Results');
+ ResultFolder:=ResultFolder+'\'+'Results';
+ SetCurrentDir(ResultFolder);
+ if not(FileExists(IVFittingFileNew))
+    then SLResult.Add('name T n1 I01 n2 I02 Rs Rsh')
+    else SLResult.LoadFromFile(IVFittingFileNew);
+
+ SetCurrentDir(Dat_Folder);
+ SetCurrentDir(Dat_Folder);
+ SLdates.LoadFromFile('AprRez.dat');
+ for I := 1 to SLdates.Count-1 do
+    SLResult.Add(StringDataFromRow(SLdates[i],1)+' '
+          +StringDataFromRow(SLdates[i],2)+' '
+          +StringDataFromRow(SLdates[i],3)+' '
+          +StringDataFromRow(SLdates[i],5)+' '
+          +StringDataFromRow(SLdates[i],7)+' '
+          +StringDataFromRow(SLdates[i],8)+' '
+          +StringDataFromRow(SLdates[i],4)+' '
+          +StringDataFromRow(SLdates[i],6));
+  SLResult.SaveToFile(ResultFolder+'\'+IVFittingFileNew);
+  FreeAndNil(SLResult);
+  FreeAndNil(SLdates);
+end;
+
 
 
 Function E_w(f,T:double;f0:double=5e10):double;

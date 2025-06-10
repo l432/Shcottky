@@ -17,7 +17,7 @@ const Kb=8.625e-5; {стала Больцмана, []=eV/K}
       Isc_min=1e-11;
       mask='*.dat';
       BadName:array[0..4]of string=
-           ('FIT','DATES','SHOW','COMMENTS','AprRez');
+           ('FIT','DATES','SHOW','COMMENTS','APRREZ');
       AprResDatName='AprRez.dat';
       CommentsDat='comments.dat';
 var   StartValue,EndValue,Freq:Int64;

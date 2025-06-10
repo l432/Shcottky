@@ -3967,9 +3967,12 @@ begin
 //ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
 //ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
 //ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
-ForAllDirAction(IVmanipulate,'IV','D:\DeepL\2024\ODiod\OdiodNew');
-
-
+//ForAllDirAction(IVmanipulate,'IV','D:\DeepL\2024\ODiod\OdiodNew');
+//ForAllDirAction(IVfittingResultCollect2,'Forward','D:\Samples\DeepL\2024\ODiod');
+//ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\Results\IVfittingNew.dat',
+//                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
+//ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\OdiodNew\Results\IVfittingNew.dat',
+//                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
 
 // Vec:=TVector.Create;
 // delN:=550;
