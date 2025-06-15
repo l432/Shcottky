@@ -451,8 +451,8 @@ begin
 
 
     Vbi:=FloatToStrF(abs(OutputData[0]/OutputData[1]),ffExponent,6,0);
-    KeyAndValueToFile(ResultFolder+'\'+'CVbar.dat',ShortFileName+'IS',Vbi);
-    KeyAndValueToFile(Dat_Folder+'\CVrev\'+'CVbar.dat',ShortFileName,Vbi);
+    KeyAndValueToFile(ResultFolder+'\'+'CVbarIS.dat',ShortFileName+'IS',Vbi);
+    KeyAndValueToFile(Dat_Folder+'\CVrev\'+'CVbarIS.dat',ShortFileName,Vbi);
 
     Vec.WriteToFile(Dat_Folder+'\CVrev\'+ShortFileName+'CVrev.dat',8);
 
