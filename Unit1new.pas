@@ -3962,6 +3962,9 @@ var
 
 
 begin
+
+showmessage(floattostr(5e10/Silicon.Nv(295)/Silicon.Vth_p(295)));
+
 //RI_porSi(293);
 
 //ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
@@ -3971,8 +3974,8 @@ begin
 //ForAllDirAction(IVfittingResultCollect2,'Forward','D:\Samples\DeepL\2024\ODiod');
 //ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\Results\IVfittingNew.dat',
 //                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
-ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\OdiodNew\Results\CVbarIS.dat',
-                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
+//ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\OdiodNew\Results\CVbarIS.dat',
+//                      'D:\Samples\DeepL\2024\ODiod\Results\keys.dat');
 //ForAllDirAction(ISresultTransform,'ISsum','D:\Samples\DeepL\2024\ODiod');
 
 
