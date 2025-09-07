@@ -3962,9 +3962,9 @@ var
 
 
 begin
-
+ PorSiForSRFileCreate();
 //showmessage(floattostr(5e10/Silicon.Nv(295)/Silicon.Vth_p(295)));
-showmessage(floattostr(Kb*295*Ln(Silicon.Nc(295)/1.5e21)));
+//showmessage(floattostr(Kb*295*Ln(Silicon.Nc(295)/1.5e21)));
 
 //RI_porSi(293);
 

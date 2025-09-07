@@ -16,6 +16,7 @@ procedure FirsTPorSi(FileName:string);
 
 procedure SecondTPorSi(Dat_Folder:string);
 
+procedure PorSiForSRFileCreate();
 
 implementation
 
@@ -334,10 +335,44 @@ begin
    SLold.SaveToFile(fileName);
   end;
 
-
-
-
  FreeAndNil(SLold);
+ FreeAndNil(SL);
+end;
+
+procedure PorSiForSRFileCreate();
+var SL:TStringList;
+    T,por,i,j :integer;
+begin
+ SL:=TStringList.Create;
+
+// por:=0;
+// repeat
+//  SL.Clear;
+//  SL.Add('por T TC');
+//
+//  T:=300;
+//  repeat
+//    SL.Add(Inttostr(por)+' '+IntToStr(T)+' 1');
+//    T:=T+10;
+//  until (T>1000);
+//  SL.SaveToFile('p'+IntToStr(por)+'vsT.dat');
+//  por:=por+20;
+// until (por>80);
+
+ T:=300;
+ repeat
+  SL.Clear;
+  SL.Add('por T TC');
+
+  por:=0;
+  repeat
+    SL.Add(Inttostr(por)+' '+IntToStr(T)+' 1');
+  por:=por+2;
+  until (por>80);
+  SL.SaveToFile('T'+IntToStr(T)+'vsPor.dat');
+  T:=T+100;
+ until (T>1000);
+
  FreeAndNil(SL);
 end;
 
