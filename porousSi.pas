@@ -18,11 +18,14 @@ procedure SecondTPorSi(Dat_Folder:string);
 
 procedure PorSiForSRFileCreate();
 
+procedure AddNoiseToTime(FileName:string);
+procedure AddHeader(FileName:string);
+
 implementation
 
 uses
   System.Classes, System.SysUtils, Vcl.Dialogs, OlegVector,
-  OlegVectorManipulation, OlegFunction;
+  OlegVectorManipulation, OlegFunction, System.Math;
 
 procedure FirsTPorSi(FileName:string);
  var SL:TStringList;
@@ -141,45 +144,6 @@ begin
 2) усереднення залежностей k(t)
 3) згладжування усередненої k(t)  по 10 точкам
 }
-//
-//   VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
-//
-//   VecAver.Clear;
-//   if FileExists(AverIntFile) then VecAver.ReadFromFile(AverIntFile,False);
-//   if VecAver.HighNumber<0
-//    then
-//      begin
-//       VecIntegral.CopyTo(VecAver);
-//       FileCount:=0;
-//      end
-//    else
-//     begin
-//      FileCount:=Round(VecAver.X[VecAver.HighNumber]);
-//      VecAver.DeletePoint(VecAver.HighNumber);
-//      for j := 0 to VecAver.HighNumber do
-//        VecAver.Y[j]:=(VecAver.Y[j]*FileCount+VecIntegral.Y[j])/(FileCount+1);
-//     end;
-//
-//   VecAver.Add(FileCount+1,FileCount+1);
-//   VecAver.WriteToFile(AverIntFile,8);
-//
-//   VecAver.DeletePoint(VecAver.HighNumber);
-//
-//   VecAver.ImNoiseSmoothedArray(Vec10,10);
-//   Vec10.WriteToFile(Int_aver,8);
-//
-//
-//   HelpForMe(inttostr(FileCount));
-// -----------------
-//*******************************************************
-
-
-//*****************************************************
-{
-1) інтегрування кожної залежності <J(0)J(t)>
-2) усереднення залежностей k(t)
-3) згладжування усередненої k(t)  по 100 точкам переважно окрім початку
-}
 
    VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
 
@@ -201,26 +165,65 @@ begin
 
    VecAver.Add(FileCount+1,FileCount+1);
    VecAver.WriteToFile(AverIntFile,8);
+
    VecAver.DeletePoint(VecAver.HighNumber);
+
    VecAver.ImNoiseSmoothedArray(Vec10,10);
-   VecAver.ImNoiseSmoothedArray(Vec100,100);
-   VecTemp.Clear;
+   Vec10.WriteToFile(Int_aver,8);
 
-
-   for I := 0 to 3 do
-      VecTemp.Add(VecAver[i]);
-   for I := 0 to 7 do
-      VecTemp.Add(Vec10[i]);
-   for I := 1 to Vec100.HighNumber do
-      VecTemp.Add(Vec100[i]);
-
-//
-//   VecAver.WriteToFile('F'+AverIntFile,8);
-
-
-   VecTemp.WriteToFile(Int_aver,8);
 
    HelpForMe(inttostr(FileCount));
+// -----------------
+//*******************************************************
+
+
+//*****************************************************
+{
+1) інтегрування кожної залежності <J(0)J(t)>
+2) усереднення залежностей k(t)
+3) згладжування усередненої k(t)  по 100 точкам переважно окрім початку
+}
+
+//   VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
+//
+//   VecAver.Clear;
+//   if FileExists(AverIntFile) then VecAver.ReadFromFile(AverIntFile,False);
+//   if VecAver.HighNumber<0
+//    then
+//      begin
+//       VecIntegral.CopyTo(VecAver);
+//       FileCount:=0;
+//      end
+//    else
+//     begin
+//      FileCount:=Round(VecAver.X[VecAver.HighNumber]);
+//      VecAver.DeletePoint(VecAver.HighNumber);
+//      for j := 0 to VecAver.HighNumber do
+//        VecAver.Y[j]:=(VecAver.Y[j]*FileCount+VecIntegral.Y[j])/(FileCount+1);
+//     end;
+//
+//   VecAver.Add(FileCount+1,FileCount+1);
+//   VecAver.WriteToFile(AverIntFile,8);
+//   VecAver.DeletePoint(VecAver.HighNumber);
+//   VecAver.ImNoiseSmoothedArray(Vec10,10);
+//   VecAver.ImNoiseSmoothedArray(Vec100,100);
+//   VecTemp.Clear;
+//
+//
+//   for I := 0 to 3 do
+//      VecTemp.Add(VecAver[i]);
+//   for I := 0 to 7 do
+//      VecTemp.Add(Vec10[i]);
+//   for I := 1 to Vec100.HighNumber do
+//      VecTemp.Add(Vec100[i]);
+//
+////
+////   VecAver.WriteToFile('F'+AverIntFile,8);
+//
+//
+//   VecTemp.WriteToFile(Int_aver,8);
+//
+//   HelpForMe(inttostr(FileCount));
 // -----------------
 //******************************************************
 
@@ -305,12 +308,13 @@ begin
  SL.LoadFromFile(Int_aver);
  SLold:=TStringList.Create;
 
+//створюється файл для тренування
 // fileName:=TimeDepFile;
 // //TimeDepFile='D:\porousSi\BaseOlikh\tdep.dat';
 // T:=300;
 //// T:=StrToInt(FolderNameFromFullPath(Dat_Folder,1));
-// por:=20;
-//// por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder,1)));
+//// por:=20;
+// por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder,1)));
 // tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
 // if FileExists(fileName)
 //   then SLold.LoadFromFile(TimeDepFile)
@@ -318,22 +322,47 @@ begin
 // for i:=0 to SL.Count-1 do
 //  SLold.Add(tempStr+SL[i]);
 // SLold.SaveToFile(fileName);
+// ---------------------------------------
 
- for j := 0 to PairCount do
-  begin
-   T:=TemValues[j];
-   por:=PorValues[j];
-   fileName:='D:\porousSi\BaseOlikh\p'
+
+//створюються тестові/тренувальні файли на базі MD розрахунків
+//por:=round(100*StrToFloat(FolderNameFromFullPath(Dat_Folder,1)));
+por:=0;
+
+//SLold.LoadFromFile('kT.dat');
+//T:=round(FloatDataFromRow(SLold[0],1));
+//SLold.Clear;
+
+//T:=300;
+T:=StrToInt(FolderNameFromFullPath(Dat_Folder,1));
+
+tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
+
+//fileName:='D:\porousSi\BaseOlikh\p'
+fileName:='D:\Pyton\Py2024\porSi\Data2024\Aver10\TrainMD\p'
              +IntToStr(por)+'T'+IntToStr(T)+'.dat';
-   tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
-   SLold.Clear;
-   if FileExists(fileName)
-     then SLold.LoadFromFile(TimeDepFile)
-     else SLold.Add('por(%) T(K) t(s) Int(W/mK)');
-   for i:=0 to SL.Count-1 do
-    SLold.Add(tempStr+SL[i]);
-   SLold.SaveToFile(fileName);
-  end;
+for i:=0 to SL.Count-1 do
+  SLold.Add(tempStr+SL[i]);
+SLold.SaveToFile(fileName);
+
+//-------------------------------------------------------------
+
+
+// for j := 0 to PairCount do
+//  begin
+//   T:=TemValues[j];
+//   por:=PorValues[j];
+//   fileName:='D:\porousSi\BaseOlikh\p'
+//             +IntToStr(por)+'T'+IntToStr(T)+'.dat';
+//   tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
+//   SLold.Clear;
+//   if FileExists(fileName)
+//     then SLold.LoadFromFile(TimeDepFile)
+//     else SLold.Add('por(%) T(K) t(s) Int(W/mK)');
+//   for i:=0 to SL.Count-1 do
+//    SLold.Add(tempStr+SL[i]);
+//   SLold.SaveToFile(fileName);
+//  end;
 
  FreeAndNil(SLold);
  FreeAndNil(SL);
@@ -373,6 +402,45 @@ begin
   T:=T+100;
  until (T>1000);
 
+ FreeAndNil(SL);
+end;
+
+procedure AddNoiseToTime(FileName:string);
+ var SL,SLold:TStringList;
+     i,ColumnNumber,{Temperature,}FileCount,j:integer;
+     Vec10,Vec100,VecTemp:TVector;
+     Vec,VecIntegral,VecAver:TVectorTransform;
+     ShotFileName,FileBegin,File_Folder,FactorFileName:string;
+     tm:double;
+begin
+ ShotFileName:=ExtractFileName(FileName);
+// ShotFileName:=copy(ShotFileName,1,length(ShotFileName)-4);
+ File_Folder:=FolderFromFullPath(FileName);
+ SL:=TStringList.Create;
+ SLold:=TStringList.Create;
+ SLold.LoadFromFile(FileName);
+ SL.Add(SLold[0]);
+ for i:=1 to SLold.Count-1 do
+  begin
+   tm:=FloatDataFromRow(SLold[i],3);
+   tm:=tm*(1+RandG(0, 0.05));
+   SL.Add(StringDataFromRow(SLold[i],1)+' '
+          +StringDataFromRow(SLold[i],2)+' '
+          +FloatToStrF(tm,ffExponent,8,0)+' '
+          +StringDataFromRow(SLold[i],4))
+  end;
+ SL.SaveToFile(File_Folder+'n'+ShotFileName);
+ FreeAndNil(SLold);
+ FreeAndNil(SL);
+end;
+
+procedure AddHeader(FileName:string);
+ var SL:TStringList;
+begin
+ SL:=TStringList.Create;
+ SL.LoadFromFile(FileName);
+ SL.Insert(0,'por(%) T(K) t(s) Int(W/mK)');
+ SL.SaveToFile(fileName);
  FreeAndNil(SL);
 end;
 

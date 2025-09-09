@@ -3962,7 +3962,12 @@ var
 
 
 begin
- PorSiForSRFileCreate();
+
+//ForAllDatFilesAction(AddNoiseToTime,'D:\Pyton\Py2024\porSi');
+
+//  ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\Si_Test',False);
+//  ForAllDatFilesAction(FirsTPorSi,'D:\Si_Test\','J0Jt');
+// PorSiForSRFileCreate();
 //showmessage(floattostr(5e10/Silicon.Nv(295)/Silicon.Vth_p(295)));
 //showmessage(floattostr(Kb*295*Ln(Silicon.Nc(295)/1.5e21)));
 
@@ -3970,7 +3975,7 @@ begin
 
 //ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
 //ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
-//ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
+ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
 //ForAllDirAction(IVmanipulate,'IV','D:\DeepL\2024\ODiod\OdiodNew');
 //ForAllDirAction(IVfittingResultCollect2,'Forward','D:\Samples\DeepL\2024\ODiod');
 //ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\Results\IVfittingNew.dat',
