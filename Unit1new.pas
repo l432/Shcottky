@@ -3962,7 +3962,7 @@ var
 
 
 begin
-
+ SecondTPorSi('');
 //ForAllDatFilesAction(AddNoiseToTime,'D:\Pyton\Py2024\porSi');
 
 //  ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\Si_Test',False);
@@ -3975,7 +3975,7 @@ begin
 
 //ForAllDatFilesAction(FirsTPorSi,'D:\porousSi\','J0Jt');
 //ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\porousSi');
-ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
+//ForAllDirAction(DeleteDirectory,J0JtDirName,'D:');
 //ForAllDirAction(IVmanipulate,'IV','D:\DeepL\2024\ODiod\OdiodNew');
 //ForAllDirAction(IVfittingResultCollect2,'Forward','D:\Samples\DeepL\2024\ODiod');
 //ReorganizeFileToKeys('D:\Samples\DeepL\2024\ODiod\Results\IVfittingNew.dat',
