@@ -307,8 +307,8 @@ begin
  SL:=TStringList.Create;
 // SL.LoadFromFile(Int_aver);
 
- SL.LoadFromFile('D:\Pyton\Py2024\porSi\Data2024\Aver10\TestMD\p0T460.dat');
-// SL.LoadFromFile('D:\Pyton\Py2024\porSi\Data2024\Aver100\TestMD\p0T460.dat');
+// SL.LoadFromFile('D:\Pyton\Py2024\porSi\Data2024\Aver10\TestMD\p0T460.dat');
+ SL.LoadFromFile('D:\Pyton\Py2024\porSi\Data2024\Aver100\TestMD\p0T460.dat');
 
  SLold:=TStringList.Create;
 
@@ -351,32 +351,10 @@ begin
 
 //-------------------------------------------------------------
 
-////for por in [15,30,50] do
-//for por in [10,45,70] do
-// begin
-//   T:=300;
-//   repeat
-//    SLold.Clear;
-//    SLold.Add(SL[0]);
-//    tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
-//    fileName:='D:\Pyton\Py2024\porSi\Data2024\Aver10\Addional\p'
-//             +IntToStr(por)+'T'+IntToStr(T)+'.dat';
-//    for I := 1 to SL.Count-1 do
-//      begin
-//      SLold.Add(tempStr+StringDataFromRow(SL[i],3)+' '+StringDataFromRow(SL[i],4));
-////      showmessage(StringDataFromRow(SL[i],3));
-//      end;
-//    SLold.SaveToFile(fileName);
-//    T:=T+100;
-//   until (T>1000);
-// end;
-
-
-for T:=300 to 800 do
-// if (T=350)or(T=550)or(T=750) then
- if (T=330)or(T=570)or(T=770) then
+//for por in [15,30,50] do
+for por in [5,10,45,70,15,30,50] do
  begin
-   por:=0;
+   T:=300;
    repeat
     SLold.Clear;
     SLold.Add(SL[0]);
@@ -384,11 +362,33 @@ for T:=300 to 800 do
     fileName:='D:\Pyton\Py2024\porSi\Data2024\Aver10\Addional\p'
              +IntToStr(por)+'T'+IntToStr(T)+'.dat';
     for I := 1 to SL.Count-1 do
+      begin
       SLold.Add(tempStr+StringDataFromRow(SL[i],3)+' '+StringDataFromRow(SL[i],4));
+//      showmessage(StringDataFromRow(SL[i],3));
+      end;
     SLold.SaveToFile(fileName);
-    por:=por+10;
-   until (por>80);
+    T:=T+100;
+   until (T>1000);
  end;
+
+
+//for T:=300 to 800 do
+//// if (T=350)or(T=550)or(T=750) then
+// if (T=330)or(T=570)or(T=770)or(T=350)or(T=550)or(T=750) then
+// begin
+//   por:=0;
+//   repeat
+//    SLold.Clear;
+//    SLold.Add(SL[0]);
+//    tempStr:=Inttostr(por)+' '+IntToStr(T)+' ';
+//    fileName:='D:\Pyton\Py2024\porSi\Data2024\Aver10\Addional\p'
+//             +IntToStr(por)+'T'+IntToStr(T)+'.dat';
+//    for I := 1 to SL.Count-1 do
+//      SLold.Add(tempStr+StringDataFromRow(SL[i],3)+' '+StringDataFromRow(SL[i],4));
+//    SLold.SaveToFile(fileName);
+//    por:=por+10;
+//   until (por>80);
+// end;
 
 // for j := 0 to PairCount do
 //  begin
