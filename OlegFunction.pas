@@ -1372,7 +1372,8 @@ begin
   else
   begin
     Result := OldName;
-    Insert(st, Result, Pos('.', Result));
+//    Insert(st, Result, Pos('.', Result));
+    Insert(st, Result, LastDelimiter('.', Result));
   end;
 end;
 

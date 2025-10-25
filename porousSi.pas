@@ -20,6 +20,8 @@ procedure PorSiForSRFileCreate();
 
 procedure AddNoiseToTime(FileName:string);
 procedure AddHeader(FileName:string);
+procedure AverageSiNanoW(FileName:string);
+procedure FirsTNanoW(FileName:string);
 
 implementation
 
@@ -485,5 +487,141 @@ begin
  SL.SaveToFile(fileName);
  FreeAndNil(SL);
 end;
+
+procedure AverageSiNanoW(FileName:string);
+ var SL,SLNew:TStringList;
+     i,j:integer;
+     data:array[1..50000]of double;
+     count:array[1..50000]of integer;
+     x:double;
+//     V:TVector;
+begin
+//showmessage(FileName)  ;
+ for i:=1 to 50000 do
+   begin
+   data[i]:=0;
+   count[i]:=0;
+   end;
+ SL:=TStringList.Create;
+ SLNew:=TStringList.Create;
+ SL.LoadFromFile(FileName);
+// V:=TVector.Create;
+ for I := 20 to SL.Count-1 do
+  begin
+    j:=round(FloatDataFromRow(SL[i],1));
+    x:=FloatDataFromRow(SL[i],6);
+    if (x<>0) and (j<50001) then
+      begin
+      data[j]:=data[j]+x;
+      inc(count[j])
+      end;
+  end;
+ for i:=1 to 50000 do
+  SLNew.Add(inttostr(i)+' '+FloatToStrF(data[i]/count[i],ffExponent,8,0));
+// SLNew.SaveToFile(FitName(fileName,'a'));
+ SLNew.SaveToFile(fileName);
+ FreeAndNil(SLNew);
+ FreeAndNil(SL);
+end;
+
+procedure FirsTNanoW(FileName:string);
+ var SL:TStringList;
+     i,{ColumnNumber,{Temperature,}FileCount,j:integer;
+     Vec10,Vec100,VecTemp:TVector;
+     Vec,VecIntegral,VecAver:TVectorTransform;
+     ShotFileName,FileBegin,File_Folder,FactorFileName:string;
+     factor,factorTime:double;
+begin
+ ShotFileName:=ExtractFileName(FileName);
+ ShotFileName:=copy(ShotFileName,1,length(ShotFileName)-4);
+ if Pos(J0Jtfile,ShotFileName)>0 then Delete (ShotFileName,1,Length(J0Jtfile));
+ File_Folder:=FolderFromFullPath(FileName);
+
+ SL:=TStringList.Create;
+ FactorFileName:=File_Folder+'\'+FactorFile+ShotFileName+'.dat';
+
+ if FileExists(FactorFileName) then
+  begin
+   SL.LoadFromFile(FactorFileName);
+   factor:=FloatDataFromRow(SL[0],2);
+   factorTime:=FloatDataFromRow(SL[0],1);
+   SL.Clear;
+  end;
+
+ CreateDirSafety(J0JtDirName);
+
+
+ SL.LoadFromFile(FileName);
+ Vec:=TVectorTransform.Create;
+ VecIntegral:=TVectorTransform.Create;
+// Vec10:=TVector.Create;
+// Vec100:=TVector.Create;
+// VecTemp:=TVector.Create;
+ VecAver:=TVectorTransform.Create;
+
+ SetCurrentDir(File_Folder+'\'+J0JtDirName+'\');
+
+   Vec.Clear;
+   VecIntegral.Clear;
+   for I := 0 to SL.Count-1 do
+    begin
+      Vec.Add((FloatDataFromRow(SL[i],1)-1)*10*factorTime,FloatDataFromRow(SL[i],2)*factor);
+      if Vec.HighNumber>2 then VecIntegral.Add(Vec.X[Vec.HighNumber],Vec.Int_Trap);
+
+    end;
+
+   FileBegin:='J'+ShotFileName;
+
+
+//*****************************************************
+{
+1) інтегрування кожної залежності <J(0)J(t)>
+2) усереднення залежностей k(t)
+- 3) згладжування усередненої k(t)  по 10 точкам
+}
+
+   VecIntegral.MultiplyY(1/(Vec.X[1]-Vec.X[0]));
+
+   VecIntegral.WriteToFile(FileBegin+'.dat',8);
+   VecAver.Clear;
+   if FileExists(AverIntFile) then VecAver.ReadFromFile(AverIntFile,False);
+   if VecAver.HighNumber<0
+    then
+      begin
+       VecIntegral.CopyTo(VecAver);
+       FileCount:=0;
+      end
+    else
+     begin
+      FileCount:=Round(VecAver.X[VecAver.HighNumber]);
+      VecAver.DeletePoint(VecAver.HighNumber);
+      for j := 0 to VecAver.HighNumber do
+        VecAver.Y[j]:=(VecAver.Y[j]*FileCount+VecIntegral.Y[j])/(FileCount+1);
+     end;
+
+   VecAver.Add(FileCount+1,FileCount+1);
+   VecAver.WriteToFile(AverIntFile,8);
+
+   VecAver.DeletePoint(VecAver.HighNumber);
+
+//   VecAver.ImNoiseSmoothedArray(Vec10,10);
+//   Vec10.WriteToFile(Int_aver,8);
+  VecAver.WriteToFile(Int_aver,8);
+
+   HelpForMe(inttostr(FileCount));
+// -----------------
+//*******************************************************
+
+ SetCurrentDir(File_Folder);
+
+ FreeAndNil(VecAver);
+// FreeAndNil(VecTemp);
+// FreeAndNil(Vec100);
+// FreeAndNil(Vec10);
+ FreeAndNil(Vec);
+ FreeAndNil(VecIntegral);
+ FreeAndNil(SL);
+end;
+
 
 end.

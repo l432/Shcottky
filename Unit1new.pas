@@ -3962,7 +3962,10 @@ var
 
 
 begin
- SecondTPorSi('');
+ForAllDatFilesAction(FirsTNanoW,'D:\SiGe_NWs\','J0Jt');
+//ForAllDatFilesAction(AverageSiNanoW,'D:\SiGe_NWs\','J0Jt');
+//SelectDatFileAndAction(AverageSiNanoThread);
+// SecondTPorSi('');
 //ForAllDatFilesAction(AddNoiseToTime,'D:\Pyton\Py2024\porSi');
 
 //  ForAllDirAction(SecondTPorSi,J0JtDirName,'D:\Si_Test',False);
