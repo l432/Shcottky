@@ -61,6 +61,7 @@ type
       function  FunVPBDeleteYLessThanNumber(i:integer;NumberForCondition:double=0):boolean;
       function  FunVPBDeleteXMoreTnanNumber(PointNumber:integer;NumberForCondition:double=0):boolean;
      protected
+      fVector:TVector;
       procedure PointSet(Number:integer; x,y:double);overload;
        {заповнює координати точки з номером Number,
        але наявність цієї точки в масиві не перевіряється}
@@ -68,7 +69,7 @@ type
 
      public
 
-
+      property AdditionalVector:TVector read fVector write fVector;
       property X[const Number: Integer]: double Index ord(cX)
                         read GetData write SetData;
       property Y[const Number: Integer]: double Index ord(cY)
@@ -290,6 +291,7 @@ type
          {як попередня, тільки використовується не крок, а загальна
          кількість точок Nstep на заданому інтервалі}
       Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
+      procedure Free;
       function MeanValue(Coord:TCoord_type):double;
       function MaxNumber(Coord:TCoord_type):integer;
       function MinNumber(Coord:TCoord_type):integer;
@@ -332,6 +334,7 @@ var F:TextFile;
 //    i:integer;
     ss, ss1:string;
 begin
+  if not(assigned(fVector)) then fVector:=TVector.Create();
   Clear;
   Self.fName:=NameFile;
   if not(FileExists(NameFile)) then Exit;
@@ -386,7 +389,11 @@ begin
      End;
       CloseFile(f);
    end;
- if ToSort then Sorting;
+ if ToSort then
+  begin
+   Sorting;
+   fVector.Sorting;
+  end;
 end;
 
 procedure TVector.ReadFromFile(NameFile: string; ColumnNumbers: array of byte;
@@ -859,18 +866,35 @@ end;
 
 procedure TVector.ReadTextFile(const F: Text);
 var
-  x: Double;
-  y: Double;
+//  x: Double;
+//  y: Double;
+//  z: Double;
+  s: string;
+  num: integer;
 begin
   Reset(f);
   while not (eof(f)) do
   begin
     try
-      readln(f, x, y);
-      Add(x, y);
+      ReadLn(f, s);
+      num:=NumberOfSubstringInRow(s);
+      if num>1 then Add(FloatDataFromRow(s,1),FloatDataFromRow(s,2));
+      if num>2 then fVector.Add(FloatDataFromRow(s,1),FloatDataFromRow(s,3));
+//      readln(f, x, y);
+//      Add(x, y);
     except
     end;
   end;
+
+//  Reset(f);
+//  while not (eof(f)) do
+//  begin
+//    try
+//      readln(f, x, y, z);
+//      fVector.Add(x, z);
+//    except
+//    end;
+//  end;
   CloseFile(f);
 end;
 
@@ -952,6 +976,7 @@ begin
   Ftime:='';
   fT:=0;
   fSegmentBegin:=0;
+  if assigned(fVector) then fVector.Clear;
 end;
 
 Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,
@@ -992,6 +1017,12 @@ begin
  Filling(Fun,Xmin,Xmax,deltaX,[]);
 end;
 
+
+procedure TVector.Free;
+begin
+ if fVector<>nil then FreeAndNil(fVector);
+ inherited;
+end;
 
 procedure TVector.Filling(Fun: TFunSingle; Xmin, Xmax: Double; Nstep: Integer);
  const Nmax=10000;

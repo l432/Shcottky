@@ -3962,7 +3962,8 @@ var
 
 
 begin
-ForAllDatFilesAction(FirsTNanoW,'D:\SiGe_NWs\','J0Jt');
+showmessage(VaxFile.AdditionalVector.XYtoString);
+//ForAllDatFilesAction(FirsTNanoW,'D:\SiGe_NWs\','J0Jt');
 //ForAllDatFilesAction(AverageSiNanoW,'D:\SiGe_NWs\','J0Jt');
 //SelectDatFileAndAction(AverageSiNanoThread);
 // SecondTPorSi('');
