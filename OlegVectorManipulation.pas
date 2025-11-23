@@ -466,6 +466,7 @@ procedure TVectorTransform.CopyDiapazonPoint(Target: TVector;
 begin
  if RewriteTarget then InitTarget(Target);
  Target.T:=InitVector.T;
+ Target.AdditionalVector:=InitVector.AdditionalVector;
  for I := 0 to Self.HighNumber do
    if InitVector.PointInDiapazon(D,i+Self.N_begin)
      then

@@ -809,6 +809,7 @@ begin
   TargetVector.fname:=Self.fname;
   TargetVector.ftime:=Self.ftime;
   TargetVector.fSegmentBegin:=Self.fSegmentBegin;
+  TargetVector.fVector:=Self.fVector;
 end;
 
 function TVector.CopyToArray(const Coord: TCoord_type): TArrSingle;
