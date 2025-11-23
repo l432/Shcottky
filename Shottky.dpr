@@ -43,7 +43,8 @@ uses
   MLresults in 'MLresults.pas',
   SymbolicRegression in 'SymbolicRegression.pas',
   ActionsOnDatFile in 'ActionsOnDatFile.pas',
-  porousSi in 'porousSi.pas';
+  porousSi in 'porousSi.pas',
+  OlegParametricFitting in 'OlegParametricFitting.pas';
 
 {$R *.res}
 

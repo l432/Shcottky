@@ -466,6 +466,7 @@ procedure TFFSimple.RealFitting;
 begin
  if FittingCalculation then
   begin
+//  showmessage('jj');
   AdditionalParamDetermination;
   FittingDataFilling;
   end;

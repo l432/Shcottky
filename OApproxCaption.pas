@@ -4,12 +4,12 @@ interface
 
 uses
   OApproxNew, FitDigital, FitSimple, FitGradient, OApproxFunction, 
-  OApproxFunction2, OApproxFunction3, FitManyArguments;
+  OApproxFunction2, OApproxFunction3, FitManyArguments, OlegParametricFitting;
 
 type
   TFitFuncCategory=(ffc_none,ffc_trans,ffc_digital,
                    ffc_simple,ffc_schottky,ffc_cc,ffc_diode,ffc_2diode,
-                   ffc_3diode,ffc_ThinDiode,ffc_Custom,ffc_fb);
+                   ffc_3diode,ffc_ThinDiode,ffc_Custom,ffc_fb, ffc_is);
 
   TFitFunctionNew_Class=class of TFitFunctionNew;
 
@@ -18,7 +18,7 @@ const
   FitFuncCategoryNames:array[TFitFuncCategory]of string=
            ('None','Transform','Digital filter','Simple',
            'Schottky diode','Complex current','n-p diode','Double Diode',
-           'Triple diode','Thin film diode','Custom','Fe-B');
+           'Triple diode','Thin film diode','Custom','Fe-B','Impedance spectroscopy');
 
   FFFunctionDiod='Diode';
   FFFunctionPhotoDiod='PhotoDiode';
@@ -136,6 +136,12 @@ const
   FeBClasses:array[0..FeBNumber]of TFitFunctionNew_Class=
    (TFFnFeBPart,TFFn_FeB,
    TFFn_FeBNew,TFFTAU_Fei_FeB,TFFIsc_Fei_FeB,TFFIsc2_Fei_FeB);
+
+  ISNumber=0;
+  ISNames:array[0..ISNumber] of string=
+   ('Rp - (Rs || CPE)');
+  ISClasses:array[0..ISNumber]of TFitFunctionNew_Class=
+   (TFF_IS_RRCPE);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;
@@ -262,6 +268,13 @@ begin
        Exit;
       end;
 
+   for j := 0 to ISNumber do
+     if str=ISNames[j] then
+      begin
+       Result:=ISClasses[j].Create;
+       Exit;
+      end;
+
    if str='Moving Average Filter' then
      begin
      Result:=TFFMovingAverageFilter.Create;
@@ -297,5 +310,6 @@ initialization
  FitFuncNames_Filling(ffc_ThinDiode,ThinDiodeNames);
  FitFuncNames_Filling(ffc_Custom,CustomNames);
  FitFuncNames_Filling(ffc_fb,FeBNames);
+ FitFuncNames_Filling(ffc_is,ISNames);
 
 end.

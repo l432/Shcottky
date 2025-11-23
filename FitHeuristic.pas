@@ -17,11 +17,18 @@ TFFHeuristic=class(TFFIteration)
   function RealFinalFunc(X:double):double;override;
   procedure FittingAgentCreate;override;
 //  procedure AdditionalParamDetermination;override;
-//  function Deviation:double;override;
  public
   property ParamsHeuristic:TDParamsHeuristic read GetParamsHeuristic;
   function FuncForFitness(Point:TPointDouble;Data:TArrSingle):double;virtual;abstract;
 end;
+
+TFFHeuristicParametric=class (TFFHeuristic)
+ protected
+  Procedure RealToFile;override;
+  function Deviation:double;override;
+ public
+  function FuncForFitnessX(Point:TPointDouble;Data:TArrSingle):double;virtual;abstract;
+end; // TFFHeuristicParametric=class (TFFHeuristic)
 
 TWindowIterationShowID=class(TWindowIterationShow)
   public
@@ -30,7 +37,7 @@ TWindowIterationShowID=class(TWindowIterationShow)
 
 TFFIlluminatedDiode=class(TFFHeuristic)
  private
-  fIsc:double;
+//  fIsc:double;
  protected
   procedure WindowAgentCreate;override;
   function FittingCalculation:boolean;override;
@@ -44,12 +51,25 @@ TFFXYSwap=class(TFFHeuristic)
 end;
 
 TFitnessTerm=class
+ protected
   fFuncForFitness:TFunObj;
+  procedure AdditionalCreate(FF:TFFHeuristic);virtual;
  public
-  constructor Create(FF:TFFHeuristic);
+  constructor Create(FF:TFFHeuristic); //virtual;
   function Term(Point:TPointDouble;Parameters:TArrSingle):double;virtual;abstract;
   destructor Destroy;override;
 end;
+
+TFitnessTermXY=class(TFitnessTerm)
+ protected
+  fFuncForFitnessX:TFunObj;
+  procedure AdditionalCreate(FF:TFFHeuristic);override;
+ public
+//  constructor Create(FF:TFFHeuristic);
+//  function Term(Point:TPointDouble;Parameters:TArrSingle):double;virtual;abstract;
+  destructor Destroy;override;
+end;
+
 
 TFitnessTermSR=class(TFitnessTerm)
  public
@@ -57,7 +77,20 @@ TFitnessTermSR=class(TFitnessTerm)
                  Parameters:TArrSingle):double;override;
 end;
 
+TFitnessTermSR_XY=class(TFitnessTermXY)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
+
 TFitnessTermRSR=class(TFitnessTerm)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
+TFitnessTermRSR_XY=class(TFitnessTermXY)
  public
   function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
@@ -69,13 +102,32 @@ TFitnessTermAR=class(TFitnessTerm)
                  Parameters:TArrSingle):double;override;
 end;
 
+TFitnessTermAR_XY=class(TFitnessTermXY)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
 TFitnessTermRAR=class(TFitnessTerm)
  public
   function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
+TFitnessTermRAR_XY=class(TFitnessTermXY)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
+
 TFitnessTermLnSR=class(TFitnessTerm)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
+TFitnessTermLnSR_XY=class(TFitnessTermXY)
  public
   function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
@@ -87,13 +139,32 @@ TFitnessTermLnRSR=class(TFitnessTerm)
                  Parameters:TArrSingle):double;override;
 end;
 
+TFitnessTermLnRSR_XY=class(TFitnessTermXY)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
+
 TFitnessTermLnAR=class(TFitnessTerm)
  public
   function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
 end;
 
+TFitnessTermLnAR_XY=class(TFitnessTermXY)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
 TFitnessTermLnRAR=class(TFitnessTerm)
+ public
+  function Term(Point:TPointDouble;
+                 Parameters:TArrSingle):double;override;
+end;
+
+TFitnessTermLnRAR_XY=class(TFitnessTermXY)
  public
   function Term(Point:TPointDouble;
                  Parameters:TArrSingle):double;override;
@@ -110,6 +181,13 @@ const
   (TFitnessTermLnSR,TFitnessTermLnRSR,
    TFitnessTermLnAR,TFitnessTermLnRAR);
 
+  FitnessTermClasses_XY:array[ftSR..ftRAR]of TFitnessTerm_Class=
+  (TFitnessTermSR_XY,TFitnessTermRSR_XY,
+   TFitnessTermAR_XY,TFitnessTermRAR_XY);
+
+  LogFitnessTermClasses_XY:array[ftSR..ftRAR]of TFitnessTerm_Class=
+  (TFitnessTermLnSR_XY,TFitnessTermLnRSR_XY,
+   TFitnessTermLnAR_XY,TFitnessTermLnRAR_XY);
 
 type
 
@@ -1109,13 +1187,6 @@ uses
 
 { TFFHeuristic }
 
-//function TFFHeuristic.Deviation: double;
-//begin
-////showmessage(inttostr((fFittingAgent as TFA_Heuristic).NfitTotal));
-//// Result:=(fFittingAgent as TFA_Heuristic).NfitTotal;
-// Result:=inherited ;
-//end;
-
 //procedure TFFHeuristic.AdditionalParamDetermination;
 //begin
 //  inherited;
@@ -1276,6 +1347,7 @@ begin
  fNfit:=0;
  fNfitTotal:=0;
  Initiation;
+//    showmessage('jjjj');
 end;
 
 procedure TFA_Heuristic.CreateFields;
@@ -1289,6 +1361,7 @@ procedure TFA_Heuristic.Initiation;
 begin
   i:=0;
   repeat
+//        showmessage('ggggg222');
      ConditionalRandomize;
      RandomValueToParameter(i);
      try
@@ -1310,9 +1383,16 @@ end;
 
 { TFitnessTerm }
 
+procedure TFitnessTerm.AdditionalCreate(FF:TFFHeuristic);
+begin
+end;
+
 constructor TFitnessTerm.Create(FF: TFFHeuristic);
 begin
- fFuncForFitness:=FF.FuncForFitness;
+//  showmessage('jjj'+FF.ClassName);
+//  showmessage(Self.ClassName);
+  fFuncForFitness:=FF.FuncForFitness;
+  AdditionalCreate(FF);
 end;
 
 destructor TFitnessTerm.Destroy;
@@ -1557,6 +1637,8 @@ function TFitnessCalculationSum.FitnessFunc(const OutputData: TArrSingle): doubl
  var i:integer;
 begin
  Result:=0;
+// showmessage('klkl');
+// ShowMessage(fFitTerm.ClassName);
  for I := 0 to fData.HighNumber do
     Result:=Result+fFitTerm.Term(fData[i],OutputData);
 end;
@@ -1564,9 +1646,18 @@ end;
 procedure TFitnessCalculationSum.SomeActions(FF: TFFHeuristic);
 begin
   inherited;
-  if FF.ParamsHeuristic.LogFitness
-   then fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
-   else fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
+  if (FF is TFFHeuristicParametric) then
+   begin
+    if FF.ParamsHeuristic.LogFitness
+     then fFitTerm:=LogFitnessTermClasses_XY[FF.ParamsHeuristic.FitType].Create(FF)
+     else fFitTerm:=FitnessTermClasses_XY[FF.ParamsHeuristic.FitType].Create(FF);
+
+   end                              else
+   begin
+    if FF.ParamsHeuristic.LogFitness
+     then fFitTerm:=LogFitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF)
+     else fFitTerm:=FitnessTermClasses[FF.ParamsHeuristic.FitType].Create(FF);
+   end;
 end;
 
 { TFitnessCalculationWithRegalation }
@@ -5101,6 +5192,248 @@ procedure TFA_WaterWave.StartAction;
 begin
   inherited StartAction;
   NumberBest:=MinElemNumber(FitnessData);
+end;
+
+{ TFitnessTermSR_XY }
+
+function TFitnessTermSR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+begin
+  Result:=sqr(fFuncForFitness(Point,Parameters)-Point[cY])
+          +sqr(fFuncForFitnessX(Point,Parameters)-Point[cX]);
+end;
+
+{ TFitnessTermRSR_XY }
+
+function TFitnessTermRSR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+ var Y1,X1:double;
+begin
+  try
+   Y1:=1/Point[cY];
+   X1:=1/Point[cX];
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])*Y1)
+          +sqr((fFuncForFitnessX(Point,Parameters)-Point[cX])*X1);
+end;
+
+{ TFitnessTermAR_XY }
+
+function TFitnessTermAR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+begin
+ Result:=abs(fFuncForFitness(Point,Parameters)-Point[cY])
+         +abs(fFuncForFitnessX(Point,Parameters)-Point[cX]);
+end;
+
+{ TFitnessTermRAR_XY }
+
+function TFitnessTermRAR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+ var Y1,X1:double;
+begin
+  try
+   Y1:=1/Point[cY];
+   X1:=1/Point[cX];
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=abs((fFuncForFitness(Point,Parameters)-Point[cY])*Y1)
+          +abs((fFuncForFitnessX(Point,Parameters)-Point[cX])*X1);
+end;
+
+{ TFitnessTermLnSR_XY }
+
+function TFitnessTermLnSR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+ var Y1,X1:double;
+begin
+  try
+   Y1:=ln(Point[cY]);
+   X1:=ln(Point[cX]);
+  except
+   on EZeroDivide do
+    begin
+    Result:=0;
+    Exit;
+    end;
+   on EInvalidOp  do
+    begin
+    Result:=0;
+    Exit;
+    end;
+  end;
+  Result:=sqr(ln(fFuncForFitness(Point,Parameters))-Y1)
+          +sqr(ln(fFuncForFitnessX(Point,Parameters))-X1);
+end;
+
+{ TFitnessTermXY }
+
+procedure TFitnessTermXY.AdditionalCreate(FF:TFFHeuristic);
+begin
+ inherited;
+// showmessage(FF.ClassName);
+// inherited Create(FF);
+// showmessage('gg'+Self.ClassName);
+ if (FF is TFFHeuristicParametric) then
+    fFuncForFitnessX:=(FF as TFFHeuristicParametric).FuncForFitnessX;
+end;
+
+//constructor TFitnessTermXY.Create(FF: TFFHeuristic);
+//begin
+// showmessage(FF.ClassName);
+// inherited Create(FF);
+// showmessage('gg'+Self.ClassName);
+// if (FF is TFFHeuristicParametric) then
+//    fFuncForFitnessX:=(FF as TFFHeuristicParametric).FuncForFitnessX;
+//end;
+
+destructor TFitnessTermXY.Destroy;
+begin
+   fFuncForFitnessX:=nil;
+  inherited;
+end;
+
+{ TFitnessTermLnRSR_XY }
+
+function TFitnessTermLnRSR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+ var Y,X,Y1,X1:double;
+begin
+  try
+   Y:=ln(Point[cY]);
+   X:=ln(Point[cX]);
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+   on EInvalidOp  do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+
+  try
+   Y1:=1/Y;
+   X1:=1/X;
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=sqr((ln(fFuncForFitness(Point,Parameters))-Y)*Y1)
+          +sqr((ln(fFuncForFitnessX(Point,Parameters))-X)*X1);
+end;
+
+{ TFitnessTermLnAR_XY }
+
+function TFitnessTermLnAR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+  var Y,X:double;
+begin
+  try
+   Y:=ln(Point[cY]);
+   X:=ln(Point[cX]);
+  except
+   on EZeroDivide do
+    begin
+    Result:=0;
+    Exit;
+    end;
+   on EInvalidOp  do
+    begin
+    Result:=0;
+    Exit;
+    end;
+  end;
+  Result:=abs(ln(fFuncForFitness(Point,Parameters))-Y)
+          +abs(ln(fFuncForFitnessX(Point,Parameters))-X);
+end;
+
+{ TFitnessTermLnRAR_XY }
+
+function TFitnessTermLnRAR_XY.Term(Point: TPointDouble;
+  Parameters: TArrSingle): double;
+ var Y,X,Y1,X1:double;
+begin
+  try
+   Y:=ln(Point[cY]);
+   X:=ln(Point[cX]);
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+   on EInvalidOp  do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+
+  try
+   Y1:=1/Y;
+   X1:=1/X;
+  except
+   on EZeroDivide do
+     begin
+       Result:=0;
+       Exit;
+     end;
+  end;
+  Result:=abs((ln(fFuncForFitness(Point,Parameters))-Y)*Y1)
+          +abs((ln(fFuncForFitnessX(Point,Parameters))-X)*X1);
+
+end;
+
+{ TFFHeuristicParametric }
+
+function TFFHeuristicParametric.Deviation: double;
+  var i:integer;
+begin
+  Result:=0;
+  for I := 0 to fDataToFit.HighNumber
+    do FittingData.Add(FuncForFitnessX(fDataToFit[i],fDParamArray.OutputData),
+                       FuncForFitness(fDataToFit[i],fDParamArray.OutputData));
+//    fDataToFit.ToFill(FittingData,RealFinalFunc);
+  for I := 0 to fDataToFit.HighNumber
+    do Result:=Result+SqrRelativeDifference(fDataToFit.Y[i],FittingData.Y[i])
+                     +SqrRelativeDifference(fDataToFit.X[i],FittingData.X[i]);
+  Result:=sqrt(Result/fDataToFit.Count);
+end;
+
+procedure TFFHeuristicParametric.RealToFile;
+  var Str1:TStringList;
+    i:integer;
+begin
+  if fIntVars[0]<>0 then FileFilling
+                    else
+   begin
+    Str1:=TStringList.Create;
+    Str1.Add('X Y Xfit Yfit');
+    for I := 0 to fDataToFit.HighNumber do
+      Str1.Add(fDataToFit.PoinToString(i,DigitNumber)
+               +' '
+               +FittingData.PoinToString(i,DigitNumber));
+    Str1.SaveToFile(FitName(fDataToFit,FileSuffix));
+    Str1.Free;
+   end;
 end;
 
 end.

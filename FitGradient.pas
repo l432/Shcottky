@@ -359,6 +359,7 @@ begin
   try
    Result:=False;
    fFittingAgent.StartAction;
+
 //   Timer.StartTimer;
    fFittingAgent.DataCoordination;
    fWindowAgent.UpDate;

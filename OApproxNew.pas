@@ -410,6 +410,8 @@ procedure TFitFunctionNew.Fitting(InputData: TVector);
 begin
  DataPreraration(InputData);
  if FittingBegin then RealFitting;
+// showmessage('kkk');
+// showmessage(inttostr(FittingData.Count));
  if not(FittingData.IsEmpty)
       then fResultsIsReady:=True
       else
@@ -496,7 +498,9 @@ procedure TFitFunctionNew.FittingToGraphAndFile(InputData: TVector;
 begin
   Fitting(InputData);
   if not(fResultsIsReady) then Exit;
+
   RealToGraph(Series);
+//  showmessage('nnnn');
   if SaveFile then
           RealToFile;
 end;
