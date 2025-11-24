@@ -5282,21 +5282,9 @@ end;
 procedure TFitnessTermXY.AdditionalCreate(FF:TFFHeuristic);
 begin
  inherited;
-// showmessage(FF.ClassName);
-// inherited Create(FF);
-// showmessage('gg'+Self.ClassName);
  if (FF is TFFHeuristicParametric) then
     fFuncForFitnessX:=(FF as TFFHeuristicParametric).FuncForFitnessX;
 end;
-
-//constructor TFitnessTermXY.Create(FF: TFFHeuristic);
-//begin
-// showmessage(FF.ClassName);
-// inherited Create(FF);
-// showmessage('gg'+Self.ClassName);
-// if (FF is TFFHeuristicParametric) then
-//    fFuncForFitnessX:=(FF as TFFHeuristicParametric).FuncForFitnessX;
-//end;
 
 destructor TFitnessTermXY.Destroy;
 begin

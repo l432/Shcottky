@@ -500,7 +500,7 @@ begin
   if not(fResultsIsReady) then Exit;
 
   RealToGraph(Series);
-//  showmessage('nnnn');
+
   if SaveFile then
           RealToFile;
 end;

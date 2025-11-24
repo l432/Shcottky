@@ -291,7 +291,7 @@ type
          {як попередня, тільки використовується не крок, а загальна
          кількість точок Nstep на заданому інтервалі}
       Procedure Filling(Fun:TFun;Xmin,Xmax,deltaX:double);overload;
-      procedure Free;
+      destructor Destroy;overload;
       function MeanValue(Coord:TCoord_type):double;
       function MaxNumber(Coord:TCoord_type):integer;
       function MinNumber(Coord:TCoord_type):integer;
@@ -809,7 +809,8 @@ begin
   TargetVector.fname:=Self.fname;
   TargetVector.ftime:=Self.ftime;
   TargetVector.fSegmentBegin:=Self.fSegmentBegin;
-  TargetVector.fVector:=Self.fVector;
+  if Self.fVector<>nil then
+    TargetVector.fVector:=Self.fVector;
 end;
 
 function TVector.CopyToArray(const Coord: TCoord_type): TArrSingle;
@@ -1019,10 +1020,10 @@ begin
 end;
 
 
-procedure TVector.Free;
+destructor TVector.Destroy;
 begin
- if fVector<>nil then FreeAndNil(fVector);
- inherited;
+ if fVector<>nil then fVector:=nil;
+ inherited  Free;
 end;
 
 procedure TVector.Filling(Fun: TFunSingle; Xmin, Xmax: Double; Nstep: Integer);

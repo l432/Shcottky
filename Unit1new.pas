@@ -2387,7 +2387,10 @@ begin
     if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
     MemoAppr.Lines.Add(SButFitNew.Caption);
     FitFunctionNew.DataToStrings(MemoAppr.Lines);
+
     FitFunctionNew.Free;
+//      showmessage('nnnn6');
+
   end  //if SButFit.Down then
    else Series4.Active:=False;
 end;
