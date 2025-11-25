@@ -1,4 +1,4 @@
-unit OApproxCaption;
+п»їunit OApproxCaption;
 
 interface
 
@@ -137,19 +137,20 @@ const
    (TFFnFeBPart,TFFn_FeB,
    TFFn_FeBNew,TFFTAU_Fei_FeB,TFFIsc_Fei_FeB,TFFIsc2_Fei_FeB);
 
-  ISNumber=0;
+  ISNumber=2;
   ISNames:array[0..ISNumber] of string=
-   ('Rp - (Rs || CPE)');
+   ('Rs - (Rp || CPE)','Rs в€’ (Rt вЂ‹|| CPEt) - (Rr вЂ‹|| CPEr)',
+   ' Rs в€’ [CPEt || (Rt - (Rr || CPEr))]');
   ISClasses:array[0..ISNumber]of TFitFunctionNew_Class=
-   (TFF_IS_RRCPE);
+   (TFF_IS_RRCPE,TFF_IS_RRCPERCPE,TFF_IS_RCPERRCPE);
 
 var
   FitFuncNames:array[TFitFuncCategory]of array of string;
 
 
 Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
-{створює F того чи іншого типу залежно
-від значення str}
+{СЃС‚РІРѕСЂСЋС” F С‚РѕРіРѕ С‡Рё С–РЅС€РѕРіРѕ С‚РёРїСѓ Р·Р°Р»РµР¶РЅРѕ
+РІС–Рґ Р·РЅР°С‡РµРЅРЅСЏ str}
 
 
 procedure FitFuncNames_trans_Filling;
@@ -183,8 +184,8 @@ begin
 end;
 
 Function FitFunctionFactory(str:string; FileName:string=''):TFitFunctionNew;
-{створює F того чи іншого типу залежно
-від значення str}
+{СЃС‚РІРѕСЂСЋС” F С‚РѕРіРѕ С‡Рё С–РЅС€РѕРіРѕ С‚РёРїСѓ Р·Р°Р»РµР¶РЅРѕ
+РІС–Рґ Р·РЅР°С‡РµРЅРЅСЏ str}
   var i:TTransformFunction;
       j:integer;
 begin

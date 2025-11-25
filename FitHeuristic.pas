@@ -5207,11 +5207,12 @@ end;
 
 function TFitnessTermRSR_XY.Term(Point: TPointDouble;
   Parameters: TArrSingle): double;
- var Y1,X1:double;
+ var Y1,X1,modZ1:double;
 begin
   try
    Y1:=1/Point[cY];
    X1:=1/Point[cX];
+   modZ1:=1/(sqr(Point[cY])+sqr(Point[cX]))
   except
    on EZeroDivide do
      begin
@@ -5219,8 +5220,10 @@ begin
        Exit;
      end;
   end;
-  Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])*Y1)
-          +sqr((fFuncForFitnessX(Point,Parameters)-Point[cX])*X1);
+//  Result:=sqr((fFuncForFitness(Point,Parameters)-Point[cY])*Y1)
+//          +sqr((fFuncForFitnessX(Point,Parameters)-Point[cX])*X1);
+  Result:=(sqr(fFuncForFitness(Point,Parameters)-Point[cY])
+          +sqr(fFuncForFitnessX(Point,Parameters)-Point[cX]))*modZ1;
 end;
 
 { TFitnessTermAR_XY }
