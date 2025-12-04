@@ -2851,7 +2851,8 @@ procedure TForm1.AbsorbFileForSCAPS;
 begin
  SC:=TStringList.Create;
 
- T:=287;
+// T:=287;
+ T:=270;
  repeat
   SC.Clear;
   lambda:=250;
@@ -2865,7 +2866,8 @@ begin
   until lambda>1450;
   SC.SaveToFile('S'+Copy(inttostr(round(T)),2,2)+'.abs');
   T:=T+1;
- until T>342;
+// until T>342;
+ until T>271;
  FreeAndNil(SC);
 end;
 
@@ -3965,7 +3967,8 @@ var
 
 
 begin
-showmessage(VaxFile.AdditionalVector.XYtoString);
+//showmessage(VaxFile.AdditionalVector.XYtoString);
+AbsorbFileForSCAPS();
 //ForAllDatFilesAction(FirsTNanoW,'D:\SiGe_NWs\','J0Jt');
 //ForAllDatFilesAction(AverageSiNanoW,'D:\SiGe_NWs\','J0Jt');
 //SelectDatFileAndAction(AverageSiNanoThread);
