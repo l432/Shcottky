@@ -3967,8 +3967,10 @@ var
 
 
 begin
+showmessage(floattostr(Silicon.Brad(340,1.36e21, False,3.8e-4,False)));
+//showmessage(floattostr(Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, 340),340)));
 //showmessage(VaxFile.AdditionalVector.XYtoString);
-AbsorbFileForSCAPS();
+//AbsorbFileForSCAPS();
 //ForAllDatFilesAction(FirsTNanoW,'D:\SiGe_NWs\','J0Jt');
 //ForAllDatFilesAction(AverageSiNanoW,'D:\SiGe_NWs\','J0Jt');
 //SelectDatFileAndAction(AverageSiNanoThread);
