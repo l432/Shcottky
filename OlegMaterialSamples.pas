@@ -588,6 +588,12 @@ type
        для інших (де нема своєї температурної залежності)
        ScaleFactor визначаємо індивідуально)
        []- м6/с}
+       class function Cn0(T:double=300):double;
+       {допоміжна функція при обчислення коеф.
+       Оже рекомбінації відповідно до SolEnerMatSC_295_113985 (2026)}
+       class function Cexh(T:double=300;x_isequal_e:Boolean=True):double;
+       {допоміжна функція при обчислення коеф.
+       Оже рекомбінації відповідно до SolEnerMatSC_295_113985 (2026)}
       public
       class function Eg(T:double=300):double;
       {[Result]=eV}
@@ -2349,6 +2355,26 @@ begin
       Result:=Concentration-1/(Qelem*0.01*Parameters[0]*Silicon.mu_n(Parameters[1],Concentration))
 end;
 
+class function Silicon.Cexh(T: double; x_isequal_e: Boolean): double;
+ var C0,w:double;
+begin
+ if  x_isequal_e then
+  begin
+    C0:=9.71e-44;
+    w:=21.2e-3;
+  end            else
+  begin
+    C0:=4.51e-44;
+    w:=21e-3;
+  end;
+ Result:=C0*(1+2/(exp(w/(Kb*T))-1));
+end;
+
+class function Silicon.Cn0(T: double): double;
+begin
+ Result:=1.02e-43*exp(-2.8e-3/(Kb*T))+Cexh(T,True);
+end;
+
 class function Silicon.Cn_Auger(n, T: double): double;
 begin
  Result:=Cn_AugerNew(n, MinorityN(n, T), T);
@@ -2362,9 +2388,12 @@ end;
 
 class function Silicon.Cn_AugerNew(n, p, T: double): double;
 begin
- Result:=3.41e-43*g_e(gmax_n(23923.15,T),
-                     p,n,3.2e23,2);
- {SolEnerMatSC_234_111428 (2022)}
+ Result:=Cn0(T)*g_exh(n, p, T, True);
+ {SolEnerMatSC_295_113985 (2026)}
+
+// Result:=3.41e-43*g_e(gmax_n(23923.15,T),
+//                     p,n,3.2e23,2);
+// {SolEnerMatSC_234_111428 (2022)}
 
 // Result:=3.41e-43*g_e2(gmax_n(22928.53,T),
 //                     p,n,4e23,2);
