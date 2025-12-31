@@ -591,9 +591,24 @@ type
        class function Cn0(T:double=300):double;
        {допоміжна функція при обчислення коеф.
        Оже рекомбінації відповідно до SolEnerMatSC_295_113985 (2026)}
-       class function Cexh(T:double=300;x_isequal_e:Boolean=True):double;
+       class function Cp0(T:double=300):double;
        {допоміжна функція при обчислення коеф.
        Оже рекомбінації відповідно до SolEnerMatSC_295_113985 (2026)}
+       class function Cexh(T:double=300;x_isequal_e:Boolean=True):double;
+       {допоміжна функція при обчислення коеф.
+       Оже рекомбінації відповідно до SolEnerMatSC_295_113985 (2026)
+       x_isequal_e = True для eeh
+       x_isequal_e = False для ehh}
+        class function g_exh(n, p: Double; T:double=300; x_isequal_e:Boolean=True):double;
+       {допоміжна функція при обчислення коеф.
+       Оже рекомбінації відповідно до SolEnerMatSC_295_113985 (2026)
+       x_isequal_e = True для eeh
+       x_isequal_e = False для ehh}
+       class function g_max_exh(T:double=300;x_isequal_e:Boolean=True):double;
+       {допоміжна функція при обчислення коеф.
+       Оже рекомбінації відповідно до SolEnerMatSC_295_113985 (2026)
+       x_isequal_e = True для eeh
+       x_isequal_e = False для ehh}
       public
       class function Eg(T:double=300):double;
       {[Result]=eV}
@@ -2389,7 +2404,8 @@ end;
 class function Silicon.Cn_AugerNew(n, p, T: double): double;
 begin
  Result:=Cn0(T)*g_exh(n, p, T, True);
- {SolEnerMatSC_295_113985 (2026)}
+ {SolEnerMatSC_295_113985 (2026),
+ 117–463 K}
 
 // Result:=3.41e-43*g_e(gmax_n(23923.15,T),
 //                     p,n,3.2e23,2);
@@ -2398,6 +2414,11 @@ begin
 // Result:=3.41e-43*g_e2(gmax_n(22928.53,T),
 //                     p,n,4e23,2);
  {SolEnerMatSC_235_111467 (2022)}
+end;
+
+class function Silicon.Cp0(T: double): double;
+begin
+ Result:=Cexh(T,False);
 end;
 
 class function Silicon.Cp0_vs_T(ScaleFactor, T: double): double;
@@ -2420,8 +2441,12 @@ end;
 
 class function Silicon.Cp_AugerNew(n, p, T: double): double;
 begin
-  Result:=Cp0_vs_T(1.17/1.238, T)
-        *g_e(gmax_p(59487.146,T), p,n,3.2e23,2);
+ Result:=Cp0(T)*g_exh(n, p, T, False);
+ {SolEnerMatSC_295_113985 (2026),
+ 117–463 K}
+
+//  Result:=Cp0_vs_T(1.17/1.238, T)
+//        *g_e(gmax_p(59487.146,T), p,n,3.2e23,2);
  {SolEnerMatSC_234_111428 (2022)}
 
 // Result:=Cp0_vs_T(1.17/1.238, T)
@@ -2550,6 +2575,26 @@ end;
 class function Silicon.g_e2(gmax, p, n, N0, Tetta: double): double;
 begin
   Result:=1+(gmax-1)*1/(1+Power((p+n)/N0,Tetta));
+end;
+
+class function Silicon.g_exh(n, p, T: double; x_isequal_e: Boolean): double;
+begin
+  Result:=1+(g_max_exh(T,x_isequal_e)-1)
+            /(1+Power((p+n)/(4e23*Power(T/300,4)),2))
+end;
+
+class function Silicon.g_max_exh(T: double; x_isequal_e: Boolean): double;
+ var g_max:double;
+begin
+ if  x_isequal_e then
+  begin
+    g_max:=1.629;
+  end            else
+  begin
+    g_max:=1.815;
+  end;
+
+  Result:=g_max*(1+880.9*exp(-Power(T/17.51,0.6434)));
 end;
 
 class function Silicon.LdifToTauRec(L,T:double;itIsElectron:Boolean=True;

@@ -3967,7 +3967,24 @@ var
 
 
 begin
-showmessage(floattostr(Silicon.Brad(340,1.36e21, False,3.8e-4,False)));
+   Vec:=TVector.Create();
+   T:=150;
+   repeat
+    Vec.Add(T,Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, T),T));
+    T:=T+5;
+   until (T>400);
+    Vec.WriteToFile('Cn_Auger.dat');
+   Vec.Clear();
+   T:=150;
+   repeat
+    Vec.Add(T,Silicon.Cp_Auger(1.36e21,T));
+    T:=T+5;
+   until (T>400);
+    Vec.WriteToFile('Cp_Auger.dat');
+
+   FreeAndNil(Vec);
+
+//showmessage(floattostr(Silicon.Brad(340,1.36e21, False,3.8e-4,False)));
 //showmessage(floattostr(Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, 340),340)));
 //showmessage(VaxFile.AdditionalVector.XYtoString);
 //AbsorbFileForSCAPS();
