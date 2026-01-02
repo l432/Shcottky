@@ -3968,18 +3968,32 @@ var
 
 begin
    Vec:=TVector.Create();
-   T:=150;
+//   T:=150;
+//   repeat
+//    Vec.Add(T,Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, T),T));
+//    T:=T+5;
+//   until (T>400);
+//    Vec.WriteToFile('Cn_Auger.dat');
+//   Vec.Clear();
+//   T:=150;
+//   repeat
+//    Vec.Add(T,Silicon.Cp_Auger(1.36e21,T));
+//    T:=T+5;
+//   until (T>400);
+//    Vec.WriteToFile('Cp_Auger.dat');
+   T:=300;
+   delN:=18;
    repeat
-    Vec.Add(T,Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, T),T));
-    T:=T+5;
-   until (T>400);
+    Vec.Add(Power(10,delN),Silicon.Cn_Auger(Silicon.MinorityN(Power(10,delN), T),T));
+    delN:=delN+0.2;
+   until (delN>24);
     Vec.WriteToFile('Cn_Auger.dat');
    Vec.Clear();
-   T:=150;
+   delN:=18;
    repeat
-    Vec.Add(T,Silicon.Cp_Auger(1.36e21,T));
-    T:=T+5;
-   until (T>400);
+    Vec.Add(Power(10,delN),Silicon.Cp_Auger(Power(10,delN),T));
+    delN:=delN+0.2;
+   until (delN>24);
     Vec.WriteToFile('Cp_Auger.dat');
 
    FreeAndNil(Vec);
