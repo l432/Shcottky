@@ -4636,13 +4636,17 @@ if not(SetCurrentDir(CurDirectory)) then
    end;
 DatesFileName:=CurDirectory+'\'+'dates.dat';
 
-if FindFirst(mask, faAnyFile, SR) = 0 then
+//if FindFirst(mask, faAnyFile, SR) = 0 then
+if FindFirst('*.*', faAnyFile, SR) = 0 then
   begin
     Vax:=TVectorShottky.Create;
 
     StrGridData.RowCount:=2;
     AddRowToFileFromStringGrid(DatesFileName,StrGridData,0);
     repeat
+     if not(SameText(ExtractFileExt(SR.Name), '.dat') or
+            SameText(ExtractFileExt(SR.Name), '.txt')) then Continue;
+
      ShotName:=AnsiUpperCase(SR.name);
      if FileNameIsBad(ShotName)then Continue;
      try
