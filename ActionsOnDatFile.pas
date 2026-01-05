@@ -96,6 +96,11 @@ procedure ReorganizeFileToKeys(InitFile,KeyFile:string);
 
 procedure GausPeretvor(Dat_Folder:string);
 
+function VoltageStrFromISFileName(FileName:string):string;
+{витягує напругу з назви файлу, який створювався DatToEis з результатів виміру
+активної та реактивної складової опорів}
+
+
 implementation
 
 uses
@@ -820,5 +825,23 @@ begin
  FreeAndNil(Vec2);
  FreeAndNil(Vec);
 end;
+
+function VoltageStrFromISFileName(FileName:string):string;
+ var temp:string;
+     p:integer;
+begin
+ if Length(FileName) >= 2 then
+  Delete(FileName, Length(FileName) - 1, 2);
+  P := LastDelimiter('V', FileName);
+  if P > 1
+    then
+     begin
+      Result := FileName[P-1];
+      if FileName[P-2]='m' then Result:='-'+Result;
+      if P < Length(FileName) then Result:=Result+'.'+FileName[P+1];
+     end
+    else Result:='555';
+end;
+
 
 end.

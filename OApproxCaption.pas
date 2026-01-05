@@ -139,8 +139,8 @@ const
 
   ISNumber=2;
   ISNames:array[0..ISNumber] of string=
-   ('Rs - (Rp || CPE)','Rs − (Rt ​|| CPEt) - (Rr ​|| CPEr)',
-   ' Rs − [CPEt || (Rt - (Rr || CPEr))]');
+   ('Rs - (Rp || CPE)','Rs − (Rt || CPEt) - (Rr || CPEr)',
+   ' Rs - [CPEt || (Rt - (Rr || CPEr))]');
   ISClasses:array[0..ISNumber]of TFitFunctionNew_Class=
    (TFF_IS_RRCPE,TFF_IS_RRCPERCPE,TFF_IS_RCPERRCPE);
 

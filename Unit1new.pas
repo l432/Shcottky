@@ -1240,7 +1240,8 @@ var
 implementation
 
 uses FormSelectFitNew, OApproxNew, FitSimple,
-  OApproxFunction2, FitGradient, OlegStatistic, Spectr, SymbolicRegression;
+  OApproxFunction2, FitGradient, OlegStatistic, Spectr, SymbolicRegression,
+  System.StrUtils;
 
 {$R *.dfm}
 {$R Res\Fig.RES}
@@ -2385,6 +2386,7 @@ begin
     Series4.Active:=True;
     MemoAppr.Lines.Add('');
     if MemoAppr.Lines.Count>1000 then MemoAppr.Clear;
+
     MemoAppr.Lines.Add(SButFitNew.Caption);
     FitFunctionNew.DataToStrings(MemoAppr.Lines);
 
@@ -4458,10 +4460,11 @@ end;
 procedure TForm1.BSaveMemoClick(Sender: TObject);
  var SLResult:TStringList;
      i,j,StartLineNumber,DataLineNumber:integer;
-     Caption,Tstr:string;
+     Caption,Tstr,FileName:string;
      Vector:TVector;
 //     tempDouble:double;
      tempInt:integer;
+     FunctionIsIS:boolean;
 begin
   if MemoAppr.Lines.Count<1 then Exit;
 
@@ -4481,6 +4484,10 @@ begin
    if Tstr <>'0' then
     Caption:=Caption+' T';
 
+   FunctionIsIS:=IndexText(MemoAppr.Lines[StartLineNumber], ISNames) >= 0;
+   if  FunctionIsIS  then Caption:=Caption+' V';
+
+//   для функції 'N Gausian'
    if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
     begin
      tempInt:=(MemoAppr.Lines.Count-StartLineNumber-3) div 5;
@@ -4523,9 +4530,11 @@ begin
      DataLineNumber:=SLResult.Count;
     end;
 
-   Caption:=ChangeFileExt(MemoAppr.Lines[StartLineNumber+1], '');
+   FileName:=ChangeFileExt(MemoAppr.Lines[StartLineNumber+1], '');
+   Caption:=FileName;
    if Tstr<>'0' then
     Caption:=Caption+' '+Tstr;
+   if  FunctionIsIS  then Caption:=Caption+' '+VoltageStrFromISFileName(FileName);
 
    if MemoAppr.Lines[StartLineNumber]=CustomNames[6] then
    begin

@@ -25,7 +25,7 @@ object Form1: TForm1
     Top = 0
     Width = 765
     Height = 626
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -4417,6 +4417,7 @@ object Form1: TForm1
           ReadOnly = True
           ScrollBars = ssVertical
           TabOrder = 0
+          WordWrap = False
         end
         object BApprClear: TButton
           Left = 9
