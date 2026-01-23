@@ -496,7 +496,9 @@ end;
 procedure TFitFunctionNew.FittingToGraphAndFile(InputData: TVector;
                     Series: TChartSeries; SaveFile:boolean=True);
 begin
+//  InputData.AdditionalVector.WriteToFile('5a.dat');
   Fitting(InputData);
+//  InputData.AdditionalVector.WriteToFile('5b.dat');
   if not(fResultsIsReady) then Exit;
 
   RealToGraph(Series);

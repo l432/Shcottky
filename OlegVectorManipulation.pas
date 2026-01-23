@@ -14,17 +14,17 @@ type
   TSplainCoefArray=array of TSplainCoef;
 
 
-    TVectorManipulation=class
-      private
-       procedure SetVector(const Value: TVector);
-      protected
-       fVector:TVector;
-      public
-       property Vector:TVector read fVector write SetVector;
-       Constructor Create(ExternalVector:TVector);overload;
-       Constructor Create();overload;
-       procedure Free;
-    end;
+//    TVectorManipulation=class
+//      private
+//       procedure SetVector(const Value: TVector);
+//      protected
+//       fVector:TVector;
+//      public
+//       property Vector:TVector read fVector write SetVector;
+//       Constructor Create(ExternalVector:TVector);overload;
+//       Constructor Create();overload;
+//       procedure Free;
+//    end;
 
    TProcTarget=Procedure(Target:TVector) of object;
 
@@ -339,31 +339,31 @@ implementation
 uses
   Math, Dialogs, SysUtils, OlegMath;
 
-{ TVectorManipulation }
-
-constructor TVectorManipulation.Create(ExternalVector: TVector);
-begin
-  Create();
-  SetVector(ExternalVector);
-end;
-
-constructor TVectorManipulation.Create;
-begin
-  inherited Create;
-  fVector:=TVector.Create;
-end;
-
-procedure TVectorManipulation.Free;
-begin
- fVector.Free;
- inherited Free;
-end;
-
-
-procedure TVectorManipulation.SetVector(const Value: TVector);
-begin
- Value.CopyTo(fVector);
-end;
+//{ TVectorManipulation }
+//
+//constructor TVectorManipulation.Create(ExternalVector: TVector);
+//begin
+//  Create();
+//  SetVector(ExternalVector);
+//end;
+//
+//constructor TVectorManipulation.Create;
+//begin
+//  inherited Create;
+//  fVector:=TVector.Create;
+//end;
+//
+//procedure TVectorManipulation.Free;
+//begin
+// fVector.Free;
+// inherited Free;
+//end;
+//
+//
+//procedure TVectorManipulation.SetVector(const Value: TVector);
+//begin
+// Value.CopyTo(fVector);
+//end;
 
 { TVectorTransform }
 
@@ -466,7 +466,8 @@ procedure TVectorTransform.CopyDiapazonPoint(Target: TVector;
 begin
  if RewriteTarget then InitTarget(Target);
  Target.T:=InitVector.T;
- Target.AdditionalVector:=InitVector.AdditionalVector;
+ InitVector.AdditionalVector.CopyPointsTo(Target.AdditionalVector);
+// Target.AdditionalVector:=InitVector.AdditionalVector;
  for I := 0 to Self.HighNumber do
    if InitVector.PointInDiapazon(D,i+Self.N_begin)
      then
@@ -777,6 +778,7 @@ begin
   Target.T:=Self.T;
   Target.name:=Self.name;
   Target.N_begin:=Self.N_begin;
+  Self.AdditionalVector.CopyPointsTo(Target.AdditionalVector);
 end;
 
 function TVectorTransform.Isc: double;

@@ -5399,6 +5399,8 @@ function TFFHeuristicParametric.Deviation: double;
   var i:integer;
 begin
   Result:=0;
+//  DataToFit.AdditionalVector.WriteToFile('3.dat');
+//  showmessage(FittingData.XYtoString());
   for I := 0 to fDataToFit.HighNumber
     do FittingData.Add(FuncForFitnessX(fDataToFit[i],fDParamArray.OutputData),
                        FuncForFitness(fDataToFit[i],fDParamArray.OutputData));
@@ -5413,11 +5415,14 @@ procedure TFFHeuristicParametric.RealToFile;
   var Str1:TStringList;
     i:integer;
 begin
+//  showmessage('jj');
   if fIntVars[0]<>0 then FileFilling
                     else
    begin
     Str1:=TStringList.Create;
     Str1.Add('X Y Xfit Yfit');
+//    fDataTofit.WriteToFile('1.dat');
+//    FittingData.WriteToFile('2.dat');
     for I := 0 to fDataToFit.HighNumber do
       Str1.Add(fDataToFit.PoinToString(i,DigitNumber)
                +' '

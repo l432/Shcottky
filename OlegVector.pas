@@ -62,6 +62,7 @@ type
       function  FunVPBDeleteXMoreTnanNumber(PointNumber:integer;NumberForCondition:double=0):boolean;
      protected
       fVector:TVector;
+      constructor CreateInternal;
       procedure PointSet(Number:integer; x,y:double);overload;
        {заповнює координати точки з номером Number,
        але наявність цієї точки в масиві не перевіряється}
@@ -202,6 +203,7 @@ type
       NumberDigit - кількість значущих цифр}
       procedure ReadFromGraph(Series:TCustomSeries);
       procedure WriteToGraph(Series:TChartSeries;Const ALabel: String=''; AColor: TColor=clRed);
+      procedure CopyPointsTo(TargetVector: TVector);
       procedure CopyTo (TargetVector:TVector);
        {копіюються поля з даного вектора в
         уже раніше створений TargetVector}
@@ -334,7 +336,7 @@ var F:TextFile;
 //    i:integer;
     ss, ss1:string;
 begin
-  if not(assigned(fVector)) then fVector:=TVector.Create();
+//  if not(assigned(fVector)) then fVector:=TVector.Create();
   Clear;
   Self.fName:=NameFile;
   if not(FileExists(NameFile)) then Exit;
@@ -800,17 +802,20 @@ begin
 end;
 
 Procedure TVector.CopyTo (TargetVector:TVector);
- var i:integer;
+// var i:integer;
 begin
-  TargetVector.SetLenVector(Self.Count);
-  for I := 0 to High(Self.Points)
-    do TargetVector.PointSet(I,Self.Points[i]);
+
+  CopyPointsTo(TargetVector);
   TargetVector.fT:=Self.fT;
   TargetVector.fname:=Self.fname;
   TargetVector.ftime:=Self.ftime;
   TargetVector.fSegmentBegin:=Self.fSegmentBegin;
-  if Self.fVector<>nil then
-    TargetVector.fVector:=Self.fVector;
+//  if Self.fVector<>nil then
+//    TargetVector.fVector:=Self.fVector;
+  Self.fVector.CopyPointsTo(TargetVector.fVector);
+//  TargetVector.fVector.SetLenVector(Self.fVector.Count);
+//  for I := 0 to High(Self.fVector.Points)
+//    do TargetVector.fVector.PointSet(I,Self.fVector.Points[i]);
 end;
 
 function TVector.CopyToArray(const Coord: TCoord_type): TArrSingle;
@@ -840,6 +845,12 @@ constructor TVector.Create(ExternalVector: TVector);
 begin
   Create();
   CopyFrom(ExternalVector);
+end;
+
+constructor TVector.CreateInternal;
+begin
+  inherited Create;
+  fVector := nil;
 end;
 
 function TVector.CopyXtoPArray():PTArrSingle;
@@ -978,7 +989,8 @@ begin
   Ftime:='';
   fT:=0;
   fSegmentBegin:=0;
-  if assigned(fVector) then fVector.Clear;
+//  if assigned(fVector) then fVector.Clear;
+  fVector.SetLenVector(0);
 end;
 
 Procedure TVector.Filling(Fun:TFun;Xmin,Xmax,
@@ -1022,8 +1034,10 @@ end;
 
 destructor TVector.Destroy;
 begin
- if fVector<>nil then fVector:=nil;
- inherited  Free;
+ FreeAndNil(fVector);
+ inherited Destroy;
+// if fVector<>nil then fVector:=nil;
+// inherited  Free;
 end;
 
 procedure TVector.Filling(Fun: TFunSingle; Xmin, Xmax: Double; Nstep: Integer);
@@ -1104,7 +1118,9 @@ end;
 
 constructor TVector.Create;
 begin
- inherited;
+ inherited Create;
+ fVector := TVector.CreateInternal;
+// inherited;
  Clear();
 end;
 
@@ -1357,6 +1373,16 @@ begin
        if Points[i,Coord]>=q then inc(count);
   Result:=count*100/Self.Count;
 
+end;
+
+
+procedure TVector.CopyPointsTo(TargetVector: TVector);
+var
+  Local_i: Integer;
+begin
+  TargetVector.SetLenVector(Self.Count);
+  for Local_i := 0 to High(Self.Points) do
+    TargetVector.PointSet(Local_i, Self.Points[Local_i]);
 end;
 
 procedure TVector.PointCoordSwap(var Point: TPointDouble);

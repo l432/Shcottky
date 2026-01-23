@@ -2109,7 +2109,7 @@ begin
        ChooseDirect(Form1);
        ChDir(Directory);
        DirName.Caption:=Directory;
-       VaxFile.ReadFromFile(fileName);
+       VaxFile.ReadFromFile(fileName,False);
        if VaxFile.IsEmpty then
            begin
            MessageDlg('File '+VaxGraph.name+' has not correct datas',
@@ -2380,6 +2380,9 @@ begin
     if (FitFunctionNew is TFFSimpleLogEnable) then
         (FitFunctionNew as TFFSimpleLogEnable).SetAxisScale(XLogCheck.Checked,
                                                             YLogCheck.Checked);
+    VaxGraph.WriteToFile('11.dat');
+
+    VaxGraph.AdditionalVector.WriteToFile('10.dat');
     FitFunctionNew.FittingToGraphAndFile(VaxGraph,Series4,CB_SFF.Checked);
 
     if not(FitFunctionNew.ResultsIsReady) then Exit;
@@ -3969,40 +3972,11 @@ var
 
 
 begin
-   Vec:=TVector.Create();
-//   T:=150;
-//   repeat
-//    Vec.Add(T,Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, T),T));
-//    T:=T+5;
-//   until (T>400);
-//    Vec.WriteToFile('Cn_Auger.dat');
-//   Vec.Clear();
-//   T:=150;
-//   repeat
-//    Vec.Add(T,Silicon.Cp_Auger(1.36e21,T));
-//    T:=T+5;
-//   until (T>400);
-//    Vec.WriteToFile('Cp_Auger.dat');
-   T:=300;
-   delN:=18;
-   repeat
-    Vec.Add(Power(10,delN),Silicon.Cn_Auger(Silicon.MinorityN(Power(10,delN), T),T));
-    delN:=delN+0.2;
-   until (delN>24);
-    Vec.WriteToFile('Cn_Auger.dat');
-   Vec.Clear();
-   delN:=18;
-   repeat
-    Vec.Add(Power(10,delN),Silicon.Cp_Auger(Power(10,delN),T));
-    delN:=delN+0.2;
-   until (delN>24);
-    Vec.WriteToFile('Cp_Auger.dat');
 
-   FreeAndNil(Vec);
 
 //showmessage(floattostr(Silicon.Brad(340,1.36e21, False,3.8e-4,False)));
 //showmessage(floattostr(Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, 340),340)));
-//showmessage(VaxFile.AdditionalVector.XYtoString);
+VaxFile.AdditionalVector.WriteToFile('4.dat');
 //AbsorbFileForSCAPS();
 //ForAllDatFilesAction(FirsTNanoW,'D:\SiGe_NWs\','J0Jt');
 //ForAllDatFilesAction(AverageSiNanoW,'D:\SiGe_NWs\','J0Jt');
