@@ -2380,9 +2380,6 @@ begin
     if (FitFunctionNew is TFFSimpleLogEnable) then
         (FitFunctionNew as TFFSimpleLogEnable).SetAxisScale(XLogCheck.Checked,
                                                             YLogCheck.Checked);
-    VaxGraph.WriteToFile('11.dat');
-
-    VaxGraph.AdditionalVector.WriteToFile('10.dat');
     FitFunctionNew.FittingToGraphAndFile(VaxGraph,Series4,CB_SFF.Checked);
 
     if not(FitFunctionNew.ResultsIsReady) then Exit;
