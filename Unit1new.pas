@@ -3970,10 +3970,10 @@ var
 
 begin
 
-
+showmessage(floattostr(Kb*296*ln(Silicon.Nc(296)/2e20)))
 //showmessage(floattostr(Silicon.Brad(340,1.36e21, False,3.8e-4,False)));
 //showmessage(floattostr(Silicon.Cn_Auger(Silicon.MinorityN(1.36e21, 340),340)));
-VaxFile.AdditionalVector.WriteToFile('4.dat');
+//VaxFile.AdditionalVector.WriteToFile('4.dat');
 //AbsorbFileForSCAPS();
 //ForAllDatFilesAction(FirsTNanoW,'D:\SiGe_NWs\','J0Jt');
 //ForAllDatFilesAction(AverageSiNanoW,'D:\SiGe_NWs\','J0Jt');
